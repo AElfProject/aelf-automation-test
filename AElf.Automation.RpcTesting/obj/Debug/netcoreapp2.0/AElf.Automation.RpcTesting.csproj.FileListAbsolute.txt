@@ -1,0 +1,17 @@
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.deps.json
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.runtimeconfig.json
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.runtimeconfig.dev.json
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.pdb
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.Common.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/bin/Debug/netcoreapp2.0/AElf.Automation.Common.pdb
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.csprojAssemblyReference.cache
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.csproj.CoreCompileInputs.cache
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.AssemblyInfoInputs.cache
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.AssemblyInfo.cs
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.csproj.CopyComplete
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.dll
+/Users/ericshu/Github/aelf-automation-test/AElf.Automation.RpcTesting/obj/Debug/netcoreapp2.0/AElf.Automation.RpcTesting.pdb

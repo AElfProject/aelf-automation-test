@@ -1,0 +1,55 @@
+﻿{
+  "version": "1.0.0",
+  "restore": {
+    "projectUniqueName": "/Users/ericshu/Github/aelf-automation-test/AElf.Automation.Common/AElf.Automation.Common.csproj",
+    "projectName": "AElf.Automation.Common",
+    "projectPath": "/Users/ericshu/Github/aelf-automation-test/AElf.Automation.Common/AElf.Automation.Common.csproj",
+    "outputPath": "/Users/ericshu/Github/aelf-automation-test/AElf.Automation.Common/obj/",
+    "projectStyle": "PackageReference",
+    "fallbackFolders": [
+      "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+    ],
+    "originalTargetFrameworks": [
+      "netcoreapp2.0"
+    ],
+    "frameworks": {
+      "netcoreapp2.0": {
+        "projectReferences": {}
+      }
+    },
+    "warningProperties": {
+      "warnAsError": [
+        "NU1605"
+      ]
+    }
+  },
+  "frameworks": {
+    "netcoreapp2.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "suppressParent": "All",
+          "target": "Package",
+          "version": "[2.0.0, )",
+          "autoReferenced": true
+        },
+        "NServiceKit.Redis": {
+          "target": "Package",
+          "version": "[1.0.20, )"
+        },
+        "Newtonsoft.Json": {
+          "target": "Package",
+          "version": "[11.0.2, )"
+        },
+        "ServiceStack.Redis": {
+          "target": "Package",
+          "version": "[5.1.0, )"
+        }
+      },
+      "imports": [
+        "net461"
+      ],
+      "assetTargetFallback": true,
+      "warn": true
+    }
+  }
+}
