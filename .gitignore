@@ -11,6 +11,7 @@
 *.userprefs
 
 # Build results
+Debug
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -18,7 +19,9 @@
 x64/
 x86/
 bld/
+bin
 [Bb]in/
+obj
 [Oo]bj/
 [Ll]og/
 
