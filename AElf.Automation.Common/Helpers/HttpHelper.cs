@@ -86,9 +86,9 @@ namespace AElf.Automation.Common.Helpers
 
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            httpContent.Headers.ContentType.CharSet = "utf-8";
 
             HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.Timeout = TimeSpan.FromMinutes(10);
 
             HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;

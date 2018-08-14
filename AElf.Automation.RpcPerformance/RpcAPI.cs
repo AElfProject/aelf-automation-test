@@ -3,6 +3,7 @@ using AElf.Automation.CliTesting.AutoTest;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -372,12 +373,12 @@ namespace AElf.Automation.RpcPerformance
             string returnCode = string.Empty;
             var request = new RpcRequest(RpcUrl);
             Console.WriteLine("Start send thread {0} rpc request at {1}", threadNo, DateTime.Now.ToString());
-            for(int i=0; i<(rpcRequest.Count/100); i++)
-            {
-                string response = request.PostRequest("broadcast_txs", rpcRequest.GetRange(i*100, 100), out returnCode);
-                Thread.Sleep(20);
-            }
-            //string response = request.PostRequest("broadcast_txs", rpcRequest, out returnCode);
+            //for(int i=0; i<(rpcRequest.Count/100); i++)
+            //{
+            //    string response = request.PostRequest("broadcast_txs", rpcRequest.GetRange(i*100, 100), out returnCode);
+            //    Thread.Sleep(20);
+            //}
+            string response = request.PostRequest("broadcast_txs", rpcRequest, out returnCode);
 
             Console.WriteLine("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
