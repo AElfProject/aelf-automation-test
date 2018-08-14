@@ -50,6 +50,7 @@ namespace AElf.Automation.RpcPerformance
         public List<string> TxIdList { get; set; }
         public int ThreadCount { get; set; }
         public int ExeTimes { get; set; }
+        public ConcurrentQueue<string> ContractRpcList { get; set; }
         #endregion
 
         public RpcAPI(int threadCount, 
@@ -63,6 +64,7 @@ namespace AElf.Automation.RpcPerformance
             RequestList = new List<CommandRequest>();
             AccountList = new List<AccountInfo>();
             ContractList = new List<Contract>();
+            ContractRpcList = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
@@ -381,6 +383,89 @@ namespace AElf.Automation.RpcPerformance
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
         }
 
+        public void GenerateRpcList(int threadNo, int times)
+        {
+            string account = AccountList[ContractList[threadNo].AccountId].Account;
+            string abiPath = ContractList[threadNo].AbiPath;
+
+            //Get Increment info
+            CommandRequest accountReq = new CommandRequest("get_increment", $"get_increment {account}");
+            accountReq.Result = Instance.ExecuteCommandWithPerformance(accountReq.Command, out accountReq.InfoMessage, out accountReq.ErrorMessage, out accountReq.TimeInfo);
+            RequestList.Add(accountReq);
+            Assert.IsTrue(accountReq.Result);
+            string increNo = accountReq.InfoMessage;
+            int number = Int32.Parse(increNo);
+
+            HashSet<int> set = new HashSet<int>();
+
+            for (int i = 0; i < times; i++)
+            {
+                Random rd = new Random(DateTime.Now.Millisecond);
+                int randNumber = rd.Next(ThreadCount, AccountList.Count);
+                int countNo = randNumber;
+                set.Add(countNo);
+                string account1 = AccountList[countNo].Account;
+                AccountList[countNo].Increment++;
+
+                //Execute Transfer
+                string parameterinfo = "{\"from\":\"" + account +
+                              "\",\"to\":\"" + abiPath +
+                              "\",\"method\":\"Transfer\",\"incr\":\"" +
+                              number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
+                CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
+                string requestInfo = Instance.GetRpcRequestInformation(exeReq.Command);
+                ContractRpcList.Enqueue(requestInfo);
+                number++;
+
+                //Get Balance Info
+                parameterinfo = "{\"from\":\"" + account +
+                                       "\",\"to\":\"" + abiPath +
+                                       "\",\"method\":\"GetBalance\",\"incr\":\"" +
+                                       number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                CommandRequest queryReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
+                requestInfo = Instance.GetRpcRequestInformation(queryReq.Command);
+                ContractRpcList.Enqueue(requestInfo);
+                number++;
+            }
+        }
+        
+        public void ExecuteOneRpcTask()
+        {
+            string rpcMsg = string.Empty;
+            while (true)
+            {
+                if (!ContractRpcList.TryDequeue(out rpcMsg))
+                    break;
+                Console.WriteLine("ContractRpcList:{0}", ContractRpcList.Count);
+                string returnCode = string.Empty;
+                var request = new RpcRequest(RpcUrl);
+                string parameter = "{\"rawtx\":\"" + rpcMsg + "\"}";
+                string response = request.PostRequest("broadcast_tx", parameter, out returnCode);
+            }
+        }
+
+        public void ExecuteMultiTask(int threadCount =4)
+        {
+            Console.WriteLine("Begin generate multi rpc requests.");
+            List<Task> genRpcTasks = new List<Task>();
+            for(int i=0; i<ThreadCount; i++)
+            {
+                var j = i;
+                genRpcTasks.Add(Task.Run(()=>GenerateRpcList(j, ExeTimes)));
+            }
+            Task.WaitAll(genRpcTasks.ToArray<Task>());
+
+            Console.WriteLine("Begin execute multi rpc contracts.");
+            List<Task> contractTasks = new List<Task>();
+            for (int i = 0; i < threadCount; i++)
+            {
+                var j = i;
+                contractTasks.Add(Task.Run(() => ExecuteOneRpcTask()));
+            }
+
+            Task.WaitAll(contractTasks.ToArray<Task>());
+        }
+        
         #region Private Method
         private void CheckResultStatus(List<string> idList)
         {

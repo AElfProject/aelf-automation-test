@@ -23,7 +23,7 @@ namespace AElf.Automation.CliTesting.Http
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/");
             request.Content = new StringContent(content, Encoding.UTF8, "application/json");
-
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             string result = null;
             try
             {
@@ -42,7 +42,9 @@ namespace AElf.Automation.CliTesting.Http
         public string DoRequest(string content, out long mileSecond)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/");
-            request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            var c = new StringContent(content);
+            c.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+            request.Content = c;
 
             string result = null;
             mileSecond = 0;

@@ -35,8 +35,10 @@ namespace AElf.Automation.RpcPerformance
             performance.LoadAllContractAbi();
             Console.WriteLine("Whether run batch mode(yes/no):");
             string runType = Console.ReadLine();
-            if(runType.Trim().ToLower() == "yes")
+            if (runType.Trim().ToLower() == "yes")
                 performance.ExecuteContractsRpc();
+            else if (runType.Trim().ToLower() == "avage")
+                performance.ExecuteMultiTask();
             else
                 performance.ExecuteContracts();
 
