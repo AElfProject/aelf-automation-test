@@ -368,7 +368,6 @@ namespace AElf.Automation.RpcPerformance
                 rpcRequest.Add(requestInfo);
                 number++;
             }
- 
             Console.WriteLine("Thread [{0}] contracts rpc list from account :{1} and contract abi: {2} generated completed.",threadNo, account, abiPath);
             //Send RPC Request
             string returnCode = string.Empty;
@@ -381,8 +380,14 @@ namespace AElf.Automation.RpcPerformance
             //}
             string response = request.PostRequest("broadcast_txs", rpcRequest, out returnCode);
             var result = JsonConvert.DeserializeObject<JObject>(response);
-            Console.WriteLine("Pass count: {0}", result["pass_count"]);
-
+            Console.WriteLine("Batch request count: {0}, Pass count: {0} at {1}", rpcRequest.Count, result["result"]["pass_count"], DateTime.Now.ToString("HH:mm:ss.fff"));
+            //Add summary info
+            for(int i=0; i<Int32.Parse(result["result"]["pass_count"].ToString()); i++)
+            {
+                var cr = new CommandRequest("broadcast_tx", "broadcast_tx");
+                cr.Result = true;
+                RequestList.Add(cr);
+            }
             Console.WriteLine("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
         }
@@ -445,11 +450,11 @@ namespace AElf.Automation.RpcPerformance
                 var request = new RpcRequest(RpcUrl);
                 string parameter = "{\"rawtx\":\"" + rpcMsg + "\"}";
                 string response = request.PostRequest("broadcast_tx", parameter, out returnCode);
-                Thread.Sleep(20);
+                Thread.Sleep(50);
             }
         }
 
-        public void ExecuteMultiTask(int threadCount =8)
+        public void ExecuteMultiTask(int threadCount =4)
         {
             Console.WriteLine("Begin generate multi rpc requests.");
             List<Task> genRpcTasks = new List<Task>();
