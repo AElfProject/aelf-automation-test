@@ -380,7 +380,7 @@ namespace AElf.Automation.RpcPerformance
             //}
             string response = request.PostRequest("broadcast_txs", rpcRequest, out returnCode);
             var result = JsonConvert.DeserializeObject<JObject>(response);
-            Console.WriteLine("Batch request count: {0}, Pass count: {0} at {1}", rpcRequest.Count, result["result"]["pass_count"], DateTime.Now.ToString("HH:mm:ss.fff"));
+            Console.WriteLine("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result["result"]["pass_count"], DateTime.Now.ToString("HH:mm:ss.fff"));
             //Add summary info
             for(int i=0; i<Int32.Parse(result["result"]["pass_count"].ToString()); i++)
             {
