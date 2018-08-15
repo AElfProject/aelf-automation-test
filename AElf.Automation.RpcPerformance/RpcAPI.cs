@@ -449,7 +449,7 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void ExecuteMultiTask(int threadCount =4)
+        public void ExecuteMultiTask(int threadCount =8)
         {
             Console.WriteLine("Begin generate multi rpc requests.");
             List<Task> genRpcTasks = new List<Task>();
