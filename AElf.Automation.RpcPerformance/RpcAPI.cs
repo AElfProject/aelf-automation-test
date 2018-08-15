@@ -2,13 +2,14 @@
 using AElf.Automation.CliTesting.AutoTest;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -379,6 +380,8 @@ namespace AElf.Automation.RpcPerformance
             //    Thread.Sleep(20);
             //}
             string response = request.PostRequest("broadcast_txs", rpcRequest, out returnCode);
+            var result = JsonConvert.DeserializeObject<JObject>(response);
+            Console.WriteLine("Pass count: {0}", result["pass_count"]);
 
             Console.WriteLine("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
@@ -442,6 +445,7 @@ namespace AElf.Automation.RpcPerformance
                 var request = new RpcRequest(RpcUrl);
                 string parameter = "{\"rawtx\":\"" + rpcMsg + "\"}";
                 string response = request.PostRequest("broadcast_tx", parameter, out returnCode);
+                Thread.Sleep(20);
             }
         }
 
