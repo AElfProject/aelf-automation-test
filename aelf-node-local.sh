@@ -19,9 +19,8 @@ then
 	echo ">>Pull and build aelf files"
 	cd $BaseDir/github/AElf
 	sudo git pull
-	sudo dotnet restore
-	sudo dotnet build
-	sudo dotnet publish --configuration Release -o $BaseDir/github/AElfRelease
+	sudo git pull
+	sudo dotnet publish -nowarn:CS0108,CS0162,CS0168,CS0169,CS0219,CS0414,CS0649,CS0659,CS1998,CS2002,CS4014,NU1603,NU1701,MSB3245,MSB3026,xUnit1013,xUnit2000,xUnit2000,xUnit2002,xUnit2009,xUnit2013,xUnit2017 --configuration Release -o $BaseDir/github/AElfRelease
 else
 	echo "No code updated."
 fi
