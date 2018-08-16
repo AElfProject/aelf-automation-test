@@ -3,7 +3,7 @@ echo "Clean test db environment"
 sudo redis-cli flushdb
 BaseDir='/home/aelf'
 read -p "Input test folder(default is /home/aelf):" InputDir
-if [ -d $InputDir ]
+if [ -n "$InputDir" -a -d "$InputDir" ]
 then
 	echo "Use Input testing dir"
 	BaseDir=$InputDir
