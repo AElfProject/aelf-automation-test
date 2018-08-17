@@ -64,3 +64,4 @@ else
 	read -p "Input main node rpc info like(192.168.197.34:6800):" MainNode 
 	echo "sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode"
 	sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode
+fi
