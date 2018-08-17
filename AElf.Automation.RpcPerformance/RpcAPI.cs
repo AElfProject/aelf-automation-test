@@ -317,8 +317,8 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(20);
             }
             Console.WriteLine("Total contract sent: {0}, passed number: {1}", 2*times, passCount);
-            //txIdList.Reverse();
-            //CheckResultStatus(txIdList);
+            txIdList.Reverse();
+            CheckResultStatus(txIdList);
             //Console.WriteLine("All contracts from account :{0} and contract abi: {1} executed completed.", account, abiPath);
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
         }
