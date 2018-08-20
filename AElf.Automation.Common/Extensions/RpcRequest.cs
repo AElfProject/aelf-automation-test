@@ -17,6 +17,11 @@ namespace AElf.Automation.Common.Extensions
             //RpcBody = string.Format("{\"jsonrpc\":\"2.0\",\"method\":\"{0}\",\"params\":{{1}},\"id\":0}", RpcMethod, RpcParameter);
         }
 
+        public string PostRequest(string body, out string returnCode)
+        {
+            return HttpHelper.PostResponse(RpcUrl, body, out returnCode);
+        }
+
         public string PostRequest(string method, string parameter, out string returnCode)
         {
             RpcMethod = method;

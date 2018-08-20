@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,15 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NServiceKit.Redis" Version="1.0.20" />
+    <PackageReference Include="protobuf-net" Version="2.3.17" />
     <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AElf\AElf.ABI.CSharp\AElf.ABI.CSharp.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Cryptography\AElf.Cryptography.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Kernel\AElf.Kernel.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Types.CSharp\AElf.Types.CSharp.csproj" />
   </ItemGroup>
 
 </Project>
