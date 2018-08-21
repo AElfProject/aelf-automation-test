@@ -18,9 +18,19 @@ namespace AElf.Automation.Common.Extensions
         private AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
 
+        public TransactionManager(AElfKeyStore keyStore)
+        {
+            _keyStore = keyStore;
+        }
+        
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
         {
             _keyStore = keyStore;
+            _cmdInfo = ci;
+        }
+
+        public void SetCmdInfo(CommandInfo ci)
+        {
             _cmdInfo = ci;
         }
 
@@ -75,7 +85,7 @@ namespace AElf.Automation.Common.Extensions
             return tx;
         }
 
-        public JObject ConvertTransactionRequestBody(Transaction tx)
+        public JObject ConvertTransactionRawTx(Transaction tx)
         {
             MemoryStream ms = new MemoryStream();
             Serializer.Serialize(ms, tx);
@@ -83,9 +93,8 @@ namespace AElf.Automation.Common.Extensions
             byte[] b = ms.ToArray();
             string payload = b.ToHex();
             var reqParams = new JObject { ["rawtx"] = payload };
-            var req = CreateRequest(reqParams, "broadcast_tx", 1);
 
-            return req;
+            return reqParams;
         }
 
         public Transaction ConvertFromJson(JObject j)
@@ -106,19 +115,6 @@ namespace AElf.Automation.Common.Extensions
 
                 return null;
             }
-        }
-
-        private JObject CreateRequest(JObject requestData, string method, int id)
-        {
-            JObject jObj = new JObject
-            {
-                ["jsonrpc"] = "2.0",
-                ["id"] = id,
-                ["method"] = method,
-                ["params"] = requestData
-            };
-
-            return jObj;
         }
     }
 }

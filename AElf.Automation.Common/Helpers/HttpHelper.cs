@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -103,6 +104,44 @@ namespace AElf.Automation.Common.Helpers
             return null;
         }
 
+        public static string PostResponse(string url, string postData, out string statusCode, out long timeSpan)
+        {
+            timeSpan = 0;
+            statusCode = string.Empty;
+            
+            if (url.StartsWith("https"))
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+
+            HttpContent httpContent = new StringContent(postData);
+            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.Timeout = TimeSpan.FromMinutes(10);
+            Stopwatch exec = new Stopwatch();
+            try
+            {
+                exec.Start();
+                HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
+                statusCode = response.StatusCode.ToString();
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = response.Content.ReadAsStringAsync().Result;
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                exec.Stop();
+                timeSpan = exec.ElapsedMilliseconds;
+            }
+
+            return null;
+        }
         /// <summary>
         /// 发起post请求
         /// </summary>

@@ -1,5 +1,5 @@
-﻿using AElf.Automation.CliTesting.AutoTest;
-using System;
+﻿using System;
+using AElf.Automation.Common.Extensions;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -43,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
                 performance.ExecuteContracts();
 
             //Result summary
-            CategoryInfoSet set = new CategoryInfoSet(performance.RequestList);
+            CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             set.SaveTestResultXml(performance.ThreadCount);

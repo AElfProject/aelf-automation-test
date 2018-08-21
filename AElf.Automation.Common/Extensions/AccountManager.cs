@@ -44,6 +44,7 @@ namespace AElf.Automation.Common.Extensions
             var result = new CommandInfo("account list", "account");
             if (password == "")
                 password = AskInvisible("password:");
+            result.Parameter = string.Format("{0} {1} {2}", address, password, notimeout);
             var accounts = _keyStore.ListAccounts();
             if (accounts == null || accounts.Count == 0)
             {

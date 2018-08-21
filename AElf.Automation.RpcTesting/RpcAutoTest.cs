@@ -20,7 +20,7 @@ namespace AElf.Automation.RpcTesting
             string parameter = "{}";
             string code = string.Empty;
 
-            var request = new RpcRequest(url);
+            var request = new RpcRequestManager(url);
             string response = request.PostRequest(method, parameter, out code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
@@ -36,7 +36,7 @@ namespace AElf.Automation.RpcTesting
             string parameter = "{\"block_height\":\"" + height + "\"}";
             string code = string.Empty;
 
-            var request = new RpcRequest(url);
+            var request = new RpcRequestManager(url);
             string response = request.PostRequest(method, parameter, out code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
@@ -54,7 +54,7 @@ namespace AElf.Automation.RpcTesting
                 string parameter = "{}";
                 string code = string.Empty;
 
-                var request = new RpcRequest(rpcUrl);
+                var request = new RpcRequestManager(rpcUrl);
                 string response = request.PostRequest(method, parameter, out code);
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
@@ -70,7 +70,7 @@ namespace AElf.Automation.RpcTesting
                 parameter = "{\"block_height\":\"" + count + "\"}";
                 code = string.Empty;
 
-                request = new RpcRequest(rpcUrl);
+                request = new RpcRequestManager(rpcUrl);
                 response = request.PostRequest(method, parameter, out code);
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
@@ -96,7 +96,7 @@ namespace AElf.Automation.RpcTesting
                 string parameter = "{\"block_height\":\"" + height + "\"}";
                 string code = string.Empty;
 
-                var request = new RpcRequest(url);
+                var request = new RpcRequestManager(url);
                 string response = request.PostRequest(method, parameter, out code);
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
@@ -128,7 +128,7 @@ namespace AElf.Automation.RpcTesting
             string parameter = "{}";
             string code = string.Empty;
 
-            var request = new RpcRequest(url1);
+            var request = new RpcRequestManager(url1);
             string response = request.PostRequest(method, parameter, out code);
             var result = JObject.Parse(response);
 
@@ -141,8 +141,8 @@ namespace AElf.Automation.RpcTesting
                 parameter = "{\"block_height\":\"" + i + "\"}";
                 string code1 = string.Empty;
                 string code2 = string.Empty;
-                var request1= new RpcRequest(url1);
-                var request2 = new RpcRequest(url2);
+                var request1= new RpcRequestManager(url1);
+                var request2 = new RpcRequestManager(url2);
 
                 string response1 = request.PostRequest(method, parameter, out code1);
                 string response2 = request.PostRequest(method, parameter, out code2);
@@ -163,7 +163,7 @@ namespace AElf.Automation.RpcTesting
             string parameter = "{}";
             string code = string.Empty;
 
-            var request = new RpcRequest(url1);
+            var request = new RpcRequestManager(url1);
             string response = request.PostRequest(method, parameter, out code);
             var result = JObject.Parse(response);
 
@@ -176,8 +176,8 @@ namespace AElf.Automation.RpcTesting
                 parameter = "{\"block_height\":\"" + i + "\"}";
                 string code1 = string.Empty;
                 string code2 = string.Empty;
-                var request1 = new RpcRequest(url1);
-                var request2 = new RpcRequest(url2);
+                var request1 = new RpcRequestManager(url1);
+                var request2 = new RpcRequestManager(url2);
 
                 string response1 = request.PostRequest(method, parameter, out code1);
                 string response2 = request.PostRequest(method, parameter, out code2);
@@ -219,7 +219,7 @@ namespace AElf.Automation.RpcTesting
 
                 try
                 {
-                    var request = new RpcRequest(url);
+                    var request = new RpcRequestManager(url);
                     string response = request.PostRequest(method, parameter, out code);
                     Console.WriteLine($"Key {count} : {item}");
                     Console.WriteLine(response);
@@ -347,7 +347,7 @@ namespace AElf.Automation.RpcTesting
                     string parameter1 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue1 + "\"}";
                     string code1 = string.Empty;
 
-                    var request1 = new RpcRequest(url1);
+                    var request1 = new RpcRequestManager(url1);
                     string response1 = request1.PostRequest(method, parameter1, out code1);
                     Console.WriteLine("Db1 rpc data:\r\n" + response1);
                     var result1 = JObject.Parse(response1);
@@ -361,7 +361,7 @@ namespace AElf.Automation.RpcTesting
                     string parameter2 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue2 + "\"}";
                     string code2 = string.Empty;
 
-                    var request2 = new RpcRequest(url2);
+                    var request2 = new RpcRequestManager(url2);
                     string response2 = request2.PostRequest(method, parameter2, out code2);
                     Console.WriteLine("Db2 rpc data:\r\n" + response2);
                     var result2 = JObject.Parse(response2);
@@ -379,7 +379,7 @@ namespace AElf.Automation.RpcTesting
                     string parameter3 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue3 + "\"}";
                     string code3 = string.Empty;
 
-                    var request3 = new RpcRequest(url3);
+                    var request3 = new RpcRequestManager(url3);
                     string response3 = request3.PostRequest(method, parameter3, out code3);
                     Console.WriteLine("Db3 rpc data:\r\n" + response3);
                     var result3 = JObject.Parse(response3);
