@@ -1,12 +1,12 @@
 #!/bin/bash
-echogreen(){
+function echogreen(){
 	MSG=$1
     COLOER=`echo $1|sed 's#^.*\[\(.*\)\].*#\1#g'`
     BASE=`echo $1|sed 's#\(^.*\)\[.*]#\1#g'`
 	echo -e "${BASE} [\e[0;31;1m  $COLOER  \e[0m]"
 }
 
-echored(){
+function echored(){
     MSG=$1
     COLOER=`echo $1|sed 's#^.*\[\(.*\)\].*#\1#g'`
     BASE=`echo $1|sed 's#\(^.*\)\[.*]#\1#g'`
