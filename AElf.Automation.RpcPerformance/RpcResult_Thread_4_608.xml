@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RpcApiResults ThreadCount="4">
+  <RpcApi Category="account" TotalTimes="1005" AvageTime="0">
+    <TotalExeTime>0</TotalExeTime>
+    <PassCount>1005</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="connect_chain" TotalTimes="1" AvageTime="210">
+    <TotalExeTime>210</TotalExeTime>
+    <PassCount>1</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="deploy_contract" TotalTimes="4" AvageTime="44">
+    <TotalExeTime>179</TotalExeTime>
+    <PassCount>4</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="get_tx_result" TotalTimes="128" AvageTime="68">
+    <TotalExeTime>8722</TotalExeTime>
+    <PassCount>128</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="get_increment" TotalTimes="8" AvageTime="129">
+    <TotalExeTime>1034</TotalExeTime>
+    <PassCount>8</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="load_contract_abi" TotalTimes="8" AvageTime="28">
+    <TotalExeTime>228</TotalExeTime>
+    <PassCount>8</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="broadcast_tx" TotalTimes="4" AvageTime="47">
+    <TotalExeTime>191</TotalExeTime>
+    <PassCount>4</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+  <RpcApi Category="broadcast_txs" TotalTimes="4" AvageTime="220">
+    <TotalExeTime>883</TotalExeTime>
+    <PassCount>4</PassCount>
+    <FailCount>0</FailCount>
+  </RpcApi>
+</RpcApiResults>

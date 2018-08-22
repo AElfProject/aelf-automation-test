@@ -1,0 +1,3 @@
+[submodule "AElf"]
+	path = AElf
+	url = https://github.com/AElfProject/AElf

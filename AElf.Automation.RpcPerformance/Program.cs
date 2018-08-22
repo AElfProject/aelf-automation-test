@@ -1,5 +1,6 @@
-﻿using AElf.Automation.CliTesting.AutoTest;
-using System;
+﻿using System;
+using AElf.Automation.Common.Extensions;
+using ServiceStack.Text;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -33,23 +34,51 @@ namespace AElf.Automation.RpcPerformance
             performance.DeployContract();
             performance.InitializeContract();
             performance.LoadAllContractAbi();
-            Console.WriteLine("Whether run batch mode(yes/no):");
-            string runType = Console.ReadLine();
-            if (runType.Trim().ToLower() == "yes")
-                performance.ExecuteContractsRpc();
-            else if (runType.Trim().ToLower() == "avage")
-                performance.ExecuteMultiTask();
-            else
-                performance.ExecuteContracts();
-
+            ExecuteRpcTask(performance);
+            
             //Result summary
-            CategoryInfoSet set = new CategoryInfoSet(performance.RequestList);
+            CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             set.SaveTestResultXml(performance.ThreadCount);
 
             Console.WriteLine("Complete performance testing.");
             Console.ReadLine();
+        }
+
+        private static void ExecuteRpcTask(RpcAPI performance)
+        {
+            Console.WriteLine("Select execution type:");
+            Console.WriteLine("1. Normal mode");
+            Console.WriteLine("2. Avage mode");
+            Console.WriteLine("3. Batch mode");
+            Console.Write("Input selection: ");
+            string runType = Console.ReadLine();
+            int result = 0;
+            bool check = Int32.TryParse(runType, out result);
+            if (!check)
+            {
+                Console.WriteLine("Wrong input, please input again.");
+                ExecuteRpcTask(performance);
+            }
+
+            switch (result)
+            {
+                    case 1:
+                        performance.ExecuteContracts();
+                        break;
+                    case 2:
+                        performance.ExecuteMultiTask();
+                        break;
+                    case 3:
+                        performance.ExecuteContractsRpc();
+                        break;
+                    default:
+                        Console.WriteLine("Wrong input, please input again.");
+                        ExecuteRpcTask(performance);
+                        break;
+            }
+            performance.PrintContractInfo();
         }
     }
 }
