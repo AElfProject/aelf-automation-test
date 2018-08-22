@@ -609,6 +609,17 @@ namespace AElf.Automation.RpcPerformance
                 return null;
             }
         }
+
+        public void PrintContractInfo()
+        {
+            Console.WriteLine("Execution account and contract abi information:");
+            int count = 0;
+            foreach (var item in ContractList)
+            {
+                count++;
+                Console.WriteLine("{0:00}. Account: {1}, AbiPath:{2}",count, AccountList[item.AccountId].Account, item.AbiPath);                
+            }
+        }
         #endregion
     }
 }

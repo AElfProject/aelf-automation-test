@@ -5,38 +5,38 @@
     <PassCount>1005</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="connect_chain" TotalTimes="1" AvageTime="186">
-    <TotalExeTime>186</TotalExeTime>
+  <RpcApi Category="connect_chain" TotalTimes="1" AvageTime="210">
+    <TotalExeTime>210</TotalExeTime>
     <PassCount>1</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="deploy_contract" TotalTimes="4" AvageTime="25">
-    <TotalExeTime>100</TotalExeTime>
+  <RpcApi Category="deploy_contract" TotalTimes="4" AvageTime="44">
+    <TotalExeTime>179</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="get_tx_result" TotalTimes="128" AvageTime="54">
-    <TotalExeTime>7033</TotalExeTime>
+  <RpcApi Category="get_tx_result" TotalTimes="128" AvageTime="68">
+    <TotalExeTime>8722</TotalExeTime>
     <PassCount>128</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="get_increment" TotalTimes="8" AvageTime="145">
-    <TotalExeTime>1165</TotalExeTime>
+  <RpcApi Category="get_increment" TotalTimes="8" AvageTime="129">
+    <TotalExeTime>1034</TotalExeTime>
     <PassCount>8</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="load_contract_abi" TotalTimes="8" AvageTime="22">
-    <TotalExeTime>182</TotalExeTime>
+  <RpcApi Category="load_contract_abi" TotalTimes="8" AvageTime="28">
+    <TotalExeTime>228</TotalExeTime>
     <PassCount>8</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="broadcast_tx" TotalTimes="4" AvageTime="39">
-    <TotalExeTime>157</TotalExeTime>
+  <RpcApi Category="broadcast_tx" TotalTimes="4" AvageTime="47">
+    <TotalExeTime>191</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="broadcast_txs" TotalTimes="4" AvageTime="239">
-    <TotalExeTime>957</TotalExeTime>
+  <RpcApi Category="broadcast_txs" TotalTimes="4" AvageTime="220">
+    <TotalExeTime>883</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>

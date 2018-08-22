@@ -78,6 +78,7 @@ namespace AElf.Automation.RpcPerformance
                         ExecuteRpcTask(performance);
                         break;
             }
+            performance.PrintContractInfo();
         }
     }
 }
