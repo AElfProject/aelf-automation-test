@@ -417,13 +417,13 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                string requestInfo = Instance.GetRpcRequestInformation(exeReq.Command);
-                rpcRequest.Add(requestInfo);
+                //CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
+                //string requestInfo = Instance.GetRpcRequestInformation(exeReq.Command);
+                //rpcRequest.Add(requestInfo);
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
-                CH.ExecuteCommand(ci);
-                
+                string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
+                rpcRequest.Add(requestInfo);
                 number++;
 
                 //Get Balance Info
@@ -451,9 +451,8 @@ namespace AElf.Automation.RpcPerformance
             ci.Parameter = ci.Parameter.Substring(1);
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result);
-            ci.GetJsonInfo();
-            var result = ci.JsonInfo;
-            Console.WriteLine("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result["result"]["pass_count"], DateTime.Now.ToString("HH:mm:ss.fff"));
+            var result = ci.InfoMsg[0].Replace("[", "").Replace("]", "").Split(",");
+            Console.WriteLine("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result.Length, DateTime.Now.ToString("HH:mm:ss.fff"));
             Console.WriteLine("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
         }
