@@ -44,6 +44,5 @@ namespace AElf.Automation.Common.Protobuf
     {
         ContractTransaction = 0,
         DposTransaction = 1,
-
     }
 }

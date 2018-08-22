@@ -21,7 +21,6 @@ namespace AElf.Automation.Common.Extensions
         public string PostRequest(string body, out string returnCode, out long timeSpan)
         {
             timeSpan = 0;
-            
             return HttpHelper.PostResponse(RpcUrl, body, out returnCode, out timeSpan);
         }
 

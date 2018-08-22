@@ -64,7 +64,10 @@ namespace AElf.Automation.Common.Extensions
             ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
 
             if (kp == null)
+            {
                 Console.WriteLine("The following account is locked:" + addr);
+                return null;
+            }
 
             MemoryStream ms = new MemoryStream();
             Serializer.Serialize(ms, tx);

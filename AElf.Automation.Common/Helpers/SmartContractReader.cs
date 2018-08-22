@@ -44,7 +44,6 @@ namespace AElf.Automation.Common.Helpers
         {
             string dirPath = GetKeystoreDirectoryPath();
             string filePath = Path.Combine(dirPath, address);
-            //string filePathWithExtension = Path.ChangeExtension(filePath, ContractExtension);
 
             string filePathWithExtension = filePath + ContractExtension;
 

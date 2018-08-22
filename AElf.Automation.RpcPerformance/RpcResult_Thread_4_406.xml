@@ -5,38 +5,38 @@
     <PassCount>1005</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="connect_chain" TotalTimes="1" AvageTime="210">
-    <TotalExeTime>210</TotalExeTime>
+  <RpcApi Category="connect_chain" TotalTimes="1" AvageTime="186">
+    <TotalExeTime>186</TotalExeTime>
     <PassCount>1</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="deploy_contract" TotalTimes="4" AvageTime="65">
-    <TotalExeTime>262</TotalExeTime>
+  <RpcApi Category="deploy_contract" TotalTimes="4" AvageTime="25">
+    <TotalExeTime>100</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="get_tx_result" TotalTimes="123" AvageTime="73">
-    <TotalExeTime>9064</TotalExeTime>
-    <PassCount>123</PassCount>
+  <RpcApi Category="get_tx_result" TotalTimes="128" AvageTime="54">
+    <TotalExeTime>7033</TotalExeTime>
+    <PassCount>128</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
   <RpcApi Category="get_increment" TotalTimes="8" AvageTime="145">
-    <TotalExeTime>1161</TotalExeTime>
+    <TotalExeTime>1165</TotalExeTime>
     <PassCount>8</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="load_contract_abi" TotalTimes="8" AvageTime="20">
-    <TotalExeTime>163</TotalExeTime>
+  <RpcApi Category="load_contract_abi" TotalTimes="8" AvageTime="22">
+    <TotalExeTime>182</TotalExeTime>
     <PassCount>8</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="broadcast_tx" TotalTimes="4" AvageTime="40">
-    <TotalExeTime>160</TotalExeTime>
+  <RpcApi Category="broadcast_tx" TotalTimes="4" AvageTime="39">
+    <TotalExeTime>157</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>
-  <RpcApi Category="broadcast_txs" TotalTimes="4" AvageTime="215">
-    <TotalExeTime>860</TotalExeTime>
+  <RpcApi Category="broadcast_txs" TotalTimes="4" AvageTime="239">
+    <TotalExeTime>957</TotalExeTime>
     <PassCount>4</PassCount>
     <FailCount>0</FailCount>
   </RpcApi>

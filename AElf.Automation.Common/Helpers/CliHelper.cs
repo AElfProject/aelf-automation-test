@@ -107,7 +107,8 @@ namespace AElf.Automation.Common.Helpers
             return ci;
         }
         
-        //Rpc request methods
+        #region Rpc request methods
+        
         public void RpcConnectChain(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), "connect_chain", 1);
@@ -206,7 +207,11 @@ namespace AElf.Automation.Common.Helpers
             Transaction tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
                 "DeploySmartContract", serializedParams, TransactionType.ContractTransaction);
+            if (tx == null)
+                return;
             tx = _transactionManager.SignTransaction(tx);
+            if (tx == null)
+                return;
             var rawtx = _transactionManager.ConvertTransactionRawTx(tx);
             var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
             string returnCode = string.Empty;
@@ -231,8 +236,15 @@ namespace AElf.Automation.Common.Helpers
         
         public void RpcBroadcastTx(CommandInfo ci)
         {
+            if (!ci.Parameter.Contains("{"))
+            {
+                RpcBroadcastWithRawTx(ci);
+                return;
+            }
             JObject j = JObject.Parse(ci.Parameter);
             Transaction tr = _transactionManager.ConvertFromJson(j);
+            if (tr == null)
+                return;
             string hex = tr.To.Value.ToHex();
             Module m = null;
             if (!_loadedModules.TryGetValue(hex.Replace("0x", ""), out m))
@@ -279,6 +291,33 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
+        public void RpcBroadcastWithRawTx(CommandInfo ci)
+        {
+            var rawtx = new JObject
+            {
+                ["rawtx"] = ci.Parameter
+            };
+            var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
+            string returnCode = string.Empty;
+            long timeSpan = 0;
+            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+            
+            JObject rObj = JObject.Parse(resp);
+            var rj = rObj["result"];
+            string hash = rj["hash"] == null ? rj["error"].ToString() :rj["hash"].ToString();
+            string res =rj["hash"] == null ? "error" : "txId";
+            var jobj = new JObject
+            {
+                [res] = hash
+            };
+            ci.InfoMsg.Add(jobj.ToString());
+            
+            ci.Result = true;
+        }
+        
         public string RpcGenerateTransactionRawTx(CommandInfo ci)
         {
             JObject j = JObject.Parse(ci.Parameter);
@@ -481,6 +520,8 @@ namespace AElf.Automation.Common.Helpers
             ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
+        
+        #endregion
         
         private bool CheckResponse(CommandInfo ci, string returnCode, string response)
         {

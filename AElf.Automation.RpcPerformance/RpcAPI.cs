@@ -68,7 +68,6 @@ namespace AElf.Automation.RpcPerformance
             if (keyStorePath == "")
                 keyStorePath = GetDefaultDataDir();
 
-            RequestList = new List<CommandRequest>();
             AccountList = new List<AccountInfo>();
             ContractList = new List<Contract>();
             ContractRpcList = new ConcurrentQueue<string>();
@@ -83,12 +82,8 @@ namespace AElf.Automation.RpcPerformance
 
         public void PrepareEnv()
         {
-            Console.WriteLine();
-            InitCli.InitCliCommand(RpcUrl);
-            Instance = InitCli.CliInstance;
             CH = new CliHelper(RpcUrl);
 
-            //Account Perpare
             //Delete
             DeleteAccounts();
             //New
@@ -100,19 +95,11 @@ namespace AElf.Automation.RpcPerformance
         public void InitExecRpcCommand()
         {
             //Connect Chain
-            //CommandRequest connReq = new CommandRequest("connect_chain", "connect_chain");
-            //connReq.Result = Instance.ExecuteCommandWithPerformance(connReq.Command, out connReq.InfoMessage, out connReq.ErrorMessage, out connReq.TimeInfo);
-            //RequestList.Add(connReq);
-            //Assert.IsTrue(connReq.Result);
             var ci = new CommandInfo("connect_chain");
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result);
 
             //Load Contract Abi
-            //CommandRequest loadReq = new CommandRequest("load_contract_abi", "load_contract_abi");
-            //loadReq.Result = Instance.ExecuteCommandWithPerformance(loadReq.Command, out loadReq.InfoMessage, out loadReq.ErrorMessage, out loadReq.TimeInfo);
-            //RequestList.Add(loadReq);
-            //Assert.IsTrue(loadReq.Result);
             ci = new CommandInfo("load_contract_abi");
             CH.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result);
@@ -127,21 +114,11 @@ namespace AElf.Automation.RpcPerformance
                 info.Id = i;
                 info.Account = AccountList[i].Account;
                 
-                //CommandRequest contractReq = new CommandRequest("deploy_contract", $"deploy_contract AElf.Benchmark.TestContract 0 {AccountList[i].Account}");
-                //contractReq.Result = Instance.ExecuteCommandWithPerformance(contractReq.Command, out contractReq.InfoMessage, out contractReq.ErrorMessage, out contractReq.TimeInfo);
-                //RequestList.Add(contractReq);
-                //Assert.IsTrue(contractReq.Result);
                 var ci = new CommandInfo("deploy_contract");
                 ci.Parameter = $"AElf.Benchmark.TestContract 0 {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 
-                //contractReq.GetJsonInfo();
-                //string genesisContract = contractReq.JsonInfo["txId"].ToString();
-                //Assert.AreNotEqual(string.Empty, genesisContract);
-                //info.TxId = genesisContract;
-                //info.Result = false;
-                //contractList.Add(info);
                 ci.GetJsonInfo();
                 string genesisContract = ci.JsonInfo["txId"].ToString();
                 Assert.AreNotEqual(string.Empty, genesisContract);
@@ -156,13 +133,6 @@ namespace AElf.Automation.RpcPerformance
                 {
                     if(item.Result == false)
                     {
-                        //CommandRequest txReq = new CommandRequest("get_tx_result", $"get_tx_result {item.TxId}");
-                        //txReq.Result = Instance.ExecuteCommandWithPerformance(txReq.Command, out txReq.InfoMessage, out txReq.ErrorMessage, out txReq.TimeInfo);
-                        //RequestList.Add(txReq);
-                        //Assert.IsTrue(txReq.Result);
-                        //txReq.GetJsonInfo();
-                        //string deployResult = txReq.JsonInfo["tx_status"].ToString();
-
                         var ci = new CommandInfo("get_tx_result");
                         ci.Parameter = item.TxId;
                         CH.ExecuteCommand(ci);
@@ -196,13 +166,8 @@ namespace AElf.Automation.RpcPerformance
             {
                 string account = AccountList[ContractList[i].AccountId].Account;
                 string abiPath = ContractList[i].AbiPath;
+
                 //Get Increment
-                //CommandRequest accountReq = new CommandRequest("get_increment", $"get_increment {account}");
-                //accountReq.Result = Instance.ExecuteCommandWithPerformance(accountReq.Command, out accountReq.InfoMessage, out accountReq.ErrorMessage, out accountReq.TimeInfo);
-                //RequestList.Add(accountReq);
-                //Assert.IsTrue(accountReq.Result);
-                //string increNo = accountReq.InfoMessage;
-                
                 var ci = new CommandInfo("get_increment");
                 ci.Parameter = account;
                 CH.ExecuteCommand(ci);
@@ -211,10 +176,6 @@ namespace AElf.Automation.RpcPerformance
                 string increNo = ci.JsonInfo["result"]["result"]["increment"].ToString();
                 
                 //Load Contract abi
-                //CommandRequest loadReq = new CommandRequest("load_contract_abi", $"load_contract_abi {abiPath}");
-                //loadReq.Result = Instance.ExecuteCommandWithPerformance(loadReq.Command, out loadReq.InfoMessage, out loadReq.ErrorMessage, out loadReq.TimeInfo);
-                //RequestList.Add(loadReq);
-                //Assert.IsTrue(loadReq.Result);
                 ci = new CommandInfo("load_contract_abi");
                 ci.Parameter = abiPath;
                 CH.ExecuteCommand(ci);
@@ -225,11 +186,6 @@ namespace AElf.Automation.RpcPerformance
                                       "\",\"to\":\"" + abiPath +
                                       "\",\"method\":\"InitBalance\",\"incr\":\"" +
                                       increNo + "\",\"params\":[\"" + account + "\"]}";
-                //CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //exeReq.Result = Instance.ExecuteCommandWithPerformance(exeReq.Command, out exeReq.InfoMessage, out exeReq.ErrorMessage, out exeReq.TimeInfo);
-                //RequestList.Add(exeReq);
-                //Assert.IsTrue(exeReq.Result);
-                //exeReq.GetJsonInfo();
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -248,11 +204,6 @@ namespace AElf.Automation.RpcPerformance
             foreach(var item in ContractList)
             {
                 string abiPath = item.AbiPath;
-                //Load Contract abi
-                //CommandRequest loadReq = new CommandRequest("load_contract_abi", $"load_contract_abi {abiPath}");
-                //loadReq.Result = Instance.ExecuteCommandWithPerformance(loadReq.Command, out loadReq.InfoMessage, out loadReq.ErrorMessage, out loadReq.TimeInfo);
-                //RequestList.Add(loadReq);
-                //Assert.IsTrue(loadReq.Result);
                 var ci = new CommandInfo("load_contract_abi");
                 ci.Parameter = abiPath;
                 CH.ExecuteCommand(ci);
@@ -304,12 +255,6 @@ namespace AElf.Automation.RpcPerformance
             string abiPath = ContractList[threadNo].AbiPath;
 
             //Get Increment info
-            
-            //CommandRequest accountReq = new CommandRequest("get_increment", $"get_increment {account}");
-            //accountReq.Result = Instance.ExecuteCommandWithPerformance(accountReq.Command, out accountReq.InfoMessage, out accountReq.ErrorMessage, out accountReq.TimeInfo);
-            //RequestList.Add(accountReq);
-            //Assert.IsTrue(accountReq.Result);
-            
             var ci = new CommandInfo("get_increment");
             ci.Parameter = account;
             CH.ExecuteCommand(ci);
@@ -336,10 +281,6 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                //CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //exeReq.Result = Instance.ExecuteCommandWithPerformance(exeReq.Command, out exeReq.InfoMessage, out exeReq.ErrorMessage, out exeReq.TimeInfo);
-                //RequestList.Add(exeReq);
-                
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -357,10 +298,6 @@ namespace AElf.Automation.RpcPerformance
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"GetBalance\",\"incr\":\"" +
                                        number.ToString() + "\",\"params\":[\"" + account + "\"]}";
-                //CommandRequest queryReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //queryReq.Result = Instance.ExecuteCommandWithPerformance(queryReq.Command, out queryReq.InfoMessage, out queryReq.ErrorMessage, out queryReq.TimeInfo);
-                //RequestList.Add(queryReq);
-                
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -378,7 +315,6 @@ namespace AElf.Automation.RpcPerformance
             Console.WriteLine("Total contract sent: {0}, passed number: {1}", 2*times, passCount);
             txIdList.Reverse();
             CheckResultStatus(txIdList);
-            //Console.WriteLine("All contracts from account :{0} and contract abi: {1} executed completed.", account, abiPath);
             Console.WriteLine("{0} Transfer from Address {1}", set.Count, account);
         }
 
@@ -388,10 +324,6 @@ namespace AElf.Automation.RpcPerformance
             string abiPath = ContractList[threadNo].AbiPath;
 
             //Get Increment info
-            //CommandRequest accountReq = new CommandRequest("get_increment", $"get_increment {account}");
-            //accountReq.Result = Instance.ExecuteCommandWithPerformance(accountReq.Command, out accountReq.InfoMessage, out accountReq.ErrorMessage, out accountReq.TimeInfo);
-            //RequestList.Add(accountReq);
-            //Assert.IsTrue(accountReq.Result);
             var ci = new CommandInfo("get_increment");
             ci.Parameter = account;
             CH.ExecuteCommand(ci);
@@ -417,9 +349,6 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                //CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //string requestInfo = Instance.GetRpcRequestInformation(exeReq.Command);
-                //rpcRequest.Add(requestInfo);
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -431,10 +360,6 @@ namespace AElf.Automation.RpcPerformance
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"GetBalance\",\"incr\":\"" +
                                        number.ToString() + "\",\"params\":[\"" + account + "\"]}";
-                //CommandRequest queryReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //requestInfo = Instance.GetRpcRequestInformation(queryReq.Command);
-                //rpcRequest.Add(requestInfo);
-                
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -463,10 +388,6 @@ namespace AElf.Automation.RpcPerformance
             string abiPath = ContractList[threadNo].AbiPath;
 
             //Get Increment info
-            //CommandRequest accountReq = new CommandRequest("get_increment", $"get_increment {account}");
-            //accountReq.Result = Instance.ExecuteCommandWithPerformance(accountReq.Command, out accountReq.InfoMessage, out accountReq.ErrorMessage, out accountReq.TimeInfo);
-            //RequestList.Add(accountReq);
-            //Assert.IsTrue(accountReq.Result);
             var ci = new CommandInfo("get_increment");
             ci.Parameter = account;
             CH.ExecuteCommand(ci);
@@ -476,7 +397,6 @@ namespace AElf.Automation.RpcPerformance
             int number = Int32.Parse(increNo);
 
             HashSet<int> set = new HashSet<int>();
-
             for (int i = 0; i < times; i++)
             {
                 Random rd = new Random(DateTime.Now.Millisecond);
@@ -491,8 +411,6 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                //CommandRequest exeReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //string requestInfo = Instance.GetRpcRequestInformation(exeReq.Command);
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -504,8 +422,6 @@ namespace AElf.Automation.RpcPerformance
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"GetBalance\",\"incr\":\"" +
                                        number.ToString() + "\",\"params\":[\"" + account + "\"]}";
-                //CommandRequest queryReq = new CommandRequest("broadcast_tx", $"broadcast_tx {parameterinfo}");
-                //requestInfo = Instance.GetRpcRequestInformation(queryReq.Command);
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -517,16 +433,16 @@ namespace AElf.Automation.RpcPerformance
         public void ExecuteOneRpcTask()
         {
             string rpcMsg = string.Empty;
+            var request = new RpcRequestManager(RpcUrl);
             while (true)
             {
                 if (!ContractRpcList.TryDequeue(out rpcMsg))
                     break;
-                Console.WriteLine("ContractRpcList:{0}", ContractRpcList.Count);
-                string returnCode = string.Empty;
-                var request = new RpcRequestManager(RpcUrl);
-                string parameter = "{\"rawtx\":\"" + rpcMsg + "\"}";
-                string response = request.PostRequest("broadcast_tx", parameter, out returnCode);
-                Thread.Sleep(50);
+                Console.WriteLine("Contracts execution left: {0}", ContractRpcList.Count);
+                var ci = new CommandInfo("broadcast_tx");
+                ci.Parameter = rpcMsg;
+                CH.ExecuteCommand(ci);
+                Thread.Sleep(20);
             }
         }
 
