@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScri
 		aelf-autotest.sh = aelf-autotest.sh
 		aelf-cli.sh = aelf-cli.sh
 		aelf-docker.sh = aelf-docker.sh
+		aelf-new-environment.sh = aelf-new-environment.sh
 		aelf-node-docker.sh = aelf-node-docker.sh
 		aelf-node-local.sh = aelf-node-local.sh
 		sh-record.sh = sh-record.sh
