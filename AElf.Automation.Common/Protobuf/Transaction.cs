@@ -5,21 +5,6 @@ using System.Text;
 
 namespace AElf.Automation.Common.Protobuf
 {
-    /* message Transaction
-   {
-       Hash From = 1;
-       Hash To = 2;
-       uint64 IncrementId = 3;
-       string MethodName = 4;
-       bytes Params = 5;
-
-       uint64 Fee = 6;
-
-       bytes R = 7;
-       bytes S = 8;
-       bytes P = 9;
-   }*/
-
     [ProtoContract]
     public class Transaction
     {
@@ -57,7 +42,8 @@ namespace AElf.Automation.Common.Protobuf
     [ProtoContract]
     public enum TransactionType
     {
-        DposTransaction = 0,
-        ContractTransaction = 1
+        ContractTransaction = 0,
+        DposTransaction = 1,
+
     }
 }
