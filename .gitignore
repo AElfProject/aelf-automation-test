@@ -268,3 +268,6 @@ __pycache__/
 .vs/
 slnx.sqlite
 /AElf.Automation.RpcPerformance/Properties
+
+#Remove testing result files
+RpcResult_Thread*
