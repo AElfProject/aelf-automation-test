@@ -69,7 +69,7 @@ echogreen "Pull aelf and test code"
 cd /home/aelf/github
 sudo git clone https://github.com/AElfProject/AElf
 sudo git clone https://github.com/AElfProject/aelf-web-wallet
-sudo git clone https://github.com/AElfProject/aelf-automation-test
+sudo git clone https://github.com/AElfProject/aelf-automation-test --recursive
 
 echogreen "Build and copy files"
 cd /home/aelf/github/AElf

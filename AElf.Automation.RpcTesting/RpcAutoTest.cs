@@ -83,24 +83,23 @@ namespace AElf.Automation.RpcTesting
         }
 
         [DataTestMethod]
-        [DataRow(1, 12)]
+        [DataRow(90, 110)]
         public void GetTxCounts(int begin, int end)
         {
             List<object> blockInfos = new List<object>();
-            string url = "http://192.168.199.221:8000";
-            string method = "get_block_info";
+            string url = "http://192.168.199.221:8000/chain";
+            var ch = new CliHelper(url);
+            var ci = new CommandInfo("get_block_info");
             for(int i= begin; i<=end; i++)
             {
                 dynamic blockInfo = new System.Dynamic.ExpandoObject();
                 int height = i;
-                string parameter = "{\"block_height\":\"" + height + "\"}";
-                string code = string.Empty;
+                ci.Parameter = height.ToString();
+                ch.ExecuteCommand(ci);
+                Assert.IsTrue(ci.Result);
+                ci.GetJsonInfo();
 
-                var request = new RpcRequestManager(url);
-                string response = request.PostRequest(method, parameter, out code);
-                Console.WriteLine(response);
-                Assert.AreEqual("OK", code);
-                var result = JObject.Parse(response);
+                var result = ci.JsonInfo;
                 string count = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
                 string txpoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
                 blockInfo.Height = height;

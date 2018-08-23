@@ -442,6 +442,8 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
+                if (!ci.Result)
+                    ContractRpcList.Enqueue(rpcMsg);
                 Thread.Sleep(20);
             }
         }
