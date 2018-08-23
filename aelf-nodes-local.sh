@@ -1,11 +1,12 @@
 #!/bin/bash
 echo "Clean test db environment"
 sudo redis-cli flushdb
+sudo kill -9 $(sudo ps -ef |grep dotnet |awk '{print $2}')
+
 BaseDir='/home/aelf'
 read -p "Input test folder(default is /home/aelf):" InputDir
 if [ -n "$InputDir" -a -d "$InputDir" ]
 then
-	echo "Use Input testing dir"
 	BaseDir=$InputDir
 fi
 echo "Testing BaseDir is: $BaseDir"

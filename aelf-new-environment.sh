@@ -31,10 +31,10 @@ echogreen "Install redis"
 sudo apt-get install redis-server -y
 
 echogreen "Install nginx"
-sudo apt-get install nginx
+sudo apt-get install nginx -y
 
 echogreen "Install Mysql"
-sudo apt-get install mysql-server
+sudo apt-get install mysql-server -y
 
 echogreen "Install protoc"
 cd /home/aelf/others
