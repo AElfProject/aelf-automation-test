@@ -37,9 +37,13 @@ echo ">>Delete old test data"
 sudo rm -rf /home/$UserName/.local/share/aelf/keys/*
 sudo rm -rf /home/$UserName/.local/share/aelf/contracts/*
 echo ">>Copy new test data"
+sudo mkdir -p /home/$UserName/.local/share/aelf/keys
+sudo mkdir -p /home/$UserName/.local/share/aelf/config
+sudo mkdir -p /home/$UserName/.local/share/aelf/contracts
+
 sudo cp $BaseDir/keys/* /home/$UserName/.local/share/aelf/keys
+sudo cp -r $BaseDir/config/* /home/$UserName/.local/share/aelf/config
 sudo cp $BaseDir/contracts/* /home/$UserName/.local/share/aelf/contracts
-sudo cp -r $BaseDir/config /home/$UserName/.local/share/aelf
 
 cd /home/$UserName/.local/share/aelf/config
 sudo mv miners3.json miners.json 
@@ -78,14 +82,14 @@ cd $BaseDir/github/Node1
 echo "Run MAIN node with command:"
 echo "sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8100 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 1 --node.account ${AccountList[0]} --node.accountpassword 123 --node.port 6810 --dpos.generator true --chain.new true"
 sudo sh -c "dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8100 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 1 --node.account ${AccountList[0]} --node.accountpassword 123 --node.port 6810 --dpos.generator true --chain.new true > $BaseDir/github/logs/main-aelf-node.log &"
-sleep 3s
+sleep 5s
 
 cd $BaseDir/github/Node2
 echo "Run OTHER node1 with command:"
 sudo cp $BaseDir/github/Node1/ChainInfo.json $BaseDir/github/Node2/ 
 echo "sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8200 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 2 --node.account ${AccountList[1]} --node.accountpassword 123 --node.port 6820 --bootnodes 127.0.0.1:6810"
 sudo sh -c "dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8200 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 2 --node.account ${AccountList[1]} --node.accountpassword 123 --node.port 6820 --bootnodes 127.0.0.1:6810 > $BaseDir/github/logs/other1-aelf-node.log &"
-sleep 3s
+sleep 5s
 
 cd $BaseDir/github/Node3
 echo "Run OTHER node2 with command:"
