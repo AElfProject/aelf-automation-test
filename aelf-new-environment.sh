@@ -1,12 +1,12 @@
 #!/bin/bash
-echogreen(){
+function echogreen(){
 	MSG=$1
     COLOER=`echo $1|sed 's#^.*\[\(.*\)\].*#\1#g'`
     BASE=`echo $1|sed 's#\(^.*\)\[.*]#\1#g'`
 	echo -e "${BASE} [\e[0;31;1m  $COLOER  \e[0m]"
 }
 
-echored(){
+function echored(){
     MSG=$1
     COLOER=`echo $1|sed 's#^.*\[\(.*\)\].*#\1#g'`
     BASE=`echo $1|sed 's#\(^.*\)\[.*]#\1#g'`
@@ -31,10 +31,10 @@ echogreen "Install redis"
 sudo apt-get install redis-server -y
 
 echogreen "Install nginx"
-sudo apt-get install nginx
+sudo apt-get install nginx -y
 
 echogreen "Install Mysql"
-sudo apt-get install mysql-server
+sudo apt-get install mysql-server -y
 
 echogreen "Install protoc"
 cd /home/aelf/others
