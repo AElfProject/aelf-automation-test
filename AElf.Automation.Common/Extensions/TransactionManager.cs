@@ -1,11 +1,11 @@
-﻿using AElf.Cryptography;
-using System;
-using AElf.Common.Extensions;
-using Newtonsoft.Json.Linq;
-using AElf.Common.ByteArrayHelpers;
-using AElf.Cryptography.ECDSA;
+﻿using System;
 using System.IO;
 using ProtoBuf;
+using Newtonsoft.Json.Linq;
+using AElf.Common.Extensions;
+using AElf.Cryptography;
+using AElf.Common.ByteArrayHelpers;
+using AElf.Cryptography.ECDSA;
 
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;

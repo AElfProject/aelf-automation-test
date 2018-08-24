@@ -1,6 +1,5 @@
 ﻿using System;
 using AElf.Automation.Common.Extensions;
-using ServiceStack.Text;
 
 namespace AElf.Automation.RpcPerformance
 {
