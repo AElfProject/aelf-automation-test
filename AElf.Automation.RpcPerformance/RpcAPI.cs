@@ -1,21 +1,15 @@
-﻿using AElf.Automation.CliTesting;
-using AElf.Automation.CliTesting.AutoTest;
-using AElf.Automation.Common.Extensions;
+﻿using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using DotNetty.Transport.Channels.Groups;
-using NServiceKit.Common;
+
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -48,9 +42,7 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Public Proerty
         public CliHelper CH { get; set; }
-        public AElfCliProgram Instance { get; set; }
         public string RpcUrl { get; set; }
-        public List<CommandRequest> RequestList { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }
         public List<Contract> ContractList { get; set; }

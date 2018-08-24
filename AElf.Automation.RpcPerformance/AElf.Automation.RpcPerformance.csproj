@@ -9,9 +9,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NServiceKit.Redis" Version="1.0.20" />
     <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
+    <PackageReference Include="Xunit.Microsoft.VisualStudio.TestTools.UnitTesting" Version="1.0.0-beta-1011" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AElf.Automation.CliTesting\AElf.Automation.CliTesting.csproj" />
     <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
   </ItemGroup>
 </Project>
