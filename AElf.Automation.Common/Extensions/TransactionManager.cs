@@ -1,6 +1,6 @@
 ﻿using AElf.Cryptography;
 using System;
-using AElf.Kernel;
+using AElf.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using AElf.Common.ByteArrayHelpers;
 using AElf.Cryptography.ECDSA;
