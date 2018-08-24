@@ -58,7 +58,7 @@ namespace AElf.Automation.Common.Helpers
                     ci = _accountManager.ListAccount();
                     break;
                 case "account unlock":
-                    ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1]);
+                    ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1], ci.Parameter.Split(" ")?[2]);
                     break;
                 case "connect_chain":
                     RpcConnectChain(ci);
