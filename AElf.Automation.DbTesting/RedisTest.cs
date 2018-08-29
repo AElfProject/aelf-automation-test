@@ -1,12 +1,25 @@
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
+using AElf.Automation.Common.Extensions;
+using NLog;
 
 namespace AElf.Automation.DbTesting
 {
     [TestClass]
     public class RedisTest
     {
+        public string Tag = "RedisTest";
+        public ILogHelper Logger = LogHelper.GetLogHelper();
+
+        [TestInitialize]
+        public void InitTestLog()
+        {
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log/redis-test.log");
+            Logger.InitLogHelper(dir);
+        }
+
         [TestMethod]
         public void CompareTheSame1()
         {
@@ -137,6 +150,39 @@ namespace AElf.Automation.DbTesting
             }
             Console.WriteLine($"Same:{sameCount}, Diff:{diffCount}");
 
+        }
+
+        [TestMethod]
+        public void ScanDBInformation()
+        {
+            var rh1 = new RedisHelper("192.168.199.221");
+            var ktm = new KeyTypeManager(rh1);
+            var list1 = rh1.GetAllKeys();
+            Logger.Write($"Total: {list1.Count}");
+            int count = 0;
+            foreach (var item in list1)
+            {
+                var key = ktm.GetHashFromKey(item);
+                if (key != null)
+                {
+                    var obj = ktm.ConvertKeyValue(key);
+                }
+            }
+
+            foreach (var item in ktm.HashList.Keys)
+            {
+                Logger.Write("------------------------------------------------------------------------------------");
+                Logger.Write($"Data Type: {item}");
+                foreach (var key in ktm.HashList[item])
+                {
+                    var obj = ktm.ConvertKeyValue(key);
+                    Logger.Write(obj.ToString());
+                }
+                Logger.Write("------------------------------------------------------------------------------------");
+            }
+
+            ktm.ConvertHashType();
+            ktm.PrintSummaryInfo();
         }
     }
 }
