@@ -1,22 +1,31 @@
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using AElf.Automation.Common.Extensions;
+using AElf.Automation.RpcTesting;
+using AElf.Kernel;
+using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using NLog;
+using Hash = AElf.Automation.Common.Protobuf.Hash;
 
 namespace AElf.Automation.DbTesting
 {
     [TestClass]
     public class RedisTest
     {
-        public string Tag = "RedisTest";
         public ILogHelper Logger = LogHelper.GetLogHelper();
 
         [TestInitialize]
         public void InitTestLog()
         {
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log/redis-test.log");
+            string logName = "RedisTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
         }
 
@@ -146,43 +155,156 @@ namespace AElf.Automation.DbTesting
                 }
                 else
                     sameCount++;
-
             }
             Console.WriteLine($"Same:{sameCount}, Diff:{diffCount}");
-
         }
 
-        [TestMethod]
-        public void ScanDBInformation()
+        [DataTestMethod]
+        [DataRow("192.168.199.221", "0x0a20cd56c83bee574ab9ed2e8cd85028ba1c730323e7819f7507c132a084c2a4517a120b5472616e73616374696f6e")]
+        public void QueryRedisKeyInfo(string redishost, string key)
         {
-            var rh1 = new RedisHelper("192.168.199.221");
-            var ktm = new KeyTypeManager(rh1);
-            var list1 = rh1.GetAllKeys();
-            Logger.Write($"Total: {list1.Count}");
-            int count = 0;
-            foreach (var item in list1)
+            var rh = new RedisHelper(redishost);
+            var ktm = new KeyTypeManager(rh);
+            var keyInfo = ktm.GetKeyInfo(key);
+            var hash = new AElf.Kernel.Hash(keyInfo.KeyObject.Value);
+            Logger.Write($"ConvertValue={hash.ToHex()}, ObjectValue={keyInfo.ValueInfo}");
+        }
+
+        [DataTestMethod]
+        [DataRow("192.168.199.221", "http://192.168.199.221:8000/chain")]
+        public void ScanDBInformation(string redishost, string rpcUrl)
+        {
+            //Rpc Info analyze
+            RpcAPI ra = new RpcAPI(rpcUrl);
+            List<BlockInfo> BlockCollection = new List<BlockInfo>();
+            int height = ra.GetCurrentHeight();
+
+            var rh = new RedisHelper(redishost);
+            var ktm = new KeyTypeManager(rh);
+            //Get Block info
+            for (int i = 1; i < height; i++)
             {
-                var key = ktm.GetHashFromKey(item);
-                if (key != null)
-                {
-                    var obj = ktm.ConvertKeyValue(key);
-                }
+                var jsonInfo = ra.GetBlockInfo(i);
+                var block = new BlockInfo(i, jsonInfo);
+                BlockCollection.Add(block);
             }
 
+            //Redis Info analyze
+            ktm.GetAllKeyInfoCollection();
+            ktm.PrintSummaryInfo(false);
+
+            Logger.Write("Begin print block info by height");
+            Logger.Write("-------------------------------------------------------------------------------------------------------------");
+            //Analyze keys in collection
+            foreach (var block in BlockCollection)
+            {
+                Logger.Write($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
+                //Analyze Blockhash
+                    var keyinfoList = ktm.HashList["Hash"]
+                    .FindAll(o=>o.Checked==false)
+                    .FindAll(o => o.ValueInfo.ToString().Contains(block.BlockHash));
+                if (keyinfoList != null && keyinfoList?.Count !=0)
+                {
+                    foreach (var keyinfo in keyinfoList)
+                    {
+                        keyinfo.Checked = true;
+                        Logger.Write(keyinfo.ToString());
+                        if (keyinfo.HashString == "Chain")
+                        {
+                            var hash = new AElf.Kernel.Hash(keyinfo.KeyObject.Value);
+                            string hashValue = hash.ToHex();
+                            var changeInfo = ktm.HashList["Hash"]
+                                .FindAll(o=>o.Checked==false)
+                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(hashValue));
+                            if (changeInfo != null)
+                            {
+                                changeInfo.Checked = true;
+                                Logger.Write(changeInfo.ToString());
+                            }
+                        }
+                    }
+                }
+
+                var blockBody = ktm.HashList["BlockBody"]
+                    .FindAll(o=>o.Checked==false)
+                    .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.BlockHash));
+                if (blockBody != null)
+                {
+                    blockBody.Checked = true;
+                    Logger.Write(blockBody.ToString());
+                }
+
+                //Analyze PreviousBlockHash
+                //Analyze MerkleTreeRootOfTransactions
+                //Analyze MerkleTreeRootOfWorldState
+                var blockHeader = ktm.HashList["BlockHeader"]
+                    .FindAll(o=>o.Checked==false)
+                    .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.PreviousBlockHash));
+                if (blockHeader != null)
+                {
+                    blockHeader.Checked = true;
+                    Logger.Write(blockHeader.ToString());
+                }
+
+                //Analyze Transactions
+                foreach (var transaction in block.Transactions)
+                {
+                    //Transaction
+                    var txResult = ra.GetTxResult(transaction.Trim());
+                    string incrementId = txResult["result"]["result"]["tx_info"]["IncrementId"].ToString();
+                    string checkStr = $"\"IncrementId\": \"{incrementId}\"";
+                    var transactionInfo = ktm.HashList["Transaction"]
+                        .FindAll(o=>o.Checked==false)
+                        .FirstOrDefault(o => o.ValueInfo.ToString().Contains(checkStr));
+                    if (transactionInfo != null)
+                    {
+                        transactionInfo.Checked = true;
+                        Logger.Write(transactionInfo.ToString());
+                    }
+
+                    //Transaction Result
+                    var transactionResult = ktm.HashList["TransactionResult"]
+                        .FindAll(o=>o.Checked==false)
+                        .FirstOrDefault(o => o.ValueInfo.ToString().Contains(transaction.Trim()));
+
+                    if (transactionResult != null)
+                    {
+                        transactionResult.Checked = true;
+                        Logger.Write(transactionResult.ToString());
+                    }
+                }
+                Logger.Write("-------------------------------------------------------------------------------------------------------------");
+            }
+
+            //Print Unchecked key item info
+            Logger.Write(string.Empty);
+            Logger.Write("Print unchecked key info");
             foreach (var item in ktm.HashList.Keys)
             {
-                Logger.Write("------------------------------------------------------------------------------------");
-                Logger.Write($"Data Type: {item}");
-                foreach (var key in ktm.HashList[item])
+                Logger.Write($"Category:{item}, Unchecked count:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
+                foreach (var keyinfo in ktm.HashList[item].FindAll(o=>o.Checked==false))
                 {
-                    var obj = ktm.ConvertKeyValue(key);
-                    Logger.Write(obj.ToString());
+                    Logger.Write(keyinfo.ToString());
                 }
-                Logger.Write("------------------------------------------------------------------------------------");
+                Logger.Write(string.Empty);
             }
 
+            //Summary info
+            Logger.Write(string.Empty);
+            Logger.Write("Summary basic type info");
+            foreach (var item in ktm.HashList.Keys)
+            {
+                Logger.Write($"Category:{item}, Total:{ktm.HashList[item].Count}, Checked:{ktm.HashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
+            }
+
+            //Summary hash info
+            Logger.Write(string.Empty);
+            Logger.Write("Summary hash type info");
             ktm.ConvertHashType();
-            ktm.PrintSummaryInfo();
+            foreach (var item in ktm.ProtoHashList.Keys)
+            {
+                Logger.Write($"Category:{item}, Total:{ktm.ProtoHashList[item].Count}, Checked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==false).Count}");
+            }
         }
     }
 }

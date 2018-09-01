@@ -481,12 +481,13 @@ namespace AElf.Automation.Common.Helpers
         
         public void RpcGetBlockInfo(CommandInfo ci)
         {
-            if (!ci.CheckParameterValid(1))
+            if (!ci.CheckParameterValid(2))
                 return;
             
             var req = RpcRequestManager.CreateRequest(new JObject
             {
-                ["block_height"] = ci.Parameter
+                ["block_height"] = ci.Parameter.Split(" ")?[0],
+                ["include_txs"] = ci.Parameter.Split(" ")?[1]
             }, ci.Category, 0);
             string returnCode = string.Empty;
             long timeSpan = 0;

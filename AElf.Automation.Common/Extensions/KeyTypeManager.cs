@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Common.ByteArrayHelpers;
 using AElf.Common.Extensions;
@@ -7,138 +8,217 @@ using AElf.Kernel;
 using AElf.SmartContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using QuickGraph;
-using ATypes = AElf.Kernel.Storages.Types;
+using NLog.Fluent;
 using HashType = AElf.Kernel.HashType;
 
 namespace AElf.Automation.Common.Extensions
 {
+    public class KeyInfo
+    {
+        public string RedisKey { get; set; }
+        public byte[] RedisValue { get; set; }
+        public string BasicString { get; set; }
+        public string HashString { get; set; }
+        public int KeyLength { get; set; }
+        public int ValueLength { get; set; }
+        public Key KeyObject { get; set; }
+        public Object ValueInfo { get; set; }
+        public bool Checked { get; set; }
+
+        public KeyInfo(string key)
+        {
+            RedisKey = key;
+            RedisValue = new byte[]{};
+            BasicString = string.Empty;
+            HashString = string.Empty;
+            KeyLength = 0;
+            ValueLength = 0;
+            KeyObject = null;
+            ValueInfo = new Object();
+            Checked = false;
+        }
+
+        public override string ToString()
+        {
+            return $"KeyType:{BasicString}, HashType:{HashString}, RedisKey:{RedisKey}, Length:[{KeyLength},{ValueLength}], ObjectValue:{ValueInfo.ToString()}";
+        }
+    }
     public class KeyTypeManager
     {
-        public Dictionary<string, List<Key>> HashList { get; set; }
-        public Dictionary<string, List<Key>> ProtoHashList { get; set; }
+        public List<KeyInfo> InfoCollection { get; set; }
+        public Dictionary<string, List<KeyInfo>> HashList { get; set; }
+        public Dictionary<string, List<KeyInfo>> ProtoHashList { get; set; }
         public RedisHelper RH { get; set; }
+        public List<string> KeyList { get; set; }
         public ILogHelper Logger = LogHelper.GetLogHelper();
-
 
         public KeyTypeManager(RedisHelper redisHelper)
         {
-            HashList = new Dictionary<string, List<Key>>();
-            ProtoHashList = new Dictionary<string, List<Key>>();
+            InfoCollection = new List<KeyInfo>();
+            HashList = new Dictionary<string, List<KeyInfo>>();
+            ProtoHashList = new Dictionary<string, List<KeyInfo>>();
             RH = redisHelper;
+            KeyList = RH.GetAllKeys();
         }
 
-        public Key GetHashFromKey(string key)
+        public KeyInfo GetKeyInfo(string key)
         {
+            var keyInfo = new KeyInfo(key);
+
             try
             {
                 byte[] info = ByteArrayHelpers.FromHexString(key);
+                keyInfo.RedisValue = info;
+                keyInfo.KeyLength = info.Length;
                 ProtobufSerializer ps = new ProtobufSerializer();
                 Key objectKey = ps.Deserialize<Key>(info);
-                var type = (ATypes) objectKey.Type;
-                string typeStr = type.ToString();
+                keyInfo.KeyObject = objectKey;
+                string typeStr = objectKey.Type;
+                keyInfo.BasicString = typeStr;
+                int valueLength = 0;
+                keyInfo.ValueInfo = ConvertKeyValue(objectKey, out valueLength);
+                keyInfo.ValueLength = valueLength;
+                if (typeStr == "Hash")
+                {
+                    var hashType = (HashType) objectKey.HashType;
+                    keyInfo.HashString = hashType.ToString();
+                }
+                else
+                    keyInfo.HashString = string.Empty;
+
                 if(!HashList.ContainsKey(typeStr))
-                    HashList.Add(typeStr, new List<Key>());
-                HashList[typeStr].Add(objectKey);
-
-                return objectKey;
+                    HashList.Add(typeStr, new List<KeyInfo>());
+                HashList[typeStr].Add(keyInfo);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Logger.Write($"Convert exception: {key}");
-                return null;
+                Logger.Write($"Get key info exception: {key}");
             }
 
+            return keyInfo;
         }
 
-        public void ConvertHashType()
+        public void GetAllKeyInfoCollection()
         {
-            foreach (var item in HashList["Hash"])
+            foreach (var item in KeyList)
             {
-                try
-                {
-                    var type = (Kernel.Storages.Types)item.HashType;
-                    string typeStr = type.ToString();
-                    if(!ProtoHashList.ContainsKey(typeStr))
-                        ProtoHashList.Add(typeStr, new List<Key>());
-                    ProtoHashList[typeStr].Add(item);
-                }
-                catch (Exception e)
-                {
-                    Logger.Write($"Convert exception: {item}");
-                }
+                InfoCollection.Add(GetKeyInfo(item));
             }
         }
 
-        public Object ConvertKeyValue(Key key)
+        public void PrintSummaryInfo(bool detail=true)
+        {
+            int totalCount = InfoCollection.Sum(x => x.KeyLength + x.ValueLength);
+            Logger.Write($"Total keys count:{InfoCollection.Count.ToString()}, Bytes total length:{totalCount.ToString()}");
+            Logger.Write("All keys type info:");
+            foreach (var key in HashList.Keys)
+            {
+                //Keys Percent info
+                int itemCount = HashList[key].Sum(x => x.KeyLength + x.ValueLength);
+                double percent = (double) (itemCount*100) / (double) totalCount;
+                Logger.Write($"Key item: {key}, Count: {HashList[key].Count.ToString()}, Percent:{percent:0.00}%");
+            }
+
+            Logger.Write("All hash keys type info:");
+            ConvertHashType();
+            foreach (var key in ProtoHashList.Keys)
+            {
+                Logger.Write($"Key item: {key}, Count: {ProtoHashList[key].Count.ToString()}");
+            }
+
+            if (!detail)
+                return;
+
+            //打印Basic信息
+            var sortList = InfoCollection.OrderBy(o=>o.BasicString).ThenBy(o=>o.HashString).ToList();
+            foreach (var item in sortList)
+            {
+                Logger.Write($"BasicCategory={item.BasicString}, HashCategory={item.HashString}, Length=[{item.KeyLength},{item.ValueLength}], RedisKey={item.RedisKey}");
+            }
+            //打印Object信息
+            foreach (var item in HashList.Keys)
+            {
+                Logger.Write("------------------------------------------------------------------------------------");
+                Logger.Write($"Data Type: {item}");
+                foreach (var keyinfo in HashList[item])
+                {
+                    Logger.Write(keyinfo.ValueInfo.ToString());
+                }
+                Logger.Write("------------------------------------------------------------------------------------");
+            }
+        }
+
+        private Object ConvertKeyValue(Key key, out int length)
         {
             string keyStr = key.ToByteArray().ToHex();
             byte[] keyValue = RH.GetT<byte[]>(keyStr);
+            length = keyValue.Length;
             ProtobufSerializer ps = new ProtobufSerializer();
-            var hashType = (ATypes)key.Type;
+            string keyType = key.Type;
+
             Object returnObj = new Object();
-            switch (hashType)
+            switch (keyType)
             {
-                case ATypes.UInt64Value:
+                case "UInt64Value":
                     returnObj = ps.Deserialize<UInt64Value>(keyValue);
                     break;
-                case ATypes.Hash:
+                case "Hash":
                     returnObj = ps.Deserialize<Hash>(keyValue);
                     break;
-                case ATypes.BlockBody:
+                case "BlockBody":
                     returnObj = ps.Deserialize<BlockBody>(keyValue);
                     break;
-                case ATypes.BlockHeader:
+                case "BlockHeader":
                     returnObj = ps.Deserialize<BlockHeader>(keyValue);
                     break;
-                case ATypes.Chain:
+                case "Chain":
                     returnObj = ps.Deserialize<Chain>(keyValue);
                     break;
-                case ATypes.Change:
+                case "Change":
                     break;
-                case ATypes.SmartContractRegistration:
+                case "SmartContractRegistration":
                     returnObj = ps.Deserialize<SmartContractRegistration>(keyValue);
                     break;
-                case ATypes.TransactionResult:
+                case "TransactionResult":
                     returnObj = ps.Deserialize<TransactionResult>(keyValue);
                     break;
-                case ATypes.Transaction:
+                case "Transaction":
                     returnObj = ps.Deserialize<Transaction>(keyValue);
                     break;
-                case ATypes.FunctionMetadata:
+                case "FunctionMetadata":
                     returnObj = ps.Deserialize<FunctionMetadata>(keyValue);
                     break;
-                case ATypes.SerializedCallGraph:
+                case "SerializedCallGraph":
                     returnObj = ps.Deserialize<SerializedCallGraph>(keyValue);
                     break;
-                case ATypes.SideChain:
+                case "SideChain":
                     returnObj = ps.Deserialize<SideChain>(keyValue);
                     break;
-                case ATypes.WorldState:
+                case "WorldState":
                     returnObj = ps.Deserialize<WorldState>(keyValue);
                     break;
-                case ATypes.Miners:
+                case "Miners":
                     returnObj = ps.Deserialize<Miners>(keyValue);
                     break;
-                case ATypes.BlockProducer:
+                case "BlockProducer":
                     returnObj = ps.Deserialize<BlockProducer>(keyValue);
                     break;
-                case ATypes.Round:
+                case "Round":
                     returnObj = ps.Deserialize<Round>(keyValue);
                     break;
-                case ATypes.AElfDPoSInformation:
+                case "AElfDPoSInformation":
                     returnObj = ps.Deserialize<AElfDPoSInformation>(keyValue);
                     break;
-                case ATypes.Int32Value:
+                case "Int32Value":
                     returnObj = ps.Deserialize<Int32Value>(keyValue);
                     break;
-                case ATypes.StringValue:
+                case "StringValue":
                     returnObj = ps.Deserialize<StringValue>(keyValue);
                     break;
-                case ATypes.Timestamp:
+                case "Timestamp":
                     returnObj = ps.Deserialize<Timestamp>(keyValue);
                     break;
-                case ATypes.SInt32Value:
+                case "SInt32Value":
                     returnObj = ps.Deserialize<SInt32Value>(keyValue);
                     break;
                 default:
@@ -148,18 +228,26 @@ namespace AElf.Automation.Common.Extensions
             return returnObj;
         }
 
-        public void PrintSummaryInfo()
+        public void ConvertHashType()
         {
-            Logger.Write("All keys type info:");
-            foreach (var key in HashList.Keys)
-            {
-                Logger.Write($"Key item: {key}, Count: {HashList[key].Count}");
-                }
+            if (!HashList.ContainsKey("Hash"))
+                return;
+            ProtoHashList = new Dictionary<string, List<KeyInfo>>();
 
-            Logger.Write("All hash keys type info:");
-            foreach (var key in ProtoHashList.Keys)
+            foreach (var item in HashList?["Hash"])
             {
-                Logger.Write($"Key item: {key}, Count: {ProtoHashList[key].Count}");
+                try
+                {
+                    var type = (HashType)item.KeyObject.HashType;
+                    string typeStr = type.ToString();
+                    if(!ProtoHashList.ContainsKey(typeStr))
+                        ProtoHashList.Add(typeStr, new List<KeyInfo>());
+                    ProtoHashList[typeStr].Add(item);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write($"Convert hash key exception: {item}");
+                }
             }
         }
     }
