@@ -49,7 +49,7 @@ namespace AElf.Automation.RpcPerformance
             }
             catch (Exception e)
             {
-                Logger.WriteException(e);
+                Logger.WriteError(e.Message);
             }
             finally
             {

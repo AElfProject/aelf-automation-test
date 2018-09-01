@@ -130,22 +130,23 @@ namespace AElf.Automation.Common.Helpers
                 try
                 {
                     String text;
+                    String content = arg?.Length>0 ? String.Format(logText, arg) : logText;
                     switch (logType)
                     {
                         case LogType.INFO:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Info]: " + String.Format(logText, arg);
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Info]: " + content;
                             break;
 
                         case LogType.WARNING:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Warn]: " + String.Format(logText, arg);
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Warn]: " + content;
                             break;
 
                         case LogType.ERROR:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + String.Format(logText, arg);
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + content;
                             break;
 
                         default:
-                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) + "\t" + String.Format(logText, arg);
+                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) + "\t" + content;
                             break;
                     }
                     streamWriter.WriteLine(text);
