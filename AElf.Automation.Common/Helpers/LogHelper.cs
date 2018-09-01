@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using ServiceStack.Host;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -12,7 +13,13 @@ namespace AElf.Automation.Common.Helpers
     {
         void InitLogHelper(String logFilePath);
 
-        void Write(String logText, LogType logType=LogType.INFO);
+        void WriteInfo(String logText, params object[] arg);
+
+        void WriteWarn(String logText, params object[] arg);
+
+        void WriteError(String logText, params object[] arg);
+
+        void Write(LogType logType, String logText, params object[] arg);
 
         void WriteException(Exception exception);
 
@@ -87,7 +94,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
                 streamWriter = new StreamWriter(logFilePath, true, Encoding.Unicode);
-                Write("Initial log helper successful.", LogType.INFO);
+                WriteInfo("Initial log helper successful.");
             }
             catch (Exception exception)
             {
@@ -95,7 +102,23 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        public void Write(String logText, LogType logType=LogType.INFO)
+        public void WriteInfo(String logText, params object[] arg)
+        {
+            Write(LogType.INFO, logText, arg);
+        }
+
+        public void WriteWarn(String logText, params object[] arg)
+        {
+            Write(LogType.WARNING, logText, arg);
+
+        }
+
+        public void WriteError(String logText, params object[] arg)
+        {
+            Write(LogType.ERROR, logText, arg);
+        }
+
+        public void Write(LogType logType, String logText, params object[] arg)
         {
             string timeStamp = "yyyy-MM-dd HH:mm:ss";
             lock (writeLogHelper)
@@ -110,19 +133,19 @@ namespace AElf.Automation.Common.Helpers
                     switch (logType)
                     {
                         case LogType.INFO:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Info]: " + logText;
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Info]: " + String.Format(logText, arg);
                             break;
 
                         case LogType.WARNING:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Warn]: " + logText;
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Warn]: " + String.Format(logText, arg);
                             break;
 
                         case LogType.ERROR:
-                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + logText;
+                            text = "[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + String.Format(logText, arg);
                             break;
 
                         default:
-                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) + "\t" + logText;
+                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) + "\t" + String.Format(logText, arg);
                             break;
                     }
                     streamWriter.WriteLine(text);

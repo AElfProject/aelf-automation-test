@@ -92,7 +92,7 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception)
             {
-                Logger.Write($"Get key info exception: {key}");
+                Logger.WriteError($"Get key info exception: {key}");
             }
 
             return keyInfo;
@@ -109,21 +109,21 @@ namespace AElf.Automation.Common.Extensions
         public void PrintSummaryInfo(bool detail=true)
         {
             int totalCount = InfoCollection.Sum(x => x.KeyLength + x.ValueLength);
-            Logger.Write($"Total keys count:{InfoCollection.Count.ToString()}, Bytes total length:{totalCount.ToString()}");
-            Logger.Write("All keys type info:");
+            Logger.WriteInfo($"Total keys count:{InfoCollection.Count.ToString()}, Bytes total length:{totalCount.ToString()}");
+            Logger.WriteInfo("All keys type info:");
             foreach (var key in HashList.Keys)
             {
                 //Keys Percent info
                 int itemCount = HashList[key].Sum(x => x.KeyLength + x.ValueLength);
                 double percent = (double) (itemCount*100) / (double) totalCount;
-                Logger.Write($"Key item: {key}, Count: {HashList[key].Count.ToString()}, Percent:{percent:0.00}%");
+                Logger.WriteInfo($"Key item: {key}, Count: {HashList[key].Count.ToString()}, Percent:{percent:0.00}%");
             }
 
-            Logger.Write("All hash keys type info:");
+            Logger.WriteInfo("All hash keys type info:");
             ConvertHashType();
             foreach (var key in ProtoHashList.Keys)
             {
-                Logger.Write($"Key item: {key}, Count: {ProtoHashList[key].Count.ToString()}");
+                Logger.WriteInfo($"Key item: {key}, Count: {ProtoHashList[key].Count.ToString()}");
             }
 
             if (!detail)
@@ -133,18 +133,18 @@ namespace AElf.Automation.Common.Extensions
             var sortList = InfoCollection.OrderBy(o=>o.BasicString).ThenBy(o=>o.HashString).ToList();
             foreach (var item in sortList)
             {
-                Logger.Write($"BasicCategory={item.BasicString}, HashCategory={item.HashString}, Length=[{item.KeyLength},{item.ValueLength}], RedisKey={item.RedisKey}");
+                Logger.WriteInfo($"BasicCategory={item.BasicString}, HashCategory={item.HashString}, Length=[{item.KeyLength},{item.ValueLength}], RedisKey={item.RedisKey}");
             }
             //打印Object信息
             foreach (var item in HashList.Keys)
             {
-                Logger.Write("------------------------------------------------------------------------------------");
-                Logger.Write($"Data Type: {item}");
+                Logger.WriteInfo("------------------------------------------------------------------------------------");
+                Logger.WriteInfo($"Data Type: {item}");
                 foreach (var keyinfo in HashList[item])
                 {
-                    Logger.Write(keyinfo.ValueInfo.ToString());
+                    Logger.WriteInfo(keyinfo.ValueInfo.ToString());
                 }
-                Logger.Write("------------------------------------------------------------------------------------");
+                Logger.WriteInfo("------------------------------------------------------------------------------------");
             }
         }
 
@@ -246,7 +246,7 @@ namespace AElf.Automation.Common.Extensions
                 }
                 catch (Exception e)
                 {
-                    Logger.Write($"Convert hash key exception: {item}");
+                    Logger.WriteInfo($"Convert hash key exception: {item}");
                 }
             }
         }

@@ -1,12 +1,20 @@
 ﻿using System;
+using System.IO;
 using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.Helpers;
 
 namespace AElf.Automation.RpcPerformance
 {
     public class Program
     {
+        public static ILogHelper Logger = LogHelper.GetLogHelper();
         static void Main(string[] args)
         {
+            //Init Logger
+            string logName = "RedisTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            Logger.InitLogHelper(dir);
+
             RpcAPI performance;
             if(args.Length == 1)
             {
@@ -28,22 +36,34 @@ namespace AElf.Automation.RpcPerformance
                 performance = new RpcAPI(8, 2000);
 
             //Execute command
-            performance.PrepareEnv();
-            performance.InitExecRpcCommand();
-            performance.DeployContract();
-            performance.InitializeContract();
-            performance.LoadAllContractAbi();
+            try
+            {
+                performance.PrepareEnv();
+                performance.InitExecRpcCommand();
+                performance.DeployContract();
+                performance.InitializeContract();
+                performance.LoadAllContractAbi();
 
-            bool autoTest = args?.Length == 1;
-            ExecuteRpcTask(performance, autoTest);
-            
+                bool autoTest = args?.Length == 1;
+                ExecuteRpcTask(performance, autoTest);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteException(e);
+            }
+            finally
+            {
+                //Delete accounts
+                performance.DeleteAccounts();
+            }
+
             //Result summary
             CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             set.SaveTestResultXml(performance.ThreadCount);
 
-            Console.WriteLine("Complete performance testing.");
+            Logger.WriteInfo("Complete performance testing.");
             Console.ReadLine();
         }
 
