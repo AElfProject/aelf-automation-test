@@ -95,7 +95,7 @@ namespace AElf.Automation.Common.Helpers
                     RpcSetBlockVolume(ci);
                     break;
                 default:
-                    Logger.WriteInfo("Invalide command.");
+                    Logger.WriteError("Invalide command.");
                     break;
             }
             
