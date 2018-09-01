@@ -85,10 +85,10 @@ namespace AElf.Automation.DbTesting
             }
 
             Console.WriteLine($"Diff count list2: {diff2.Count}");
-            Console.WriteLine("Different Keys in List2");
+            Logger.WriteInfo("Different Keys in List2");
             foreach (var item in diff2)
             {
-                Console.WriteLine(item);
+                Logger.WriteInfo(item);
             }
 
             Assert.IsTrue(diff1.Count < 2, "192.168.197.34 diff");
@@ -106,22 +106,22 @@ namespace AElf.Automation.DbTesting
             var same = RedisHelper.GetIntersection(list1, list2);
             var diff1 = RedisHelper.GetExceptList(list1, list2);
             var diff2 = RedisHelper.GetExceptList(list2, list1);
-            Console.WriteLine($"list1 count: {list1.Count}");
-            Console.WriteLine($"list2 count: {list2.Count}");
-            Console.WriteLine($"Same count: {same.Count}");
+            Logger.WriteInfo($"list1 count: {list1.Count}");
+            Logger.WriteInfo($"list2 count: {list2.Count}");
+            Logger.WriteInfo($"Same count: {same.Count}");
 
-            Console.WriteLine($"Diff count list1: {diff1.Count}");
-            Console.WriteLine("Different Keys in List1");
+            Logger.WriteInfo($"Diff count list1: {diff1.Count}");
+            Logger.WriteInfo("Different Keys in List1");
             foreach (var item in diff1)
             {
-                Console.WriteLine(item);
+                Logger.WriteInfo(item);
             }
 
-            Console.WriteLine($"Diff count list2: {diff2.Count}");
-            Console.WriteLine("Different Keys in List2");
+            Logger.WriteInfo($"Diff count list2: {diff2.Count}");
+            Logger.WriteInfo("Different Keys in List2");
             foreach (var item in diff2)
             {
-                Console.WriteLine(item);
+                Logger.WriteInfo(item);
             }
 
             Assert.IsTrue(diff1.Count < 2, "192.168.197.20 diff");
@@ -148,15 +148,15 @@ namespace AElf.Automation.DbTesting
                 if (hex1 != hex2)
                 {
                     diffCount++;
-                    Console.WriteLine($"key: {item}");
-                    Console.WriteLine($"value1: {hex1}");
-                    Console.WriteLine($"value2: {hex2}");
-                    Console.WriteLine();
+                    Logger.WriteInfo($"key: {item}");
+                    Logger.WriteInfo($"value1: {hex1}");
+                    Logger.WriteInfo($"value2: {hex2}");
+                    Logger.WriteInfo(String.Empty);
                 }
                 else
                     sameCount++;
             }
-            Console.WriteLine($"Same:{sameCount}, Diff:{diffCount}");
+            Logger.WriteInfo($"Same:{sameCount}, Diff:{diffCount}");
         }
 
         [DataTestMethod]
@@ -167,7 +167,7 @@ namespace AElf.Automation.DbTesting
             var ktm = new KeyTypeManager(rh);
             var keyInfo = ktm.GetKeyInfo(key);
             var hash = new AElf.Kernel.Hash(keyInfo.KeyObject.Value);
-            Logger.Write($"ConvertValue={hash.ToHex()}, ObjectValue={keyInfo.ValueInfo}");
+            Logger.WriteInfo($"ConvertValue={hash.ToHex()}, ObjectValue={keyInfo.ValueInfo}");
         }
 
         [DataTestMethod]
@@ -193,12 +193,12 @@ namespace AElf.Automation.DbTesting
             ktm.GetAllKeyInfoCollection();
             ktm.PrintSummaryInfo(false);
 
-            Logger.Write("Begin print block info by height");
-            Logger.Write("-------------------------------------------------------------------------------------------------------------");
+            Logger.WriteInfo("Begin print block info by height");
+            Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
             //Analyze keys in collection
             foreach (var block in BlockCollection)
             {
-                Logger.Write($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
+                Logger.WriteInfo($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
                 //Analyze Blockhash
                     var keyinfoList = ktm.HashList["Hash"]
                     .FindAll(o=>o.Checked==false)
@@ -208,7 +208,7 @@ namespace AElf.Automation.DbTesting
                     foreach (var keyinfo in keyinfoList)
                     {
                         keyinfo.Checked = true;
-                        Logger.Write(keyinfo.ToString());
+                        Logger.WriteInfo(keyinfo.ToString());
                         if (keyinfo.HashString == "Chain")
                         {
                             var hash = new AElf.Kernel.Hash(keyinfo.KeyObject.Value);
@@ -219,7 +219,7 @@ namespace AElf.Automation.DbTesting
                             if (changeInfo != null)
                             {
                                 changeInfo.Checked = true;
-                                Logger.Write(changeInfo.ToString());
+                                Logger.WriteInfo(changeInfo.ToString());
                             }
                         }
                     }
@@ -231,7 +231,7 @@ namespace AElf.Automation.DbTesting
                 if (blockBody != null)
                 {
                     blockBody.Checked = true;
-                    Logger.Write(blockBody.ToString());
+                    Logger.WriteInfo(blockBody.ToString());
                 }
 
                 //Analyze PreviousBlockHash
@@ -243,7 +243,7 @@ namespace AElf.Automation.DbTesting
                 if (blockHeader != null)
                 {
                     blockHeader.Checked = true;
-                    Logger.Write(blockHeader.ToString());
+                    Logger.WriteInfo(blockHeader.ToString());
                 }
 
                 //Analyze Transactions
@@ -259,7 +259,7 @@ namespace AElf.Automation.DbTesting
                     if (transactionInfo != null)
                     {
                         transactionInfo.Checked = true;
-                        Logger.Write(transactionInfo.ToString());
+                        Logger.WriteInfo(transactionInfo.ToString());
                     }
 
                     //Transaction Result
@@ -270,40 +270,40 @@ namespace AElf.Automation.DbTesting
                     if (transactionResult != null)
                     {
                         transactionResult.Checked = true;
-                        Logger.Write(transactionResult.ToString());
+                        Logger.WriteInfo(transactionResult.ToString());
                     }
                 }
-                Logger.Write("-------------------------------------------------------------------------------------------------------------");
+                Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
             }
 
             //Print Unchecked key item info
-            Logger.Write(string.Empty);
-            Logger.Write("Print unchecked key info");
+            Logger.WriteInfo(string.Empty);
+            Logger.WriteInfo("Print unchecked key info");
             foreach (var item in ktm.HashList.Keys)
             {
-                Logger.Write($"Category:{item}, Unchecked count:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
+                Logger.WriteInfo($"Category:{item}, Unchecked count:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
                 foreach (var keyinfo in ktm.HashList[item].FindAll(o=>o.Checked==false))
                 {
-                    Logger.Write(keyinfo.ToString());
+                    Logger.WriteInfo(keyinfo.ToString());
                 }
-                Logger.Write(string.Empty);
+                Logger.WriteInfo(string.Empty);
             }
 
             //Summary info
-            Logger.Write(string.Empty);
-            Logger.Write("Summary basic type info");
+            Logger.WriteInfo(string.Empty);
+            Logger.WriteInfo("Summary basic type info");
             foreach (var item in ktm.HashList.Keys)
             {
-                Logger.Write($"Category:{item}, Total:{ktm.HashList[item].Count}, Checked:{ktm.HashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
+                Logger.WriteInfo($"Category:{item}, Total:{ktm.HashList[item].Count}, Checked:{ktm.HashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.HashList[item].FindAll(o=>o.Checked==false).Count}");
             }
 
             //Summary hash info
-            Logger.Write(string.Empty);
-            Logger.Write("Summary hash type info");
+            Logger.WriteInfo(string.Empty);
+            Logger.WriteInfo("Summary hash type info");
             ktm.ConvertHashType();
             foreach (var item in ktm.ProtoHashList.Keys)
             {
-                Logger.Write($"Category:{item}, Total:{ktm.ProtoHashList[item].Count}, Checked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==false).Count}");
+                Logger.WriteInfo($"Category:{item}, Total:{ktm.ProtoHashList[item].Count}, Checked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==true).Count}, Unchecked:{ktm.ProtoHashList[item].FindAll(o=>o.Checked==false).Count}");
             }
         }
     }

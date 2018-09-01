@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -18,6 +20,7 @@ namespace AElf.Automation.Common.Extensions
         public List<string> InfoMsg { get; set; }
         public List<string> ErrorMsg { get; set; }
         public long TimeSpan { get; set; }
+        public ILogHelper Logger = LogHelper.GetLogHelper();
 
         public CommandInfo(string cmd, string category="")
         {
@@ -42,15 +45,15 @@ namespace AElf.Automation.Common.Extensions
         {
             if (Result)
             {
-                Console.WriteLine("{0} : {1}", Category, "Pass");
+                Logger.WriteInfo("{0} : {1}", Category, "Pass");
                 foreach(var item in InfoMsg)
-                    Console.WriteLine(item);
+                    Logger.WriteInfo(item);
             }
             else
             {
-                Console.WriteLine("{0} : {1}", Category, "Failed");
+                Logger.WriteError("{0} : {1}", Category, "Failed");
                 foreach(var item in ErrorMsg)
-                    Console.WriteLine(item);
+                    Logger.WriteError(item);
             }
         }
         
@@ -63,7 +66,7 @@ namespace AElf.Automation.Common.Extensions
             if (paraArray.Length != count)
             {
                 ErrorMsg.Add("Parameter error.");
-                Console.WriteLine("{0} command parameter is invalid.", Category);
+                Logger.WriteError("{0} command parameter is invalid.", Category);
                 return false;
             }
             return true;
@@ -96,6 +99,7 @@ namespace AElf.Automation.Common.Extensions
     {
         public List<CommandInfo> CommandList { get; set; }
         public List<CategoryRequest> CategoryList { get; set; }
+        public ILogHelper Logger = LogHelper.GetLogHelper();
 
         public CategoryInfoSet(List<CommandInfo> commands)
         {
@@ -123,7 +127,7 @@ namespace AElf.Automation.Common.Extensions
         {
             foreach (var item in CategoryList)
             {
-                Console.WriteLine("Rpc Category: {0}", item.Category);
+                Logger.WriteInfo("Rpc Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result == true).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;
@@ -137,10 +141,10 @@ namespace AElf.Automation.Common.Extensions
                 else
                     item.AvageTimeInfo = 0;
 
-                Console.WriteLine("Total count: {0}", item.Count);
-                Console.WriteLine("Pass count: {0}", item.PassCount);
-                Console.WriteLine("Fail count: {0}", item.FailCount);
-                Console.WriteLine("AvageTime(milesecond): {0}", item.AvageTimeInfo);
+                Logger.WriteInfo("Total count: {0}", item.Count);
+                Logger.WriteInfo("Pass count: {0}", item.PassCount);
+                Logger.WriteInfo("Fail count: {0}", item.FailCount);
+                Logger.WriteInfo("AvageTime(milesecond): {0}", item.AvageTimeInfo);
             }
         }
         

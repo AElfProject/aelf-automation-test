@@ -28,6 +28,7 @@ namespace AElf.Automation.Common.Helpers
         private RpcRequestManager _requestManager;
         
         private Dictionary<string, Module> _loadedModules;
+        private ILogHelper Logger = LogHelper.GetLogHelper();
 
         
         public List<CommandInfo> CommandList { get; set; }
@@ -94,7 +95,7 @@ namespace AElf.Automation.Common.Helpers
                     RpcSetBlockVolume(ci);
                     break;
                 default:
-                    Console.WriteLine("Invalide command.");
+                    Logger.WriteInfo("Invalide command.");
                     break;
             }
             

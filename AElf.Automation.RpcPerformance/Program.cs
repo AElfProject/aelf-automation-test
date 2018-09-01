@@ -69,7 +69,7 @@ namespace AElf.Automation.RpcPerformance
 
         private static void ExecuteRpcTask(RpcAPI performance, bool autoTest=false)
         {
-            Console.WriteLine("Select execution type:");
+            Logger.WriteInfo("Select execution type:");
             Console.WriteLine("1. Normal mode");
             Console.WriteLine("2. Avage mode");
             Console.WriteLine("3. Batch mode");
@@ -84,7 +84,7 @@ namespace AElf.Automation.RpcPerformance
                 bool check = Int32.TryParse(runType, out result);
                 if (!check)
                 {
-                    Console.WriteLine("Wrong input, please input again.");
+                    Logger.WriteInfo("Wrong input, please input again.");
                     ExecuteRpcTask(performance);
                 }
             }
@@ -101,7 +101,7 @@ namespace AElf.Automation.RpcPerformance
                         performance.ExecuteContractsRpc();
                         break;
                     default:
-                        Console.WriteLine("Wrong input, please input again.");
+                        Logger.WriteInfo("Wrong input, please input again.");
                         ExecuteRpcTask(performance);
                         break;
             }

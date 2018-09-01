@@ -30,7 +30,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.Write(ci.ErrorMsg?[0], LogType.ERROR);
+                Logger.WriteError(ci.ErrorMsg?[0]);
                 return 0;
             }
         }
@@ -47,7 +47,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.Write(ci.ErrorMsg?[0], LogType.ERROR);
+                Logger.WriteError(ci.ErrorMsg?[0]);
                 return null;
             }
         }
@@ -64,7 +64,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.Write(ci.ErrorMsg?[0], LogType.ERROR);
+                Logger.WriteError(ci.ErrorMsg?[0]);
                 return null;
             }
         }
