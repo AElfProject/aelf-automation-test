@@ -10,7 +10,7 @@ namespace AElf.Automation.RpcPerformance
             RpcAPI performance;
             if(args.Length == 1)
             {
-                performance = new RpcAPI(8, 2000, args[0]);
+                performance = new RpcAPI(4, 50, args[0]);
             }
             else if (args.Length==3)
             {
@@ -33,7 +33,9 @@ namespace AElf.Automation.RpcPerformance
             performance.DeployContract();
             performance.InitializeContract();
             performance.LoadAllContractAbi();
-            ExecuteRpcTask(performance);
+
+            bool autoTest = args?.Length == 1;
+            ExecuteRpcTask(performance, autoTest);
             
             //Result summary
             CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
@@ -45,20 +47,26 @@ namespace AElf.Automation.RpcPerformance
             Console.ReadLine();
         }
 
-        private static void ExecuteRpcTask(RpcAPI performance)
+        private static void ExecuteRpcTask(RpcAPI performance, bool autoTest=false)
         {
             Console.WriteLine("Select execution type:");
             Console.WriteLine("1. Normal mode");
             Console.WriteLine("2. Avage mode");
             Console.WriteLine("3. Batch mode");
             Console.Write("Input selection: ");
-            string runType = Console.ReadLine();
+
             int result = 0;
-            bool check = Int32.TryParse(runType, out result);
-            if (!check)
+            if (autoTest)
+                result = 3;
+            else
             {
-                Console.WriteLine("Wrong input, please input again.");
-                ExecuteRpcTask(performance);
+                string runType = Console.ReadLine();
+                bool check = Int32.TryParse(runType, out result);
+                if (!check)
+                {
+                    Console.WriteLine("Wrong input, please input again.");
+                    ExecuteRpcTask(performance);
+                }
             }
 
             switch (result)
