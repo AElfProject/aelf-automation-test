@@ -191,9 +191,6 @@ namespace AElf.Automation.Common.Extensions
                 case "SerializedCallGraph":
                     returnObj = ps.Deserialize<SerializedCallGraph>(keyValue);
                     break;
-                case "SideChain":
-                    returnObj = ps.Deserialize<SideChain>(keyValue);
-                    break;
                 case "WorldState":
                     returnObj = ps.Deserialize<WorldState>(keyValue);
                     break;

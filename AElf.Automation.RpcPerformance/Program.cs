@@ -11,7 +11,7 @@ namespace AElf.Automation.RpcPerformance
         static void Main(string[] args)
         {
             //Init Logger
-            string logName = "RedisTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
+            string logName = "RpcPerformance" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 

@@ -94,7 +94,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
                 streamWriter = new StreamWriter(logFilePath, true, Encoding.Unicode);
-                WriteInfo("Initial log helper successful.");
+                WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
             {
