@@ -120,6 +120,7 @@ namespace AElf.Automation.RpcPerformance
             int count = 0;
             while(true)
             {
+                Thread.Sleep(2000);
                 foreach(dynamic item in contractList)
                 {
                     if(item.Result == false)
@@ -145,14 +146,11 @@ namespace AElf.Automation.RpcPerformance
                 }
                 if (count == contractList.Count)
                     break;
-                else
-                    Thread.Sleep(1000);
             }
         }
 
         public void InitializeContract()
         {
-            List<string> txIdList = new List<string>();
             for (int i = 0; i < ContractList.Count; i++)
             {
                 string account = AccountList[ContractList[i].AccountId].Account;
@@ -473,6 +471,7 @@ namespace AElf.Automation.RpcPerformance
         #region Private Method
         private void CheckResultStatus(List<string> idList)
         {
+            Thread.Sleep(4000);
             int length = idList.Count;
             for(int i= length-1; i>=0; i--)
             {
@@ -487,7 +486,7 @@ namespace AElf.Automation.RpcPerformance
                     if (deployResult == "Mined")
                         idList.Remove(idList[i]);
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(50);
             }
             if (idList.Count > 0 && idList.Count != 1)
             {
@@ -507,13 +506,13 @@ namespace AElf.Automation.RpcPerformance
                     string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
                     if (deployResult != "Mined")
                     {
-                        Thread.Sleep(10);
+                        Thread.Sleep(50);
                         CheckResultStatus(idList);
                     }
                 }
             }
 
-            Thread.Sleep(10);
+            Thread.Sleep(50);
         }
 
         private void UnlockAllAccounts(int count)
