@@ -51,14 +51,33 @@ namespace AElf.Automation.RedisTesting
             var rh = new RedisHelper(redishost);
             var ktm = new KeyTypeManager(rh);
             //Get Block info
-            Logger.WriteInfo("Get current block height information.");
-            for (int i = 1; i < height; i++)
+            Logger.WriteInfo("Get current block height information, current total height: {0}.", height);
+            List<Task> blockTasks = new List<Task>();
+            int reqHeight = 0;
+            object obj = new object();
+            for (int i = 0; i < 8; i++)
             {
-                var jsonInfo = ra.GetBlockInfo(i);
-                var block = new BlockInfo(i, jsonInfo);
-                BlockCollection.Enqueue(block);
-                Thread.Sleep(50);
+                blockTasks.Add(Task.Run(() =>
+                {
+                    while (true)
+                    {
+                        int threadHeight = 0;
+                        lock (obj)
+                        {
+                            reqHeight++;
+                            threadHeight = reqHeight;
+                        }
+                        if (threadHeight >= height)
+                            break;
+                        var jsonInfo = ra.GetBlockInfo(threadHeight);
+                        var block = new BlockInfo(threadHeight, jsonInfo);
+                        BlockCollection.Enqueue(block);
+                        Thread.Sleep(50);
+                    }
+                }));
             }
+
+            Task.WaitAll(blockTasks.ToArray<Task>());
 
             //Redis Info analyze
             ktm.GetAllKeyInfoCollection();

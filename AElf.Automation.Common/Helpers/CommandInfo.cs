@@ -6,6 +6,7 @@ using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
+using Org.BouncyCastle.Asn1.Cms;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -35,23 +36,21 @@ namespace AElf.Automation.Common.Extensions
         
         public void GetJsonInfo()
         {
-            if(Result)
-                JsonInfo = JsonConvert.DeserializeObject<JObject>(InfoMsg[0]);
-            else
-                JsonInfo = JsonConvert.DeserializeObject<JObject>(ErrorMsg[0]);                
+            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg[0] : ErrorMsg[0]);
         }
 
         public void PrintResultMessage()
         {
+
             if (Result)
             {
-                Logger.WriteInfo("{0} : {1}", Category, "Pass");
+                Logger.WriteInfo("Request: {0} {1}: ExecuteTime: {2}ms, Result: {3}", Cmd, Parameter, TimeSpan, "Pass");
                 foreach(var item in InfoMsg)
                     Logger.WriteInfo(item);
             }
             else
             {
-                Logger.WriteError("{0} : {1}", Category, "Failed");
+                Logger.WriteError("Request: {0} {1}: ExecuteTime: {2}ms, Result: {3}", Cmd, Parameter, TimeSpan, "Failed");
                 foreach(var item in ErrorMsg)
                     Logger.WriteError(item);
             }
