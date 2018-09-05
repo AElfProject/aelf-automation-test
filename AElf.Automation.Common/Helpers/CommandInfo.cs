@@ -46,13 +46,13 @@ namespace AElf.Automation.Common.Extensions
 
             if (Result)
             {
-                Logger.WriteInfo("Request: {0}: ExecuteTime: {2}ms, Result: {3}", Category, TimeSpan, "Pass");
+                Logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
                 foreach(var item in InfoMsg)
                     Logger.WriteInfo(item);
             }
             else
             {
-                Logger.WriteError("Request: {0}: ExecuteTime: {2}ms, Result: {3}", Category, TimeSpan, "Failed");
+                Logger.WriteError("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Failed");
                 foreach(var item in ErrorMsg)
                     Logger.WriteError(item);
             }
