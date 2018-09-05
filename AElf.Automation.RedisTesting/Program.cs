@@ -61,18 +61,25 @@ namespace AElf.Automation.RedisTesting
                 {
                     while (true)
                     {
-                        int threadHeight = 0;
-                        lock (obj)
+                        try
                         {
-                            reqHeight++;
-                            threadHeight = reqHeight;
+                            int threadHeight = 0;
+                            lock (obj)
+                            {
+                                reqHeight++;
+                                threadHeight = reqHeight;
+                            }
+                            if (threadHeight >= height)
+                                break;
+                            var jsonInfo = ra.GetBlockInfo(threadHeight);
+                            var block = new BlockInfo(threadHeight, jsonInfo);
+                            BlockCollection.Enqueue(block);
+                            Thread.Sleep(50);
                         }
-                        if (threadHeight >= height)
-                            break;
-                        var jsonInfo = ra.GetBlockInfo(threadHeight);
-                        var block = new BlockInfo(threadHeight, jsonInfo);
-                        BlockCollection.Enqueue(block);
-                        Thread.Sleep(50);
+                        catch (Exception e)
+                        {
+                            Logger.WriteError("Get block info got exception: {0}", e.Message);
+                        }
                     }
                 }));
             }
@@ -96,79 +103,89 @@ namespace AElf.Automation.RedisTesting
                     BlockInfo block;
                     while (true)
                     {
-                        if (!BlockCollection.TryDequeue(out block))
+                        try
+                        {
+                            if (!BlockCollection.TryDequeue(out block))
                             break;
 
-                        Logger.WriteInfo($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
-                        //Analyze Blockhash
-                        var keyinfoList = ktm.HashList["Hash"]
-                            .FindAll(o => o.ValueInfo.ToString().Contains(block.BlockHash));
-                        if (keyinfoList != null && keyinfoList?.Count !=0)
-                        {
-                            foreach (var keyinfo in keyinfoList)
+                            Logger.WriteInfo($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
+                            //Analyze Blockhash
+                            var keyinfoList = ktm.HashList["Hash"]
+                                .FindAll(o => o.ValueInfo.ToString().Contains(block.BlockHash));
+                            if (keyinfoList != null && keyinfoList?.Count != 0)
                             {
-                                keyinfo.Checked = true;
-                                Logger.WriteInfo(keyinfo.ToString());
-                                if (keyinfo.HashString == "Chain")
+                                foreach (var keyinfo in keyinfoList)
                                 {
-                                    var hash = new AElf.Kernel.Hash(keyinfo.KeyObject.Value);
-                                    string hashValue = hash.ToHex();
-                                    var changeInfo = ktm.HashList["Hash"]
-                                        .FirstOrDefault(o => o.ValueInfo.ToString().Contains(hashValue));
-                                    if (changeInfo != null)
+                                    keyinfo.Checked = true;
+                                    Logger.WriteInfo(keyinfo.ToString());
+                                    if (keyinfo.HashString == "Chain")
                                     {
-                                        changeInfo.Checked = true;
-                                        Logger.WriteInfo(changeInfo.ToString());
+                                        var hash = new AElf.Kernel.Hash(keyinfo.KeyObject.Value);
+                                        string hashValue = hash.ToHex();
+                                        var changeInfo = ktm.HashList["Hash"]
+                                            .FirstOrDefault(o => o.ValueInfo.ToString().Contains(hashValue));
+                                        if (changeInfo != null)
+                                        {
+                                            changeInfo.Checked = true;
+                                            Logger.WriteInfo(changeInfo.ToString());
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        var blockBody = ktm.HashList["BlockBody"]
-                            .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.BlockHash));
-                        if (blockBody != null)
-                        {
-                            blockBody.Checked = true;
-                            Logger.WriteInfo(blockBody.ToString());
-                        }
-
-                        //Analyze PreviousBlockHash
-                        //Analyze MerkleTreeRootOfTransactions
-                        //Analyze MerkleTreeRootOfWorldState
-                        var blockHeader = ktm.HashList["BlockHeader"]
-                            .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.PreviousBlockHash));
-                        if (blockHeader != null)
-                        {
-                            blockHeader.Checked = true;
-                            Logger.WriteInfo(blockHeader.ToString());
-                        }
-
-                        //Analyze Transactions
-                        foreach (var transaction in block.Transactions)
-                        {
-                            //Transaction
-                            var txResult = ra.GetTxResult(transaction.Trim());
-                            string incrementId = txResult["result"]["result"]["tx_info"]["IncrementId"].ToString();
-                            string checkStr = $"\"IncrementId\": \"{incrementId}\"";
-                            var transactionInfo = ktm.HashList["Transaction"]
-                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(checkStr));
-                            if (transactionInfo != null)
+                            var blockBody = ktm.HashList["BlockBody"]
+                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.BlockHash));
+                            if (blockBody != null)
                             {
-                                transactionInfo.Checked = true;
-                                Logger.WriteInfo(transactionInfo.ToString());
+                                blockBody.Checked = true;
+                                Logger.WriteInfo(blockBody.ToString());
                             }
 
-                            //Transaction Result
-                            var transactionResult = ktm.HashList["TransactionResult"]
-                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(transaction.Trim()));
-
-                            if (transactionResult != null)
+                            //Analyze PreviousBlockHash
+                            //Analyze MerkleTreeRootOfTransactions
+                            //Analyze MerkleTreeRootOfWorldState
+                            var blockHeader = ktm.HashList["BlockHeader"]
+                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(block.PreviousBlockHash));
+                            if (blockHeader != null)
                             {
-                                transactionResult.Checked = true;
-                                Logger.WriteInfo(transactionResult.ToString());
+                                blockHeader.Checked = true;
+                                Logger.WriteInfo(blockHeader.ToString());
+                            }
+
+                            //Analyze Transactions
+                            foreach (var transaction in block.Transactions)
+                            {
+                                //Transaction
+                                var txResult = ra.GetTxResult(transaction.Trim());
+                                string incrementId = txResult["result"]["result"]["tx_info"]["IncrementId"].ToString();
+                                string checkStr = $"\"IncrementId\": \"{incrementId}\"";
+                                var transactionInfo = ktm.HashList["Transaction"]
+                                    .FirstOrDefault(o => o.ValueInfo.ToString().Contains(checkStr));
+                                if (transactionInfo != null)
+                                {
+                                    transactionInfo.Checked = true;
+                                    Logger.WriteInfo(transactionInfo.ToString());
+                                }
+
+                                //Transaction Result
+                                var transactionResult = ktm.HashList["TransactionResult"]
+                                    .FirstOrDefault(o => o.ValueInfo.ToString().Contains(transaction.Trim()));
+
+                                if (transactionResult != null)
+                                {
+                                    transactionResult.Checked = true;
+                                    Logger.WriteInfo(transactionResult.ToString());
+                                }
                             }
                         }
-                        Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
+                        catch (Exception e)
+                        {
+                            Logger.WriteError("Analyze block info git exception: {0}", e.Message);
+                        }
+                        finally
+                        {
+                            Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
+                        }
                     }
                 }));
             }
