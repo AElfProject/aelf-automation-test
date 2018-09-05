@@ -6,7 +6,6 @@ using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
-using Org.BouncyCastle.Asn1.Cms;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -36,7 +35,10 @@ namespace AElf.Automation.Common.Extensions
         
         public void GetJsonInfo()
         {
-            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg[0] : ErrorMsg[0]);
+            if(Result)
+                JsonInfo = JsonConvert.DeserializeObject<JObject>(InfoMsg[0]);
+            else
+                JsonInfo = JsonConvert.DeserializeObject<JObject>(ErrorMsg[0]);                
         }
 
         public void PrintResultMessage()

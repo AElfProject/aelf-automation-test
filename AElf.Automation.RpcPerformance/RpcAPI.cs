@@ -156,21 +156,14 @@ namespace AElf.Automation.RpcPerformance
                 string account = AccountList[ContractList[i].AccountId].Account;
                 string abiPath = ContractList[i].AbiPath;
 
-                //Get Increment
-                var ci = new CommandInfo("get_increment");
-                ci.Parameter = account;
-                CH.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                ci.GetJsonInfo();
-                string increNo = ci.JsonInfo["result"]["result"]["increment"].ToString();
-                
                 //Load Contract abi
-                ci = new CommandInfo("load_contract_abi");
+                var ci = new CommandInfo("load_contract_abi");
                 ci.Parameter = abiPath;
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 
                 //Execute contract method
+                string increNo = "0";
                 string parameterinfo = "{\"from\":\"" + account +
                                       "\",\"to\":\"" + abiPath +
                                       "\",\"method\":\"InitBalance\",\"incr\":\"" +
@@ -243,15 +236,7 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            //Get Increment info
-            var ci = new CommandInfo("get_increment");
-            ci.Parameter = account;
-            CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
-            ci.GetJsonInfo();
-            string increNo = ci.JsonInfo["result"]["result"]["increment"].ToString();
-
-            int number = Int32.Parse(increNo);
+            int number = 0;
 
             HashSet<int> set = new HashSet<int>();
             List<string> txIdList = new List<string>();
@@ -270,7 +255,7 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                ci = new CommandInfo("broadcast_tx");
+                var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
                 
@@ -312,14 +297,7 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            //Get Increment info
-            var ci = new CommandInfo("get_increment");
-            ci.Parameter = account;
-            CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
-            ci.GetJsonInfo();
-            string increNo = ci.JsonInfo["result"]["result"]["increment"].ToString();
-            int number = Int32.Parse(increNo);
+            int number = 0;
 
             HashSet<int> set = new HashSet<int>();
             
@@ -338,7 +316,7 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                ci = new CommandInfo("broadcast_tx");
+                var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
@@ -357,15 +335,15 @@ namespace AElf.Automation.RpcPerformance
             }
             Logger.WriteInfo("Thread [{0}] contracts rpc list from account :{1} and contract abi: {2} generated completed.",threadNo, account, abiPath);
             //Send RPC Requests
-            ci = new CommandInfo("broadcast_txs");
+            var ci1 = new CommandInfo("broadcast_txs");
             foreach(var rpc in rpcRequest)
             {
-                ci.Parameter += "," + rpc;
+                ci1.Parameter += "," + rpc;
             }
-            ci.Parameter = ci.Parameter.Substring(1);
-            CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
-            var result = ci.InfoMsg[0].Replace("[", "").Replace("]", "").Split(",");
+            ci1.Parameter = ci1.Parameter.Substring(1);
+            CH.ExecuteCommand(ci1);
+            Assert.IsTrue(ci1.Result);
+            var result = ci1.InfoMsg[0].Replace("[", "").Replace("]", "").Split(",");
             Logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result.Length, DateTime.Now.ToString("HH:mm:ss.fff"));
             Logger.WriteInfo("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
@@ -376,14 +354,7 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            //Get Increment info
-            var ci = new CommandInfo("get_increment");
-            ci.Parameter = account;
-            CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
-            ci.GetJsonInfo();
-            string increNo = ci.JsonInfo["result"]["result"]["increment"].ToString();
-            int number = Int32.Parse(increNo);
+            int number = 0;
 
             HashSet<int> set = new HashSet<int>();
             for (int i = 0; i < times; i++)
@@ -400,7 +371,7 @@ namespace AElf.Automation.RpcPerformance
                               "\",\"to\":\"" + abiPath +
                               "\",\"method\":\"Transfer\",\"incr\":\"" +
                               number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
-                ci = new CommandInfo("broadcast_tx");
+                var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);

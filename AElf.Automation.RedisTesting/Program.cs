@@ -61,18 +61,25 @@ namespace AElf.Automation.RedisTesting
                 {
                     while (true)
                     {
-                        int threadHeight = 0;
-                        lock (obj)
+                        try
                         {
-                            reqHeight++;
-                            threadHeight = reqHeight;
+                            int threadHeight = 0;
+                            lock (obj)
+                            {
+                                reqHeight++;
+                                threadHeight = reqHeight;
+                            }
+                            if (threadHeight >= height)
+                                break;
+                            var jsonInfo = ra.GetBlockInfo(threadHeight);
+                            var block = new BlockInfo(threadHeight, jsonInfo);
+                            BlockCollection.Enqueue(block);
+                            Thread.Sleep(50);
                         }
-                        if (threadHeight >= height)
-                            break;
-                        var jsonInfo = ra.GetBlockInfo(threadHeight);
-                        var block = new BlockInfo(threadHeight, jsonInfo);
-                        BlockCollection.Enqueue(block);
-                        Thread.Sleep(50);
+                        catch (Exception e)
+                        {
+                            Logger.WriteError("Get block info got exception: {0}", e.Message);
+                        }
                     }
                 }));
             }
@@ -96,7 +103,9 @@ namespace AElf.Automation.RedisTesting
                     BlockInfo block;
                     while (true)
                     {
-                        if (!BlockCollection.TryDequeue(out block))
+                        try
+                        {
+                            if (!BlockCollection.TryDequeue(out block))
                             break;
 
                         Logger.WriteInfo($"Block Height: {block.Height}, TxCount:{block.Transactions.Count}");
@@ -162,13 +171,21 @@ namespace AElf.Automation.RedisTesting
                             var transactionResult = ktm.HashList["TransactionResult"]
                                 .FirstOrDefault(o => o.ValueInfo.ToString().Contains(transaction.Trim()));
 
-                            if (transactionResult != null)
-                            {
-                                transactionResult.Checked = true;
-                                Logger.WriteInfo(transactionResult.ToString());
+                                if (transactionResult != null)
+                                {
+                                    transactionResult.Checked = true;
+                                    Logger.WriteInfo(transactionResult.ToString());
+                                }
                             }
                         }
-                        Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
+                        catch (Exception e)
+                        {
+                            Logger.WriteError("Analyze block info git exception: {0}", e.Message);
+                        }
+                        finally
+                        {
+                            Logger.WriteInfo("-------------------------------------------------------------------------------------------------------------");
+                        }
                     }
                 }));
             }
