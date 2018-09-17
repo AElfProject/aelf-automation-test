@@ -8,6 +8,7 @@ namespace AElf.Automation.RpcPerformance
     public class Program
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
+
         static void Main(string[] args)
         {
             //Init Logger
@@ -16,17 +17,17 @@ namespace AElf.Automation.RpcPerformance
             Logger.InitLogHelper(dir);
 
             RpcAPI performance;
-            if(args.Length == 1)
+            if (args.Length == 1)
             {
                 performance = new RpcAPI(4, 50, args[0]);
             }
-            else if (args.Length==3)
+            else if (args.Length == 3)
             {
                 int threadNo = Int32.Parse(args[0]);
                 int execTimes = Int32.Parse(args[1]);
                 performance = new RpcAPI(threadNo, execTimes, args[2]);
             }
-            else if(args.Length ==4)
+            else if (args.Length == 4)
             {
                 int threadNo = Int32.Parse(args[0]);
                 int execTimes = Int32.Parse(args[1]);
@@ -67,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
             Console.ReadLine();
         }
 
-        private static void ExecuteRpcTask(RpcAPI performance, bool autoTest=false)
+        private static void ExecuteRpcTask(RpcAPI performance, bool autoTest = false)
         {
             Logger.WriteInfo("Select execution type:");
             Console.WriteLine("1. Normal mode");
@@ -91,20 +92,21 @@ namespace AElf.Automation.RpcPerformance
 
             switch (result)
             {
-                    case 1:
-                        performance.ExecuteContracts();
-                        break;
-                    case 2:
-                        performance.ExecuteMultiTask();
-                        break;
-                    case 3:
-                        performance.ExecuteContractsRpc();
-                        break;
-                    default:
-                        Logger.WriteInfo("Wrong input, please input again.");
-                        ExecuteRpcTask(performance);
-                        break;
+                case 1:
+                    performance.ExecuteContracts();
+                    break;
+                case 2:
+                    performance.ExecuteMultiTask();
+                    break;
+                case 3:
+                    performance.ExecuteContractsRpc();
+                    break;
+                default:
+                    Logger.WriteInfo("Wrong input, please input again.");
+                    ExecuteRpcTask(performance);
+                    break;
             }
+
             performance.PrintContractInfo();
         }
     }

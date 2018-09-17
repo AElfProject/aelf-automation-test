@@ -8,7 +8,6 @@ using AElf.Kernel;
 using AElf.SmartContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using NLog.Fluent;
 using HashType = AElf.Kernel.HashType;
 
 namespace AElf.Automation.Common.Extensions

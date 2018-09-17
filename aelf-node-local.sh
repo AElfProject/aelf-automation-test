@@ -9,6 +9,8 @@ then
 	BaseDir=$InputDir
 fi
 echo "Testing BaseDir is: $BaseDir"
+cd $BaseDir/github/AElf
+echo "Current Branch=> `sudo git branch |grep "*"`"
 
 read -p "Pull and build latest code(yes/no):" ANSWER
 if [ $ANSWER = "yes" ]

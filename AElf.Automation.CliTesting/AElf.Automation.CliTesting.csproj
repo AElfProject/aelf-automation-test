@@ -10,8 +10,6 @@
     <PackageReference Include="Google.Protobuf" Version="3.6.0" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0" />
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.2" />
-    <PackageReference Include="Akka" Version="1.3.8" />
-    <PackageReference Include="Akka.Cluster" Version="1.3.8" />
     <PackageReference Include="LiteDB" Version="4.0.0" />
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
     <PackageReference Include="NLog" Version="4.5.6" />
@@ -22,14 +20,8 @@
     <PackageReference Include="ReadLine" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="UnitTest1.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Wallet\" />
     <Folder Include="Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Data\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AElf\AElf.ABI.CSharp\AElf.ABI.CSharp.csproj" />

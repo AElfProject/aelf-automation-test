@@ -402,8 +402,8 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                if (!ci.Result)
-                    ContractRpcList.Enqueue(rpcMsg);
+                //if (!ci.Result) //Remove due to contracts will be expired after 64 blocks.
+                //    ContractRpcList.Enqueue(rpcMsg);
                 Thread.Sleep(20);
             }
         }
@@ -442,7 +442,7 @@ namespace AElf.Automation.RpcPerformance
         #region Private Method
         private void CheckResultStatus(List<string> idList)
         {
-            Thread.Sleep(4000);
+            Thread.Sleep(2000);
             int length = idList.Count;
             for(int i= length-1; i>=0; i--)
             {
