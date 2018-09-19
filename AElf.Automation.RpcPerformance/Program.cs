@@ -72,7 +72,7 @@ namespace AElf.Automation.RpcPerformance
         {
             Logger.WriteInfo("Select execution type:");
             Console.WriteLine("1. Normal mode");
-            Console.WriteLine("2. Avage mode");
+            Console.WriteLine("2. Continus mode");
             Console.WriteLine("3. Batch mode");
             Console.Write("Input selection: ");
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.RpcPerformance
                     performance.ExecuteContracts();
                     break;
                 case 2:
-                    performance.ExecuteMultiTask();
+                    performance.ExecuteMultiRpcTask();
                     break;
                 case 3:
                     performance.ExecuteContractsRpc();

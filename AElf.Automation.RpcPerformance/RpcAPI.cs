@@ -41,6 +41,7 @@ namespace AElf.Automation.RpcPerformance
     public class RpcAPI
     {
         #region Public Proerty
+
         public CliHelper CH { get; set; }
         public string RpcUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
@@ -51,12 +52,13 @@ namespace AElf.Automation.RpcPerformance
         public int ExeTimes { get; set; }
         public ConcurrentQueue<string> ContractRpcList { get; set; }
         public ILogHelper Logger = LogHelper.GetLogHelper();
+
         #endregion
 
-        public RpcAPI(int threadCount, 
-            int exeTimes, 
-            string rpcUrl= "http://192.168.197.34:8000", 
-            string keyStorePath= "")
+        public RpcAPI(int threadCount,
+            int exeTimes,
+            string rpcUrl = "http://192.168.197.34:8000",
+            string keyStorePath = "")
         {
             if (keyStorePath == "")
                 keyStorePath = GetDefaultDataDir();
@@ -104,12 +106,12 @@ namespace AElf.Automation.RpcPerformance
                 dynamic info = new System.Dynamic.ExpandoObject();
                 info.Id = i;
                 info.Account = AccountList[i].Account;
-                
+
                 var ci = new CommandInfo("deploy_contract");
                 ci.Parameter = $"AElf.Benchmark.TestContract 0 {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                
+
                 ci.GetJsonInfo();
                 string genesisContract = ci.JsonInfo["txId"].ToString();
                 Assert.AreNotEqual(string.Empty, genesisContract);
@@ -117,13 +119,14 @@ namespace AElf.Automation.RpcPerformance
                 info.Result = false;
                 contractList.Add(info);
             }
+
             int count = 0;
-            while(true)
+            while (true)
             {
                 Thread.Sleep(2000);
-                foreach(dynamic item in contractList)
+                foreach (dynamic item in contractList)
                 {
-                    if(item.Result == false)
+                    if (item.Result == false)
                     {
                         var ci = new CommandInfo("get_tx_result");
                         ci.Parameter = item.TxId;
@@ -141,9 +144,11 @@ namespace AElf.Automation.RpcPerformance
                             ContractList.Add(new Contract(item.Id, abiPath));
                             AccountList[item.Id].Increment = 1;
                         }
+
                         Thread.Sleep(10);
                     }
                 }
+
                 if (count == contractList.Count)
                     break;
             }
@@ -161,29 +166,30 @@ namespace AElf.Automation.RpcPerformance
                 ci.Parameter = abiPath;
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                
+
                 //Execute contract method
                 string increNo = "0";
                 string parameterinfo = "{\"from\":\"" + account +
-                                      "\",\"to\":\"" + abiPath +
-                                      "\",\"method\":\"InitBalance\",\"incr\":\"" +
-                                      increNo + "\",\"params\":[\"" + account + "\"]}";
+                                       "\",\"to\":\"" + abiPath +
+                                       "\",\"method\":\"InitBalance\",\"incr\":\"" +
+                                       increNo + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 ci.GetJsonInfo();
-                
+
                 string genesisContract = ci.JsonInfo["txId"].ToString();
                 Assert.AreNotEqual(string.Empty, genesisContract);
                 TxIdList.Add(genesisContract);
             }
+
             CheckResultStatus(TxIdList);
         }
 
         public void LoadAllContractAbi()
         {
-            foreach(var item in ContractList)
+            foreach (var item in ContractList)
             {
                 string abiPath = item.AbiPath;
                 var ci = new CommandInfo("load_contract_abi");
@@ -199,12 +205,12 @@ namespace AElf.Automation.RpcPerformance
             Stopwatch exec = new Stopwatch();
             exec.Start();
             List<Task> contractTasks = new List<Task>();
-            for (int i=0; i< ThreadCount; i++)
+            for (int i = 0; i < ThreadCount; i++)
             {
                 var j = i;
                 contractTasks.Add(Task.Run(() => DoContractCategory(j, ExeTimes)));
             }
-            
+
             Task.WaitAll(contractTasks.ToArray<Task>());
             exec.Stop();
             Logger.WriteInfo("End contract execution at: {0}", DateTime.Now.ToString());
@@ -229,7 +235,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("All rpc requests completed at: {0}", DateTime.Now.ToString());
             Logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
         }
-        
+
         //Without conflict group category
         public void DoContractCategory(int threadNo, int times)
         {
@@ -252,31 +258,33 @@ namespace AElf.Automation.RpcPerformance
 
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
-                              "\",\"to\":\"" + abiPath +
-                              "\",\"method\":\"Transfer\",\"incr\":\"" +
-                              number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
+                                       "\",\"to\":\"" + abiPath +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
+                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
-                
-                if(ci.Result)
+
+                if (ci.Result)
                 {
                     ci.GetJsonInfo();
                     txIdList.Add(ci.JsonInfo["txId"].ToString());
                     number++;
                     passCount++;
                 }
+
                 Thread.Sleep(20);
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"to\":\"" + abiPath +
+                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
+                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
-                
-                if(ci.Result)
+
+                if (ci.Result)
                 {
                     Assert.IsTrue(ci.Result);
                     ci.GetJsonInfo();
@@ -284,9 +292,11 @@ namespace AElf.Automation.RpcPerformance
                     number++;
                     passCount++;
                 }
+
                 Thread.Sleep(20);
             }
-            Logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2*times, passCount);
+
+            Logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
             txIdList.Reverse();
             CheckResultStatus(txIdList);
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
@@ -300,7 +310,7 @@ namespace AElf.Automation.RpcPerformance
             int number = 0;
 
             HashSet<int> set = new HashSet<int>();
-            
+
             List<string> rpcRequest = new List<string>();
             for (int i = 0; i < times; i++)
             {
@@ -313,9 +323,10 @@ namespace AElf.Automation.RpcPerformance
 
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
-                              "\",\"to\":\"" + abiPath +
-                              "\",\"method\":\"Transfer\",\"incr\":\"" +
-                              number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
+                                       "\",\"to\":\"" + abiPath +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
+                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -324,28 +335,34 @@ namespace AElf.Automation.RpcPerformance
 
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"to\":\"" + abiPath +
+                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
+                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
                 number++;
             }
-            Logger.WriteInfo("Thread [{0}] contracts rpc list from account :{1} and contract abi: {2} generated completed.",threadNo, account, abiPath);
+
+            Logger.WriteInfo(
+                "Thread [{0}] contracts rpc list from account :{1} and contract abi: {2} generated completed.",
+                threadNo, account, abiPath);
             //Send RPC Requests
             var ci1 = new CommandInfo("broadcast_txs");
-            foreach(var rpc in rpcRequest)
+            foreach (var rpc in rpcRequest)
             {
                 ci1.Parameter += "," + rpc;
             }
+
             ci1.Parameter = ci1.Parameter.Substring(1);
             CH.ExecuteCommand(ci1);
             Assert.IsTrue(ci1.Result);
             var result = ci1.InfoMsg[0].Replace("[", "").Replace("]", "").Split(",");
-            Logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result.Length, DateTime.Now.ToString("HH:mm:ss.fff"));
-            Logger.WriteInfo("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times, DateTime.Now.ToString());
+            Logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result.Length,
+                DateTime.Now.ToString("HH:mm:ss.fff"));
+            Logger.WriteInfo("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times,
+                DateTime.Now.ToString());
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
         }
 
@@ -368,66 +385,65 @@ namespace AElf.Automation.RpcPerformance
 
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
-                              "\",\"to\":\"" + abiPath +
-                              "\",\"method\":\"Transfer\",\"incr\":\"" +
-                              number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 + "\",\"1\"]}";
+                                       "\",\"to\":\"" + abiPath +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
+                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
-                number++;
 
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"to\":\"" + abiPath +
+                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
+                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
-                number++;
             }
         }
-        
-        public void ExecuteOneRpcTask()
+
+        public void ExecuteOneRpcTask(int group)
         {
             string rpcMsg = string.Empty;
-            var request = new RpcRequestManager(RpcUrl);
             while (true)
             {
                 if (!ContractRpcList.TryDequeue(out rpcMsg))
                     break;
-                Logger.WriteInfo("Contracts execution left: {0}", ContractRpcList.Count);
+                Logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, ContractRpcList.Count);
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                //if (!ci.Result) //Remove due to contracts will be expired after 64 blocks.
-                //    ContractRpcList.Enqueue(rpcMsg);
-                Thread.Sleep(20);
+                Thread.Sleep(100);
             }
         }
 
-        public void ExecuteMultiTask(int threadCount =4)
+        public void ExecuteMultiRpcTask(int threadCount = 4)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
-            List<Task> genRpcTasks = new List<Task>();
-            for(int i=0; i<ThreadCount; i++)
+            for (int u = 1; u <= 100; u++)
             {
-                var j = i;
-                genRpcTasks.Add(Task.Run(()=>GenerateRpcList(j, ExeTimes)));
-            }
-            Task.WaitAll(genRpcTasks.ToArray<Task>());
+                Logger.WriteInfo("Execution rpc round: {0}", u);
+                for (int i = 0; i < ThreadCount; i++)
+                {
+                    var j = i;
+                    //Generate Rpc contracts
+                    GenerateRpcList(j, 100);
+                    //Send Rpc contracts request
+                    Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
 
-            Logger.WriteInfo("Begin execute multi rpc contracts.");
-            List<Task> contractTasks = new List<Task>();
-            for (int i = 0; i < threadCount; i++)
-            {
-                var j = i;
-                contractTasks.Add(Task.Run(() => ExecuteOneRpcTask()));
-            }
+                    List<Task> contractTasks = new List<Task>();
+                    for (int k = 0; k < threadCount; k++)
+                    {
+                        contractTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
+                    }
 
-            Task.WaitAll(contractTasks.ToArray<Task>());
+                    Task.WaitAll(contractTasks.ToArray<Task>());
+                }
+            }
         }
 
         public void DeleteAccounts()
@@ -440,37 +456,41 @@ namespace AElf.Automation.RpcPerformance
         }
 
         #region Private Method
+
         private void CheckResultStatus(List<string> idList)
         {
             Thread.Sleep(2000);
             int length = idList.Count;
-            for(int i= length-1; i>=0; i--)
+            for (int i = length - 1; i >= 0; i--)
             {
                 var ci = new CommandInfo("get_tx_result");
                 ci.Parameter = idList[i];
                 CH.ExecuteCommand(ci);
 
-                if(ci.Result)
+                if (ci.Result)
                 {
                     ci.GetJsonInfo();
                     string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
                     if (deployResult == "Mined")
                         idList.Remove(idList[i]);
                 }
+
                 Thread.Sleep(50);
             }
+
             if (idList.Count > 0 && idList.Count != 1)
             {
                 Logger.WriteInfo("***************** {0} ******************", idList.Count);
                 CheckResultStatus(idList);
             }
-            if(idList.Count == 1)
+
+            if (idList.Count == 1)
             {
                 Logger.WriteInfo("Last one: {0}", idList[0]);
                 var ci = new CommandInfo("get_tx_result");
                 ci.Parameter = idList[0];
                 CH.ExecuteCommand(ci);
-                
+
                 if (ci.Result)
                 {
                     ci.GetJsonInfo();
@@ -488,7 +508,7 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
-            for(int i=0; i<count; i++)
+            for (int i = 0; i < count; i++)
             {
                 var ci = new CommandInfo("account unlock", "account");
                 ci.Parameter = String.Format("{0} {1} {2}", AccountList[i].Account, "123", "notimeout");
@@ -505,7 +525,7 @@ namespace AElf.Automation.RpcPerformance
                 ci.Parameter = "123";
                 ci = CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                AccountList.Add(new AccountInfo(ci.InfoMsg?[0].Replace("Account address:","").Trim()));
+                AccountList.Add(new AccountInfo(ci.InfoMsg?[0].Replace("Account address:", "").Trim()));
             }
         }
 
@@ -513,13 +533,13 @@ namespace AElf.Automation.RpcPerformance
         {
             var accounts = AccountList.FindAll(x => x.Increment != 0);
             int count = 0;
-            foreach(var item in accounts)
+            foreach (var item in accounts)
             {
                 count++;
                 Logger.WriteInfo("{0:000} Account: {1}, Execution times: {2}", count, item.Account, item.Increment);
             }
         }
-        
+
         private string GetDefaultDataDir()
         {
             try
@@ -541,9 +561,11 @@ namespace AElf.Automation.RpcPerformance
             foreach (var item in ContractList)
             {
                 count++;
-                Logger.WriteInfo("{0:00}. Account: {1}, AbiPath:{2}",count, AccountList[item.AccountId].Account, item.AbiPath);
+                Logger.WriteInfo("{0:00}. Account: {1}, AbiPath:{2}", count, AccountList[item.AccountId].Account,
+                    item.AbiPath);
             }
         }
+
         #endregion
     }
 }
