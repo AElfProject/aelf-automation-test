@@ -419,11 +419,11 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                Thread.Sleep(200);
+                Thread.Sleep(100);
             }
         }
 
-        public void ExecuteMultiRpcTask(int threadCount = 4)
+        public void ExecuteMultiRpcTask(int threadCount = 3)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
             for (int u = 1; u <= 100; u++)
