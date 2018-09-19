@@ -393,6 +393,7 @@ namespace AElf.Automation.RpcPerformance
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
+                number++;
 
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
@@ -403,6 +404,7 @@ namespace AElf.Automation.RpcPerformance
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
+                number++;
             }
         }
 
@@ -417,7 +419,7 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                Thread.Sleep(100);
+                Thread.Sleep(200);
             }
         }
 
