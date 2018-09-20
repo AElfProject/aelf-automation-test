@@ -423,10 +423,10 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void ExecuteMultiRpcTask(int threadCount = 3)
+        public void ExecuteMultiRpcTask(int threadCount = 2)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
-            for (int u = 1; u <= 100; u++)
+            for (int u = 1; u <= 1000; u++)
             {
                 Logger.WriteInfo("Execution rpc round: {0}", u);
                 for (int i = 0; i < ThreadCount; i++)
