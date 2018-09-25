@@ -366,12 +366,12 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
         }
 
-        public void GenerateRpcList(int threadNo, int times)
+        public void GenerateRpcList(int round, int threadNo, int times)
         {
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = 0;
+            int number = 100*(round-1);
 
             HashSet<int> set = new HashSet<int>();
             for (int i = 0; i < times; i++)
@@ -426,14 +426,14 @@ namespace AElf.Automation.RpcPerformance
         public void ExecuteMultiRpcTask(int threadCount = 2)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
-            for (int u = 1; u <= 1000; u++)
+            for (int r = 1; r <= 1000; r++)
             {
-                Logger.WriteInfo("Execution rpc round: {0}", u);
+                Logger.WriteInfo("Execution rpc round: {0}", r);
                 for (int i = 0; i < ThreadCount; i++)
                 {
                     var j = i;
                     //Generate Rpc contracts
-                    GenerateRpcList(j, 100);
+                    GenerateRpcList(r, j, 100);
                     //Send Rpc contracts request
                     Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
 
