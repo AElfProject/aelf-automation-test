@@ -242,8 +242,6 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = 0;
-
             HashSet<int> set = new HashSet<int>();
             List<string> txIdList = new List<string>();
             int passCount = 0;
@@ -260,7 +258,7 @@ namespace AElf.Automation.RpcPerformance
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
                                        "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
@@ -270,7 +268,6 @@ namespace AElf.Automation.RpcPerformance
                 {
                     ci.GetJsonInfo();
                     txIdList.Add(ci.JsonInfo["txId"].ToString());
-                    number++;
                     passCount++;
                 }
 
@@ -279,7 +276,7 @@ namespace AElf.Automation.RpcPerformance
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
                                 "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -289,7 +286,6 @@ namespace AElf.Automation.RpcPerformance
                     Assert.IsTrue(ci.Result);
                     ci.GetJsonInfo();
                     txIdList.Add(ci.JsonInfo["txId"].ToString());
-                    number++;
                     passCount++;
                 }
 
@@ -307,8 +303,6 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = DateTime.Now.Millisecond;
-
             HashSet<int> set = new HashSet<int>();
 
             List<string> rpcRequest = new List<string>();
@@ -325,24 +319,22 @@ namespace AElf.Automation.RpcPerformance
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
                                        "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
-                number++;
 
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
                                 "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
-                number++;
             }
 
             Logger.WriteInfo(
@@ -371,8 +363,6 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = DateTime.Now.Millisecond;
-
             HashSet<int> set = new HashSet<int>();
             for (int i = 0; i < times; i++)
             {
@@ -387,24 +377,22 @@ namespace AElf.Automation.RpcPerformance
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       number.ToString() + "\",\"params\":[\"" + account + "\",\"" + account1 +
+                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
                                        "\",\"1\"]}";
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
-                number++;
 
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
                                 "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                number.ToString() + "\",\"params\":[\"" + account + "\"]}";
+                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
-                number++;
             }
         }
 
@@ -563,6 +551,11 @@ namespace AElf.Automation.RpcPerformance
             {
                 return null;
             }
+        }
+
+        private string GetCurrentTimeStamp()
+        {
+            return DateTime.Now.ToString("MMddHHmmss") + DateTime.Now.Millisecond.ToString();
         }
 
         public void PrintContractInfo()
