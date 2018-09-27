@@ -307,7 +307,7 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = 0;
+            int number = DateTime.Now.Millisecond;
 
             HashSet<int> set = new HashSet<int>();
 
@@ -371,7 +371,7 @@ namespace AElf.Automation.RpcPerformance
             string account = AccountList[ContractList[threadNo].AccountId].Account;
             string abiPath = ContractList[threadNo].AbiPath;
 
-            int number = 100*(round-1);
+            int number = DateTime.Now.Millisecond;
 
             HashSet<int> set = new HashSet<int>();
             for (int i = 0; i < times; i++)
