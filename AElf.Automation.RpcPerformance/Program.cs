@@ -72,8 +72,9 @@ namespace AElf.Automation.RpcPerformance
         {
             Logger.WriteInfo("Select execution type:");
             Console.WriteLine("1. Normal mode");
-            Console.WriteLine("2. Continus mode");
+            Console.WriteLine("2. Continus Tx mode");
             Console.WriteLine("3. Batch mode");
+            Console.WriteLine("4. Continus Txs mode");
             Console.Write("Input selection: ");
 
             int result = 0;
@@ -100,6 +101,9 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 case 3:
                     performance.ExecuteContractsRpc();
+                    break;
+                case 4:
+                    performance.ExecuteMultiRpcTask(useTxs:true);
                     break;
                 default:
                     Logger.WriteInfo("Wrong input, please input again.");

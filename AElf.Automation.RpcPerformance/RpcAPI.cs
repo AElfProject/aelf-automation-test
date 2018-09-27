@@ -419,11 +419,11 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                Thread.Sleep(100);
+                Thread.Sleep(200);
             }
         }
 
-        public void ExecuteMultiRpcTask(int threadCount = 2)
+        public void ExecuteMultiRpcTask(int threadCount = 1, bool useTxs = false)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
             for (int r = 1; r <= 1000; r++)
@@ -432,19 +432,28 @@ namespace AElf.Automation.RpcPerformance
                 for (int i = 0; i < ThreadCount; i++)
                 {
                     var j = i;
-                    //Generate Rpc contracts
-                    GenerateRpcList(r, j, 100);
-                    //Send Rpc contracts request
-                    Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
-
-                    List<Task> contractTasks = new List<Task>();
-                    for (int k = 0; k < threadCount; k++)
+                    if (useTxs)
                     {
-                        contractTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
+                        GenerateContractList(j, 100);
+                        Thread.Sleep(1000);
                     }
+                    else
+                    {
+                        //Generate Rpc contracts
+                        GenerateRpcList(r, j, 100);
+                        //Send Rpc contracts request
+                        Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
 
-                    Task.WaitAll(contractTasks.ToArray<Task>());
+                        List<Task> contractTasks = new List<Task>();
+                        for (int k = 0; k < threadCount; k++)
+                        {
+                            contractTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
+                        }
+
+                        Task.WaitAll(contractTasks.ToArray<Task>());
+                    }
                 }
+                Thread.Sleep(1000);
             }
         }
 
