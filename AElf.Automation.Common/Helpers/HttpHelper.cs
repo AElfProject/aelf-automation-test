@@ -90,7 +90,7 @@ namespace AElf.Automation.Common.Helpers
 
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.Timeout = TimeSpan.FromMinutes(10);
+            httpClient.DefaultRequestHeaders.Add("Connection", "close");
 
             HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
 
@@ -117,7 +117,7 @@ namespace AElf.Automation.Common.Helpers
 
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.Timeout = TimeSpan.FromMinutes(10);
+            httpClient.DefaultRequestHeaders.Add("Connection", "close");
             Stopwatch exec = new Stopwatch();
             try
             {
