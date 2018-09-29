@@ -411,10 +411,10 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void ExecuteMultiRpcTask(int threadCount = 1, bool useTxs = false)
+        public void ExecuteMultiRpcTask(int threadCount = 8, bool useTxs = false)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
-            for (int r = 1; r <= 1000; r++)
+            for (int r = 1; r > 0; r++) //continous running
             {
                 Logger.WriteInfo("Execution rpc round: {0}", r);
                 for (int i = 0; i < ThreadCount; i++)
@@ -422,13 +422,13 @@ namespace AElf.Automation.RpcPerformance
                     var j = i;
                     if (useTxs)
                     {
-                        GenerateContractList(j, 100);
+                        GenerateContractList(j, ExeTimes);
                         Thread.Sleep(1000);
                     }
                     else
                     {
                         //Generate Rpc contracts
-                        GenerateRpcList(r, j, 100);
+                        GenerateRpcList(r, j, ExeTimes);
                         //Send Rpc contracts request
                         Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
 
