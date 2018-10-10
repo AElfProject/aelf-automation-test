@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using AElf.Common.Extensions;
+using AElf.Common;
 
 namespace AElf.Automation.CliTesting.Helpers
 {

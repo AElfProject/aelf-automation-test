@@ -5,13 +5,11 @@ using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Common.Application;
-using AElf.Common.ByteArrayHelpers;
-using AElf.Common.Extensions;
+using AElf.Common;
 using AElf.Kernel;
 using Newtonsoft.Json.Linq;
 using NServiceKit.Common;
 using ProtoBuf;
-using Globals = AElf.Kernel.Globals;
 using Method = AElf.Automation.Common.Protobuf.Method;
 using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
@@ -189,7 +187,7 @@ namespace AElf.Automation.Common.Helpers
             byte[] sc = screader.Read(filename);
             string hex = sc.ToHex();
 
-            var name = Globals.GenesisBasicContract;
+            var name = GlobalConfig.GenesisBasicContract;
             Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
             if (m == null)
             {

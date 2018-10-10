@@ -4,14 +4,13 @@ using ProtoBuf;
 using Newtonsoft.Json.Linq;
 using AElf.Kernel;
 using AElf.Cryptography;
-using AElf.Common.ByteArrayHelpers;
+using AElf.Common;
 using AElf.Cryptography.ECDSA;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Linq;
-using AElf.Common.Extensions;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -19,10 +18,12 @@ namespace AElf.Automation.Common.Extensions
     {
         private AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
+        private AccountManager _accountManager;
 
         public TransactionManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
+            _accountManager = new AccountManager(keyStore);
         }
         
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
@@ -63,7 +64,8 @@ namespace AElf.Automation.Common.Extensions
         {
             string addr = tx.From.Value.ToHex();
 
-            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            //ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            ECKeyPair kp = _accountManager.GetKeyPair(addr);
 
             if (kp == null)
             {

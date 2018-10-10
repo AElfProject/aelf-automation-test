@@ -38,8 +38,6 @@ namespace AElf.Automation.RedisTesting
             var rh = new RedisHelper(redishost);
             var ktm = new KeyTypeManager(rh);
             var keyInfo = ktm.GetKeyInfo(key);
-            var hash = new AElf.Kernel.Hash(keyInfo.KeyObject.Value);
-            Logger.WriteInfo($"ConvertValue={hash.ToHex()}, ObjectValue={keyInfo.ValueInfo}");
         }
 
         public void ScanDbInformation(string redishost, string rpcUrl)
@@ -124,18 +122,6 @@ namespace AElf.Automation.RedisTesting
                                     {
                                         keyinfo.Checked = true;
                                         sb.AppendLine(keyinfo.ToString());
-                                        if (keyinfo.HashString == "Chain")
-                                        {
-                                            var hash = new AElf.Kernel.Hash(keyinfo.KeyObject.Value);
-                                            string hashValue = hash.ToHex();
-                                            var changeInfo = ktm.HashList["Hash"]
-                                                .FirstOrDefault(o => o.ValueInfo.ToString().Contains(hashValue));
-                                            if (changeInfo != null)
-                                            {
-                                                changeInfo.Checked = true;
-                                                sb.AppendLine(changeInfo.ToString());
-                                            }
-                                        }
                                     }
                                 }
                             }));

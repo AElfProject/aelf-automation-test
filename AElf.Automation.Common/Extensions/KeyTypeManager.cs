@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
-using AElf.Common.ByteArrayHelpers;
-using AElf.Common.Extensions;
+using AElf.Common;
 using AElf.Kernel;
 using AElf.SmartContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using HashType = AElf.Kernel.HashType;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -162,7 +160,7 @@ namespace AElf.Automation.Common.Extensions
                     returnObj = ps.Deserialize<UInt64Value>(keyValue);
                     break;
                 case "Hash":
-                    returnObj = ps.Deserialize<Hash>(keyValue);
+                    returnObj = ps.Deserialize<Address>(keyValue);
                     break;
                 case "BlockBody":
                     returnObj = ps.Deserialize<BlockBody>(keyValue);

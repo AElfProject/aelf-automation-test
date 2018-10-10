@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Security;
+using AElf.Cryptography.ECDSA;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -75,6 +76,12 @@ namespace AElf.Automation.Common.Extensions
             }
 
             return result;
+        }
+
+        public ECKeyPair GetKeyPair(string addr)
+        {
+            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            return kp;
         }
 
         private string AskInvisible(string prefix)

@@ -4,7 +4,7 @@ using System.Linq;
 using AElf.Automation.CliTesting.Data.Protobuf;
 using AElf.Automation.CliTesting.Parsing;
 using AElf.Automation.CliTesting.RPC;
-using AElf.Common.ByteArrayHelpers;
+using AElf.Common;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;

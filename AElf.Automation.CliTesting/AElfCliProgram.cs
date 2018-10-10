@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -14,16 +12,12 @@ using AElf.Automation.CliTesting.RPC;
 using AElf.Automation.CliTesting.Screen;
 using AElf.Automation.CliTesting.Wallet;
 using AElf.Automation.CliTesting.Wallet.Exceptions;
-using AElf.Common.ByteArrayHelpers;
-using AElf.Common.Extensions;
+using AElf.Common;
 using AElf.Cryptography.ECDSA;
-using AElf.Kernel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.Misc;
 using ProtoBuf;
 using ServiceStack;
-using Globals = AElf.Kernel.Globals;
 using Method = AElf.Automation.CliTesting.Data.Protobuf.Method;
 using Module = AElf.Automation.CliTesting.Data.Protobuf.Module;
 using Transaction = AElf.Automation.CliTesting.Data.Protobuf.Transaction;
@@ -416,7 +410,7 @@ namespace AElf.Automation.CliTesting
                         byte[] sc = screader.Read(filename);
                         string hex = sc.ToHex();
 
-                        var name = Globals.GenesisBasicContract;
+                        var name = GlobalConfig.GenesisBasicContract;
                         Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
 
                         if (m == null)
@@ -846,7 +840,7 @@ namespace AElf.Automation.CliTesting
                         byte[] sc = screader.Read(filename);
                         string hex = sc.ToHex();
 
-                        var name = Globals.GenesisBasicContract;
+                        var name = GlobalConfig.GenesisBasicContract;//github.com/AElfProject.GenesisBasicContract;
                         Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
 
                         if (m == null)
@@ -1263,7 +1257,7 @@ namespace AElf.Automation.CliTesting
                         byte[] sc = screader.Read(filename);
                         string hex = sc.ToHex();
 
-                        var name = Globals.GenesisBasicContract;
+                        var name = GlobalConfig.GenesisBasicContract;
                         Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
 
                         if (m == null)

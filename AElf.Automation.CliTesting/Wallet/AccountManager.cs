@@ -7,11 +7,9 @@ using AElf.Automation.CliTesting.Command;
 using AElf.Automation.CliTesting.Parsing;
 using AElf.Automation.CliTesting.Screen;
 using AElf.Automation.CliTesting.Wallet.Exceptions;
-using AElf.Common.Extensions;
+using AElf.Common;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
-using AElf.Kernel;
-using Newtonsoft.Json.Linq;
 using ProtoBuf;
 using Transaction = AElf.Automation.CliTesting.Data.Protobuf.Transaction;
 
