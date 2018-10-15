@@ -53,17 +53,30 @@ echo "  >> Run node with account: $ACCOUNT"
 
 echo "Begin execute dotnet command to run node"
 cd $BaseDir/github/AElfRelease
-read -p "Select run type(main=1, other=2):" RunType
+read -p "Select run type(NewMainBP=1, OtherBP=2, FullNode=3):" RunType
 if [ $RunType = 1 ]
 then
-	echo "Run MAIN node with command:"
+	echo "Clean test db environment"
+    sudo redis-cli flushdb
+	echo "Run NewBP node with command:"
 	echo "sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --dpos.generator true --chain.new true"
 	sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --dpos.generator true --chain.new true
-else
-	echo "Run OTHER node with command:"
+elif [ $RunType = 2 ]
+then
+	echo "Run OtherBP node with command:"
 	read -p "Input main chain chain id: " ChainID
-	sudo sh -c "echo '{\n \"id\":\"$ChainID\"\n}' > $BaseDir/github/AElfRelease/ChainInfo.json"
+	sudo sh -c "echo '{\n \"id\":\"$ChainID\"\n}' > /home/$UserName/.local/share/aelf/chain/ChainInfo.json"
 	read -p "Input main node rpc info like(192.168.197.34:6800):" MainNode 
 	echo "sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode"
 	sudo dotnet AElf.Launcher.dll --mine.enable true --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode
+elif [ $RunType = 3 ]
+then
+    echo "Run FullNode with command:"
+	read -p "Input BpNode chain id: " ChainID
+	sudo sh -c "echo '{\n \"id\":\"$ChainID\"\n}' > /home/$UserName/.local/share/aelf/chain/ChainInfo.json"
+	read -p "Input main node rpc info like(192.168.197.34:6800):" MainNode
+	echo "sudo dotnet AElf.Launcher.dll --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode"
+	sudo dotnet AElf.Launcher.dll --rpc.port 8000 --rpc.host 0.0.0.0 --db.type redis --db.host 127.0.0.1 --db.port 6379 --db.number 0 --node.account $ACCOUNT --node.accountpassword 123 --node.port 6800 --bootnodes $MainNode
+else
+    echo "Wrong input selection."
 fi
