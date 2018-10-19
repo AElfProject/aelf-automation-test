@@ -70,15 +70,15 @@ namespace AElf.Automation.RpcPerformance
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
             RpcUrl = rpcUrl;
-            KeyStorePath = Path.Combine(keyStorePath, "keys");
+            KeyStorePath = keyStorePath;
             Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
-            Logger.WriteInfo("Key Store Path: {0}", KeyStorePath);
+            Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
         }
 
         public void PrepareEnv()
         {
             Logger.WriteInfo("Preare new and unlock accounts.");
-            CH = new CliHelper(RpcUrl);
+            CH = new CliHelper(RpcUrl, KeyStorePath);
             //New
             NewAccounts(1000);
             //Unlock Account
@@ -543,9 +543,21 @@ namespace AElf.Automation.RpcPerformance
         {
             try
             {
-                return Path.Combine(
+                /*
+                 return Path.Combine(
+
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "aelf");
+                */
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                string keyPath = Path.Combine(path, "keys");
+                if (!Directory.Exists(keyPath))
+                    Directory.CreateDirectory(keyPath);
+
+                return path;
             }
             catch (Exception e)
             {

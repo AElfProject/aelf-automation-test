@@ -24,7 +24,10 @@ namespace AElf.Automation.Common.Extensions
             if(keypair !=null)
             {
                 result.Result = true;
-                result.InfoMsg.Add("Account address: " + keypair.GetAddressHex());
+                string account = keypair.GetAddressHex().StartsWith("0x")
+                    ? keypair.GetAddressHex()
+                    : $"0x{keypair.GetAddressHex()}";
+                result.InfoMsg.Add("Account address: " + account);
             }
 
             return result;
