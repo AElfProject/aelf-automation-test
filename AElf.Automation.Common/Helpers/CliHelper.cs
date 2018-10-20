@@ -28,7 +28,6 @@ namespace AElf.Automation.Common.Helpers
         
         private Dictionary<string, Module> _loadedModules;
         private ILogHelper Logger = LogHelper.GetLogHelper();
-
         
         public List<CommandInfo> CommandList { get; set; }
 
@@ -222,7 +221,7 @@ namespace AElf.Automation.Common.Helpers
             
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
-            if (j["error"].ToString() != "")
+            if (j["error"] != null)
             {
                 ci.ErrorMsg.Add(j["error"].ToString());
                 ci.Result = false;
