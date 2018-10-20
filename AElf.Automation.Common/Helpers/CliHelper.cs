@@ -222,7 +222,7 @@ namespace AElf.Automation.Common.Helpers
             
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
-            if (j["error"].ToString() != "")
+            if (j["error"] != null)
             {
                 ci.ErrorMsg.Add(j["error"].ToString());
                 ci.Result = false;
