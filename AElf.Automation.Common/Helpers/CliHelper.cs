@@ -32,10 +32,10 @@ namespace AElf.Automation.Common.Helpers
         
         public List<CommandInfo> CommandList { get; set; }
 
-        public CliHelper(string rpcUrl)
+        public CliHelper(string rpcUrl, string keyPath="")
         {
             _rpcAddress = rpcUrl;
-            _keyStore = new AElfKeyStore(ApplicationHelpers.GetDefaultDataDir());
+            _keyStore = new AElfKeyStore(keyPath==""? ApplicationHelpers.GetDefaultDataDir() : keyPath);
             _accountManager = new AccountManager(_keyStore);
             _transactionManager = new TransactionManager(_keyStore);
             _requestManager = new RpcRequestManager(rpcUrl);
