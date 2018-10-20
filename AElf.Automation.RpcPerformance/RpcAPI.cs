@@ -80,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Preare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
             //New
-            NewAccounts(1000);
+            NewAccounts(200);
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
         }
