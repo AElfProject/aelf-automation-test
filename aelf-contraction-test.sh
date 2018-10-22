@@ -2,15 +2,17 @@
 
 sudo mkdir -p /home/aelf/github/AutomationRelease
 
-read -p "Update Testing code or not(yes/no): UPDATE
+read -p "Update Testing code or not(yes/no):" UPDATE
 if [ $UPDATE == "yes" ]
 then
     echo ">Update AElf code"
     cd /home/aelf/github/aelf-automation-test/AElf
-    sudo rm -rf $(sudo rm -rf ./ -name *.g.cs)
+    echo "AElf Branch=> `sudo git branch |grep "*"`"
+    sudo rm -rf $(sudo find ./ -name *.g.cs)
     sudo git pull
     echo ">Update Test code"
     cd /home/aelf/github/aelf-automation-test/AElf.Automation.RpcPerformance
+    echo "Automation Branch=> `sudo git branch |grep "*"`"
     sudo git pull
     echo ">Build Test code"
     sudo dotnet build --configuration Release -o /home/aelf/github/AutomationRelease
