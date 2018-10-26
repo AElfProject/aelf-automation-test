@@ -11,6 +11,8 @@ using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Linq;
+using AElf.Automation.Common.Protobuf;
+using Signature = AElf.Automation.Common.Protobuf.Signature;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -84,11 +86,7 @@ namespace AElf.Automation.Common.Extensions
             ECSignature signature = signer.Sign(kp, toSig);
 
             // Update the signature
-            tx.R = signature.R;
-            tx.S = signature.S;
-
-            tx.P = kp.PublicKey.Q.GetEncoded();
-
+            tx.Sig = new Signature {R = signature.R, S = signature.S, P = kp.PublicKey.Q.GetEncoded()};
             return tx;
         }
 
