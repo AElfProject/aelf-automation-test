@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
 
 
 namespace AElf.Automation.RpcPerformance
@@ -46,6 +47,7 @@ namespace AElf.Automation.RpcPerformance
         public string RpcUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }
+        public int BlockHeight { get; set; }
         public List<Contract> ContractList { get; set; }
         public List<string> TxIdList { get; set; }
         public int ThreadCount { get; set; }
@@ -68,6 +70,7 @@ namespace AElf.Automation.RpcPerformance
             ContractRpcList = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
+            BlockHeight = 0;
             ExeTimes = exeTimes;
             RpcUrl = rpcUrl;
             KeyStorePath = keyStorePath;
@@ -80,7 +83,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Preare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
             //New
-            NewAccounts(1000);
+            NewAccounts(200);
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
         }
@@ -96,6 +99,32 @@ namespace AElf.Automation.RpcPerformance
             ci = new CommandInfo("load_contract_abi");
             CH.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result);
+        }
+
+        public void CheckNodeStatus()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                var ci = new CommandInfo("get_block_height");
+                CH.ExecuteCommand(ci);
+                ci.GetJsonInfo();
+                var result = ci.JsonInfo;
+                string countStr = result["result"]["result"]["block_height"].ToString();
+                int currentHeight = Int32.Parse(countStr);
+
+                if (BlockHeight != currentHeight)
+                {
+                    BlockHeight = currentHeight;
+                    Logger.WriteInfo("Current block height: {0}", BlockHeight);
+                    return;
+                }
+                else
+                {
+                    Thread.Sleep(3000);
+                    Logger.WriteWarn("Block height not changed round: {0}", i);
+                }
+            }
+            Assert.IsTrue(false, "Node block exception, block height not increment anymore.");
         }
 
         public void DeployContract()
@@ -442,6 +471,7 @@ namespace AElf.Automation.RpcPerformance
                     }
                 }
                 Thread.Sleep(1000);
+                CheckNodeStatus(); //check node whether is normal
             }
         }
 

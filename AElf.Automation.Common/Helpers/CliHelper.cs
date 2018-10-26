@@ -222,6 +222,12 @@ namespace AElf.Automation.Common.Helpers
             
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
+            if (j["error"] != null)
+            {
+                ci.ErrorMsg.Add(j["error"].ToString());
+                ci.Result = false;
+                return;
+            }
             string hash = j["hash"] == null ? j["error"].ToString() :j["hash"].ToString();
             string res = j["hash"] == null ? "error" : "txId";
             var jobj = new JObject

@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScri
 		aelf-nodes-local.sh = aelf-nodes-local.sh
 		sh-record.sh = sh-record.sh
 		sh-replay.sh = sh-replay.sh
+		aelf-contraction-test.sh = aelf-contraction-test.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.DbTesting", "AElf.Automation.DbTesting\AElf.Automation.DbTesting.csproj", "{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}"
