@@ -17,7 +17,7 @@ then
     echo ">Build Test code"
     sudo dotnet build --configuration Release -o /home/aelf/github/AutomationRelease
 fi
-16
+
 echo "Run automation testing."
 cd /home/aelf/github/AutomationRelease
 read -p "Input testing parameters(like: 4 10 http://192.168.197.34:8000/chain):" PARAMETER

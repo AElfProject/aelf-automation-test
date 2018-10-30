@@ -54,12 +54,11 @@ namespace AElf.Automation.RpcPerformance
         public int ExeTimes { get; set; }
         public ConcurrentQueue<string> ContractRpcList { get; set; }
         public ILogHelper Logger = LogHelper.GetLogHelper();
-
         #endregion
 
         public RpcAPI(int threadCount,
             int exeTimes,
-            string rpcUrl = "http://192.168.197.34:8000",
+            string rpcUrl = "http://127.0.0.1:8000/chain",
             string keyStorePath = "")
         {
             if (keyStorePath == "")
@@ -72,8 +71,8 @@ namespace AElf.Automation.RpcPerformance
             ThreadCount = threadCount;
             BlockHeight = 0;
             ExeTimes = exeTimes;
-            RpcUrl = rpcUrl;
             KeyStorePath = keyStorePath;
+            RpcUrl = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
             Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
             Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
         }
@@ -93,12 +92,12 @@ namespace AElf.Automation.RpcPerformance
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
             CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
+            Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Load Contract Abi
             ci = new CommandInfo("load_contract_abi");
             CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result);
+            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
         }
 
         public void CheckNodeStatus()
@@ -150,8 +149,11 @@ namespace AElf.Automation.RpcPerformance
             }
 
             int count = 0;
-            while (true)
+            int checkTimes = 30;
+
+            while (checkTimes>0)
             {
+                checkTimes--;
                 Thread.Sleep(2000);
                 foreach (dynamic item in contractList)
                 {
@@ -179,8 +181,9 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 if (count == contractList.Count)
-                    break;
+                    return;
             }
+            Assert.IsFalse(true, "Deployed contract not executed successfully.");
         }
 
         public void InitializeContract()
@@ -197,11 +200,10 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsTrue(ci.Result);
 
                 //Execute contract method
-                string increNo = "0";
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
                                        "\",\"method\":\"InitBalance\",\"incr\":\"" +
-                                       increNo + "\",\"params\":[\"" + account + "\"]}";
+                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -300,7 +302,7 @@ namespace AElf.Automation.RpcPerformance
                     passCount++;
                 }
 
-                Thread.Sleep(20);
+                Thread.Sleep(10);
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
@@ -318,7 +320,7 @@ namespace AElf.Automation.RpcPerformance
                     passCount++;
                 }
 
-                Thread.Sleep(20);
+                Thread.Sleep(10);
             }
 
             Logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
@@ -436,7 +438,7 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                Thread.Sleep(200);
+                Thread.Sleep(50);
             }
         }
 
@@ -486,8 +488,12 @@ namespace AElf.Automation.RpcPerformance
 
         #region Private Method
 
-        private void CheckResultStatus(List<string> idList)
+        private void CheckResultStatus(List<string> idList, int checkTimes = 60)
         {
+            if(checkTimes<0)
+                Assert.IsTrue(false, "Transaction status check is over time.");
+            checkTimes--;
+            int listCount = idList.Count;
             Thread.Sleep(2000);
             int length = idList.Count;
             for (int i = length - 1; i >= 0; i--)
@@ -510,7 +516,9 @@ namespace AElf.Automation.RpcPerformance
             if (idList.Count > 0 && idList.Count != 1)
             {
                 Logger.WriteInfo("***************** {0} ******************", idList.Count);
-                CheckResultStatus(idList);
+                if (listCount == idList.Count && checkTimes == 0)
+                    Assert.IsTrue(false, "Transaction not executed successfully.");
+                CheckResultStatus(idList, checkTimes);
             }
 
             if (idList.Count == 1)
@@ -527,7 +535,7 @@ namespace AElf.Automation.RpcPerformance
                     if (deployResult != "Mined")
                     {
                         Thread.Sleep(50);
-                        CheckResultStatus(idList);
+                        CheckResultStatus(idList, checkTimes);
                     }
                 }
             }
@@ -573,12 +581,6 @@ namespace AElf.Automation.RpcPerformance
         {
             try
             {
-                /*
-                 return Path.Combine(
-
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "aelf");
-                */
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
