@@ -50,7 +50,8 @@ namespace AElf.Automation.RpcPerformance
             }
             catch (Exception e)
             {
-                Logger.WriteError(e.ToString());
+                Logger.WriteError("Message: " + e.Message);
+                Logger.WriteError("Source: " + e.Source);
             }
             finally
             {
