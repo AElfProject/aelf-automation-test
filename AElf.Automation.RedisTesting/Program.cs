@@ -18,7 +18,7 @@ namespace AElf.Automation.RedisTesting
         {
             var rt = new RedisTest();
             rt.InitTestLog();
-            rt.ScanDbInformation("192.168.199.221", "http://192.168.199.221:8000/chain");
+            rt.ScanDbInformation("192.168.199.222", "http://192.168.199.222:8000/chain");
         }
     }
 
