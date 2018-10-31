@@ -178,7 +178,6 @@ namespace AElf.Automation.Common.Extensions
             string returnCode = string.Empty;
             var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out returnCode);
             Logger.WriteInfo("Query block info status: {0}, return message: {1}", returnCode, resp);
-            var jObj = JObject.Parse(resp);
             if (returnCode != "OK")
             {
                 if (requestTimes >= 0)
@@ -188,6 +187,7 @@ namespace AElf.Automation.Common.Extensions
                 }
                 throw new Exception("Get Block hash failed exception.");
             }
+            var jObj = JObject.Parse(resp);
             return jObj["result"]["result"]["Blockhash"].ToString();
         }
     }
