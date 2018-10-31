@@ -2,17 +2,19 @@
 using System.IO;
 using ProtoBuf;
 using Newtonsoft.Json.Linq;
-using AElf.Kernel;
 using AElf.Cryptography;
 using AElf.Common;
 using AElf.Cryptography.ECDSA;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
-using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Protobuf;
+using System.Net;
+using System.Threading;
 using Signature = AElf.Automation.Common.Protobuf.Signature;
+using AElf.Automation.Common.Helpers;
+using NLog;
+using ServiceStack;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -21,6 +23,7 @@ namespace AElf.Automation.Common.Extensions
         private AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
+        private ILogHelper Logger = LogHelper.GetLogHelper();
 
         public TransactionManager(AElfKeyStore keyStore)
         {
@@ -71,7 +74,7 @@ namespace AElf.Automation.Common.Extensions
 
             if (kp == null)
             {
-                Console.WriteLine("The following account is locked:" + addr);
+                Logger.WriteInfo("The following account is locked:" + addr);
                 return null;
             }
 
@@ -115,8 +118,8 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception e)
             {
-                Console.WriteLine("Invalid transaction data.");
-                Console.WriteLine("Exception message: " + e.Message);
+                Logger.WriteError("Invalid transaction data.");
+                Logger.WriteError("Exception message: " + e.Message);
 
                 return null;
             }
@@ -128,6 +131,7 @@ namespace AElf.Automation.Common.Extensions
         private static DateTime _refBlockTime = DateTime.Now;
         private static ulong _cachedHeight;
         private static string _cachedHash;
+        private static ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress)
         {
@@ -147,21 +151,43 @@ namespace AElf.Automation.Common.Extensions
             return transaction;
         }
 
-        private static string GetBlkHeight(string rpcAddress)
+        private static string GetBlkHeight(string rpcAddress, int requestTimes = 4)
         {
+            requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
             string returnCode = string.Empty;
             var resp = reqhttp.PostRequest("get_block_height", "{}", out returnCode);
+            Logger.WriteInfo("Query block height status: {0}, return message: {1}", returnCode, resp);
+            if (returnCode != "OK")
+            {
+                if (requestTimes >= 0)
+                {
+                    Thread.Sleep(1000);
+                    return GetBlkHeight(rpcAddress, requestTimes);
+                }
+                throw new Exception("Get Block height failed exception.");
+            }
             var jObj = JObject.Parse(resp);
             return jObj["result"]["result"]["block_height"].ToString();
         }
 
-        private static string GetBlkHash(string rpcAddress, string height)
+        private static string GetBlkHash(string rpcAddress, string height, int requestTimes = 4)
         {
+            requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
             string returnCode = string.Empty;
             var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out returnCode);
+            Logger.WriteInfo("Query block info status: {0}, return message: {1}", returnCode, resp);
             var jObj = JObject.Parse(resp);
+            if (returnCode != "OK")
+            {
+                if (requestTimes >= 0)
+                {
+                    Thread.Sleep(1000);
+                    return GetBlkHash(rpcAddress, height, requestTimes);
+                }
+                throw new Exception("Get Block hash failed exception.");
+            }
             return jObj["result"]["result"]["Blockhash"].ToString();
         }
     }

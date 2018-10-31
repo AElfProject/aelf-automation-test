@@ -41,7 +41,6 @@ namespace AElf.Automation.Common.Extensions
             }
             RpcParameter = RpcParameter.Substring(1);
             RpcBody = "{\"jsonrpc\":\"2.0\",\"method\":\"" + RpcMethod + "\",\"params\":{\"rawtxs\":\"" + RpcParameter + "\"},\"id\":0}";
-            Console.WriteLine("One thread rpc request generated successfully.");
 
             return HttpHelper.PostResponse(RpcUrl, RpcBody, out returnCode);
         }
