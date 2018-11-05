@@ -387,6 +387,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times,
                 DateTime.Now.ToString());
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
+            Thread.Sleep(100);
         }
 
         public void GenerateRpcList(int round, int threadNo, int times)
@@ -438,40 +439,48 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo("broadcast_tx");
                 ci.Parameter = rpcMsg;
                 CH.ExecuteCommand(ci);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
         }
 
-        public void ExecuteMultiRpcTask(int threadCount = 8, bool useTxs = false)
+        public void ExecuteMultiRpcTask(bool useTxs = false)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
             for (int r = 1; r > 0; r++) //continous running
             {
-                Logger.WriteInfo("Execution rpc round: {0}", r);
-                for (int i = 0; i < ThreadCount; i++)
+                Logger.WriteInfo("Execution transaction rpc request round: {0}", r);
+                if (useTxs)
                 {
-                    var j = i;
-                    if (useTxs)
+                    //multi task for broadcast_txs query
+                    List<Task> txsTasks = new List<Task>();
+                    for (int i = 0; i < ThreadCount; i++)
                     {
-                        GenerateContractList(j, ExeTimes);
-                        Thread.Sleep(1000);
+                        var j = i;
+                        txsTasks.Add(Task.Run(() => GenerateContractList(j, ExeTimes)));
                     }
-                    else
+
+                    Task.WaitAll(txsTasks.ToArray<Task>());
+                }
+                else
+                {
+                    //multi task for broadcast_tx query
+                    for (int i = 0; i < ThreadCount; i++)
                     {
+                        var j = i;
                         //Generate Rpc contracts
                         GenerateRpcList(r, j, ExeTimes);
                         //Send Rpc contracts request
                         Logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
-
-                        List<Task> contractTasks = new List<Task>();
-                        for (int k = 0; k < threadCount; k++)
+                        List<Task> txTasks = new List<Task>();
+                        for (int k = 0; k < ThreadCount; k++)
                         {
-                            contractTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
+                            txTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
                         }
 
-                        Task.WaitAll(contractTasks.ToArray<Task>());
+                        Task.WaitAll(txTasks.ToArray<Task>());
                     }
                 }
+
                 Thread.Sleep(1000);
                 CheckNodeStatus(); //check node whether is normal
             }
