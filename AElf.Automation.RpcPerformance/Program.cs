@@ -66,7 +66,6 @@ namespace AElf.Automation.RpcPerformance
             set.SaveTestResultXml(performance.ThreadCount);
 
             Logger.WriteInfo("Complete performance testing.");
-            Console.ReadLine();
         }
 
         private static void ExecuteRpcTask(RpcAPI performance, bool autoTest = false)

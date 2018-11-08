@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using AElf.Automation.Common.Helpers;
@@ -192,8 +193,10 @@ namespace AElf.Automation.Common.Extensions
 
                 el.AppendChild(rpc);
             }
+
             string fileName = "RpcResult_Thread_" + threadCount+"_" + DateTime.Now.Millisecond.ToString() + ".xml";
-            xmlDoc.Save(fileName);
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
+            xmlDoc.Save(fullPath);
         }
     }
 }

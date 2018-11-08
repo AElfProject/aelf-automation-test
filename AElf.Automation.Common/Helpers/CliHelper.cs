@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
-using AElf.Common.Application;
 using AElf.Common;
-using AElf.Kernel;
 using Newtonsoft.Json.Linq;
 using NServiceKit.Common;
 using ProtoBuf;
@@ -35,7 +32,7 @@ namespace AElf.Automation.Common.Helpers
         public CliHelper(string rpcUrl, string keyPath="")
         {
             _rpcAddress = rpcUrl;
-            _keyStore = new AElfKeyStore(keyPath==""? ApplicationHelpers.GetDefaultDataDir() : keyPath);
+            _keyStore = new AElfKeyStore(keyPath==""? ApplicationHelper.GetDefaultDataDir() : keyPath);
             _accountManager = new AccountManager(_keyStore);
             _transactionManager = new TransactionManager(_keyStore);
             _requestManager = new RpcRequestManager(rpcUrl);
@@ -553,5 +550,6 @@ namespace AElf.Automation.Common.Helpers
 
             return true;
         }
+
     }
 }
