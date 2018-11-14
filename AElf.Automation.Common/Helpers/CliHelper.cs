@@ -88,6 +88,9 @@ namespace AElf.Automation.Common.Helpers
                 case "get_block_info":
                     RpcGetBlockInfo(ci);
                     break;
+                case "get_merkle_path":
+                    RpcGetMerklePath(ci);
+                    break;
                 case "set_block_volume":
                     RpcSetBlockVolume(ci);
                     break;
@@ -496,6 +499,26 @@ namespace AElf.Automation.Common.Helpers
                 ["block_height"] = ci.Parameter.Split(" ")?[0],
                 ["include_txs"] = ci.Parameter.Split(" ")?[1]
             }, ci.Category, 0);
+            string returnCode = string.Empty;
+            long timeSpan = 0;
+            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
+        }
+
+        public void RpcGetMerklePath(CommandInfo ci)
+        {
+            if (!ci.CheckParameterValid(1))
+                return;
+
+            var req = RpcRequestManager.CreateRequest(new JObject
+            {
+                ["txid"] = ci.Parameter
+
+            }, ci.Category, 1);
             string returnCode = string.Empty;
             long timeSpan = 0;
             string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
