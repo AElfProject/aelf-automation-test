@@ -256,15 +256,15 @@ namespace AElf.Automation.SideChainVerification
                 int checkTimes = 0;
                 while (true)
                 {
-                    if (txLength == vr.VerifyTxList.Count && checkTimes == 3)
+                    if (txLength == vr.VerifyTxList.Count && checkTimes == 5)
                     {
-                        Logger.WriteWarn("Verify with Node: {0} at Height: {1} failed due to transaction always pending.",
+                        Logger.WriteWarn("Chain={0} at Height: {1} failed due to transaction always pending.",
                             vr.NodeName, vr.Height);
                         vr.Result = "Pending";
                         break;
                     }
 
-                    if (txLength == vr.VerifyTxList.Count && checkTimes != 3)
+                    if (txLength == vr.VerifyTxList.Count && checkTimes != 5)
                     {
                         checkTimes++;
                         Thread.Sleep(2000);
@@ -310,6 +310,7 @@ namespace AElf.Automation.SideChainVerification
                     }
                     else
                     {
+                        //Handle request failed scenario
                         vr.VerifyTxList.Enqueue(txId);
                         Thread.Sleep(500);
                     }
