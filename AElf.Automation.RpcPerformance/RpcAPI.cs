@@ -73,12 +73,12 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             RpcUrl = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
-            Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
-            Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
         }
 
         public void PrepareEnv()
         {
+            Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
+            Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
             Logger.WriteInfo("Preare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
             //New

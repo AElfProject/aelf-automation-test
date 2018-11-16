@@ -150,7 +150,7 @@ namespace AElf.Automation.Common.Extensions
             }
         }
         
-        public void SaveTestResultXml(int threadCount)
+        public void SaveTestResultXml(int threadCount, int transactionCount)
         {
             var xmlDoc = new XmlDocument();
             xmlDoc.AppendChild(xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null));
@@ -160,6 +160,9 @@ namespace AElf.Automation.Common.Extensions
             XmlAttribute thread = xmlDoc.CreateAttribute("ThreadCount");
             thread.Value = threadCount.ToString();
             el.Attributes.Append(thread);
+            XmlAttribute transactions = xmlDoc.CreateAttribute("TxCount");
+            transactions.Value = transactionCount.ToString();
+            el.Attributes.Append(transactions);
 
             foreach (var item in CategoryList)
             {
@@ -194,7 +197,7 @@ namespace AElf.Automation.Common.Extensions
                 el.AppendChild(rpc);
             }
 
-            string fileName = "RpcResult_Thread_" + threadCount+"_" + DateTime.Now.Millisecond.ToString() + ".xml";
+            string fileName = "RpcResult_Th_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddHHmm") + ".xml";
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
             xmlDoc.Save(fullPath);
         }

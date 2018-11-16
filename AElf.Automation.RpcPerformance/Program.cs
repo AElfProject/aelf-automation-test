@@ -11,11 +11,6 @@ namespace AElf.Automation.RpcPerformance
 
         static void Main(string[] args)
         {
-            //Init Logger
-            string logName = "RpcPerformance" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
-
             RpcAPI performance;
             if (args.Length == 1)
             {
@@ -35,6 +30,11 @@ namespace AElf.Automation.RpcPerformance
             }
             else
                 performance = new RpcAPI(8, 2000);
+
+            //Init Logger
+            string logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmm") + ".log";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            Logger.InitLogHelper(dir);
 
             //Execute command
             try
