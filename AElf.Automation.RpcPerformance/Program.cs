@@ -63,8 +63,8 @@ namespace AElf.Automation.RpcPerformance
             CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
-            set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-
+            string xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
+            Logger.WriteInfo("Rpc xml summary information saved into: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
         }
 
