@@ -82,7 +82,7 @@ namespace AElf.Automation.Common.Extensions
         public int PassCount { get; set; }
         public int FailCount { get; set; }
         public long TotalTimeInfo { get; set; }
-        public long AvageTimeInfo { get; set; }
+        public double AvageTimeInfo { get; set; }
 
         public List<CommandInfo> Commands { get; set; }
 
@@ -139,18 +139,18 @@ namespace AElf.Automation.Common.Extensions
                 }
 
                 if (item.PassCount != 0)
-                    item.AvageTimeInfo = item.TotalTimeInfo / item.PassCount;
+                    item.AvageTimeInfo = (double)item.TotalTimeInfo / (double)item.PassCount;
                 else
                     item.AvageTimeInfo = 0;
 
                 Logger.WriteInfo("Total count: {0}", item.Count);
                 Logger.WriteInfo("Pass count: {0}", item.PassCount);
                 Logger.WriteInfo("Fail count: {0}", item.FailCount);
-                Logger.WriteInfo("AvageTime(milesecond): {0}", item.AvageTimeInfo);
+                Logger.WriteInfo(String.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
             }
         }
         
-        public void SaveTestResultXml(int threadCount, int transactionCount)
+        public string SaveTestResultXml(int threadCount, int transactionCount)
         {
             var xmlDoc = new XmlDocument();
             xmlDoc.AppendChild(xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null));
@@ -175,7 +175,7 @@ namespace AElf.Automation.Common.Extensions
                 totalTimes.Value = item.Count.ToString();
 
                 XmlAttribute avageTime = xmlDoc.CreateAttribute("AvageTime");
-                avageTime.Value = item.AvageTimeInfo.ToString();
+                avageTime.Value = String.Format("{0:F}", item.AvageTimeInfo);
 
                 rpc.Attributes.Append(category);
                 rpc.Attributes.Append(totalTimes);
@@ -197,9 +197,10 @@ namespace AElf.Automation.Common.Extensions
                 el.AppendChild(rpc);
             }
 
-            string fileName = "RpcResult_Th_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddHHmm") + ".xml";
+            string fileName = "RpcResult_Th_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddllHHmm") + ".xml";
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
             xmlDoc.Save(fullPath);
+            return fullPath;
         }
     }
 }
