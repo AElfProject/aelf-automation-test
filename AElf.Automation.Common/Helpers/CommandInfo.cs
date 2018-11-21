@@ -197,7 +197,7 @@ namespace AElf.Automation.Common.Extensions
                 el.AppendChild(rpc);
             }
 
-            string fileName = "RpcResult_Th_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddllHHmm") + ".xml";
+            string fileName = "RpcTh_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddHHmmss") + ".xml";
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
             xmlDoc.Save(fullPath);
             return fullPath;
