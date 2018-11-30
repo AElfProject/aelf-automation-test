@@ -36,7 +36,7 @@ namespace AElf.Automation.RpcPerformance
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            //Execute command
+            //Execute transaction command
             try
             {
                 performance.PrepareEnv();

@@ -187,13 +187,12 @@ namespace AElf.Automation.Common.Helpers
             byte[] sc = screader.Read(filename);
             string hex = sc.ToHex();
 
-            var name = GlobalConfig.GenesisBasicContract;
-            Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
-            if (m == null)
+            if (!_loadedModules.TryGetValue(_genesisAddress, out var m))
             {
                 ci.ErrorMsg.Add("ABI not loaded.");
                 return;
             }
+
             Method meth = m.Methods.FirstOrDefault(mt => mt.Name.Equals("DeploySmartContract"));
             if (meth == null)
             {
