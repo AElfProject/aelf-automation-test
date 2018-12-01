@@ -79,7 +79,9 @@ namespace AElf.Automation.RedisTesting
                                 break;
                             var jsonInfo = ra.GetBlockInfo(threadHeight);
                             var block = new BlockInfo(threadHeight, jsonInfo);
+                          
                             blockCollection.Enqueue(block);
+
                             Thread.Sleep(50);
                         }
                         catch (Exception e)
