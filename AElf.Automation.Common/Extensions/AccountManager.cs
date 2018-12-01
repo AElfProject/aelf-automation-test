@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Security;
+using AElf.Cryptography.ECDSA;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -23,7 +24,10 @@ namespace AElf.Automation.Common.Extensions
             if(keypair !=null)
             {
                 result.Result = true;
-                result.InfoMsg.Add("Account address: " + keypair.GetAddressHex());
+                string account = keypair.GetAddressHex().StartsWith("0x")
+                    ? keypair.GetAddressHex()
+                    : $"0x{keypair.GetAddressHex()}";
+                result.InfoMsg.Add("Account address: " + account);
             }
 
             return result;
@@ -75,6 +79,12 @@ namespace AElf.Automation.Common.Extensions
             }
 
             return result;
+        }
+
+        public ECKeyPair GetKeyPair(string addr)
+        {
+            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            return kp;
         }
 
         private string AskInvisible(string prefix)

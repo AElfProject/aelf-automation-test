@@ -2,14 +2,19 @@
 using System.IO;
 using ProtoBuf;
 using Newtonsoft.Json.Linq;
-using AElf.Common.Extensions;
 using AElf.Cryptography;
-using AElf.Common.ByteArrayHelpers;
+using AElf.Common;
 using AElf.Cryptography.ECDSA;
-
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using Signature = AElf.Automation.Common.Protobuf.Signature;
+using AElf.Automation.Common.Helpers;
+using NLog;
+using ServiceStack;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -17,10 +22,13 @@ namespace AElf.Automation.Common.Extensions
     {
         private AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
+        private AccountManager _accountManager;
+        private ILogHelper Logger = LogHelper.GetLogHelper();
 
         public TransactionManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
+            _accountManager = new AccountManager(keyStore);
         }
         
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
@@ -61,11 +69,12 @@ namespace AElf.Automation.Common.Extensions
         {
             string addr = tx.From.Value.ToHex();
 
-            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            //ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            ECKeyPair kp = _accountManager.GetKeyPair(addr);
 
             if (kp == null)
             {
-                Console.WriteLine("The following account is locked:" + addr);
+                Logger.WriteInfo("The following account is locked:" + addr);
                 return null;
             }
 
@@ -80,11 +89,7 @@ namespace AElf.Automation.Common.Extensions
             ECSignature signature = signer.Sign(kp, toSig);
 
             // Update the signature
-            tx.R = signature.R;
-            tx.S = signature.S;
-
-            tx.P = kp.PublicKey.Q.GetEncoded();
-
+            tx.Sig = new Signature {R = signature.R, S = signature.S, P = kp.PublicKey.Q.GetEncoded()};
             return tx;
         }
 
@@ -113,11 +118,76 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception e)
             {
-                Console.WriteLine("Invalid transaction data.");
-                Console.WriteLine("Exception message: " + e.Message);
+                Logger.WriteError("Invalid transaction data.");
+                Logger.WriteError("Exception message: " + e.Message);
 
                 return null;
             }
+        }
+    }
+
+    public static class BlockMarkingHelper
+    {
+        private static DateTime _refBlockTime = DateTime.Now;
+        private static ulong _cachedHeight;
+        private static string _cachedHash;
+        private static ILogHelper Logger = LogHelper.GetLogHelper();
+
+        public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress)
+        {
+            var height = _cachedHeight;
+            var hash = _cachedHash;
+            if (height == default(ulong) || (DateTime.Now - _refBlockTime).TotalSeconds > 60)
+            {
+                height = ulong.Parse(GetBlkHeight(rpcAddress));
+                hash = GetBlkHash(rpcAddress, height.ToString());
+                _cachedHeight = height;
+                _cachedHash = hash;
+                _refBlockTime = DateTime.Now;
+            }
+
+            transaction.RefBlockNumber = height;
+            transaction.RefBlockPrefix = ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray();
+            return transaction;
+        }
+
+        private static string GetBlkHeight(string rpcAddress, int requestTimes = 4)
+        {
+            requestTimes--;
+            var reqhttp = new RpcRequestManager(rpcAddress);
+            string returnCode = string.Empty;
+            var resp = reqhttp.PostRequest("get_block_height", "{}", out returnCode);
+            Logger.WriteInfo("Query block height status: {0}, return message: {1}", returnCode, resp);
+            if (returnCode != "OK")
+            {
+                if (requestTimes >= 0)
+                {
+                    Thread.Sleep(1000);
+                    return GetBlkHeight(rpcAddress, requestTimes);
+                }
+                throw new Exception("Get Block height failed exception.");
+            }
+            var jObj = JObject.Parse(resp);
+            return jObj["result"]["result"]["block_height"].ToString();
+        }
+
+        private static string GetBlkHash(string rpcAddress, string height, int requestTimes = 4)
+        {
+            requestTimes--;
+            var reqhttp = new RpcRequestManager(rpcAddress);
+            string returnCode = string.Empty;
+            var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out returnCode);
+            if (returnCode != "OK")
+            {
+                if (requestTimes >= 0)
+                {
+                    Thread.Sleep(1000);
+                    return GetBlkHash(rpcAddress, height, requestTimes);
+                }
+                throw new Exception("Get Block hash failed exception.");
+            }
+            var jObj = JObject.Parse(resp);
+            return jObj["result"]["result"]["Blockhash"].ToString();
         }
     }
 }

@@ -93,7 +93,7 @@ namespace AElf.Automation.Common.Helpers
                     File.Create(logFilePath).Close();
                 }
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
-                streamWriter = new StreamWriter(logFilePath, true, Encoding.Unicode);
+                streamWriter = new StreamWriter(logFilePath, true, Encoding.UTF8);
                 WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)

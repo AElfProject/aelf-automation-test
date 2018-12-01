@@ -4,8 +4,6 @@ VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.RpcTesting", "AElf.Automation.RpcTesting\AElf.Automation.RpcTesting.csproj", "{1021C6AB-CB6A-443F-A789-6D58833EEABE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.CliTesting", "AElf.Automation.CliTesting\AElf.Automation.CliTesting.csproj", "{BFDBCF0F-FB85-4D09-A59E-5F43370BC375}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScripts", "{DC4AEB8A-7BB9-439F-8AB1-61DFCFC4989A}"
 	ProjectSection(SolutionItems) = preProject
 		aelf-autotest.sh = aelf-autotest.sh
@@ -17,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScri
 		aelf-nodes-local.sh = aelf-nodes-local.sh
 		sh-record.sh = sh-record.sh
 		sh-replay.sh = sh-replay.sh
+		aelf-contraction-test.sh = aelf-contraction-test.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.DbTesting", "AElf.Automation.DbTesting\AElf.Automation.DbTesting.csproj", "{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}"
@@ -56,6 +55,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.SmartContract", "AElf\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.RedisTesting", "AElf.Automation.RedisTesting\AElf.Automation.RedisTesting.csproj", "{E67F56B5-B07A-425C-938E-F49622C0A738}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainVerification", "AElf.Automation.SideChainVerification\AElf.Automation.SideChainVerification.csproj", "{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,10 +67,6 @@ Global
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFDBCF0F-FB85-4D09-A59E-5F43370BC375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFDBCF0F-FB85-4D09-A59E-5F43370BC375}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFDBCF0F-FB85-4D09-A59E-5F43370BC375}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFDBCF0F-FB85-4D09-A59E-5F43370BC375}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -130,6 +127,10 @@ Global
 		{E67F56B5-B07A-425C-938E-F49622C0A738}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E67F56B5-B07A-425C-938E-F49622C0A738}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E67F56B5-B07A-425C-938E-F49622C0A738}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

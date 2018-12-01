@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace AElf.Automation.Common.Protobuf
 {
-    /*message Field
+     /*message Field
     {
         string Type = 1;
         string Name = 2;
@@ -17,10 +17,10 @@ namespace AElf.Automation.Common.Protobuf
     public class Field
     {
         [ProtoMember(1)]
-        public string Type { get; set; }
+        public string Type {get; set; }
 
         [ProtoMember(2)]
-        public string Name { get; set; }
+        public string Name {get; set; }
     }
 
     /*message Type
@@ -33,7 +33,7 @@ namespace AElf.Automation.Common.Protobuf
     public class Type
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string Name {get; set; }
 
         [ProtoMember(2)]
         public List<Field> Fields { get; set; }
@@ -50,7 +50,7 @@ namespace AElf.Automation.Common.Protobuf
     public class Event
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string Name {get; set; }
 
         [ProtoMember(2)]
         public List<Field> Indexed { get; set; }
@@ -72,13 +72,13 @@ namespace AElf.Automation.Common.Protobuf
     public class Method
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string Name {get; set; }
 
         [ProtoMember(2)]
         public List<Field> Params { get; set; }
 
         [ProtoMember(3)]
-        public string ReturnType { get; set; }
+        public string ReturnType {get; set; }
 
         [ProtoMember(4)]
         public bool IsView { get; set; }
@@ -88,6 +88,10 @@ namespace AElf.Automation.Common.Protobuf
 
         public byte[] SerializeParams(IEnumerable<string> args)
         {
+            if (Params == null || Params.Count == 0)
+            {
+                return ParamsPacker.Pack();
+            }
             var argsList = args.ToList();
             if (argsList.Count != Params.Count)
             {
@@ -126,7 +130,7 @@ namespace AElf.Automation.Common.Protobuf
     public class Module
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string Name {get; set; }
 
         [ProtoMember(2)]
         public List<Method> Methods { get; set; }

@@ -36,6 +36,12 @@ sudo apt-get install nginx -y
 echogreen "Install Mysql"
 sudo apt-get install mysql-server -y
 
+echogreen "Install zabbix-agent"
+wget http://repo.zabbix.com/zabbix/3.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.2-1+xenial_all.deb
+sudo dpkg -i zabbix-release_3.2-1+xenial_all.deb
+sudo apt-get update
+sudo apt-get install -y zabbix-agent
+
 echogreen "Install protoc"
 cd /home/aelf/others
 sudo wget https://github.com/google/protobuf/releases/download/v3.6.0/protoc-3.6.0-linux-x86_64.zip

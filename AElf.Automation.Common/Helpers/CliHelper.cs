@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
-using AElf.Common.Application;
-using AElf.Common.Extensions;
-using AElf.Common.ByteArrayHelpers;
+using AElf.Common;
 using Newtonsoft.Json.Linq;
 using NServiceKit.Common;
 using ProtoBuf;
-using Globals = AElf.Kernel.Globals;
 using Method = AElf.Automation.Common.Protobuf.Method;
 using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
@@ -33,9 +29,10 @@ namespace AElf.Automation.Common.Helpers
         
         public List<CommandInfo> CommandList { get; set; }
 
-        public CliHelper(string rpcUrl)
+        public CliHelper(string rpcUrl, string keyPath="")
         {
-            _keyStore = new AElfKeyStore(ApplicationHelpers.GetDefaultDataDir());
+            _rpcAddress = rpcUrl;
+            _keyStore = new AElfKeyStore(keyPath==""? ApplicationHelper.GetDefaultDataDir() : keyPath);
             _accountManager = new AccountManager(_keyStore);
             _transactionManager = new TransactionManager(_keyStore);
             _requestManager = new RpcRequestManager(rpcUrl);
@@ -90,6 +87,9 @@ namespace AElf.Automation.Common.Helpers
                     break;
                 case "get_block_info":
                     RpcGetBlockInfo(ci);
+                    break;
+                case "get_merkle_path":
+                    RpcGetMerklePath(ci);
                     break;
                 case "set_block_volume":
                     RpcSetBlockVolume(ci);
@@ -187,13 +187,12 @@ namespace AElf.Automation.Common.Helpers
             byte[] sc = screader.Read(filename);
             string hex = sc.ToHex();
 
-            var name = Globals.GenesisBasicContract;
-            Module m = _loadedModules.Values.FirstOrDefault(ld => ld.Name.Equals(name));
-            if (m == null)
+            if (!_loadedModules.TryGetValue(_genesisAddress, out var m))
             {
                 ci.ErrorMsg.Add("ABI not loaded.");
                 return;
             }
+
             Method meth = m.Methods.FirstOrDefault(mt => mt.Name.Equals("DeploySmartContract"));
             if (meth == null)
             {
@@ -205,6 +204,7 @@ namespace AElf.Automation.Common.Helpers
             Transaction tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
                 "DeploySmartContract", serializedParams, TransactionType.ContractTransaction);
+            tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)
                 return;
             tx = _transactionManager.SignTransaction(tx);
@@ -221,6 +221,12 @@ namespace AElf.Automation.Common.Helpers
             
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
+            if (j["error"] != null)
+            {
+                ci.ErrorMsg.Add(j["error"].ToString());
+                ci.Result = false;
+                return;
+            }
             string hash = j["hash"] == null ? j["error"].ToString() :j["hash"].ToString();
             string res = j["hash"] == null ? "error" : "txId";
             var jobj = new JObject
@@ -265,7 +271,8 @@ namespace AElf.Automation.Common.Helpers
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
             tr.type = TransactionType.ContractTransaction;
-                            
+            tr = tr.AddBlockReference(_rpcAddress);
+            
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             var req = RpcRequestManager.CreateRequest(rawtx, ci.Category, 1);
@@ -342,7 +349,8 @@ namespace AElf.Automation.Common.Helpers
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
             tr.type = TransactionType.ContractTransaction;
-                            
+            tr = tr.AddBlockReference(_rpcAddress);
+            
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             
@@ -499,6 +507,26 @@ namespace AElf.Automation.Common.Helpers
             ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
+
+        public void RpcGetMerklePath(CommandInfo ci)
+        {
+            if (!ci.CheckParameterValid(1))
+                return;
+
+            var req = RpcRequestManager.CreateRequest(new JObject
+            {
+                ["txid"] = ci.Parameter
+
+            }, ci.Category, 1);
+            string returnCode = string.Empty;
+            long timeSpan = 0;
+            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
+        }
         
         public void RpcSetBlockVolume(CommandInfo ci)
         {
@@ -544,5 +572,6 @@ namespace AElf.Automation.Common.Helpers
 
             return true;
         }
+
     }
 }

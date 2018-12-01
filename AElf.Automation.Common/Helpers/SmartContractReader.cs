@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using ServiceStack;
-using AElf.Common.Application;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -14,7 +13,7 @@ namespace AElf.Automation.Common.Helpers
 
         public SmartContractReader()
         {
-            _dataDirectory = ApplicationHelpers.GetDefaultDataDir();
+            _dataDirectory = ApplicationHelper.GetDefaultDataDir();
         }
 
         public byte[] Read(string name)

@@ -8,25 +8,21 @@ namespace AElf.Automation.RpcPerformance
     public class Program
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
+
         static void Main(string[] args)
         {
-            //Init Logger
-            string logName = "RpcPerformance" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
-
             RpcAPI performance;
-            if(args.Length == 1)
+            if (args.Length == 1)
             {
                 performance = new RpcAPI(4, 50, args[0]);
             }
-            else if (args.Length==3)
+            else if (args.Length == 3)
             {
                 int threadNo = Int32.Parse(args[0]);
                 int execTimes = Int32.Parse(args[1]);
                 performance = new RpcAPI(threadNo, execTimes, args[2]);
             }
-            else if(args.Length ==4)
+            else if (args.Length == 4)
             {
                 int threadNo = Int32.Parse(args[0]);
                 int execTimes = Int32.Parse(args[1]);
@@ -35,7 +31,12 @@ namespace AElf.Automation.RpcPerformance
             else
                 performance = new RpcAPI(8, 2000);
 
-            //Execute command
+            //Init Logger
+            string logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            Logger.InitLogHelper(dir);
+
+            //Execute transaction command
             try
             {
                 performance.PrepareEnv();
@@ -49,7 +50,8 @@ namespace AElf.Automation.RpcPerformance
             }
             catch (Exception e)
             {
-                Logger.WriteError(e.Message);
+                Logger.WriteError("Message: " + e.Message);
+                Logger.WriteError("Source: " + e.Source);
             }
             finally
             {
@@ -61,18 +63,18 @@ namespace AElf.Automation.RpcPerformance
             CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
-            set.SaveTestResultXml(performance.ThreadCount);
-
+            string xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
+            Logger.WriteInfo("Rpc xml summary information saved into: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
-            Console.ReadLine();
         }
 
-        private static void ExecuteRpcTask(RpcAPI performance, bool autoTest=false)
+        private static void ExecuteRpcTask(RpcAPI performance, bool autoTest = false)
         {
             Logger.WriteInfo("Select execution type:");
             Console.WriteLine("1. Normal mode");
-            Console.WriteLine("2. Avage mode");
+            Console.WriteLine("2. Continus Tx mode");
             Console.WriteLine("3. Batch mode");
+            Console.WriteLine("4. Continus Txs mode");
             Console.Write("Input selection: ");
 
             int result = 0;
@@ -91,20 +93,24 @@ namespace AElf.Automation.RpcPerformance
 
             switch (result)
             {
-                    case 1:
-                        performance.ExecuteContracts();
-                        break;
-                    case 2:
-                        performance.ExecuteMultiTask();
-                        break;
-                    case 3:
-                        performance.ExecuteContractsRpc();
-                        break;
-                    default:
-                        Logger.WriteInfo("Wrong input, please input again.");
-                        ExecuteRpcTask(performance);
-                        break;
+                case 1:
+                    performance.ExecuteContracts();
+                    break;
+                case 2:
+                    performance.ExecuteMultiRpcTask();
+                    break;
+                case 3:
+                    performance.ExecuteContractsRpc();
+                    break;
+                case 4:
+                    performance.ExecuteMultiRpcTask(useTxs:true);
+                    break;
+                default:
+                    Logger.WriteInfo("Wrong input, please input again.");
+                    ExecuteRpcTask(performance);
+                    break;
             }
+
             performance.PrintContractInfo();
         }
     }

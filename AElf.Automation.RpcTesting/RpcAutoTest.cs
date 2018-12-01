@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
@@ -12,6 +13,16 @@ namespace AElf.Automation.RpcTesting
     [TestClass]
     public class RpcAutoTest
     {
+        public ILogHelper Logger = LogHelper.GetLogHelper();
+
+        [TestInitialize]
+        public void InitTestLog()
+        {
+            string logName = "RpcAutoTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            Logger.InitLogHelper(dir);
+        }
+
         [TestMethod]
         public void GetBlockHeight()
         {
@@ -43,8 +54,83 @@ namespace AElf.Automation.RpcTesting
             Assert.IsTrue(response.Contains("ChainId"));
         }
 
+
         [DataTestMethod]
-        [DataRow("http://192.168.199.221:8000")]
+        [DataRow("http://192.168.199.221:8000/chain", "0x038807f8d022d5e0203ddd81e8b47a06c7510153eec5a1670428060c2ca34c9a")]
+        public void GetTxResult(string rpcUrl, string txId)
+        {
+            var CH = new CliHelper(rpcUrl);
+
+            string method = "get_tx_result";
+            var ci = new CommandInfo(method);
+            ci.Parameter = txId;
+            CH.ExecuteCommand(ci);
+            ci.GetJsonInfo();
+        }
+
+        [DataTestMethod]
+        [DataRow("http://192.168.197.35:8000/chain")]
+        public void GetAllBlocksInfo(string rpcUrl)
+        {
+            var CH = new CliHelper(rpcUrl);
+            List<string> transactionIds = new List<string>();
+
+            string method = "get_block_height";
+            var ci = new CommandInfo(method);
+            CH.ExecuteCommand(ci);
+            ci.GetJsonInfo();
+            var result = ci.JsonInfo;
+            string countStr = result["result"]["result"]["block_height"].ToString();
+            int currentHeight = Int32.Parse(countStr);
+
+            for (int i = 1; i <= currentHeight; i++)
+            {
+                method = "get_block_info";
+                ci = new CommandInfo(method);
+                ci.Parameter = $"{i.ToString()} true";
+                CH.ExecuteCommand(ci);
+                ci.GetJsonInfo();
+                result = ci.JsonInfo;
+                string txcount = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
+                string[] transactions = result["result"]["result"]["Body"]["Transactions"].ToString().Replace("[\n", "").Replace("\n]", "").Replace("\"", "").Split(",");
+                foreach (var tx in transactions)
+                {
+                    if(tx.Trim() != "")
+                        transactionIds.Add(tx.Trim());
+                    /*
+                    method = "get_tx_result";
+                    ci = new CommandInfo(method);
+                    ci.Parameter = tx.Trim();
+                    if (ci.Parameter == "")
+                        break;
+                    CH.ExecuteCommand(ci);
+                    Thread.Sleep(20);
+                    */
+                }
+                string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
+                Logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString());
+                Thread.Sleep(50);
+            }
+
+            //Query tx result informtion
+            Logger.WriteInfo("Begin tx result query.");
+            for (int i = 0; i < 10; i++)
+            {
+                foreach (var tx in transactionIds)
+                {
+                    method = "get_tx_result";
+                    ci = new CommandInfo(method);
+                    ci.Parameter = tx;
+                    CH.ExecuteCommand(ci);
+                    Thread.Sleep(10);
+                }
+            }
+
+            Logger.WriteInfo("Complete all query operation.");
+        }
+
+        [DataTestMethod]
+        [DataRow("http://192.168.199.221:8000/chain")]
         public void GetInTimeBlockInfo(string rpcUrl)
         {
             int value = 0;
@@ -67,7 +153,7 @@ namespace AElf.Automation.RpcTesting
                 string count = (Int32.Parse(countStr) - 1).ToString();
                 method = "get_block_info";
 
-                parameter = "{\"block_height\":\"" + count + "\"}";
+                parameter = "{\"block_height\":\"" + count + "\",\"include_txs\":\"true\"}";
                 code = string.Empty;
 
                 request = new RpcRequestManager(rpcUrl);
