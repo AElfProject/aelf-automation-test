@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AElf\AElf.Contracts.Resource\AElf.Contracts.Resource.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Sdk.CSharp\AElf.Sdk.CSharp.csproj" />
+    <ProjectReference Include="..\AElf\AElf.SmartContract\AElf.SmartContract.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Types.CSharp\AElf.Types.CSharp.csproj" />
+  </ItemGroup>
+</Project>

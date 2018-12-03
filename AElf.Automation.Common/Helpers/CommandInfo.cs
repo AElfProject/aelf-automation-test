@@ -58,7 +58,14 @@ namespace AElf.Automation.Common.Extensions
                     Logger.WriteError(item);
             }
         }
-        
+
+        public string GetErrorMessage()
+        {
+            if (ErrorMsg.Count > 0)
+                return ErrorMsg[0];
+            return string.Empty;
+        }
+
         public bool CheckParameterValid(int count)
         {
             if (count == 1 && Parameter.Trim() == "")

@@ -161,6 +161,5 @@ namespace AElf.Automation.ContractsTesting.Contracts
 
             return false;
         }
-
     }
 }

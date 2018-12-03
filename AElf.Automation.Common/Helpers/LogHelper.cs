@@ -110,7 +110,6 @@ namespace AElf.Automation.Common.Helpers
         public void WriteWarn(String logText, params object[] arg)
         {
             Write(LogType.WARNING, logText, arg);
-
         }
 
         public void WriteError(String logText, params object[] arg)
@@ -120,6 +119,9 @@ namespace AElf.Automation.Common.Helpers
 
         public void Write(LogType logType, String logText, params object[] arg)
         {
+            if (logText == string.Empty)
+                return;
+
             string timeStamp = "yyyy-MM-dd HH:mm:ss";
             lock (writeLogHelper)
             {

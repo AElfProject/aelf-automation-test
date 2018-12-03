@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ProtoBuf;
 using Newtonsoft.Json.Linq;
@@ -11,7 +12,7 @@ using System.Security.Cryptography;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Signature = AElf.Automation.Common.Protobuf.Signature;
+using Sig = AElf.Automation.Common.Protobuf.Sig;
 using AElf.Automation.Common.Helpers;
 using NLog;
 using ServiceStack;
@@ -50,10 +51,9 @@ namespace AElf.Automation.Common.Extensions
                 Transaction t = new Transaction();
                 t.From = ByteArrayHelpers.FromHexString(elementAt);
                 t.To = ByteArrayHelpers.FromHexString(genesisAddress);
-                t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
                 t.Params = serializedParams;
-                t.type = contracttransaction;
+                t.Type = contracttransaction;
                 _cmdInfo.Result = true;
 
                 return t;
@@ -65,6 +65,36 @@ namespace AElf.Automation.Common.Extensions
             }
         }
 
+        public Transaction SignTransaction(Transaction tx)
+        {
+            string addr = tx.From.Value.ToHex(true);
+
+            MemoryStream ms = new MemoryStream();
+            Serializer.Serialize(ms, tx);
+
+            // Update the signature
+            tx.Sigs = new List<Sig> {Sign(addr, ms.ToArray())};
+            return tx;
+        }
+
+        public Sig Sign(string addr, byte[] txnData)
+        {
+            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+
+            if (kp == null)
+            {
+                Logger.WriteInfo("The following account is locked:" + addr);
+                return null;
+            }
+
+            // Sign the hash
+            ECSigner signer = new ECSigner();
+            byte[] toSig = SHA256.Create().ComputeHash(txnData);
+            ECSignature signature = signer.Sign(kp, toSig);
+            return new Sig {R = signature.R, S = signature.S, P = kp.PublicKey.Q.GetEncoded()};
+        }
+
+        /*
         public Transaction SignTransaction(Transaction tx)
         {
             string addr = tx.From.Value.ToHex();
@@ -92,6 +122,8 @@ namespace AElf.Automation.Common.Extensions
             tx.Sig = new Signature {R = signature.R, S = signature.S, P = kp.PublicKey.Q.GetEncoded()};
             return tx;
         }
+        */
+
 
         public JObject ConvertTransactionRawTx(Transaction tx)
         {
@@ -105,6 +137,7 @@ namespace AElf.Automation.Common.Extensions
             return reqParams;
         }
 
+
         public Transaction ConvertFromJson(JObject j)
         {
             try
@@ -112,7 +145,6 @@ namespace AElf.Automation.Common.Extensions
                 Transaction tr = new Transaction();
                 tr.From = ByteArrayHelpers.FromHexString(j["from"].ToString());
                 tr.To = ByteArrayHelpers.FromHexString(j["to"].ToString());
-                tr.IncrementId = j["incr"].ToObject<ulong>();
                 tr.MethodName = j["method"].ToObject<string>();
                 return tr;
             }

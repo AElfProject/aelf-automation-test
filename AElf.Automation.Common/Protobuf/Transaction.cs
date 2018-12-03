@@ -33,21 +33,33 @@ namespace AElf.Automation.Common.Protobuf
         public UInt64 Fee { get; set; }
         
         [ProtoMember(9)]
-        public Signature Sig { get; set; }
+        public List<Sig> Sigs { get; set; }
         
         [ProtoMember(10)]
-        public TransactionType  type { get; set; }
+        public TransactionType  Type { get; set; }
     }
 
     [ProtoContract]
     public enum TransactionType
     {
+        [ProtoMember(1)]
         ContractTransaction = 0,
-        DposTransaction = 1
+
+        [ProtoMember(2)]
+        DposTransaction = 1,
+
+        [ProtoMember(3)]
+        CrossChainBlockInfoTransaction = 2,
+
+        [ProtoMember(4)]
+        MsigTransaction = 3,
+
+        [ProtoMember(5)]
+        ContractDeployTransaction=4,
     }
 
     [ProtoContract]
-    public class Signature
+    public class Sig
     {
         [ProtoMember(1)]
         public byte[] R { get; set; }
