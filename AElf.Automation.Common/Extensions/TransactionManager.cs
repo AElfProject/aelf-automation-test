@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ProtoBuf;
 using Newtonsoft.Json.Linq;
@@ -9,12 +10,9 @@ using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
 using System.Linq;
-using System.Net;
 using System.Threading;
-using Signature = AElf.Automation.Common.Protobuf.Signature;
 using AElf.Automation.Common.Helpers;
-using NLog;
-using ServiceStack;
+using Address = AElf.Automation.Common.Protobuf.Address;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -25,10 +23,10 @@ namespace AElf.Automation.Common.Extensions
         private AccountManager _accountManager;
         private ILogHelper Logger = LogHelper.GetLogHelper();
 
-        public TransactionManager(AElfKeyStore keyStore)
+        public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
-            _accountManager = new AccountManager(keyStore);
+            _accountManager = new AccountManager(keyStore, chainId);
         }
         
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
@@ -48,12 +46,12 @@ namespace AElf.Automation.Common.Extensions
             try
             {
                 Transaction t = new Transaction();
-                t.From = ByteArrayHelpers.FromHexString(elementAt);
-                t.To = ByteArrayHelpers.FromHexString(genesisAddress);
+                t.From = Address.Parse(elementAt);
+                t.To = Address.Parse(genesisAddress);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
                 t.Params = serializedParams;
-                t.type = contracttransaction;
+                t.Type = contracttransaction;
                 _cmdInfo.Result = true;
 
                 return t;
@@ -67,16 +65,7 @@ namespace AElf.Automation.Common.Extensions
 
         public Transaction SignTransaction(Transaction tx)
         {
-            string addr = tx.From.Value.ToHex();
-
-            //ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
-            ECKeyPair kp = _accountManager.GetKeyPair(addr);
-
-            if (kp == null)
-            {
-                Logger.WriteInfo("The following account is locked:" + addr);
-                return null;
-            }
+            string addr = tx.From.GetFormatted();
 
             MemoryStream ms = new MemoryStream();
             Serializer.Serialize(ms, tx);
@@ -84,13 +73,28 @@ namespace AElf.Automation.Common.Extensions
             byte[] b = ms.ToArray();
             byte[] toSig = SHA256.Create().ComputeHash(b);
 
+            // Update the signature
+            tx.Sigs = new List<byte[]> { Sign(addr, ms.ToArray()) };
+            return tx;
+        }
+
+        public byte[] Sign(string addr, byte[] txnData)
+        {
+            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+
+            if (kp == null)
+            {
+                _cmdInfo.ErrorMsg.Add($"The following account is locked: {addr}");
+                _cmdInfo.Result = false;
+                return null;
+            }
+
             // Sign the hash
             ECSigner signer = new ECSigner();
+            byte[] toSig = SHA256.Create().ComputeHash(txnData);
             ECSignature signature = signer.Sign(kp, toSig);
 
-            // Update the signature
-            tx.Sig = new Signature {R = signature.R, S = signature.S, P = kp.PublicKey.Q.GetEncoded()};
-            return tx;
+            return signature.SigBytes;
         }
 
         public JObject ConvertTransactionRawTx(Transaction tx)
@@ -110,9 +114,8 @@ namespace AElf.Automation.Common.Extensions
             try
             {
                 Transaction tr = new Transaction();
-                tr.From = ByteArrayHelpers.FromHexString(j["from"].ToString());
-                tr.To = ByteArrayHelpers.FromHexString(j["to"].ToString());
-                tr.IncrementId = j["incr"].ToObject<ulong>();
+                tr.From = Address.Parse(j["from"].ToString());
+                tr.To = Address.Parse(j["to"].ToString());
                 tr.MethodName = j["method"].ToObject<string>();
                 return tr;
             }

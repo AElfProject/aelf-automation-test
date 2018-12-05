@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Extensions;
@@ -11,6 +12,7 @@ using Method = AElf.Automation.Common.Protobuf.Method;
 using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
+using Address = AElf.Automation.Common.Protobuf.Address;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -18,6 +20,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private string _rpcAddress;
         private string _genesisAddress;
+        private string _chainId;
         private AElfKeyStore _keyStore;
         private AccountManager _accountManager;
         private TransactionManager _transactionManager;
@@ -33,8 +36,6 @@ namespace AElf.Automation.Common.Helpers
         {
             _rpcAddress = rpcUrl;
             _keyStore = new AElfKeyStore(keyPath==""? ApplicationHelper.GetDefaultDataDir() : keyPath);
-            _accountManager = new AccountManager(_keyStore);
-            _transactionManager = new TransactionManager(_keyStore);
             _requestManager = new RpcRequestManager(rpcUrl);
             _loadedModules = new Dictionary<string, Module>();
             
@@ -126,10 +127,18 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            if (j["result"]["BasicContractZero"] != null)
+            if (j["result"]["AElf.Contracts.Genesis"] != null)
             {
-                _genesisAddress = j["result"]["BasicContractZero"].ToString();
+                _genesisAddress = j["result"]["AElf.Contracts.Genesis"].ToString();
             }
+
+            if (j["result"]["chain_id"] != null)
+            {
+                _chainId = j["result"]["chain_id"].ToString();
+                _accountManager = new AccountManager(_keyStore, _chainId);
+                _transactionManager = new TransactionManager(_keyStore, _chainId);
+            }
+
             string message = JObject.FromObject(j["result"]).ToString();
             ci.InfoMsg.Add(message);
             ci.Result = true;
@@ -199,7 +208,7 @@ namespace AElf.Automation.Common.Helpers
                 ci.ErrorMsg.Add("Method not Found.");
                 return;
             }
-            byte[] serializedParams = meth.SerializeParams(new List<string> {"1", hex} );
+            byte[] serializedParams = meth.SerializeParams(new List<string> {"1", hex});
             _transactionManager.SetCmdInfo(ci);
             Transaction tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
@@ -249,11 +258,12 @@ namespace AElf.Automation.Common.Helpers
             Transaction tr = _transactionManager.ConvertFromJson(j);
             if (tr == null)
                 return;
-            string hex = tr.To.Value.ToHex();
-            Module m = null;
-            if (!_loadedModules.TryGetValue(hex.Replace("0x", ""), out m))
+            string toAdr = tr.To.GetFormatted();
+
+            Module m;
+            if (!_loadedModules.TryGetValue(toAdr, out m))
             {
-                if (!_loadedModules.TryGetValue("0x"+hex.Replace("0x", ""), out m))
+                if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
                     ci.ErrorMsg.Add("Abi Not Loaded.");
                     return;
@@ -270,7 +280,7 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
-            tr.type = TransactionType.ContractTransaction;
+            tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
             _transactionManager.SignTransaction(tr);
@@ -327,11 +337,12 @@ namespace AElf.Automation.Common.Helpers
         {
             JObject j = JObject.Parse(ci.Parameter);
             Transaction tr = _transactionManager.ConvertFromJson(j);
-            string hex = tr.To.Value.ToHex();
-            Module m = null;
-            if (!_loadedModules.TryGetValue(hex.Replace("0x", ""), out m))
+            string toAdr = tr.To.GetFormatted();
+
+            Module m;
+            if (!_loadedModules.TryGetValue(toAdr, out m))
             {
-                if (!_loadedModules.TryGetValue("0x"+hex.Replace("0x", ""), out m))
+                if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
                     ci.ErrorMsg.Add("Abi Not Loaded.");
                     return string.Empty;
@@ -348,7 +359,7 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
-            tr.type = TransactionType.ContractTransaction;
+            tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
             _transactionManager.SignTransaction(tr);
@@ -356,7 +367,42 @@ namespace AElf.Automation.Common.Helpers
             
             return rawtx["rawtx"].ToString();
         }
-        
+
+        public string RpcGenerateTransactionRawTx(string from, string to, string methodName, params string[] paramArray)
+        {
+            Transaction tr = new Transaction();
+            tr.From = Address.Parse(from);
+            tr.To = Address.Parse(to);
+            tr.IncrementId = GetRandomIncrId();
+            tr.MethodName = methodName;
+
+            string toAdr = tr.To.GetFormatted();
+
+            Module m;
+            if (!_loadedModules.TryGetValue(toAdr, out m))
+            {
+                if (!_loadedModules.TryGetValue(toAdr, out m))
+                {
+                    Logger.WriteError("Abi not load.");
+                    return string.Empty;
+                }
+            }
+
+            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+
+            if (method == null)
+                return string.Empty;
+
+            tr.Params = paramArray == null ? null : method.SerializeParams(paramArray);
+            tr.Type = TransactionType.ContractTransaction;
+            tr = tr.AddBlockReference(_rpcAddress);
+
+            _transactionManager.SignTransaction(tr);
+            var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
+
+            return rawtx["rawtx"].ToString();
+        }
+
         public void RpcBroadcastTxs(CommandInfo ci)
         {
             var paramObject = new JObject
@@ -571,6 +617,11 @@ namespace AElf.Automation.Common.Helpers
             }
 
             return true;
+        }
+
+        private ulong GetRandomIncrId()
+        {
+            return Convert.ToUInt64(DateTime.Now.ToString("MMddHHmmss") + DateTime.Now.Millisecond.ToString());
         }
 
     }

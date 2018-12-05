@@ -75,20 +75,13 @@ namespace AElf.Automation.RpcPerformance
             RpcUrl = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
         }
 
-        public void PrepareEnv()
+        public void InitExecRpcCommand()
         {
             Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
             Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
             Logger.WriteInfo("Preare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
-            //New
-            NewAccounts(200);
-            //Unlock Account
-            UnlockAllAccounts(ThreadCount);
-        }
 
-        public void InitExecRpcCommand()
-        {
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
             CH.ExecuteCommand(ci);
@@ -98,6 +91,11 @@ namespace AElf.Automation.RpcPerformance
             ci = new CommandInfo("load_contract_abi");
             CH.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
+
+            //New
+            NewAccounts(200);
+            //Unlock Account
+            UnlockAllAccounts(ThreadCount);
         }
 
         public void CheckNodeStatus()

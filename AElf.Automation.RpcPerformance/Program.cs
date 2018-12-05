@@ -39,7 +39,6 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
-                performance.PrepareEnv();
                 performance.InitExecRpcCommand();
                 performance.DeployContract();
                 performance.InitializeContract();

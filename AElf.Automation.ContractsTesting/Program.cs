@@ -24,7 +24,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.199.222:8000/chain";
+            string url = "http://192.168.199.174:8000/chain";
             var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
 
             //Account preparation
@@ -115,6 +115,25 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Contract.Resource
+            var acr = new ContractBase(ch, "AElf.Contract.Resource", accList[0]);
+            acr.DeployContract();
+            acr.LoadContractAbi();
+
+            //Init and Adjust resource
+            acr.ExecuteContractMethod(out var initId, "Initialize", TokenAbi);
+            acr.ExecuteContractMethod(out var cpuId, "AdjustResourceCap", "Cpu", "3000");
+            acr.ExecuteContractMethod(out var ramId, "AdjustResourceCap", "Ram", "3000");
+            acr.ExecuteContractMethod(out var netId, "AdjustResourceCap", "Net", "3000");
+
+            //Check result
+            acr.CheckTransactionResult(out var initCiResult, initId);
+            acr.CheckTransactionResult(out var cCiResult, cpuId);
+            acr.CheckTransactionResult(out var rCiResult, ramId);
+            acr.CheckTransactionResult(out var nCiResult, netId);
+
+            //Get GetElfTokenAddress
+            acr.ExecuteContractMethod(out var etaId, "GetElfTokenAddress");
+
             #endregion
         }
     }

@@ -27,9 +27,9 @@ namespace AElf.Automation.ContractsTesting.Contracts
             ContractAbi = contractAbi;
         }
 
-        public void DeployContract(out string txId)
+        public void DeployContract()
         {
-            txId = string.Empty;
+            var txId = string.Empty;
             var ci = new CommandInfo("deploy_contract");
             ci.Parameter = $"{FileName} 0 {Account}";
             CH.RpcDeployContract(ci);
@@ -102,7 +102,7 @@ namespace AElf.Automation.ContractsTesting.Contracts
             return false;
         }
 
-        public void CheckTransactionResult(out CommandInfo ci, string txId, int checkTimes = 15)
+        public void CheckTransactionResult(out CommandInfo ci, string txId, int checkTimes = 20)
         {
             ci = new CommandInfo("get_tx_result");
             ci.Parameter = txId;
@@ -114,14 +114,14 @@ namespace AElf.Automation.ContractsTesting.Contracts
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
                     string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
-                    Logger.WriteInfo($"Transaction: {txId}, Status: {txResult}");
+                    Logger.WriteInfo($"Transaction: {txId}, Status: {txResult}, Check times: {21 - checkTimes}");
 
                     if (txResult == "Mined")
                         return;
                 }
 
                 checkTimes--;
-                Thread.Sleep(2000);
+                Thread.Sleep(3000);
             }
 
             Logger.WriteError(ci.JsonInfo.ToString());
@@ -131,7 +131,7 @@ namespace AElf.Automation.ContractsTesting.Contracts
         private bool GetContractAbi(string txId, out string contractAbi)
         {
             contractAbi = string.Empty;
-            int checkTimes = 10;
+            int checkTimes = 20;
 
             while (checkTimes > 0)
             {
@@ -155,7 +155,7 @@ namespace AElf.Automation.ContractsTesting.Contracts
 
 
                     checkTimes--;
-                    Thread.Sleep(2000);
+                    Thread.Sleep(3000);
                 }
             }
 
