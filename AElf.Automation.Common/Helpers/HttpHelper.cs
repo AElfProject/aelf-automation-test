@@ -82,8 +82,9 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public static string PostResponse(string url, string postData, out string statusCode)
         {
+            statusCode = string.Empty;
             if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -91,24 +92,34 @@ namespace AElf.Automation.Common.Helpers
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Add("Connection", "close");
-
-            HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
-
-            statusCode = response.StatusCode.ToString();
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string result = response.Content.ReadAsStringAsync().Result;
-                return result;
+                HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
+
+                statusCode = response.StatusCode.ToString();
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = response.Content.ReadAsStringAsync().Result;
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                httpClient.Dispose();
             }
 
-            return null;
+            return string.Empty;
         }
 
         public static string PostResponse(string url, string postData, out string statusCode, out long timeSpan)
         {
             timeSpan = 0;
             statusCode = string.Empty;
-            
+
             if (url.StartsWith("https"))
                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
@@ -138,9 +149,10 @@ namespace AElf.Automation.Common.Helpers
             {
                 exec.Stop();
                 timeSpan = exec.ElapsedMilliseconds;
+                httpClient.Dispose();
             }
 
-            return null;
+            return string.Empty;
         }
         /// <summary>
         /// 发起post请求
