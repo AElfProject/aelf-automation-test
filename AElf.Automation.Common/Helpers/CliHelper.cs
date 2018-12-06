@@ -226,8 +226,12 @@ namespace AElf.Automation.Common.Helpers
             string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
+            {
+                ci.Result = false;
+                ci.ErrorMsg.Add(returnCode);
                 return;
-            
+            }
+
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
             if (j["error"] != null)
