@@ -28,7 +28,7 @@ namespace AElf.Automation.RpcPerformance
 
         #endregion
 
-        public static ILogHelper Logger = LogHelper.GetLogHelper();
+        static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static int Main(string[] args)
         {
@@ -47,7 +47,7 @@ namespace AElf.Automation.RpcPerformance
             return CommandLineApplication.Execute<Program>(args);
         }
 
-        public void OnExecute()
+        private void OnExecute()
         {
             if (RpcUrl == null)
             {
@@ -88,13 +88,14 @@ namespace AElf.Automation.RpcPerformance
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             string xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-            Logger.WriteInfo("Rpc xml summary information saved into: {0}", xmlFile);
+            Logger.WriteInfo("Log file: {0}", dir);
+            Logger.WriteInfo("Xml file: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(RpcAPI performance, int execeMode = 0)
+        private static void ExecuteRpcTask(RpcAPI performance, int execMode = 0)
         {
-            if (execeMode == 0)
+            if (execMode == 0)
             {
                 Logger.WriteInfo("Select execution type:");
                 Console.WriteLine("1. Normal mode");
@@ -104,7 +105,7 @@ namespace AElf.Automation.RpcPerformance
                 Console.Write("Input selection: ");
 
                 string runType = Console.ReadLine();
-                bool check = Int32.TryParse(runType, out execeMode);
+                bool check = Int32.TryParse(runType, out execMode);
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
@@ -112,21 +113,22 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            switch (execeMode)
+            var tm = (TestMode) execMode;
+            switch (tm)
             {
-                case 1:
+                case TestMode.Common_Tx:
                     Logger.WriteInfo("Run with tx mode [1].");
                     performance.ExecuteContracts();
                     break;
-                case 2:
+                case TestMode.Continous_Tx:
                     Logger.WriteInfo("Run with continus tx mode [2].");
                     performance.ExecuteMultiRpcTask();
                     break;
-                case 3:
+                case TestMode.Batch_Txs:
                     Logger.WriteInfo("Run with txs mode [3].");
                     performance.ExecuteContractsRpc();
                     break;
-                case 4:
+                case TestMode.Continous_Txs:
                     Logger.WriteInfo("Run with continus txs mode [4].");
                     performance.ExecuteMultiRpcTask(useTxs:true);
                     break;

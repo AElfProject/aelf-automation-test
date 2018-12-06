@@ -7,6 +7,7 @@ using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
+using ServiceStack;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -143,10 +144,8 @@ namespace AElf.Automation.Common.Extensions
                 else
                     item.AvageTimeInfo = 0;
 
-                Logger.WriteInfo("Total count: {0}", item.Count);
-                Logger.WriteInfo("Pass count: {0}", item.PassCount);
-                Logger.WriteInfo("Fail count: {0}", item.FailCount);
-                Logger.WriteInfo(String.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
+                Logger.WriteInfo("Total: {0}, Pass: {1}, Fail: {2}, {3}",
+                    item.Count, item.PassCount, item.FailCount, String.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
             }
         }
         
