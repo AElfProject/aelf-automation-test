@@ -70,30 +70,30 @@ namespace AElf.Automation.ContractsTesting
             contract.LoadContractAbi();
 
             //Init
-            contract.ExecuteContractMethod(out var txId1, "Initialize", "elfToken", "ELF", "2000000", "2");
-            contract.CheckTransactionResult(out var initCi, txId1);
+            var txId1 = contract.ExecuteContractMethod("Initialize", "elfToken", "ELF", "2000000", "2");
+            var initCi = contract.CheckTransactionResult(txId1);
 
             //Transfer to Account A, B, C
-            contract.ExecuteContractMethod(out var txIdA, "Transfer", accList[1], "5000");
-            contract.ExecuteContractMethod(out var txIdB, "Transfer", accList[2], "10000");
-            contract.ExecuteContractMethod(out var txIdC, "Transfer", accList[3], "15000");
+            var txIdA = contract.ExecuteContractMethod("Transfer", accList[1], "5000");
+            var txIdB = contract.ExecuteContractMethod("Transfer", accList[2], "10000");
+            var txIdC = contract.ExecuteContractMethod("Transfer", accList[3], "15000");
 
             //check result
-            contract.CheckTransactionResult(out var aCi, txIdA);
-            contract.CheckTransactionResult(out var bCi, txIdB);
-            contract.CheckTransactionResult(out var cCi, txIdC);
+            var aCi = contract.CheckTransactionResult(txIdA);
+            var bCi = contract.CheckTransactionResult(txIdB);
+            var cCi = contract.CheckTransactionResult(txIdC);
 
             //Get balance
-            contract.ExecuteContractMethod(out var txOwner, "BalanceOf", accList[0]);
-            contract.ExecuteContractMethod(out var txBA, "BalanceOf", accList[1]);
-            contract.ExecuteContractMethod(out var txBB, "BalanceOf", accList[2]);
-            contract.ExecuteContractMethod(out var txBC, "BalanceOf", accList[3]);
+            var txOwner = contract.ExecuteContractMethod("BalanceOf", accList[0]);
+            var txBA = contract.ExecuteContractMethod("BalanceOf", accList[1]);
+            var txBB = contract.ExecuteContractMethod("BalanceOf", accList[2]);
+            var txBC = contract.ExecuteContractMethod("BalanceOf", accList[3]);
 
             //Query Result
             contract.GetTransactionResult(txOwner, out var ciOwner);
-            contract.CheckTransactionResult(out var ciA, txBA);
-            contract.CheckTransactionResult(out var ciB, txBB);
-            contract.CheckTransactionResult(out var ciC, txBC);
+            var ciA = contract.CheckTransactionResult(txBA);
+            var ciB = contract.CheckTransactionResult(txBB);
+            var ciC = contract.CheckTransactionResult(txBC);
 
             //Convert to Value
             ciOwner.GetJsonInfo();
@@ -115,6 +115,7 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Contract.Resource
+
             #endregion
         }
     }

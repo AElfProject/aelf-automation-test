@@ -27,9 +27,9 @@ namespace AElf.Automation.ContractsTesting.Contracts
             ContractAbi = contractAbi;
         }
 
-        public void DeployContract(out string txId)
+        public string DeployContract()
         {
-            txId = string.Empty;
+            var txId = string.Empty;
             var ci = new CommandInfo("deploy_contract");
             ci.Parameter = $"{FileName} 0 {Account}";
             CH.RpcDeployContract(ci);
@@ -44,6 +44,8 @@ namespace AElf.Automation.ContractsTesting.Contracts
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return txId;
         }
 
         public void LoadContractAbi()
@@ -60,17 +62,19 @@ namespace AElf.Automation.ContractsTesting.Contracts
             return CH.RpcGenerateTransactionRawTx(Account, ContractAbi, method, paramArray);
         }
 
-        public void ExecuteContractMethod(out string txId, string method, params string[] paramArray)
+        public string ExecuteContractMethod(string method, params string[] paramArray)
         {
             string rawTx = GenerateBroadcastRawTx(method, paramArray);
 
-            ExecuteContractMethod(rawTx, out txId);
+            var txId = ExecuteContractMethod(rawTx);
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+
+            return txId;
         }
 
-        public void ExecuteContractMethod(string rawTx, out string txId)
+        public string ExecuteContractMethod(string rawTx)
         {
-            txId = string.Empty;
+            string txId = string.Empty;
             var ci = new CommandInfo("broadcast_tx");
             ci.Parameter = rawTx;
             CH.RpcBroadcastTx(ci);
@@ -78,8 +82,11 @@ namespace AElf.Automation.ContractsTesting.Contracts
             {
                 ci.GetJsonInfo();
                 txId = ci.JsonInfo["txId"].ToString();
+                return txId;
             }
             Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return string.Empty;
         }
 
         public bool GetTransactionResult(string txId, out CommandInfo ci)
@@ -102,9 +109,9 @@ namespace AElf.Automation.ContractsTesting.Contracts
             return false;
         }
 
-        public void CheckTransactionResult(out CommandInfo ci, string txId, int checkTimes = 15)
+        public CommandInfo CheckTransactionResult(string txId, int checkTimes = 15)
         {
-            ci = new CommandInfo("get_tx_result");
+            var ci = new CommandInfo("get_tx_result");
             ci.Parameter = txId;
             while (checkTimes > 0)
             {
@@ -117,7 +124,7 @@ namespace AElf.Automation.ContractsTesting.Contracts
                     Logger.WriteInfo($"Transaction: {txId}, Status: {txResult}");
 
                     if (txResult == "Mined")
-                        return;
+                        return ci;
                 }
 
                 checkTimes--;
@@ -126,6 +133,7 @@ namespace AElf.Automation.ContractsTesting.Contracts
 
             Logger.WriteError(ci.JsonInfo.ToString());
             Assert.IsTrue(false, "Transaction execute status cannot mined.");
+            return ci;
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)
