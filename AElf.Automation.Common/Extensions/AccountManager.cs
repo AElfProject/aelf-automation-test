@@ -1,5 +1,6 @@
 ﻿using AElf.Cryptography;
 using System;
+using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Common;
@@ -90,6 +91,26 @@ namespace AElf.Automation.Common.Extensions
         {
             ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
             return kp;
+        }
+
+        public static string GetDefaultDataDir()
+        {
+            try
+            {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                string keyPath = Path.Combine(path, "keys");
+                if (!Directory.Exists(keyPath))
+                    Directory.CreateDirectory(keyPath);
+
+                return path;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         private string AskInvisible(string prefix)
