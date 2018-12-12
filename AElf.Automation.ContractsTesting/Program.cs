@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ContractsTesting.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using QuickGraph;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -24,27 +21,11 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.199.174:8000/chain";
+            string url = "http://192.168.197.34:8000/chain";
             var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
 
-            //Account preparation
-            List<string> accList = new List<string>();
-            var ci = new CommandInfo("account new", "account");
-            for (int i = 0; i < 50; i++)
-            {
-                ci.Parameter = "123";
-                ci = ch.ExecuteCommand(ci);
-                if(ci.Result)
-                    accList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
-            }
-
-            //Unlock
-            ci = new CommandInfo("account unlock", "account");
-            ci.Parameter = String.Format("{0} {1} {2}", accList[0], "123", "notimeout");
-            ci = ch.ExecuteCommand(ci);
-
             //Connect Chain
-            ci = new CommandInfo("connect_chain");
+            var ci = new CommandInfo("connect_chain");
             ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
@@ -57,43 +38,59 @@ namespace AElf.Automation.ContractsTesting
             ch.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
+            //Account preparation
+            List<string> accList = new List<string>();
+            ci = new CommandInfo("account new", "account");
+            for (int i = 0; i < 5; i++)
+            {
+                ci.Parameter = "123";
+                ci = ch.ExecuteCommand(ci);
+                if(ci.Result)
+                    accList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+            }
+
+            //Unlock
+            ci = new CommandInfo("account unlock", "account");
+            ci.Parameter = String.Format("{0} {1} {2}", accList[0], "123", "notimeout");
+            ci = ch.ExecuteCommand(ci);
+
             #endregion
 
             #region AElf.Token operation
-            var contract = new ContractBase(ch, TokenAbi);
-            contract.Account = accList[0];
+            var tokenContract = new ContractBase(ch, TokenAbi);
+            tokenContract.Account = accList[0];
 
             //Deploy
             //contract.DeployContract(out var txId);
 
             //Load
-            contract.LoadContractAbi();
+            tokenContract.LoadContractAbi();
 
             //Init
-            contract.ExecuteContractMethod(out var txId1, "Initialize", "elfToken", "ELF", "2000000", "2");
-            contract.CheckTransactionResult(out var initCi, txId1);
+            var txId1 = tokenContract.ExecuteContractMethod("Initialize", "elfToken", "ELF", "100000", "2");
+            var initCi = tokenContract.CheckTransactionResult(txId1);
 
             //Transfer to Account A, B, C
-            contract.ExecuteContractMethod(out var txIdA, "Transfer", accList[1], "5000");
-            contract.ExecuteContractMethod(out var txIdB, "Transfer", accList[2], "10000");
-            contract.ExecuteContractMethod(out var txIdC, "Transfer", accList[3], "15000");
+            var txIdA = tokenContract.ExecuteContractMethod("Transfer", accList[1], "5000");
+            var txIdB = tokenContract.ExecuteContractMethod("Transfer", accList[2], "10000");
+            var txIdC = tokenContract.ExecuteContractMethod("Transfer", accList[3], "15000");
 
             //check result
-            contract.CheckTransactionResult(out var aCi, txIdA);
-            contract.CheckTransactionResult(out var bCi, txIdB);
-            contract.CheckTransactionResult(out var cCi, txIdC);
+            var aCi = tokenContract.CheckTransactionResult(txIdA);
+            var bCi = tokenContract.CheckTransactionResult(txIdB);
+            var cCi = tokenContract.CheckTransactionResult(txIdC);
 
             //Get balance
-            contract.ExecuteContractMethod(out var txOwner, "BalanceOf", accList[0]);
-            contract.ExecuteContractMethod(out var txBA, "BalanceOf", accList[1]);
-            contract.ExecuteContractMethod(out var txBB, "BalanceOf", accList[2]);
-            contract.ExecuteContractMethod(out var txBC, "BalanceOf", accList[3]);
+            var txOwner = tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
+            var txBA = tokenContract.ExecuteContractMethod("BalanceOf", accList[1]);
+            var txBB = tokenContract.ExecuteContractMethod("BalanceOf", accList[2]);
+            var txBC = tokenContract.ExecuteContractMethod("BalanceOf", accList[3]);
 
             //Query Result
-            contract.GetTransactionResult(txOwner, out var ciOwner);
-            contract.CheckTransactionResult(out var ciA, txBA);
-            contract.CheckTransactionResult(out var ciB, txBB);
-            contract.CheckTransactionResult(out var ciC, txBC);
+            tokenContract.GetTransactionResult(txOwner, out var ciOwner);
+            var ciA = tokenContract.CheckTransactionResult(txBA);
+            var ciB = tokenContract.CheckTransactionResult(txBB);
+            var ciC = tokenContract.CheckTransactionResult(txBC);
 
             //Convert to Value
             ciOwner.GetJsonInfo();
@@ -115,24 +112,26 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Contract.Resource
-            var acr = new ContractBase(ch, "AElf.Contract.Resource", accList[0]);
-            acr.DeployContract();
-            acr.LoadContractAbi();
+            var resourceContract = new ContractBase(ch, "AElf.Contracts.Resource", accList[0]);
 
-            //Init and Adjust resource
-            acr.ExecuteContractMethod(out var initId, "Initialize", TokenAbi);
-            acr.ExecuteContractMethod(out var cpuId, "AdjustResourceCap", "Cpu", "3000");
-            acr.ExecuteContractMethod(out var ramId, "AdjustResourceCap", "Ram", "3000");
-            acr.ExecuteContractMethod(out var netId, "AdjustResourceCap", "Net", "3000");
+            resourceContract.LoadContractAbi();
 
-            //Check result
-            acr.CheckTransactionResult(out var initCiResult, initId);
-            acr.CheckTransactionResult(out var cCiResult, cpuId);
-            acr.CheckTransactionResult(out var rCiResult, ramId);
-            acr.CheckTransactionResult(out var nCiResult, netId);
+            var initId = resourceContract.ExecuteContractMethod("Initialize", tokenContract.ContractAbi);
+            var initResult = resourceContract.CheckTransactionResult(initId);
+            Assert.IsTrue(initResult.Result, "Initialize executed failed.");
 
-            //Get GetElfTokenAddress
-            acr.ExecuteContractMethod(out var etaId, "GetElfTokenAddress");
+            var cpuId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Cpu", "1000000");
+            var ramId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Ram", "1000000");
+            var netId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Net", "1000000");
+
+            var cpuResult = resourceContract.CheckTransactionResult(cpuId);
+            Assert.IsTrue(cpuResult.Result, "Cpu resource adjust failed.");
+
+            var ramResult = resourceContract.CheckTransactionResult(ramId);
+            Assert.IsTrue(ramResult.Result, "Ram resource adjust failed.");
+
+            var netResult = resourceContract.CheckTransactionResult(netId);
+            Assert.IsTrue(netResult.Result, "Net resource adjust failed.");
 
             #endregion
         }

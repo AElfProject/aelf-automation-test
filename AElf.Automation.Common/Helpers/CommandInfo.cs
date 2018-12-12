@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
 using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
-using ServiceStack;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -45,7 +42,6 @@ namespace AElf.Automation.Common.Extensions
 
         public void PrintResultMessage()
         {
-
             if (Result)
             {
                 Logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
@@ -59,7 +55,14 @@ namespace AElf.Automation.Common.Extensions
                     Logger.WriteError(item);
             }
         }
-        
+
+        public string GetErrorMessage()
+        {
+            if (ErrorMsg.Count > 0)
+                return ErrorMsg[0];
+            return string.Empty;
+        }
+
         public bool CheckParameterValid(int count)
         {
             if (count == 1 && Parameter.Trim() == "")
