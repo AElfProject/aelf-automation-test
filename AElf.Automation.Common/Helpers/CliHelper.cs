@@ -146,7 +146,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcLoadContractAbi(CommandInfo ci)
         {
-            if (ci.Parameter == "")
+            if (ci.Parameter == "" || ci.Parameter == null)
             {
                 if (_genesisAddress == null)
                 {
@@ -283,7 +283,8 @@ namespace AElf.Automation.Common.Helpers
             }
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
+            var paramArray = p.ToObject<string[]>();
+            tr.Params = j["params"] == null ? null : method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -362,7 +363,8 @@ namespace AElf.Automation.Common.Helpers
             }
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            tr.Params = j["params"] == null ? null : method.SerializeParams(p.ToObject<string[]>());
+            var paramArray = p.ToObject<string[]>();
+            tr.Params = j["params"] == null ? null : method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -377,9 +379,8 @@ namespace AElf.Automation.Common.Helpers
             Transaction tr = new Transaction();
             tr.From = Address.Parse(from);
             tr.To = Address.Parse(to);
-            tr.IncrementId = GetRandomIncrId();
+            //tr.IncrementId = GetRandomIncrId();
             tr.MethodName = methodName;
-
             string toAdr = tr.To.GetFormatted();
 
             Module m;
@@ -387,7 +388,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
-                    Logger.WriteError("Abi not load.");
+                    Logger.WriteError("Abi Not Loaded.");
                     return string.Empty;
                 }
             }
@@ -395,7 +396,10 @@ namespace AElf.Automation.Common.Helpers
             Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
             if (method == null)
+            {
+                Logger.WriteError("Method not found.");
                 return string.Empty;
+            }
 
             tr.Params = paramArray == null ? null : method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
