@@ -21,7 +21,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.197.34:8000/chain";
+            string url = "http://192.168.197.35:8000/chain";
             var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
@@ -47,28 +47,37 @@ namespace AElf.Automation.ContractsTesting
                 ci = ch.ExecuteCommand(ci);
                 if(ci.Result)
                     accList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+
+                //unlock
+                var uc = new CommandInfo("account unlock", "account");
+                uc.Parameter = String.Format("{0} {1} {2}", accList[i], "123", "notimeout");
+                uc = ch.ExecuteCommand(uc);
             }
+            #endregion
 
-            //Unlock
-            ci = new CommandInfo("account unlock", "account");
-            ci.Parameter = String.Format("{0} {1} {2}", accList[0], "123", "notimeout");
-            ci = ch.ExecuteCommand(ci);
+            #region AElf.Benchmark.TestContract
+            var benchmarkContract = new BaseContract(ch, "AElf.Benchmark.TestContract", accList[0]);
 
+            var txId = benchmarkContract.ExecuteContractMethod("InitBalance", accList[0]);
+            var txResult = benchmarkContract.CheckTransactionResult(txId);
+            var trId  = benchmarkContract.ExecuteContractMethod("Transfer", accList[0], accList[1], "1000");
+            benchmarkContract.CheckTransactionResult(txId);
+            var accId = benchmarkContract.ExecuteContractMethod("GetBalance", accList[1]);
+            var accResult = benchmarkContract.CheckTransactionResult(accId);
+            accResult.GetJsonInfo();
+            string accValue = accResult.JsonInfo["result"]["result"]["return"].ToString();
+            Logger.WriteInfo($"Owner current balance: {Convert.ToInt32(accValue, 16)}");
             #endregion
 
             #region AElf.Token operation
-            var tokenContract = new ContractBase(ch, TokenAbi);
-            tokenContract.Account = accList[0];
+            //var tokenContract = new ContractBase(ch, TokenAbi);
+            //tokenContract.Account = accList[0];
 
-            //Deploy
-            //contract.DeployContract(out var txId);
-
-            //Load
-            tokenContract.LoadContractAbi();
+            //Deploy and Load ABI
+            var tokenContract = new BaseContract(ch, "AElf.Contracts.Token", accList[0]);
 
             //Init
-            var txId1 = tokenContract.ExecuteContractMethod("Initialize", "elfToken", "ELF", "100000", "2");
-            var initCi = tokenContract.CheckTransactionResult(txId1);
+            var initResult = tokenContract.ExecuteContractMethodWithResult("Initialize", "elfToken", "ELF", "40000", "2");
 
             //Transfer to Account A, B, C
             var txIdA = tokenContract.ExecuteContractMethod("Transfer", accList[1], "5000");
@@ -87,7 +96,7 @@ namespace AElf.Automation.ContractsTesting
             var txBC = tokenContract.ExecuteContractMethod("BalanceOf", accList[3]);
 
             //Query Result
-            tokenContract.GetTransactionResult(txOwner, out var ciOwner);
+            var ciOwner = tokenContract.CheckTransactionResult(txOwner);
             var ciA = tokenContract.CheckTransactionResult(txBA);
             var ciB = tokenContract.CheckTransactionResult(txBB);
             var ciC = tokenContract.CheckTransactionResult(txBC);
@@ -112,26 +121,40 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Contract.Resource
-            var resourceContract = new ContractBase(ch, "AElf.Contracts.Resource", accList[0]);
-
-            resourceContract.LoadContractAbi();
+            var resourceContract = new BaseContract(ch, "AElf.Contracts.Resource", accList[0]);
 
             var initId = resourceContract.ExecuteContractMethod("Initialize", tokenContract.ContractAbi);
-            var initResult = resourceContract.CheckTransactionResult(initId);
+            resourceContract.CheckTransactionResult(initId);
             Assert.IsTrue(initResult.Result, "Initialize executed failed.");
 
-            var cpuId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Cpu", "1000000");
-            var ramId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Ram", "1000000");
-            var netId = resourceContract.ExecuteContractMethod("AdjustResourceCap", "Net", "1000000");
+            var cpuResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Cpu", "1000000");
+            var ramResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Ram", "1000000");
+            var netResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Net", "1000000");
+            
+            //Buy resource
+            var bcResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "1000");
+            var  bResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Ram", "1000");
+            var bnResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "1000");
+            var bn1Result = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "10000");
 
-            var cpuResult = resourceContract.CheckTransactionResult(cpuId);
-            Assert.IsTrue(cpuResult.Result, "Cpu resource adjust failed.");
 
-            var ramResult = resourceContract.CheckTransactionResult(ramId);
-            Assert.IsTrue(ramResult.Result, "Ram resource adjust failed.");
+            //Query user resource
+            var urResult =  resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Ram");
+            var ucResult = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Cpu");
+            var unResult = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Net");
 
-            var netResult = resourceContract.CheckTransactionResult(netId);
-            Assert.IsTrue(netResult.Result, "Net resource adjust failed.");
+            //Query user token
+            var balanceResult = tokenContract.ExecuteContractMethodWithResult("BalanceOf", accList[0]);
+
+            //Sell resource
+            var sc1Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "CPU", "1000");
+            var sc2Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "cpu", "1000");
+            var sc3Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Cpu", "100");
+
+            var sr1Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "100");
+            var sr2Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "500");
+            var ramBalance = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Ram");
+            var sr3Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "1000");
 
             #endregion
         }
