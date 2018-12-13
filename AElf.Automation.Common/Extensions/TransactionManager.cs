@@ -70,9 +70,6 @@ namespace AElf.Automation.Common.Extensions
             MemoryStream ms = new MemoryStream();
             Serializer.Serialize(ms, tx);
 
-            byte[] b = ms.ToArray();
-            byte[] toSig = SHA256.Create().ComputeHash(b);
-
             // Update the signature
             tx.Sigs = new List<byte[]> { Sign(addr, ms.ToArray()) };
             return tx;
@@ -90,11 +87,8 @@ namespace AElf.Automation.Common.Extensions
             }
 
             // Sign the hash
-            ECSigner signer = new ECSigner();
-            byte[] toSig = SHA256.Create().ComputeHash(txnData);
-            ECSignature signature = signer.Sign(kp, toSig);
-
-            return signature.SigBytes;
+            byte[] hash = SHA256.Create().ComputeHash(txnData);
+            return CryptoHelpers.SignWithPrivateKey(kp.PrivateKey, hash);
         }
 
         public JObject ConvertTransactionRawTx(Transaction tx)
