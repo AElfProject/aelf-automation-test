@@ -107,7 +107,7 @@ namespace AElf.Automation.Common.Extensions
 
                 return path;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

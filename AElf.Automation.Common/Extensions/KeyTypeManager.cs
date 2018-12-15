@@ -238,7 +238,7 @@ namespace AElf.Automation.Common.Extensions
                         ProtoHashList.Add(typeStr, new List<KeyInfo>());
                     ProtoHashList[typeStr].Add(item);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Logger.WriteInfo($"Convert hash key exception: {item}");
                 }

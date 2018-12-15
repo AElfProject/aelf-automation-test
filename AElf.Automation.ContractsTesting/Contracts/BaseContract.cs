@@ -1,5 +1,4 @@
 ﻿﻿using System;
- using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
@@ -130,8 +129,8 @@ namespace AElf.Automation.ContractsTesting.Contracts
         {
             CommandInfo ci = null;
             Logger.WriteInfo($"Check result of transaction Id： {txId}");
-            int checkTimes = 0;
-            while (checkTimes < maxTimes)
+            int checkTimes = 1;
+            while (checkTimes <= maxTimes)
             {
                 ci = new CommandInfo("get_tx_result");
                 ci.Parameter = txId;
@@ -141,11 +140,20 @@ namespace AElf.Automation.ContractsTesting.Contracts
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
                     string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
-                    if(checkTimes%3 == 0)
+                    if(checkTimes%3 == 0 && txResult == "Pending")
                         Logger.WriteInfo($"Check times: {checkTimes/3}, Status: {txResult}");
 
-                    if (txResult == "Mined" || txResult == "Failed")
+                    if (txResult == "Mined")
+                    {
+                        Logger.WriteInfo($"Transaction status: {txResult}");
                         return ci;
+                    }
+                    if (txResult == "Failed")
+                    {
+                        Logger.WriteInfo($"Transaction status: {txResult}");
+                        Logger.WriteError(ci.JsonInfo.ToString());
+                        return ci;
+                    }
                 }
 
                 checkTimes++;

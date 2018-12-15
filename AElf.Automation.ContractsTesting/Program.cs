@@ -21,7 +21,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.197.35:8000/chain";
+            string url = "http://192.168.197.34:8000/chain";
             var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
@@ -127,7 +127,7 @@ namespace AElf.Automation.ContractsTesting
             resourceContract.CheckTransactionResult(initId);
             Assert.IsTrue(initResult.Result, "Initialize executed failed.");
 
-            var cpuResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Cpu", "1000000");
+            var cpuResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "CPU", "1000000");
             var ramResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Ram", "1000000");
             var netResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Net", "1000000");
             
@@ -135,7 +135,7 @@ namespace AElf.Automation.ContractsTesting
             var bcResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "1000");
             var  bResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Ram", "1000");
             var bnResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "1000");
-            var bn1Result = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "10000");
+            var bn1Result = resourceContract.ExecuteContractMethodWithResult("BuyResource", "NET", "10000");
 
 
             //Query user resource

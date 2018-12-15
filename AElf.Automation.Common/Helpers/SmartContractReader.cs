@@ -56,7 +56,7 @@ namespace AElf.Automation.Common.Helpers
                 string dirPath = GetKeystoreDirectoryPath();
                 return Directory.CreateDirectory(dirPath);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
