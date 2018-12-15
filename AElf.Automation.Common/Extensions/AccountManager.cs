@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Security;
+using AElf.Common;
 using AElf.Cryptography.ECDSA;
 
 namespace AElf.Automation.Common.Extensions
@@ -10,10 +11,13 @@ namespace AElf.Automation.Common.Extensions
     public class AccountManager
     {
         private AElfKeyStore _keyStore;
+        private string _chainId;
 
-        public AccountManager(AElfKeyStore keyStore)
+        public AccountManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
+            _chainId = chainId;
+
         }
 
         public CommandInfo NewAccount(string password="")
@@ -21,13 +25,14 @@ namespace AElf.Automation.Common.Extensions
             var result = new CommandInfo("account new", "account");
             if (password == "")
                 password = AskInvisible("password:");
-            var keypair = _keyStore.Create(password);
-            if(keypair !=null)
+            var keypair = _keyStore.Create(password, _chainId);
+            var pubKey = keypair.PublicKey;
+
+            var addr = Address.FromPublicKey(_chainId.DecodeBase58(), pubKey);
+            if(addr !=null)
             {
                 result.Result = true;
-                string account = keypair.GetAddressHex().StartsWith("0x")
-                    ? keypair.GetAddressHex()
-                    : $"0x{keypair.GetAddressHex()}";
+                string account = addr.GetFormatted();
                 result.InfoMsg.Add("Account address: " + account);
             }
 
@@ -102,7 +107,7 @@ namespace AElf.Automation.Common.Extensions
 
                 return path;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

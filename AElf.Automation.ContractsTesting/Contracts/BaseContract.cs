@@ -1,33 +1,40 @@
-﻿using System.IO;
+﻿﻿using System;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+ using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.ContractsTesting.Contracts
 {
-    public class ContractBase
+    public class BaseContract
     {
         public CliHelper CH { get; set; }
         public string FileName { get; set; }
         public string Account { get; set; }
         public string ContractAbi { get; set; }
+
         public ILogHelper Logger = LogHelper.GetLogHelper();
 
-        public ContractBase(CliHelper ch, string fileName, string account)
+        public BaseContract(CliHelper ch, string fileName, string account)
         {
             CH = ch;
             FileName = fileName;
             Account = account;
+
+            DeployContract();
+            LoadContractAbi();
         }
 
-        public ContractBase(CliHelper ch, string contractAbi)
+        public BaseContract(CliHelper ch, string contractAbi)
         {
             CH = ch;
             ContractAbi = contractAbi;
+
+            LoadContractAbi();
         }
 
-        public string DeployContract()
+        public void DeployContract()
         {
             var txId = string.Empty;
             var ci = new CommandInfo("deploy_contract");
@@ -44,8 +51,6 @@ namespace AElf.Automation.ContractsTesting.Contracts
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
-
-            return txId;
         }
 
         public void LoadContractAbi()
@@ -89,6 +94,17 @@ namespace AElf.Automation.ContractsTesting.Contracts
             return string.Empty;
         }
 
+        public CommandInfo ExecuteContractMethodWithResult(string method, params string[] paramArray)
+        {
+            string rawTx = GenerateBroadcastRawTx(method, paramArray);
+
+            var txId = ExecuteContractMethod(rawTx);
+            Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            
+            //Chek result
+            return CheckTransactionResult(txId, 10);
+        }
+
         public bool GetTransactionResult(string txId, out CommandInfo ci)
         {
             ci = new CommandInfo("get_tx_result");
@@ -109,61 +125,79 @@ namespace AElf.Automation.ContractsTesting.Contracts
             return false;
         }
 
-        public CommandInfo CheckTransactionResult(string txId, int checkTimes = 15)
+        public CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
         {
-            var ci = new CommandInfo("get_tx_result");
-            ci.Parameter = txId;
-            while (checkTimes > 0)
+            CommandInfo ci = null;
+            Logger.WriteInfo($"Check result of transaction Id： {txId}");
+            int checkTimes = 1;
+            while (checkTimes <= maxTimes)
             {
+                ci = new CommandInfo("get_tx_result");
+                ci.Parameter = txId;
                 CH.RpcGetTxResult(ci);
                 if (ci.Result)
                 {
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
                     string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
-                    Logger.WriteInfo($"Transaction: {txId}, Status: {txResult}");
+                    if(checkTimes%3 == 0 && txResult == "Pending")
+                        Logger.WriteInfo($"Check times: {checkTimes/3}, Status: {txResult}");
 
                     if (txResult == "Mined")
+                    {
+                        Logger.WriteInfo($"Transaction status: {txResult}");
                         return ci;
+                    }
+                    if (txResult == "Failed")
+                    {
+                        Logger.WriteInfo($"Transaction status: {txResult}");
+                        Logger.WriteError(ci.JsonInfo.ToString());
+                        return ci;
+                    }
                 }
 
-                checkTimes--;
-                Thread.Sleep(2000);
+                checkTimes++;
+                Thread.Sleep(1000);
             }
 
             Logger.WriteError(ci.JsonInfo.ToString());
-            Assert.IsTrue(false, "Transaction execute status cannot mined.");
+            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
+
             return ci;
+        }
+
+        public int GetValueFromHex(JObject jsonInfo)
+        {
+            try
+            {
+                var hexValue = jsonInfo["result"]["result"]["return"].ToString();
+                return Convert.ToInt32(hexValue, 16);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteError("Convert from hex todDecimal got exception.");
+            }
+
+            return 0;
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)
         {
             contractAbi = string.Empty;
-            int checkTimes = 10;
+            var ci = CheckTransactionResult(txId);
 
-            while (checkTimes > 0)
+            if (ci.Result)
             {
-                var ci = new CommandInfo("get_tx_result");
-                ci.Parameter = txId;
-                CH.RpcGetTxResult(ci);
-
-                if (ci.Result)
+                ci.GetJsonInfo();
+                ci.JsonInfo = ci.JsonInfo;
+                string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                Logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
+                if (deployResult == "Mined")
                 {
-                    ci.GetJsonInfo();
-                    ci.JsonInfo = ci.JsonInfo;
-                    string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
-                    Logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
-                    if (deployResult == "Mined")
-                    {
-                        contractAbi = ci.JsonInfo["result"]["result"]["return"].ToString();
-                        ContractAbi = contractAbi;
-                        Logger.WriteInfo($"Get contract ABI: TxId: {txId}, ABI address: {contractAbi}");
-                        return true;
-                    }
-
-
-                    checkTimes--;
-                    Thread.Sleep(2000);
+                    contractAbi = ci.JsonInfo["result"]["result"]["return"].ToString();
+                    ContractAbi = contractAbi;
+                    Logger.WriteInfo($"Get contract ABI: TxId: {txId}, ABI address: {contractAbi}");
+                    return true;
                 }
             }
 

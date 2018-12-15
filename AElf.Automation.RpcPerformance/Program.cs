@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using McMaster.Extensions.CommandLineUtils;

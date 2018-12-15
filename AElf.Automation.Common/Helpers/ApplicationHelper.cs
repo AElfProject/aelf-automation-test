@@ -13,7 +13,7 @@ namespace AElf.Automation.Common.Helpers
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "aelf");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

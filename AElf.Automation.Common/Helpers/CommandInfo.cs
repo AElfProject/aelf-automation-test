@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
 using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -44,7 +42,6 @@ namespace AElf.Automation.Common.Extensions
 
         public void PrintResultMessage()
         {
-
             if (Result)
             {
                 Logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
