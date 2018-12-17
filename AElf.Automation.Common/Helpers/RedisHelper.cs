@@ -54,7 +54,7 @@ namespace AElf.Automation.Common.Helpers
                                  });
                 //    prcm.Start();
             }
-            catch (Exception e)
+            catch (Exception)
             {
 #if DEBUG
                 throw;
@@ -287,7 +287,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 cache = new RedisHelper(Host, Port);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Log.Error(ex.Message);
             }

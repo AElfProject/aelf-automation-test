@@ -93,7 +93,7 @@ namespace AElf.Automation.Common.Helpers
                     File.Create(logFilePath).Close();
                 }
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
-                streamWriter = new StreamWriter(logFilePath, true, Encoding.Unicode);
+                streamWriter = new StreamWriter(logFilePath, true, Encoding.UTF8);
                 WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
@@ -110,7 +110,6 @@ namespace AElf.Automation.Common.Helpers
         public void WriteWarn(String logText, params object[] arg)
         {
             Write(LogType.WARNING, logText, arg);
-
         }
 
         public void WriteError(String logText, params object[] arg)
@@ -120,6 +119,9 @@ namespace AElf.Automation.Common.Helpers
 
         public void Write(LogType logType, String logText, params object[] arg)
         {
+            if (logText == string.Empty)
+                return;
+
             string timeStamp = "yyyy-MM-dd HH:mm:ss";
             lock (writeLogHelper)
             {
