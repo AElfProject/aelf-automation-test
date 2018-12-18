@@ -5,7 +5,7 @@ using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
  using Newtonsoft.Json.Linq;
 
-namespace AElf.Automation.ContractsTesting.Contracts
+namespace AElf.Automation.Common.Contracts
 {
     public class BaseContract
     {
@@ -168,14 +168,20 @@ namespace AElf.Automation.ContractsTesting.Contracts
 
         public int GetValueFromHex(JObject jsonInfo)
         {
+            string result = string.Empty;
+            string message = string.Empty;
             try
             {
-                var hexValue = jsonInfo["result"]["result"]["return"].ToString();
-                return Convert.ToInt32(hexValue, 16);
+                result = jsonInfo["result"]["tx_status"].ToString();
+                message = jsonInfo["result"]["result"]["return"].ToString();
+                if (result == "Mined")
+                    return Convert.ToInt32(message, 16);
+                else
+                    Logger.WriteError("Transaction result ：{0}， return message: {1}", result, message);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Logger.WriteError("Convert from hex todDecimal got exception.");
+                Logger.WriteError("Convert from hex todDecimal got exception. return message: {0}", message);
             }
 
             return 0;

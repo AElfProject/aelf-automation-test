@@ -1,17 +1,20 @@
 ﻿using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.ContractsTesting.Contracts
+namespace AElf.Automation.Common.Contracts
 {
     public enum ResourceMethod
     {
         Initialize,
-        GetResourceBalance,
         AdjustResourceCap,
-        GetElfokenAddress,
         BuyResource,
-        SellResource
+        SellResource,
+        LockResource,
+        WithdrawResource,
+        GetElfTokenAddress,
+        GetUserBalance,
+        GetExchangeBalance,
+        GetElfBalance
     }
     public class ResourceContract : BaseContract
     {

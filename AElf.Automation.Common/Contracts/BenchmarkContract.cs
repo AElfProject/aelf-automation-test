@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AElf.Automation.Common.Extensions;
+﻿using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.ContractsTesting.Contracts
+namespace AElf.Automation.Common.Contracts
 {
     public enum BenchmarkMethod
     {

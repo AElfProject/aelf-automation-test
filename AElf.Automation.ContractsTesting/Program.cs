@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.ContractsTesting.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.ContractsTesting
@@ -21,7 +21,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.197.13:8000/chain";
+            string url = "http://192.168.197.35:8000/chain";
             var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
@@ -79,6 +79,8 @@ namespace AElf.Automation.ContractsTesting
             //Init
             var initResult = tokenContract.ExecuteContractMethodWithResult("Initialize", "elfToken", "ELF", "40000", "2");
 
+            //Approve Test
+            var approveResult= tokenContract.ExecuteContractMethodWithResult("Approve", accList[1], "1000");
             //Transfer to Account A, B, C
             var txIdA = tokenContract.ExecuteContractMethod("Transfer", accList[1], "5000");
             var txIdB = tokenContract.ExecuteContractMethod("Transfer", accList[2], "10000");
@@ -139,9 +141,10 @@ namespace AElf.Automation.ContractsTesting
 
 
             //Query user resource
-            var urResult =  resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Ram");
-            var ucResult = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Cpu");
-            var unResult = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Net");
+            var urResult =  resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Ram");
+
+            var ucResult = resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Cpu");
+            var unResult = resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Net");
 
             //Query user token
             var balanceResult = tokenContract.ExecuteContractMethodWithResult("BalanceOf", accList[0]);
