@@ -1,10 +1,10 @@
 ﻿﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
- using Newtonsoft.Json.Linq;
- using NServiceKit.Common.Net30;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -235,6 +235,23 @@ namespace AElf.Automation.Common.Contracts
             }
 
             return 0;
+        }
+
+        public JObject QueryReadOnlyInfo(string method, params string[] paramArray)
+        {
+            var resp = CH.RpcQueryResult(Account, ContractAbi, method, paramArray);
+            if(resp == string.Empty)
+                return new JObject();
+
+            return JObject.Parse(resp);
+        }
+
+        public string ConvertQueryResult(JObject info)
+        {
+            if (info["result"]["return"] == null)
+                return string.Empty;
+
+            return info["result"]["return"].ToString();
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)

@@ -1,5 +1,6 @@
 ﻿using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -38,6 +39,11 @@ namespace AElf.Automation.Common.Contracts
         public void CallContractWithoutResult(TokenMethod method, params string[] paramsArray)
         {
             ExecuteContractMethod(method.ToString(), paramsArray);
+        }
+
+        public JObject CallReadOnlyMethod(TokenMethod method, params string[] paramsArray)
+        {
+            return QueryReadOnlyInfo(method.ToString(), paramsArray);
         }
     }
 }

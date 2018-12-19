@@ -13,9 +13,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
         public static string TokenAbi { get; set; }
-
         public static CliHelper CH { get; set; }
-
         public static List<string> AccList { get; set; }
 
         [TestInitialize]

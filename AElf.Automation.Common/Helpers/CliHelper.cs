@@ -625,6 +625,61 @@ namespace AElf.Automation.Common.Helpers
             ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
+
+        public string RpcQueryResult(string from, string to, string methodName, params string[] paramArray)
+        {
+            Transaction tr = new Transaction();
+            tr.From = Address.Parse(from);
+            tr.To = Address.Parse(to);
+            tr.MethodName = methodName;
+            string toAdr = tr.To.GetFormatted();
+
+            Module m;
+            if (!_loadedModules.TryGetValue(toAdr, out m))
+            {
+                if (!_loadedModules.TryGetValue(toAdr, out m))
+                {
+                    Logger.WriteError("Abi Not Loaded.");
+                    return string.Empty;
+                }
+            }
+
+            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+
+            if (method == null)
+            {
+                Logger.WriteError("Method not found.");
+                return string.Empty;
+            }
+
+            if (paramArray == null || paramArray.Length == 0)
+                tr.Params = ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
+            else
+                tr.Params = method.SerializeParams(paramArray);
+
+            var resp = CallTransaction(tr, "call");
+
+            return resp;
+        }
+
+        private string CallTransaction(Transaction tx, string api)
+        {
+            MemoryStream ms = new MemoryStream();
+            Serializer.Serialize(ms, tx);
+
+            byte[] b = ms.ToArray();
+            string payload = b.ToHex();
+            var reqParams = new JObject { ["rawtx"] = payload };
+            var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
+
+            // todo send raw tx
+            string returnCode = string.Empty;
+            long timeSpan = 0;
+            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+
+            return resp;
+        }
+
         
         #endregion
         
