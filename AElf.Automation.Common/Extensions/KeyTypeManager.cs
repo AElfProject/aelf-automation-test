@@ -194,15 +194,15 @@ namespace AElf.Automation.Common.Extensions
                 case "Miners":
                     returnObj = ps.Deserialize<Miners>(keyValue);
                     break;
-                case "BlockProducer":
-                    returnObj = ps.Deserialize<BlockProducer>(keyValue);
-                    break;
+                //case "BlockProducer":
+                //    returnObj = ps.Deserialize<BlockProducer>(keyValue);
+                //    break;
                 case "Round":
                     returnObj = ps.Deserialize<Round>(keyValue);
                     break;
-                case "AElfDPoSInformation":
-                    returnObj = ps.Deserialize<AElfDPoSInformation>(keyValue);
-                    break;
+                //case "AElfDPoSInformation":
+                //    returnObj = ps.Deserialize<AElfDPoSInformation>(keyValue);
+                //    break;
                 case "Int32Value":
                     returnObj = ps.Deserialize<Int32Value>(keyValue);
                     break;

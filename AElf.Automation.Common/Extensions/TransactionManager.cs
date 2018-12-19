@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using Address = AElf.Automation.Common.Protobuf.Address;
+using Google.Protobuf;
+using AElf.Types.CSharp;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -50,7 +52,7 @@ namespace AElf.Automation.Common.Extensions
                 t.To = Address.Parse(genesisAddress);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
-                t.Params = serializedParams;
+                t.Params = serializedParams==null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : serializedParams ;
                 t.Type = contracttransaction;
                 _cmdInfo.Result = true;
 

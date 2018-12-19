@@ -4,6 +4,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
  using Newtonsoft.Json.Linq;
+ using NServiceKit.Common.Net30;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -14,6 +15,8 @@ namespace AElf.Automation.Common.Contracts
         public string Account { get; set; }
         public string ContractAbi { get; set; }
 
+        public ConcurrentQueue<string> TxResultList { get; set; }
+
         public ILogHelper Logger = LogHelper.GetLogHelper();
 
         public BaseContract(CliHelper ch, string fileName, string account)
@@ -21,6 +24,7 @@ namespace AElf.Automation.Common.Contracts
             CH = ch;
             FileName = fileName;
             Account = account;
+            TxResultList = new ConcurrentQueue<string>();
 
             DeployContract();
             LoadContractAbi();
@@ -30,6 +34,7 @@ namespace AElf.Automation.Common.Contracts
         {
             CH = ch;
             ContractAbi = contractAbi;
+            TxResultList = new ConcurrentQueue<string>();
 
             LoadContractAbi();
         }
@@ -73,6 +78,7 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteContractMethod(rawTx);
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            TxResultList.Enqueue(txId);
 
             return txId;
         }
@@ -166,13 +172,57 @@ namespace AElf.Automation.Common.Contracts
             return ci;
         }
 
+        public void CheckTransactionResultList()
+        {
+            int queueLength = 0;
+            int queueSameTimes = 0;
+
+            while (true)
+            {
+                bool result = TxResultList.TryDequeue(out var txId);
+                if (!result)
+                    break;
+                var ci = new CommandInfo("get_tx_result");
+                ci.Parameter = txId;
+                CH.RpcGetTxResult(ci);
+                if (ci.Result)
+                {
+                    ci.GetJsonInfo();
+                    ci.JsonInfo = ci.JsonInfo;
+                    string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+
+                    if (txResult == "Mined")
+                        continue;
+                    if (txResult == "Failed")
+                    {
+                        Logger.WriteInfo($"Transaction status: {txResult}");
+                        Logger.WriteError(ci.JsonInfo.ToString());
+                        continue;
+                    }
+
+                    TxResultList.Enqueue(txId);
+                }
+
+                if (queueLength == TxResultList.Count)
+                {
+                    queueSameTimes++;
+                    Thread.Sleep(2000);
+                }
+                else
+                    queueSameTimes = 0;
+                queueLength = TxResultList.Count;
+                if (queueSameTimes == 10)
+                    Assert.IsTrue(false, "Transaction result check failed due to pending results.");
+            }
+        }
+
         public int GetValueFromHex(JObject jsonInfo)
         {
             string result = string.Empty;
             string message = string.Empty;
             try
             {
-                result = jsonInfo["result"]["tx_status"].ToString();
+                result = jsonInfo["result"]["result"]["tx_status"].ToString();
                 message = jsonInfo["result"]["result"]["return"].ToString();
                 if (result == "Mined")
                     return Convert.ToInt32(message, 16);

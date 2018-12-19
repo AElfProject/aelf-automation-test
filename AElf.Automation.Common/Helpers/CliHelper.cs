@@ -13,6 +13,8 @@ using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using Address = AElf.Automation.Common.Protobuf.Address;
+using ByteString = Google.Protobuf.ByteString;
+using AElf.Types.CSharp;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -47,13 +49,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 //Account request
                 case "account new":
-                    ci = _accountManager.NewAccount(ci.Parameter);
+                    NewAccount(ci);
                     break;
                 case "account list":
-                    ci = _accountManager.ListAccount();
+                    ListAccounts(ci);
                     break;
                 case "account unlock":
-                    ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1], ci.Parameter.Split(" ")?[2]);
+                    UnlockAccount(ci);
                     break;
                 case "connect_chain":
                     RpcConnectChain(ci);
@@ -104,9 +106,29 @@ namespace AElf.Automation.Common.Helpers
 
             return ci;
         }
-        
+        #region Account methods
+
+        public CommandInfo NewAccount(CommandInfo ci)
+        {
+            ci = _accountManager.NewAccount(ci.Parameter);
+            return ci;
+        }
+
+        public CommandInfo ListAccounts(CommandInfo ci)
+        {
+            ci = _accountManager.ListAccount();
+            return ci;
+        }
+
+        public CommandInfo UnlockAccount(CommandInfo ci)
+        {
+            ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1], ci.Parameter.Split(" ")?[2]);
+            return ci;
+        }
+        #endregion
+
         #region Rpc request methods
-        
+
         public void RpcConnectChain(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), "connect_chain", 1);
@@ -283,7 +305,7 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             var paramArray = p.ToObject<string[]>();
-            tr.Params = j["params"] == null ? null : method.SerializeParams(paramArray);
+            tr.Params = j["params"] == null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -363,7 +385,7 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             var paramArray = p.ToObject<string[]>();
-            tr.Params = j["params"] == null ? null : method.SerializeParams(paramArray);
+            tr.Params = j["params"] == null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -400,7 +422,10 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
 
-            tr.Params = paramArray == null ? null : method.SerializeParams(paramArray);
+            if (paramArray == null || paramArray.Length == 0)
+                tr.Params = ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
+            else
+                tr.Params = method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
 

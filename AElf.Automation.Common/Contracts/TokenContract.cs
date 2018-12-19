@@ -34,5 +34,10 @@ namespace AElf.Automation.Common.Contracts
         {
             return ExecuteContractMethodWithResult(method.ToString(), paramsArray);
         }
+
+        public void CallContractWithoutResult(TokenMethod method, params string[] paramsArray)
+        {
+            ExecuteContractMethod(method.ToString(), paramsArray);
+        }
     }
 }
