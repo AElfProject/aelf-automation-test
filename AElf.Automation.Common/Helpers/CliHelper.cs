@@ -49,13 +49,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 //Account request
                 case "account new":
-                    NewAccount(ci);
+                    ci = NewAccount(ci);
                     break;
                 case "account list":
-                    ListAccounts(ci);
+                    ci = ListAccounts(ci);
                     break;
                 case "account unlock":
-                    UnlockAccount(ci);
+                    ci = UnlockAccount(ci);
                     break;
                 case "connect_chain":
                     RpcConnectChain(ci);

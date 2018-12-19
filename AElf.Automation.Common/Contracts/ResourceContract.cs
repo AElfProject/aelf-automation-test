@@ -5,16 +5,22 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum ResourceMethod
     {
+        //View
+        GetElfTokenAddress,
+        GetFeeAddress,
+        GetResourceControllerAddress,
+        GetConverter,
+        GetUserBalance,
+        GetExchangeBalance,
+        GetElfBalance,
+
+        //Action
         Initialize,
-        AdjustResourceCap,
+        IssueResource,
         BuyResource,
         SellResource,
         LockResource,
-        WithdrawResource,
-        GetElfTokenAddress,
-        GetUserBalance,
-        GetExchangeBalance,
-        GetElfBalance
+        WithdrawResource
     }
     public class ResourceContract : BaseContract
     {

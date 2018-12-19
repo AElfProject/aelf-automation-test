@@ -12,6 +12,7 @@ namespace AElf.Automation.ContractsTesting
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
         public static string TokenAbi { get; set; }
+        public static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
 
         static void Main(string[] args)
         {
@@ -21,8 +22,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string url = "http://192.168.197.35:8000/chain";
-            var ch = new CliHelper(url, AccountManager.GetDefaultDataDir());
+            var ch = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
@@ -129,15 +129,16 @@ namespace AElf.Automation.ContractsTesting
             resourceContract.CheckTransactionResult(initId);
             Assert.IsTrue(initResult.Result, "Initialize executed failed.");
 
-            var cpuResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "CPU", "1000000");
-            var ramResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Ram", "1000000");
-            var netResult = resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Net", "1000000");
+            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "CPU", "1000000");
+            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Ram", "1000000");
+            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Net", "1000000");
             
             //Buy resource
-            var bcResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "1000");
-            var  bResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Ram", "1000");
-            var bnResult = resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "1000");
-            var bn1Result = resourceContract.ExecuteContractMethodWithResult("BuyResource", "NET", "10000");
+            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "1000");
+            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "6000");
+            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Ram", "1000");
+            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "1000");
+            resourceContract.ExecuteContractMethodWithResult("BuyResource", "NET", "10000");
 
 
             //Query user resource
