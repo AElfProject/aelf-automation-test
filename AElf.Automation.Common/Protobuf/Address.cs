@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using ProtoBuf;
-using Base58Check;
 using AElf.Common;
 
 namespace AElf.Automation.Common.Protobuf

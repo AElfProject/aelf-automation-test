@@ -1,4 +1,5 @@
 ﻿﻿using System;
+ using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
@@ -246,12 +247,25 @@ namespace AElf.Automation.Common.Contracts
             return JObject.Parse(resp);
         }
 
-        public string ConvertQueryResult(JObject info)
+        public string ConvertQueryResult(JObject info, bool convertHex = false)
         {
             if (info["result"]["return"] == null)
                 return string.Empty;
+            if (convertHex)
+                return ConvertHexToString(info["result"]["return"].ToString());
 
             return info["result"]["return"].ToString();
+        }
+
+        public static string ConvertHexToString(string HexValue)
+        {
+            string StrValue = "";
+            while (HexValue.Length > 0)
+            {
+                StrValue += System.Convert.ToChar(System.Convert.ToUInt32(HexValue.Substring(0, 2), 16)).ToString();
+                HexValue = HexValue.Substring(2, HexValue.Length - 2);
+            }
+            return StrValue;
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)
