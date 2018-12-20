@@ -19,6 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> BpNodeAccounts { get; set; }
         public List<string> CandidatePublicKeys { get; set; }
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
+
         //Contract service List
         public static TokenContract tokenService { get; set; }
         public static ConsensusContract consensusService { get; set; }
@@ -158,7 +159,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public void GetCandidateInfo()
         {
-            var candidateResult = consensusService.CallContractMethod(ConsensusMethod.GetCandidatesList, "Empty");
+            var blockchainAge = consensusService.CallContractMethod(ConsensusMethod.GetBlockchainAge, "Empty");
+            var currentMiners = consensusService.CallContractMethod(ConsensusMethod.GetCurrentMinersToFriendlyString, "Empty");
+            var candidateResult = consensusService.CallContractMethod(ConsensusMethod.GetCandidatesListToFriendlyString, "Empty");
+            var candidateHistoryResult = consensusService.CallContractMethod(ConsensusMethod.GetCandidateHistoryInfoToFriendlyString, "Empty");
+            var ticketsInfo = consensusService.CallContractMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, "Empty");
         }
 
         public void VoteAction()
