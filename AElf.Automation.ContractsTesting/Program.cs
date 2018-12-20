@@ -123,42 +123,46 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Contract.Resource
-            var resourceContract = new BaseContract(ch, "AElf.Contracts.Resource", accList[0]);
+            var resourceContract = new ResourceContract(ch, accList[0]);
 
-            var initId = resourceContract.ExecuteContractMethod("Initialize", tokenContract.ContractAbi);
-            resourceContract.CheckTransactionResult(initId);
-            Assert.IsTrue(initResult.Result, "Initialize executed failed.");
+            resourceContract.CallContractMethod(ResourceMethod.Initialize, tokenContract.ContractAbi, accList[0], accList[0]);
 
-            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "CPU", "1000000");
-            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Ram", "1000000");
-            resourceContract.ExecuteContractMethodWithResult("AdjustResourceCap", "Net", "1000000");
+            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "CPU", "1000000");
+            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
+            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
             
             //Buy resource
-            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "1000");
-            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Cpu", "6000");
-            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Ram", "1000");
-            resourceContract.ExecuteContractMethodWithResult("BuyResource", "Net", "1000");
-            resourceContract.ExecuteContractMethodWithResult("BuyResource", "NET", "10000");
+            resourceContract.Account = accList[1];
+            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "1000");
+            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "6000");
+            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Ram", "10000");
+
+            //Account 4 have no money
+            resourceContract.Account = accList[4];
+            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
+            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
 
 
             //Query user resource
-            var urResult =  resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Ram");
+            var urResult =  resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
 
-            var ucResult = resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Cpu");
-            var unResult = resourceContract.ExecuteContractMethodWithResult("GetUserBalance", accList[0], "Net");
+            var ucResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
+            var unResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
 
             //Query user token
-            var balanceResult = tokenContract.ExecuteContractMethodWithResult("BalanceOf", accList[0]);
+            var balanceResult = tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
 
             //Sell resource
-            var sc1Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "CPU", "1000");
-            var sc2Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "cpu", "1000");
-            var sc3Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Cpu", "100");
+            resourceContract.Account = accList[1];
+            var sc1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "1000");
+            var sc2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "1000");
+            var sc3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "100");
 
-            var sr1Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "100");
-            var sr2Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "500");
-            var ramBalance = resourceContract.ExecuteContractMethodWithResult("GetResourceBalance", accList[0], "Ram");
-            var sr3Result = resourceContract.ExecuteContractMethodWithResult("SellResource", "Ram", "1000");
+            resourceContract.Account = accList[4];
+            var sr1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
+            var sr2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
+            var ramBalance = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
+            var sr3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
 
             #endregion
         }

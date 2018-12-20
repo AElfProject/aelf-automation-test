@@ -135,7 +135,6 @@ namespace AElf.Automation.Common.Contracts
         public CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
         {
             CommandInfo ci = null;
-            Logger.WriteInfo($"Check result of transaction Id： {txId}");
             int checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
@@ -147,9 +146,6 @@ namespace AElf.Automation.Common.Contracts
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
                     string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
-                    if(checkTimes%3 == 0 && txResult == "Pending")
-                        Logger.WriteInfo($"Check times: {checkTimes/3}, Status: {txResult}");
-
                     if (txResult == "Mined")
                     {
                         Logger.WriteInfo($"Transaction status: {txResult}");
