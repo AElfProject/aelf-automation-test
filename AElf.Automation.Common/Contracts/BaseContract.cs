@@ -6,19 +6,21 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+ using NServiceKit.Common.Extensions;
 
 namespace AElf.Automation.Common.Contracts
 {
     public class BaseContract
     {
-        public CliHelper CH { get; set; }
-        public string FileName { get; set; }
+        #region Priority
+        private CliHelper CH { get; set; }
+        private string FileName { get; set; }
         public string Account { get; set; }
         public string ContractAbi { get; set; }
 
-        public ConcurrentQueue<string> TxResultList { get; set; }
-
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        private ConcurrentQueue<string> TxResultList { get; set; }
+        private ILogHelper Logger = LogHelper.GetLogHelper();
+        #endregion
 
         public BaseContract(CliHelper ch, string fileName, string account)
         {
@@ -30,7 +32,6 @@ namespace AElf.Automation.Common.Contracts
             DeployContract();
             LoadContractAbi();
         }
-
         public BaseContract(CliHelper ch, string contractAbi)
         {
             CH = ch;
@@ -38,39 +39,6 @@ namespace AElf.Automation.Common.Contracts
             TxResultList = new ConcurrentQueue<string>();
 
             LoadContractAbi();
-        }
-
-        public void DeployContract()
-        {
-            var txId = string.Empty;
-            var ci = new CommandInfo("deploy_contract");
-            ci.Parameter = $"{FileName} 0 {Account}";
-            CH.RpcDeployContract(ci);
-            if (ci.Result)
-            {
-                ci.GetJsonInfo();
-                txId = ci.JsonInfo["txId"].ToString();
-                Logger.WriteInfo($"Transaction: DeployContract, TxId: {txId}");
-
-                bool result = GetContractAbi(txId, out var contractAbi);
-                Assert.IsTrue(result, $"Get contract abi failed.");
-            }
-
-            Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
-        }
-
-        public void LoadContractAbi()
-        {
-            var ci = new CommandInfo("load_contract_abi");
-            ci.Parameter = ContractAbi;
-            CH.RpcLoadContractAbi(ci);
-
-            Assert.IsTrue(ci.Result, $"Load contract abi failed. Reason: {ci.GetErrorMessage()}");
-        }
-
-        public string GenerateBroadcastRawTx(string method, params string[] paramArray)
-        {
-            return CH.RpcGenerateTransactionRawTx(Account, ContractAbi, method, paramArray);
         }
 
         public string ExecuteContractMethod(string method, params string[] paramArray)
@@ -82,23 +50,6 @@ namespace AElf.Automation.Common.Contracts
             TxResultList.Enqueue(txId);
 
             return txId;
-        }
-
-        public string ExecuteContractMethod(string rawTx)
-        {
-            string txId = string.Empty;
-            var ci = new CommandInfo("broadcast_tx");
-            ci.Parameter = rawTx;
-            CH.RpcBroadcastTx(ci);
-            if (ci.Result)
-            {
-                ci.GetJsonInfo();
-                txId = ci.JsonInfo["txId"].ToString();
-                return txId;
-            }
-            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
-
-            return string.Empty;
         }
 
         public CommandInfo ExecuteContractMethodWithResult(string method, params string[] paramArray)
@@ -243,14 +194,14 @@ namespace AElf.Automation.Common.Contracts
             return JObject.Parse(resp);
         }
 
-        public string ConvertQueryResult(JObject info, bool convertHex = false)
+        public string ConvertQueryResult(JObject info, bool hexValue = false)
         {
             if (info["result"]["return"] == null)
                 return string.Empty;
-            if (convertHex)
-                return ConvertHexToString(info["result"]["return"].ToString());
+            if (hexValue)
+                return ConvertHexToValue(info["result"]["return"].ToString()).ToString();
 
-            return info["result"]["return"].ToString();
+            return ConvertHexToString(info["result"]["return"].ToString());
         }
 
         public static string ConvertHexToString(string HexValue)
@@ -258,10 +209,51 @@ namespace AElf.Automation.Common.Contracts
             string StrValue = "";
             while (HexValue.Length > 0)
             {
-                StrValue += System.Convert.ToChar(System.Convert.ToUInt32(HexValue.Substring(0, 2), 16)).ToString();
+                StrValue += Convert.ToChar(Convert.ToUInt32(HexValue.Substring(0, 2), 16)).ToString();
                 HexValue = HexValue.Substring(2, HexValue.Length - 2);
             }
+
             return StrValue;
+        }
+
+        public static int ConvertHexToValue(string hexValue)
+        {
+            return Convert.ToInt32(hexValue, 16);
+        }
+
+        #region Private Methods
+
+        private void DeployContract()
+        {
+            var txId = string.Empty;
+            var ci = new CommandInfo("deploy_contract");
+            ci.Parameter = $"{FileName} 0 {Account}";
+            CH.RpcDeployContract(ci);
+            if (ci.Result)
+            {
+                ci.GetJsonInfo();
+                txId = ci.JsonInfo["txId"].ToString();
+                Logger.WriteInfo($"Transaction: DeployContract, TxId: {txId}");
+
+                bool result = GetContractAbi(txId, out var contractAbi);
+                Assert.IsTrue(result, $"Get contract abi failed.");
+            }
+
+            Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
+        }
+
+        private void LoadContractAbi()
+        {
+            var ci = new CommandInfo("load_contract_abi");
+            ci.Parameter = ContractAbi;
+            CH.RpcLoadContractAbi(ci);
+
+            Assert.IsTrue(ci.Result, $"Load contract abi failed. Reason: {ci.GetErrorMessage()}");
+        }
+
+        private string GenerateBroadcastRawTx(string method, params string[] paramArray)
+        {
+            return CH.RpcGenerateTransactionRawTx(Account, ContractAbi, method, paramArray);
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)
@@ -286,5 +278,24 @@ namespace AElf.Automation.Common.Contracts
 
             return false;
         }
+
+        private string ExecuteContractMethod(string rawTx)
+        {
+            string txId = string.Empty;
+            var ci = new CommandInfo("broadcast_tx");
+            ci.Parameter = rawTx;
+            CH.RpcBroadcastTx(ci);
+            if (ci.Result)
+            {
+                ci.GetJsonInfo();
+                txId = ci.JsonInfo["txId"].ToString();
+                return txId;
+            }
+            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return string.Empty;
+        }
+
+        #endregion Methods
     }
 }
