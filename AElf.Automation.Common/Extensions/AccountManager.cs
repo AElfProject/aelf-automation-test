@@ -28,7 +28,7 @@ namespace AElf.Automation.Common.Extensions
             var keypair = _keyStore.Create(password, _chainId);
             var pubKey = keypair.PublicKey;
 
-            var addr = Address.FromPublicKey(_chainId.DecodeBase58(), pubKey);
+            var addr = Address.FromPublicKey(pubKey);
             if(addr !=null)
             {
                 result.Result = true;
