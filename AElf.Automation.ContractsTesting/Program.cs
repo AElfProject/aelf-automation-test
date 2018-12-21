@@ -12,7 +12,7 @@ namespace AElf.Automation.ContractsTesting
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
         public static string TokenAbi { get; set; }
-        public static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
+        public static string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
 
         static void Main(string[] args)
         {
@@ -142,10 +142,8 @@ namespace AElf.Automation.ContractsTesting
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
 
-
             //Query user resource
-            var urResult =  resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
-
+            var urResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[1], "Cpu");
             var ucResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
             var unResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
 
@@ -154,9 +152,9 @@ namespace AElf.Automation.ContractsTesting
 
             //Sell resource
             resourceContract.Account = accList[1];
-            var sc1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "1000");
-            var sc2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "1000");
-            var sc3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "100");
+            var sc1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
+            var sc2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
+            var sc3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
 
             resourceContract.Account = accList[4];
             var sr1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");

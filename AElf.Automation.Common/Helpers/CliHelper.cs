@@ -305,7 +305,10 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             var paramArray = p.ToObject<string[]>();
-            tr.Params = j["params"] == null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : method.SerializeParams(paramArray);
+
+            if(j["params"] != null && paramArray.Length != 0)
+                tr.Params = method.SerializeParams(paramArray);
+
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -385,7 +388,8 @@ namespace AElf.Automation.Common.Helpers
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             var paramArray = p.ToObject<string[]>();
-            tr.Params = j["params"] == null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : method.SerializeParams(paramArray);
+            if(j["params"] != null && paramArray.Length != 0)
+                tr.Params = method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -422,9 +426,7 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
 
-            if (paramArray == null || paramArray.Length == 0)
-                tr.Params = ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
-            else
+            if (paramArray != null && paramArray.Length != 0)
                 tr.Params = method.SerializeParams(paramArray);
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
@@ -652,9 +654,7 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
 
-            if (paramArray == null || paramArray.Length == 0)
-                tr.Params = ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
-            else
+            if (paramArray != null && paramArray.Length != 0)
                 tr.Params = method.SerializeParams(paramArray);
 
             var resp = CallTransaction(tr, "call");
