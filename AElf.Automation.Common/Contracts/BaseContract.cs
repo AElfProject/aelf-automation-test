@@ -32,6 +32,7 @@ namespace AElf.Automation.Common.Contracts
             DeployContract();
             LoadContractAbi();
         }
+
         public BaseContract(CliHelper ch, string contractAbi)
         {
             CH = ch;
@@ -120,6 +121,27 @@ namespace AElf.Automation.Common.Contracts
             return ci;
         }
 
+        /// <summary>
+        /// 切换测试账号
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool SetAccount(string account, string password = "123")
+        {
+            Account = account;
+
+            //Unlock
+            var uc = new CommandInfo("account unlock", "account");
+            uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
+            uc = CH.ExecuteCommand(uc);
+
+            return uc.Result;
+        }
+
+        /// <summary>
+        /// 检查所有执行合约结果
+        /// </summary>
         public void CheckTransactionResultList()
         {
             int queueLength = 0;
@@ -164,28 +186,13 @@ namespace AElf.Automation.Common.Contracts
             }
         }
 
-        public int GetValueFromHex(JObject jsonInfo)
-        {
-            string result = string.Empty;
-            string message = string.Empty;
-            try
-            {
-                result = jsonInfo["result"]["result"]["tx_status"].ToString();
-                message = jsonInfo["result"]["result"]["return"].ToString();
-                if (result == "Mined")
-                    return Convert.ToInt32(message, 16);
-                else
-                    Logger.WriteError("Transaction result ：{0}， return message: {1}", result, message);
-            }
-            catch (Exception)
-            {
-                Logger.WriteError("Convert from hex todDecimal got exception. return message: {0}", message);
-            }
-
-            return 0;
-        }
-
-        public JObject QueryReadOnlyInfo(string method, params string[] paramArray)
+        /// <summary>
+        /// 调用合约View方法
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="paramArray"></param>
+        /// <returns></returns>
+        public JObject CallContractViewMethod(string method, params string[] paramArray)
         {
             var resp = CH.RpcQueryResult(Account, ContractAbi, method, paramArray);
             if(resp == string.Empty)
@@ -194,31 +201,18 @@ namespace AElf.Automation.Common.Contracts
             return JObject.Parse(resp);
         }
 
-        public string ConvertQueryResult(JObject info, bool hexValue = false)
+        /// <summary>
+        /// 转化Hex View结果信息
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="hexValue">是否是数值类型</param>
+        /// <returns></returns>
+        public string ConvertViewResult(JObject info, bool hexValue = false)
         {
             if (info["result"]["return"] == null)
                 return string.Empty;
-            if (hexValue)
-                return ConvertHexToValue(info["result"]["return"].ToString()).ToString();
 
-            return ConvertHexToString(info["result"]["return"].ToString());
-        }
-
-        public static string ConvertHexToString(string HexValue)
-        {
-            string StrValue = "";
-            while (HexValue.Length > 0)
-            {
-                StrValue += Convert.ToChar(Convert.ToUInt32(HexValue.Substring(0, 2), 16)).ToString();
-                HexValue = HexValue.Substring(2, HexValue.Length - 2);
-            }
-
-            return StrValue;
-        }
-
-        public static int ConvertHexToValue(string hexValue)
-        {
-            return Convert.ToInt32(hexValue, 16);
+            return DataHelper.ConvertHexInfo(info["result"]["return"].ToString(), hexValue);
         }
 
         #region Private Methods

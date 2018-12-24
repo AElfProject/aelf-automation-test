@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Contracts
 
         public JObject CallReadOnlyMethod(TokenMethod method, params string[] paramsArray)
         {
-            return QueryReadOnlyInfo(method.ToString(), paramsArray);
+            return CallContractViewMethod(method.ToString(), paramsArray);
         }
     }
 }

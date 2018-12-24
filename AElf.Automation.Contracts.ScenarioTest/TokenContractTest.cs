@@ -66,27 +66,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenContract1 = new TokenContract(CH, AccList[0]);
             tokenContract1.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "200000", "2");
             tokenContract1.CallContractMethod(TokenMethod.Transfer, AccList[1], "2000");
-            var abResult = tokenContract1.CallContractMethod(TokenMethod.BalanceOf, AccList[0]);
-            Console.WriteLine("A balance: {0}", tokenContract1.GetValueFromHex(abResult.JsonInfo));
+            var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[0]);
+            Console.WriteLine("A balance: {0}", tokenContract1.ConvertViewResult(abResult, true));
 
-            var bbResult = tokenContract1.CallContractMethod(TokenMethod.BalanceOf, AccList[1]);
-            Console.WriteLine("B balance: {0}", tokenContract1.GetValueFromHex(bbResult.JsonInfo));
+            var bbResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[1]);
+            Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult, true));
 
             tokenContract1.CallContractMethod(TokenMethod.Approve, AccList[2], "10000");
             tokenContract1.Account = AccList[2];
-            var allowResult = tokenContract1.CallContractMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
-            Console.WriteLine(allowResult.JsonInfo.ToString());
-            Console.WriteLine("B allowance from A: {0}", tokenContract1.GetValueFromHex(allowResult.JsonInfo));
+            var allowResult = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
+            Console.WriteLine(allowResult.ToString());
+            Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult, true));
 
             tokenContract1.CallContractMethod(TokenMethod.TransferFrom, AccList[0], AccList[2], "5000");
-            var bbResult1 = tokenContract1.CallContractMethod(TokenMethod.BalanceOf, AccList[0]);
-            Console.WriteLine("B balance: {0}", tokenContract1.GetValueFromHex(bbResult1.JsonInfo));
+            var bbResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[0]);
+            Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult1, true));
 
-            var bbResult2 = tokenContract1.CallContractMethod(TokenMethod.BalanceOf, AccList[2]);
-            Console.WriteLine("B balance: {0}", tokenContract1.GetValueFromHex(bbResult2.JsonInfo));
+            var bbResult2 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[2]);
+            Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult2, true));
 
-            var allowResult1 = tokenContract1.CallContractMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
-            Console.WriteLine("B allowance from A: {0}", tokenContract1.GetValueFromHex(allowResult1.JsonInfo));
+            var allowResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
+            Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult1, true));
         }
     }
 }

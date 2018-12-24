@@ -120,7 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var acc in AccList)
             {
                 var queryResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
-                Logger.WriteInfo($"Account: {acc}, Balance: {tokenService.ConvertQueryResult(queryResult, true)}");
+                Logger.WriteInfo($"Account: {acc}, Balance: {tokenService.ConvertViewResult(queryResult, true)}");
             }
         }
         private void PrepareResourceToken()
@@ -136,13 +136,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Query address
             var tokenAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfTokenAddress);
-            Logger.WriteInfo(String.Format("Token address: {0}", resourceService.ConvertQueryResult(tokenAddress, true)));
+            Logger.WriteInfo(String.Format("Token address: {0}", resourceService.ConvertViewResult(tokenAddress, true)));
 
             var feeAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetFeeAddress);
-            Logger.WriteInfo(String.Format("Fee address: {0}", resourceService.ConvertQueryResult(feeAddress, true)));
+            Logger.WriteInfo(String.Format("Fee address: {0}", resourceService.ConvertViewResult(feeAddress, true)));
 
             var controllerAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
-            Logger.WriteInfo(String.Format("Controller address: {0}", resourceService.ConvertQueryResult(controllerAddress, true)));
+            Logger.WriteInfo(String.Format("Controller address: {0}", resourceService.ConvertViewResult(controllerAddress, true)));
         }
         private void QueryResourceInfo()
         {
@@ -151,36 +151,36 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var ramConverter = resourceService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Ram");
             var netConverter = resourceService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Net");
             Logger.WriteInfo(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertQueryResult(cpuConverter),
-                resourceService.ConvertQueryResult(ramConverter),
-                resourceService.ConvertQueryResult(netConverter)));
+                resourceService.ConvertViewResult(cpuConverter),
+                resourceService.ConvertViewResult(ramConverter),
+                resourceService.ConvertViewResult(netConverter)));
 
             //User Balance
             var cpuBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Cpu");
             var ramBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Ram");
             var netBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Net");
             Logger.WriteInfo(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertQueryResult(cpuBalance, true),
-                resourceService.ConvertQueryResult(ramBalance, true),
-                resourceService.ConvertQueryResult(netBalance, true)));
+                resourceService.ConvertViewResult(cpuBalance, true),
+                resourceService.ConvertViewResult(ramBalance, true),
+                resourceService.ConvertViewResult(netBalance, true)));
 
             //Exchange Balance
             var cpuExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Cpu");
             var ramExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Ram");
             var netExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Net");
             Logger.WriteInfo(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertQueryResult(cpuExchange, true),
-                resourceService.ConvertQueryResult(ramExchange, true),
-                resourceService.ConvertQueryResult(netExchange, true)));
+                resourceService.ConvertViewResult(cpuExchange, true),
+                resourceService.ConvertViewResult(ramExchange, true),
+                resourceService.ConvertViewResult(netExchange, true)));
 
             //Elf Balance
             var cpuElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Cpu");
             var ramElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Ram");
             var netElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Net");
             Logger.WriteInfo(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertQueryResult(cpuElf, true),
-                resourceService.ConvertQueryResult(ramElf, true),
-                resourceService.ConvertQueryResult(netElf, true)));
+                resourceService.ConvertViewResult(cpuElf, true),
+                resourceService.ConvertViewResult(ramElf, true),
+                resourceService.ConvertViewResult(netElf, true)));
         }
     }
 }
