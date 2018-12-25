@@ -15,6 +15,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
+        public string DividendsAbi { get; set; }
+
         public List<string> UserList { get; set; }
         public List<string> FullNodeAccounts { get; set; }
         public List<string> BpNodeAccounts { get; set; }
@@ -48,6 +50,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ci.GetJsonInfo();
             TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
             ConsensusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
+            DividendsAbi = ci.JsonInfo["AElf.Contracts.Dividends"].ToObject<string>();
 
             //Load default Contract Abi
             ci = new CommandInfo("load_contract_abi");
@@ -89,44 +92,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 uc.Parameter = String.Format("{0} {1} {2}", bpAcc, "123", "notimeout");
                 uc = CH.UnlockAccount(uc);
             }
-        }
 
-        public void PrepareUserAccount()
-        {
-            //Account preparation
-            UserList = new List<string>();
-            var ci = new CommandInfo("account new", "account");
-            for (int i = 0; i < 10; i++)
-            {
-                ci.Parameter = "123";
-                ci = CH.NewAccount(ci);
-                if (ci.Result)
-                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
-
-                //unlock
-                var uc = new CommandInfo("account unlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                uc = CH.UnlockAccount(uc);
-            }
-
-            //分配资金给普通用户
-            foreach (var acc in UserList)
-            {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "10000");
-            }
-
-            foreach (var userAcc in UserList)
-            {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
-                Console.WriteLine($"User token-{userAcc}: " + tokenService.ConvertViewResult(callResult, true));
-            }
-
-            Logger.WriteInfo("All accounts created and unlocked.");
+            //Init service
+            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
+            consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
+            dividendsService = new DividendsContract(CH, InitAccount, DividendsAbi);
         }
 
         public void PrepareCandidateAsset()
         {
-            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
             tokenService.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "800000000", "2");
             //查询剩余余额
             var initResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
@@ -160,9 +134,42 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("All accounts asset prepared completed.");
         }
 
+        public void PrepareUserAccount()
+        {
+            //Account preparation
+            UserList = new List<string>();
+            var ci = new CommandInfo("account new", "account");
+            for (int i = 0; i < 10; i++)
+            {
+                ci.Parameter = "123";
+                ci = CH.NewAccount(ci);
+                if (ci.Result)
+                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+
+                //unlock
+                var uc = new CommandInfo("account unlock", "account");
+                uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
+                uc = CH.UnlockAccount(uc);
+            }
+
+            //分配资金给普通用户
+            foreach (var acc in UserList)
+            {
+                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "10000");
+            }
+            tokenService.CheckTransactionResultList();
+
+            foreach (var userAcc in UserList)
+            {
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                Console.WriteLine($"User token-{userAcc}: " + tokenService.ConvertViewResult(callResult, true));
+            }
+
+            Logger.WriteInfo("All accounts created and unlocked.");
+        }
+
         public void JoinElection()
         {
-            consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
             //参加选举
             foreach (var fullAcc in FullNodeAccounts)
             {
@@ -194,15 +201,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public void GetCandidateList()
         {
-            var candidateResult = consensusService.CallContractMethod(ConsensusMethod.GetCandidatesListToFriendlyString, "Empty");
-            string candidatesHex = candidateResult.JsonInfo["result"]["result"]["return"].ToString();
-            string candidateStr = DataHelper.ConvertHexToString(candidatesHex);
-            JObject parsed = JObject.Parse(candidateStr);
-            JArray array = (JArray) parsed["Values"];
-            foreach (var item in array)
+            var candidateResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidatesListToFriendlyString, "Empty");
+            string candidatesJson = consensusService.ConvertViewResult(candidateResult);
+            bool result = DataHelper.TryGetArrayFromJson(out var pubkeyList, candidatesJson, "Values");
+            CandidatePublicKeys = pubkeyList;
+            foreach (var item in CandidatePublicKeys)
             {
-                CandidatePublicKeys.Add(item.Value<string>());
-                Logger.WriteInfo($"Candidate: {item.Value<string>()}");
+                Logger.WriteInfo($"Candidate: {item}");
             }
 
             //判断是否是Candidate
@@ -350,10 +355,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void VoteBpTest()
         {
+            GetCandidateList();
             PrepareUserAccount();
             UserVoteAction();
             GetTicketsInfo();
             GetCurrentVictories();
         }
+
+        [TestMethod]
+        public void QueryInformationTest()
+        {
+            GetCandidateList();
+
+            GetCandidateHistoryInfo();
+
+            GetCurrentElectionInfo();
+
+            GetCurrentVictories();
+
+            GetTicketsInfo();
+        }
+
     }
 }

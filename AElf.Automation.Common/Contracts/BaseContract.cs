@@ -61,7 +61,7 @@ namespace AElf.Automation.Common.Contracts
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
             
             //Chek result
-            return CheckTransactionResult(txId, 10);
+            return CheckTransactionResult(txId, 20);
         }
 
         public bool GetTransactionResult(string txId, out CommandInfo ci)
