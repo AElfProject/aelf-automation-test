@@ -61,7 +61,7 @@ namespace AElf.Automation.Common.Contracts
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
             
             //Chek result
-            return CheckTransactionResult(txId, 20);
+            return CheckTransactionResult(txId, 30);
         }
 
         public bool GetTransactionResult(string txId, out CommandInfo ci)
@@ -176,7 +176,7 @@ namespace AElf.Automation.Common.Contracts
                 if (queueLength == TxResultList.Count)
                 {
                     queueSameTimes++;
-                    Thread.Sleep(2000);
+                    Thread.Sleep(3000);
                 }
                 else
                     queueSameTimes = 0;

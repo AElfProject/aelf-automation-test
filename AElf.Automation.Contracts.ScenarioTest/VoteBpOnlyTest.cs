@@ -9,7 +9,7 @@ using AElf.Automation.Common.Contracts;
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
-    public class VoteFeatureTest
+    public class VoteBpOnlyTest
     {
         public ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
@@ -17,7 +17,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string DividendsAbi { get; set; }
 
         public List<string> UserList { get; set; }
-        public List<string> FullNodeAccounts { get; set; }
         public List<string> BpNodeAccounts { get; set; }
         public List<string> CandidatePublicKeys { get; set; }
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
@@ -39,7 +38,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper(dir);
             CandidatePublicKeys = new List<string>();
             CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            
+
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
             CH.RpcConnectChain(ci);
@@ -61,21 +60,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var initAcc = new CommandInfo("account unlock", "account");
             initAcc.Parameter = String.Format("{0} {1} {2}", InitAccount, "123", "notimeout");
             initAcc = CH.UnlockAccount(initAcc);
-
-            //Get FullNode Info
-            FullNodeAccounts = new List<string>();
-            FullNodeAccounts.Add("ELF_26cUpeiNb6q4DdFFEXTiPgWcifxtwEMsqshKHWGeYxaJkT1");
-            FullNodeAccounts.Add("ELF_2AQdMyH4bo6KKK7Wt5fN7LerrWdoPUYTcJHyZNKXqoD2a4V");
-            FullNodeAccounts.Add("ELF_3FWgHoNdR92rCSEbYqzD6ojCCmVKEpoPt87tpmwWYAkYm6d");
-            FullNodeAccounts.Add("ELF_4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
-            FullNodeAccounts.Add("ELF_6Fp72su6EPmHkEiojK1FyP7DsMHm16MygkG93zyqSbnE84v");
-            foreach (var fullAcc in FullNodeAccounts)
-            {
-                //unlock
-                var uc = new CommandInfo("account unlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", fullAcc, "123", "notimeout");
-                uc = CH.UnlockAccount(uc);
-            }
 
             //Get BpNode Info
             BpNodeAccounts = new List<string>();
@@ -108,11 +92,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //分配资金给Dividends
             tokenService.CallContractWithoutResult(TokenMethod.Transfer, DividendsAbi, "1000000");
 
-            //分配资金给FullNode
-            foreach (var fullAcc in FullNodeAccounts)
-            {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, fullAcc, "100000");
-            }
             //分配资金给BP
             foreach (var bpAcc in BpNodeAccounts)
             {
@@ -126,11 +105,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
                 Console.WriteLine($"BP token-{bpAcc}: " + tokenService.ConvertViewResult(callResult, true));
-            }
-            foreach (var fullAcc in FullNodeAccounts)
-            {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
-                Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
             }
 
             Logger.WriteInfo("All accounts asset prepared completed.");
@@ -173,29 +147,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void JoinElection()
         {
             //参加选举
-            foreach (var fullAcc in FullNodeAccounts)
-            {
-                consensusService.Account = fullAcc;
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, "Empty");
-            }
-
             foreach (var bpAcc in BpNodeAccounts)
             {
                 consensusService.Account = bpAcc;
                 consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, "Empty");
             }
-            consensusService.CheckTransactionResultList(); 
+            consensusService.CheckTransactionResultList();
 
             //检查余额
             foreach (var bpAcc in BpNodeAccounts)
             {
                 var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
                 Console.WriteLine($"BP token-{bpAcc}: " + tokenService.ConvertViewResult(callResult, true));
-            }
-            foreach (var fullAcc in FullNodeAccounts)
-            {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
-                Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
             }
 
             Logger.WriteInfo("All Full Node joined election completed.");
@@ -214,7 +177,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //判断是否是Candidate
             Logger.WriteInfo("IsCandidate Test");
-            var candidate1Result = consensusService.CallReadOnlyMethod(ConsensusMethod.IsCandidate, CandidatePublicKeys[4]);
+            var candidate1Result = consensusService.CallReadOnlyMethod(ConsensusMethod.IsCandidate, CandidatePublicKeys[1]);
             Logger.WriteInfo(consensusService.ConvertViewResult(candidate1Result,true));
             var candidate2Result = consensusService.CallReadOnlyMethod(ConsensusMethod.IsCandidate, "4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
             Logger.WriteInfo(consensusService.ConvertViewResult(candidate2Result, true));
@@ -250,7 +213,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetCurrentElectionInfo()
         {
             Logger.WriteInfo("GetCurrentElectionInfo Test");
-            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentElectionInfoToFriendlyString, "Empty");
+            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentElectionInfoToFriendlyString, "0", "0", "0");
             Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
         }
 
@@ -301,19 +264,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         //退出选举
         public void QuitElection()
         {
-            consensusService.Account = FullNodeAccounts[0];
+            consensusService.Account = BpNodeAccounts[0];
             consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
-            consensusService.Account = FullNodeAccounts[1];
+            consensusService.Account = BpNodeAccounts[1];
             consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
-            consensusService.Account = FullNodeAccounts[2];
+            consensusService.Account = BpNodeAccounts[2];
             consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
             GetCandidateList();
 
             //查询余额
-            foreach (var fullAcc in FullNodeAccounts)
+            foreach (var fullAcc in BpNodeAccounts)
             {
                 var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
-                Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
+                Console.WriteLine($"BpNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
             }
         }
 
@@ -377,6 +340,5 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
-
     }
 }
