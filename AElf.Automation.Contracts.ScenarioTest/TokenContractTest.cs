@@ -11,10 +11,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TokenContractTest
     {
-        public static ILogHelper Logger = LogHelper.GetLogHelper();
-        public static string TokenAbi { get; set; }
-        public static CliHelper CH { get; set; }
-        public static List<string> AccList { get; set; }
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        public string TokenAbi { get; set; }
+        public CliHelper CH { get; set; }
+        public List<string> UserList { get; set; }
+
+
+        public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
+        public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
+        public string NoTokenAccount { get; } = "ELF_1sGf6rf4r8VvmgzH1x2YuVKTJBPGXnuau3xg9X5wU2XXCk";
+
+        public TokenContract tokenService { get; set; }
+
+        public static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
 
         [TestInitialize]
         public void Initialize()
@@ -23,10 +32,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Init Logger
             string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            _logger.InitLogHelper(dir);
 
-            string url = "http://192.168.197.53:8001/chain";
-            CH = new CliHelper(url, AccountManager.GetDefaultDataDir());
+            CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
@@ -42,51 +50,111 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
-            //Account preparation
-            AccList = new List<string>();
-            ci = new CommandInfo("account new", "account");
-            for (int i = 0; i < 5; i++)
-            {
-                ci.Parameter = "123";
-                ci = CH.ExecuteCommand(ci);
-                if (ci.Result)
-                    AccList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+            //Init contract service
+            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
 
-                //unlock
-                var uc = new CommandInfo("account unlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", AccList[i], "123", "notimeout");
-                uc = CH.ExecuteCommand(uc);
-            }
             #endregion
+        }
+
+        [TestMethod]
+        public void InitToken()
+        {
+            tokenService.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "500000", "2");
+            var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
+            _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(balanceResult, true)}");
+
+            tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
+        }
+
+        [TestMethod]
+        public void TransferTest()
+        {
+            PrepareAccount();
+
+            foreach (var acc in UserList)
+            {
+                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "100");
+            }
+            tokenService.CheckTransactionResultList();
+            //Init account balance
+            var initResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
+            _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(initResult, true)}");
+            //Fee account balance
+            var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            _logger.WriteInfo($"FeeAccount balance: {tokenService.ConvertViewResult(feeResult, true)}");
+            //User account balance
+            foreach (var acc in UserList)
+            {
+                var userResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
+                _logger.WriteInfo($"user balance: {tokenService.ConvertViewResult(userResult, true)}");
+            }
+        }
+
+        [TestMethod]
+        public void ExecuteTransactionWithoutFee()
+        {
+            //Fee account balance
+            var fee1Result = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            _logger.WriteInfo($"FeeAccount before balance: {tokenService.ConvertViewResult(fee1Result, true)}");
+
+            tokenService.SetAccount(NoTokenAccount);
+            tokenService.CallContractMethod(TokenMethod.BalanceOf, FeeAccount);
+
+            tokenService.SetAccount(InitAccount);
+            tokenService.CallContractMethod(TokenMethod.BalanceOf, InitAccount);
+            tokenService.CallContractMethod(TokenMethod.BalanceOf, FeeAccount);
+
+            //Fee account balance
+            var fee2Result = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            _logger.WriteInfo($"FeeAccount after balance: {tokenService.ConvertViewResult(fee2Result, true)}");
         }
 
         [TestMethod]
         public void TransferFrom()
         {
-            var tokenContract1 = new TokenContract(CH, AccList[0]);
+            var tokenContract1 = new TokenContract(CH, UserList[0]);
             tokenContract1.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "200000", "2");
-            tokenContract1.CallContractMethod(TokenMethod.Transfer, AccList[1], "2000");
-            var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[0]);
+            tokenContract1.CallContractMethod(TokenMethod.Transfer, UserList[1], "2000");
+            var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[0]);
             Console.WriteLine("A balance: {0}", tokenContract1.ConvertViewResult(abResult, true));
 
-            var bbResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[1]);
+            var bbResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[1]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult, true));
 
-            tokenContract1.CallContractMethod(TokenMethod.Approve, AccList[2], "10000");
-            tokenContract1.Account = AccList[2];
-            var allowResult = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
+            tokenContract1.CallContractMethod(TokenMethod.Approve, UserList[2], "10000");
+            tokenContract1.Account = UserList[2];
+            var allowResult = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, UserList[0], UserList[1]);
             Console.WriteLine(allowResult.ToString());
             Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult, true));
 
-            tokenContract1.CallContractMethod(TokenMethod.TransferFrom, AccList[0], AccList[2], "5000");
-            var bbResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[0]);
+            tokenContract1.CallContractMethod(TokenMethod.TransferFrom, UserList[0], UserList[2], "5000");
+            var bbResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[0]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult1, true));
 
-            var bbResult2 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, AccList[2]);
+            var bbResult2 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[2]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult2, true));
 
-            var allowResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, AccList[0], AccList[1]);
+            var allowResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, UserList[0], UserList[1]);
             Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult1, true));
+        }
+
+        private void PrepareAccount()
+        {
+            //Account preparation
+            UserList = new List<string>();
+            var ci = new CommandInfo("account new", "account");
+            for (int i = 0; i < 5; i++)
+            {
+                ci.Parameter = "123";
+                ci = CH.ExecuteCommand(ci);
+                if (ci.Result)
+                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+
+                //unlock
+                var uc = new CommandInfo("account unlock", "account");
+                uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
+                uc = CH.ExecuteCommand(uc);
+            }
         }
     }
 }
