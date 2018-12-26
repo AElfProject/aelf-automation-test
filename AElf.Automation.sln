@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScri
 		sh-replay.sh = sh-replay.sh
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.DbTesting", "AElf.Automation.DbTesting\AElf.Automation.DbTesting.csproj", "{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.Common", "AElf.Automation.Common\AElf.Automation.Common.csproj", "{A6965199-AA8D-4BAA-B88E-609C440F4962}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.RpcPerformance", "AElf.Automation.RpcPerformance\AElf.Automation.RpcPerformance.csproj", "{A12A134E-7226-488A-99EC-39375F57EBCD}"
@@ -50,8 +48,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Types.CSharp", "AElf\A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.SmartContract", "AElf\AElf.SmartContract\AElf.SmartContract.csproj", "{E80864B3-7E98-4DEF-A3B4-9C39B36B6B9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.RedisTesting", "AElf.Automation.RedisTesting\AElf.Automation.RedisTesting.csproj", "{E67F56B5-B07A-425C-938E-F49622C0A738}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.SideChainVerification", "AElf.Automation.SideChainVerification\AElf.Automation.SideChainVerification.csproj", "{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.ContractsTesting", "AElf.Automation.ContractsTesting\AElf.Automation.ContractsTesting.csproj", "{C10546FE-FB25-4523-BFD8-A299262A63B5}"
@@ -68,10 +64,6 @@ Global
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1021C6AB-CB6A-443F-A789-6D58833EEABE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8FE9946B-7FEA-45D6-B96A-9063BDD860E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A6965199-AA8D-4BAA-B88E-609C440F4962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A6965199-AA8D-4BAA-B88E-609C440F4962}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6965199-AA8D-4BAA-B88E-609C440F4962}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -116,10 +108,6 @@ Global
 		{E80864B3-7E98-4DEF-A3B4-9C39B36B6B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E80864B3-7E98-4DEF-A3B4-9C39B36B6B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E80864B3-7E98-4DEF-A3B4-9C39B36B6B9A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E67F56B5-B07A-425C-938E-F49622C0A738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E67F56B5-B07A-425C-938E-F49622C0A738}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E67F56B5-B07A-425C-938E-F49622C0A738}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E67F56B5-B07A-425C-938E-F49622C0A738}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E96BE14-AFC5-4520-ACF6-AADBD15BCFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
