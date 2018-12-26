@@ -29,6 +29,7 @@ namespace AElf.Automation.Common.Contracts
             Account = account;
             TxResultList = new ConcurrentQueue<string>();
 
+            UnlockAccount(account);
             DeployContract();
             LoadContractAbi();
         }
@@ -38,7 +39,6 @@ namespace AElf.Automation.Common.Contracts
             CH = ch;
             ContractAbi = contractAbi;
             TxResultList = new ConcurrentQueue<string>();
-
             LoadContractAbi();
         }
 
@@ -215,8 +215,14 @@ namespace AElf.Automation.Common.Contracts
             return DataHelper.ConvertHexInfo(info["result"]["return"].ToString(), hexValue);
         }
 
-        #region Private Methods
+        public void UnlockAccount(string account, string password = "123")
+        {
+            var uc = new CommandInfo("account unlock", "account");
+            uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
+            uc = CH.ExecuteCommand(uc);
+        }
 
+        #region Private Methods
         private void DeployContract()
         {
             var txId = string.Empty;

@@ -6,7 +6,7 @@ using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.Helpers
 {
     public class CommandInfo
     {

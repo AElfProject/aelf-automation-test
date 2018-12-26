@@ -1,7 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Extensions

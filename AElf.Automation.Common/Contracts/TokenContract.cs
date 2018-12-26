@@ -6,17 +6,25 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum TokenMethod
     {
+        //Action
         Initialize,
+        SetFeePoolAddress,
+        ClaimTransactionFees,
         Transfer,
         TransferFrom,
         Approve,
         UnApprove,
-        BalanceOf,
-        Allowance,
+        Burn,
+
+        //View
         Symbol,
         TokenName,
         TotalSupply,
-        Decimals
+        Decimals,
+        BalanceOf,
+        Allowance,
+        ChargedFees,
+        FeePoolAddress
     }
     public class TokenContract : BaseContract
     {
@@ -29,6 +37,7 @@ namespace AElf.Automation.Common.Contracts
             base(ch, contractAbi)
         {
             Account = account;
+            UnlockAccount(Account);
         }
 
         public CommandInfo CallContractMethod(TokenMethod method, params string[] paramsArray)

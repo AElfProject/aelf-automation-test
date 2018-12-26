@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Security;
+using AElf.Automation.Common.Helpers;
 using AElf.Common;
 using AElf.Cryptography.ECDSA;
 
@@ -25,7 +26,7 @@ namespace AElf.Automation.Common.Extensions
             var result = new CommandInfo("account new", "account");
             if (password == "")
                 password = AskInvisible("password:");
-            var keypair = _keyStore.Create(password, _chainId);
+            var keypair = _keyStore.CreateAsync(password, _chainId).Result;
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
@@ -42,7 +43,7 @@ namespace AElf.Automation.Common.Extensions
         public CommandInfo ListAccount()
         {
             var result = new CommandInfo("account list", "account");
-            result.InfoMsg = _keyStore.ListAccounts();
+            result.InfoMsg = _keyStore.ListAccountsAsync().Result;
             if (result.InfoMsg.Count != 0)
                 result.Result = true;
 
@@ -55,7 +56,7 @@ namespace AElf.Automation.Common.Extensions
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = string.Format("{0} {1} {2}", address, password, notimeout);
-            var accounts = _keyStore.ListAccounts();
+            var accounts = _keyStore.ListAccountsAsync().Result;
             if (accounts == null || accounts.Count == 0)
             {
                 result.ErrorMsg.Add("Error: the account '" + address + "' does not exist.");
@@ -69,7 +70,7 @@ namespace AElf.Automation.Common.Extensions
             }
 
             bool timeout = (notimeout == "") ? true : false;
-            var tryOpen = _keyStore.OpenAsync(address, password, timeout);
+            var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
 
             if (tryOpen == AElfKeyStore.Errors.WrongPassword)
                 result.ErrorMsg.Add("Error: incorrect password!");

@@ -1,8 +1,6 @@
 ﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using AElf.Common;
 
 namespace AElf.Automation.Common.Protobuf
 {

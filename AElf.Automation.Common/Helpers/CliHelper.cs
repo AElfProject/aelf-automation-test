@@ -13,8 +13,6 @@ using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using Address = AElf.Automation.Common.Protobuf.Address;
-using ByteString = Google.Protobuf.ByteString;
-using AElf.Types.CSharp;
 
 namespace AElf.Automation.Common.Helpers
 {
