@@ -29,6 +29,7 @@ namespace AElf.Automation.Common.Contracts
         Vote,
         GetAllDividends,
         WithdrawAll,
+        InitialBalance
     }
     public class ConsensusContract : BaseContract
     {
@@ -36,6 +37,7 @@ namespace AElf.Automation.Common.Contracts
             base(ch, consensusAbi)
         {
             Account = account;
+            UnlockAccount(Account);
         }
 
         public ConsensusContract(CliHelper ch, string account)

@@ -18,6 +18,7 @@ namespace AElf.Automation.Common.Contracts
             :base(ch, dividendsAbi)
         {
             Account = account;
+            UnlockAccount(Account);
         }
 
         public DividendsContract(CliHelper ch, string account)

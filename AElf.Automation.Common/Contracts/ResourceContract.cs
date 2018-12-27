@@ -34,6 +34,7 @@ namespace AElf.Automation.Common.Contracts
             base(ch, contractAbi)
         {
             Account = account;
+            UnlockAccount(Account);
         }
 
         public CommandInfo CallContractMethod(ResourceMethod method, params string[] paramArray)

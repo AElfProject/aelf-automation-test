@@ -21,6 +21,7 @@ namespace AElf.Automation.Common.Contracts
             base(ch, "AElf.Benchmark.TestContrat", contractAbi)
         {
             Account = account;
+            UnlockAccount(Account);
         }
 
         public CommandInfo CallContractMethod(BenchmarkMethod method, params string[] paramArray)
