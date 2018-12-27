@@ -154,12 +154,12 @@ namespace AElf.Automation.Common.Helpers
             return StrValue;
         }
 
-        public static int ConvertHexToValue(string hexValue)
+        public static long ConvertHexToValue(string hexValue)
         {
-            int value = 0;
+            long value = 0;
             try
             {
-                value = Convert.ToInt32(hexValue, 16);
+                value = Convert.ToInt64(hexValue, 16);
             }
             catch (Exception e)
             {
