@@ -163,7 +163,7 @@ namespace AElf.Automation.Common.Contracts
 
                     if (txResult == "Mined")
                         continue;
-                    if (txResult == "Failed")
+                    if (txResult == "Failed" || txResult == "NotExisted")
                     {
                         Logger.WriteInfo($"Transaction status: {txResult}");
                         Logger.WriteError(ci.JsonInfo.ToString());
