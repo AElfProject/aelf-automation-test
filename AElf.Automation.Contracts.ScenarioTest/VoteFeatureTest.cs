@@ -4,7 +4,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 using AElf.Automation.Common.Contracts;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using NServiceKit.Common.Extensions;
+using Secp256k1Net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -21,6 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> FullNodeAccounts { get; set; }
         public List<string> BpNodeAccounts { get; set; }
         public List<string> CandidatePublicKeys { get; set; }
+        public List<string> CurrentMinersKeys { get; set; }
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
         public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
 
@@ -159,22 +165,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void JoinElection()
         {
+            PrepareCandidateAsset();
+
             //参加选举
             foreach (var fullAcc in FullNodeAccounts)
             {
                 consensusService.SetAccount(fullAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, "Empty");
+                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Full-{fullAcc.Substring(5, 4)}");
             }
 
             foreach (var bpAcc in BpNodeAccounts)
             {
                 consensusService.SetAccount(bpAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, "Empty");
+                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"BP-{bpAcc.Substring(5,4)}");
             }
             consensusService.CheckTransactionResultList(); 
 
             //检查余额
             QueryCandidatesBalance();
+
+            GetCandidateList();
 
             Logger.WriteInfo("All Full Node joined election completed.");
         }
@@ -182,7 +192,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void GetCandidateList()
         {
-            var candidateResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidatesListToFriendlyString, "Empty");
+            var candidateResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidatesListToFriendlyString);
             string candidatesJson = consensusService.ConvertViewResult(candidateResult);
             bool result = DataHelper.TryGetArrayFromJson(out var pubkeyList, candidatesJson, "Values");
             CandidatePublicKeys = pubkeyList;
@@ -235,6 +245,29 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("All accounts created and unlocked.");
         }
 
+        [TestMethod]
+        public void GetBlockchainAge()
+        {
+            var ageInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetBlockchainAge);
+            Logger.WriteInfo($"Chain age: {consensusService.ConvertViewResult(ageInfo, true)}");
+        }
+
+        [TestMethod]
+        public void GetTermSnapshot()
+        {
+            var termInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermSnapshotToFriendlyString, "100");
+            Logger.WriteInfo(consensusService.ConvertViewResult(termInfo));
+        }
+
+        [TestMethod]
+        public void GetTermNumberByRoundNumber()
+        {
+            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "24");
+            Logger.WriteInfo(consensusService.ConvertViewResult(termNo1, true));
+            var termNo2 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "80");
+            Logger.WriteInfo(consensusService.ConvertViewResult(termNo2, true));
+        }
+
         //参加选举
         [TestMethod]
         public void UserVoteAction()
@@ -259,9 +292,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("Vote completed.");
         }
 
+        [TestMethod]
         public void GetCandidateHistoryInfo()
         {
             Logger.WriteInfo("GetCandidateHistoryInfo Test");
+
+            GetCandidateList();
             foreach (var pubKey in CandidatePublicKeys)
             {
                 var historyResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidateHistoryInfoToFriendlyString, pubKey);
@@ -269,16 +305,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
+        [TestMethod]
         public void GetGetCurrentMinersInfo()
         {
             Logger.WriteInfo("GetCurrentVictories Test");
-            var minersResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentMinersToFriendlyString, "empty");
-            Logger.WriteInfo(consensusService.ConvertViewResult(minersResult));
+            var minersResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentMinersToFriendlyString);
+            var jsonString = consensusService.ConvertViewResult(minersResult);
+            DataHelper.TryGetArrayFromJson(out var pubkeys, jsonString, "PublicKeys");
+            CurrentMinersKeys = pubkeys;
+            Logger.WriteInfo($"Miners pub keys: {jsonString}");
         }
 
+        [TestMethod]
         public void GetTicketsInfo()
         {
             Logger.WriteInfo("GetTicketsInfo Test");
+            GetCandidateList();
             foreach (var candidate in CandidatePublicKeys)
             {
                 var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidate);
@@ -286,6 +328,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
+        [TestMethod]
         public void GetCurrentElectionInfo()
         {
             Logger.WriteInfo("GetCurrentElectionInfo Test");
@@ -293,41 +336,99 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
         }
 
+        [TestMethod]
+        public void GetVotesCount()
+        {
+            var voteCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetVotesCount);
+            Logger.WriteInfo($"Votes count: {consensusService.ConvertViewResult(voteCount, true)}");
+        }
+
+        [TestMethod]
+        public void GetTicketsCount()
+        {
+            UserVoteAction();
+            var ticketsCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsCount);
+            Logger.WriteInfo($"Tickets count: {consensusService.ConvertViewResult(ticketsCount, true)}");
+        }
+
+        [TestMethod]
         public void GetCurrentVictories()
         {
             Logger.WriteInfo("GetCurrentVictories Test");
-            var victoriesResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentVictoriesToFriendlyString, "empty");
+            var victoriesResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentVictoriesToFriendlyString);
             Logger.WriteInfo(consensusService.ConvertViewResult(victoriesResult));
         }
 
+        [TestMethod]
+        public void QueryCurrentDividends()
+        {
+            Logger.WriteInfo("QueryCurrentDividends Test");
+            var victoriesResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryCurrentDividends);
+            Logger.WriteInfo(consensusService.ConvertViewResult(victoriesResult, true));
+        }
+
+        [TestMethod]
         public void QueryCurrentDividendsForVoters()
         {
             Logger.WriteInfo("QueryCurrentDividendsForVoters Test");
-            var dividendsResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryCurrentDividendsForVoters, "empty");
+            var dividendsResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryCurrentDividendsForVoters);
             Logger.WriteInfo(consensusService.ConvertViewResult(dividendsResult, true));
         }
 
+        [TestMethod]
         public void QueryDividences()
         {
+            UserVoteAction();
+            Thread.Sleep(30000);
             foreach (var userAcc in UserList)
             {
-                consensusService.Account = userAcc;
-                var allDividenceResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetAllDividends, "Empty");
-                consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
+                Logger.WriteInfo($"Account check: {userAcc}");
+                consensusService.SetAccount(userAcc);
+                var balanceBefore = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                Logger.WriteInfo($"Init balance: {tokenService.ConvertViewResult(balanceBefore, true)}");
+
+                consensusService.SetAccount(userAcc);
+                var allDividenceResult = consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
+
+                var balanceAfter1 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                Logger.WriteInfo($"Received dividends balance: {tokenService.ConvertViewResult(balanceAfter1, true)}");
+
+                var drawResult = consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
+
+                var balanceAfter2 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                Logger.WriteInfo($"Revertback vote balance: {tokenService.ConvertViewResult(balanceAfter2, true)}");
             }
         }
 
+        [TestMethod]
+        public void QueryMinedBlockCountInCurrentTerm()
+        {
+            GetGetCurrentMinersInfo();
+            foreach (var miner in CurrentMinersKeys)
+            {
+                var blockResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryMinedBlockCountInCurrentTerm, miner);
+                Logger.WriteInfo($"Generate blocks count: {consensusService.ConvertViewResult(blockResult, true)}");
+            }
+        }
 
+        [TestMethod]
+        public void QueryAliasesInUse()
+        {
+            var aliasResults = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryAliasesInUseToFriendlyString);
+            Logger.WriteInfo($"Alias in use: {consensusService.ConvertViewResult(aliasResults)}");
+        }
 
         //退出选举
-        public void QuitElection()
+        private void QuitElection()
         {
-            consensusService.Account = FullNodeAccounts[0];
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
-            consensusService.Account = FullNodeAccounts[1];
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
-            consensusService.Account = FullNodeAccounts[2];
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection, "Empty");
+            consensusService.SetAccount(FullNodeAccounts[0]);
+            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
+
+            consensusService.SetAccount(FullNodeAccounts[1]);
+            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
+
+            consensusService.SetAccount(FullNodeAccounts[2]);
+            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
             GetCandidateList();
 
             //查询余额
@@ -361,17 +462,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void JoinElectionTest()
-        {
-            PrepareCandidateAsset();
-            JoinElection();
-            GetCandidateList();
-        }
-
-        [TestMethod]
         public void QuiteElectionTest()
         {
-            QuiteElectionTest();
+            QuitElection();
             GetCandidateList();
         }
 
@@ -398,6 +491,75 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
+
+        #region Dividends Test
+
+        [TestMethod]
+        [DataRow(10)]
+        [DataRow(50)]
+        [DataRow(100)]
+        public void GetTermDividends(int termNo)
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermDividends, termNo.ToString());
+            Logger.WriteInfo($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
+        }
+
+        [TestMethod]
+        [DataRow(10)]
+        [DataRow(50)]
+        [DataRow(100)]
+        public void GetTermTotalWeights(int termNo)
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermTotalWeights, termNo.ToString());
+            Logger.WriteInfo($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
+        }
+
+        [TestMethod]
+        public void GetAvailableDividends()
+        {
+
+        }
+
+        [TestMethod]
+        [DataRow(1000, 90)]
+        [DataRow(100, 900)]
+        [DataRow(500, 180)]
+        public void CheckDividendsOfPreviousTerm(int ticketsAmount, int lockTime)
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividendsOfPreviousTerm, ticketsAmount.ToString(), lockTime.ToString());
+            Logger.WriteInfo($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+        }
+
+        [TestMethod]
+        [DataRow(1000, 90, 20)]
+        [DataRow(100, 900, 40)]
+        [DataRow(500, 180, 80)]
+        public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());
+            Logger.WriteInfo(
+                $"Ticket: {ticketsAmount}, LockTime: {lockTime}, TermNo: {termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+        }
+
+        [TestMethod]
+        public void CheckStandardDividendsOfPreviousTerm()
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm);
+            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+
+        }
+
+        [TestMethod]
+        [DataRow(10)]
+        [DataRow(50)]
+        [DataRow(100)]
+        public void CheckStandardDividends(int termNo)
+        {
+            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm, termNo.ToString());
+            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+        }
+
+        #endregion
 
     }
 }

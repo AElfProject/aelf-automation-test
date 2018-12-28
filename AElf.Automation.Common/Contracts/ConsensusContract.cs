@@ -12,6 +12,8 @@ namespace AElf.Automation.Common.Contracts
         GetRoundInfo,
         GetCurrentTermNumber,
         IsCandidate,
+        GetVotesCount,
+        GetTicketsCount,
         GetCandidatesListToFriendlyString,
         GetCandidateHistoryInfoToFriendlyString,
         GetCurrentMinersToFriendlyString,
@@ -22,12 +24,14 @@ namespace AElf.Automation.Common.Contracts
         GetTermSnapshotToFriendlyString,
         GetTermNumberByRoundNumber,
         QueryAliasesInUseToFriendlyString,
+        QueryCurrentDividends,
         QueryCurrentDividendsForVoters,
+        QueryMinedBlockCountInCurrentTerm,
 
         AnnounceElection,
         QuitElection,
         Vote,
-        GetAllDividends,
+        ReceiveAllDividends,
         WithdrawAll,
         InitialBalance
     }

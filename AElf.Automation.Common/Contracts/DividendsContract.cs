@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -10,7 +11,12 @@ namespace AElf.Automation.Common.Contracts
     {
         GetTermDividends,
         GetTermTotalWeights,
-        GetLatestRequestDividendsTermNumber
+        GetAvailableDividends,
+        GetAvailableDividendsByVotingInformation,
+        CheckStandardDividends,
+        CheckStandardDividendsOfPreviousTerm,
+        CheckDividends,
+        CheckDividendsOfPreviousTerm
     }
     public class DividendsContract :BaseContract
     {
@@ -34,6 +40,11 @@ namespace AElf.Automation.Common.Contracts
         public void CallContractWithoutResult(DicidendsMethod method, params string[] paramsArray)
         {
             ExecuteContractMethod(method.ToString(), paramsArray);
+        }
+
+        public JObject CallReadOnlyMethod(DicidendsMethod method, params string[] paramsArray)
+        {
+            return CallContractViewMethod(method.ToString(), paramsArray);
         }
     }
 }
