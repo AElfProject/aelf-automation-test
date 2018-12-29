@@ -18,45 +18,45 @@ namespace AElf.Automation.Common.Helpers
 
     public class SsdbClient
     {
-        private Link link;
-        private string resp_code;
+        private readonly Link _link;
+        private string _respCode;
 
         public SsdbClient(string host, int port)
         {
-            link = new Link(host, port);
+            _link = new Link(host, port);
         }
 
         ~SsdbClient()
         {
-            this.close();
+            this.Close();
         }
 
-        public void close()
+        public void Close()
         {
-            link.close();
+            _link.Close();
         }
 
-        public List<byte[]> request(string cmd, params string[] args)
+        public List<byte[]> Request(string cmd, params string[] args)
         {
-            return link.request(cmd, args);
+            return _link.Request(cmd, args);
         }
 
-        public List<byte[]> request(string cmd, params byte[][] args)
+        public List<byte[]> Request(string cmd, params byte[][] args)
         {
-            return link.request(cmd, args);
+            return _link.Request(cmd, args);
         }
 
-        public List<byte[]> request(List<byte[]> req)
+        public List<byte[]> Request(List<byte[]> req)
         {
-            return link.request(req);
+            return _link.Request(req);
         }
 
 
-        private void assert_ok()
+        private void Assert_ok()
         {
-            if (resp_code != "ok")
+            if (_respCode != "ok")
             {
-                throw new Exception(resp_code);
+                throw new Exception(_respCode);
             }
         }
 
@@ -70,10 +70,10 @@ namespace AElf.Automation.Common.Helpers
             return Encoding.Default.GetString(bs);
         }
 
-        private KeyValuePair<string, byte[]>[] parse_scan_resp(List<byte[]> resp)
+        private KeyValuePair<string, byte[]>[] Parse_scan_resp(List<byte[]> resp)
         {
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
 
             int size = (resp.Count - 1) / 2;
             KeyValuePair<string, byte[]>[] kvs = new KeyValuePair<string, byte[]>[size];
@@ -88,15 +88,15 @@ namespace AElf.Automation.Common.Helpers
 
         /***** kv *****/
 
-        public bool exists(byte[] key)
+        public bool Exists(byte[] key)
         {
-            List<byte[]> resp = request("exists", key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("exists", key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -104,21 +104,21 @@ namespace AElf.Automation.Common.Helpers
             return (_string(resp[1]) == "1" ? true : false);
         }
 
-        public bool exists(string key)
+        public bool Exists(string key)
         {
-            return this.exists(_bytes(key));
+            return this.Exists(_bytes(key));
         }
 
-        public void set(byte[] key, byte[] val)
+        public void Set(byte[] key, byte[] val)
         {
-            List<byte[]> resp = request("set", key, val);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("set", key, val);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
-        public void set(string key, string val)
+        public void Set(string key, string val)
         {
-            this.set(_bytes(key), _bytes(val));
+            this.Set(_bytes(key), _bytes(val));
         }
 
         /// <summary>
@@ -130,13 +130,13 @@ namespace AElf.Automation.Common.Helpers
         public bool get(byte[] key, out byte[] val)
         {
             val = null;
-            List<byte[]> resp = request("get", key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("get", key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -145,16 +145,16 @@ namespace AElf.Automation.Common.Helpers
             return true;
         }
 
-        public bool get(string key, out byte[] val)
+        public bool Get(string key, out byte[] val)
         {
             return this.get(_bytes(key), out val);
         }
 
-        public bool get(string key, out string val)
+        public bool Get(string key, out string val)
         {
             val = null;
             byte[] bs;
-            if (!this.get(key, out bs))
+            if (!this.Get(key, out bs))
             {
                 return false;
             }
@@ -164,9 +164,9 @@ namespace AElf.Automation.Common.Helpers
 
         public void del(byte[] key)
         {
-            List<byte[]> resp = request("del", key);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("del", key);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
         public void del(string key)
@@ -176,23 +176,23 @@ namespace AElf.Automation.Common.Helpers
 
         public KeyValuePair<string, byte[]>[] scan(string key_start, string key_end, Int64 limit)
         {
-            List<byte[]> resp = request("scan", key_start, key_end, limit.ToString());
-            return parse_scan_resp(resp);
+            List<byte[]> resp = Request("scan", key_start, key_end, limit.ToString());
+            return Parse_scan_resp(resp);
         }
 
         public KeyValuePair<string, byte[]>[] rscan(string key_start, string key_end, Int64 limit)
         {
-            List<byte[]> resp = request("rscan", key_start, key_end, limit.ToString());
-            return parse_scan_resp(resp);
+            List<byte[]> resp = Request("rscan", key_start, key_end, limit.ToString());
+            return Parse_scan_resp(resp);
         }
 
         /***** hash *****/
 
         public void hset(byte[] name, byte[] key, byte[] val)
         {
-            List<byte[]> resp = request("hset", name, key, val);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("hset", name, key, val);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
         public void hset(string name, string key, byte[] val)
@@ -215,13 +215,13 @@ namespace AElf.Automation.Common.Helpers
         public bool hget(byte[] name, byte[] key, out byte[] val)
         {
             val = null;
-            List<byte[]> resp = request("hget", name, key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("hget", name, key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -230,16 +230,16 @@ namespace AElf.Automation.Common.Helpers
             return true;
         }
 
-        public bool hget(string name, string key, out byte[] val)
+        public bool Hget(string name, string key, out byte[] val)
         {
             return this.hget(_bytes(name), _bytes(key), out val);
         }
 
-        public bool hget(string name, string key, out string val)
+        public bool Hget(string name, string key, out string val)
         {
             val = null;
             byte[] bs;
-            if (!this.hget(name, key, out bs))
+            if (!this.Hget(name, key, out bs))
             {
                 return false;
             }
@@ -247,27 +247,27 @@ namespace AElf.Automation.Common.Helpers
             return true;
         }
 
-        public void hdel(byte[] name, byte[] key)
+        public void Hdel(byte[] name, byte[] key)
         {
-            List<byte[]> resp = request("hdel", name, key);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("hdel", name, key);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
-        public void hdel(string name, string key)
+        public void Hdel(string name, string key)
         {
-            this.hdel(_bytes(name), _bytes(key));
+            this.Hdel(_bytes(name), _bytes(key));
         }
 
         public bool hexists(byte[] name, byte[] key)
         {
-            List<byte[]> resp = request("hexists", name, key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("hexists", name, key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -282,9 +282,9 @@ namespace AElf.Automation.Common.Helpers
 
         public Int64 hsize(byte[] name)
         {
-            List<byte[]> resp = request("hsize", name);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("hsize", name);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -299,14 +299,14 @@ namespace AElf.Automation.Common.Helpers
 
         public KeyValuePair<string, byte[]>[] hscan(string name, string key_start, string key_end, Int64 limit)
         {
-            List<byte[]> resp = request("hscan", name, key_start, key_end, limit.ToString());
-            return parse_scan_resp(resp);
+            List<byte[]> resp = Request("hscan", name, key_start, key_end, limit.ToString());
+            return Parse_scan_resp(resp);
         }
 
         public KeyValuePair<string, byte[]>[] hrscan(string name, string key_start, string key_end, Int64 limit)
         {
-            List<byte[]> resp = request("hrscan", name, key_start, key_end, limit.ToString());
-            return parse_scan_resp(resp);
+            List<byte[]> resp = Request("hrscan", name, key_start, key_end, limit.ToString());
+            return Parse_scan_resp(resp);
         }
 
         public void multi_hset(byte[] name, KeyValuePair<byte[], byte[]>[] kvs)
@@ -319,9 +319,9 @@ namespace AElf.Automation.Common.Helpers
                 req[(2 * i) + 2] = kvs[i].Value;
 
             }
-            List<byte[]> resp = request("multi_hset", req);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("multi_hset", req);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
         public void multi_hset(string name, KeyValuePair<string, string>[] kvs)
@@ -342,9 +342,9 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
-            List<byte[]> resp = request("multi_hdel", req);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("multi_hdel", req);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
         public void multi_hdel(string name, string[] keys)
@@ -365,8 +365,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
-            List<byte[]> resp = request("multi_hget", req);
-            KeyValuePair<string, byte[]>[] ret = parse_scan_resp(resp);
+            List<byte[]> resp = Request("multi_hget", req);
+            KeyValuePair<string, byte[]>[] ret = Parse_scan_resp(resp);
 
             return ret;
         }
@@ -383,23 +383,23 @@ namespace AElf.Automation.Common.Helpers
 
         /***** zset *****/
 
-        public void zset(byte[] name, byte[] key, Int64 score)
+        public void Zset(byte[] name, byte[] key, Int64 score)
         {
-            List<byte[]> resp = request("zset", name, key, _bytes(score.ToString()));
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("zset", name, key, _bytes(score.ToString()));
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
         public void zset(string name, string key, Int64 score)
         {
-            this.zset(_bytes(name), _bytes(key), score);
+            this.Zset(_bytes(name), _bytes(key), score);
         }
 
-        public Int64 zincr(byte[] name, byte[] key, Int64 increment)
+        public Int64 Zincr(byte[] name, byte[] key, Int64 increment)
         {
-            List<byte[]> resp = request("zincr", name, key, _bytes(increment.ToString()));
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("zincr", name, key, _bytes(increment.ToString()));
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -407,9 +407,9 @@ namespace AElf.Automation.Common.Helpers
             return Int64.Parse(_string(resp[1]));
         }
 
-        public Int64 zincr(string name, string key, Int64 increment)
+        public Int64 Zincr(string name, string key, Int64 increment)
         {
-            return this.zincr(_bytes(name), _bytes(key), increment);
+            return this.Zincr(_bytes(name), _bytes(key), increment);
         }
 
         /// <summary>
@@ -419,16 +419,16 @@ namespace AElf.Automation.Common.Helpers
         /// <param name="key"></param>
         /// <param name="score"></param>
         /// <returns>returns true if name.key is found, otherwise returns false.</returns>
-        public bool zget(byte[] name, byte[] key, out Int64 score)
+        public bool Zget(byte[] name, byte[] key, out Int64 score)
         {
             score = -1;
-            List<byte[]> resp = request("zget", name, key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("zget", name, key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -437,28 +437,28 @@ namespace AElf.Automation.Common.Helpers
             return true;
         }
 
-        public bool zget(string name, string key, out Int64 score)
+        public bool Zget(string name, string key, out Int64 score)
         {
-            return this.zget(_bytes(name), _bytes(key), out score);
+            return this.Zget(_bytes(name), _bytes(key), out score);
         }
 
-        public void zdel(byte[] name, byte[] key)
+        public void Zdel(byte[] name, byte[] key)
         {
-            List<byte[]> resp = request("zdel", name, key);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("zdel", name, key);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
-        public void zdel(string name, string key)
+        public void Zdel(string name, string key)
         {
-            this.zdel(_bytes(name), _bytes(key));
+            this.Zdel(_bytes(name), _bytes(key));
         }
 
-        public Int64 zsize(byte[] name)
+        public Int64 Zsize(byte[] name)
         {
-            List<byte[]> resp = request("zsize", name);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("zsize", name);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -466,20 +466,20 @@ namespace AElf.Automation.Common.Helpers
             return Int64.Parse(_string(resp[1]));
         }
 
-        public Int64 zsize(string name)
+        public Int64 Zsize(string name)
         {
-            return this.zsize(_bytes(name));
+            return this.Zsize(_bytes(name));
         }
 
-        public bool zexists(byte[] name, byte[] key)
+        public bool Zexists(byte[] name, byte[] key)
         {
-            List<byte[]> resp = request("zexists", name, key);
-            resp_code = _string(resp[0]);
-            if (resp_code == "not_found")
+            List<byte[]> resp = Request("zexists", name, key);
+            _respCode = _string(resp[0]);
+            if (_respCode == "not_found")
             {
                 return false;
             }
-            this.assert_ok();
+            this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
@@ -487,15 +487,15 @@ namespace AElf.Automation.Common.Helpers
             return (_string(resp[1]) == "1" ? true : false);
         }
 
-        public bool zexists(string name, string key)
+        public bool Zexists(string name, string key)
         {
-            return this.zexists(_bytes(name), _bytes(key));
+            return this.Zexists(_bytes(name), _bytes(key));
         }
 
-        public KeyValuePair<string, Int64>[] zrange(string name, Int32 offset, Int32 limit)
+        public KeyValuePair<string, Int64>[] Zrange(string name, Int32 offset, Int32 limit)
         {
-            List<byte[]> resp = request("zrange", name, offset.ToString(), limit.ToString());
-            KeyValuePair<string, byte[]>[] kvs = parse_scan_resp(resp);
+            List<byte[]> resp = Request("zrange", name, offset.ToString(), limit.ToString());
+            KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
@@ -506,10 +506,10 @@ namespace AElf.Automation.Common.Helpers
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] zrrange(string name, Int32 offset, Int32 limit)
+        public KeyValuePair<string, Int64>[] Zrrange(string name, Int32 offset, Int32 limit)
         {
-            List<byte[]> resp = request("zrrange", name, offset.ToString(), limit.ToString());
-            KeyValuePair<string, byte[]>[] kvs = parse_scan_resp(resp);
+            List<byte[]> resp = Request("zrrange", name, offset.ToString(), limit.ToString());
+            KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
@@ -520,7 +520,7 @@ namespace AElf.Automation.Common.Helpers
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] zscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
+        public KeyValuePair<string, Int64>[] Zscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
         {
             string score_s = "";
             string score_e = "";
@@ -532,8 +532,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 score_e = score_end.ToString();
             }
-            List<byte[]> resp = request("zscan", name, key_start, score_s, score_e, limit.ToString());
-            KeyValuePair<string, byte[]>[] kvs = parse_scan_resp(resp);
+            List<byte[]> resp = Request("zscan", name, key_start, score_s, score_e, limit.ToString());
+            KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
@@ -544,7 +544,7 @@ namespace AElf.Automation.Common.Helpers
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] zrscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
+        public KeyValuePair<string, Int64>[] Zrscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
         {
             string score_s = "";
             string score_e = "";
@@ -556,8 +556,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 score_e = score_end.ToString();
             }
-            List<byte[]> resp = request("zrscan", name, key_start, score_s, score_e, limit.ToString());
-            KeyValuePair<string, byte[]>[] kvs = parse_scan_resp(resp);
+            List<byte[]> resp = Request("zrscan", name, key_start, score_s, score_e, limit.ToString());
+            KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
@@ -568,7 +568,7 @@ namespace AElf.Automation.Common.Helpers
             return ret;
         }
 
-        public void multi_zset(byte[] name, KeyValuePair<byte[], Int64>[] kvs)
+        public void Multi_zset(byte[] name, KeyValuePair<byte[], Int64>[] kvs)
         {
             byte[][] req = new byte[(kvs.Length * 2) + 1][];
             req[0] = name;
@@ -578,22 +578,22 @@ namespace AElf.Automation.Common.Helpers
                 req[(2 * i) + 2] = _bytes(kvs[i].Value.ToString());
 
             }
-            List<byte[]> resp = request("multi_zset", req);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("multi_zset", req);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
-        public void multi_zset(string name, KeyValuePair<string, Int64>[] kvs)
+        public void Multi_zset(string name, KeyValuePair<string, Int64>[] kvs)
         {
             KeyValuePair<byte[], Int64>[] req = new KeyValuePair<byte[], Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
                 req[i] = new KeyValuePair<byte[], Int64>(_bytes(kvs[i].Key), kvs[i].Value);
             }
-            this.multi_zset(_bytes(name), req);
+            this.Multi_zset(_bytes(name), req);
         }
 
-        public void multi_zdel(byte[] name, byte[][] keys)
+        public void Multi_zdel(byte[] name, byte[][] keys)
         {
             byte[][] req = new byte[keys.Length + 1][];
             req[0] = name;
@@ -601,22 +601,22 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
-            List<byte[]> resp = request("multi_zdel", req);
-            resp_code = _string(resp[0]);
-            this.assert_ok();
+            List<byte[]> resp = Request("multi_zdel", req);
+            _respCode = _string(resp[0]);
+            this.Assert_ok();
         }
 
-        public void multi_zdel(string name, string[] keys)
+        public void Multi_zdel(string name, string[] keys)
         {
             byte[][] req = new byte[keys.Length][];
             for (int i = 0; i < keys.Length; i++)
             {
                 req[i] = _bytes(keys[i]);
             }
-            this.multi_zdel(_bytes(name), req);
+            this.Multi_zdel(_bytes(name), req);
         }
 
-        public KeyValuePair<string, Int64>[] multi_zget(byte[] name, byte[][] keys)
+        public KeyValuePair<string, Int64>[] Multi_zget(byte[] name, byte[][] keys)
         {
             byte[][] req = new byte[keys.Length + 1][];
             req[0] = name;
@@ -624,8 +624,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
-            List<byte[]> resp = request("multi_zget", req);
-            KeyValuePair<string, byte[]>[] kvs = parse_scan_resp(resp);
+            List<byte[]> resp = Request("multi_zget", req);
+            KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
             for (int i = 0; i < kvs.Length; i++)
             {
@@ -636,14 +636,14 @@ namespace AElf.Automation.Common.Helpers
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] multi_zget(string name, string[] keys)
+        public KeyValuePair<string, Int64>[] Multi_zget(string name, string[] keys)
         {
             byte[][] req = new byte[keys.Length][];
             for (int i = 0; i < keys.Length; i++)
             {
                 req[i] = _bytes(keys[i]);
             }
-            return this.multi_zget(_bytes(name), req);
+            return this.Multi_zget(_bytes(name), req);
         }
 
     }
@@ -662,10 +662,10 @@ namespace AElf.Automation.Common.Helpers
 
         ~Link()
         {
-            this.close();
+            this.Close();
         }
 
-        public void close()
+        public void Close()
         {
             if (sock != null)
             {
@@ -674,7 +674,7 @@ namespace AElf.Automation.Common.Helpers
             sock = null;
         }
 
-        public List<byte[]> request(string cmd, params string[] args)
+        public List<byte[]> Request(string cmd, params string[] args)
         {
             List<byte[]> req = new List<byte[]>(1 + args.Length);
             req.Add(Encoding.Default.GetBytes(cmd));
@@ -682,18 +682,18 @@ namespace AElf.Automation.Common.Helpers
             {
                 req.Add(Encoding.Default.GetBytes(s));
             }
-            return this.request(req);
+            return this.Request(req);
         }
 
-        public List<byte[]> request(string cmd, params byte[][] args)
+        public List<byte[]> Request(string cmd, params byte[][] args)
         {
             List<byte[]> req = new List<byte[]>(1 + args.Length);
             req.Add(Encoding.Default.GetBytes(cmd));
             req.AddRange(args);
-            return this.request(req);
+            return this.Request(req);
         }
 
-        public List<byte[]> request(List<byte[]> req)
+        public List<byte[]> Request(List<byte[]> req)
         {
             MemoryStream buf = new MemoryStream();
             foreach (byte[] p in req)
@@ -709,14 +709,14 @@ namespace AElf.Automation.Common.Helpers
             byte[] bs = buf.GetBuffer();
             sock.GetStream().Write(bs, 0, (int)buf.Length);
             //Console.Write(Encoding.Default.GetString(bs, 0, (int)buf.Length));
-            return recv();
+            return Recv();
         }
 
-        private List<byte[]> recv()
+        private List<byte[]> Recv()
         {
             while (true)
             {
-                List<byte[]> ret = parse();
+                List<byte[]> ret = Parse();
                 if (ret != null)
                 {
                     return ret;
@@ -728,7 +728,7 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        private static int memchr(byte[] bs, byte b, int offset)
+        private static int Memchr(byte[] bs, byte b, int offset)
         {
             for (int i = offset; i < bs.Length; i++)
             {
@@ -740,7 +740,7 @@ namespace AElf.Automation.Common.Helpers
             return -1;
         }
 
-        private List<byte[]> parse()
+        private List<byte[]> Parse()
         {
             List<byte[]> list = new List<byte[]>();
             byte[] buf = recv_buf.GetBuffer();
@@ -748,7 +748,7 @@ namespace AElf.Automation.Common.Helpers
             int idx = 0;
             while (true)
             {
-                int pos = memchr(buf, (byte)'\n', idx);
+                int pos = Memchr(buf, (byte)'\n', idx);
                 //System.out.println("pos: " + pos + " idx: " + idx);
                 if (pos == -1)
                 {

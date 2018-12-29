@@ -7,8 +7,8 @@ namespace AElf.Automation.RpcTesting
     public class DataResult
     {
         public string Key { get; set; }
-        public string TypeInfo { get; set; }
-        public string ValueInfo { get; set; }
+        public string TypeInfo { get; }
+        public string ValueInfo { get; }
         public DataResult(string key, string type, string value)
         {
             Key = key;
@@ -19,8 +19,8 @@ namespace AElf.Automation.RpcTesting
 
     public class TypeSummarySet
     {
-        public List<TypeSummary> SummaryInfo { get; set; }
-        public List<DataResult> DataCollection { get; set; }
+        public List<TypeSummary> SummaryInfo { get; }
+        public List<DataResult> DataCollection { get; }
 
         public TypeSummarySet()
         {
@@ -49,7 +49,7 @@ namespace AElf.Automation.RpcTesting
 
     public class TypeSummary
     {
-        public string TypeName { get; set; }
+        public string TypeName { get; }
         public int Count { get; set; }
 
         public TypeSummary(string name)

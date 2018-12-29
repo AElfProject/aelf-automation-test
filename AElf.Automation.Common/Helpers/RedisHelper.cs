@@ -24,14 +24,14 @@ namespace AElf.Automation.Common.Helpers
         /// <summary>
         /// redis客户端连接池信息
         /// </summary>
-        private PooledRedisClientManager prcm;
-        public string Host;
-        public int Port;
+        private PooledRedisClientManager _prcm;
+        private readonly string _host;
+        private readonly int _port;
 
         public RedisHelper(string host, int port = 6379)
         {
-            Host = host;
-            Port = port;
+            _host = host;
+            _port = port;
             CreateManager();
         }
         
@@ -43,15 +43,15 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 // ip1：端口1,ip2：端口2
-                var serverlist = new string[]{ $"{Host}:{Port}"};
-                prcm = new PooledRedisClientManager(serverlist, serverlist,
+                var serverlist = new string[]{ $"{_host}:{_port}"};
+                _prcm = new PooledRedisClientManager(serverlist, serverlist,
                                  new RedisClientManagerConfig
                                  {
                                      MaxWritePoolSize = 32,
                                      MaxReadPoolSize = 32,
                                      AutoStart = true
                                  });
-                //    prcm.Start();
+                //    _prcm.Start();
             }
             catch (Exception)
             {
@@ -66,10 +66,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         public IRedisClient GetClient()
         {
-            if (prcm == null)
+            if (_prcm == null)
                 CreateManager();
 
-            return prcm.GetClient();
+            return _prcm.GetClient();
         }
         
         /// <summary>
@@ -79,7 +79,7 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public bool Remove(string key)
         {
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 return client.Remove(key);
             }
@@ -92,7 +92,7 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public object Get(string key)
         {
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 var bytes = client.Get<byte[]>(key);
                 var obj = new ObjectSerializer().Deserialize(bytes);
@@ -109,7 +109,7 @@ namespace AElf.Automation.Common.Helpers
         public T GetT<T>(string key) where T : class
         {
             //return Get(key) as T;
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 return client.Get<T>(key);
             }
@@ -117,7 +117,7 @@ namespace AElf.Automation.Common.Helpers
         
         public List<string> GetAllKeys()
         {
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 return client.GetAllKeys();
             }
@@ -158,7 +158,7 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public bool Set(string key, object value)
         {
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 if (client.ContainsKey(key))
                 {
@@ -181,7 +181,7 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public bool Set(string key, object value, DateTime expireTime)
         {
-            using (var client = prcm.GetClient())
+            using (var client = _prcm.GetClient())
             {
                 if (client.ContainsKey(key))
                 {
@@ -207,7 +207,7 @@ namespace AElf.Automation.Common.Helpers
         {
             try
             {
-                using (var client = prcm.GetClient())
+                using (var client = _prcm.GetClient())
                 {
                     return client.Set<T>(key, value, expire);
                 }
@@ -229,7 +229,7 @@ namespace AElf.Automation.Common.Helpers
         {
             try
             {
-                using (var client = prcm.GetClient())
+                using (var client = _prcm.GetClient())
                 {
                     return client.Set<T>(key, value);
                 }
@@ -257,8 +257,8 @@ namespace AElf.Automation.Common.Helpers
 
         public void Close()
         {
-            var client = prcm.GetClient();
-            prcm.Dispose();
+            var client = _prcm.GetClient();
+            _prcm.Dispose();
         }
     }
 

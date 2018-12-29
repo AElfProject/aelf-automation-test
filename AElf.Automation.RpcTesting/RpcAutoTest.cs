@@ -229,8 +229,8 @@ namespace AElf.Automation.RpcTesting
                 var request1= new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
 
-                string response1 = request.PostRequest(method, parameter, out code1);
-                string response2 = request.PostRequest(method, parameter, out code2);
+                string response1 = request1.PostRequest(method, parameter, out code1);
+                string response2 = request2.PostRequest(method, parameter, out code2);
                 Assert.AreEqual("OK", code1);
                 Assert.AreEqual("OK", code2);
                 Assert.AreEqual(response1, response2);
@@ -264,8 +264,8 @@ namespace AElf.Automation.RpcTesting
                 var request1 = new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
 
-                string response1 = request.PostRequest(method, parameter, out code1);
-                string response2 = request.PostRequest(method, parameter, out code2);
+                string response1 = request1.PostRequest(method, parameter, out code1);
+                string response2 = request2.PostRequest(method, parameter, out code2);
                 Assert.AreEqual("OK", code1);
                 Assert.AreEqual("OK", code2);
                 Assert.AreEqual(response1, response2);
