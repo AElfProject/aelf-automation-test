@@ -20,10 +20,10 @@ namespace AElf.Automation.Common.Extensions
 {
     public class TransactionManager
     {
-        private AElfKeyStore _keyStore;
+        private readonly AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
-        private ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
@@ -52,7 +52,7 @@ namespace AElf.Automation.Common.Extensions
                 t.To = Address.Parse(genesisAddress);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
-                t.Params = serializedParams==null ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : serializedParams ;
+                t.Params = (serializedParams == null) ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : serializedParams;
                 t.Type = contracttransaction;
                 _cmdInfo.Result = true;
 
@@ -117,8 +117,8 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception e)
             {
-                Logger.WriteError("Invalid transaction data.");
-                Logger.WriteError("Exception message: " + e.Message);
+                _logger.WriteError("Invalid transaction data.");
+                _logger.WriteError("Exception message: " + e.Message);
 
                 return null;
             }
@@ -130,7 +130,7 @@ namespace AElf.Automation.Common.Extensions
         private static DateTime _refBlockTime = DateTime.Now;
         private static ulong _cachedHeight;
         private static string _cachedHash;
-        private static ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress)
         {
@@ -154,8 +154,7 @@ namespace AElf.Automation.Common.Extensions
         {
             requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
-            string returnCode = string.Empty;
-            var resp = reqhttp.PostRequest("get_block_height", "{}", out returnCode);
+            var resp = reqhttp.PostRequest("get_block_height", "{}", out var returnCode);
             Logger.WriteInfo("Query block height status: {0}, return message: {1}", returnCode, resp);
             if (returnCode != "OK")
             {
@@ -174,8 +173,7 @@ namespace AElf.Automation.Common.Extensions
         {
             requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
-            string returnCode = string.Empty;
-            var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out returnCode);
+            var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out var returnCode);
             if (returnCode != "OK")
             {
                 if (requestTimes >= 0)

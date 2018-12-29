@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Helpers
         public List<string> InfoMsg { get; set; }
         public List<string> ErrorMsg { get; set; }
         public long TimeSpan { get; set; }
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         public CommandInfo(string cmd, string category="")
         {
@@ -44,15 +44,15 @@ namespace AElf.Automation.Common.Helpers
         {
             if (Result)
             {
-                Logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
+                _logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
                 foreach(var item in InfoMsg)
-                    Logger.WriteInfo(item);
+                    _logger.WriteInfo(item);
             }
             else
             {
-                Logger.WriteError("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Failed");
+                _logger.WriteError("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Failed");
                 foreach(var item in ErrorMsg)
-                    Logger.WriteError(item);
+                    _logger.WriteError(item);
             }
         }
 
@@ -72,7 +72,7 @@ namespace AElf.Automation.Common.Helpers
             if (paraArray.Length != count)
             {
                 ErrorMsg.Add("Parameter error.");
-                Logger.WriteError("{0} command parameter is invalid.", Category);
+                _logger.WriteError("{0} command parameter is invalid.", Category);
                 return false;
             }
             return true;

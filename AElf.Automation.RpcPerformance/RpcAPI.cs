@@ -597,7 +597,7 @@ namespace AElf.Automation.RpcPerformance
 
                 return path;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

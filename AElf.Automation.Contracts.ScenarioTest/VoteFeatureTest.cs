@@ -10,6 +10,7 @@ using AElf.Automation.Common.Contracts;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using NServiceKit.Common.Extensions;
 using Secp256k1Net;
+using IgnoreAttribute = ServiceStack.DataAnnotations.IgnoreAttribute;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -111,7 +112,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
         }
 
-        [TestMethod]
+        [TestMethod()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.Ignore]
         public void SetTokenFeeAccount()
         {
             SetTokenFeeAddress();
@@ -210,12 +212,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void PrepareUserAccountAndBalance()
+        [DataRow(50)]
+        public void PrepareUserAccountAndBalance(int userAccount)
         {
             //Account preparation
             UserList = new List<string>();
             var ci = new CommandInfo("account new", "account");
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < userAccount; i++)
             {
                 ci.Parameter = "123";
                 ci = CH.NewAccount(ci);
@@ -245,35 +248,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("All accounts created and unlocked.");
         }
 
-        [TestMethod]
-        public void GetBlockchainAge()
-        {
-            var ageInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetBlockchainAge);
-            Logger.WriteInfo($"Chain age: {consensusService.ConvertViewResult(ageInfo, true)}");
-        }
-
-        [TestMethod]
-        public void GetTermSnapshot()
-        {
-            var termInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermSnapshotToFriendlyString, "100");
-            Logger.WriteInfo(consensusService.ConvertViewResult(termInfo));
-        }
-
-        [TestMethod]
-        public void GetTermNumberByRoundNumber()
-        {
-            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "24");
-            Logger.WriteInfo(consensusService.ConvertViewResult(termNo1, true));
-            var termNo2 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "80");
-            Logger.WriteInfo(consensusService.ConvertViewResult(termNo2, true));
-        }
-
         //参加选举
         [TestMethod]
         public void UserVoteAction()
         {
             GetCandidateList();
-            PrepareUserAccountAndBalance();
+            PrepareUserAccountAndBalance(10);
 
             Random rd = new Random(DateTime.Now.Millisecond);
             foreach (var voteAcc in UserList)
@@ -290,6 +270,30 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //检查投票结果
             GetCurrentElectionInfo();
             Logger.WriteInfo("Vote completed.");
+        }
+
+        [TestMethod]
+        public void GetBlockchainAge()
+        {
+            var ageInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetBlockchainAge);
+            Logger.WriteInfo($"Chain age: {consensusService.ConvertViewResult(ageInfo, true)}");
+        }
+
+        [TestMethod]
+        [DataRow(10)]
+        public void GetTermSnapshot(int termNo)
+        {
+            var termInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermSnapshotToFriendlyString, termNo.ToString());
+            Logger.WriteInfo(consensusService.ConvertViewResult(termInfo));
+        }
+
+        [TestMethod]
+        public void GetTermNumberByRoundNumber()
+        {
+            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "1");
+            Logger.WriteInfo(consensusService.ConvertViewResult(termNo1, true));
+            var termNo2 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "1");
+            Logger.WriteInfo(consensusService.ConvertViewResult(termNo2, true));
         }
 
         [TestMethod]
@@ -332,7 +336,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetCurrentElectionInfo()
         {
             Logger.WriteInfo("GetCurrentElectionInfo Test");
-            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentElectionInfoToFriendlyString, "0", "0", "0");
+            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentElectionInfoToFriendlyString);
             Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
         }
 
@@ -376,7 +380,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void QueryDividences()
+        public void QueryDividends()
         {
             UserVoteAction();
             Thread.Sleep(30000);
@@ -446,7 +450,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             JoinElection();
             GetCandidateList();
 
-            PrepareUserAccountAndBalance();
+            PrepareUserAccountAndBalance(10);
             UserVoteAction();
 
             //查询信息
@@ -454,7 +458,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetGetCurrentMinersInfo();
             GetTicketsInfo();
             GetCurrentVictories();
-            QueryDividences();
+            QueryDividends();
             QueryCurrentDividendsForVoters();
 
             //取消参选
@@ -472,7 +476,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void VoteBpTest()
         {
             GetCandidateList();
-            PrepareUserAccountAndBalance();
+            PrepareUserAccountAndBalance(10);
             UserVoteAction();
             GetTicketsInfo();
             GetCurrentVictories();

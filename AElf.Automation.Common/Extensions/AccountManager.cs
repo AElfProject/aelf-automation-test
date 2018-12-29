@@ -11,8 +11,8 @@ namespace AElf.Automation.Common.Extensions
 {
     public class AccountManager
     {
-        private AElfKeyStore _keyStore;
-        private string _chainId;
+        private readonly AElfKeyStore _keyStore;
+        private readonly string _chainId;
 
         public AccountManager(AElfKeyStore keyStore, string chainId)
         {
@@ -69,7 +69,7 @@ namespace AElf.Automation.Common.Extensions
                 return result;
             }
 
-            bool timeout = (notimeout == "") ? true : false;
+            var timeout = notimeout == "";
             var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
 
             if (tryOpen == AElfKeyStore.Errors.WrongPassword)

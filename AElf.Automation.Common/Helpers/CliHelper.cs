@@ -16,6 +16,26 @@ using Address = AElf.Automation.Common.Protobuf.Address;
 
 namespace AElf.Automation.Common.Helpers
 {
+    public enum ApiMethod
+    {
+        AccountNew,
+        AccountList,
+        AccountUnlock,
+        ConnectChain,
+        LoadContractAbi,
+        DeployContract,
+        BroadcastTx,
+        BroadcastTxs,
+        GetCommands,
+        GetContractAbi,
+        GetIncrement,
+        GetTxResult,
+        GetBlockHeight,
+        GetBlockInfo,
+        GetMerklePath,
+        SetBlockVolumn
+    }
+
     public class CliHelper
     {
         private string _rpcAddress;
@@ -27,9 +47,9 @@ namespace AElf.Automation.Common.Helpers
         private RpcRequestManager _requestManager;
         
         private Dictionary<string, Module> _loadedModules;
-        private ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper Logger = LogHelper.GetLogHelper();
         
-        public List<CommandInfo> CommandList { get; set; }
+        public List<CommandInfo> CommandList { get; }
 
         public CliHelper(string rpcUrl, string keyPath="")
         {
@@ -130,14 +150,12 @@ namespace AElf.Automation.Common.Helpers
         public void RpcConnectChain(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), "connect_chain", 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
             
-            JObject jObj = JObject.Parse(resp);
+            var jObj = JObject.Parse(resp);
 
             var j = jObj["result"];
             if (j["error"] != null)
@@ -165,7 +183,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcLoadContractAbi(CommandInfo ci)
         {
-            if (ci.Parameter == "" || ci.Parameter == null)
+            if (string.IsNullOrEmpty(ci.Parameter))
             {
                 if (_genesisAddress == null)
                 {
@@ -182,10 +200,7 @@ namespace AElf.Automation.Common.Helpers
             Module m = null;
             if (!_loadedModules.TryGetValue(ci.Parameter, out m))
             {
-                            
-                string returnCode = string.Empty;
-                long timeSpan = 0;
-                string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+                string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
                 ci.TimeSpan = timeSpan;
                 if (!CheckResponse(ci, returnCode, resp))
                     return;
@@ -240,9 +255,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawtx = _transactionManager.ConvertTransactionRawTx(tx);
             var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
             {
@@ -259,7 +272,7 @@ namespace AElf.Automation.Common.Helpers
                 ci.Result = false;
                 return;
             }
-            string hash = j["hash"] == null ? j["error"].ToString() :j["hash"].ToString();
+            string hash = j["hash"] == null ? j["error"]?.ToString() :j["hash"].ToString();
             string res = j["hash"] == null ? "error" : "txId";
             var jobj = new JObject
             {

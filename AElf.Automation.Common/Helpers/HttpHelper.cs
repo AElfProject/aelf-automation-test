@@ -17,6 +17,7 @@ namespace AElf.Automation.Common.Helpers
         /// get请求
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="statusCode"></param>
         /// <returns></returns>
         public static string GetResponse(string url, out string statusCode)
         {
@@ -36,47 +37,12 @@ namespace AElf.Automation.Common.Helpers
             return null;
         }
 
-        public static string RestfulGet(string url)
-        {
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            // Get response
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                // Get the response stream
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                // Console application output
-                return reader.ReadToEnd();
-            }
-        }
-
-        public static T GetResponse<T>(string url)
-           where T : class, new()
-        {
-            if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Add(
-               new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = httpClient.GetAsync(url).Result;
-
-            T result = default(T);
-
-            if (response.IsSuccessStatusCode)
-            {
-                Task<string> t = response.Content.ReadAsStringAsync();
-                string s = t.Result;
-
-                result = JsonConvert.DeserializeObject<T>(s);
-            }
-            return result;
-        }
-
         /// <summary>
         /// post请求
         /// </summary>
         /// <param name="url"></param>
         /// <param name="postData">post数据</param>
+        /// <param name="statusCode"></param>
         /// <returns></returns>
         public static string PostResponse(string url, string postData, out string statusCode)
         {
@@ -113,6 +79,14 @@ namespace AElf.Automation.Common.Helpers
             return string.Empty;
         }
 
+        /// <summary>
+        /// post请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postData"></param>
+        /// <param name="statusCode"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
         public static string PostResponse(string url, string postData, out string statusCode, out long timeSpan)
         {
             timeSpan = 0;
@@ -152,6 +126,7 @@ namespace AElf.Automation.Common.Helpers
 
             return string.Empty;
         }
+
         /// <summary>
         /// 发起post请求
         /// </summary>
@@ -183,7 +158,6 @@ namespace AElf.Automation.Common.Helpers
             return result;
         }
 
-
         /// <summary>
         /// 反序列化Xml
         /// </summary>
@@ -208,6 +182,16 @@ namespace AElf.Automation.Common.Helpers
 
         }
 
+        /// <summary>
+        /// post请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postData"></param>
+        /// <param name="token"></param>
+        /// <param name="appId"></param>
+        /// <param name="serviceURL"></param>
+        /// <param name="statusCode"></param>
+        /// <returns></returns>
         public static string PostResponse(string url, string postData, string token, string appId, string serviceURL, out string statusCode)
         {
             if (url.StartsWith("https"))

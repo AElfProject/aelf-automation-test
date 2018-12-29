@@ -362,7 +362,7 @@ namespace AElf.Automation.SideChainVerification
 
                 return path;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

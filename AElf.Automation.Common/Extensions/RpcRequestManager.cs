@@ -6,10 +6,10 @@ namespace AElf.Automation.Common.Extensions
 {
     public class RpcRequestManager
     {
-        public string RpcMethod { get; set; }
-        public string RpcParameter { get; set; }
-        public string RpcBody { get; set; }
-        public string RpcUrl { get; set; }
+        private string RpcMethod { get; set; }
+        private string RpcParameter { get; set; }
+        private string RpcBody { get; set; }
+        private string RpcUrl { get; set; }
         
         public RpcRequestManager(string url)
         {
@@ -30,9 +30,9 @@ namespace AElf.Automation.Common.Extensions
             return HttpHelper.PostResponse(RpcUrl, RpcBody, out returnCode);
         }
 
-        public string PostRequest(string method, List<string> rpcBody, out string returnCode)
+        public string PostRequest(List<string> rpcBody, out string returnCode)
         {
-            RpcMethod = method;
+            RpcMethod = "broadcast_txs";
             foreach(var rpc in rpcBody)
             {
                 RpcParameter += "," + rpc;

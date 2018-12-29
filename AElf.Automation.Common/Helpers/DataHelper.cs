@@ -4,9 +4,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public class DataHelper
+    public static class DataHelper
     {
-        private static ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static bool TryGetValueFromJson(out string value, string jsonInfo, params string[] pathArray)
         {
@@ -136,22 +136,22 @@ namespace AElf.Automation.Common.Helpers
 
         public static string ConvertHexToString(string hexString)
         {
-            string StrValue = "";
+            string strValue = "";
             try
             {
                 while (hexString.Length > 0)
                 {
-                    StrValue += Convert.ToChar(Convert.ToUInt32(hexString.Substring(0, 2), 16)).ToString();
+                    strValue += Convert.ToChar(Convert.ToUInt32(hexString.Substring(0, 2), 16)).ToString();
                     hexString = hexString.Substring(2, hexString.Length - 2);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                Logger.WriteError($"Convert hex string got exception. Hex string value: {hexString}");
             }
 
 
-            return StrValue;
+            return strValue;
         }
 
         public static long ConvertHexToValue(string hexValue)
@@ -161,7 +161,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 value = Convert.ToInt64(hexValue, 16);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Logger.WriteError($"Convert hex value got exception. Hex value: {hexValue}");
             }
