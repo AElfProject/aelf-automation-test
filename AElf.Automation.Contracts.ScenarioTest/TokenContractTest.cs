@@ -16,14 +16,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public CliHelper CH { get; set; }
         public List<string> UserList { get; set; }
 
-
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
         public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
         public string NoTokenAccount { get; } = "ELF_1sGf6rf4r8VvmgzH1x2YuVKTJBPGXnuau3xg9X5wU2XXCk";
 
-        public TokenContract tokenService { get; set; }
+        private TokenContract tokenService { get; set; }
 
-        public static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
+        private static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
 
         [TestInitialize]
         public void Initialize()

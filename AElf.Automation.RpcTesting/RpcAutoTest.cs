@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Extensions;
@@ -13,42 +14,39 @@ namespace AElf.Automation.RpcTesting
     [TestClass]
     public class RpcAutoTest
     {
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         [TestInitialize]
         public void InitTestLog()
         {
             string logName = "RpcAutoTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            _logger.InitLogHelper(dir);
         }
 
         [TestMethod]
-        public void GetBlockHeight()
+        [DataRow("http://192.168.197.34:8000/chain")]
+        public void GetBlockHeight(string apiUrl)
         {
-            string url = "http://192.168.197.34:8000";
             string method = "get_block_height";
             string parameter = "{}";
-            string code = string.Empty;
 
-            var request = new RpcRequestManager(url);
-            string response = request.PostRequest(method, parameter, out code);
+            var request = new RpcRequestManager(apiUrl);
+            string response = request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
             Assert.IsTrue(response.Contains("block_height"));
         }
 
         [TestMethod]
-        public void GetBlockInfo()
+        [DataRow("http://192.168.197.34:8000/chain", 24)]
+        public void GetBlockInfo(string apiUrl, int height)
         {
-            string url = "http://192.168.197.34:8000";
-            string method = "get_block_info";
-            int height = 5;
-            string parameter = "{\"block_height\":\"" + height + "\"}";
-            string code = string.Empty;
+            var method = "get_block_info";
+            var parameter = "{\"block_height\":\"" + height.ToString() + "\"}";
 
-            var request = new RpcRequestManager(url);
-            string response = request.PostRequest(method, parameter, out code);
+            var request = new RpcRequestManager(apiUrl);
+            string response = request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
             Assert.IsTrue(response.Contains("ChainId"));
@@ -108,12 +106,12 @@ namespace AElf.Automation.RpcTesting
                     */
                 }
                 string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
-                Logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString());
+                _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString());
                 Thread.Sleep(50);
             }
 
             //Query tx result informtion
-            Logger.WriteInfo("Begin tx result query.");
+            _logger.WriteInfo("Begin tx result query.");
             for (int i = 0; i < 10; i++)
             {
                 foreach (var tx in transactionIds)
@@ -126,7 +124,7 @@ namespace AElf.Automation.RpcTesting
                 }
             }
 
-            Logger.WriteInfo("Complete all query operation.");
+            _logger.WriteInfo("Complete all query operation.");
         }
 
         [DataTestMethod]

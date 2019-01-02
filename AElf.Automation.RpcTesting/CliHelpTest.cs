@@ -45,6 +45,7 @@ namespace AElf.Automation.RpcTesting
         }
         
         [DataTestMethod]
+        [Ignore("This api is not implemented on new version code.")]
         [DataRow("1", "2000")]
         public void TestNodeWithoutCli(string minValue, string maxValue)
         {
@@ -56,7 +57,7 @@ namespace AElf.Automation.RpcTesting
 
         [DataTestMethod]
         [DataRow("123")]
-        [DataRow("")]
+        [DataRow("12345")]
         public void TestNewAccount(string password)
         {
             _ci = new CommandInfo("account new");

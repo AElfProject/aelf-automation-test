@@ -4,13 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using NServiceKit.Common.Extensions;
-using Secp256k1Net;
-using IgnoreAttribute = ServiceStack.DataAnnotations.IgnoreAttribute;
+
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -499,9 +495,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         #region Dividends Test
 
         [TestMethod]
-        [DataRow(10)]
-        [DataRow(50)]
-        [DataRow(100)]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(5)]
         public void GetTermDividends(int termNo)
         {
             var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermDividends, termNo.ToString());
@@ -509,9 +505,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        [DataRow(1)]
+        [DataRow(5)]
         [DataRow(10)]
-        [DataRow(50)]
-        [DataRow(100)]
         public void GetTermTotalWeights(int termNo)
         {
             var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermTotalWeights, termNo.ToString());
@@ -535,9 +531,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow(1000, 90, 20)]
-        [DataRow(100, 900, 40)]
-        [DataRow(500, 180, 80)]
+        [DataRow(1000, 90, 1)]
+        [DataRow(100, 900, 1)]
+        [DataRow(500, 180, 1)]
         public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
         {
             var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());

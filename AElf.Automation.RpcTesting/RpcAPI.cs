@@ -7,22 +7,22 @@ using NServiceKit.Common.Extensions;
 
 namespace AElf.Automation.RpcTesting
 {
-    public class RpcAPI
+    public class RpcApi
     {
-        public string RpcUrl { get; set; }
-        public CliHelper CH { get; set; }
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        private string RpcUrl { get; set; }
+        private CliHelper Ch { get; set; }
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
-        public RpcAPI(string rpcUrl)
+        public RpcApi(string rpcUrl)
         {
             RpcUrl = rpcUrl;
-            CH = new CliHelper(rpcUrl);
+            Ch = new CliHelper(rpcUrl);
         }
 
         public int GetCurrentHeight()
         {
             var ci = new CommandInfo("get_block_height");
-            CH.ExecuteCommand(ci);
+            Ch.ExecuteCommand(ci);
             if (ci.Result)
             {
                 ci.GetJsonInfo();
@@ -30,7 +30,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.WriteError(ci.ErrorMsg?[0]);
+                _logger.WriteError(ci.ErrorMsg?[0]);
                 return 0;
             }
         }
@@ -39,7 +39,7 @@ namespace AElf.Automation.RpcTesting
         {
             var ci = new CommandInfo("get_block_info");
             ci.Parameter = $"{height.ToString()} true";
-            CH.ExecuteCommand(ci);
+            Ch.ExecuteCommand(ci);
             if (ci.Result)
             {
                 ci.GetJsonInfo();
@@ -47,7 +47,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.WriteError(ci.ErrorMsg?[0]);
+                _logger.WriteError(ci.ErrorMsg?[0]);
                 return null;
             }
         }
@@ -56,7 +56,7 @@ namespace AElf.Automation.RpcTesting
         {
             var ci = new CommandInfo("get_tx_result");
             ci.Parameter = txHash;
-            CH.ExecuteCommand(ci);
+            Ch.ExecuteCommand(ci);
             if (ci.Result)
             {
                 ci.GetJsonInfo();
@@ -64,7 +64,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                Logger.WriteError(ci.ErrorMsg?[0]);
+                _logger.WriteError(ci.ErrorMsg?[0]);
                 return null;
             }
         }
