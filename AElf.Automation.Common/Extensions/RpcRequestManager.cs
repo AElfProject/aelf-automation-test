@@ -11,9 +11,13 @@ namespace AElf.Automation.Common.Extensions
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
         
-        public RpcRequestManager(string url)
+        public RpcRequestManager(string url, string path="chain")
         {
-            RpcUrl = url;
+            if (url.Contains("/chain") || url.Contains("/net") || url.Contains("/wallet"))
+                RpcUrl = url;
+            else
+                RpcUrl = $"{url}/{path}";
+
         }
 
         public string PostRequest(string body, out string returnCode, out long timeSpan)

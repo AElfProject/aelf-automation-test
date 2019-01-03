@@ -15,6 +15,8 @@ namespace AElf.Automation.RpcTesting
     public class RpcAutoTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private const string ApiUrl = "http://192.168.197.34:8000";
+        private RpcRequestManager _request;
 
         [TestInitialize]
         public void InitTestLog()
@@ -22,52 +24,94 @@ namespace AElf.Automation.RpcTesting
             string logName = "RpcAutoTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
+            _request = new RpcRequestManager(ApiUrl);
         }
 
         [TestMethod]
-        [DataRow("http://192.168.197.34:8000/chain")]
-        public void GetBlockHeight(string apiUrl)
+        public void GetConnectChain()
+        {
+            string method = "connect_chain";
+            string parameter = "{}";
+
+            string response = _request.PostRequest(method, parameter, out var code);
+            Console.WriteLine(response);
+            Assert.AreEqual("OK", code);
+            Assert.IsTrue(response.Contains("chain_id"));
+        }
+
+
+        [TestMethod]
+        public void GetBlockHeight()
         {
             string method = "get_block_height";
             string parameter = "{}";
 
-            var request = new RpcRequestManager(apiUrl);
-            string response = request.PostRequest(method, parameter, out var code);
+            string response = _request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
             Assert.IsTrue(response.Contains("block_height"));
         }
 
         [TestMethod]
-        [DataRow("http://192.168.197.34:8000/chain", 24)]
-        public void GetBlockInfo(string apiUrl, int height)
+        [DataRow(24)]
+        public void GetBlockInfo(int height)
         {
             var method = "get_block_info";
             var parameter = "{\"block_height\":\"" + height.ToString() + "\"}";
 
-            var request = new RpcRequestManager(apiUrl);
-            string response = request.PostRequest(method, parameter, out var code);
+            string response = _request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);
             Assert.AreEqual("OK", code);
-            Assert.IsTrue(response.Contains("ChainId"));
+            Assert.IsTrue(response.Contains("Blockhash"));
         }
 
-
-        [DataTestMethod]
-        [DataRow("http://192.168.199.221:8000/chain", "0x038807f8d022d5e0203ddd81e8b47a06c7510153eec5a1670428060c2ca34c9a")]
-        public void GetTxResult(string rpcUrl, string txId)
+        [TestMethod]
+        public void GetCommands()
         {
-            var CH = new CliHelper(rpcUrl);
+            var method = "get_commands";
+            var parameter = "{}";
 
-            string method = "get_tx_result";
-            var ci = new CommandInfo(method);
-            ci.Parameter = txId;
-            CH.ExecuteCommand(ci);
-            ci.GetJsonInfo();
+            string response = _request.PostRequest(method, parameter, out var code);
+            Console.WriteLine(response);
+            Assert.AreEqual("OK", code);
+            Assert.IsTrue(response.Contains("commands"));
+        }
+
+        [TestMethod]
+        public void GetContractAbi()
+        {
+            string method0 = "connect_chain";
+            string parameter0 = "{}";
+            string response0 = _request.PostRequest(method0, parameter0, out var code0);
+            Console.WriteLine(response0);
+            Assert.AreEqual("OK", code0);
+            var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result", "AElf.Contracts.Genesis");
+            Assert.IsTrue(result, "Genesis token abi is not exist.");
+
+            var method = "get_contract_abi";
+            var parameter = "{\"address\":\"" + genesisAbi + "\"}";
+            string response = _request.PostRequest(method, parameter, out var code);
+            Console.WriteLine(response);
+            Assert.AreEqual("OK", code);
+            Assert.IsTrue(response.Contains("address"));
         }
 
         [DataTestMethod]
-        [DataRow("http://192.168.197.35:8000/chain")]
+        [DataRow("90a624f2481cd48bf16b613dbb287a470dde579eb03031327a4a8dcb72a2be0c")]
+        public void GetTxResult(string txId)
+        {
+
+            var method = "get_tx_result";
+            var parameter = "{\"txhash\":\"" + txId + "\"}";
+
+            string response = _request.PostRequest(method, parameter, out var code);
+            Console.WriteLine(response);
+            Assert.AreEqual("OK", code);
+            Assert.IsTrue(response.Contains("tx_info"));
+        }
+
+        [DataTestMethod]
+        [DataRow("http://192.168.197.34:8000/chain")]
         public void GetAllBlocksInfo(string rpcUrl)
         {
             var CH = new CliHelper(rpcUrl);
@@ -128,7 +172,6 @@ namespace AElf.Automation.RpcTesting
         }
 
         [DataTestMethod]
-        [DataRow("http://192.168.199.221:8000/chain")]
         public void GetInTimeBlockInfo(string rpcUrl)
         {
             int value = 0;

@@ -70,9 +70,6 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region AElf.Token operation
-            //var tokenContract = new ContractBase(ch, TokenAbi);
-            //tokenContract.Account = accList[0];
-
             //Deploy and Load ABI
             var tokenContract = new BaseContract(ch, "AElf.Contracts.Token", accList[0]);
 

@@ -1,18 +1,18 @@
-﻿﻿using System;
- using System.Text;
+﻿using System;
+using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
- using NServiceKit.Common.Extensions;
 
 namespace AElf.Automation.Common.Contracts
 {
     public class BaseContract
     {
         #region Priority
+
         private CliHelper Ch { get; set; }
         private string FileName { get; set; }
         public string Account { get; set; }
@@ -20,6 +20,7 @@ namespace AElf.Automation.Common.Contracts
 
         private ConcurrentQueue<string> TxResultList { get; set; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+
         #endregion
 
         public BaseContract(CliHelper ch, string fileName, string account)
@@ -59,7 +60,7 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteContractMethod(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
-            
+
             //Chek result
             return CheckTransactionResult(txId, 30);
         }
@@ -103,6 +104,7 @@ namespace AElf.Automation.Common.Contracts
                         _logger.WriteInfo($"Transaction status: {txResult}");
                         return ci;
                     }
+
                     if (txResult == "Failed")
                     {
                         _logger.WriteInfo($"Transaction status: {txResult}");
@@ -180,6 +182,7 @@ namespace AElf.Automation.Common.Contracts
                 }
                 else
                     queueSameTimes = 0;
+
                 queueLength = TxResultList.Count;
                 if (queueSameTimes == 10)
                     Assert.IsTrue(false, "Transaction result check failed due to pending results.");
@@ -195,7 +198,7 @@ namespace AElf.Automation.Common.Contracts
         public JObject CallContractViewMethod(string method, params string[] paramArray)
         {
             var resp = Ch.RpcQueryResult(Account, ContractAbi, method, paramArray);
-            if(resp == string.Empty)
+            if (resp == string.Empty)
                 return new JObject();
 
             return JObject.Parse(resp);
@@ -223,6 +226,7 @@ namespace AElf.Automation.Common.Contracts
         }
 
         #region Private Methods
+
         private void DeployContract()
         {
             var ci = new CommandInfo("deploy_contract");
@@ -289,6 +293,7 @@ namespace AElf.Automation.Common.Contracts
                 var txId = ci.JsonInfo["txId"].ToString();
                 return txId;
             }
+
             Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
 
             return string.Empty;
