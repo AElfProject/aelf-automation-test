@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using ServiceStack.Auth;
 
 
 namespace AElf.Automation.RpcPerformance
@@ -46,6 +48,7 @@ namespace AElf.Automation.RpcPerformance
         public string RpcUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }
+        public string TokenAbi { get; set; }
         public int BlockHeight { get; set; }
         public List<Contract> ContractList { get; set; }
         public List<string> TxIdList { get; set; }
@@ -53,6 +56,8 @@ namespace AElf.Automation.RpcPerformance
         public int ExeTimes { get; set; }
         public ConcurrentQueue<string> ContractRpcList { get; set; }
         public ILogHelper Logger = LogHelper.GetLogHelper();
+
+        public TokenContract TokenService { get; set; }
         #endregion
 
         public RpcAPI(int threadCount,
@@ -85,6 +90,9 @@ namespace AElf.Automation.RpcPerformance
             var ci = new CommandInfo("connect_chain");
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
+            //Get Abi Fee
+            ci.GetJsonInfo();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
 
             //Load Contract Abi
             ci = new CommandInfo("load_contract_abi");
@@ -95,6 +103,9 @@ namespace AElf.Automation.RpcPerformance
             NewAccounts(200);
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
+
+            //Set token fee address
+            SetTokenFeeAccount();
         }
 
         public void CheckNodeStatus()
@@ -617,6 +628,25 @@ namespace AElf.Automation.RpcPerformance
                 count++;
                 Logger.WriteInfo("{0:00}. Account: {1}, AbiPath:{2}", count, AccountList[item.AccountId].Account,
                     item.AbiPath);
+            }
+        }
+
+        public void SetTokenFeeAccount()
+        {
+            //Set token fee address
+            TokenService = new TokenContract(CH, AccountList[0].Account, TokenAbi);
+
+            var addressResult = TokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
+            var result = DataHelper.TryGetValueFromJson(out var message, addressResult, "result", "return");
+            Assert.IsTrue(result, "Rpc request return value is not exist.");
+            if (message == string.Empty)
+            {
+                TokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, TokenService.Account);
+                Logger.WriteInfo($"Token fee address set with account: {TokenService.Account}");
+            }
+            else
+            {
+                Logger.WriteInfo($"Token fee account: {message}");
             }
         }
 

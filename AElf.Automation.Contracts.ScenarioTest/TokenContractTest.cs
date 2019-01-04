@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Google.Protobuf.WellKnownTypes;
+using LiteDB;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -53,6 +55,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             tokenService = new TokenContract(CH, InitAccount, TokenAbi);
 
             #endregion
+        }
+
+        [TestMethod]
+        public void QueryTokenFeeAddress()
+        {
+            var addressResult = tokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
+            var result = DataHelper.TryGetValueFromJson(out var message, addressResult, "result", "return");
+            Assert.IsTrue(result, "Return value is not exist.");
+            Assert.IsFalse(message==string.Empty, "Token fee address is not set.");
+            _logger.WriteInfo($"Token fee account is {message}");
         }
 
         [TestMethod]
