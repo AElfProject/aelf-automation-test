@@ -12,7 +12,10 @@ namespace AElf.Automation.ContractsTesting
     {
         public static ILogHelper Logger = LogHelper.GetLogHelper();
         public static string TokenAbi { get; set; }
+        public static string ConsesusAbi { get; set; }
         public static string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
+        public static string BpAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
+        public static string FeeAccount { get; } = "ELF_54xku6ywapZEpuV7mcRVoGaYNS4uSPRRYQ5p2K8zWprPo5C";
 
         static void Main(string[] args)
         {
@@ -32,6 +35,7 @@ namespace AElf.Automation.ContractsTesting
             //Get AElf.Contracts.Token ABI
             ci.GetJsonInfo();
             TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            ConsesusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
 
             //Load default Contract Abi
             ci = new CommandInfo("load_contract_abi");
@@ -40,82 +44,55 @@ namespace AElf.Automation.ContractsTesting
 
             //Account preparation
             List<string> accList = new List<string>();
-            ci = new CommandInfo("account new", "account");
+
             for (int i = 0; i < 5; i++)
             {
-                ci.Parameter = "123";
-                ci = ch.ExecuteCommand(ci);
+                ci = new CommandInfo("account new", "account") {Parameter = "123"};
+                ci = ch.NewAccount(ci);
                 if(ci.Result)
                     accList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("account unlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", accList[i], "123", "notimeout");
-                uc = ch.ExecuteCommand(uc);
+                uc.Parameter = string.Format("{0} {1} {2}", accList[i], "123", "notimeout");
+                ch.UnlockAccount(uc);
             }
-            #endregion
-
-            #region AElf.Benchmark.TestContract
-            var benchmarkContract = new BaseContract(ch, "AElf.Benchmark.TestContract", accList[0]);
-
-            var txId = benchmarkContract.ExecuteContractMethod("InitBalance", accList[0]);
-            var txResult = benchmarkContract.CheckTransactionResult(txId);
-            var trId  = benchmarkContract.ExecuteContractMethod("Transfer", accList[0], accList[1], "1000");
-            benchmarkContract.CheckTransactionResult(txId);
-            var accId = benchmarkContract.ExecuteContractMethod("GetBalance", accList[1]);
-            var accResult = benchmarkContract.CheckTransactionResult(accId);
-            accResult.GetJsonInfo();
-            string accValue = accResult.JsonInfo["result"]["result"]["return"].ToString();
-            Logger.WriteInfo($"Owner current balance: {Convert.ToInt32(accValue, 16)}");
             #endregion
 
             #region AElf.Token operation
             //Deploy and Load ABI
-            var tokenContract = new BaseContract(ch, "AElf.Contracts.Token", accList[0]);
+            var tokenContract = new TokenContract(ch, BpAccount, TokenAbi);
+            var consesusContract = new ConsensusContract(ch, BpAccount, ConsesusAbi);
+            consesusContract.CallContractMethod(ConsensusMethod.InitialBalance, BpAccount, "100000");
 
-            //Init
-            var initResult = tokenContract.ExecuteContractMethodWithResult("Initialize", "elfToken", "ELF", "40000", "2");
+            //Set token fee
+            tokenContract.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
 
             //Approve Test
-            var approveResult= tokenContract.ExecuteContractMethodWithResult("Approve", accList[1], "1000");
-            //Transfer to Account A, B, C
-            var txIdA = tokenContract.ExecuteContractMethod("Transfer", accList[1], "5000");
-            var txIdB = tokenContract.ExecuteContractMethod("Transfer", accList[2], "10000");
-            var txIdC = tokenContract.ExecuteContractMethod("Transfer", accList[3], "15000");
+            tokenContract.SetAccount(accList[1]);
+            tokenContract.CallContractMethod(TokenMethod.Approve, accList[1], "1000");
 
-            //check result
-            var aCi = tokenContract.CheckTransactionResult(txIdA);
-            var bCi = tokenContract.CheckTransactionResult(txIdB);
-            var cCi = tokenContract.CheckTransactionResult(txIdC);
+            //Transfer to Account A, B, C
+            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, accList[1], "5000");
+            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, accList[2], "10000");
+            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, accList[3], "15000");
+
+            tokenContract.CheckTransactionResultList();
 
             //Get balance
-            var txOwner = tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
-            var txBA = tokenContract.ExecuteContractMethod("BalanceOf", accList[1]);
-            var txBB = tokenContract.ExecuteContractMethod("BalanceOf", accList[2]);
-            var txBC = tokenContract.ExecuteContractMethod("BalanceOf", accList[3]);
-
-            //Query Result
-            var ciOwner = tokenContract.CheckTransactionResult(txOwner);
-            var ciA = tokenContract.CheckTransactionResult(txBA);
-            var ciB = tokenContract.CheckTransactionResult(txBB);
-            var ciC = tokenContract.CheckTransactionResult(txBC);
+            var txOwner = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, accList[0]);
+            var txBa = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, accList[1]);
+            var txBb = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, accList[2]);
+            var txBc = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, accList[3]);
 
             //Convert to Value
-            ciOwner.GetJsonInfo();
-            string valueStr1 = ciOwner.JsonInfo["result"]["result"]["return"].ToString();
-            Logger.WriteInfo($"Owner current balance: {Convert.ToInt32(valueStr1, 16)}");
+            Logger.WriteInfo($"Owner current balance: {tokenContract.ConvertViewResult(txOwner, true)}");
 
-            ciA.GetJsonInfo();
-            string valueStrA = ciA.JsonInfo["result"]["result"]["return"].ToString();
-            Logger.WriteInfo($"A current balance: {Convert.ToInt32(valueStrA, 16)}");
+            Logger.WriteInfo($"A current balance: {tokenContract.ConvertViewResult(txBa, true)}");
 
-            ciB.GetJsonInfo();
-            string valueStrB = ciB.JsonInfo["result"]["result"]["return"].ToString();
-            Logger.WriteInfo($"B current balance: {Convert.ToInt32(valueStrB, 16)}");
+            Logger.WriteInfo($"B current balance: {tokenContract.ConvertViewResult(txBb, true)}");
 
-            ciC.GetJsonInfo();
-            string valueStrC = ciC.JsonInfo["result"]["result"]["return"].ToString();
-            Logger.WriteInfo($"C current balance: {Convert.ToInt32(valueStrC, 16)}");
+            Logger.WriteInfo($"C current balance: {tokenContract.ConvertViewResult(txBc, true)}");
 
             #endregion
 
@@ -135,25 +112,25 @@ namespace AElf.Automation.ContractsTesting
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Ram", "10000");
 
             //Account 4 have no money
-            resourceContract.Account = accList[4];
+            resourceContract.SetAccount(accList[4]);
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
 
             //Query user resource
-            var urResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[1], "Cpu");
-            var ucResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
-            var unResult = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
+            var urResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[1], "Cpu");
+            var ucResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
+            var unResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
 
             //Query user token
             var balanceResult = tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
 
             //Sell resource
-            resourceContract.Account = accList[1];
+            resourceContract.SetAccount(accList[1]);
             var sc1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
             var sc2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
             var sc3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
 
-            resourceContract.Account = accList[4];
+            resourceContract.SetAccount(accList[4]);
             var sr1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
             var sr2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
             var ramBalance = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
