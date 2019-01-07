@@ -68,6 +68,9 @@ namespace AElf.Automation.SideChainVerification
             KeyStorePath = GetDefaultDataDir();
             ChainName = chainName;
             CH = new CliHelper(RpcUrl, KeyStorePath);
+            //connection chain
+            var ci = new CommandInfo("connect_chain");
+            CH.RpcConnectChain(ci);
             VerifyResultList = new ConcurrentQueue<VerifyResult>();
             CancellationList = new List<CancellationTokenSource>();
 
@@ -82,7 +85,7 @@ namespace AElf.Automation.SideChainVerification
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
             ci.GetJsonInfo();
-            SideChainTxId = ci.JsonInfo["SideChainContract"].ToString();
+            SideChainTxId = ci.JsonInfo["AElf.Contracts.CrossChain"].ToString();
             ChainId = ci.JsonInfo["chain_id"].ToString();
 
             //Load Sidechain ABI
@@ -154,6 +157,9 @@ namespace AElf.Automation.SideChainVerification
             CH.RpcGetMerklePath(ci);
             Assert.IsTrue(ci.Result, "Get merkel path got exception.");
             ci.GetJsonInfo();
+            if (ci.JsonInfo["result"]["error"] != null)
+                return new MerkleItem();
+
             merkle.MPath = ci.JsonInfo["result"]["merkle_path"].ToString();
             merkle.PHeight = ci.JsonInfo["result"].Value<Int32>("parent_height");
 
@@ -171,7 +177,9 @@ namespace AElf.Automation.SideChainVerification
             List<MerkleItem> merkleList = new List<MerkleItem>();
             foreach (var tran in trans)
             {
-                merkleList.Add(GetMerkelPath(tran));
+                var merkle = GetMerkelPath(tran);
+                if(merkle.MPath != null)
+                    merkleList.Add(merkle);
             }
 
             //Gen transaction

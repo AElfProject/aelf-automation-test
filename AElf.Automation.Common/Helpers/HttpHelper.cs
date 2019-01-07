@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.Helpers
         public static string GetResponse(string url, out string statusCode)
         {
             if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(
@@ -189,10 +189,10 @@ namespace AElf.Automation.Common.Helpers
         /// <param name="postData"></param>
         /// <param name="token"></param>
         /// <param name="appId"></param>
-        /// <param name="serviceURL"></param>
+        /// <param name="serviceUrl"></param>
         /// <param name="statusCode"></param>
         /// <returns></returns>
-        public static string PostResponse(string url, string postData, string token, string appId, string serviceURL, out string statusCode)
+        public static string PostResponse(string url, string postData, string token, string appId, string serviceUrl, out string statusCode)
         {
             if (url.StartsWith("https"))
                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
@@ -203,7 +203,7 @@ namespace AElf.Automation.Common.Helpers
 
             httpContent.Headers.Add("token", token);
             httpContent.Headers.Add("appId", appId);
-            httpContent.Headers.Add("serviceURL", serviceURL);
+            httpContent.Headers.Add("serviceURL", serviceUrl);
 
 
             HttpClient httpClient = new HttpClient();

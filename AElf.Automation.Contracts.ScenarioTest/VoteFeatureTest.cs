@@ -151,18 +151,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
 
-            //分配资金给Dividends
-            consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, DividendsAbi, "200000");
-
             //分配资金给FullNode
             foreach (var fullAcc in FullNodeAccounts)
             {
-                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, fullAcc, "200000");
+                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
+                var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
+                if (balance >= 100000)
+                    continue;
+
+                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, fullAcc, "100000");
             }
             //分配资金给BP
             foreach (var bpAcc in BpNodeAccounts)
             {
-                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, bpAcc, "200000");
+                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
+                var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
+                if (balance >= 100000)
+                    continue;
+
+                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, bpAcc, "100000");
             }
 
             consensusService.CheckTransactionResultList();
@@ -275,11 +282,41 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var voteAcc in UserList)
             {
                 string votePbk = CandidatePublicKeys[rd.Next(0, CandidatePublicKeys.Count-1)];
-                string voteVolumn = rd.Next(1, 500).ToString();
+                string voteVolumn = rd.Next(100, 500).ToString();
                 string voteLock = rd.Next(90, 1080).ToString();
 
                 consensusService.SetAccount(voteAcc);
                 consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
+            }
+
+
+
+            consensusService.CheckTransactionResultList();
+            //检查投票结果
+            GetCurrentElectionInfo();
+            Logger.WriteInfo("Vote completed.");
+        }
+
+
+        [TestMethod]
+        [DataRow(5)]
+        public void UserVoteForFullNode(int voteUsers)
+        {
+            GetCandidateList();
+            PrepareUserAccountAndBalance(voteUsers);
+
+            Random rd = new Random(DateTime.Now.Millisecond);
+            foreach (var voteAcc in UserList)
+            {
+                //Vote For someone
+                int candidateUser = rd.Next(0, CandidatePublicKeys.Count - 1);
+                string votePbk = CandidatePublicKeys[candidateUser];
+                string voteVolumn = "100";
+                string voteLock = "5";
+
+                consensusService.SetAccount(voteAcc);
+                consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
+                Logger.WriteInfo($"Vote action: User: {candidateUser}, Tickets: {voteVolumn}");
             }
 
             consensusService.CheckTransactionResultList();
@@ -296,7 +333,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow(10)]
+        [DataRow(24)]
+        [DataRow(25)]
         public void GetTermSnapshot(int termNo)
         {
             var termInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermSnapshotToFriendlyString, termNo.ToString());
@@ -304,12 +342,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void GetTermNumberByRoundNumber()
+        [DataRow(100)]
+        [DataRow(260)]
+        public void GetTermNumberByRoundNumber(int termNo)
         {
-            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "1");
+            Logger.WriteInfo("GetTermNumberByRoundNumber Test");
+            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, termNo.ToString());
             Logger.WriteInfo(consensusService.ConvertViewResult(termNo1, true));
-            var termNo2 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, "1");
-            Logger.WriteInfo(consensusService.ConvertViewResult(termNo2, true));
         }
 
         [TestMethod]
@@ -350,6 +389,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidate);
                 Logger.WriteInfo(consensusService.ConvertViewResult(ticketResult));
             }
+        }
+
+        [TestMethod]
+        [DataRow("04bba3c7c54d9802f40010ae141e0f5c0b1bf9144e4f8e08e30f56a2e3922e4f3a924998a4f3c7d437f69da7af4398c281d02a753ccb297aa735294dc2e4ea6064")]
+        public void GetCandidateTicketsInfo(string candidatePubkey)
+        {
+            Logger.WriteInfo("GetCandidateTicketsInfo Test");
+            var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidatePubkey);
+            Logger.WriteInfo(consensusService.ConvertViewResult(ticketResult));
         }
 
         [TestMethod]

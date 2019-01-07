@@ -94,6 +94,12 @@ namespace AElf.Automation.Common.Extensions
             return kp;
         }
 
+        public string GetPublicKey(string address, string password = "123")
+        {
+            var keyPair = GetKeyPair(address);
+            return keyPair.PublicKey.ToString();
+        }
+
         public static string GetDefaultDataDir()
         {
             try

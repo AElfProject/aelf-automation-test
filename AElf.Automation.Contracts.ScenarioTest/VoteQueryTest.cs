@@ -110,9 +110,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow(1)]
-        [DataRow(5)]
         [DataRow(18)]
+        [DataRow(19)]
+        [DataRow(20)]
         public void GetTermTotalWeights(int termNo)
         {
             var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermTotalWeights, termNo.ToString());

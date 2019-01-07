@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AElf.Automation.Common.Helpers;
 
 namespace AElf.Automation.SideChainVerification
@@ -17,9 +18,9 @@ namespace AElf.Automation.SideChainVerification
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            string mainUrl = "http://192.168.197.43:8000";
-            string side1Url = "http://192.168.197.36:8000";
-            string side2Url = "http://192.168.197.41:8000";
+            string mainUrl = "http://192.168.197.70:8001";
+            string side1Url = "http://192.168.197.70:8004";
+            string side2Url = "http://192.168.197.70:8007";
 
             SideChain mSC = new SideChain(mainUrl, "MainNode");
             SideChain s1SC = new SideChain(side1Url, "Side1Node");
@@ -44,16 +45,18 @@ namespace AElf.Automation.SideChainVerification
                             continue;
                         else
                         {
+                            string indexInfo = $"MainNode BlockHeight: {i}";
                             List<Task> tasks = new List<Task>();
                             foreach (var index in indexs)
                             {
+                                indexInfo += $", ChainId: {index.ChainId}, IndexHeight: {index.Height}";
                                 tasks.Add(Task.Run(() =>
                                 {
                                     s1SC.PostVeriyTransaction(index);
                                     s2SC.PostVeriyTransaction(index);
                                 }));
                             }
-
+                            Logger.WriteInfo(indexInfo);
                             Task.WaitAll(tasks.ToArray());
                         }
                     }

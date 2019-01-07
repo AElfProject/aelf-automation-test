@@ -34,10 +34,7 @@ namespace AElf.Automation.Common.Helpers
         
         public void GetJsonInfo()
         {
-            if(Result)
-                JsonInfo = JsonConvert.DeserializeObject<JObject>(InfoMsg[0]);
-            else
-                JsonInfo = JsonConvert.DeserializeObject<JObject>(ErrorMsg[0]);                
+            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg[0] : ErrorMsg[0]);
         }
 
         public void PrintResultMessage()
@@ -135,9 +132,9 @@ namespace AElf.Automation.Common.Helpers
             {
                 Logger.WriteInfo("Rpc Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
-                item.PassCount = item.Commands.FindAll(x => x.Result == true).Count;
+                item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;
-                foreach (var command in item.Commands.FindAll(x => x.Result == true))
+                foreach (var command in item.Commands.FindAll(x => x.Result))
                 {
                     item.TotalTimeInfo += command.TimeSpan;
                 }

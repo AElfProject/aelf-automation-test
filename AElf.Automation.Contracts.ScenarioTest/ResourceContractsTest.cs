@@ -16,9 +16,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
         public CliHelper CH { get; set; }
-        public string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
+        public string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
         public List<string> AccList { get; set; }
-        public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
+        public string InitAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
         //Contract service List
 
         public TokenContract tokenService { get; set; }
@@ -55,18 +55,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < 5; i++)
             {
                 ci.Parameter = "123";
-                ci = CH.ExecuteCommand(ci);
+                ci = CH.NewAccount(ci);
                 if (ci.Result)
                     AccList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var ic = new CommandInfo("account unlock", "account");
-                ic.Parameter = String.Format("{0} {1} {2}", AccList[i], "123", "notimeout");
-                ic = CH.ExecuteCommand(ic);
+                var ic = new CommandInfo("account unlock", "account")
+                {
+                    Parameter = String.Format("{0} {1} {2}", AccList[i], "123", "notimeout")
+                };
+                CH.UnlockAccount(ic);
             }
             var uc = new CommandInfo("account unlock", "account");
-            uc.Parameter = String.Format("{0} {1} {2}", InitAccount, "123", "notimeout");
-            uc = CH.ExecuteCommand(uc);
+            uc.Parameter = string.Format("{0} {1} {2}", InitAccount, "123", "notimeout");
+            CH.ExecuteCommand(uc);
 
             //Init token service
             PrepareUserTokens();
@@ -126,10 +128,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private void PrepareResourceToken()
         {
             //Init
-            resourceService.CallContractMethod(ResourceMethod.Initialize, TokenAbi, AccList[2], AccList[2]);
+            resourceService.CallContractMethod(ResourceMethod.Initialize, TokenAbi, InitAccount, InitAccount);
 
             //Issue
-            resourceService.Account = AccList[2];
+            resourceService.SetAccount(InitAccount);
             resourceService.CallContractMethod(ResourceMethod.IssueResource, "Cpu", "1000000");
             resourceService.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
             resourceService.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
@@ -144,6 +146,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var controllerAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
             Logger.WriteInfo(String.Format("Controller address: {0}", resourceService.ConvertViewResult(controllerAddress, true)));
         }
+
         private void QueryResourceInfo()
         {
             //Converter message

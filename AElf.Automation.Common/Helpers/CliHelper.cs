@@ -18,9 +18,12 @@ namespace AElf.Automation.Common.Helpers
 {
     public enum ApiMethod
     {
+        //Wallet
         AccountNew,
         AccountList,
         AccountUnlock,
+
+        //Chain
         ConnectChain,
         LoadContractAbi,
         DeployContract,
@@ -33,7 +36,12 @@ namespace AElf.Automation.Common.Helpers
         GetBlockHeight,
         GetBlockInfo,
         GetMerklePath,
-        SetBlockVolumn
+        SetBlockVolumn,
+
+        //Net
+        GetPeers,
+        AddPeer,
+        RemovePeer
     }
 
     public class CliHelper
@@ -47,7 +55,7 @@ namespace AElf.Automation.Common.Helpers
         private RpcRequestManager _requestManager;
         
         private Dictionary<string, Module> _loadedModules;
-        private readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
         public List<CommandInfo> CommandList { get; }
 
@@ -115,7 +123,7 @@ namespace AElf.Automation.Common.Helpers
                     RpcSetBlockVolume(ci);
                     break;
                 default:
-                    Logger.WriteError("Invalide command.");
+                    _logger.WriteError("Invalide command.");
                     break;
             }
             
@@ -424,7 +432,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
-                    Logger.WriteError("Abi Not Loaded.");
+                    _logger.WriteError("Abi Not Loaded.");
                     return string.Empty;
                 }
             }
@@ -433,7 +441,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (method == null)
             {
-                Logger.WriteError("Method not found.");
+                _logger.WriteError("Method not found.");
                 return string.Empty;
             }
 
@@ -652,7 +660,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
-                    Logger.WriteError("Abi Not Loaded.");
+                    _logger.WriteError("Abi Not Loaded.");
                     return string.Empty;
                 }
             }
@@ -661,7 +669,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (method == null)
             {
-                Logger.WriteError("Method not found.");
+                _logger.WriteError("Method not found.");
                 return string.Empty;
             }
 

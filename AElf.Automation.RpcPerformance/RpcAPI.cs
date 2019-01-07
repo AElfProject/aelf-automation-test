@@ -55,7 +55,7 @@ namespace AElf.Automation.RpcPerformance
         public int ThreadCount { get; set; }
         public int ExeTimes { get; set; }
         public ConcurrentQueue<string> ContractRpcList { get; set; }
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public TokenContract TokenService { get; set; }
         #endregion

@@ -1,6 +1,8 @@
 ﻿using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NServiceKit.Common;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -10,6 +12,7 @@ namespace AElf.Automation.Common.Extensions
         private string RpcParameter { get; set; }
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
+        private readonly ILogHelper _log = LogHelper.GetLogHelper();
         
         public RpcRequestManager(string url, string path="chain")
         {
@@ -32,6 +35,28 @@ namespace AElf.Automation.Common.Extensions
             RpcParameter = parameter;
             RpcBody = "{\"jsonrpc\":\"2.0\",\"method\":\"" + RpcMethod + "\",\"params\":" + RpcParameter + ",\"id\":0}";
             return HttpHelper.PostResponse(RpcUrl, RpcBody, out returnCode);
+        }
+
+        public JObject PostRequest(string method, JObject requestData, int id = 0)
+        {
+            var requestString = CreateRequest(requestData, method, id).ToString();
+            string response = PostRequest(method, requestString, out var returnCode);
+            var result = CheckRpcRequestResult(returnCode, response);
+            if (result)
+                return JsonConvert.DeserializeObject<JObject>(response);
+
+            return new JObject();
+        }
+
+        public JObject PostRequest(string method)
+        {
+            var requestString = CreateRequest(new JObject(), method, 0).ToString();
+            string response = PostRequest(method, requestString, out var returnCode);
+            var result = CheckRpcRequestResult(returnCode, response);
+            if (result)
+                return JsonConvert.DeserializeObject<JObject>(response);
+
+            return new JObject();
         }
 
         public string PostRequest(List<string> rpcBody, out string returnCode)
@@ -58,6 +83,29 @@ namespace AElf.Automation.Common.Extensions
             };
 
             return jObj;
+        }
+
+        private bool CheckRpcRequestResult(string returnCode, string response)
+        {
+            if (response == null)
+            {
+                _log.WriteError("Could not connect to server.");
+                return false;
+            }
+
+            if (returnCode != "OK")
+            {
+                _log.WriteError("Http request failed, status: " + returnCode);
+                return false;
+            }
+
+            if (response.IsEmpty())
+            {
+                _log.WriteError("Failed. Pleas check input.");
+                return false;
+            }
+
+            return true;
         }
     }
 }
