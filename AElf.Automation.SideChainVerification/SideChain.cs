@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-
-using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
-using Akka.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainVerification
@@ -49,13 +46,11 @@ namespace AElf.Automation.SideChainVerification
 
     public class SideChain
     {
-        private CliHelper CH;
-        private string RpcUrl;
-        private string ChainName;
-        private string KeyStorePath;
-        private string Account;
-        private string SideChainTxId;
-        private string ChainId;
+        private readonly CliHelper _ch;
+        private readonly string _chainName;
+        private string _account;
+        private string _sideChainTxId;
+        private string _chainId;
 
         public ConcurrentQueue<VerifyResult> VerifyResultList;
         public List<CancellationTokenSource> CancellationList;
@@ -64,13 +59,13 @@ namespace AElf.Automation.SideChainVerification
 
         public SideChain(string rpcUrl, string chainName)
         {
-            RpcUrl = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
-            KeyStorePath = GetDefaultDataDir();
-            ChainName = chainName;
-            CH = new CliHelper(RpcUrl, KeyStorePath);
+            var rpcUrl1 = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
+            var keyStorePath = GetDefaultDataDir();
+            _chainName = chainName;
+            _ch = new CliHelper(rpcUrl1, keyStorePath);
             //connection chain
             var ci = new CommandInfo("connect_chain");
-            CH.RpcConnectChain(ci);
+            _ch.RpcConnectChain(ci);
             VerifyResultList = new ConcurrentQueue<VerifyResult>();
             CancellationList = new List<CancellationTokenSource>();
 
@@ -82,23 +77,23 @@ namespace AElf.Automation.SideChainVerification
         {
             //Connect Chain
             var ci = new CommandInfo("connect_chain");
-            CH.ExecuteCommand(ci);
+            _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
             ci.GetJsonInfo();
-            SideChainTxId = ci.JsonInfo["AElf.Contracts.CrossChain"].ToString();
-            ChainId = ci.JsonInfo["chain_id"].ToString();
+            _sideChainTxId = ci.JsonInfo["AElf.Contracts.CrossChain"].ToString();
+            _chainId = ci.JsonInfo["chain_id"].ToString();
 
             //Load Sidechain ABI
             ci = new CommandInfo("load_contract_abi");
-            ci.Parameter = SideChainTxId;
-            CH.ExecuteCommand(ci);
+            ci.Parameter = _sideChainTxId;
+            _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Load sidechain ABI got exception.");
         }
 
         public int GetCurrentHeight()
         {
             var ci = new CommandInfo("get_block_height");
-            CH.ExecuteCommand(ci);
+            _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Query current height got exception.");
             ci.GetJsonInfo();
             return Int32.Parse(ci.JsonInfo["result"]["result"]["block_height"].ToString());
@@ -110,7 +105,7 @@ namespace AElf.Automation.SideChainVerification
 
             var ci = new CommandInfo("get_block_info");
             ci.Parameter = $"{height} {false}";
-            CH.ExecuteCommand(ci);
+            _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Query block information got exception.");
             ci.GetJsonInfo();
             var indexSideInfo = ci.JsonInfo["result"]["result"]["Body"]["IndexedSideChainBlcokInfo"];
@@ -136,7 +131,7 @@ namespace AElf.Automation.SideChainVerification
 
             var ci = new CommandInfo("get_block_info");
             ci.Parameter = $"{height} {true}";
-            CH.RpcGetBlockInfo(ci);
+            _ch.RpcGetBlockInfo(ci);
             Assert.IsTrue(ci.Result, "Query block information got exception.");
             ci.GetJsonInfo();
             var transactions = ci.JsonInfo["result"]["result"]["Body"]["Transactions"].ToArray();
@@ -154,7 +149,7 @@ namespace AElf.Automation.SideChainVerification
             merkle.TxId = txId;
             var ci = new CommandInfo("get_merkle_path");
             ci.Parameter = txId;
-            CH.RpcGetMerklePath(ci);
+            _ch.RpcGetMerklePath(ci);
             Assert.IsTrue(ci.Result, "Get merkel path got exception.");
             ci.GetJsonInfo();
             if (ci.JsonInfo["result"]["error"] != null)
@@ -168,7 +163,7 @@ namespace AElf.Automation.SideChainVerification
 
         public void PostVeriyTransaction(IndexItem item)
         {
-            if (item.ChainId == ChainId.Substring(2))
+            if (item.ChainId == _chainId.Substring(2))
                 return;
             //Query merkle path collection
             var trans = GetBlockTransactions(item.Height);
@@ -197,7 +192,7 @@ namespace AElf.Automation.SideChainVerification
             }
 
             ci.Parameter = ci.Parameter.Substring(1);
-            CH.ExecuteCommand(ci);
+            _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Execute transactions got exception.");
             var result = ci.InfoMsg[0].Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
             ConcurrentQueue<string> txResList = new ConcurrentQueue<string>();
@@ -206,7 +201,7 @@ namespace AElf.Automation.SideChainVerification
                 txResList.Enqueue(txHash.Trim());
             }
             //Add verify Result
-            VerifyResult vr = new VerifyResult(ChainName, item.Height);
+            VerifyResult vr = new VerifyResult(_chainName, item.Height);
             vr.TxList = trans.ToList();
             vr.VerifyTxList = txResList;
             VerifyResultList.Enqueue(vr);
@@ -217,7 +212,8 @@ namespace AElf.Automation.SideChainVerification
             for (int i = 0; i < thredCount; i++)
             {
                 var cts = new CancellationTokenSource();
-                cts.Token.Register(() => Logger.WriteInfo("Cancle check transaction result task: {0}", i));
+                var i1 = i;
+                cts.Token.Register(() => Logger.WriteInfo("Cancle check transaction result task: {0}", i1));
                 CancellationList.Add(cts);
                 ThreadPool.QueueUserWorkItem( o => CheckVerifyTransactionResult(cts.Token, null));
             }
@@ -253,8 +249,7 @@ namespace AElf.Automation.SideChainVerification
                 if (token.IsCancellationRequested)
                     break;
 
-                VerifyResult vr = null;
-                if (!VerifyResultList.TryDequeue(out vr))
+                if (!VerifyResultList.TryDequeue(out var vr))
                 {
                     Thread.Sleep(5000);
                     continue;
@@ -282,10 +277,9 @@ namespace AElf.Automation.SideChainVerification
                         checkTimes = 0;
                     }
 
-                    string txId = string.Empty;
-                    if (!vr.VerifyTxList.TryDequeue(out txId))
+                    if (!vr.VerifyTxList.TryDequeue(out var txId))
                     {
-                        Logger.WriteInfo("Chain={0}, Height={1} passed verification.", ChainName, vr.Height);
+                        Logger.WriteInfo("Chain={0}, Height={1} passed verification.", _chainName, vr.Height);
                         vr.Result = "Passed";
                         Console.WriteLine();
                         break;
@@ -293,7 +287,7 @@ namespace AElf.Automation.SideChainVerification
 
                     var ci = new CommandInfo("get_tx_result");
                     ci.Parameter = txId;
-                    CH.RpcGetTxResult(ci);
+                    _ch.RpcGetTxResult(ci);
                     if (ci.Result)
                     {
                         ci.GetJsonInfo();
@@ -328,14 +322,14 @@ namespace AElf.Automation.SideChainVerification
 
         public string GenVerifyTransactionInfo(MerkleItem merkle)
         {
-            string parameterinfo = "{\"from\":\"" + Account +
-                                   "\",\"to\":\"" + SideChainTxId +
+            string parameterinfo = "{\"from\":\"" + _account +
+                                   "\",\"to\":\"" + _sideChainTxId +
                                    "\",\"method\":\"VerifyTransaction\",\"incr\":\"" +
                                    GetCurrentTimeStamp() + "\",\"params\":[\"" + merkle.TxId + "\",\"" + merkle.MPath +
                                    "\",\"" + merkle.PHeight + "\"]}";
             var ci = new CommandInfo("broadcast_tx");
             ci.Parameter = parameterinfo;
-            string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
+            string requestInfo = _ch.RpcGenerateTransactionRawTx(ci);
 
             return requestInfo;
         }
@@ -345,14 +339,14 @@ namespace AElf.Automation.SideChainVerification
             //New
             var ci = new CommandInfo("account new", "account");
             ci.Parameter = "123";
-            ci = CH.ExecuteCommand(ci);
+            ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Create account got exception.");
-            Account = ci.InfoMsg?[0].Replace("Account address:", "").Trim();
+            _account = ci.InfoMsg?[0].Replace("Account address:", "").Trim();
 
             //Unlock
             ci = new CommandInfo("account unlock", "account");
-            ci.Parameter = String.Format("{0} {1} {2}", Account, "123", "notimeout");
-            ci = CH.ExecuteCommand(ci);
+            ci.Parameter = String.Format("{0} {1} {2}", _account, "123", "notimeout");
+            ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Unlock account got exception.");
         }
 

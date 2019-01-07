@@ -2,14 +2,13 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using AElf.Automation.Common.Helpers;
 
 namespace AElf.Automation.SideChainVerification
 {
     class Program
     {
-        public static ILogHelper Logger = LogHelper.GetLogHelper();
+        public static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         static void Main(string[] args)
         {
@@ -22,43 +21,39 @@ namespace AElf.Automation.SideChainVerification
             string side1Url = "http://192.168.197.70:8004";
             string side2Url = "http://192.168.197.70:8007";
 
-            SideChain mSC = new SideChain(mainUrl, "MainNode");
-            SideChain s1SC = new SideChain(side1Url, "Side1Node");
-            SideChain s2SC = new SideChain(side2Url, "Side2Node");
+            SideChain mSc = new SideChain(mainUrl, "MainNode");
+            SideChain s1Sc = new SideChain(side1Url, "Side1Node");
+            SideChain s2Sc = new SideChain(side2Url, "Side2Node");
 
-            s1SC.StartCheckVerifyResultTasks(3);
-            s2SC.StartCheckVerifyResultTasks(3);
+            s1Sc.StartCheckVerifyResultTasks(3);
+            s2Sc.StartCheckVerifyResultTasks(3);
 
             int currentHeight = 1;
             while (true)
             {
                 try
                 {
-                    int mHeight = mSC.GetCurrentHeight();
+                    int mHeight = mSc.GetCurrentHeight();
                     if (mHeight == currentHeight)
                         break;
                     for (int i = currentHeight; i < mHeight; i++)
                     {
                         Logger.WriteInfo("Block check height: {0}", i);
-                        var indexs = mSC.GetIndexBlockInfo(i);
-                        if (indexs.Count == 0)
-                            continue;
-                        else
+                        var indexs = mSc.GetIndexBlockInfo(i);
+                        if (indexs.Count == 0) continue;
+                        string indexInfo = $"MainNode BlockHeight: {i}";
+                        List<Task> tasks = new List<Task>();
+                        foreach (var index in indexs)
                         {
-                            string indexInfo = $"MainNode BlockHeight: {i}";
-                            List<Task> tasks = new List<Task>();
-                            foreach (var index in indexs)
+                            indexInfo += $", ChainId: {index.ChainId}, IndexHeight: {index.Height}";
+                            tasks.Add(Task.Run(() =>
                             {
-                                indexInfo += $", ChainId: {index.ChainId}, IndexHeight: {index.Height}";
-                                tasks.Add(Task.Run(() =>
-                                {
-                                    s1SC.PostVeriyTransaction(index);
-                                    s2SC.PostVeriyTransaction(index);
-                                }));
-                            }
-                            Logger.WriteInfo(indexInfo);
-                            Task.WaitAll(tasks.ToArray());
+                                s1Sc.PostVeriyTransaction(index);
+                                s2Sc.PostVeriyTransaction(index);
+                            }));
                         }
+                        Logger.WriteInfo(indexInfo);
+                        Task.WaitAll(tasks.ToArray());
                     }
 
                     //Continue another round of testing.
@@ -72,9 +67,9 @@ namespace AElf.Automation.SideChainVerification
                 }
                 finally
                 {
-                    s1SC.StopCheckVerifyResultTasks();
+                    s1Sc.StopCheckVerifyResultTasks();
                     Console.WriteLine();
-                    s2SC.StopCheckVerifyResultTasks();
+                    s2Sc.StopCheckVerifyResultTasks();
                 }
             }
             Logger.WriteInfo("Completed SideChain verification.");
