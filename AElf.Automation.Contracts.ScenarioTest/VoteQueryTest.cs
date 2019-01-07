@@ -145,7 +145,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm);
             Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
-
         }
 
         [TestMethod]

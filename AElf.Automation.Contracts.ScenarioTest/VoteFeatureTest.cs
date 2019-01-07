@@ -152,8 +152,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             consensusService.SetAccount(BpNodeAccounts[0]);
 
             //分配资金给FullNode
+            Logger.WriteInfo("Allowance token to FullNode accounts");
             foreach (var fullAcc in FullNodeAccounts)
             {
+                Logger.WriteInfo($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
@@ -162,8 +164,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, fullAcc, "100000");
             }
             //分配资金给BP
+            Logger.WriteInfo("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
+                Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)

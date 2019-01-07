@@ -699,6 +699,11 @@ namespace AElf.Automation.Common.Helpers
             return resp;
         }
 
+        public string GetPublicKeyFromAddress(string account, string password = "123")
+        {
+            _accountManager.UnlockAccount(account, password, "notimeout");
+            return _accountManager.GetPublicKey(account);
+        }
         
         #endregion
         
