@@ -179,14 +179,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
-        [DataRow("ELF_2N9soUD1FxhWS9JDkiee1uayZCnmhgwoSESThQYUqLX5AVG")]
-        public void InitialUserBalance(string account)
+        [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz", 10000)]
+        [DataRow("ELF_2N9soUD1FxhWS9JDkiee1uayZCnmhgwoSESThQYUqLX5AVG", 10000)]
+        public void InitialUserBalance(string account, long balance)
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
-            consensusService.CallContractMethod(ConsensusMethod.InitialBalance, account, "10000");
+            consensusService.CallContractMethod(ConsensusMethod.InitialBalance, account, balance.ToString());
             var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, account);
             Console.WriteLine($"[{account}] balance: " + tokenService.ConvertViewResult(callResult, true));
+        }
+
+        [TestMethod]
+        [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
+        public void QueryPublicKey(string account, string password="123")
+        {
+            var pubKey = CH.GetPublicKeyFromAddress(account, password);
+            Logger.WriteInfo($"PubKey: {pubKey}");
         }
 
         [TestMethod]
