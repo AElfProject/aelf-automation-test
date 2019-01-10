@@ -10,6 +10,13 @@ using AElf.Automation.Common.Contracts;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
+    public class CandidateInfo
+    {
+        public string Name { get; set; }
+        public string Account { get; set; }
+        public string PublicKey { get; set; }
+    }
+
     [TestClass]
     public class VoteFeatureTest
     {
@@ -24,6 +31,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> BpNodeAccounts { get; set; }
         public List<string> CandidatePublicKeys { get; set; }
         public List<string> CurrentMinersKeys { get; set; }
+        public List<CandidateInfo> CandidateInfos { get; set; }
+        public int TestNode { get; } = 3;
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
         public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
 
@@ -69,16 +78,39 @@ namespace AElf.Automation.Contracts.ScenarioTest
             FullNodeAccounts.Add("ELF_26cUpeiNb6q4DdFFEXTiPgWcifxtwEMsqshKHWGeYxaJkT1");
             FullNodeAccounts.Add("ELF_2AQdMyH4bo6KKK7Wt5fN7LerrWdoPUYTcJHyZNKXqoD2a4V");
             FullNodeAccounts.Add("ELF_3FWgHoNdR92rCSEbYqzD6ojCCmVKEpoPt87tpmwWYAkYm6d");
-            FullNodeAccounts.Add("ELF_4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
-            FullNodeAccounts.Add("ELF_6Fp72su6EPmHkEiojK1FyP7DsMHm16MygkG93zyqSbnE84v");
+            if (TestNode == 5)
+            {
+                FullNodeAccounts.Add("ELF_4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
+                FullNodeAccounts.Add("ELF_6Fp72su6EPmHkEiojK1FyP7DsMHm16MygkG93zyqSbnE84v");
+            }
 
             //Get BpNode Info
             BpNodeAccounts = new List<string>();
             BpNodeAccounts.Add("ELF_2jLARdoRyaQ2m8W5s1Fnw7EgyvEr9SX9SgNhejzcwfBKkvy");
             BpNodeAccounts.Add("ELF_2VsBNkgc9ZVkr6wQoNY7FjnPooMJscS9SLNQ5jDFtuSEKud");
             BpNodeAccounts.Add("ELF_3YcUM4EjAcUYyZxsNb7KHPfXdnYdwKmwr9g3p2eipBE6Wym");
-            BpNodeAccounts.Add("ELF_59w62zTynBKyQg5Pi4uNTz29QF7M1SHazN71g6pG5N25wY1");
-            BpNodeAccounts.Add("ELF_5tqoweoWNrCRKG8Z28LM63B4aiuBjhZwy6JYw57iqcDqgN6");
+            if (TestNode == 5)
+            {
+                BpNodeAccounts.Add("ELF_59w62zTynBKyQg5Pi4uNTz29QF7M1SHazN71g6pG5N25wY1");
+                BpNodeAccounts.Add("ELF_5tqoweoWNrCRKG8Z28LM63B4aiuBjhZwy6JYw57iqcDqgN6");
+            }
+
+            //Get candidate infos
+            CandidateInfos = new List<CandidateInfo>();
+            for (int i = 0; i < BpNodeAccounts.Count; i++)
+            {
+                string name = $"Bp-{i+1}";
+                string account = BpNodeAccounts[i];
+                string pubKey = CH.GetPublicKeyFromAddress(account);
+                CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
+            }
+            for (int i = 0; i < FullNodeAccounts.Count; i++)
+            {
+                string name = $"Full-{i+1}";
+                string account = FullNodeAccounts[i];
+                string pubKey = CH.GetPublicKeyFromAddress(account);
+                CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
+            }
 
             //Init service
             tokenService = new TokenContract(CH, InitAccount, TokenAbi);
@@ -147,6 +179,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
+        [DataRow("ELF_2N9soUD1FxhWS9JDkiee1uayZCnmhgwoSESThQYUqLX5AVG")]
+        public void InitialUserBalance(string account)
+        {
+            consensusService.SetAccount(BpNodeAccounts[0]);
+            consensusService.CallContractMethod(ConsensusMethod.InitialBalance, account, "10000");
+            var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, account);
+            Console.WriteLine($"[{account}] balance: " + tokenService.ConvertViewResult(callResult, true));
+        }
+
+        [TestMethod]
         public void PrepareCandidateAsset()
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
@@ -199,7 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var bpAcc in BpNodeAccounts)
             {
                 consensusService.SetAccount(bpAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"BP-{bpAcc.Substring(5,4)}");
+                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Bp-{bpAcc.Substring(5,4)}");
             }
             consensusService.CheckTransactionResultList(); 
 
@@ -255,7 +298,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 //unlock
                 var uc = new CommandInfo("account unlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                uc = CH.UnlockAccount(uc);
+                CH.UnlockAccount(uc);
             }
 
             //分配资金给普通用户
@@ -277,27 +320,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         //参加选举
         [TestMethod]
-        public void UserVoteAction()
+        [DataRow(20)]
+        public void UserVoteAction(int voteUserCount)
         {
             GetCandidateList();
-            PrepareUserAccountAndBalance(10);
+            PrepareUserAccountAndBalance(voteUserCount);
 
             Random rd = new Random(DateTime.Now.Millisecond);
             foreach (var voteAcc in UserList)
             {
                 string votePbk = CandidatePublicKeys[rd.Next(0, CandidatePublicKeys.Count-1)];
                 string voteVolumn = rd.Next(100, 500).ToString();
-                string voteLock = rd.Next(90, 1080).ToString();
+                string voteLock = rd.Next(5, 10).ToString();
 
                 consensusService.SetAccount(voteAcc);
                 consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
             }
 
-
-
             consensusService.CheckTransactionResultList();
             //检查投票结果
-            GetCurrentElectionInfo();
+            GetPageableElectionInfo();
+            GetTicketsInfo();
             Logger.WriteInfo("Vote completed.");
         }
 
@@ -325,7 +368,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             consensusService.CheckTransactionResultList();
             //检查投票结果
-            GetCurrentElectionInfo();
+            GetPageableElectionInfo();
             Logger.WriteInfo("Vote completed.");
         }
 
@@ -391,7 +434,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var candidate in CandidatePublicKeys)
             {
                 var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidate);
-                Logger.WriteInfo(consensusService.ConvertViewResult(ticketResult));
+                var ticketsJson = consensusService.ConvertViewResult(ticketResult);
+                Logger.WriteInfo(ticketsJson);
+
+                DataHelper.TryGetArrayFromJson(out var recordArray, ticketsJson, "VotingRecords");
+                var sumCount = 0;
+                foreach (var record in recordArray)
+                {
+                    DataHelper.TryGetValueFromJson(out var countStr, record, "Count");
+                    sumCount += int.Parse(countStr);
+                }
+                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {sumCount}");
             }
         }
 
@@ -405,10 +458,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void GetCurrentElectionInfo()
+        public void GetPageableElectionInfo()
         {
             Logger.WriteInfo("GetCurrentElectionInfo Test");
-            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentElectionInfoToFriendlyString, "0", "0", "0");
+            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetPageableElectionInfoToFriendlyString, "0", "0", "0");
             Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
         }
 
@@ -422,7 +475,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void GetTicketsCount()
         {
-            UserVoteAction();
+            UserVoteAction(5);
             var ticketsCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsCount);
             Logger.WriteInfo($"Tickets count: {consensusService.ConvertViewResult(ticketsCount, true)}");
         }
@@ -454,7 +507,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void QueryDividends()
         {
-            UserVoteAction();
+            UserVoteAction(5);
             Thread.Sleep(30000);
             foreach (var userAcc in UserList)
             {
@@ -464,12 +517,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.WriteInfo($"Init balance: {tokenService.ConvertViewResult(balanceBefore, true)}");
 
                 consensusService.SetAccount(userAcc);
-                var allDividenceResult = consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
+                consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
 
                 var balanceAfter1 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
                 Logger.WriteInfo($"Received dividends balance: {tokenService.ConvertViewResult(balanceAfter1, true)}");
 
-                var drawResult = consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
+                consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
 
                 var balanceAfter2 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
                 Logger.WriteInfo($"Revertback vote balance: {tokenService.ConvertViewResult(balanceAfter2, true)}");
@@ -539,14 +592,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void VoteBP()
+        public void VoteBp()
         {
             PrepareCandidateAsset();
             JoinElection();
             GetCandidateList();
 
             PrepareUserAccountAndBalance(10);
-            UserVoteAction();
+            UserVoteAction(5);
 
             //查询信息
             GetCandidateHistoryInfo();
@@ -572,7 +625,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             GetCandidateList();
             PrepareUserAccountAndBalance(10);
-            UserVoteAction();
+            UserVoteAction(5);
             GetTicketsInfo();
             GetCurrentVictories();
         }
@@ -584,7 +637,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetCandidateHistoryInfo();
 
-            GetCurrentElectionInfo();
+            GetPageableElectionInfo();
 
             GetCurrentVictories();
 

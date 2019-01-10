@@ -10,12 +10,12 @@ namespace AElf.Automation.ContractsTesting
 {
     class Program
     {
-        public static ILogHelper Logger = LogHelper.GetLogHelper();
-        public static string TokenAbi { get; set; }
-        public static string ConsesusAbi { get; set; }
-        public static string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
-        public static string BpAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
-        public static string FeeAccount { get; } = "ELF_54xku6ywapZEpuV7mcRVoGaYNS4uSPRRYQ5p2K8zWprPo5C";
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static string TokenAbi { get; set; }
+        private static string ConsesusAbi { get; set; }
+        private static string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
+        private static string BpAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
+        private static string FeeAccount { get; } = "ELF_54xku6ywapZEpuV7mcRVoGaYNS4uSPRRYQ5p2K8zWprPo5C";
 
         static void Main(string[] args)
         {
@@ -117,24 +117,24 @@ namespace AElf.Automation.ContractsTesting
             resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
 
             //Query user resource
-            var urResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[1], "Cpu");
-            var ucResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
-            var unResult = resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
+            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[1], "Cpu");
+            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Cpu");
+            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, accList[4], "Net");
 
             //Query user token
-            var balanceResult = tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
+            tokenContract.ExecuteContractMethod("BalanceOf", accList[0]);
 
             //Sell resource
             resourceContract.SetAccount(accList[1]);
-            var sc1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
-            var sc2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
-            var sc3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
 
             resourceContract.SetAccount(accList[4]);
-            var sr1Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
-            var sr2Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
-            var ramBalance = resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
-            var sr3Result = resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
+            resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, accList[0], "Ram");
+            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
 
             #endregion
         }

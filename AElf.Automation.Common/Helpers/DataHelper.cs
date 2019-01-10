@@ -69,7 +69,10 @@ namespace AElf.Automation.Common.Helpers
                         JArray array = (JArray) info[pathArray[i]];
                         foreach (var item in array)
                         {
-                            valueList.Add(item.Value<string>());
+                            var value = item.ToString();
+                            //valueList.Add(item.Value<string>());
+                            valueList.Add(value);
+
                         }
                     }
 

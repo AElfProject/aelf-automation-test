@@ -18,7 +18,7 @@ namespace AElf.Automation.Common.Contracts
         GetCandidateHistoryInfoToFriendlyString,
         GetCurrentMinersToFriendlyString,
         GetTicketsInfoToFriendlyString,
-        GetCurrentElectionInfoToFriendlyString,
+        GetPageableElectionInfoToFriendlyString,
         GetBlockchainAge,
         GetCurrentVictoriesToFriendlyString,
         GetTermSnapshotToFriendlyString,
