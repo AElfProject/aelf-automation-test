@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeployScripts", "DeployScri
 		aelf-nodes-local.sh = aelf-nodes-local.sh
 		sh-record.sh = sh-record.sh
 		sh-replay.sh = sh-replay.sh
+		nodes-scenario-test.sh = nodes-scenario-test.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AElf.Automation.Common", "AElf.Automation.Common\AElf.Automation.Common.csproj", "{A6965199-AA8D-4BAA-B88E-609C440F4962}"

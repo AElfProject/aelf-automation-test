@@ -41,7 +41,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static ConsensusContract consensusService { get; set; }
         public static DividendsContract dividendsService { get; set; }
 
-        public string RpcUrl { get; } = "http://192.168.197.20:8010/chain";
+        public string RpcUrl { get; } = "http://192.168.197.20:8020/chain";
         public CliHelper CH { get; set; }
 
         #endregion
@@ -144,7 +144,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
             var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
-            Logger.WriteInfo($"Fee account address : {tokenService.ConvertViewResult(feeResult)}");
+            DataHelper.TryGetValueFromJson(out var feeAddress, feeResult, "result", "return");
+            Logger.WriteInfo($"Fee account address : {feeAddress}");
         }
 
         private void QueryTokenFeeBalance()
@@ -153,8 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
         }
 
-        [TestMethod()]
-        [Ignore("Will recover after testing contract fee part.")]
+        [TestMethod]
         public void SetTokenFeeAccount()
         {
             SetTokenFeeAddress();
@@ -241,17 +241,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
             PrepareCandidateAsset();
 
             //参加选举
+            foreach (var bpAcc in BpNodeAccounts)
+            {
+                consensusService.SetAccount(bpAcc);
+                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Bp-{bpAcc.Substring(5,4)}");
+            }
+
             foreach (var fullAcc in FullNodeAccounts)
             {
                 consensusService.SetAccount(fullAcc);
                 consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Full-{fullAcc.Substring(5, 4)}");
             }
 
-            foreach (var bpAcc in BpNodeAccounts)
-            {
-                consensusService.SetAccount(bpAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Bp-{bpAcc.Substring(5,4)}");
-            }
             consensusService.CheckTransactionResultList(); 
 
             //检查余额
@@ -328,7 +329,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         //参加选举
         [TestMethod]
-        [DataRow(20)]
+        [DataRow(50)]
         public void UserVoteAction(int voteUserCount)
         {
             GetCandidateList();
@@ -352,26 +353,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("Vote completed.");
         }
 
-
         [TestMethod]
-        [DataRow(5)]
-        public void UserVoteForFullNode(int voteUsers)
+        [DataRow(new int[]{5})]
+        public void UserVoteForNodes(int[] candidates)
         {
             GetCandidateList();
-            PrepareUserAccountAndBalance(voteUsers);
+            PrepareUserAccountAndBalance(candidates.Length);
 
-            Random rd = new Random(DateTime.Now.Millisecond);
-            foreach (var voteAcc in UserList)
+            for (int i = 0; i < candidates.Length; i++)
             {
                 //Vote For someone
-                int candidateUser = rd.Next(0, CandidatePublicKeys.Count - 1);
-                string votePbk = CandidatePublicKeys[candidateUser];
-                string voteVolumn = "100";
+
+                string votePbk = CandidatePublicKeys[candidates[i]];
+                string voteVolumn = "200";
                 string voteLock = "5";
 
-                consensusService.SetAccount(voteAcc);
+                consensusService.SetAccount(UserList[i]);
                 consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
-                Logger.WriteInfo($"Vote action: User: {candidateUser}, Tickets: {voteVolumn}");
+                Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolumn}");
             }
 
             consensusService.CheckTransactionResultList();

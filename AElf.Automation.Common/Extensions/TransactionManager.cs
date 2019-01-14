@@ -160,7 +160,7 @@ namespace AElf.Automation.Common.Extensions
             {
                 if (requestTimes >= 0)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(500);
                     return GetBlkHeight(rpcAddress, requestTimes);
                 }
                 throw new Exception("Get Block height failed exception.");
@@ -178,7 +178,7 @@ namespace AElf.Automation.Common.Extensions
             {
                 if (requestTimes >= 0)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(500);
                     return GetBlkHash(rpcAddress, height, requestTimes);
                 }
                 throw new Exception("Get Block hash failed exception.");

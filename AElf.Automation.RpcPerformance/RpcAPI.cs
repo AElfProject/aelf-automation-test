@@ -631,7 +631,7 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void SetTokenFeeAccount()
+        private void SetTokenFeeAccount()
         {
             //Set token fee address
             TokenService = new TokenContract(CH, AccountList[0].Account, TokenAbi);

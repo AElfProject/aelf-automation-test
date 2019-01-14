@@ -13,7 +13,7 @@ namespace AElf.Automation.ContractsTesting
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private static string TokenAbi { get; set; }
         private static string ConsesusAbi { get; set; }
-        private static string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
+        private static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
         private static string BpAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
         private static string FeeAccount { get; } = "ELF_54xku6ywapZEpuV7mcRVoGaYNS4uSPRRYQ5p2K8zWprPo5C";
 

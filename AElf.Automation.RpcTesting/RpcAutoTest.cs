@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Extensions;
@@ -36,7 +37,6 @@ namespace AElf.Automation.RpcTesting
             Assert.AreEqual("OK", code);
             Assert.IsTrue(response.Contains("chain_id"));
         }
-
 
         [TestMethod]
         public void GetBlockHeight()
@@ -98,7 +98,6 @@ namespace AElf.Automation.RpcTesting
         [DataRow("90a624f2481cd48bf16b613dbb287a470dde579eb03031327a4a8dcb72a2be0c")]
         public void GetTxResult(string txId)
         {
-
             var method = "get_tx_result";
             var parameter = "{\"txhash\":\"" + txId + "\"}";
 
@@ -112,12 +111,12 @@ namespace AElf.Automation.RpcTesting
         [DataRow("http://192.168.197.34:8000/chain")]
         public void GetAllBlocksInfo(string rpcUrl)
         {
-            var CH = new CliHelper(rpcUrl);
+            var ch = new CliHelper(rpcUrl);
             List<string> transactionIds = new List<string>();
 
             string method = "get_block_height";
             var ci = new CommandInfo(method);
-            CH.ExecuteCommand(ci);
+            ch.ExecuteCommand(ci);
             ci.GetJsonInfo();
             var result = ci.JsonInfo;
             string countStr = result["result"]["result"]["block_height"].ToString();
@@ -128,7 +127,7 @@ namespace AElf.Automation.RpcTesting
                 method = "get_block_info";
                 ci = new CommandInfo(method);
                 ci.Parameter = $"{i.ToString()} true";
-                CH.ExecuteCommand(ci);
+                ch.ExecuteCommand(ci);
                 ci.GetJsonInfo();
                 result = ci.JsonInfo;
                 string txcount = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
@@ -137,18 +136,9 @@ namespace AElf.Automation.RpcTesting
                 {
                     if(tx.Trim() != "")
                         transactionIds.Add(tx.Trim());
-                    /*
-                    method = "get_tx_result";
-                    ci = new CommandInfo(method);
-                    ci.Parameter = tx.Trim();
-                    if (ci.Parameter == "")
-                        break;
-                    CH.ExecuteCommand(ci);
-                    Thread.Sleep(20);
-                    */
                 }
                 string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
-                _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString());
+                _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(50);
             }
 
@@ -161,7 +151,7 @@ namespace AElf.Automation.RpcTesting
                     method = "get_tx_result";
                     ci = new CommandInfo(method);
                     ci.Parameter = tx;
-                    CH.ExecuteCommand(ci);
+                    ch.ExecuteCommand(ci);
                     Thread.Sleep(10);
                 }
             }
@@ -177,10 +167,9 @@ namespace AElf.Automation.RpcTesting
             {
                 string method = "get_block_height";
                 string parameter = "{}";
-                string code = string.Empty;
 
                 var request = new RpcRequestManager(rpcUrl);
-                string response = request.PostRequest(method, parameter, out code);
+                string response = request.PostRequest(method, parameter, out var code);
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
                 var result = JObject.Parse(response);
@@ -193,7 +182,6 @@ namespace AElf.Automation.RpcTesting
                 method = "get_block_info";
 
                 parameter = "{\"block_height\":\"" + count + "\",\"include_txs\":\"true\"}";
-                code = string.Empty;
 
                 request = new RpcRequestManager(rpcUrl);
                 response = request.PostRequest(method, parameter, out code);
@@ -202,7 +190,7 @@ namespace AElf.Automation.RpcTesting
                 result = JObject.Parse(response);
                 string txcount = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
                 string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
-                System.Diagnostics.Debug.WriteLine("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", count, txcount, txPoolSize, DateTime.Now.ToString());
+                System.Diagnostics.Debug.WriteLine("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", count, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(1000);
             }
         }
@@ -250,10 +238,9 @@ namespace AElf.Automation.RpcTesting
             //Get Block Height
             string method = "get_block_height";
             string parameter = "{}";
-            string code = string.Empty;
 
             var request = new RpcRequestManager(url1);
-            string response = request.PostRequest(method, parameter, out code);
+            string response = request.PostRequest(method, parameter, out var code);
             var result = JObject.Parse(response);
 
             Assert.AreEqual("OK", code);
@@ -263,13 +250,11 @@ namespace AElf.Automation.RpcTesting
             {
                 method = "get_block_info";
                 parameter = "{\"block_height\":\"" + i + "\"}";
-                string code1 = string.Empty;
-                string code2 = string.Empty;
                 var request1= new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
 
-                string response1 = request1.PostRequest(method, parameter, out code1);
-                string response2 = request2.PostRequest(method, parameter, out code2);
+                string response1 = request1.PostRequest(method, parameter, out var code1);
+                string response2 = request2.PostRequest(method, parameter, out var code2);
                 Assert.AreEqual("OK", code1);
                 Assert.AreEqual("OK", code2);
                 Assert.AreEqual(response1, response2);
@@ -285,10 +270,9 @@ namespace AElf.Automation.RpcTesting
             //Get Block Height
             string method = "get_block_height";
             string parameter = "{}";
-            string code = string.Empty;
 
             var request = new RpcRequestManager(url1);
-            string response = request.PostRequest(method, parameter, out code);
+            string response = request.PostRequest(method, parameter, out var code);
             var result = JObject.Parse(response);
 
             Assert.AreEqual("OK", code);
@@ -298,13 +282,12 @@ namespace AElf.Automation.RpcTesting
             {
                 method = "get_block_info";
                 parameter = "{\"block_height\":\"" + i + "\"}";
-                string code1 = string.Empty;
-                string code2 = string.Empty;
+
                 var request1 = new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
 
-                string response1 = request1.PostRequest(method, parameter, out code1);
-                string response2 = request2.PostRequest(method, parameter, out code2);
+                string response1 = request1.PostRequest(method, parameter, out var code1);
+                string response2 = request2.PostRequest(method, parameter, out var code2);
                 Assert.AreEqual("OK", code1);
                 Assert.AreEqual("OK", code2);
                 Assert.AreEqual(response1, response2);
@@ -339,12 +322,11 @@ namespace AElf.Automation.RpcTesting
                 string url = "http://192.168.197.13:8000";
                 string method = "get_deserialized_info";
                 string parameter = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue + "\"}";
-                string code = string.Empty;
 
                 try
                 {
                     var request = new RpcRequestManager(url);
-                    string response = request.PostRequest(method, parameter, out code);
+                    string response = request.PostRequest(method, parameter, out var code);
                     Console.WriteLine($"Key {count} : {item}");
                     Console.WriteLine(response);
                     var result = JObject.Parse(response);
@@ -469,10 +451,9 @@ namespace AElf.Automation.RpcTesting
                     Console.WriteLine("Vaule1 Value2 diff: {0}", item);
 
                     string parameter1 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue1 + "\"}";
-                    string code1 = string.Empty;
 
                     var request1 = new RpcRequestManager(url1);
-                    string response1 = request1.PostRequest(method, parameter1, out code1);
+                    string response1 = request1.PostRequest(method, parameter1, out var code1);
                     Console.WriteLine("Db1 rpc data:\r\n" + response1);
                     var result1 = JObject.Parse(response1);
                     string type1 = result1["result"]["TypeName"].ToString();
@@ -483,10 +464,9 @@ namespace AElf.Automation.RpcTesting
                     tss1.AddTypeSummary(data1);
 
                     string parameter2 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue2 + "\"}";
-                    string code2 = string.Empty;
 
                     var request2 = new RpcRequestManager(url2);
-                    string response2 = request2.PostRequest(method, parameter2, out code2);
+                    string response2 = request2.PostRequest(method, parameter2, out var code2);
                     Console.WriteLine("Db2 rpc data:\r\n" + response2);
                     var result2 = JObject.Parse(response2);
                     string type2 = result2["result"]["TypeName"].ToString();
@@ -501,10 +481,9 @@ namespace AElf.Automation.RpcTesting
                 {
                     Console.WriteLine("Vaule1 Value3 diff: {0}", item);
                     string parameter3 = "{\"key\":\"" + item + "\",\"value\":\"" + hexValue3 + "\"}";
-                    string code3 = string.Empty;
 
                     var request3 = new RpcRequestManager(url3);
-                    string response3 = request3.PostRequest(method, parameter3, out code3);
+                    string response3 = request3.PostRequest(method, parameter3, out var code3);
                     Console.WriteLine("Db3 rpc data:\r\n" + response3);
                     var result3 = JObject.Parse(response3);
                     string type3 = result3["result"]["TypeName"].ToString();

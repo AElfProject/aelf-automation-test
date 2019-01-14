@@ -80,25 +80,31 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void TransferTest()
         {
-            PrepareAccount();
+            PrepareAccount(50);
 
-            foreach (var acc in UserList)
+            Random rd = new Random();
+            for (int i = 0; i < 50000; i++)
             {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "100");
+                var numbr = rd.Next(0, 49);
+                tokenService.CallContractWithoutResult(TokenMethod.Transfer, UserList[numbr], "100");
             }
-            tokenService.CheckTransactionResultList();
+
+    /*
             //Init account balance
             var initResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
             _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(initResult, true)}");
+
             //Fee account balance
             var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
             _logger.WriteInfo($"FeeAccount balance: {tokenService.ConvertViewResult(feeResult, true)}");
+
             //User account balance
             foreach (var acc in UserList)
             {
                 var userResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
                 _logger.WriteInfo($"user balance: {tokenService.ConvertViewResult(userResult, true)}");
             }
+    */
         }
 
         [TestMethod]
@@ -149,22 +155,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult1, true));
         }
 
-        private void PrepareAccount()
+        private void PrepareAccount(int userCoouont)
         {
             //Account preparation
             UserList = new List<string>();
             var ci = new CommandInfo("account new", "account");
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < userCoouont; i++)
             {
                 ci.Parameter = "123";
-                ci = CH.ExecuteCommand(ci);
+                ci = CH.NewAccount(ci);
                 if (ci.Result)
                     UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("account unlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                uc = CH.ExecuteCommand(uc);
+                uc = CH.UnlockAccount(uc);
             }
         }
     }
