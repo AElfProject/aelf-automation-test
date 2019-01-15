@@ -205,8 +205,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 ["address"] = ci.Parameter
             }, "get_contract_abi", 1);
-            Module m = null;
-            if (!_loadedModules.TryGetValue(ci.Parameter, out m))
+            if (!_loadedModules.TryGetValue(ci.Parameter, out var m))
             {
                 string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
                 ci.TimeSpan = timeSpan;
@@ -323,10 +322,13 @@ namespace AElf.Automation.Common.Helpers
             }
                             
             JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            var paramArray = p.ToObject<string[]>();
+            if (p != null)
+            {
+                var paramArray = p.ToObject<string[]>();
 
-            if(j["params"] != null && paramArray.Length != 0)
-                tr.Params = method.SerializeParams(paramArray);
+                if(j["params"] != null && paramArray.Length != 0)
+                    tr.Params = method.SerializeParams(paramArray);
+            }
 
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
@@ -334,9 +336,9 @@ namespace AElf.Automation.Common.Helpers
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             var req = RpcRequestManager.CreateRequest(rawtx, ci.Category, 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            
+            
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -361,9 +363,9 @@ namespace AElf.Automation.Common.Helpers
                 ["rawtx"] = ci.Parameter
             };
             var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            
+            
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -463,9 +465,7 @@ namespace AElf.Automation.Common.Helpers
                 ["rawtxs"] = ci.Parameter
             };
             var req = RpcRequestManager.CreateRequest(paramObject, ci.Category, 0);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -479,9 +479,7 @@ namespace AElf.Automation.Common.Helpers
         public void RpcGetCommands(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), ci.Category, 0);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -512,9 +510,7 @@ namespace AElf.Automation.Common.Helpers
             Module m = null;
             if (!_loadedModules.TryGetValue(ci.Parameter, out m))
             {
-                string returnCode = string.Empty;
-                long timeSpan = 0;
-                string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+                string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
                 ci.TimeSpan = timeSpan;
                 if (!CheckResponse(ci, returnCode, resp))
                     return;
@@ -545,9 +541,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 ["address"] = ci.Parameter
             }, ci.Category, 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -564,9 +558,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 ["txhash"] = ci.Parameter
             }, ci.Category, 0);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -577,9 +569,7 @@ namespace AElf.Automation.Common.Helpers
         public void RpcGetBlockHeight(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), ci.Category, 0);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -597,9 +587,7 @@ namespace AElf.Automation.Common.Helpers
                 ["block_height"] = ci.Parameter.Split(" ")?[0],
                 ["include_txs"] = ci.Parameter.Split(" ")?[1]
             }, ci.Category, 0);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -617,9 +605,9 @@ namespace AElf.Automation.Common.Helpers
                 ["txid"] = ci.Parameter
 
             }, ci.Category, 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            
+            
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -637,9 +625,9 @@ namespace AElf.Automation.Common.Helpers
                 ["minimal"] = ci.Parameter.Split(" ")?[0],
                 ["maximal"] = ci.Parameter.Split(" ")?[1]
             }, ci.Category, 1);
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            
+            
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -692,9 +680,9 @@ namespace AElf.Automation.Common.Helpers
             var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
 
             // todo send raw tx
-            string returnCode = string.Empty;
-            long timeSpan = 0;
-            string resp = _requestManager.PostRequest(req.ToString(), out returnCode, out timeSpan);
+            
+            
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
 
             return resp;
         }
@@ -703,6 +691,49 @@ namespace AElf.Automation.Common.Helpers
         {
             _accountManager.UnlockAccount(account, password, "notimeout");
             return _accountManager.GetPublicKey(account);
+        }
+
+        //Net Api
+        public void NetGetPeers(CommandInfo ci)
+        {
+            var req = RpcRequestManager.CreateRequest(new JObject(), "get_peers", 1);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
+        }
+
+        public void NetAddPeer(CommandInfo ci)
+        {
+            var req = RpcRequestManager.CreateRequest(new JObject
+            {
+                ["address"] = ci.Parameter
+            }, "add_peer", 1);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
+        }
+
+        public void NetRemovePeer(CommandInfo ci)
+        {
+            var req = RpcRequestManager.CreateRequest(new JObject
+            {
+                ["address"] = ci.Parameter
+            }, "remove_peer", 1);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
         }
         
         #endregion

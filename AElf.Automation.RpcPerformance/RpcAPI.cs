@@ -1,17 +1,15 @@
-﻿using AElf.Automation.Common.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using ServiceStack.Auth;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -240,7 +238,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContracts()
         {
-            Logger.WriteInfo("Start contract execution at: {0}", DateTime.Now.ToString());
+            Logger.WriteInfo("Start contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Stopwatch exec = new Stopwatch();
             exec.Start();
             List<Task> contractTasks = new List<Task>();
@@ -252,26 +250,36 @@ namespace AElf.Automation.RpcPerformance
 
             Task.WaitAll(contractTasks.ToArray<Task>());
             exec.Stop();
-            Logger.WriteInfo("End contract execution at: {0}", DateTime.Now.ToString());
+            Logger.WriteInfo("End contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
             GetExecutedAccount();
         }
 
         public void ExecuteContractsRpc()
         {
-            Logger.WriteInfo("Start all generate rpc request at: {0}", DateTime.Now.ToString());
+            Logger.WriteInfo("Start all generate rpc request at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Stopwatch exec = new Stopwatch();
             exec.Start();
             List<Task> contractTasks = new List<Task>();
             for (int i = 0; i < ThreadCount; i++)
             {
                 var j = i;
-                contractTasks.Add(Task.Run(() => GenerateContractList(j, ExeTimes)));
+                contractTasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        GenerateContractList(j, ExeTimes);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.WriteInfo($"Execute batch transaction got exception, message details are: {e.Message}");
+                    }
+                }));
             }
 
             Task.WaitAll(contractTasks.ToArray<Task>());
             exec.Stop();
-            Logger.WriteInfo("All rpc requests completed at: {0}", DateTime.Now.ToString());
+            Logger.WriteInfo("All rpc requests completed at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
         }
 
@@ -390,10 +398,10 @@ namespace AElf.Automation.RpcPerformance
             CH.ExecuteCommand(ci1);
             Assert.IsTrue(ci1.Result);
             var result = ci1.InfoMsg[0].Replace("[", "").Replace("]", "").Split(",");
-            Logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result.Length,
+            Logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result?.Length,
                 DateTime.Now.ToString("HH:mm:ss.fff"));
             Logger.WriteInfo("Thread [{0}] completeed executed {1} times contracts work at {2}.", threadNo, times,
-                DateTime.Now.ToString());
+                DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
             Thread.Sleep(100);
         }
@@ -438,10 +446,9 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteOneRpcTask(int group)
         {
-            string rpcMsg = string.Empty;
             while (true)
             {
-                if (!ContractRpcList.TryDequeue(out rpcMsg))
+                if (!ContractRpcList.TryDequeue(out var rpcMsg))
                     break;
                 Logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, ContractRpcList.Count);
                 var ci = new CommandInfo("broadcast_tx");
