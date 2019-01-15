@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 
@@ -29,6 +30,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> UserList { get; set; }
         public List<string> FullNodeAccounts { get; set; }
         public List<string> BpNodeAccounts { get; set; }
+        public List<string> NodesPublicKeys { get; set; }
         public List<string> CandidatePublicKeys { get; set; }
         public List<string> CurrentMinersKeys { get; set; }
         public List<CandidateInfo> CandidateInfos { get; set; }
@@ -41,7 +43,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static ConsensusContract consensusService { get; set; }
         public static DividendsContract dividendsService { get; set; }
 
-        public string RpcUrl { get; } = "http://192.168.197.20:8020/chain";
+        public string RpcUrl { get; } = "http://192.168.197.15:8010/chain";
         public CliHelper CH { get; set; }
 
         #endregion
@@ -96,12 +98,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             //Get candidate infos
+            NodesPublicKeys = new List<string>();
             CandidateInfos = new List<CandidateInfo>();
             for (int i = 0; i < BpNodeAccounts.Count; i++)
             {
                 string name = $"Bp-{i+1}";
                 string account = BpNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
+                NodesPublicKeys.Add(pubKey);
+                Logger.WriteInfo($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
             }
             for (int i = 0; i < FullNodeAccounts.Count; i++)
@@ -109,6 +114,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 string name = $"Full-{i+1}";
                 string account = FullNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
+                NodesPublicKeys.Add(pubKey);
+                Logger.WriteInfo($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -314,7 +321,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             tokenService.SetAccount(BpNodeAccounts[0]);
             foreach (var acc in UserList)
             {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "10000");
+                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "100000");
             }
             tokenService.CheckTransactionResultList();
 
@@ -329,24 +336,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         //参加选举
         [TestMethod]
-        [DataRow(50)]
-        public void UserVoteAction(int voteUserCount)
+        [DataRow(5, 2)]
+        public void UserVoteAction(int voteUserCount, int voteTimes)
         {
             GetCandidateList();
             PrepareUserAccountAndBalance(voteUserCount);
 
             Random rd = new Random(DateTime.Now.Millisecond);
-            foreach (var voteAcc in UserList)
+            for (int i = 0; i < voteTimes; i++)
             {
-                string votePbk = CandidatePublicKeys[rd.Next(0, CandidatePublicKeys.Count-1)];
-                string voteVolumn = rd.Next(100, 500).ToString();
-                string voteLock = rd.Next(5, 10).ToString();
+                foreach (var voteAcc in UserList)
+                {
+                    string votePbk = CandidatePublicKeys[rd.Next(0, CandidatePublicKeys.Count-1)];
+                    string voteVolumn = rd.Next(100, 500).ToString();
+                    string voteLock = rd.Next(5, 10).ToString();
 
-                consensusService.SetAccount(voteAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
+                    consensusService.SetAccount(voteAcc);
+                    consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
+                }
             }
-
             consensusService.CheckTransactionResultList();
+
             //检查投票结果
             GetPageableElectionInfo();
             GetTicketsInfo();
@@ -354,7 +364,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow(new int[]{5})]
+        [DataRow(new[]{0, 1, 3})]
         public void UserVoteForNodes(int[] candidates)
         {
             GetCandidateList();
@@ -364,7 +374,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 //Vote For someone
 
-                string votePbk = CandidatePublicKeys[candidates[i]];
+                string votePbk = NodesPublicKeys[candidates[i]];
                 string voteVolumn = "200";
                 string voteLock = "5";
 
@@ -482,7 +492,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void GetTicketsCount()
         {
-            UserVoteAction(5);
+            UserVoteAction(5, 1);
             var ticketsCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsCount);
             Logger.WriteInfo($"Tickets count: {consensusService.ConvertViewResult(ticketsCount, true)}");
         }
@@ -514,7 +524,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void QueryDividends()
         {
-            UserVoteAction(5);
+            UserVoteAction(5, 1);
             Thread.Sleep(30000);
             foreach (var userAcc in UserList)
             {
@@ -606,7 +616,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetCandidateList();
 
             PrepareUserAccountAndBalance(10);
-            UserVoteAction(5);
+            UserVoteAction(5, 1);
 
             //查询信息
             GetCandidateHistoryInfo();
@@ -632,7 +642,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             GetCandidateList();
             PrepareUserAccountAndBalance(10);
-            UserVoteAction(5);
+            UserVoteAction(5, 1);
             GetTicketsInfo();
             GetCurrentVictories();
         }
