@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Google.Protobuf.WellKnownTypes;
-using LiteDB;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -66,6 +65,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsFalse(message==string.Empty, "Token fee address is not set.");
             _logger.WriteInfo($"Token fee account is {message}");
         }
+
+        [TestMethod]
+        public void SetTokenFeeAddress()
+        {
+            var addressResult = tokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
+            var result = DataHelper.TryGetValueFromJson(out var message, addressResult, "result", "return");
+            Assert.IsTrue(result, "Return value is not exist.");
+            if (message == string.Empty)
+            {
+                tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
+            }
+
+            QueryTokenFeeAddress();
+        }
+
 
         [TestMethod]
         public void InitToken()

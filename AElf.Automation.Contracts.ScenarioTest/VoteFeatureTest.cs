@@ -242,6 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("All accounts asset prepared completed.");
         }
 
+        //参加选举
         [TestMethod]
         public void JoinElection()
         {
@@ -334,9 +335,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("All accounts created and unlocked.");
         }
 
-        //参加选举
+
         [TestMethod]
-        [DataRow(5, 2)]
+        [DataRow(
+            "04d5a0ab908b1e6a99be1d4b1d5e4ab7c3bd3b234f714d674a1aad7dc462436b0345cb6384b589a5be0aa6bc9c8a78ebb10e5d0a865deade3fc48b446075b26cb3")]
+        public void UserVoteForCandidate(string pubKey)
+        {
+            PrepareUserAccountAndBalance(1);
+            string voteVolumn = "100";
+            string voteLock = "8";
+
+            consensusService.SetAccount(UserList[0]);
+            consensusService.CallContractMethod(ConsensusMethod.Vote, pubKey, voteVolumn, voteLock);
+
+            //Get candidate ticket
+            GetCandidateTicketsInfo(pubKey);
+        }
+
+
+        [TestMethod]
+        [DataRow(5, 20)]
         public void UserVoteAction(int voteUserCount, int voteTimes)
         {
             GetCandidateList();
@@ -348,7 +366,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 foreach (var voteAcc in UserList)
                 {
                     string votePbk = CandidatePublicKeys[rd.Next(0, CandidatePublicKeys.Count-1)];
-                    string voteVolumn = rd.Next(100, 500).ToString();
+                    string voteVolumn = rd.Next(10, 50).ToString();
                     string voteLock = rd.Next(5, 10).ToString();
 
                     consensusService.SetAccount(voteAcc);
@@ -454,19 +472,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var ticketsJson = consensusService.ConvertViewResult(ticketResult);
                 Logger.WriteInfo(ticketsJson);
 
-                DataHelper.TryGetArrayFromJson(out var recordArray, ticketsJson, "VotingRecords");
-                var sumCount = 0;
-                foreach (var record in recordArray)
-                {
-                    DataHelper.TryGetValueFromJson(out var countStr, record, "Count");
-                    sumCount += int.Parse(countStr);
-                }
-                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {sumCount}");
+                DataHelper.TryGetValueFromJson(out var recordTickets, ticketsJson, "ObtainedTickets");
+                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {recordTickets}");
             }
         }
 
         [TestMethod]
-        [DataRow("04bba3c7c54d9802f40010ae141e0f5c0b1bf9144e4f8e08e30f56a2e3922e4f3a924998a4f3c7d437f69da7af4398c281d02a753ccb297aa735294dc2e4ea6064")]
+        [DataRow("04d5a0ab908b1e6a99be1d4b1d5e4ab7c3bd3b234f714d674a1aad7dc462436b0345cb6384b589a5be0aa6bc9c8a78ebb10e5d0a865deade3fc48b446075b26cb3")]
         public void GetCandidateTicketsInfo(string candidatePubkey)
         {
             Logger.WriteInfo("GetCandidateTicketsInfo Test");

@@ -14,9 +14,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class RpcApiTest
     {
-        private ILogHelper _logger = LogHelper.GetLogHelper();
-        private CliHelper _ch { get; set; }
-        private const string _serviceUrl = "http://192.168.197.15:8010";
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private CliHelper Ch { get; set; }
+        private const string ServiceUrl = "http://192.168.197.15:8020";
 
         [TestInitialize]
         public void InitTest()
@@ -26,17 +26,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            _ch = new CliHelper(_serviceUrl, AccountManager.GetDefaultDataDir());
+            Ch = new CliHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
         }
 
         [TestMethod]
-        [DataRow(26)]
+        [DataRow(2441)]
         public void VerifyTransactionByHeight(int height)
         {
             var ci = new CommandInfo("get_block_info");
             ci.Parameter = $"{height.ToString()} {true}";
-            _ch.RpcGetBlockInfo(ci);
-            Assert.IsTrue(ci.Result);
+            Ch.RpcGetBlockInfo(ci);
+            Assert.IsTrue(ci.Result, "Request block info failed.");
 
             DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg[0], "result", "result", "Body", "Transactions");
 
@@ -44,18 +44,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var txCi = new CommandInfo("get_tx_result");
                 txCi.Parameter = txId;
-                _ch.RpcGetTxResult(txCi);
-                Assert.IsTrue(txCi.Result);
+                Ch.RpcGetTxResult(txCi);
+                Assert.IsTrue(txCi.Result, "Request transaction result failed.");
 
                 DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg[0], "result", "result", "tx_status");
                 if(status == "Mined")
                     _logger.WriteInfo($"{txId}: Mined");
                 else
                     _logger.WriteError(txCi.InfoMsg[0]);
-
             }
-
         }
-
     }
 }

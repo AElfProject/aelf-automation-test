@@ -222,7 +222,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var uc = new CommandInfo("account unlock", "account");
             uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
-            uc = Ch.ExecuteCommand(uc);
+            uc = Ch.UnlockAccount(uc);
         }
 
         #region Private Methods

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Models\**" />
@@ -12,8 +12,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NServiceKit.Redis" Version="1.0.20" />
     <PackageReference Include="NServiceKit.Text" Version="1.0.10" />
-    <PackageReference Include="protobuf-net" Version="2.3.17" />
-    <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.0" />
+    <PackageReference Include="ServiceStack.Redis" Version="5.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AElf\AElf.ABI.CSharp\AElf.ABI.CSharp.csproj" />
