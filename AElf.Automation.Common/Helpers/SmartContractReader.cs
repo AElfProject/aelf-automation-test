@@ -20,8 +20,8 @@ namespace AElf.Automation.Common.Helpers
         {
             try
             {
-                byte[] code = null;
-                using (FileStream file = File.OpenRead(GetKeyFileFullPath(name)))
+                byte[] code;
+                using (var file = File.OpenRead(GetKeyFileFullPath(name)))
                 {
                     code = file.ReadFully();
                 }
@@ -31,7 +31,7 @@ namespace AElf.Automation.Common.Helpers
             catch (Exception e)
             {
                 Console.WriteLine("SmartContractReader: Invalid transaction data.");
-                Console.WriteLine("Exception: " + e.Message);
+                Console.WriteLine($"Exception: {e.Message}");
                 return null;
             }
         }
@@ -39,7 +39,7 @@ namespace AElf.Automation.Common.Helpers
         /// <summary>
         /// Return the full path of the files 
         /// </summary>
-        internal string GetKeyFileFullPath(string address)
+        private string GetKeyFileFullPath(string address)
         {
             string dirPath = GetKeystoreDirectoryPath();
             string filePath = Path.Combine(dirPath, address);
@@ -49,11 +49,11 @@ namespace AElf.Automation.Common.Helpers
             return filePathWithExtension;
         }
 
-        internal DirectoryInfo GetOrCreateContractDir()
+        private DirectoryInfo GetOrCreateContractDir()
         {
             try
             {
-                string dirPath = GetKeystoreDirectoryPath();
+                var dirPath = GetKeystoreDirectoryPath();
                 return Directory.CreateDirectory(dirPath);
             }
             catch (Exception)
@@ -62,7 +62,7 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        internal string GetKeystoreDirectoryPath()
+        private string GetKeystoreDirectoryPath()
         {
             return Path.Combine(_dataDirectory, ContractFolderName);
         }

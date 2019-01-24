@@ -8,7 +8,6 @@ using AElf.Common;
 using Newtonsoft.Json.Linq;
 using NServiceKit.Common;
 using ProtoBuf;
-using Method = AElf.Automation.Common.Protobuf.Method;
 using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
@@ -16,36 +15,9 @@ using Address = AElf.Automation.Common.Protobuf.Address;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public enum ApiMethod
-    {
-        //Wallet
-        AccountNew,
-        AccountList,
-        AccountUnlock,
-
-        //Chain
-        ConnectChain,
-        LoadContractAbi,
-        DeployContract,
-        BroadcastTx,
-        BroadcastTxs,
-        GetCommands,
-        GetContractAbi,
-        GetIncrement,
-        GetTxResult,
-        GetBlockHeight,
-        GetBlockInfo,
-        GetMerklePath,
-        SetBlockVolumn,
-
-        //Net
-        GetPeers,
-        AddPeer,
-        RemovePeer
-    }
-
     public class CliHelper
     {
+        #region Properties
         private string _rpcAddress;
         private string _genesisAddress;
         private string _chainId;
@@ -56,8 +28,9 @@ namespace AElf.Automation.Common.Helpers
         
         private Dictionary<string, Module> _loadedModules;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        
         public List<CommandInfo> CommandList { get; }
+
+        #endregion
 
         public CliHelper(string rpcUrl, string keyPath="")
         {
@@ -132,6 +105,7 @@ namespace AElf.Automation.Common.Helpers
 
             return ci;
         }
+
         #region Account methods
 
         public CommandInfo NewAccount(CommandInfo ci)
@@ -158,7 +132,7 @@ namespace AElf.Automation.Common.Helpers
         public void RpcConnectChain(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), "connect_chain", 1);
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -184,7 +158,7 @@ namespace AElf.Automation.Common.Helpers
                 _transactionManager = new TransactionManager(_keyStore, _chainId);
             }
 
-            string message = JObject.FromObject(j["result"]).ToString();
+            var message = JObject.FromObject(j["result"]).ToString();
             ci.InfoMsg.Add(message);
             ci.Result = true;
         }
@@ -233,7 +207,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             string filename = ci.Parameter.Split(" ")[0];
             // Read sc bytes
-            SmartContractReader screader = new SmartContractReader();
+            var screader = new SmartContractReader();
             byte[] sc = screader.Read(filename);
             string hex = sc.ToHex();
 
@@ -243,7 +217,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            Method meth = m.Methods.FirstOrDefault(mt => mt.Name.Equals("DeploySmartContract"));
+            var meth = m.Methods.FirstOrDefault(mt => mt.Name.Equals("DeploySmartContract"));
             if (meth == null)
             {
                 ci.ErrorMsg.Add("Method not Found.");
@@ -251,7 +225,7 @@ namespace AElf.Automation.Common.Helpers
             }
             byte[] serializedParams = meth.SerializeParams(new List<string> {"1", hex});
             _transactionManager.SetCmdInfo(ci);
-            Transaction tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
+            var tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
                 "DeploySmartContract", serializedParams, TransactionType.ContractTransaction);
             tx = tx.AddBlockReference(_rpcAddress);
@@ -271,7 +245,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            JObject jObj = JObject.Parse(resp);
+            var jObj = JObject.Parse(resp);
             var j = jObj["result"];
             if (j["error"] != null)
             {
@@ -297,14 +271,13 @@ namespace AElf.Automation.Common.Helpers
                 RpcBroadcastWithRawTx(ci);
                 return;
             }
-            JObject j = JObject.Parse(ci.Parameter);
-            Transaction tr = _transactionManager.ConvertFromJson(j);
+            var j = JObject.Parse(ci.Parameter);
+            var tr = _transactionManager.ConvertFromJson(j);
             if (tr == null)
                 return;
             string toAdr = tr.To.GetFormatted();
 
-            Module m;
-            if (!_loadedModules.TryGetValue(toAdr, out m))
+            if (!_loadedModules.TryGetValue(toAdr, out var m))
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
@@ -313,7 +286,7 @@ namespace AElf.Automation.Common.Helpers
                 }
             }
 
-            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
             if (method == null)
             {
@@ -321,7 +294,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
                             
-            JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
+            var p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
             if (p != null)
             {
                 var paramArray = p.ToObject<string[]>();
@@ -370,7 +343,7 @@ namespace AElf.Automation.Common.Helpers
             if (!CheckResponse(ci, returnCode, resp))
                 return;
             
-            JObject rObj = JObject.Parse(resp);
+            var rObj = JObject.Parse(resp);
             var rj = rObj["result"];
             string hash = rj["hash"] == null ? rj["error"].ToString() :rj["hash"].ToString();
             string res =rj["hash"] == null ? "error" : "txId";
@@ -385,12 +358,11 @@ namespace AElf.Automation.Common.Helpers
         
         public string RpcGenerateTransactionRawTx(CommandInfo ci)
         {
-            JObject j = JObject.Parse(ci.Parameter);
-            Transaction tr = _transactionManager.ConvertFromJson(j);
-            string toAdr = tr.To.GetFormatted();
+            var j = JObject.Parse(ci.Parameter);
+            var tr = _transactionManager.ConvertFromJson(j);
+            var toAdr = tr.To.GetFormatted();
 
-            Module m;
-            if (!_loadedModules.TryGetValue(toAdr, out m))
+            if (!_loadedModules.TryGetValue(toAdr, out var m))
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
@@ -399,7 +371,7 @@ namespace AElf.Automation.Common.Helpers
                 }
             }
 
-            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
             if (method == null)
             {
@@ -407,10 +379,14 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
                             
-            JArray p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            var paramArray = p.ToObject<string[]>();
-            if(j["params"] != null && paramArray.Length != 0)
-                tr.Params = method.SerializeParams(paramArray);
+            var p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
+            if (p != null)
+            {
+                var paramArray = p.ToObject<string[]>();
+                if(j["params"] != null && paramArray.Length != 0)
+                    tr.Params = method.SerializeParams(paramArray);
+            }
+
             tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
             
@@ -422,11 +398,12 @@ namespace AElf.Automation.Common.Helpers
 
         public string RpcGenerateTransactionRawTx(string from, string to, string methodName, params string[] paramArray)
         {
-            Transaction tr = new Transaction();
-            tr.From = Address.Parse(from);
-            tr.To = Address.Parse(to);
-            //tr.IncrementId = GetRandomIncrId();
-            tr.MethodName = methodName;
+            var tr = new Transaction()
+            {
+                From = Address.Parse(from),
+                To = Address.Parse(to),
+                MethodName = methodName
+            };
             string toAdr = tr.To.GetFormatted();
 
             Module m;
@@ -439,7 +416,7 @@ namespace AElf.Automation.Common.Helpers
                 }
             }
 
-            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
             if (method == null)
             {
@@ -507,8 +484,8 @@ namespace AElf.Automation.Common.Helpers
                 ["address"] = ci.Parameter
             }, ci.Category, 1);
             
-            Module m = null;
-            if (!_loadedModules.TryGetValue(ci.Parameter, out m))
+
+            if (!_loadedModules.TryGetValue(ci.Parameter, out var m))
             {
                 string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
                 ci.TimeSpan = timeSpan;
@@ -541,7 +518,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 ["address"] = ci.Parameter
             }, ci.Category, 1);
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
                 return;
@@ -637,14 +614,16 @@ namespace AElf.Automation.Common.Helpers
 
         public string RpcQueryResult(string from, string to, string methodName, params string[] paramArray)
         {
-            Transaction tr = new Transaction();
-            tr.From = Address.Parse(from);
-            tr.To = Address.Parse(to);
-            tr.MethodName = methodName;
+            var tr = new Transaction()
+            {
+                From = Address.Parse(from),
+                To = Address.Parse(to),
+                MethodName = methodName
+            };
+
             string toAdr = tr.To.GetFormatted();
 
-            Module m;
-            if (!_loadedModules.TryGetValue(toAdr, out m))
+            if (!_loadedModules.TryGetValue(toAdr, out var m))
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
                 {
@@ -653,7 +632,7 @@ namespace AElf.Automation.Common.Helpers
                 }
             }
 
-            Method method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
             if (method == null)
             {
@@ -679,9 +658,6 @@ namespace AElf.Automation.Common.Helpers
             var reqParams = new JObject { ["rawtx"] = payload };
             var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
 
-            // todo send raw tx
-            
-            
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
 
             return resp;

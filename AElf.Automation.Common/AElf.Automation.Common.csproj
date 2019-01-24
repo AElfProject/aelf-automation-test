@@ -16,7 +16,6 @@
     <PackageReference Include="ServiceStack.Redis" Version="5.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AElf\AElf.ABI.CSharp\AElf.ABI.CSharp.csproj" />
     <ProjectReference Include="..\AElf\AElf.Common\AElf.Common.csproj" />
     <ProjectReference Include="..\AElf\AElf.Cryptography\AElf.Cryptography.csproj" />
     <ProjectReference Include="..\AElf\AElf.Kernel.Types\AElf.Kernel.Types.csproj" />

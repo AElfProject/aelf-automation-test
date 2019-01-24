@@ -5,16 +5,16 @@ using ProtoBuf;
 using Newtonsoft.Json.Linq;
 using AElf.Cryptography;
 using AElf.Common;
-using AElf.Cryptography.ECDSA;
-using Transaction = AElf.Automation.Common.Protobuf.Transaction;
-using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using Address = AElf.Automation.Common.Protobuf.Address;
 using Google.Protobuf;
 using AElf.Types.CSharp;
+using Transaction = AElf.Automation.Common.Protobuf.Transaction;
+using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
+using Address = AElf.Automation.Common.Protobuf.Address;
+
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -52,7 +52,7 @@ namespace AElf.Automation.Common.Extensions
                 t.To = Address.Parse(genesisAddress);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
-                t.Params = (serializedParams == null) ? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray() : serializedParams;
+                t.Params = serializedParams ?? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
                 t.Type = contracttransaction;
                 _cmdInfo.Result = true;
 
@@ -60,7 +60,7 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception e)
             {
-                _cmdInfo.ErrorMsg.Add("Invalid transaction data: " +e.Message);
+                _cmdInfo.ErrorMsg.Add($"Invalid transaction data: {e.Message}");
                 return null;
             }
         }
@@ -79,7 +79,7 @@ namespace AElf.Automation.Common.Extensions
 
         public byte[] Sign(string addr, byte[] txnData)
         {
-            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
+            var kp = _keyStore.GetAccountKeyPair(addr);
 
             if (kp == null)
             {
@@ -109,16 +109,19 @@ namespace AElf.Automation.Common.Extensions
         {
             try
             {
-                Transaction tr = new Transaction();
-                tr.From = Address.Parse(j["from"].ToString());
-                tr.To = Address.Parse(j["to"].ToString());
-                tr.MethodName = j["method"].ToObject<string>();
+                var tr = new Transaction
+                {
+                    From = Address.Parse(j["from"].ToString()),
+                    To = Address.Parse(j["to"].ToString()),
+                    MethodName = j["method"].ToObject<string>()
+                };
+
                 return tr;
             }
             catch (Exception e)
             {
                 _logger.WriteError("Invalid transaction data.");
-                _logger.WriteError("Exception message: " + e.Message);
+                _logger.WriteError($"Exception message: {e.Message}");
 
                 return null;
             }

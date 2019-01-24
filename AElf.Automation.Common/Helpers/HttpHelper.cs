@@ -93,7 +93,7 @@ namespace AElf.Automation.Common.Helpers
             statusCode = string.Empty;
 
             if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -138,7 +138,7 @@ namespace AElf.Automation.Common.Helpers
             where T : class, new()
         {
             if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -195,7 +195,7 @@ namespace AElf.Automation.Common.Helpers
         public static string PostResponse(string url, string postData, string token, string appId, string serviceUrl, out string statusCode)
         {
             if (url.StartsWith("https"))
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -238,7 +238,7 @@ namespace AElf.Automation.Common.Helpers
             httpWebRequest.GetRequestStream().Write(btBodys, 0, btBodys.Length);
 
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            var streamReader = new StreamReader(httpWebResponse.GetResponseStream());
+            var streamReader = new StreamReader(httpWebResponse.GetResponseStream() ?? throw new InvalidOperationException());
             string responseContent = streamReader.ReadToEnd();
 
             httpWebResponse.Close();

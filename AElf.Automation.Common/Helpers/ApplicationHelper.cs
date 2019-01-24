@@ -3,7 +3,7 @@ using System.IO;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public class ApplicationHelper
+    public static class ApplicationHelper
     {
         public static string GetDefaultDataDir()
         {

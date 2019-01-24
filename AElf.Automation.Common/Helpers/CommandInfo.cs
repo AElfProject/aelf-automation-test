@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using AElf.Automation.Common.Helpers;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,6 +13,8 @@ namespace AElf.Automation.Common.Helpers
         public string Category { get; set; }
         public string Cmd { get; set; }
         public string Parameter { get; set; }
+        public string[] ParameterArray { get; set; }
+        public ApiMethods Method { get; set; }
 
         public bool Result { get; set; }
         public JObject JsonInfo { get; set; }
@@ -31,7 +33,18 @@ namespace AElf.Automation.Common.Helpers
             Result = false;
             TimeSpan = 0;
         }
-        
+
+        public CommandInfo(ApiMethods method, params string[] parameters)
+        {
+            Category = nameof(method);
+            ParameterArray = parameters;
+
+            InfoMsg = new List<string>();
+            ErrorMsg = new List<string>();
+            Result = false;
+            TimeSpan = 0;
+        }
+
         public void GetJsonInfo()
         {
             JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg[0] : ErrorMsg[0]);
@@ -100,9 +113,9 @@ namespace AElf.Automation.Common.Helpers
 
     public class CategoryInfoSet
     {
-        public List<CommandInfo> CommandList { get; set; }
-        public List<CategoryRequest> CategoryList { get; set; }
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        private List<CommandInfo> CommandList { get; set; }
+        private List<CategoryRequest> CategoryList { get; set; }
+        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         public CategoryInfoSet(List<CommandInfo> commands)
         {
@@ -130,7 +143,7 @@ namespace AElf.Automation.Common.Helpers
         {
             foreach (var item in CategoryList)
             {
-                Logger.WriteInfo("Rpc Category: {0}", item.Category);
+                _logger.WriteInfo("Rpc Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;
@@ -144,7 +157,7 @@ namespace AElf.Automation.Common.Helpers
                 else
                     item.AvageTimeInfo = 0;
 
-                Logger.WriteInfo("Total: {0}, Pass: {1}, Fail: {2}, {3}",
+                _logger.WriteInfo("Total: {0}, Pass: {1}, Fail: {2}, {3}",
                     item.Count, item.PassCount, item.FailCount, String.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
             }
         }

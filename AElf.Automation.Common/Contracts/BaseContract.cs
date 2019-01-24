@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using AElf.Automation.Common.Helpers;
 
 namespace AElf.Automation.Common.Contracts
 {

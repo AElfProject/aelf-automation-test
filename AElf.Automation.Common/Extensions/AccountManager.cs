@@ -88,17 +88,18 @@ namespace AElf.Automation.Common.Extensions
             return result;
         }
 
-        public ECKeyPair GetKeyPair(string addr)
-        {
-            ECKeyPair kp = _keyStore.GetAccountKeyPair(addr);
-            return kp;
-        }
-
         public string GetPublicKey(string address, string password = "123")
         {
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
         }
+
+        private ECKeyPair GetKeyPair(string addr)
+        {
+            var kp = _keyStore.GetAccountKeyPair(addr);
+            return kp;
+        }
+
 
         public static string GetDefaultDataDir()
         {

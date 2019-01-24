@@ -60,6 +60,7 @@ namespace AElf.Automation.Common.Protobuf
             return GlobalConfig.AElfAddressPrefix + '_' + pubKeyHash;
         }
     }
+    
     [ProtoContract]
     public class Hash
     {

@@ -1,9 +1,15 @@
-﻿using AElf.ABI.CSharp;
+﻿using AElf.Types.CSharp;
 using AElf.Types.CSharp;
+using AElf.Kernel;
+using AElf.Common;
 using ProtoBuf;
+using Google.Protobuf;
 using System;
+using System.Globalization;
 using System.Collections.Generic;
+using Google.Protobuf.WellKnownTypes;
 using System.Linq;
+using HASH = AElf.Common.Hash;
 
 namespace AElf.Automation.Common.Protobuf
 {
@@ -12,7 +18,6 @@ namespace AElf.Automation.Common.Protobuf
         string Type = 1;
         string Name = 2;
     } */
-
     [ProtoContract]
     public class Field
     {
@@ -28,7 +33,6 @@ namespace AElf.Automation.Common.Protobuf
         string Name = 1;
         repeated Field Fields = 2;
     }*/
-
     [ProtoContract]
     public class Type
     {
@@ -45,7 +49,6 @@ namespace AElf.Automation.Common.Protobuf
         repeated Field Indexed = 2;
         repeated Field NonIndexed = 3;
     }*/
-
     [ProtoContract]
     public class Event
     {
@@ -65,9 +68,9 @@ namespace AElf.Automation.Common.Protobuf
         string Name = 1;
         repeated Field Params = 2;
         string ReturnType = 3;
-        bool IsAsync = 4;
+        bool IsView = 4;
+        bool IsAsync = 5;
     }*/
-
     [ProtoContract]
     public class Method
     {
@@ -95,7 +98,7 @@ namespace AElf.Automation.Common.Protobuf
             var argsList = args.ToList();
             if (argsList.Count != Params.Count)
             {
-                throw new InvalidInputException("Input doen't have the required number of parameters.");
+                throw new Exception("Input doen't have the required number of parameters.");
             }
 
             var parsed = Parsers.Zip(argsList, Tuple.Create).Select(x => x.Item1(x.Item2)).ToArray();
@@ -110,7 +113,7 @@ namespace AElf.Automation.Common.Protobuf
             {
                 if (_parsers == null)
                 {
-                    _parsers = Params.Select(x => AElf.ABI.CSharp.StringInputParsers.GetStringParserFor(x.Type)).ToList();
+                    _parsers = Params.Select(x => StringConverter.GetTypeParser(x.Type)).ToList();
                 }
 
                 return _parsers;
@@ -125,7 +128,6 @@ namespace AElf.Automation.Common.Protobuf
         repeated Event Events = 3;
         repeated Type Types = 4;
     }*/
-
     [ProtoContract]
     public class Module
     {
