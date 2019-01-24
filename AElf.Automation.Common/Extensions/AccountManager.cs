@@ -100,7 +100,6 @@ namespace AElf.Automation.Common.Extensions
             return kp;
         }
 
-
         public static string GetDefaultDataDir()
         {
             try

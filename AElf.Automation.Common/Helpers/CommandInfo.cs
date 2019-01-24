@@ -36,7 +36,7 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo(ApiMethods method, params string[] parameters)
         {
-            Category = nameof(method);
+            Category = method.ToString();
             ParameterArray = parameters;
 
             InfoMsg = new List<string>();
@@ -86,6 +86,25 @@ namespace AElf.Automation.Common.Helpers
                 return false;
             }
             return true;
+        }
+
+        public bool CheckParameterValid(string[] paramterArray, int count)
+        {
+            var result = false;
+            if (paramterArray == null || paramterArray.Length == 0)
+                result = false;
+            else if (paramterArray.Length != count)
+                result = false;
+            else
+                result = true;
+
+            if (!result)
+            {
+                ErrorMsg.Add("Parameter error.");
+                _logger.WriteError($"{Method.ToString()} command parameter is invalid.");
+            }
+
+            return result;
         }
     }
     

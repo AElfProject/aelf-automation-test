@@ -88,7 +88,8 @@ namespace AElf.Automation.RpcPerformance
             var ci = new CommandInfo("connect_chain");
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-            //Get Abi Fee
+
+            //Get Token Abi
             ci.GetJsonInfo();
             TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
 
@@ -98,7 +99,8 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //New
-            NewAccounts(200);
+            NewAccounts(100);
+
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
 
@@ -129,7 +131,7 @@ namespace AElf.Automation.RpcPerformance
                     Logger.WriteWarn("Block height not changed round: {0}", i);
                 }
             }
-            Assert.IsTrue(false, "Node block exception, block height not increment anymore.");
+            Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
         }
 
         public void DeployContract()
