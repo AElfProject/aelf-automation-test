@@ -1,10 +1,10 @@
-﻿using AElf.Cryptography;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
 using AElf.Common;
+using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 
 namespace AElf.Automation.Common.Extensions

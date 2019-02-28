@@ -1,13 +1,7 @@
 ﻿using AElf.Types.CSharp;
-using AElf.Types.CSharp;
-using AElf.Kernel;
-using AElf.Common;
 using ProtoBuf;
-using Google.Protobuf;
 using System;
-using System.Globalization;
 using System.Collections.Generic;
-using Google.Protobuf.WellKnownTypes;
 using System.Linq;
 using HASH = AElf.Common.Hash;
 

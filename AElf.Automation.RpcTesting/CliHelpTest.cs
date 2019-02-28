@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.RpcTesting
 {

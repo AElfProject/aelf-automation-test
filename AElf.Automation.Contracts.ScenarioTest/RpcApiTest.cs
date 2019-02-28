@@ -1,13 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http.Headers;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
-using Microsoft.Win32.SafeHandles;
-using NServiceKit.Common.Extensions;
-using QuickGraph;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
