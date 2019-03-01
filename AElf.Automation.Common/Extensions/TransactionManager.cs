@@ -15,7 +15,6 @@ using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using Address = AElf.Automation.Common.Protobuf.Address;
 
-
 namespace AElf.Automation.Common.Extensions
 {
     public class TransactionManager
@@ -42,13 +41,13 @@ namespace AElf.Automation.Common.Extensions
             _cmdInfo = ci;
         }
 
-        public Transaction CreateTransaction(string elementAt, string genesisAddress, string incrementid,
+        public Transaction CreateTransaction(string fromAddress, string genesisAddress, string incrementid,
             string methodName, byte[] serializedParams, TransactionType contracttransaction)
         {
             try
             {
                 Transaction t = new Transaction();
-                t.From = Address.Parse(elementAt);
+                t.From = Address.Parse(fromAddress);
                 t.To = Address.Parse(genesisAddress);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
@@ -157,7 +156,7 @@ namespace AElf.Automation.Common.Extensions
         {
             requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
-            var resp = reqhttp.PostRequest("get_block_height", "{}", out var returnCode);
+            var resp = reqhttp.PostRequest("GetBlockHeight", "{}", out var returnCode);
             Logger.WriteInfo("Query block height status: {0}, return message: {1}", returnCode, resp);
             if (returnCode != "OK")
             {
@@ -169,14 +168,14 @@ namespace AElf.Automation.Common.Extensions
                 throw new Exception("Get Block height failed exception.");
             }
             var jObj = JObject.Parse(resp);
-            return jObj["result"]["result"]["block_height"].ToString();
+            return jObj["result"].ToString();
         }
 
         private static string GetBlkHash(string rpcAddress, string height, int requestTimes = 4)
         {
             requestTimes--;
             var reqhttp = new RpcRequestManager(rpcAddress);
-            var resp = reqhttp.PostRequest("get_block_info", "{\"block_height\":\""+ height +"\"}", out var returnCode);
+            var resp = reqhttp.PostRequest("GetBlockInfo", "{\"blockHeight\":\""+ height +"\"}", out var returnCode);
             if (returnCode != "OK")
             {
                 if (requestTimes >= 0)
@@ -187,7 +186,7 @@ namespace AElf.Automation.Common.Extensions
                 throw new Exception("Get Block hash failed exception.");
             }
             var jObj = JObject.Parse(resp);
-            return jObj["result"]["result"]["Blockhash"].ToString();
+            return jObj["result"]["BlockHash"].ToString();
         }
     }
 }

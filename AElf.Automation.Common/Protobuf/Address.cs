@@ -22,29 +22,7 @@ namespace AElf.Automation.Common.Protobuf
 
         public static Address Parse(string inputStr)
         {
-            string[] split = inputStr.Split('_');
-
-            if (split.Length != 2)
-                return null;
-
-            if (String.CompareOrdinal(split[0], "ELF") != 0)
-                return null;
-
-            var bytes = Base58CheckEncoding.Decode(split[1]);
-
-            if (bytes.Length != GlobalConfig.AddressHashLength)
-            {
-                throw new ArgumentOutOfRangeException(
-                    $"Address (sha256 of pubkey) bytes has to be {GlobalConfig.AddressHashLength}. The input is {bytes.Length} bytes long.");
-            }
-
-            if (bytes.Length != GlobalConfig.AddressHashLength)
-            {
-                throw new ArgumentOutOfRangeException(
-                    $"Address (sha256 of pubkey) bytes has to be {GlobalConfig.AddressHashLength}. The input is {bytes.Length} bytes long.");
-            }
-
-            return new Address(bytes);
+            return new Address(Base58CheckEncoding.Decode(inputStr));
         }
 
         public string GetFormatted()

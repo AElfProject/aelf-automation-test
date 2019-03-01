@@ -36,7 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("connect_chain");
+            var ci = new CommandInfo("ConnectChain");
             CH.RpcConnectChain(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
@@ -45,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
 
             //Load default Contract Abi
-            ci = new CommandInfo("load_contract_abi");
+            ci = new CommandInfo("LoadContractAbi");
             CH.RpcLoadContractAbi(ci);
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 

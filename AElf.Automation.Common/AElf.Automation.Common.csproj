@@ -19,10 +19,7 @@
     <ProjectReference Include="..\AElf\AElf.Common\AElf.Common.csproj" />
     <ProjectReference Include="..\AElf\AElf.Core\AElf.Core.csproj" />
     <ProjectReference Include="..\AElf\AElf.Cryptography\AElf.Cryptography.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="AElf.Types.CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>bin\Debug\netcoreapp2.2\AElf.Types.CSharp.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\AElf\AElf.Kernel.Types\AElf.Kernel.Types.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Types.CSharp\AElf.Types.CSharp.csproj" />
   </ItemGroup>
 </Project>

@@ -94,12 +94,6 @@ namespace AElf.Automation.Common.Extensions
             return keyPair.PublicKey.ToHex();
         }
 
-        private ECKeyPair GetKeyPair(string addr)
-        {
-            var kp = _keyStore.GetAccountKeyPair(addr);
-            return kp;
-        }
-
         public static string GetDefaultDataDir()
         {
             try
@@ -118,6 +112,12 @@ namespace AElf.Automation.Common.Extensions
             {
                 return null;
             }
+        }
+
+        private ECKeyPair GetKeyPair(string addr)
+        {
+            var kp = _keyStore.GetAccountKeyPair(addr);
+            return kp;
         }
 
         private string AskInvisible(string prefix)
@@ -142,7 +142,6 @@ namespace AElf.Automation.Common.Extensions
                 else
                 {
                     pwd.AppendChar(i.KeyChar);
-                    //Console.Write("*");
                 }
             }
 

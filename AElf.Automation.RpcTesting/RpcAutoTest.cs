@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetConnectChain()
         {
-            string method = "connect_chain";
+            string method = "ConnectChain";
             string parameter = "{}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -41,7 +41,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetBlockHeight()
         {
-            string method = "get_block_height";
+            string method = "GetBlockHeight";
             string parameter = "{}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -54,7 +54,7 @@ namespace AElf.Automation.RpcTesting
         [DataRow(24)]
         public void GetBlockInfo(int height)
         {
-            var method = "get_block_info";
+            var method = "GetBlockInfo";
             var parameter = "{\"block_height\":\"" + height.ToString() + "\"}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -66,7 +66,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetCommands()
         {
-            var method = "get_commands";
+            var method = "GetCommands";
             var parameter = "{}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -78,7 +78,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetContractAbi()
         {
-            string method0 = "connect_chain";
+            string method0 = "ConnectChain";
             string parameter0 = "{}";
             string response0 = _request.PostRequest(method0, parameter0, out var code0);
             Console.WriteLine(response0);
@@ -86,7 +86,7 @@ namespace AElf.Automation.RpcTesting
             var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result", "AElf.Contracts.Genesis");
             Assert.IsTrue(result, "Genesis token abi is not exist.");
 
-            var method = "get_contract_abi";
+            var method = "GetContractAbi";
             var parameter = "{\"address\":\"" + genesisAbi + "\"}";
             string response = _request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);
@@ -98,7 +98,7 @@ namespace AElf.Automation.RpcTesting
         [DataRow("90a624f2481cd48bf16b613dbb287a470dde579eb03031327a4a8dcb72a2be0c")]
         public void GetTxResult(string txId)
         {
-            var method = "get_tx_result";
+            var method = "GetTransactionResult";
             var parameter = "{\"txhash\":\"" + txId + "\"}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -114,7 +114,7 @@ namespace AElf.Automation.RpcTesting
             var ch = new CliHelper(rpcUrl);
             List<string> transactionIds = new List<string>();
 
-            string method = "get_block_height";
+            string method = "GetBlockHeight";
             var ci = new CommandInfo(method);
             ch.ExecuteCommand(ci);
             ci.GetJsonInfo();
@@ -124,7 +124,7 @@ namespace AElf.Automation.RpcTesting
 
             for (int i = 1; i <= currentHeight; i++)
             {
-                method = "get_block_info";
+                method = "GetBlockInfo";
                 ci = new CommandInfo(method);
                 ci.Parameter = $"{i.ToString()} true";
                 ch.ExecuteCommand(ci);
@@ -148,7 +148,7 @@ namespace AElf.Automation.RpcTesting
             {
                 foreach (var tx in transactionIds)
                 {
-                    method = "get_tx_result";
+                    method = "GetTransactionResult";
                     ci = new CommandInfo(method);
                     ci.Parameter = tx;
                     ch.ExecuteCommand(ci);
@@ -165,7 +165,7 @@ namespace AElf.Automation.RpcTesting
             int value = 0;
             for (int i = 1; i > 0; i++)
             {
-                string method = "get_block_height";
+                string method = "GetBlockHeight";
                 string parameter = "{}";
 
                 var request = new RpcRequestManager(rpcUrl);
@@ -179,7 +179,7 @@ namespace AElf.Automation.RpcTesting
 
                 value = Int32.Parse(countStr);
                 string count = (Int32.Parse(countStr) - 1).ToString();
-                method = "get_block_info";
+                method = "GetBlockInfo";
 
                 parameter = "{\"block_height\":\"" + count + "\",\"include_txs\":\"true\"}";
 
@@ -202,7 +202,7 @@ namespace AElf.Automation.RpcTesting
             List<object> blockInfos = new List<object>();
             string url = "http://192.168.199.221:8000/chain";
             var ch = new CliHelper(url);
-            var ci = new CommandInfo("get_block_info");
+            var ci = new CommandInfo("GetBlockInfo");
             for(int i= begin; i<=end; i++)
             {
                 dynamic blockInfo = new System.Dynamic.ExpandoObject();
@@ -236,7 +236,7 @@ namespace AElf.Automation.RpcTesting
             string url2 = "http://192.168.197.13:8000";
 
             //Get Block Height
-            string method = "get_block_height";
+            string method = "GetBlockHeight";
             string parameter = "{}";
 
             var request = new RpcRequestManager(url1);
@@ -248,7 +248,7 @@ namespace AElf.Automation.RpcTesting
             int height = Int32.Parse(result["result"]["result"]["block_height"].ToString());
             for(int i=0; i<height; i++)
             {
-                method = "get_block_info";
+                method = "GetBlockInfo";
                 parameter = "{\"block_height\":\"" + i + "\"}";
                 var request1= new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
@@ -268,7 +268,7 @@ namespace AElf.Automation.RpcTesting
             string url2 = "http://192.168.197.29:8000";
 
             //Get Block Height
-            string method = "get_block_height";
+            string method = "GetBlockHeight";
             string parameter = "{}";
 
             var request = new RpcRequestManager(url1);
@@ -280,7 +280,7 @@ namespace AElf.Automation.RpcTesting
             int height = Int32.Parse(result["result"]["result"]["block_height"].ToString());
             for (int i = 0; i < height; i++)
             {
-                method = "get_block_info";
+                method = "GetBlockInfo";
                 parameter = "{\"block_height\":\"" + i + "\"}";
 
                 var request1 = new RpcRequestManager(url1);

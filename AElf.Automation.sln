@@ -53,8 +53,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Kernel.Types", "AElf\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.CrossChain.Types", "AElf\AElf.CrossChain.Types\AElf.CrossChain.Types.csproj", "{49B30B42-D116-4223-89C3-BA5F0EEDB029}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Core", "AElf\AElf.Core\AElf.Core.csproj", "{623803EA-726F-43F9-937F-8A95A7061A21}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,10 +115,6 @@ Global
 		{49B30B42-D116-4223-89C3-BA5F0EEDB029}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49B30B42-D116-4223-89C3-BA5F0EEDB029}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49B30B42-D116-4223-89C3-BA5F0EEDB029}.Release|Any CPU.Build.0 = Release|Any CPU
-		{623803EA-726F-43F9-937F-8A95A7061A21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{623803EA-726F-43F9-937F-8A95A7061A21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{623803EA-726F-43F9-937F-8A95A7061A21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{623803EA-726F-43F9-937F-8A95A7061A21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,7 +128,6 @@ Global
 		{1202BE10-39BD-4204-AC3E-54E56FDF4CF4} = {5BDC72C1-6F24-4E07-B8B0-33F527650291}
 		{65501E76-393E-436E-9A1E-B6618382923B} = {5BDC72C1-6F24-4E07-B8B0-33F527650291}
 		{49B30B42-D116-4223-89C3-BA5F0EEDB029} = {5BDC72C1-6F24-4E07-B8B0-33F527650291}
-		{623803EA-726F-43F9-937F-8A95A7061A21} = {5BDC72C1-6F24-4E07-B8B0-33F527650291}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

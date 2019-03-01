@@ -61,7 +61,7 @@ namespace AElf.Automation.Common.Extensions
 
         public string PostRequest(List<string> rpcBody, out string returnCode)
         {
-            RpcMethod = "broadcast_txs";
+            RpcMethod = "BroadcastTransactions";
             foreach(var rpc in rpcBody)
             {
                 RpcParameter += "," + rpc;

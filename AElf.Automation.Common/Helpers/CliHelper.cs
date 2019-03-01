@@ -56,43 +56,43 @@ namespace AElf.Automation.Common.Helpers
                 case "account unlock":
                     ci = UnlockAccount(ci);
                     break;
-                case "connect_chain":
+                case "ConnectChain":
                     RpcConnectChain(ci);
                     break;
-                case "load_contract_abi":
+                case "LoadContractAbi":
                     RpcLoadContractAbi(ci);
                     break;
-                case "deploy_contract":
+                case "DeployContract":
                     RpcDeployContract(ci);
                     break;
-                case "broadcast_tx":
+                case "BroadcastTransaction":
                     RpcBroadcastTx(ci);
                     break;
-                case "broadcast_txs":
+                case "BroadcastTransactions":
                     RpcBroadcastTxs(ci);
                     break;
-                case "get_commands":
+                case "GetCommands":
                     RpcGetCommands(ci);
                     break;
-                case "get_contract_abi":
+                case "GetContractAbi":
                     RpcGetContractAbi(ci);
                     break;
-                case "get_increment":
+                case "GetIncrement":
                     RpcGetIncrement(ci);
                     break;
-                case "get_tx_result":
+                case "GetTransactionResult":
                     RpcGetTxResult(ci);
                     break;
-                case "get_block_height":
+                case "GetBlockHeight":
                     RpcGetBlockHeight(ci);
                     break;
-                case "get_block_info":
+                case "GetBlockInfo":
                     RpcGetBlockInfo(ci);
                     break;
                 case "get_merkle_path":
                     RpcGetMerklePath(ci);
                     break;
-                case "set_block_volume":
+                case "SetBlockVolume":
                     RpcSetBlockVolume(ci);
                     break;
                 default:
@@ -131,7 +131,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcConnectChain(CommandInfo ci)
         {
-            var req = RpcRequestManager.CreateRequest(new JObject(), "connect_chain", 1);
+            var req = RpcRequestManager.CreateRequest(new JObject(), "ConnectChain", 1);
             var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -146,19 +146,19 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            if (j["result"]["AElf.Contracts.Genesis"] != null)
+            if (j["AElf.Contracts.Genesis"] != null)
             {
-                _genesisAddress = j["result"]["AElf.Contracts.Genesis"].ToString();
+                _genesisAddress = j["AElf.Contracts.Genesis"].ToString();
             }
 
-            if (j["result"]["chain_id"] != null)
+            if (j["ChainId"] != null)
             {
-                _chainId = j["result"]["chain_id"].ToString();
+                _chainId = j["ChainId"].ToString();
                 _accountManager = new AccountManager(_keyStore, _chainId);
                 _transactionManager = new TransactionManager(_keyStore, _chainId);
             }
 
-            var message = JObject.FromObject(j["result"]).ToString();
+            var message = j.ToString();
             ci.InfoMsg.Add(message);
             ci.Result = true;
         }
@@ -169,7 +169,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (_genesisAddress == null)
                 {
-                    ci.ErrorMsg.Add("Please connect_chain first.");
+                    ci.ErrorMsg.Add("Please ConnectChain first.");
                     return;
                 }
                 ci.Parameter = _genesisAddress;
@@ -178,7 +178,7 @@ namespace AElf.Automation.Common.Helpers
             var req = RpcRequestManager.CreateRequest(new JObject
             {
                 ["address"] = ci.Parameter
-            }, "get_contract_abi", 1);
+            }, "GetContractAbi", 1);
             if (!_loadedModules.TryGetValue(ci.Parameter, out var m))
             {
                 string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
@@ -188,7 +188,7 @@ namespace AElf.Automation.Common.Helpers
                 JObject jObj = JObject.Parse(resp);
                 var res = JObject.FromObject(jObj["result"]);
                         
-                JToken ss = res["abi"];
+                JToken ss = res["Abi"];
                 byte[] aa = ByteArrayHelpers.FromHexString(ss.ToString());
                         
                 MemoryStream ms = new MemoryStream(aa);
@@ -235,7 +235,7 @@ namespace AElf.Automation.Common.Helpers
             if (tx == null)
                 return;
             var rawtx = _transactionManager.ConvertTransactionRawTx(tx);
-            var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
+            var req = RpcRequestManager.CreateRequest(rawtx, "BroadcastTransaction", 1);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -335,7 +335,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 ["rawtx"] = ci.Parameter
             };
-            var req = RpcRequestManager.CreateRequest(rawtx, "broadcast_tx", 1);
+            var req = RpcRequestManager.CreateRequest(rawtx, "BroadcastTransaction", 1);
             
             
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
@@ -473,7 +473,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (_genesisAddress == null)
                 {
-                    ci.ErrorMsg.Add("Please connect_chain first.");
+                    ci.ErrorMsg.Add("Please ConnectChain first.");
                     return;
                 }
                 ci.Parameter = _genesisAddress;

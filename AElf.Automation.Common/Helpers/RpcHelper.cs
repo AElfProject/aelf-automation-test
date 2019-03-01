@@ -18,19 +18,19 @@ namespace AElf.Automation.Common.Helpers
 
         public JObject QueryCommands()
         {
-            var api = "get_commands";
+            var api = "GetCommands";
             return _request.PostRequest(api);
         }
 
         public JObject ConnectChain()
         {
-            var api = "connect_chain";
+            var api = "ConnectChain";
             return _request.PostRequest(api);
         }
 
         public JObject QueryContractAbi(string address)
         {
-            var api = "get_contract_abi";
+            var api = "GetContractAbi";
             var requestData = new JObject
             {
                 ["address"] = address

@@ -41,7 +41,7 @@ namespace AElf.Automation.RpcPerformance
                 return 0;
             }
 
-            return CommandLineApplication.Execute<Program>(args);
+            return CommandLineApplication.ExecuteAsync<Program>(args).Result;
         }
 
         private void OnExecute()
@@ -49,7 +49,7 @@ namespace AElf.Automation.RpcPerformance
             if (RpcUrl == null)
             {
                 Console.WriteLine("Parameter not correct, please refer below help message.");
-                CommandLineApplication.Execute<Program>(new string[1] {"--help"});
+                CommandLineApplication.Execute<Program>("--help");
                 return;
             }
             RpcAPI performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);

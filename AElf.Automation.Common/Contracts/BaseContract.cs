@@ -65,7 +65,7 @@ namespace AElf.Automation.Common.Contracts
 
         public bool GetTransactionResult(string txId, out CommandInfo ci)
         {
-            ci = new CommandInfo("get_tx_result");
+            ci = new CommandInfo("GetTransactionResult");
             ci.Parameter = txId;
             Ch.ExecuteCommand(ci);
 
@@ -89,7 +89,7 @@ namespace AElf.Automation.Common.Contracts
             int checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo("get_tx_result");
+                ci = new CommandInfo("GetTransactionResult");
                 ci.Parameter = txId;
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
@@ -152,7 +152,7 @@ namespace AElf.Automation.Common.Contracts
                 bool result = TxResultList.TryDequeue(out var txId);
                 if (!result)
                     break;
-                var ci = new CommandInfo("get_tx_result");
+                var ci = new CommandInfo("GetTransactionResult");
                 ci.Parameter = txId;
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
@@ -227,7 +227,7 @@ namespace AElf.Automation.Common.Contracts
 
         private void DeployContract()
         {
-            var ci = new CommandInfo("deploy_contract");
+            var ci = new CommandInfo("DeployContract");
             ci.Parameter = $"{FileName} 0 {Account}";
             Ch.RpcDeployContract(ci);
             if (ci.Result)
@@ -245,7 +245,7 @@ namespace AElf.Automation.Common.Contracts
 
         private void LoadContractAbi()
         {
-            var ci = new CommandInfo("load_contract_abi");
+            var ci = new CommandInfo("LoadContractAbi");
             ci.Parameter = ContractAbi;
             Ch.RpcLoadContractAbi(ci);
 
@@ -282,7 +282,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string ExecuteContractMethod(string rawTx)
         {
-            var ci = new CommandInfo("broadcast_tx");
+            var ci = new CommandInfo("BroadcastTransaction");
             ci.Parameter = rawTx;
             Ch.RpcBroadcastTx(ci);
             if (ci.Result)

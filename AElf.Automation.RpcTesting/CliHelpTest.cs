@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestRpcConnect()
         {
-            _ci = new CommandInfo("connect_chain");
+            _ci = new CommandInfo("ConnectChain");
             _ch.RpcConnectChain(_ci);
             Assert.IsTrue(_ci.Result);
         }
@@ -34,7 +34,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestRpcLoadContractAbi()
         {
-            _ci = new CommandInfo("load_contract_abi");
+            _ci = new CommandInfo("LoadContractAbi");
             _ch.RpcLoadContractAbi(_ci);
             Assert.IsTrue(_ci.Result);
         }
@@ -44,7 +44,7 @@ namespace AElf.Automation.RpcTesting
         [DataRow("1", "2000")]
         public void TestNodeWithoutCli(string minValue, string maxValue)
         {
-            _ci = new CommandInfo("set_block_volume");
+            _ci = new CommandInfo("SetBlockVolume");
             _ci.Parameter = String.Format("{0} {1}", minValue, maxValue);
             _ch.ExecuteCommand(_ci);
             Assert.IsTrue(_ci.Result);
