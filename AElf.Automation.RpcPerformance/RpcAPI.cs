@@ -5,11 +5,17 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Common;
+using AElf.Kernel;
+using AElf.Types.CSharp;
+using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ProtoBuf;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -149,7 +155,7 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsTrue(ci.Result);
 
                 ci.GetJsonInfo();
-                string genesisContract = ci.JsonInfo["txId"].ToString();
+                string genesisContract = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, genesisContract);
                 info.TxId = genesisContract;
                 info.Result = false;
@@ -173,15 +179,22 @@ namespace AElf.Automation.RpcPerformance
                         Assert.IsTrue(ci.Result);
                         ci.GetJsonInfo();
                         ci.JsonInfo = ci.JsonInfo;
-                        string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                        string deployResult = ci.JsonInfo["result"]["Status"].ToString();
 
                         if (deployResult == "Mined")
                         {
                             count++;
                             item.Result = true;
-                            string abiPath = ci.JsonInfo["result"]["result"]["return"].ToString();
+                            string abiPath = ci.JsonInfo["result"]["return"].ToString();
                             ContractList.Add(new Contract(item.Id, abiPath));
                             AccountList[item.Id].Increment = 1;
+                        }else if (deployResult == "Failed")
+                        {
+                            //var transactionResultArray = ci.JsonInfo["result"].ToString().GetBytes();
+                            var transactionResultArray = Encoding.Unicode.GetBytes(ci.JsonInfo["result"].ToString());
+                            MemoryStream ms = new MemoryStream(transactionResultArray);
+                            var transactionResult = Serializer.Deserialize<TransactionResult>(ms);
+                            ms.Dispose();
                         }
 
                         Thread.Sleep(10);
@@ -657,6 +670,23 @@ namespace AElf.Automation.RpcPerformance
             {
                 Logger.WriteInfo($"Token fee account: {message}");
             }
+        }
+
+        private string GetContractAddress(string retValue)
+        {
+            try
+            {
+                var retArray = Encoding.Unicode.GetBytes(retValue);
+                using (MemoryStream ms = new MemoryStream(retArray)) {
+                    var result = Serializer.Deserialize<ByteString> (ms);
+                    var contractAddress = result.DeserializeToPbMessage<Address>();
+                }
+            } catch (Exception) {
+                return null;
+            }
+
+            return string.Empty;
+
         }
 
         #endregion

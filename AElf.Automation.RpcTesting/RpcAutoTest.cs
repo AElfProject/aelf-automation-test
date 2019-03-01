@@ -99,7 +99,7 @@ namespace AElf.Automation.RpcTesting
         public void GetTxResult(string txId)
         {
             var method = "GetTransactionResult";
-            var parameter = "{\"txhash\":\"" + txId + "\"}";
+            var parameter = "{\"transactionId\":\"" + txId + "\"}";
 
             string response = _request.PostRequest(method, parameter, out var code);
             Console.WriteLine(response);

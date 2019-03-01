@@ -223,7 +223,7 @@ namespace AElf.Automation.Common.Helpers
                 ci.ErrorMsg.Add("Method not Found.");
                 return;
             }
-            byte[] serializedParams = meth.SerializeParams(new List<string> {"1", hex});
+            byte[] serializedParams = meth.SerializeParams(new List<string> {"2", hex});
             _transactionManager.SetCmdInfo(ci);
             var tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
@@ -253,13 +253,8 @@ namespace AElf.Automation.Common.Helpers
                 ci.Result = false;
                 return;
             }
-            string hash = j["hash"] == null ? j["error"]?.ToString() :j["hash"].ToString();
-            string res = j["hash"] == null ? "error" : "txId";
-            var jobj = new JObject
-            {
-                [res] = hash
-            };
-            ci.InfoMsg.Add(jobj.ToString());
+
+            ci.InfoMsg.Add(j.ToString());
             
             ci.Result = true;
         }
@@ -333,7 +328,7 @@ namespace AElf.Automation.Common.Helpers
         {
             var rawtx = new JObject
             {
-                ["rawtx"] = ci.Parameter
+                ["rawTransaction"] = ci.Parameter
             };
             var req = RpcRequestManager.CreateRequest(rawtx, "BroadcastTransaction", 1);
             
@@ -393,7 +388,7 @@ namespace AElf.Automation.Common.Helpers
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             
-            return rawtx["rawtx"].ToString();
+            return rawtx["rawTransactioin"].ToString();
         }
 
         public string RpcGenerateTransactionRawTx(string from, string to, string methodName, params string[] paramArray)
@@ -432,14 +427,14 @@ namespace AElf.Automation.Common.Helpers
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
 
-            return rawtx["rawtx"].ToString();
+            return rawtx["rawTransaction"].ToString();
         }
 
         public void RpcBroadcastTxs(CommandInfo ci)
         {
             var paramObject = new JObject
             {
-                ["rawtxs"] = ci.Parameter
+                ["rawTransactions"] = ci.Parameter
             };
             var req = RpcRequestManager.CreateRequest(paramObject, ci.Category, 0);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
@@ -533,7 +528,7 @@ namespace AElf.Automation.Common.Helpers
             
             var req = RpcRequestManager.CreateRequest(new JObject
             {
-                ["txhash"] = ci.Parameter
+                ["transactionId"] = ci.Parameter
             }, ci.Category, 0);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
@@ -561,8 +556,8 @@ namespace AElf.Automation.Common.Helpers
             
             var req = RpcRequestManager.CreateRequest(new JObject
             {
-                ["block_height"] = ci.Parameter.Split(" ")?[0],
-                ["include_txs"] = ci.Parameter.Split(" ")?[1]
+                ["blockHeight"] = ci.Parameter.Split(" ")?[0],
+                ["includeTransactions"] = ci.Parameter.Split(" ")?[1]
             }, ci.Category, 0);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
@@ -655,7 +650,7 @@ namespace AElf.Automation.Common.Helpers
 
             byte[] b = ms.ToArray();
             string payload = b.ToHex();
-            var reqParams = new JObject { ["rawtx"] = payload };
+            var reqParams = new JObject { ["rawTransaction"] = payload };
             var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
 
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
@@ -672,7 +667,7 @@ namespace AElf.Automation.Common.Helpers
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {
-            var req = RpcRequestManager.CreateRequest(new JObject(), "get_peers", 1);
+            var req = RpcRequestManager.CreateRequest(new JObject(), "GetPeers", 1);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -687,7 +682,7 @@ namespace AElf.Automation.Common.Helpers
             var req = RpcRequestManager.CreateRequest(new JObject
             {
                 ["address"] = ci.Parameter
-            }, "add_peer", 1);
+            }, "AddPeer", 1);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -702,7 +697,7 @@ namespace AElf.Automation.Common.Helpers
             var req = RpcRequestManager.CreateRequest(new JObject
             {
                 ["address"] = ci.Parameter
-            }, "remove_peer", 1);
+            }, "RemovePeer", 1);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))

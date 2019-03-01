@@ -6,6 +6,7 @@
     <RootNamespace>AElf.Automation.RpcPerformance</RootNamespace>
     <ApplicationIcon />
     <StartupObject />
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.0" />

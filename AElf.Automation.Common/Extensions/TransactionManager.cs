@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using ProtoBuf;
 using Newtonsoft.Json.Linq;
 using AElf.Cryptography;
 using AElf.Common;
@@ -11,6 +10,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Types.CSharp;
 using Google.Protobuf;
+using ProtoBuf;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
 using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 using Address = AElf.Automation.Common.Protobuf.Address;
@@ -70,8 +70,6 @@ namespace AElf.Automation.Common.Extensions
 
             MemoryStream ms = new MemoryStream();
             Serializer.Serialize(ms, tx);
-
-            // Update the signature
             tx.Sigs = new List<byte[]> { Sign(addr, ms.ToArray()) };
             return tx;
         }
@@ -99,7 +97,7 @@ namespace AElf.Automation.Common.Extensions
 
             byte[] b = ms.ToArray();
             string payload = b.ToHex();
-            var reqParams = new JObject { ["rawtx"] = payload };
+            var reqParams = new JObject { ["rawTransaction"] = payload };
 
             return reqParams;
         }

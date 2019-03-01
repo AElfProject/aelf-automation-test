@@ -19,6 +19,7 @@
     <ProjectReference Include="..\AElf\AElf.Common\AElf.Common.csproj" />
     <ProjectReference Include="..\AElf\AElf.Core\AElf.Core.csproj" />
     <ProjectReference Include="..\AElf\AElf.Cryptography\AElf.Cryptography.csproj" />
+    <ProjectReference Include="..\AElf\AElf.Kernel.Core\AElf.Kernel.Core.csproj" />
     <ProjectReference Include="..\AElf\AElf.Kernel.Types\AElf.Kernel.Types.csproj" />
     <ProjectReference Include="..\AElf\AElf.Types.CSharp\AElf.Types.CSharp.csproj" />
   </ItemGroup>

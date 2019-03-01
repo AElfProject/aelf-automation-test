@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -27,7 +28,7 @@ namespace AElf.Automation.RpcPerformance
 
         static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             if (args.Length == 3)
             {
@@ -41,7 +42,7 @@ namespace AElf.Automation.RpcPerformance
                 return 0;
             }
 
-            return CommandLineApplication.ExecuteAsync<Program>(args).Result;
+            return await CommandLineApplication.ExecuteAsync<Program>(args);
         }
 
         private void OnExecute()
@@ -73,6 +74,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 Logger.WriteError("Message: " + e.Message);
                 Logger.WriteError("Source: " + e.Source);
+                throw;
             }
             finally
             {

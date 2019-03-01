@@ -27,15 +27,13 @@ namespace AElf.Automation.Common.Protobuf
 
         public string GetFormatted()
         {
-            if (Value.Length != GlobalConfig.AddressHashLength)
+            if (Value.Length != TypeConsts.AddressHashLength)
             {
                 throw new ArgumentOutOfRangeException(
                     $"Serialized value does not represent a valid address. The input is {Value.Length} bytes long.");
             }
 
-            string pubKeyHash = Base58CheckEncoding.Encode(Value);
-
-            return GlobalConfig.AElfAddressPrefix + '_' + pubKeyHash;
+            return Base58CheckEncoding.Encode(Value);
         }
     }
     
