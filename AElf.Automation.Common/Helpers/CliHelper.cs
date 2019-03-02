@@ -388,7 +388,7 @@ namespace AElf.Automation.Common.Helpers
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             
-            return rawtx["rawTransactioin"].ToString();
+            return rawtx["rawTransaction"].ToString();
         }
 
         public string RpcGenerateTransactionRawTx(string from, string to, string methodName, params string[] paramArray)
