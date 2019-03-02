@@ -119,7 +119,7 @@ namespace AElf.Automation.RpcTesting
             ch.ExecuteCommand(ci);
             ci.GetJsonInfo();
             var result = ci.JsonInfo;
-            string countStr = result["result"]["result"]["block_height"].ToString();
+            string countStr = result["result"].ToString();
             int currentHeight = Int32.Parse(countStr);
 
             for (int i = 1; i <= currentHeight; i++)
@@ -130,14 +130,14 @@ namespace AElf.Automation.RpcTesting
                 ch.ExecuteCommand(ci);
                 ci.GetJsonInfo();
                 result = ci.JsonInfo;
-                string txcount = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
-                string[] transactions = result["result"]["result"]["Body"]["Transactions"].ToString().Replace("[\n", "").Replace("\n]", "").Replace("\"", "").Split(",");
+                string txcount = result["result"]["Body"]["TransactionsCount"].ToString();
+                string[] transactions = result["result"]["Body"]["Transactions"].ToString().Replace("[\n", "").Replace("\n]", "").Replace("\"", "").Split(",");
                 foreach (var tx in transactions)
                 {
                     if(tx.Trim() != "")
                         transactionIds.Add(tx.Trim());
                 }
-                string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
+                string txPoolSize = result["result"]["CurrentTransactionPoolSize"].ToString();
                 _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(50);
             }
@@ -173,7 +173,7 @@ namespace AElf.Automation.RpcTesting
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
                 var result = JObject.Parse(response);
-                string countStr = result["result"]["result"]["block_height"].ToString();
+                string countStr = result["result"].ToString();
                 if (value == Int32.Parse(countStr))
                     continue;
 
@@ -188,8 +188,8 @@ namespace AElf.Automation.RpcTesting
                 Console.WriteLine(response);
                 Assert.AreEqual("OK", code);
                 result = JObject.Parse(response);
-                string txcount = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
-                string txPoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
+                string txcount = result["result"]["Body"]["TransactionsCount"].ToString();
+                string txPoolSize = result["result"]["CurrentTransactionPoolSize"].ToString();
                 System.Diagnostics.Debug.WriteLine("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", count, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(1000);
             }
@@ -213,8 +213,8 @@ namespace AElf.Automation.RpcTesting
                 ci.GetJsonInfo();
 
                 var result = ci.JsonInfo;
-                string count = result["result"]["result"]["Body"]["TransactionsCount"].ToString();
-                string txpoolSize = result["result"]["result"]["CurrentTransactionPoolSize"].ToString();
+                string count = result["result"]["Body"]["TransactionsCount"].ToString();
+                string txpoolSize = result["result"]["CurrentTransactionPoolSize"].ToString();
                 blockInfo.Height = height;
                 blockInfo.TxCount = count;
                 blockInfo.PoolSize = txpoolSize;
@@ -244,8 +244,8 @@ namespace AElf.Automation.RpcTesting
             var result = JObject.Parse(response);
 
             Assert.AreEqual("OK", code);
-            Console.WriteLine(result["result"]["result"]);
-            int height = Int32.Parse(result["result"]["result"]["block_height"].ToString());
+            Console.WriteLine(result["result"]);
+            int height = Int32.Parse(result["result"].ToString());
             for(int i=0; i<height; i++)
             {
                 method = "GetBlockInfo";
@@ -276,8 +276,8 @@ namespace AElf.Automation.RpcTesting
             var result = JObject.Parse(response);
 
             Assert.AreEqual("OK", code);
-            Console.WriteLine(result["result"]["result"]);
-            int height = Int32.Parse(result["result"]["result"]["block_height"].ToString());
+            Console.WriteLine(result["result"]);
+            int height = Int32.Parse(result["result"].ToString());
             for (int i = 0; i < height; i++)
             {
                 method = "GetBlockInfo";

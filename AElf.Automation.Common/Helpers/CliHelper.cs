@@ -313,8 +313,8 @@ namespace AElf.Automation.Common.Helpers
             
             JObject rObj = JObject.Parse(resp);
             var rj = rObj["result"];
-            string hash = rj["hash"] == null ? rj["error"].ToString() :rj["hash"].ToString();
-            string res =rj["hash"] == null ? "error" : "txId";
+            string hash = rj["TransactionId"] == null ? rj["error"].ToString() :rj["TransactionId"].ToString();
+            string res =rj["TransactionId"] == null ? "error" : "TransactionId";
             var jobj = new JObject
             {
                 [res] = hash
@@ -340,8 +340,8 @@ namespace AElf.Automation.Common.Helpers
             
             var rObj = JObject.Parse(resp);
             var rj = rObj["result"];
-            string hash = rj["hash"] == null ? rj["error"].ToString() :rj["hash"].ToString();
-            string res =rj["hash"] == null ? "error" : "txId";
+            string hash = rj["TransactionId"] == null ? rj["error"].ToString() :rj["TransactionId"].ToString();
+            string res =rj["TransactionId"] == null ? "error" : "TransactionId";
             var jobj = new JObject
             {
                 [res] = hash
@@ -638,7 +638,7 @@ namespace AElf.Automation.Common.Helpers
             if (paramArray != null && paramArray.Length != 0)
                 tr.Params = method.SerializeParams(paramArray);
 
-            var resp = CallTransaction(tr, "call");
+            var resp = CallTransaction(tr, "Call");
 
             return resp;
         }

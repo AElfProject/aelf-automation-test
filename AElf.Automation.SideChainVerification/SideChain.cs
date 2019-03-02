@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainVerification
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Query current height got exception.");
             ci.GetJsonInfo();
-            return Int32.Parse(ci.JsonInfo["result"]["result"]["block_height"].ToString());
+            return Int32.Parse(ci.JsonInfo["result"].ToString());
         }
 
         public List<IndexItem> GetIndexBlockInfo(int height)
@@ -108,7 +108,7 @@ namespace AElf.Automation.SideChainVerification
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Query block information got exception.");
             ci.GetJsonInfo();
-            var indexSideInfo = ci.JsonInfo["result"]["result"]["Body"]["IndexedSideChainBlcokInfo"];
+            var indexSideInfo = ci.JsonInfo["result"]["Body"]["IndexedSideChainBlcokInfo"];
             if (indexSideInfo.Children().Count() != 0)
             {
                 //continue with sidechain verification
@@ -134,7 +134,7 @@ namespace AElf.Automation.SideChainVerification
             _ch.RpcGetBlockInfo(ci);
             Assert.IsTrue(ci.Result, "Query block information got exception.");
             ci.GetJsonInfo();
-            var transactions = ci.JsonInfo["result"]["result"]["Body"]["Transactions"].ToArray();
+            var transactions = ci.JsonInfo["result"]["Body"]["Transactions"].ToArray();
             foreach (var item in transactions)
             {
                 trList.Add(item.ToString());
@@ -291,7 +291,7 @@ namespace AElf.Automation.SideChainVerification
                     if (ci.Result)
                     {
                         ci.GetJsonInfo();
-                        string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                        string deployResult = ci.JsonInfo["result"]["Status"].ToString();
 
                         if (deployResult == "Pending")
                         {
@@ -301,7 +301,7 @@ namespace AElf.Automation.SideChainVerification
                         }
                         else if (deployResult == "Mined")
                         {
-                            string returnValue = ci.JsonInfo["result"]["result"]["return"].ToString();
+                            string returnValue = ci.JsonInfo["result"]["return"].ToString();
                             if (returnValue != "01")
                             {
                                 Logger.WriteInfo(ci.InfoMsg[0]);

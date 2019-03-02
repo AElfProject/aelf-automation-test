@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Common;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -73,7 +74,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 ci.GetJsonInfo();
                 ci.JsonInfo = ci.JsonInfo;
-                string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                string txResult = ci.JsonInfo["result"]["Status"].ToString();
                 _logger.WriteInfo($"Transaction: {txId}, Status: {txResult}");
 
                 return txResult == "Mined";
@@ -96,7 +97,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
-                    string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                    string txResult = ci.JsonInfo["result"]["Status"].ToString();
                     if (txResult == "Mined")
                     {
                         _logger.WriteInfo($"Transaction status: {txResult}");
@@ -159,7 +160,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     ci.GetJsonInfo();
                     ci.JsonInfo = ci.JsonInfo;
-                    string txResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                    string txResult = ci.JsonInfo["result"]["Status"].ToString();
 
                     if (txResult == "Mined")
                         continue;
@@ -210,10 +211,10 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public string ConvertViewResult(JObject info, bool hexValue = false)
         {
-            if (info["result"]["return"] == null)
+            if (info["result"] == null)
                 return string.Empty;
 
-            return DataHelper.ConvertHexInfo(info["result"]["return"].ToString(), hexValue);
+            return DataHelper.ConvertHexInfo(info["result"].ToString(), hexValue);
         }
 
         public void UnlockAccount(string account, string password = "123")
@@ -233,7 +234,7 @@ namespace AElf.Automation.Common.Contracts
             if (ci.Result)
             {
                 ci.GetJsonInfo();
-                var txId = ci.JsonInfo["txId"].ToString();
+                var txId = ci.JsonInfo["TransactionId"].ToString();
                 _logger.WriteInfo($"Transaction: DeployContract, TxId: {txId}");
 
                 bool result = GetContractAbi(txId, out var contractAbi);
@@ -266,11 +267,13 @@ namespace AElf.Automation.Common.Contracts
             {
                 ci.GetJsonInfo();
                 ci.JsonInfo = ci.JsonInfo;
-                string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                string deployResult = ci.JsonInfo["result"]["Status"].ToString();
                 _logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
                 if (deployResult == "Mined")
                 {
-                    contractAbi = ci.JsonInfo["result"]["result"]["return"].ToString();
+                    var retValue = ci.JsonInfo["result"]["RetVal"].ToString();
+                    var byteArray = Convert.FromBase64String(retValue);
+                    contractAbi = Address.FromBytes(byteArray).GetFormatted();
                     ContractAbi = contractAbi;
                     _logger.WriteInfo($"Get contract ABI: TxId: {txId}, ABI address: {contractAbi}");
                     return true;
@@ -288,7 +291,7 @@ namespace AElf.Automation.Common.Contracts
             if (ci.Result)
             {
                 ci.GetJsonInfo();
-                var txId = ci.JsonInfo["txId"].ToString();
+                var txId = ci.JsonInfo["TransactionId"].ToString();
                 return txId;
             }
 

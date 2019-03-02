@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcTesting
             if (ci.Result)
             {
                 ci.GetJsonInfo();
-                return Int32.Parse(ci.JsonInfo["result"]["result"]["block_height"].ToString());
+                return Int32.Parse(ci.JsonInfo["result"].ToString());
             }
             else
             {
@@ -82,7 +82,7 @@ namespace AElf.Automation.RpcTesting
         public BlockInfo(int height, JObject jsonInfo)
         {
             Height = height;
-            var resultInfo = jsonInfo["result"]["result"];
+            var resultInfo = jsonInfo["result"];
             BlockHash = resultInfo["Blockhash"].ToString();
             PreviousBlockHash = resultInfo["Header"]["PreviousBlockHash"].ToString();
             MerkleTreeRootOfTransactions = resultInfo["Header"]["MerkleTreeRootOfTransactions"].ToString();

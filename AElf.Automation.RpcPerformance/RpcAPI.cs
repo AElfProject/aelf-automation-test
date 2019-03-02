@@ -124,7 +124,7 @@ namespace AElf.Automation.RpcPerformance
                 CH.ExecuteCommand(ci);
                 ci.GetJsonInfo();
                 var result = ci.JsonInfo;
-                string countStr = result["result"]["result"]["block_height"].ToString();
+                string countStr = result["result"].ToString();
                 int currentHeight = Int32.Parse(countStr);
 
                 if (BlockHeight != currentHeight)
@@ -185,12 +185,13 @@ namespace AElf.Automation.RpcPerformance
                         {
                             count++;
                             item.Result = true;
-                            string abiPath = ci.JsonInfo["result"]["return"].ToString();
+                            string retValue= ci.JsonInfo["result"]["RetVal"].ToString();
+                            var byteArray = Convert.FromBase64String(retValue);
+                            string abiPath = Address.FromBytes(byteArray).GetFormatted();
                             ContractList.Add(new Contract(item.Id, abiPath));
                             AccountList[item.Id].Increment = 1;
                         }else if (deployResult == "Failed")
                         {
-                            //var transactionResultArray = ci.JsonInfo["result"].ToString().GetBytes();
                             var transactionResultArray = Encoding.Unicode.GetBytes(ci.JsonInfo["result"].ToString());
                             MemoryStream ms = new MemoryStream(transactionResultArray);
                             var transactionResult = Serializer.Deserialize<TransactionResult>(ms);
@@ -223,15 +224,15 @@ namespace AElf.Automation.RpcPerformance
                 //Execute contract method
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"InitBalance\",\"incr\":\"" +
-                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
+                                       "\",\"method\":\"Initialize\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"params\":[\"ELF" + i + "\", \"elf token " + i + "\", \"100000000\", \"0\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 ci.GetJsonInfo();
 
-                string genesisContract = ci.JsonInfo["txId"].ToString();
+                string genesisContract = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, genesisContract);
                 TxIdList.Add(genesisContract);
             }
@@ -319,9 +320,8 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
-                                       "\",\"1\"]}";
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -329,7 +329,7 @@ namespace AElf.Automation.RpcPerformance
                 if (ci.Result)
                 {
                     ci.GetJsonInfo();
-                    txIdList.Add(ci.JsonInfo["txId"].ToString());
+                    txIdList.Add(ci.JsonInfo["TransactionId"].ToString());
                     passCount++;
                 }
 
@@ -337,8 +337,8 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
@@ -347,7 +347,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Assert.IsTrue(ci.Result);
                     ci.GetJsonInfo();
-                    txIdList.Add(ci.JsonInfo["txId"].ToString());
+                    txIdList.Add(ci.JsonInfo["TransactionId"].ToString());
                     passCount++;
                 }
 
@@ -380,9 +380,8 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
-                                       "\",\"1\"]}";
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -391,8 +390,8 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -439,9 +438,8 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" +
-                                       GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\",\"" + account1 +
-                                       "\",\"1\"]}";
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -450,8 +448,8 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"GetBalance\",\"incr\":\"" +
-                                GetCurrentTimeStamp() + "\",\"params\":[\"" + account + "\"]}";
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -544,7 +542,7 @@ namespace AElf.Automation.RpcPerformance
                 if (ci.Result)
                 {
                     ci.GetJsonInfo();
-                    string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                    string deployResult = ci.JsonInfo["result"]["Status"].ToString();
                     if (deployResult == "Mined")
                         idList.Remove(idList[i]);
                 }
@@ -570,7 +568,7 @@ namespace AElf.Automation.RpcPerformance
                 if (ci.Result)
                 {
                     ci.GetJsonInfo();
-                    string deployResult = ci.JsonInfo["result"]["result"]["tx_status"].ToString();
+                    string deployResult = ci.JsonInfo["result"]["Status"].ToString();
                     if (deployResult != "Mined")
                     {
                         Thread.Sleep(50);
