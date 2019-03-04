@@ -674,17 +674,13 @@ namespace AElf.Automation.RpcPerformance
         {
             try
             {
-                var retArray = Encoding.Unicode.GetBytes(retValue);
-                using (MemoryStream ms = new MemoryStream(retArray)) {
-                    var result = Serializer.Deserialize<ByteString> (ms);
-                    var contractAddress = result.DeserializeToPbMessage<Address>();
-                }
+                var byteArray = Convert.FromBase64String(retValue);
+                var address = Address.FromBytes(byteArray);
+
+                return address.GetFormatted();
             } catch (Exception) {
                 return null;
             }
-
-            return string.Empty;
-
         }
 
         #endregion

@@ -72,7 +72,6 @@ namespace AElf.Automation.RpcPerformance
             {
                 Logger.WriteError("Message: " + e.Message);
                 Logger.WriteError("Source: " + e.Source);
-                throw;
             }
             finally
             {
