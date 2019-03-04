@@ -443,8 +443,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             
             JObject jObj = JObject.Parse(resp);
-            var j = jObj["result"];
-            ci.InfoMsg.Add(j["result"].ToString());
+            ci.InfoMsg.Add(jObj["result"].ToString());
             ci.Result = true;
         }
         
