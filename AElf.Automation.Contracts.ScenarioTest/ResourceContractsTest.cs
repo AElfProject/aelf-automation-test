@@ -51,7 +51,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Account preparation
             AccList = new List<string>();
-            ci = new CommandInfo("account new", "account");
+            ci = new CommandInfo("AccountNew", "account");
             for (int i = 0; i < 5; i++)
             {
                 ci.Parameter = "123";
@@ -60,13 +60,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AccList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var ic = new CommandInfo("account unlock", "account")
+                var ic = new CommandInfo("AccountUnlock", "account")
                 {
                     Parameter = String.Format("{0} {1} {2}", AccList[i], "123", "notimeout")
                 };
                 CH.UnlockAccount(ic);
             }
-            var uc = new CommandInfo("account unlock", "account");
+            var uc = new CommandInfo("AccountUnlock", "account");
             uc.Parameter = string.Format("{0} {1} {2}", InitAccount, "123", "notimeout");
             CH.ExecuteCommand(uc);
 

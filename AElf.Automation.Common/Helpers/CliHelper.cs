@@ -47,13 +47,13 @@ namespace AElf.Automation.Common.Helpers
             switch (ci.Cmd)
             {
                 //Account request
-                case "account new":
+                case "AccountNew":
                     ci = NewAccount(ci);
                     break;
-                case "account list":
+                case "AccountList":
                     ci = ListAccounts(ci);
                     break;
-                case "account unlock":
+                case "AccountUnlock":
                     ci = UnlockAccount(ci);
                     break;
                 case "ConnectChain":
@@ -89,14 +89,14 @@ namespace AElf.Automation.Common.Helpers
                 case "GetBlockInfo":
                     RpcGetBlockInfo(ci);
                     break;
-                case "get_merkle_path":
+                case "GetMerklePath":
                     RpcGetMerklePath(ci);
                     break;
                 case "SetBlockVolume":
                     RpcSetBlockVolume(ci);
                     break;
                 default:
-                    _logger.WriteError("Invalide command.");
+                    _logger.WriteError("Invalid command.");
                     break;
             }
             

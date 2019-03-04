@@ -6,52 +6,50 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace AElf.Automation.RpcPerformance
 {
-    public class Program
+    [Command(Name = "Transaction Client", Description = "Monitor contract transaction testing client.")]
+    [HelpOption("-?")]
+    class Program
     {
         #region Parameter Option
+
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        public int ThreadCount { get; set; } = 4;
+        public int ThreadCount { get; } = 4;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        public int TransactionGroup { get; set; } = 10;
+        public int TransactionGroup { get; } = 10;
 
-        [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter." )]
-        public string RpcUrl { get; set; }
+        [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
+        public string RpcUrl { get; }
 
         [Option("-em|--execute.mode", Description =
             "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continus Tx mode \n3. Batch mode \n4. Continus Txs mode")]
-        public int ExecuteMode { get; set; } = 0;
+        public int ExecuteMode { get; } = 0;
 
         #endregion
 
         static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
-        public static async Task<int> Main(string[] args)
+        static Task<int> Main(string[] args)
         {
             if (args.Length == 3)
             {
-                var program = new Program();
-                program.ThreadCount = Convert.ToInt32(args[0]);
-                program.TransactionGroup = Convert.ToInt32(args[1]);
-                program.RpcUrl = args[2];
-                program.ExecuteMode = 0;
-                program.OnExecute();
-
-                return 0;
+                var tc = args[0];
+                var tg = args[1];
+                var ru = args[2];
+                args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
             }
 
-            return await CommandLineApplication.ExecuteAsync<Program>(args);
+            return CommandLineApplication.ExecuteAsync<Program>(args);
         }
 
-        private void OnExecute()
+        private async  Task<int> OnExecuteAsync(CommandLineApplication app)
         {
-            if (RpcUrl == null)
+            if (ThreadCount == 0 || TransactionGroup == 0 || RpcUrl == null)
             {
-                Console.WriteLine("Parameter not correct, please refer below help message.");
-                CommandLineApplication.Execute<Program>("--help");
-                return;
+                app.ShowHelp();
+                return 0;
             }
             RpcAPI performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);
 
@@ -90,6 +88,8 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Log file: {0}", dir);
             Logger.WriteInfo("Xml file: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
+
+            return 0;
         }
 
         private static void ExecuteRpcTask(RpcAPI performance, int execMode = 0)
@@ -120,7 +120,7 @@ namespace AElf.Automation.RpcPerformance
                     performance.ExecuteContracts();
                     break;
                 case TestMode.Continous_Tx:
-                    Logger.WriteInfo("Run with continus tx mode [2].");
+                    Logger.WriteInfo("Run with continuous tx mode [2].");
                     performance.ExecuteMultiRpcTask();
                     break;
                 case TestMode.Batch_Txs:
@@ -128,8 +128,10 @@ namespace AElf.Automation.RpcPerformance
                     performance.ExecuteContractsRpc();
                     break;
                 case TestMode.Continous_Txs:
-                    Logger.WriteInfo("Run with continus txs mode [4].");
-                    performance.ExecuteMultiRpcTask(useTxs:true);
+                    Logger.WriteInfo("Run with continuous txs mode [4].");
+                    performance.ExecuteMultiRpcTask(true);
+                    break;
+                case TestMode.Not_Set:
                     break;
                 default:
                     Logger.WriteInfo("Wrong input, please input again.");

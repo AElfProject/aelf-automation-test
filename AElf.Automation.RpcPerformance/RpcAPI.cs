@@ -584,7 +584,7 @@ namespace AElf.Automation.RpcPerformance
         {
             for (int i = 0; i < count; i++)
             {
-                var ci = new CommandInfo("account unlock", "account");
+                var ci = new CommandInfo("AccountUnlock", "account");
                 ci.Parameter = String.Format("{0} {1} {2}", AccountList[i].Account, "123", "notimeout");
                 ci = CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
@@ -595,7 +595,7 @@ namespace AElf.Automation.RpcPerformance
         {
             for (int i = 0; i < count; i++)
             {
-                var ci = new CommandInfo("account new", "account");
+                var ci = new CommandInfo("AccountNew", "account");
                 ci.Parameter = "123";
                 ci = CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);

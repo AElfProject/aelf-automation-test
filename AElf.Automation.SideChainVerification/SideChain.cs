@@ -147,7 +147,7 @@ namespace AElf.Automation.SideChainVerification
         {
             MerkleItem merkle = new MerkleItem();
             merkle.TxId = txId;
-            var ci = new CommandInfo("get_merkle_path");
+            var ci = new CommandInfo("GetMerklePath");
             ci.Parameter = txId;
             _ch.RpcGetMerklePath(ci);
             Assert.IsTrue(ci.Result, "Get merkel path got exception.");
@@ -337,14 +337,14 @@ namespace AElf.Automation.SideChainVerification
         private void InitVerifyAccount()
         {
             //New
-            var ci = new CommandInfo("account new", "account");
+            var ci = new CommandInfo("AccountNew", "account");
             ci.Parameter = "123";
             ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Create account got exception.");
             _account = ci.InfoMsg?[0].Replace("Account address:", "").Trim();
 
             //Unlock
-            ci = new CommandInfo("account unlock", "account");
+            ci = new CommandInfo("AccountUnlock", "account");
             ci.Parameter = String.Format("{0} {1} {2}", _account, "123", "notimeout");
             ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Unlock account got exception.");

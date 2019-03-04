@@ -55,13 +55,13 @@ namespace AElf.Automation.TransactionExecution
 
             for (int i = 0; i < 5; i++)
             {
-                ci = new CommandInfo("account new", "account") {Parameter = "123"};
+                ci = new CommandInfo("AccountNew", "account") {Parameter = "123"};
                 ci = CH.NewAccount(ci);
                 if(ci.Result)
                     Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo("account unlock", "account");
+                var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = string.Format("{0} {1} {2}", Users[i], "123", "notimeout");
                 CH.UnlockAccount(uc);
             }

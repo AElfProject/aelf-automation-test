@@ -173,7 +173,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             //Account preparation
             UserList = new List<string>();
-            var ci = new CommandInfo("account new", "account");
+            var ci = new CommandInfo("AccountNew", "account");
             for (int i = 0; i < userCoouont; i++)
             {
                 ci.Parameter = "123";
@@ -182,7 +182,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo("account unlock", "account");
+                var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
                 uc = CH.UnlockAccount(uc);
             }

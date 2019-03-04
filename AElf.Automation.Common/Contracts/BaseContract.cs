@@ -133,7 +133,7 @@ namespace AElf.Automation.Common.Contracts
             Account = account;
 
             //Unlock
-            var uc = new CommandInfo("account unlock", "account");
+            var uc = new CommandInfo("AccountUnlock", "account");
             uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
             uc = Ch.UnlockAccount(uc);
 
@@ -219,7 +219,7 @@ namespace AElf.Automation.Common.Contracts
 
         public void UnlockAccount(string account, string password = "123")
         {
-            var uc = new CommandInfo("account unlock", "account");
+            var uc = new CommandInfo("AccountUnlock", "account");
             uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
             uc = Ch.UnlockAccount(uc);
         }
