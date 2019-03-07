@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using AElf.Automation.Common.Extensions;
+using System.Linq;
 using AElf.Automation.Common.Helpers;
 using Newtonsoft.Json.Linq;
-using NServiceKit.Common.Extensions;
 
 namespace AElf.Automation.RpcTesting
 {
@@ -87,7 +86,7 @@ namespace AElf.Automation.RpcTesting
             PreviousBlockHash = resultInfo["Header"]["PreviousBlockHash"].ToString();
             MerkleTreeRootOfTransactions = resultInfo["Header"]["MerkleTreeRootOfTransactions"].ToString();
             MerkleTreeRootOfWorldState = resultInfo["Header"]["MerkleTreeRootOfWorldState"].ToString();
-            Transactions = resultInfo["Body"]["Transactions"].ToString().Replace("[", "").Replace("]", "").Replace("\n", "").Replace("\"", "").Trim().Split(",").ToList<string>();
+            Transactions = resultInfo["Body"]["Transactions"].ToString().Replace("[", "").Replace("]", "").Replace("\n", "").Replace("\"", "").Trim().Split(",").ToList();
         }
     }
 }

@@ -10,10 +10,7 @@
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="NServiceKit.Redis" Version="1.0.20" />
-    <PackageReference Include="NServiceKit.Text" Version="1.0.10" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />
-    <PackageReference Include="ServiceStack.Redis" Version="5.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AElf\AElf.Common\AElf.Common.csproj" />

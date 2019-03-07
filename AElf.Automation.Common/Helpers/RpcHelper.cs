@@ -9,11 +9,12 @@ namespace AElf.Automation.Common.Helpers
     {
         private readonly string _serviceUrl;
         private readonly ILogHelper _log = LogHelper.GetLogHelper();
-        private RpcRequestManager _request;
+        private readonly RpcRequestManager _request;
 
         public RpcHelper(string serviceUrl)
         {
-            _request = new RpcRequestManager(serviceUrl);
+            _serviceUrl = serviceUrl;
+            _request = new RpcRequestManager(_serviceUrl);
         }
 
         public JObject QueryCommands()

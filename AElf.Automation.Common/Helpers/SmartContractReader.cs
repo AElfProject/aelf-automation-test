@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using ServiceStack;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -23,7 +22,7 @@ namespace AElf.Automation.Common.Helpers
                 byte[] code;
                 using (var file = File.OpenRead(GetKeyFileFullPath(name)))
                 {
-                    code = file.ReadFully();
+                    code = file.GetAllBytes();
                 }
 
                 return code;

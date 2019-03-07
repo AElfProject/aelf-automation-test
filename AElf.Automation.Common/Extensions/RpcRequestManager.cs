@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NServiceKit.Common;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -99,7 +98,7 @@ namespace AElf.Automation.Common.Extensions
                 return false;
             }
 
-            if (response.IsEmpty())
+            if (response.IsNullOrEmpty())
             {
                 _log.WriteError("Failed. Pleas check input.");
                 return false;

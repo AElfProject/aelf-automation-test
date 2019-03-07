@@ -49,7 +49,7 @@ namespace AElf.Automation.RpcPerformance
             if (ThreadCount == 0 || TransactionGroup == 0 || RpcUrl == null)
             {
                 app.ShowHelp();
-                return 0;
+                return await Task.FromResult(0);
             }
             RpcAPI performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);
 
@@ -88,7 +88,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Xml file: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
 
-            return 0;
+            return await Task.FromResult(0);
         }
 
         private static void ExecuteRpcTask(RpcAPI performance, int execMode = 0)

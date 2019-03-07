@@ -5,9 +5,7 @@ using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using NServiceKit.Common;
 using ProtoBuf;
 using Module = AElf.Automation.Common.Protobuf.Module;
 using Transaction = AElf.Automation.Common.Protobuf.Transaction;
@@ -748,7 +746,7 @@ namespace AElf.Automation.Common.Helpers
                 return false;
             }
 
-            if (response.IsEmpty())
+            if (response.IsNullOrEmpty())
             {
                 ci.ErrorMsg.Add("Failed. Pleas check input.");
                 return false;

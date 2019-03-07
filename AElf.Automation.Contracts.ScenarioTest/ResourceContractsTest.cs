@@ -4,9 +4,7 @@ using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
-using NServiceKit.Text;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
