@@ -44,7 +44,7 @@ namespace AElf.Automation.RpcPerformance
             return CommandLineApplication.ExecuteAsync<Program>(args);
         }
 
-        private async  Task<int> OnExecuteAsync(CommandLineApplication app)
+        private async Task<int> OnExecuteAsync(CommandLineApplication app)
         {
             if (ThreadCount == 0 || TransactionGroup == 0 || RpcUrl == null)
             {

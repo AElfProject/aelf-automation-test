@@ -192,6 +192,7 @@ namespace AElf.Automation.RpcPerformance
                             AccountList[item.Id].Increment = 1;
                         }else if (deployResult == "Failed")
                         {
+                            Logger.WriteError("Transaction failed.");
                             var transactionResultArray = Encoding.Unicode.GetBytes(ci.JsonInfo["result"].ToString());
                             MemoryStream ms = new MemoryStream(transactionResultArray);
                             var transactionResult = Serializer.Deserialize<TransactionResult>(ms);
@@ -224,7 +225,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute contract method
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Initialize\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"method\":\"Initialize\",\"incr\":\"" + GetRandomIncrementId() +
                                        "\",\"params\":[\"ELF" + i + "\", \"elf token " + i + "\", \"100000000\", \"0\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -320,7 +321,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
                                        "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -337,9 +338,9 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
                                 "\",\"params\":[\"" + account + "\"]}";
-                ci = new CommandInfo("BroadcastTransaction");
+                ci = new CommandInfo("QueryView");
                 ci.Parameter = parameterinfo;
                 CH.ExecuteCommand(ci);
 
@@ -347,7 +348,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Assert.IsTrue(ci.Result);
                     ci.GetJsonInfo();
-                    txIdList.Add(ci.JsonInfo["TransactionId"].ToString());
+                    Logger.WriteInfo(ci.InfoMsg[0]);
                     passCount++;
                 }
 
@@ -380,7 +381,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
                                        "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -390,7 +391,7 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
                                 "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -438,7 +439,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 string parameterinfo = "{\"from\":\"" + account +
                                        "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
                                        "\",\"params\":[\"" + account1 + "\",\"1\"]}";
                 var ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -448,7 +449,7 @@ namespace AElf.Automation.RpcPerformance
                 //Get Balance Info
                 parameterinfo = "{\"from\":\"" + account +
                                 "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetCurrentTimeStamp() +
+                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
                                 "\",\"params\":[\"" + account + "\"]}";
                 ci = new CommandInfo("BroadcastTransaction");
                 ci.Parameter = parameterinfo;
@@ -634,9 +635,10 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private string GetCurrentTimeStamp()
+        private string GetRandomIncrementId()
         {
-            return DateTime.Now.ToString("MMddHHmmss") + DateTime.Now.Millisecond.ToString();
+            var random = new Random(DateTime.Now.Millisecond);
+            return random.Next().ToString();
         }
 
         public void PrintContractInfo()
