@@ -271,9 +271,7 @@ namespace AElf.Automation.Common.Contracts
                 _logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
                 if (deployResult == "Mined")
                 {
-                    var retValue = ci.JsonInfo["result"]["RetVal"].ToString();
-                    var byteArray = Convert.FromBase64String(retValue);
-                    contractAbi = Address.FromBytes(byteArray).GetFormatted();
+                    contractAbi = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
                     ContractAbi = contractAbi;
                     _logger.WriteInfo($"Get contract ABI: TxId: {txId}, ABI address: {contractAbi}");
                     return true;

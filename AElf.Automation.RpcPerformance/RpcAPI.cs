@@ -185,10 +185,8 @@ namespace AElf.Automation.RpcPerformance
                         {
                             count++;
                             item.Result = true;
-                            string retValue= ci.JsonInfo["result"]["RetVal"].ToString();
-                            var byteArray = Convert.FromBase64String(retValue);
-                            string abiPath = Address.FromBytes(byteArray).GetFormatted();
-                            ContractList.Add(new Contract(item.Id, abiPath));
+                            string contractAbi= ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
+                            ContractList.Add(new Contract(item.Id, contractAbi));
                             AccountList[item.Id].Increment = 1;
                         }else if (deployResult == "Failed")
                         {
