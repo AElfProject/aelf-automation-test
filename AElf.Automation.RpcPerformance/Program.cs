@@ -31,7 +31,7 @@ namespace AElf.Automation.RpcPerformance
 
         static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
-        static Task<int> Main(string[] args)
+        public static int Main(string[] args)
         {
             if (args.Length == 3)
             {
@@ -41,21 +41,21 @@ namespace AElf.Automation.RpcPerformance
                 args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
             }
 
-            return CommandLineApplication.ExecuteAsync<Program>(args);
+            return CommandLineApplication.Execute<Program>(args);
         }
 
-        private async Task<int> OnExecuteAsync(CommandLineApplication app)
+        private void OnExecute(CommandLineApplication app)
         {
             if (ThreadCount == 0 || TransactionGroup == 0 || RpcUrl == null)
             {
                 app.ShowHelp();
-                return await Task.FromResult(0);
+                return;
             }
-            RpcAPI performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);
 
+            var performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);
             //Init Logger
-            string logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
             //Execute transaction command
@@ -72,6 +72,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 Logger.WriteError("Message: " + e.Message);
                 Logger.WriteError("Source: " + e.Source);
+                Logger.WriteError("StackTrace: " + e.StackTrace);
             }
             finally
             {
@@ -80,15 +81,13 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            CategoryInfoSet set = new CategoryInfoSet(performance.CH.CommandList);
+            var set = new CategoryInfoSet(performance.CH.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
-            string xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
+            var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
             Logger.WriteInfo("Log file: {0}", dir);
             Logger.WriteInfo("Xml file: {0}", xmlFile);
             Logger.WriteInfo("Complete performance testing.");
-
-            return await Task.FromResult(0);
         }
 
         private static void ExecuteRpcTask(RpcAPI performance, int execMode = 0)
@@ -102,8 +101,8 @@ namespace AElf.Automation.RpcPerformance
                 Console.WriteLine("4. Continus Txs mode");
                 Console.Write("Input selection: ");
 
-                string runType = Console.ReadLine();
-                bool check = Int32.TryParse(runType, out execMode);
+                var runType = Console.ReadLine();
+                var check = Int32.TryParse(runType, out execMode);
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
