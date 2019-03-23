@@ -5,12 +5,11 @@ using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Common;
+using AElf.Kernel;
+using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 using ProtoBuf;
 using Module = AElf.Automation.Common.Protobuf.Module;
-using Transaction = AElf.Automation.Common.Protobuf.Transaction;
-using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
-using Address = AElf.Automation.Common.Protobuf.Address;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -107,7 +106,7 @@ namespace AElf.Automation.Common.Helpers
 
             return ci;
         }
-
+        
         #region Account methods
 
         public CommandInfo NewAccount(CommandInfo ci)
@@ -208,28 +207,20 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(3))
                 return;
             string filename = ci.Parameter.Split(" ")[0];
+            
             // Read sc bytes
-            var screader = new SmartContractReader();
-            byte[] sc = screader.Read(filename);
-            string hex = sc.ToHex();
-
-            if (!_loadedModules.TryGetValue(_genesisAddress, out var m))
+            var contractReader = new SmartContractReader();
+            byte[] codeArray = contractReader.Read(filename);
+            var input = new ContractDeploymentInput
             {
-                ci.ErrorMsg.Add("ABI not loaded.");
-                return;
-            }
-
-            var meth = m.Methods.FirstOrDefault(mt => mt.Name.Equals("DeploySmartContract"));
-            if (meth == null)
-            {
-                ci.ErrorMsg.Add("Method not Found.");
-                return;
-            }
-            byte[] serializedParams = meth.SerializeParams(new List<string> {"2", hex});
+                Category = KernelConstants.CodeCoverageRunnerCategory,
+                Code = ByteString.CopyFrom(codeArray)
+            };
+            
             _transactionManager.SetCmdInfo(ci);
             var tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
                 ci.Parameter.Split(" ")[1],
-                "DeploySmartContract", serializedParams, TransactionType.ContractTransaction);
+                "DeploySmartContract", input.ToByteString());
             tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)
                 return;
@@ -263,17 +254,19 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcBroadcastTx(CommandInfo ci)
         {
-            if (!ci.Parameter.Contains("{"))
+            JObject j = null;
+            if (ci.Parameter != null)
             {
-                RpcBroadcastWithRawTx(ci);
-                return;
+                if (!ci.Parameter.Contains("{"))
+                {
+                    RpcBroadcastWithRawTx(ci);
+                    return;
+                }
+                j = JObject.Parse(ci.Parameter);
             }
-            var j = JObject.Parse(ci.Parameter);
-            var tr = _transactionManager.ConvertFromJson(j);
-            if (tr == null)
-                return;
-            string toAdr = tr.To.GetFormatted();
-
+            var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
+            
+            var toAdr = tr.To.GetFormatted();
             if (!_loadedModules.TryGetValue(toAdr, out var m))
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
@@ -291,22 +284,22 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            var p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            if (p != null)
-            {
-                var paramArray = p.ToObject<string[]>();
+            var parameter = ci.ParameterInput.ToByteString();
+            tr.Params = parameter == null ? ByteString.Empty : parameter;
+//            var p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
+//            if (p != null)
+//            {
+//                var paramArray = p.ToObject<string[]>();
+//
+//                if(j["params"] != null && paramArray.Length != 0)
+//                    tr.Params = method.SerializeParams(paramArray);
+//            }
 
-                if(j["params"] != null && paramArray.Length != 0)
-                    tr.Params = method.SerializeParams(paramArray);
-            }
-
-            tr.Type = TransactionType.ContractTransaction;
             tr = tr.AddBlockReference(_rpcAddress);
 
             _transactionManager.SignTransaction(tr);
             var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
             var req = RpcRequestManager.CreateRequest(rawtx, ci.Category, 1);
-
 
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
@@ -359,10 +352,12 @@ namespace AElf.Automation.Common.Helpers
 
         public string RpcGenerateTransactionRawTx(CommandInfo ci)
         {
-            var j = JObject.Parse(ci.Parameter);
-            var tr = _transactionManager.ConvertFromJson(j);
+            JObject j = null;
+            if(ci.Parameter != null)
+                j = JObject.Parse(ci.Parameter);
+            var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
+            
             var toAdr = tr.To.GetFormatted();
-
             if (!_loadedModules.TryGetValue(toAdr, out var m))
             {
                 if (!_loadedModules.TryGetValue(toAdr, out m))
@@ -379,16 +374,9 @@ namespace AElf.Automation.Common.Helpers
                 ci.ErrorMsg.Add("Method not found.");
                 return string.Empty;
             }
-
-            var p = j["params"] == null ? null : JArray.Parse(j["params"].ToString());
-            if (p != null)
-            {
-                var paramArray = p.ToObject<string[]>();
-                if(j["params"] != null && paramArray.Length != 0)
-                    tr.Params = method.SerializeParams(paramArray);
-            }
-
-            tr.Type = TransactionType.ContractTransaction;
+            
+            var parameter = ci.ParameterInput.ToByteString();
+            tr.Params = parameter == null ? ByteString.Empty : parameter;
             tr = tr.AddBlockReference(_rpcAddress);
 
             _transactionManager.SignTransaction(tr);
@@ -397,7 +385,7 @@ namespace AElf.Automation.Common.Helpers
             return rawtx["rawTransaction"].ToString();
         }
 
-        public string RpcGenerateTransactionRawTx(string from, string to, string methodName, params string[] paramArray)
+        public string RpcGenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
         {
             var tr = new Transaction()
             {
@@ -425,9 +413,7 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
 
-            if (paramArray != null && paramArray.Length != 0)
-                tr.Params = method.SerializeParams(paramArray);
-            tr.Type = TransactionType.ContractTransaction;
+            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
             tr = tr.AddBlockReference(_rpcAddress);
 
             _transactionManager.SignTransaction(tr);
@@ -612,7 +598,7 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
-        public string RpcQueryResult(string from, string to, string methodName, params string[] paramArray)
+        public string RpcQueryResult(string from, string to, string methodName, IMessage inputParameter)
         {
             var tr = new Transaction()
             {
@@ -640,8 +626,7 @@ namespace AElf.Automation.Common.Helpers
                 return string.Empty;
             }
 
-            if (paramArray != null && paramArray.Length != 0)
-                tr.Params = method.SerializeParams(paramArray);
+            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
 
             var resp = CallTransaction(tr, "Call");
 

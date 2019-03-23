@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
@@ -24,19 +25,19 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(Account);
         }
 
-        public CommandInfo CallContractMethod(BenchmarkMethod method, params string[] paramArray)
+        public CommandInfo CallContractMethod(BenchmarkMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), paramArray);
+            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
         }
 
-        public void CallContractWithoutResult(BenchmarkMethod method, params string[] paramsArray)
+        public void CallContractWithoutResult(BenchmarkMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), paramsArray);
+            ExecuteContractMethod(method.ToString(), inputParameter);
         }
 
-        public JObject CallReadOnlyMethod(BenchmarkMethod method, params string[] paramsArray)
+        public JObject CallReadOnlyMethod(BenchmarkMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), paramsArray);
+            return CallContractViewMethod(method.ToString(), inputParameter);
         }
     }
 }

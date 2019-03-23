@@ -64,9 +64,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH.RpcConnectChain(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
             ConsensusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
             DividendsAbi = ci.JsonInfo["AElf.Contracts.Dividends"].ToObject<string>();
 
@@ -124,7 +124,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
             dividendsService = new DividendsContract(CH, InitAccount, DividendsAbi);
 
-            QueryContractsBalance();
+            //QueryContractsBalance();
         }
 
         [TestCleanup]
@@ -138,12 +138,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 File.Delete(file);
             }
         }
-
+        
+        /*
         private void QueryContractsBalance()
         {
-            var consensusResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, ConsensusAbi);
+            var consensusResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, ConsensusAbi);
             Logger.WriteInfo($"Consensus account balance : {tokenService.ConvertViewResult(consensusResult, true)}");
-            var dividensResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, DividendsAbi);
+            var dividensResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, DividendsAbi);
             Logger.WriteInfo($"Dividends account balance : {tokenService.ConvertViewResult(dividensResult, true)}");
         }
 
@@ -157,7 +158,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void QueryTokenFeeBalance()
         {
-            var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
             Logger.WriteInfo($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
         }
 
@@ -174,13 +175,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //查询余额
             foreach (var bpAcc in BpNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 Console.WriteLine($"BpNode-[{bpAcc}] balance: " + tokenService.ConvertViewResult(callResult, true));
             }
 
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
                 Console.WriteLine($"FullNode-[{fullAcc}] balance: " + tokenService.ConvertViewResult(callResult, true));
             }
         }
@@ -192,7 +193,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
             consensusService.CallContractMethod(ConsensusMethod.InitialBalance, account, balance.ToString());
-            var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, account);
+            var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, account);
             Console.WriteLine($"[{account}] balance: " + tokenService.ConvertViewResult(callResult, true));
         }
 
@@ -214,7 +215,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var fullAcc in FullNodeAccounts)
             {
                 Logger.WriteInfo($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
-                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
+                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
                     continue;
@@ -226,7 +227,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var bpAcc in BpNodeAccounts)
             {
                 Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
-                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, bpAcc);
+                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
                     continue;
@@ -328,7 +329,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             foreach (var userAcc in UserList)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
                 Console.WriteLine($"User-{userAcc} balance: " + tokenService.ConvertViewResult(callResult, true));
             }
 
@@ -542,18 +543,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Logger.WriteInfo($"Account check: {userAcc}");
                 consensusService.SetAccount(userAcc);
-                var balanceBefore = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                var balanceBefore = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
                 Logger.WriteInfo($"Init balance: {tokenService.ConvertViewResult(balanceBefore, true)}");
 
                 consensusService.SetAccount(userAcc);
                 consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
 
-                var balanceAfter1 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                var balanceAfter1 = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
                 Logger.WriteInfo($"Received dividends balance: {tokenService.ConvertViewResult(balanceAfter1, true)}");
 
                 consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
 
-                var balanceAfter2 = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, userAcc);
+                var balanceAfter2 = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
                 Logger.WriteInfo($"Revertback vote balance: {tokenService.ConvertViewResult(balanceAfter2, true)}");
             }
         }
@@ -593,7 +594,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
                 Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
             }
         }
@@ -615,7 +616,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, fullAcc);
+                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
                 Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
             }
         }
@@ -672,5 +673,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
+        */
     }
 }

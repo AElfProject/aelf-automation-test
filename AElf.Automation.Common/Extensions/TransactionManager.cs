@@ -8,12 +8,12 @@ using System.Security.Cryptography;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
 using AElf.Types.CSharp;
 using Google.Protobuf;
 using ProtoBuf;
-using Transaction = AElf.Automation.Common.Protobuf.Transaction;
-using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
-using Address = AElf.Automation.Common.Protobuf.Address;
+//using Transaction = AElf.Automation.Common.Protobuf.Transaction;
+//using TransactionType = AElf.Automation.Common.Protobuf.TransactionType;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -41,18 +41,17 @@ namespace AElf.Automation.Common.Extensions
             _cmdInfo = ci;
         }
 
-        public Transaction CreateTransaction(string fromAddress, string genesisAddress, string incrementid,
-            string methodName, byte[] serializedParams, TransactionType contracttransaction)
+        public Transaction CreateTransaction(string from, string to, string incrementid,
+            string methodName, ByteString input)
         {
             try
             {
                 Transaction t = new Transaction();
-                t.From = Address.Parse(fromAddress);
-                t.To = Address.Parse(genesisAddress);
+                t.From = Address.Parse(from);
+                t.To = Address.Parse(to);
                 t.IncrementId = Convert.ToUInt64(incrementid);
                 t.MethodName = methodName;
-                t.Params = serializedParams ?? ByteString.CopyFrom(ParamsPacker.Pack()).ToByteArray();
-                t.Type = contracttransaction;
+                t.Params = input ?? ByteString.Empty;
                 _cmdInfo.Result = true;
 
                 return t;
@@ -66,15 +65,12 @@ namespace AElf.Automation.Common.Extensions
 
         public Transaction SignTransaction(Transaction tx)
         {
-            string addr = tx.From.GetFormatted();
-
-            MemoryStream ms = new MemoryStream();
-            Serializer.Serialize(ms, tx);
-            tx.Sigs = new List<byte[]> { Sign(addr, ms.ToArray()) };
+            var txData = tx.GetHash().DumpByteArray();
+            tx.Sigs.Add(Sign(tx.From.GetFormatted(), txData));
             return tx;
         }
 
-        public byte[] Sign(string addr, byte[] txnData)
+        public ByteString Sign(string addr, byte[] txData)
         {
             var kp = _keyStore.GetAccountKeyPair(addr);
 
@@ -86,17 +82,20 @@ namespace AElf.Automation.Common.Extensions
             }
 
             // Sign the hash
-            byte[] hash = SHA256.Create().ComputeHash(txnData);
-            return CryptoHelpers.SignWithPrivateKey(kp.PrivateKey, hash);
+            var signature = CryptoHelpers.SignWithPrivateKey(kp.PrivateKey, txData);
+            return ByteString.CopyFrom(signature);
         }
 
         public JObject ConvertTransactionRawTx(Transaction tx)
         {
-            MemoryStream ms = new MemoryStream();
-            Serializer.Serialize(ms, tx);
+//            MemoryStream ms = new MemoryStream();
+//            Serializer.Serialize(ms, tx);
+//           
+//
+//            byte[] b = ms.ToArray();
+//            string payload = b.ToHex();
 
-            byte[] b = ms.ToArray();
-            string payload = b.ToHex();
+            string payload = tx.ToByteArray().ToHex();
             var reqParams = new JObject { ["rawTransaction"] = payload };
 
             return reqParams;
@@ -115,20 +114,29 @@ namespace AElf.Automation.Common.Extensions
 
                 return tr;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                _logger.WriteError("Invalid transaction data.");
-                _logger.WriteError($"Exception message: {e.Message}");
-
                 return null;
             }
+        }
+
+        public Transaction ConvertFromCommandInfo(CommandInfo commandInfo)
+        {
+            var tr = new Transaction
+            {
+                From = Address.Parse(commandInfo.From),
+                To = Address.Parse(commandInfo.To),
+                MethodName = commandInfo.ContractMethod
+            };
+
+            return tr;
         }
     }
 
     public static class BlockMarkingHelper
     {
         private static DateTime _refBlockTime = DateTime.Now;
-        private static ulong _cachedHeight;
+        private static long _cachedHeight;
         private static string _cachedHash;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
@@ -136,9 +144,9 @@ namespace AElf.Automation.Common.Extensions
         {
             var height = _cachedHeight;
             var hash = _cachedHash;
-            if (height == default(ulong) || (DateTime.Now - _refBlockTime).TotalSeconds > 60)
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60)
             {
-                height = ulong.Parse(GetBlkHeight(rpcAddress));
+                height = long.Parse(GetBlkHeight(rpcAddress));
                 hash = GetBlkHash(rpcAddress, height.ToString());
                 _cachedHeight = height;
                 _cachedHash = hash;
@@ -146,7 +154,7 @@ namespace AElf.Automation.Common.Extensions
             }
 
             transaction.RefBlockNumber = height;
-            transaction.RefBlockPrefix = ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray();
+            transaction.RefBlockPrefix = ByteString.CopyFrom(ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 

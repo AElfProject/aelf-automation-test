@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Common;
+using Google.Protobuf;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -42,9 +43,9 @@ namespace AElf.Automation.Common.Contracts
             LoadContractAbi();
         }
 
-        public string ExecuteContractMethod(string method, params string[] paramArray)
+        public string ExecuteContractMethod(string method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method, paramArray);
+            string rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteContractMethod(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
@@ -53,9 +54,9 @@ namespace AElf.Automation.Common.Contracts
             return txId;
         }
 
-        public CommandInfo ExecuteContractMethodWithResult(string method, params string[] paramArray)
+        public CommandInfo ExecuteContractMethodWithResult(string method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method, paramArray);
+            string rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteContractMethod(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
@@ -194,9 +195,9 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="method"></param>
         /// <param name="paramArray"></param>
         /// <returns></returns>
-        public JObject CallContractViewMethod(string method, params string[] paramArray)
+        public JObject CallContractViewMethod(string method, IMessage inputParameter)
         {
-            var resp = Ch.RpcQueryResult(Account, ContractAbi, method, paramArray);
+            var resp = Ch.RpcQueryResult(Account, ContractAbi, method, inputParameter);
             if (resp == string.Empty)
                 return new JObject();
 
@@ -253,9 +254,9 @@ namespace AElf.Automation.Common.Contracts
             Assert.IsTrue(ci.Result, $"Load contract abi failed. Reason: {ci.GetErrorMessage()}");
         }
 
-        private string GenerateBroadcastRawTx(string method, params string[] paramArray)
+        private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return Ch.RpcGenerateTransactionRawTx(Account, ContractAbi, method, paramArray);
+            return Ch.RpcGenerateTransactionRawTx(Account, ContractAbi, method, inputParameter);
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)

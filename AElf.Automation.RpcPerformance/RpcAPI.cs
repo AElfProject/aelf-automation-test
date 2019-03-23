@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Common;
+using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
 using AElf.Types.CSharp;
 using Google.Protobuf;
@@ -34,6 +35,7 @@ namespace AElf.Automation.RpcPerformance
     public class Contract
     {
         public string AbiPath { get; set; }
+        public string Symbol { get; set; }
         public int AccountId { get; set; }
         public long Amount { get; set; }
 
@@ -42,11 +44,18 @@ namespace AElf.Automation.RpcPerformance
             AccountId = accId;
             AbiPath = abiPath;
         }
+        
+        public Contract(int accId, string abiPath, string symbol)
+        {
+            AccountId = accId;
+            AbiPath = abiPath;
+            Symbol = symbol;
+        }
     }
 
     public class RpcAPI
     {
-        #region Public Proerty
+        #region Public Property
 
         public CliHelper CH { get; set; }
         public string RpcUrl { get; set; }
@@ -87,7 +96,7 @@ namespace AElf.Automation.RpcPerformance
         {
             Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
             Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
-            Logger.WriteInfo("Preare new and unlock accounts.");
+            Logger.WriteInfo("Prepare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
 
             //Connect Chain
@@ -95,10 +104,9 @@ namespace AElf.Automation.RpcPerformance
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Todo: no token address currently, will deploy manuly. So comment now.
             //Get Token Abi
-            //ci.GetJsonInfo();
-            //TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            ci.GetJsonInfo();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
 
             //Load Contract Abi
             ci = new CommandInfo("LoadContractAbi");
@@ -110,10 +118,6 @@ namespace AElf.Automation.RpcPerformance
 
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
-
-            //Todo: Will enable and add token fee account
-            //Set token fee address
-            //SetTokenFeeAccount();
         }
 
         public void CheckNodeStatus()
@@ -150,7 +154,7 @@ namespace AElf.Automation.RpcPerformance
                 info.Account = AccountList[i].Account;
 
                 var ci = new CommandInfo("DeployContract");
-                ci.Parameter = $"AElf.Contracts.Token 0 {AccountList[i].Account}";
+                ci.Parameter = $"AElf.Contracts.MultiToken 0 {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
 
@@ -212,28 +216,51 @@ namespace AElf.Automation.RpcPerformance
             for (int i = 0; i < ContractList.Count; i++)
             {
                 string account = AccountList[ContractList[i].AccountId].Account;
-                string abiPath = ContractList[i].AbiPath;
+                string contractPath = ContractList[i].AbiPath;
 
                 //Load Contract abi
                 var ci = new CommandInfo("LoadContractAbi");
-                ci.Parameter = abiPath;
+                ci.Parameter = contractPath;
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
 
                 //Execute contract method
-                string parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Initialize\",\"incr\":\"" + GetRandomIncrementId() +
-                                       "\",\"params\":[\"ELF" + i + "\", \"elf token " + i + "\", \"100000000\", \"0\"]}";
-                ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                var symbol = $"ELF{RandomString(4, false)}";
+                ContractList[i].Symbol = symbol;
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
+                ci.ParameterInput = new CreateInput
+                {
+                    Symbol = symbol,
+                    TokenName = $"elf token {GetRandomIncrementId()}",
+                    TotalSupply = 100_000_000L,
+                    Decimals = 2,
+                    Issuer = Address.Parse(account),
+                    IsBurnable = true
+                };
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 ci.GetJsonInfo();
 
-                string genesisContract = ci.JsonInfo["TransactionId"].ToString();
-                Assert.AreNotEqual(string.Empty, genesisContract);
-                TxIdList.Add(genesisContract);
+                string transactionId = ci.JsonInfo["TransactionId"].ToString();
+                Assert.AreNotEqual(string.Empty, transactionId);
+                TxIdList.Add(transactionId);
+                
+                //Issue balance to issuer
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
+                ci.ParameterInput = new IssueInput()
+                {
+                    Amount = 100_000_000L,
+                    Memo = "Issue all balance to owner.",
+                    Symbol = symbol,
+                    To = Address.Parse(account)
+                };
+                CH.ExecuteCommand(ci);
+                Assert.IsTrue(ci.Result);
+                ci.GetJsonInfo();
+                
+                transactionId = ci.JsonInfo["TransactionId"].ToString();
+                Assert.AreNotEqual(string.Empty, transactionId);
+                TxIdList.Add(transactionId);
             }
 
             CheckResultStatus(TxIdList);
@@ -317,12 +344,14 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                string parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
-                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
-                var ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer");
+                ci.ParameterInput = new TransferInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    Amount = 1L,
+                    Memo = "transfer test",
+                    To = Address.Parse(account1)
+                };
                 CH.ExecuteCommand(ci);
 
                 if (ci.Result)
@@ -334,12 +363,12 @@ namespace AElf.Automation.RpcPerformance
 
                 Thread.Sleep(10);
                 //Get Balance Info
-                parameterinfo = "{\"from\":\"" + account +
-                                "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
-                                "\",\"params\":[\"" + account + "\"]}";
-                ci = new CommandInfo("QueryView");
-                ci.Parameter = parameterinfo;
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance");
+                ci.ParameterInput = new GetBalanceInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    Owner = Address.Parse(account)
+                };
                 CH.ExecuteCommand(ci);
 
                 if (ci.Result)
@@ -377,22 +406,24 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                string parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
-                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
-                var ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer");
+                ci.ParameterInput = new TransferInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    To = Address.Parse(account1),
+                    Amount = 1L,
+                    Memo = "transfer test"
+                };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
 
                 //Get Balance Info
-                parameterinfo = "{\"from\":\"" + account +
-                                "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
-                                "\",\"params\":[\"" + account + "\"]}";
-                ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance");
+                ci.ParameterInput = new GetBalanceInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    Owner = Address.Parse(account)
+                };
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
             }
@@ -435,22 +466,24 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                string parameterinfo = "{\"from\":\"" + account +
-                                       "\",\"to\":\"" + abiPath +
-                                       "\",\"method\":\"Transfer\",\"incr\":\"" + GetRandomIncrementId() +
-                                       "\",\"params\":[\"" + account1 + "\",\"1\"]}";
-                var ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer");
+                ci.ParameterInput = new TransferInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    To = Address.Parse(account1),
+                    Amount = 1L,
+                    Memo = "transfer test"
+                };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
 
                 //Get Balance Info
-                parameterinfo = "{\"from\":\"" + account +
-                                "\",\"to\":\"" + abiPath +
-                                "\",\"method\":\"BalanceOf\",\"incr\":\"" + GetRandomIncrementId() +
-                                "\",\"params\":[\"" + account + "\"]}";
-                ci = new CommandInfo("BroadcastTransaction");
-                ci.Parameter = parameterinfo;
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance");
+                ci.ParameterInput = new GetBalanceInput
+                {
+                    Symbol = ContractList[threadNo].Symbol,
+                    Owner = Address.Parse(account)
+                };
                 requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);
             }
@@ -519,6 +552,18 @@ namespace AElf.Automation.RpcPerformance
             {
                 string file = Path.Combine(KeyStorePath, $"{item.Account}.ak");
                 File.Delete(file);
+            }
+        }
+        
+        public void PrintContractInfo()
+        {
+            Logger.WriteInfo("Execution account and contract abi information:");
+            int count = 0;
+            foreach (var item in ContractList)
+            {
+                count++;
+                Logger.WriteInfo("{0:00}. Account: {1}, AbiPath:{2}", count, AccountList[item.AccountId].Account,
+                    item.AbiPath);
             }
         }
 
@@ -639,50 +684,15 @@ namespace AElf.Automation.RpcPerformance
             return random.Next().ToString();
         }
 
-        public void PrintContractInfo()
+        private string RandomString(int size, bool lowerCase)
         {
-            Logger.WriteInfo("Execution account and contract abi information:");
-            int count = 0;
-            foreach (var item in ContractList)
-            {
-                count++;
-                Logger.WriteInfo("{0:00}. Account: {1}, AbiPath:{2}", count, AccountList[item.AccountId].Account,
-                    item.AbiPath);
-            }
+            var random = new Random(DateTime.Now.Millisecond);
+            StringBuilder builder = new StringBuilder(size);
+            int startChar = lowerCase ? 97 : 65;//65 = A / 97 = a
+            for (int i = 0; i < size; i++)
+                builder.Append((char)(26 * random.NextDouble() + startChar));
+            return builder.ToString();
         }
-
-        private void SetTokenFeeAccount()
-        {
-            //Set token fee address
-            TokenService = new TokenContract(CH, AccountList[0].Account, TokenAbi);
-
-            var addressResult = TokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
-            var result = DataHelper.TryGetValueFromJson(out var message, addressResult, "result", "return");
-            Assert.IsTrue(result, "Rpc request return value is not exist.");
-            if (message == string.Empty)
-            {
-                TokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, TokenService.Account);
-                Logger.WriteInfo($"Token fee address set with account: {TokenService.Account}");
-            }
-            else
-            {
-                Logger.WriteInfo($"Token fee account: {message}");
-            }
-        }
-
-        private string GetContractAddress(string retValue)
-        {
-            try
-            {
-                var byteArray = Convert.FromBase64String(retValue);
-                var address = Address.FromBytes(byteArray);
-
-                return address.GetFormatted();
-            } catch (Exception) {
-                return null;
-            }
-        }
-
         #endregion
     }
 }

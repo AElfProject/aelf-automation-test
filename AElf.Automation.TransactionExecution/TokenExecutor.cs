@@ -1,6 +1,8 @@
 using System.Security.Cryptography.X509Certificates;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Common;
+using AElf.Contracts.MultiToken.Messages;
 
 namespace AElf.Automation.TransactionExecution
 {
@@ -32,7 +34,14 @@ namespace AElf.Automation.TransactionExecution
 
         public void InitToken(ulong amount)
         {
-            Token.CallContractMethod(TokenMethod.Initialize, "ELF", "elf token", amount.ToString(), "0");
+            Token.CallContractMethod(TokenMethod.Create, new CreateInput
+            {
+                Symbol = "ELF",
+                TokenName = "elf token",
+                TotalSupply = 1000_000L,
+                Issuer = Address.Parse(CallOwner),
+                Decimals = 2,
+            });
         }
     }
 }

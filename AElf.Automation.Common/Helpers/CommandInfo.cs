@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Google.Protobuf;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,6 +14,12 @@ namespace AElf.Automation.Common.Helpers
         public string Category { get; set; }
         public string Cmd { get; set; }
         public string Parameter { get; set; }
+        
+        public string From { get; set; }
+        public string To { get; set; }
+        public string ContractMethod { get; set; }
+        
+        public IMessage ParameterInput { get; set; }
         public string[] ParameterArray { get; set; }
         public ApiMethods Method { get; set; }
 
@@ -34,11 +41,14 @@ namespace AElf.Automation.Common.Helpers
             TimeSpan = 0;
         }
 
-        public CommandInfo(ApiMethods method, params string[] parameters)
+        public CommandInfo(ApiMethods method, string from, string to, string contractMethod)
         {
             Category = method.ToString();
-            ParameterArray = parameters;
-
+            Cmd = method.ToString();
+            From = from;
+            To = to;
+            ContractMethod = contractMethod;
+            
             InfoMsg = new List<string>();
             ErrorMsg = new List<string>();
             Result = false;

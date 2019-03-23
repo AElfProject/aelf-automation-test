@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
@@ -6,7 +7,8 @@ namespace AElf.Automation.Common.Contracts
     public enum TokenMethod
     {
         //Action
-        Initialize,
+        Create,
+        Issue,
         SetFeePoolAddress,
         ClaimTransactionFees,
         Transfer,
@@ -20,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
         TokenName,
         TotalSupply,
         Decimals,
-        BalanceOf,
+        GetBalance,
         Allowance,
         ChargedFees,
         FeePoolAddress
@@ -28,7 +30,7 @@ namespace AElf.Automation.Common.Contracts
     public class TokenContract : BaseContract
     {
         public TokenContract(CliHelper ch, string account) :
-            base(ch, "AElf.Contracts.Token", account)
+            base(ch, "AElf.Contracts.MultiToken", account)
         {
         }
 
@@ -39,19 +41,19 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(Account);
         }
 
-        public CommandInfo CallContractMethod(TokenMethod method, params string[] paramsArray)
+        public CommandInfo CallContractMethod(TokenMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), paramsArray);
+            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
         }
 
-        public void CallContractWithoutResult(TokenMethod method, params string[] paramsArray)
+        public void CallContractWithoutResult(TokenMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), paramsArray);
+            ExecuteContractMethod(method.ToString(), inputParameter);
         }
 
-        public JObject CallReadOnlyMethod(TokenMethod method, params string[] paramsArray)
+        public JObject CallReadOnlyMethod(TokenMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), paramsArray);
+            return CallContractViewMethod(method.ToString(), inputParameter);
         }
     }
 }

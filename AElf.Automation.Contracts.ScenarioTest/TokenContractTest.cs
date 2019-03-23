@@ -41,9 +41,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH.RpcConnectChain(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
 
             //Load default Contract Abi
             ci = new CommandInfo("LoadContractAbi");
@@ -55,7 +55,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             #endregion
         }
-
+        /*
         [TestMethod]
         public void QueryTokenFeeAddress()
         {
@@ -85,7 +85,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void InitToken()
         {
             tokenService.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "500000", "2");
-            var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
+            var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, InitAccount);
             _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(balanceResult, true)}");
 
             tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
@@ -103,7 +103,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 tokenService.CallContractWithoutResult(TokenMethod.Transfer, UserList[numbr], "100");
             }
 
-    /*
             //Init account balance
             var initResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
             _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(initResult, true)}");
@@ -118,25 +117,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var userResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
                 _logger.WriteInfo($"user balance: {tokenService.ConvertViewResult(userResult, true)}");
             }
-    */
         }
 
         [TestMethod]
         public void ExecuteTransactionWithoutFee()
         {
             //Fee account balance
-            var fee1Result = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            var fee1Result = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
             _logger.WriteInfo($"FeeAccount before balance: {tokenService.ConvertViewResult(fee1Result, true)}");
 
             tokenService.SetAccount(NoTokenAccount);
-            tokenService.CallContractMethod(TokenMethod.BalanceOf, FeeAccount);
+            tokenService.CallContractMethod(TokenMethod.GetBalance, FeeAccount);
 
             tokenService.SetAccount(InitAccount);
-            tokenService.CallContractMethod(TokenMethod.BalanceOf, InitAccount);
-            tokenService.CallContractMethod(TokenMethod.BalanceOf, FeeAccount);
+            tokenService.CallContractMethod(TokenMethod.GetBalance, InitAccount);
+            tokenService.CallContractMethod(TokenMethod.GetBalance, FeeAccount);
 
             //Fee account balance
-            var fee2Result = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
+            var fee2Result = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
             _logger.WriteInfo($"FeeAccount after balance: {tokenService.ConvertViewResult(fee2Result, true)}");
         }
 
@@ -146,10 +144,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenContract1 = new TokenContract(CH, UserList[0]);
             tokenContract1.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "200000", "2");
             tokenContract1.CallContractMethod(TokenMethod.Transfer, UserList[1], "2000");
-            var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[0]);
+            var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.GetBalance, UserList[0]);
             Console.WriteLine("A balance: {0}", tokenContract1.ConvertViewResult(abResult, true));
 
-            var bbResult = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[1]);
+            var bbResult = tokenContract1.CallReadOnlyMethod(TokenMethod.GetBalance, UserList[1]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult, true));
 
             tokenContract1.CallContractMethod(TokenMethod.Approve, UserList[2], "10000");
@@ -159,10 +157,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Console.WriteLine("B allowance from A: {0}", tokenContract1.ConvertViewResult(allowResult, true));
 
             tokenContract1.CallContractMethod(TokenMethod.TransferFrom, UserList[0], UserList[2], "5000");
-            var bbResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[0]);
+            var bbResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.GetBalance, UserList[0]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult1, true));
 
-            var bbResult2 = tokenContract1.CallReadOnlyMethod(TokenMethod.BalanceOf, UserList[2]);
+            var bbResult2 = tokenContract1.CallReadOnlyMethod(TokenMethod.GetBalance, UserList[2]);
             Console.WriteLine("B balance: {0}", tokenContract1.ConvertViewResult(bbResult2, true));
 
             var allowResult1 = tokenContract1.CallReadOnlyMethod(TokenMethod.Allowance, UserList[0], UserList[1]);
@@ -187,5 +185,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 uc = CH.UnlockAccount(uc);
             }
         }
+        */
     }
 }

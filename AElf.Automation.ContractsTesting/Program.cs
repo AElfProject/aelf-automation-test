@@ -62,9 +62,9 @@ namespace AElf.Automation.ContractsTesting
             ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
             ConsesusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
 
             //Load default Contract Abi
@@ -92,79 +92,79 @@ namespace AElf.Automation.ContractsTesting
             #region AElf.Token operation
             //Deploy and Load ABI
             var tokenContract = new TokenContract(ch, BpAccount, TokenAbi);
-            //Set token fee
-            tokenContract.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
-
-            var consesusContract = new ConsensusContract(ch, BpAccount, ConsesusAbi);
-            consesusContract.CallContractMethod(ConsensusMethod.InitialBalance, BpAccount, "100000");
-
-            //Approve Test
-            tokenContract.SetAccount(Users[1]);
-            tokenContract.CallContractMethod(TokenMethod.Approve, Users[1], "1000");
-
-            //Transfer to Account A, B, C
-            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[1], "5000");
-            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[2], "10000");
-            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[3], "15000");
-
-            tokenContract.CheckTransactionResultList();
-
-            //Get balance
-            var txOwner = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, Users[0]);
-            var txBa = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, Users[1]);
-            var txBb = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, Users[2]);
-            var txBc = tokenContract.CallReadOnlyMethod(TokenMethod.BalanceOf, Users[3]);
-
-            //Convert to Value
-            Logger.WriteInfo($"Owner current balance: {tokenContract.ConvertViewResult(txOwner, true)}");
-
-            Logger.WriteInfo($"A current balance: {tokenContract.ConvertViewResult(txBa, true)}");
-
-            Logger.WriteInfo($"B current balance: {tokenContract.ConvertViewResult(txBb, true)}");
-
-            Logger.WriteInfo($"C current balance: {tokenContract.ConvertViewResult(txBc, true)}");
-
-            #endregion
-
-            #region AElf.Contract.Resource
-            var resourceContract = new ResourceContract(ch, Users[0]);
-
-            resourceContract.CallContractMethod(ResourceMethod.Initialize, tokenContract.ContractAbi, Users[0], Users[0]);
-
-            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "CPU", "1000000");
-            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
-            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
-            
-            //Buy resource
-            resourceContract.Account = Users[1];
-            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "1000");
-            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "6000");
-            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Ram", "10000");
-
-            //Account 4 have no money
-            resourceContract.SetAccount(Users[4]);
-            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
-            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
-
-            //Query user resource
-            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[1], "Cpu");
-            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Cpu");
-            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Net");
-
-            //Query user token
-            tokenContract.ExecuteContractMethod("BalanceOf", Users[0]);
-
-            //Sell resource
-            resourceContract.SetAccount(Users[1]);
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
-
-            resourceContract.SetAccount(Users[4]);
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
-            resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, Users[0], "Ram");
-            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
+//            //Set token fee
+//            tokenContract.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
+//
+//            var consesusContract = new ConsensusContract(ch, BpAccount, ConsesusAbi);
+//            consesusContract.CallContractMethod(ConsensusMethod.InitialBalance, BpAccount, "100000");
+//
+//            //Approve Test
+//            tokenContract.SetAccount(Users[1]);
+//            tokenContract.CallContractMethod(TokenMethod.Approve, Users[1], "1000");
+//
+//            //Transfer to Account A, B, C
+//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[1], "5000");
+//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[2], "10000");
+//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[3], "15000");
+//
+//            tokenContract.CheckTransactionResultList();
+//
+//            //Get balance
+//            var txOwner = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[0]);
+//            var txBa = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[1]);
+//            var txBb = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[2]);
+//            var txBc = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[3]);
+//
+//            //Convert to Value
+//            Logger.WriteInfo($"Owner current balance: {tokenContract.ConvertViewResult(txOwner, true)}");
+//
+//            Logger.WriteInfo($"A current balance: {tokenContract.ConvertViewResult(txBa, true)}");
+//
+//            Logger.WriteInfo($"B current balance: {tokenContract.ConvertViewResult(txBb, true)}");
+//
+//            Logger.WriteInfo($"C current balance: {tokenContract.ConvertViewResult(txBc, true)}");
+//
+//            #endregion
+//
+//            #region AElf.Contract.Resource
+//            var resourceContract = new ResourceContract(ch, Users[0]);
+//
+//            resourceContract.CallContractMethod(ResourceMethod.Initialize, tokenContract.ContractAbi, Users[0], Users[0]);
+//
+//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "CPU", "1000000");
+//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
+//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
+//            
+//            //Buy resource
+//            resourceContract.Account = Users[1];
+//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "1000");
+//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "6000");
+//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Ram", "10000");
+//
+//            //Account 4 have no money
+//            resourceContract.SetAccount(Users[4]);
+//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
+//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
+//
+//            //Query user resource
+//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[1], "Cpu");
+//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Cpu");
+//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Net");
+//
+//            //Query user token
+//            tokenContract.ExecuteContractMethod("BalanceOf", Users[0]);
+//
+//            //Sell resource
+//            resourceContract.SetAccount(Users[1]);
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
+//
+//            resourceContract.SetAccount(Users[4]);
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
+//            resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, Users[0], "Ram");
+//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
 
             #endregion
         }

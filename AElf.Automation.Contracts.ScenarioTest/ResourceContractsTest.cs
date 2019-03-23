@@ -22,6 +22,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public TokenContract tokenService { get; set; }
         public ResourceContract resourceService { get; set; }
 
+        /*
         [TestInitialize]
         public void Initlize()
         {
@@ -38,9 +39,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH.RpcConnectChain(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
 
             //Load default Contract Abi
             ci = new CommandInfo("LoadContractAbi");
@@ -119,7 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             tokenService.CheckTransactionResultList();
             foreach (var acc in AccList)
             {
-                var queryResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
+                var queryResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, acc);
                 Logger.WriteInfo($"Account: {acc}, Balance: {tokenService.ConvertViewResult(queryResult, true)}");
             }
         }
@@ -183,5 +184,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 resourceService.ConvertViewResult(ramElf, true),
                 resourceService.ConvertViewResult(netElf, true)));
         }
+        */
     }
 }

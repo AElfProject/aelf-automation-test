@@ -92,7 +92,7 @@ namespace AElf.Automation.Common.Protobuf
             var argsList = args.ToList();
             if (argsList.Count != Params.Count)
             {
-                throw new Exception("Input doen't have the required number of parameters.");
+                throw new Exception("Input doesn't have the required number of parameters.");
             }
 
             var parsed = Parsers.Zip(argsList, Tuple.Create).Select(x => x.Item1(x.Item2)).ToArray();

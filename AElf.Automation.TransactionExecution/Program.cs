@@ -4,6 +4,8 @@ using System.IO;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.Common;
+using AElf.Contracts.MultiToken.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.TransactionExecution
@@ -40,9 +42,9 @@ namespace AElf.Automation.TransactionExecution
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAddress = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAddress = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
             ResourceAddress = ci.JsonInfo["AElf.Contracts.Resource"].ToObject<string>();
 
             //Load default Contract Abi
@@ -75,9 +77,18 @@ namespace AElf.Automation.TransactionExecution
             for (int i = 1; i < Users.Count; i++)
             {
                 //Execute Transfer
-                Executor.Token.CallContractMethod(TokenMethod.Transfer, Users[i], (i * 100).ToString());
+                Executor.Token.CallContractMethod(TokenMethod.Transfer, new TransferInput
+                {
+                    Amount = (long)(i * 100),
+                    To = Address.Parse(Users[i])
+                });
                 //Query Balance
-                var balanceResult = Executor.Token.CallReadOnlyMethod(TokenMethod.BalanceOf, Users[i]);
+                var balanceResult = Executor.Token.CallReadOnlyMethod(TokenMethod.GetBalance, 
+                    new GetBalanceInput
+                    {
+                        Symbol = "ELF",
+                        Owner = Address.Parse(Users[i]),
+                    });
                 var balance = Executor.Token.ConvertViewResult(balanceResult, true);
                 Console.WriteLine($"User: {Users[i]}, Balance: {balance}");
             }

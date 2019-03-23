@@ -1,4 +1,5 @@
-﻿using AElf.Automation.Common.Helpers;
+﻿using System;
+using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -98,7 +99,7 @@ namespace AElf.Automation.Common.Extensions
                 return false;
             }
 
-            if (response.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(response))
             {
                 _log.WriteError("Failed. Pleas check input.");
                 return false;

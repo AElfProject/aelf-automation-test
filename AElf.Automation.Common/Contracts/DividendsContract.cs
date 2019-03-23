@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
@@ -28,19 +29,19 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public CommandInfo CallContractMethod(DicidendsMethod method, params string[] paramsArray)
+        public CommandInfo CallContractMethod(DicidendsMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), paramsArray);
+            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
         }
 
-        public void CallContractWithoutResult(DicidendsMethod method, params string[] paramsArray)
+        public void CallContractWithoutResult(DicidendsMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), paramsArray);
+            ExecuteContractMethod(method.ToString(), inputParameter);
         }
 
-        public JObject CallReadOnlyMethod(DicidendsMethod method, params string[] paramsArray)
+        public JObject CallReadOnlyMethod(DicidendsMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), paramsArray);
+            return CallContractViewMethod(method.ToString(), inputParameter);
         }
     }
 }

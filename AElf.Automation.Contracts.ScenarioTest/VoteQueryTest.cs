@@ -52,9 +52,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH.RpcConnectChain(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.Token ABI
+            //Get AElf.Contracts.MultiToken ABI
             ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.Token"].ToObject<string>();
+            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
             ConsensusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
             DividendsAbi = ci.JsonInfo["AElf.Contracts.Dividends"].ToObject<string>();
 
@@ -97,66 +97,66 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
-        #region Dividends Test
-
-        [TestMethod]
-        [DataRow(1)]
-        [DataRow(2)]
-        [DataRow(5)]
-        public void GetTermDividends(int termNo)
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermDividends, termNo.ToString());
-            Logger.WriteInfo($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        [TestMethod]
-        [DataRow(18)]
-        [DataRow(19)]
-        [DataRow(20)]
-        public void GetTermTotalWeights(int termNo)
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermTotalWeights, termNo.ToString());
-            Logger.WriteInfo($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        [TestMethod]
-        [DataRow(1000, 90)]
-        [DataRow(100, 900)]
-        [DataRow(500, 180)]
-        public void CheckDividendsOfPreviousTerm(int ticketsAmount, int lockTime)
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividendsOfPreviousTerm, ticketsAmount.ToString(), lockTime.ToString());
-            Logger.WriteInfo($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        [TestMethod]
-        [DataRow(1000, 90, 18)]
-        [DataRow(100, 900, 18)]
-        [DataRow(500, 180, 18)]
-        public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());
-            Logger.WriteInfo(
-                $"Ticket: {ticketsAmount}, LockTime: {lockTime}, TermNo: {termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        [TestMethod]
-        public void CheckStandardDividendsOfPreviousTerm()
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm);
-            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        [TestMethod]
-        [DataRow(10)]
-        [DataRow(20)]
-        [DataRow(50)]
-        public void CheckStandardDividends(int termNo)
-        {
-            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm, termNo.ToString());
-            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
-        }
-
-        #endregion
+//        #region Dividends Test
+//
+//        [TestMethod]
+//        [DataRow(1)]
+//        [DataRow(2)]
+//        [DataRow(5)]
+//        public void GetTermDividends(int termNo)
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermDividends, termNo.ToString());
+//            Logger.WriteInfo($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        [TestMethod]
+//        [DataRow(18)]
+//        [DataRow(19)]
+//        [DataRow(20)]
+//        public void GetTermTotalWeights(int termNo)
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.GetTermTotalWeights, termNo.ToString());
+//            Logger.WriteInfo($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        [TestMethod]
+//        [DataRow(1000, 90)]
+//        [DataRow(100, 900)]
+//        [DataRow(500, 180)]
+//        public void CheckDividendsOfPreviousTerm(int ticketsAmount, int lockTime)
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividendsOfPreviousTerm, ticketsAmount.ToString(), lockTime.ToString());
+//            Logger.WriteInfo($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        [TestMethod]
+//        [DataRow(1000, 90, 18)]
+//        [DataRow(100, 900, 18)]
+//        [DataRow(500, 180, 18)]
+//        public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());
+//            Logger.WriteInfo(
+//                $"Ticket: {ticketsAmount}, LockTime: {lockTime}, TermNo: {termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        [TestMethod]
+//        public void CheckStandardDividendsOfPreviousTerm()
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm);
+//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        [TestMethod]
+//        [DataRow(10)]
+//        [DataRow(20)]
+//        [DataRow(50)]
+//        public void CheckStandardDividends(int termNo)
+//        {
+//            var dividends = dividendsService.CallReadOnlyMethod(DicidendsMethod.CheckStandardDividendsOfPreviousTerm, termNo.ToString());
+//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//        }
+//
+//        #endregion
     }
 }
