@@ -64,8 +64,8 @@ namespace AElf.Automation.SideChainVerification
             _chainName = chainName;
             _ch = new CliHelper(rpcUrl1, keyStorePath);
             //connection chain
-            var ci = new CommandInfo("ConnectChain");
-            _ch.RpcConnectChain(ci);
+            var ci = new CommandInfo("GetChainInformation");
+            _ch.RpcGetChainInformation(ci);
             VerifyResultList = new ConcurrentQueue<VerifyResult>();
             CancellationList = new List<CancellationTokenSource>();
 

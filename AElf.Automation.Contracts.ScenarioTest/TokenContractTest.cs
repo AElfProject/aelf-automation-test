@@ -37,8 +37,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
-            CH.RpcConnectChain(ci);
+            var ci = new CommandInfo("GetChainInformation");
+            CH.RpcGetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Get AElf.Contracts.MultiToken ABI

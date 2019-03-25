@@ -26,8 +26,8 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestRpcConnect()
         {
-            _ci = new CommandInfo("ConnectChain");
-            _ch.RpcConnectChain(_ci);
+            _ci = new CommandInfo("GetChainInformation");
+            _ch.RpcGetChainInformation(_ci);
             Assert.IsTrue(_ci.Result);
         }
 
