@@ -212,7 +212,7 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsFalse(true, "Deployed contract not executed successfully.");
         }
 
-        public void InitializeContract()
+        public void CreateContract()
         {
             for (int i = 0; i < ContractList.Count; i++)
             {
@@ -226,7 +226,7 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsTrue(ci.Result);
 
                 //Execute contract method
-                var symbol = $"ELF{RandomString(4, false)}";
+                var symbol = $"ELF{iToString(i,false)}";
                 ContractList[i].Symbol = symbol;
                 ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
                 ci.ParameterInput = new CreateInput
@@ -245,11 +245,28 @@ namespace AElf.Automation.RpcPerformance
                 string transactionId = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, transactionId);
                 TxIdList.Add(transactionId);
-                
-                Thread.Sleep(2000);
-                
+
+                Thread.Sleep(5000);
+            }
+            CheckResultStatus(TxIdList);
+        }
+
+        public void IssueContract()
+        {
+            for (int i = 0; i < ContractList.Count; i++)
+            {
+                string account = AccountList[ContractList[i].AccountId].Account;
+                string contractPath = ContractList[i].AbiPath;
+
+                //Load Contract abi
+                var ci = new CommandInfo("LoadContractAbi");
+                ci.Parameter = contractPath;
+                CH.ExecuteCommand(ci);
+                Assert.IsTrue(ci.Result);
+                var symbol = $"ELF{iToString(i, false)}";
+
                 //Issue balance to issuer
-                    ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
                 ci.ParameterInput = new IssueInput()
                 {
                     Amount = 100_000_000L,
@@ -260,14 +277,15 @@ namespace AElf.Automation.RpcPerformance
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 ci.GetJsonInfo();
-                
-                transactionId = ci.JsonInfo["TransactionId"].ToString();
+
+                var transactionId = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, transactionId);
                 TxIdList.Add(transactionId);
             }
-
+            
             CheckResultStatus(TxIdList);
         }
+        
 
         public void LoadAllContractAbi()
         {
@@ -687,13 +705,11 @@ namespace AElf.Automation.RpcPerformance
             return random.Next().ToString();
         }
 
-        private string RandomString(int size, bool lowerCase)
+        private string iToString(int i, bool lowerCase)
         {
-            var random = new Random(DateTime.Now.Millisecond);
-            StringBuilder builder = new StringBuilder(size);
-            int startChar = lowerCase ? 97 : 65;//65 = A / 97 = a
-            for (int i = 0; i < size; i++)
-                builder.Append((char)(26 * random.NextDouble() + startChar));
+            StringBuilder builder = new StringBuilder(1);
+            int startChar = lowerCase ? 97+i : 65+i;//65 = A / 97 = a
+            builder.Append((char)(startChar));
             return builder.ToString();
         }
         #endregion
