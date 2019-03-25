@@ -115,7 +115,7 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //New
-            NewAccounts(100);
+            NewAccounts(50);
 
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
@@ -168,12 +168,12 @@ namespace AElf.Automation.RpcPerformance
             }
 
             int count = 0;
-            int checkTimes = 30;
+            int checkTimes = 20;
 
             while (checkTimes>0)
             {
                 checkTimes--;
-                Thread.Sleep(2000);
+                Thread.Sleep(5000);
                 foreach (dynamic item in contractList)
                 {
                     if (item.Result == false)
@@ -202,7 +202,7 @@ namespace AElf.Automation.RpcPerformance
                             ms.Dispose();
                         }
 
-                        Thread.Sleep(10);
+                        Thread.Sleep(100);
                     }
                 }
 
