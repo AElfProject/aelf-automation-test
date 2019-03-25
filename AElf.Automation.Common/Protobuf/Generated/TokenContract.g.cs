@@ -70,7 +70,7 @@ namespace AElf.Contracts.MultiToken.Messages {
             "LkFkZHJlc3MSGQoHc3BlbmRlchgDIAEoCzIILkFkZHJlc3MiawoSR2V0QWxs",
             "b3dhbmNlT3V0cHV0Eg4KBnN5bWJvbBgBIAEoCRIXCgVvd25lchgCIAEoCzII",
             "LkFkZHJlc3MSGQoHc3BlbmRlchgDIAEoCzIILkFkZHJlc3MSEQoJYWxsb3dh",
-            "bmNlGAQgASgSMucICg1Ub2tlbkNvbnRyYWN0EjAKBkNyZWF0ZRIMLkNyZWF0",
+            "bmNlGAQgASgSMp0JCg1Ub2tlbkNvbnRyYWN0EjAKBkNyZWF0ZRIMLkNyZWF0",
             "ZUlucHV0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASRgoRQ3JlYXRlTmF0",
             "aXZlVG9rZW4SFy5DcmVhdGVOYXRpdmVUb2tlbklucHV0GhYuZ29vZ2xlLnBy",
             "b3RvYnVmLkVtcHR5IgASLgoFSXNzdWUSCy5Jc3N1ZUlucHV0GhYuZ29vZ2xl",
@@ -88,15 +88,16 @@ namespace AElf.Contracts.MultiToken.Messages {
             "aW9uRmVlc0lucHV0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASTAoUQ2xh",
             "aW1UcmFuc2FjdGlvbkZlZXMSGi5DbGFpbVRyYW5zYWN0aW9uRmVlc0lucHV0",
             "GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASPAoMU2V0TWV0aG9kRmVlEhIu",
-            "U2V0TWV0aG9kRmVlSW5wdXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABI1",
-            "CgxHZXRUb2tlbkluZm8SEi5HZXRUb2tlbkluZm9JbnB1dBoKLlRva2VuSW5m",
-            "byIF2LanAQESOAoKR2V0QmFsYW5jZRIQLkdldEJhbGFuY2VJbnB1dBoRLkdl",
-            "dEJhbGFuY2VPdXRwdXQiBdi2pwEBEj4KDEdldEFsbG93YW5jZRISLkdldEFs",
-            "bG93YW5jZUlucHV0GhMuR2V0QWxsb3dhbmNlT3V0cHV0IgXYtqcBARI5CgxH",
-            "ZXRNZXRob2RGZWUSEi5HZXRNZXRob2RGZWVJbnB1dBoTLkdldE1ldGhvZEZl",
-            "ZU91dHB1dCIAGjCqpHQsQUVsZi5Db250cmFjdHMuTXVsdGlUb2tlbi5Ub2tl",
-            "bkNvbnRyYWN0U3RhdGVCJaoCIkFFbGYuQ29udHJhY3RzLk11bHRpVG9rZW4u",
-            "TWVzc2FnZXNiBnByb3RvMw=="));
+            "U2V0TWV0aG9kRmVlSW5wdXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABI0",
+            "ChFTZXRGZWVQb29sQWRkcmVzcxIFLkhhc2gaFi5nb29nbGUucHJvdG9idWYu",
+            "RW1wdHkiABI1CgxHZXRUb2tlbkluZm8SEi5HZXRUb2tlbkluZm9JbnB1dBoK",
+            "LlRva2VuSW5mbyIF2LanAQESOAoKR2V0QmFsYW5jZRIQLkdldEJhbGFuY2VJ",
+            "bnB1dBoRLkdldEJhbGFuY2VPdXRwdXQiBdi2pwEBEj4KDEdldEFsbG93YW5j",
+            "ZRISLkdldEFsbG93YW5jZUlucHV0GhMuR2V0QWxsb3dhbmNlT3V0cHV0IgXY",
+            "tqcBARI5CgxHZXRNZXRob2RGZWUSEi5HZXRNZXRob2RGZWVJbnB1dBoTLkdl",
+            "dE1ldGhvZEZlZU91dHB1dCIAGjCqpHQsQUVsZi5Db250cmFjdHMuTXVsdGlU",
+            "b2tlbi5Ub2tlbkNvbnRyYWN0U3RhdGVCJaoCIkFFbGYuQ29udHJhY3RzLk11",
+            "bHRpVG9rZW4uTWVzc2FnZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::AElf.Common.CommonReflection.Descriptor, global::Aelf.AelfOptionsReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -376,7 +377,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.issuer_ != null) {
         if (issuer_ == null) {
-          Issuer = new global::AElf.Common.Address();
+          issuer_ = new global::AElf.Common.Address();
         }
         Issuer.MergeFrom(other.Issuer);
       }
@@ -416,9 +417,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 50: {
             if (issuer_ == null) {
-              Issuer = new global::AElf.Common.Address();
+              issuer_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Issuer);
+            input.ReadMessage(issuer_);
             break;
           }
           case 56: {
@@ -670,7 +671,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.issuer_ != null) {
         if (issuer_ == null) {
-          Issuer = new global::AElf.Common.Address();
+          issuer_ = new global::AElf.Common.Address();
         }
         Issuer.MergeFrom(other.Issuer);
       }
@@ -707,9 +708,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 42: {
             if (issuer_ == null) {
-              Issuer = new global::AElf.Common.Address();
+              issuer_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Issuer);
+            input.ReadMessage(issuer_);
             break;
           }
           case 48: {
@@ -965,7 +966,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.issuer_ != null) {
         if (issuer_ == null) {
-          Issuer = new global::AElf.Common.Address();
+          issuer_ = new global::AElf.Common.Address();
         }
         Issuer.MergeFrom(other.Issuer);
       }
@@ -1002,9 +1003,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 42: {
             if (issuer_ == null) {
-              Issuer = new global::AElf.Common.Address();
+              issuer_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Issuer);
+            input.ReadMessage(issuer_);
             break;
           }
           case 48: {
@@ -1200,7 +1201,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.to_ != null) {
         if (to_ == null) {
-          To = new global::AElf.Common.Address();
+          to_ = new global::AElf.Common.Address();
         }
         To.MergeFrom(other.To);
       }
@@ -1229,9 +1230,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 34: {
             if (to_ == null) {
-              To = new global::AElf.Common.Address();
+              to_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(To);
+            input.ReadMessage(to_);
             break;
           }
         }
@@ -1419,7 +1420,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.toSystemContractName_ != null) {
         if (toSystemContractName_ == null) {
-          ToSystemContractName = new global::AElf.Common.Hash();
+          toSystemContractName_ = new global::AElf.Common.Hash();
         }
         ToSystemContractName.MergeFrom(other.ToSystemContractName);
       }
@@ -1448,9 +1449,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 34: {
             if (toSystemContractName_ == null) {
-              ToSystemContractName = new global::AElf.Common.Hash();
+              toSystemContractName_ = new global::AElf.Common.Hash();
             }
-            input.ReadMessage(ToSystemContractName);
+            input.ReadMessage(toSystemContractName_);
             break;
           }
         }
@@ -1629,7 +1630,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.to_ != null) {
         if (to_ == null) {
-          To = new global::AElf.Common.Address();
+          to_ = new global::AElf.Common.Address();
         }
         To.MergeFrom(other.To);
       }
@@ -1655,9 +1656,9 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (to_ == null) {
-              To = new global::AElf.Common.Address();
+              to_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(To);
+            input.ReadMessage(to_);
             break;
           }
           case 18: {
@@ -1896,19 +1897,19 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.from_ != null) {
         if (from_ == null) {
-          From = new global::AElf.Common.Address();
+          from_ = new global::AElf.Common.Address();
         }
         From.MergeFrom(other.From);
       }
       if (other.to_ != null) {
         if (to_ == null) {
-          To = new global::AElf.Common.Address();
+          to_ = new global::AElf.Common.Address();
         }
         To.MergeFrom(other.To);
       }
       if (other.lockId_ != null) {
         if (lockId_ == null) {
-          LockId = new global::AElf.Common.Hash();
+          lockId_ = new global::AElf.Common.Hash();
         }
         LockId.MergeFrom(other.LockId);
       }
@@ -1934,23 +1935,23 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (from_ == null) {
-              From = new global::AElf.Common.Address();
+              from_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(From);
+            input.ReadMessage(from_);
             break;
           }
           case 18: {
             if (to_ == null) {
-              To = new global::AElf.Common.Address();
+              to_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(To);
+            input.ReadMessage(to_);
             break;
           }
           case 26: {
             if (lockId_ == null) {
-              LockId = new global::AElf.Common.Hash();
+              lockId_ = new global::AElf.Common.Hash();
             }
-            input.ReadMessage(LockId);
+            input.ReadMessage(lockId_);
             break;
           }
           case 34: {
@@ -2189,19 +2190,19 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.from_ != null) {
         if (from_ == null) {
-          From = new global::AElf.Common.Address();
+          from_ = new global::AElf.Common.Address();
         }
         From.MergeFrom(other.From);
       }
       if (other.to_ != null) {
         if (to_ == null) {
-          To = new global::AElf.Common.Address();
+          to_ = new global::AElf.Common.Address();
         }
         To.MergeFrom(other.To);
       }
       if (other.lockId_ != null) {
         if (lockId_ == null) {
-          LockId = new global::AElf.Common.Hash();
+          lockId_ = new global::AElf.Common.Hash();
         }
         LockId.MergeFrom(other.LockId);
       }
@@ -2227,23 +2228,23 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (from_ == null) {
-              From = new global::AElf.Common.Address();
+              from_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(From);
+            input.ReadMessage(from_);
             break;
           }
           case 18: {
             if (to_ == null) {
-              To = new global::AElf.Common.Address();
+              to_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(To);
+            input.ReadMessage(to_);
             break;
           }
           case 26: {
             if (lockId_ == null) {
-              LockId = new global::AElf.Common.Hash();
+              lockId_ = new global::AElf.Common.Hash();
             }
-            input.ReadMessage(LockId);
+            input.ReadMessage(lockId_);
             break;
           }
           case 34: {
@@ -2455,13 +2456,13 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.from_ != null) {
         if (from_ == null) {
-          From = new global::AElf.Common.Address();
+          from_ = new global::AElf.Common.Address();
         }
         From.MergeFrom(other.From);
       }
       if (other.to_ != null) {
         if (to_ == null) {
-          To = new global::AElf.Common.Address();
+          to_ = new global::AElf.Common.Address();
         }
         To.MergeFrom(other.To);
       }
@@ -2487,16 +2488,16 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (from_ == null) {
-              From = new global::AElf.Common.Address();
+              from_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(From);
+            input.ReadMessage(from_);
             break;
           }
           case 18: {
             if (to_ == null) {
-              To = new global::AElf.Common.Address();
+              to_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(To);
+            input.ReadMessage(to_);
             break;
           }
           case 26: {
@@ -2666,7 +2667,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.spender_ != null) {
         if (spender_ == null) {
-          Spender = new global::AElf.Common.Address();
+          spender_ = new global::AElf.Common.Address();
         }
         Spender.MergeFrom(other.Spender);
       }
@@ -2689,9 +2690,9 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (spender_ == null) {
-              Spender = new global::AElf.Common.Address();
+              spender_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Spender);
+            input.ReadMessage(spender_);
             break;
           }
           case 18: {
@@ -2857,7 +2858,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.spender_ != null) {
         if (spender_ == null) {
-          Spender = new global::AElf.Common.Address();
+          spender_ = new global::AElf.Common.Address();
         }
         Spender.MergeFrom(other.Spender);
       }
@@ -2880,9 +2881,9 @@ namespace AElf.Contracts.MultiToken.Messages {
             break;
           case 10: {
             if (spender_ == null) {
-              Spender = new global::AElf.Common.Address();
+              spender_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Spender);
+            input.ReadMessage(spender_);
             break;
           }
           case 18: {
@@ -4073,7 +4074,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.owner_ != null) {
         if (owner_ == null) {
-          Owner = new global::AElf.Common.Address();
+          owner_ = new global::AElf.Common.Address();
         }
         Owner.MergeFrom(other.Owner);
       }
@@ -4094,9 +4095,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 18: {
             if (owner_ == null) {
-              Owner = new global::AElf.Common.Address();
+              owner_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Owner);
+            input.ReadMessage(owner_);
             break;
           }
         }
@@ -4257,7 +4258,7 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.owner_ != null) {
         if (owner_ == null) {
-          Owner = new global::AElf.Common.Address();
+          owner_ = new global::AElf.Common.Address();
         }
         Owner.MergeFrom(other.Owner);
       }
@@ -4281,9 +4282,9 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 18: {
             if (owner_ == null) {
-              Owner = new global::AElf.Common.Address();
+              owner_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Owner);
+            input.ReadMessage(owner_);
             break;
           }
           case 24: {
@@ -4448,13 +4449,13 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.owner_ != null) {
         if (owner_ == null) {
-          Owner = new global::AElf.Common.Address();
+          owner_ = new global::AElf.Common.Address();
         }
         Owner.MergeFrom(other.Owner);
       }
       if (other.spender_ != null) {
         if (spender_ == null) {
-          Spender = new global::AElf.Common.Address();
+          spender_ = new global::AElf.Common.Address();
         }
         Spender.MergeFrom(other.Spender);
       }
@@ -4475,16 +4476,16 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 18: {
             if (owner_ == null) {
-              Owner = new global::AElf.Common.Address();
+              owner_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Owner);
+            input.ReadMessage(owner_);
             break;
           }
           case 26: {
             if (spender_ == null) {
-              Spender = new global::AElf.Common.Address();
+              spender_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Spender);
+            input.ReadMessage(spender_);
             break;
           }
         }
@@ -4666,13 +4667,13 @@ namespace AElf.Contracts.MultiToken.Messages {
       }
       if (other.owner_ != null) {
         if (owner_ == null) {
-          Owner = new global::AElf.Common.Address();
+          owner_ = new global::AElf.Common.Address();
         }
         Owner.MergeFrom(other.Owner);
       }
       if (other.spender_ != null) {
         if (spender_ == null) {
-          Spender = new global::AElf.Common.Address();
+          spender_ = new global::AElf.Common.Address();
         }
         Spender.MergeFrom(other.Spender);
       }
@@ -4696,16 +4697,16 @@ namespace AElf.Contracts.MultiToken.Messages {
           }
           case 18: {
             if (owner_ == null) {
-              Owner = new global::AElf.Common.Address();
+              owner_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Owner);
+            input.ReadMessage(owner_);
             break;
           }
           case 26: {
             if (spender_ == null) {
-              Spender = new global::AElf.Common.Address();
+              spender_ = new global::AElf.Common.Address();
             }
-            input.ReadMessage(Spender);
+            input.ReadMessage(spender_);
             break;
           }
           case 32: {

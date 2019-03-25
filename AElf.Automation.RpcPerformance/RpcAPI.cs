@@ -99,14 +99,15 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Prepare new and unlock accounts.");
             CH = new CliHelper(RpcUrl, KeyStorePath);
 
-            //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
+            //Get Chain Information
+            var ci = new CommandInfo("GetChainInformation");
             CH.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
+            Assert.IsTrue(ci.Result, "Get chain information got exception.");
 
             //Get Token Abi
-            ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
+//            ci.GetJsonInfo();
+//            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
+            TokenAbi = "4rkKQpsRFt1nU6weAHuJ6CfQDqo6dxruU3K3wNUFr6ZwZYc";
 
             //Load Contract Abi
             ci = new CommandInfo("LoadContractAbi");
@@ -153,7 +154,7 @@ namespace AElf.Automation.RpcPerformance
                 info.Id = i;
                 info.Account = AccountList[i].Account;
 
-                var ci = new CommandInfo("DeployContract");
+                var ci = new CommandInfo("DeploySmartContract");
                 ci.Parameter = $"AElf.Contracts.MultiToken 0 {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);

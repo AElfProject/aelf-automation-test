@@ -18,7 +18,7 @@ namespace AElf.Automation.Common.Helpers
         #region Properties
         private string _rpcAddress;
         private string _genesisAddress;
-        private string _chainId;
+        private string _chainId = "AELF";
         private AElfKeyStore _keyStore;
         private AccountManager _accountManager;
         private TransactionManager _transactionManager;
@@ -54,13 +54,13 @@ namespace AElf.Automation.Common.Helpers
                 case "AccountUnlock":
                     ci = UnlockAccount(ci);
                     break;
-                case "ConnectChain":
-                    RpcConnectChain(ci);
+                case "GetChainInformation":
+                    RpcGetChainInformation(ci);
                     break;
                 case "LoadContractAbi":
                     RpcLoadContractAbi(ci);
                     break;
-                case "DeployContract":
+                case "DeploySmartContract":
                     RpcDeployContract(ci);
                     break;
                 case "BroadcastTransaction":
@@ -95,7 +95,7 @@ namespace AElf.Automation.Common.Helpers
                     break;
                 case "SetBlockVolume":
                     RpcSetBlockVolume(ci);
-                    break;
+                    break; 
                 default:
                     _logger.WriteError("Invalid command.");
                     break;
@@ -130,9 +130,9 @@ namespace AElf.Automation.Common.Helpers
 
         #region Rpc request methods
 
-        public void RpcConnectChain(CommandInfo ci)
+        public void RpcGetChainInformation(CommandInfo ci)
         {
-            var req = RpcRequestManager.CreateRequest(new JObject(), "ConnectChain", 1);
+            var req = RpcRequestManager.CreateRequest(new JObject(), "GetChainInformation", 1);
             var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -147,9 +147,9 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            if (j["AElf.Contracts.Genesis"] != null)
+            if (j["GenesisContractAddress"] != null)
             {
-                _genesisAddress = j["AElf.Contracts.Genesis"].ToString();
+                _genesisAddress = j["GenesisContractAddress"].ToString();
             }
 
             if (j["ChainId"] != null)
