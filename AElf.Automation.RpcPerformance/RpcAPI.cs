@@ -246,8 +246,10 @@ namespace AElf.Automation.RpcPerformance
                 Assert.AreNotEqual(string.Empty, transactionId);
                 TxIdList.Add(transactionId);
                 
+                Thread.Sleep(2000);
+                
                 //Issue balance to issuer
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
+                    ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
                 ci.ParameterInput = new IssueInput()
                 {
                     Amount = 100_000_000L,
