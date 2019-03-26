@@ -57,9 +57,6 @@ namespace AElf.Automation.Common.Helpers
                 case "GetChainInformation":
                     RpcGetChainInformation(ci);
                     break;
-                case "LoadContractAbi":
-                    RpcLoadContractAbi(ci);
-                    break;
                 case "DeploySmartContract":
                     RpcDeployContract(ci);
                     break;
@@ -71,9 +68,6 @@ namespace AElf.Automation.Common.Helpers
                     break;
                 case "GetCommands":
                     RpcGetCommands(ci);
-                    break;
-                case "GetContractAbi":
-                    RpcGetContractAbi(ci);
                     break;
                 case "GetIncrement":
                     RpcGetIncrement(ci);
@@ -186,9 +180,10 @@ namespace AElf.Automation.Common.Helpers
                 ci.TimeSpan = timeSpan;
                 if (!CheckResponse(ci, returnCode, resp))
                     return;
-                JObject jObj = JObject.Parse(resp);
-                var res = JObject.FromObject(jObj["result"]);
-
+                var jObj = JObject.Parse(resp);
+                var j = jObj["result"];
+                var res = JObject.FromObject(j);
+               
                 JToken ss = res["Abi"];
                 byte[] aa = ByteArrayHelpers.FromHexString(ss.ToString());
 
@@ -266,17 +261,17 @@ namespace AElf.Automation.Common.Helpers
             }
             var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
             
-            var toAdr = tr.To.GetFormatted();
-            if (!_loadedModules.TryGetValue(toAdr, out var m))
-            {
-                if (!_loadedModules.TryGetValue(toAdr, out m))
-                {
-                    ci.ErrorMsg.Add("Abi Not Loaded.");
-                    return;
-                }
-            }
+//            var toAdr = tr.To.GetFormatted();
+//            if (!_loadedModules.TryGetValue(toAdr, out var m))
+//            {
+//                if (!_loadedModules.TryGetValue(toAdr, out m))
+//                {
+//                    ci.ErrorMsg.Add("Abi Not Loaded.");
+//                    return;
+//                }
+//            }
 
-            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+            var method = ci.ContractMethod;
 
             if (method == null)
             {
@@ -358,17 +353,18 @@ namespace AElf.Automation.Common.Helpers
             var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
             
             var toAdr = tr.To.GetFormatted();
-            if (!_loadedModules.TryGetValue(toAdr, out var m))
-            {
-                if (!_loadedModules.TryGetValue(toAdr, out m))
-                {
-                    ci.ErrorMsg.Add("Abi Not Loaded.");
-                    return string.Empty;
-                }
-            }
+//            if (!_loadedModules.TryGetValue(toAdr, out var m))
+//            {
+//                if (!_loadedModules.TryGetValue(toAdr, out m))
+//                {
+//                    ci.ErrorMsg.Add("Abi Not Loaded.");
+//                    return string.Empty;
+//                }
+//            }
+//
+//            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
-            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
-
+            var method = ci.ContractMethod;
             if (method == null)
             {
                 ci.ErrorMsg.Add("Method not found.");
@@ -396,22 +392,23 @@ namespace AElf.Automation.Common.Helpers
             string toAdr = tr.To.GetFormatted();
 
             Module m;
-            if (!_loadedModules.TryGetValue(toAdr, out m))
-            {
-                if (!_loadedModules.TryGetValue(toAdr, out m))
-                {
-                    _logger.WriteError("Abi Not Loaded.");
-                    return string.Empty;
-                }
-            }
+//            if (!_loadedModules.TryGetValue(toAdr, out m))
+//            {
+//                if (!_loadedModules.TryGetValue(toAdr, out m))
+//                {
+//                    _logger.WriteError("Abi Not Loaded.");
+//                    return string.Empty;
+//                }
+//            }
 
-            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
+//            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
-            if (method == null)
-            {
-                _logger.WriteError("Method not found.");
-                return string.Empty;
-            }
+//            var method = ci.ContractMethod;
+//            if (method == null)
+//            {
+//                _logger.WriteError("Method not found.");
+//                return string.Empty;
+//            }
 
             tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
             tr = tr.AddBlockReference(_rpcAddress);
@@ -609,22 +606,22 @@ namespace AElf.Automation.Common.Helpers
 
             string toAdr = tr.To.GetFormatted();
 
-            if (!_loadedModules.TryGetValue(toAdr, out var m))
-            {
-                if (!_loadedModules.TryGetValue(toAdr, out m))
-                {
-                    _logger.WriteError("Abi Not Loaded.");
-                    return string.Empty;
-                }
-            }
+//            if (!_loadedModules.TryGetValue(toAdr, out var m))
+//            {
+//                if (!_loadedModules.TryGetValue(toAdr, out m))
+//                {
+//                    _logger.WriteError("Abi Not Loaded.");
+//                    return string.Empty;
+//                }
+//            }
+//
+//            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
 
-            var method = m.Methods?.FirstOrDefault(mt => mt.Name.Equals(tr.MethodName));
-
-            if (method == null)
-            {
-                _logger.WriteError("Method not found.");
-                return string.Empty;
-            }
+//            if (method == null)
+//            {
+//                _logger.WriteError("Method not found.");
+//                return string.Empty;
+//            }
 
             tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
 

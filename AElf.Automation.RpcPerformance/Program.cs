@@ -65,7 +65,7 @@ namespace AElf.Automation.RpcPerformance
                 performance.DeployContract();
                 performance.CreateContract();
                 performance.IssueContract();
-                performance.LoadAllContractAbi();
+                //performance.LoadAllContractAbi();
 
                 ExecuteRpcTask(performance, ExecuteMode);
             }

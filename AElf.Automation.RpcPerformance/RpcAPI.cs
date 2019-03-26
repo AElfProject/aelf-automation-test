@@ -110,9 +110,9 @@ namespace AElf.Automation.RpcPerformance
             TokenAbi = "4rkKQpsRFt1nU6weAHuJ6CfQDqo6dxruU3K3wNUFr6ZwZYc";
 
             //Load Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
+//            ci = new CommandInfo("LoadContractAbi");
+//            CH.RpcLoadContractAbi(ci);
+//            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //New
             NewAccounts(50);
@@ -219,16 +219,16 @@ namespace AElf.Automation.RpcPerformance
                 string account = AccountList[ContractList[i].AccountId].Account;
                 string contractPath = ContractList[i].AbiPath;
 
-                //Load Contract abi
-                var ci = new CommandInfo("LoadContractAbi");
-                ci.Parameter = contractPath;
-                CH.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
+//                //Load Contract abi
+//                var ci = new CommandInfo("LoadContractAbi");
+//                ci.Parameter = contractPath;
+//                CH.ExecuteCommand(ci);
+//                Assert.IsTrue(ci.Result);
 
                 //Execute contract method
                 var symbol = $"ELF{iToString(i,false)}";
                 ContractList[i].Symbol = symbol;
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
                 ci.ParameterInput = new CreateInput
                 {
                     Symbol = symbol,
@@ -258,15 +258,16 @@ namespace AElf.Automation.RpcPerformance
                 string account = AccountList[ContractList[i].AccountId].Account;
                 string contractPath = ContractList[i].AbiPath;
 
-                //Load Contract abi
-                var ci = new CommandInfo("LoadContractAbi");
-                ci.Parameter = contractPath;
-                CH.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
+//                //Load Contract abi
+//                var ci = new CommandInfo("LoadContractAbi");
+//                ci.Parameter = contractPath;
+//                CH.ExecuteCommand(ci);
+//                Assert.IsTrue(ci.Result);
+                
                 var symbol = $"ELF{iToString(i, false)}";
 
                 //Issue balance to issuer
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
                 ci.ParameterInput = new IssueInput()
                 {
                     Amount = 100_000_000L,
