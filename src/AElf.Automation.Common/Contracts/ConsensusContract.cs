@@ -34,15 +34,15 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ConsensusContract : BaseContract
     {
-        public ConsensusContract(CliHelper ch, string account, string consensusAbi) :
+        public ConsensusContract(CliHelper ch, string address, string consensusAbi) :
             base(ch, consensusAbi)
         {
-            Account = account;
-            UnlockAccount(Account);
+            Address = address;
+            UnlockAccount(Address);
         }
 
-        public ConsensusContract(CliHelper ch, string account)
-            :base(ch, "AElf.Contracts.Consensus", account)
+        public ConsensusContract(CliHelper ch, string address)
+            :base(ch, "AElf.Contracts.Consensus", address)
         {
         }
 

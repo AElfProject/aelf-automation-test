@@ -23,7 +23,7 @@ namespace AElf.Automation.RpcPerformance
         public string RpcUrl { get; }
 
         [Option("-em|--execute.mode", Description =
-            "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continus Tx mode \n3. Batch mode \n4. Continus Txs mode")]
+            "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
         public int ExecuteMode { get; } = 0;
 
         #endregion
@@ -51,7 +51,7 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance = new RpcAPI(ThreadCount, TransactionGroup, RpcUrl);
+            var performance = new RpcOperation(ThreadCount, TransactionGroup, RpcUrl);
             //Init Logger
             var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
@@ -63,7 +63,6 @@ namespace AElf.Automation.RpcPerformance
                 performance.InitExecRpcCommand();
                 performance.DeployContract();
                 performance.InitializeContract();
-                performance.LoadAllContractAbi();
 
                 ExecuteRpcTask(performance, ExecuteMode);
             }
@@ -89,7 +88,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(RpcAPI performance, int execMode = 0)
+        private static void ExecuteRpcTask(RpcOperation performance, int execMode = 0)
         {
             if (execMode == 0)
             {
@@ -112,23 +111,23 @@ namespace AElf.Automation.RpcPerformance
             var tm = (TestMode) execMode;
             switch (tm)
             {
-                case TestMode.Common_Tx:
+                case TestMode.CommonTx:
                     Logger.WriteInfo("Run with tx mode [1].");
                     performance.ExecuteContracts();
                     break;
-                case TestMode.Continous_Tx:
+                case TestMode.ContinuousTx:
                     Logger.WriteInfo("Run with continuous tx mode [2].");
                     performance.ExecuteMultiRpcTask();
                     break;
-                case TestMode.Batch_Txs:
+                case TestMode.BatchTxs:
                     Logger.WriteInfo("Run with txs mode [3].");
                     performance.ExecuteContractsRpc();
                     break;
-                case TestMode.Continous_Txs:
+                case TestMode.ContinuousTxs:
                     Logger.WriteInfo("Run with continuous txs mode [4].");
                     performance.ExecuteMultiRpcTask(true);
                     break;
-                case TestMode.Not_Set:
+                case TestMode.NotSet:
                     break;
                 default:
                     Logger.WriteInfo("Wrong input, please input again.");

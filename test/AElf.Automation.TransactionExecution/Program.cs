@@ -15,7 +15,6 @@ namespace AElf.Automation.TransactionExecution
 
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private static string TokenAddress { get; set; }
-        private static string ResourceAddress { get; set; }
         private static List<string> Users { get; set; }
 
         private static CliHelper CH { get; set; }
@@ -24,7 +23,7 @@ namespace AElf.Automation.TransactionExecution
 
         #endregion
 
-        public static string Endpoint { get; set; } = "http://192.168.197.44:8000/chain";
+        public static string Endpoint { get; set; } = "http://192.168.197.13:8000/chain";
 
         static void Main(string[] args)
         {
@@ -37,19 +36,9 @@ namespace AElf.Automation.TransactionExecution
             CH = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
+            var ci = new CommandInfo("GetChainInformation");
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Get AElf.Contracts.MultiToken ABI
-            ci.GetJsonInfo();
-            TokenAddress = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
-            ResourceAddress = ci.JsonInfo["AElf.Contracts.Resource"].ToObject<string>();
-
-            //Load default Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //Account preparation
             Users = new List<string>();

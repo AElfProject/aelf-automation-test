@@ -64,8 +64,8 @@ namespace AElf.Automation.SideChainVerification
             _chainName = chainName;
             _ch = new CliHelper(rpcUrl1, keyStorePath);
             //connection chain
-            var ci = new CommandInfo("ConnectChain");
-            _ch.RpcConnectChain(ci);
+            var ci = new CommandInfo("GetChainInformation");
+            _ch.RpcGetChainInformation(ci);
             VerifyResultList = new ConcurrentQueue<VerifyResult>();
             CancellationList = new List<CancellationTokenSource>();
 
@@ -76,7 +76,7 @@ namespace AElf.Automation.SideChainVerification
         public void GetSideChainTxId()
         {
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
+            var ci = new CommandInfo("GetChainInformation");
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
             ci.GetJsonInfo();

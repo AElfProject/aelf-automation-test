@@ -24,7 +24,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestConnectChain()
         {
-            var info = _rh.ConnectChain();
+            var info = _rh.GetChainInformation();
         }
 
         [TestMethod]

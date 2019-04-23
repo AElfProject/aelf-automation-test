@@ -14,7 +14,9 @@ namespace AElf.Automation.Common.Contracts
 
         private CliHelper Ch { get; set; }
         private string FileName { get; set; }
-        public string Account { get; set; }
+        public string Address { get; set; }
+        
+        public Address Account {get; set;}
         public string ContractAbi { get; set; }
 
         private ConcurrentQueue<string> TxResultList { get; set; }
@@ -22,16 +24,15 @@ namespace AElf.Automation.Common.Contracts
 
         #endregion
 
-        public BaseContract(CliHelper ch, string fileName, string account)
+        public BaseContract(CliHelper ch, string fileName, string address)
         {
             Ch = ch;
             FileName = fileName;
-            Account = account;
+            Address = address;
             TxResultList = new ConcurrentQueue<string>();
 
-            UnlockAccount(account);
+            UnlockAccount(address);
             DeployContract();
-            LoadContractAbi();
         }
 
         public BaseContract(CliHelper ch, string contractAbi)
@@ -39,7 +40,6 @@ namespace AElf.Automation.Common.Contracts
             Ch = ch;
             ContractAbi = contractAbi;
             TxResultList = new ConcurrentQueue<string>();
-            LoadContractAbi();
         }
 
         public string ExecuteContractMethod(string method, IMessage inputParameter)
@@ -130,7 +130,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public bool SetAccount(string account, string password = "123")
         {
-            Account = account;
+            Address = account;
 
             //Unlock
             var uc = new CommandInfo("AccountUnlock", "account");
@@ -192,11 +192,11 @@ namespace AElf.Automation.Common.Contracts
         /// 调用合约View方法
         /// </summary>
         /// <param name="method"></param>
-        /// <param name="paramArray"></param>
+        /// <param name="input"></param>
         /// <returns></returns>
-        public JObject CallContractViewMethod(string method, IMessage inputParameter)
+        public JObject CallContractViewMethod(string method, IMessage input)
         {
-            var resp = Ch.RpcQueryResult(Account, ContractAbi, method, inputParameter);
+            var resp = Ch.RpcQueryResult(Address, ContractAbi, method, input);
             if (resp == string.Empty)
                 return new JObject();
 
@@ -221,15 +221,15 @@ namespace AElf.Automation.Common.Contracts
         {
             var uc = new CommandInfo("AccountUnlock", "account");
             uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
-            uc = Ch.UnlockAccount(uc);
+            Ch.UnlockAccount(uc);
         }
 
         #region Private Methods
 
         private void DeployContract()
         {
-            var ci = new CommandInfo("DeployContract");
-            ci.Parameter = $"{FileName} 0 {Account}";
+            var ci = new CommandInfo("DeploySmartContract");
+            ci.Parameter = $"{FileName} 0 {Address}";
             Ch.RpcDeployContract(ci);
             if (ci.Result)
             {
@@ -237,25 +237,16 @@ namespace AElf.Automation.Common.Contracts
                 var txId = ci.JsonInfo["TransactionId"].ToString();
                 _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
 
-                bool result = GetContractAbi(txId, out var contractAbi);
+                bool result = GetContractAbi(txId, out _);
                 Assert.IsTrue(result, $"Get contract abi failed.");
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
         }
 
-        private void LoadContractAbi()
-        {
-            var ci = new CommandInfo("LoadContractAbi");
-            ci.Parameter = ContractAbi;
-            Ch.RpcLoadContractAbi(ci);
-
-            Assert.IsTrue(ci.Result, $"Load contract abi failed. Reason: {ci.GetErrorMessage()}");
-        }
-
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return Ch.RpcGenerateTransactionRawTx(Account, ContractAbi, method, inputParameter);
+            return Ch.RpcGenerateTransactionRawTx(Address, ContractAbi, method, inputParameter);
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)

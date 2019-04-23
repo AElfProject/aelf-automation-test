@@ -57,7 +57,7 @@ namespace AElf.Automation.ContractsTesting
             var ch = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
+            var ci = new CommandInfo("GetChainInformation");
             ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 

@@ -50,8 +50,8 @@ namespace AElf.Automation.Common.Helpers
                 case "AccountUnlock":
                     ci = UnlockAccount(ci);
                     break;
-                case "ConnectChain":
-                    RpcConnectChain(ci);
+                case "GetChainInformation":
+                    RpcGetChainInformation(ci);
                     break;
                 case "LoadContractAbi":
                     RpcLoadContractAbi(ci);
@@ -128,7 +128,7 @@ namespace AElf.Automation.Common.Helpers
 
         #region Rpc request methods
 
-        public void RpcConnectChain(CommandInfo ci)
+        public void RpcGetChainInformation(CommandInfo ci)
         {
             var req = RpcRequestManager.CreateRequest(new JObject(), ci.Cmd, 1);
             var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
@@ -145,9 +145,9 @@ namespace AElf.Automation.Common.Helpers
                 return;
             }
 
-            if (j["AElf.Contracts.Genesis"] != null)
+            if (j["GenesisContractAddress"] != null)
             {
-                _genesisAddress = j["AElf.Contracts.Genesis"].ToString();
+                _genesisAddress = j["GenesisContractAddress"].ToString();
             }
 
             if (j["ChainId"] != null)
@@ -168,7 +168,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (_genesisAddress == null)
                 {
-                    ci.ErrorMsg.Add("Please ConnectChain first.");
+                    ci.ErrorMsg.Add("Please GetChainInformation first.");
                     return;
                 }
 
@@ -178,7 +178,7 @@ namespace AElf.Automation.Common.Helpers
             var req = RpcRequestManager.CreateRequest(new JObject
             {
                 ["address"] = ci.Parameter
-            }, ci.Cmd, 1);
+            }, "GetContractAbi", 1);
 
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
@@ -186,7 +186,6 @@ namespace AElf.Automation.Common.Helpers
                 return;
             JObject jObj = JObject.Parse(resp);
             var res = JObject.FromObject(jObj["result"]);
-
 
             ci.InfoMsg.Add(res.ToString());
             ci.Result = true;
@@ -400,7 +399,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (_genesisAddress == null)
                 {
-                    ci.ErrorMsg.Add("Please ConnectChain first.");
+                    ci.ErrorMsg.Add("Please GetChainInformation first.");
                     return;
                 }
 

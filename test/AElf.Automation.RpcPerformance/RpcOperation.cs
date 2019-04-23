@@ -50,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
         }
     }
 
-    public class RpcAPI
+    public class RpcOperation
     {
         #region Public Property
 
@@ -70,7 +70,7 @@ namespace AElf.Automation.RpcPerformance
         public TokenContract TokenService { get; set; }
         #endregion
 
-        public RpcAPI(int threadCount,
+        public RpcOperation(int threadCount,
             int exeTimes,
             string rpcUrl = "http://127.0.0.1:8000/chain",
             string keyStorePath = "")
@@ -97,18 +97,9 @@ namespace AElf.Automation.RpcPerformance
             CH = new CliHelper(RpcUrl, KeyStorePath);
 
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
+            var ci = new CommandInfo("GetChainInformation");
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Get Token Abi
-            ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
-
-            //Load Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //New
             NewAccounts(100);
@@ -150,7 +141,7 @@ namespace AElf.Automation.RpcPerformance
                 info.Id = i;
                 info.Account = AccountList[i].Account;
 
-                var ci = new CommandInfo("DeploySmartContract");
+                var ci = new CommandInfo("DeploySmartContract"); //DeploySmartContract
                 ci.Parameter = $"AElf.Contracts.MultiToken 0 {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
@@ -210,21 +201,15 @@ namespace AElf.Automation.RpcPerformance
 
         public void InitializeContract()
         {
+            //create all token
             for (int i = 0; i < ContractList.Count; i++)
             {
-                string account = AccountList[ContractList[i].AccountId].Account;
-                string contractPath = ContractList[i].AbiPath;
+                var account = AccountList[ContractList[i].AccountId].Account;
+                var contractPath = ContractList[i].AbiPath;
 
-                //Load Contract abi
-                var ci = new CommandInfo("LoadContractAbi");
-                ci.Parameter = contractPath;
-                CH.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-
-                //Execute contract method
                 var symbol = $"ELF{RandomString(4, false)}";
                 ContractList[i].Symbol = symbol;
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create");
                 ci.ParameterInput = new CreateInput
                 {
                     Symbol = symbol,
@@ -241,9 +226,18 @@ namespace AElf.Automation.RpcPerformance
                 string transactionId = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, transactionId);
                 TxIdList.Add(transactionId);
+            }
+
+            CheckResultStatus(TxIdList);
+            
+            //issue all token
+            for (int i = 0; i < ContractList.Count; i++)
+            {
+                var account = AccountList[ContractList[i].AccountId].Account;
+                var contractPath = ContractList[i].AbiPath;
+                var symbol = ContractList[i].Symbol;
                 
-                //Issue balance to issuer
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
                 ci.ParameterInput = new IssueInput()
                 {
                     Amount = 100_000_000L,
@@ -255,11 +249,11 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsTrue(ci.Result);
                 ci.GetJsonInfo();
                 
-                transactionId = ci.JsonInfo["TransactionId"].ToString();
+                var transactionId = ci.JsonInfo["TransactionId"].ToString();
                 Assert.AreNotEqual(string.Empty, transactionId);
                 TxIdList.Add(transactionId);
             }
-
+            
             CheckResultStatus(TxIdList);
         }
 
@@ -503,13 +497,13 @@ namespace AElf.Automation.RpcPerformance
         public void ExecuteMultiRpcTask(bool useTxs = false)
         {
             Logger.WriteInfo("Begin generate multi rpc requests.");
-            for (int r = 1; r > 0; r++) //continous running
+            for (int r = 1; r > 0; r++) //continuous running
             {
                 Logger.WriteInfo("Execution transaction rpc request round: {0}", r);
                 if (useTxs)
                 {
                     //multi task for BroadcastTransactions query
-                    List<Task> txsTasks = new List<Task>();
+                    var txsTasks = new List<Task>();
                     for (int i = 0; i < ThreadCount; i++)
                     {
                         var j = i;

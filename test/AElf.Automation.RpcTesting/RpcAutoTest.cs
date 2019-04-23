@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetConnectChain()
         {
-            string method = "ConnectChain";
+            string method = "GetChainInformation";
             string parameter = "{}";
 
             string response = _request.PostRequest(method, parameter, out var code);
@@ -78,12 +78,12 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void GetContractAbi()
         {
-            string method0 = "ConnectChain";
+            string method0 = "GetChainInformation";
             string parameter0 = "{}";
             string response0 = _request.PostRequest(method0, parameter0, out var code0);
             Console.WriteLine(response0);
             Assert.AreEqual("OK", code0);
-            var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result", "AElf.Contracts.Genesis");
+            var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result", "GenesisContractAddress");
             Assert.IsTrue(result, "Genesis token abi is not exist.");
 
             var method = "GetContractAbi";

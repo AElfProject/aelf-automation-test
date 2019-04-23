@@ -22,9 +22,9 @@ namespace AElf.Automation.Common.Helpers
             return _request.PostRequest(api);
         }
 
-        public JObject ConnectChain()
+        public JObject GetChainInformation()
         {
-            var api = "ConnectChain";
+            var api = "GetChainInformation";
             return _request.PostRequest(api);
         }
 

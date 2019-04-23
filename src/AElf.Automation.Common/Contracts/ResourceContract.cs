@@ -25,16 +25,16 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ResourceContract : BaseContract
     {
-        public ResourceContract(CliHelper ch, string account)
-            :base(ch, "AElf.Contracts.Resource", account)
+        public ResourceContract(CliHelper ch, string address)
+            :base(ch, "AElf.Contracts.Resource", address)
         {
         }
 
-        public ResourceContract(CliHelper ch, string account, string contractAbi) :
+        public ResourceContract(CliHelper ch, string address, string contractAbi) :
             base(ch, contractAbi)
         {
-            Account = account;
-            UnlockAccount(Account);
+            Address = address;
+            UnlockAccount(Address);
         }
 
         public CommandInfo CallContractMethod(ResourceMethod method, IMessage inputParameter)

@@ -42,6 +42,14 @@ namespace AElf.Automation.TransactionExecution
                 Issuer = Address.Parse(CallOwner),
                 Decimals = 2,
             });
+
+            Token.CallContractMethod(TokenMethod.Issue, new IssueInput
+            {
+                Symbol = "ELF",
+                Amount = 1000_000L,
+                To = Address.FromString(Token.Address),
+                Memo = "Test issue money to owner."
+            });
         }
     }
 }
