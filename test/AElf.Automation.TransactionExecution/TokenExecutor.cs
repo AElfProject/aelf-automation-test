@@ -20,7 +20,7 @@ namespace AElf.Automation.TransactionExecution
             CallOwner = callOwner;
             TokenAddress = tokenAddress;
             Token = new TokenContract(cliHelper, callOwner, tokenAddress);
-            InitToken(1000_000_000UL);
+            InitToken(1000_000_000L);
         }
 
         public TokenExecutor(CliHelper cliHelper, string callOwner)
@@ -29,25 +29,25 @@ namespace AElf.Automation.TransactionExecution
             CallOwner = callOwner;
             Token = new TokenContract(cliHelper, callOwner);
             TokenAddress = Token.ContractAbi;
-            InitToken(1000_000_000UL);
+            InitToken(1000_000_000L);
         }
 
-        public void InitToken(ulong amount)
+        public void InitToken(long amount)
         {
-            Token.CallContractMethod(TokenMethod.Create, new CreateInput
+            Token.CallMethodWithResult(TokenMethod.Create, new CreateInput
             {
                 Symbol = "ELF",
                 TokenName = "elf token",
-                TotalSupply = 1000_000L,
+                TotalSupply = amount,
                 Issuer = Address.Parse(CallOwner),
                 Decimals = 2,
             });
 
-            Token.CallContractMethod(TokenMethod.Issue, new IssueInput
+            Token.CallMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = "ELF",
-                Amount = 1000_000L,
-                To = Address.FromString(Token.CallAddress),
+                Amount = amount,
+                To = Address.Parse(CallOwner),
                 Memo = "Test issue money to owner."
             });
         }

@@ -65,20 +65,21 @@ namespace AElf.Automation.TransactionExecution
             for (int i = 1; i < Users.Count; i++)
             {
                 //Execute Transfer
-                Executor.Token.CallContractMethod(TokenMethod.Transfer, new TransferInput
+                Executor.Token.CallMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = (long)(i * 100),
+                    Symbol = "ELF",
+                    Amount = i * 100,
                     To = Address.Parse(Users[i])
                 });
+                
                 //Query Balance
-                var balanceResult = Executor.Token.CallReadOnlyMethod(TokenMethod.GetBalance, 
+                var balanceResult = Executor.Token.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, 
                     new GetBalanceInput
                     {
                         Symbol = "ELF",
                         Owner = Address.Parse(Users[i]),
                     });
-                var balance = Executor.Token.ConvertViewResult(balanceResult, true);
-                Console.WriteLine($"User: {Users[i]}, Balance: {balance}");
+                Console.WriteLine($"User: {Users[i]}, Balance: {balanceResult.Balance}");
             }
 
             #endregion

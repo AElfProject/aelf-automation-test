@@ -48,17 +48,17 @@ namespace AElf.Automation.Common.Contracts
 
         public CommandInfo CallContractMethod(ConsensusMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
+            return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
 
         public void CallContractWithoutResult(ConsensusMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), inputParameter);
+            ExecuteMethodWithTxId(method.ToString(), inputParameter);
         }
 
         public JObject CallReadOnlyMethod(ConsensusMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), inputParameter);
+            return CallViewMethod(method.ToString(), inputParameter);
         }
     }
 }

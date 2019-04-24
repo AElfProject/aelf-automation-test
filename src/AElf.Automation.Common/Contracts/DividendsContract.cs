@@ -31,17 +31,17 @@ namespace AElf.Automation.Common.Contracts
 
         public CommandInfo CallContractMethod(DicidendsMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
+            return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
 
         public void CallContractWithoutResult(DicidendsMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), inputParameter);
+            ExecuteMethodWithTxId(method.ToString(), inputParameter);
         }
 
         public JObject CallReadOnlyMethod(DicidendsMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), inputParameter);
+            return CallViewMethod(method.ToString(), inputParameter);
         }
     }
 }

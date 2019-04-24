@@ -41,19 +41,24 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public CommandInfo CallContractMethod(TokenMethod method, IMessage inputParameter)
+        public CommandInfo CallMethodWithResult(TokenMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
+            return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
 
-        public void CallContractWithoutResult(TokenMethod method, IMessage inputParameter)
+        public void CallWithoutResult(TokenMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), inputParameter);
+            ExecuteMethodWithTxId(method.ToString(), inputParameter);
         }
 
-        public JObject CallReadOnlyMethod(TokenMethod method, IMessage inputParameter)
+        public JObject CallViewMethod(TokenMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), inputParameter);
+            return CallViewMethod(method.ToString(), inputParameter);
+        }
+        
+        public T CallViewMethod<T>(TokenMethod method, IMessage inputParameter) where T : IMessage<T>, new()
+        {
+            return CallViewMethod<T>(method.ToString(), inputParameter);
         }
     }
 }

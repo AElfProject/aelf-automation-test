@@ -39,17 +39,17 @@ namespace AElf.Automation.Common.Contracts
 
         public CommandInfo CallContractMethod(ResourceMethod method, IMessage inputParameter)
         {
-            return ExecuteContractMethodWithResult(method.ToString(), inputParameter);
+            return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
 
         public void CallContractWithoutResult(ResourceMethod method, IMessage inputParameter)
         {
-            ExecuteContractMethod(method.ToString(), inputParameter);
+            ExecuteMethodWithTxId(method.ToString(), inputParameter);
         }
 
         public JObject CallReadOnlyMethod(ResourceMethod method, IMessage inputParameter)
         {
-            return CallContractViewMethod(method.ToString(), inputParameter);
+            return CallViewMethod(method.ToString(), inputParameter);
         }
 
     }

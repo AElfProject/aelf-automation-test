@@ -53,9 +53,6 @@ namespace AElf.Automation.Common.Helpers
                 case "GetChainInformation":
                     RpcGetChainInformation(ci);
                     break;
-                case "LoadContractAbi":
-                    RpcLoadContractAbi(ci);
-                    break;
                 case "DeploySmartContract":
                     RpcDeployContract(ci);
                     break;
@@ -67,12 +64,6 @@ namespace AElf.Automation.Common.Helpers
                     break;
                 case "GetCommands":
                     RpcGetCommands(ci);
-                    break;
-                case "GetContractAbi":
-                    RpcGetContractAbi(ci);
-                    break;
-                case "GetIncrement":
-                    RpcGetIncrement(ci);
                     break;
                 case "GetTransactionResult":
                     RpcGetTxResult(ci);
@@ -88,9 +79,6 @@ namespace AElf.Automation.Common.Helpers
                     break;
                 case "QueryView":
                     RpcQueryViewInfo(ci);
-                    break;
-                case "SetBlockVolume":
-                    RpcSetBlockVolume(ci);
                     break;
                 default:
                     _logger.WriteError("Invalid command.");
@@ -159,35 +147,6 @@ namespace AElf.Automation.Common.Helpers
 
             var message = j.ToString();
             ci.InfoMsg.Add(message);
-            ci.Result = true;
-        }
-
-        public void RpcLoadContractAbi(CommandInfo ci)
-        {
-            if (string.IsNullOrEmpty(ci.Parameter))
-            {
-                if (_genesisAddress == null)
-                {
-                    ci.ErrorMsg.Add("Please GetChainInformation first.");
-                    return;
-                }
-
-                ci.Parameter = _genesisAddress;
-            }
-
-            var req = RpcRequestManager.CreateRequest(new JObject
-            {
-                ["address"] = ci.Parameter
-            }, "GetContractAbi", 1);
-
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp))
-                return;
-            JObject jObj = JObject.Parse(resp);
-            var res = JObject.FromObject(jObj["result"]);
-
-            ci.InfoMsg.Add(res.ToString());
             ci.Result = true;
         }
 
@@ -357,9 +316,9 @@ namespace AElf.Automation.Common.Helpers
             tr = tr.AddBlockReference(_rpcAddress);
 
             _transactionManager.SignTransaction(tr);
-            var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
+            var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
 
-            return rawtx["rawTransaction"].ToString();
+            return rawTx["rawTransaction"].ToString();
         }
 
         public void RpcBroadcastTxs(CommandInfo ci)
@@ -390,54 +349,6 @@ namespace AElf.Automation.Common.Helpers
             JObject jObj = JObject.Parse(resp);
             var j = jObj["result"];
             ci.InfoMsg.Add(j["result"]["commands"].ToString());
-            ci.Result = true;
-        }
-
-        public void RpcGetContractAbi(CommandInfo ci)
-        {
-            if (ci.Parameter == "")
-            {
-                if (_genesisAddress == null)
-                {
-                    ci.ErrorMsg.Add("Please GetChainInformation first.");
-                    return;
-                }
-
-                ci.Parameter = _genesisAddress;
-            }
-
-            var req = RpcRequestManager.CreateRequest(new JObject
-            {
-                ["address"] = ci.Parameter
-            }, ci.Category, 1);
-
-
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp))
-                return;
-
-            JObject jObj = JObject.Parse(resp);
-            var res = JObject.FromObject(jObj["result"]);
-
-            ci.InfoMsg.Add(res.ToString());
-            ci.Result = true;
-        }
-
-        public void RpcGetIncrement(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(1))
-                return;
-
-            var req = RpcRequestManager.CreateRequest(new JObject
-            {
-                ["address"] = ci.Parameter
-            }, ci.Category, 1);
-            var resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp))
-                return;
-            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -506,27 +417,7 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
-        public void RpcSetBlockVolume(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(2))
-                return;
-
-            var req = RpcRequestManager.CreateRequest(new JObject
-            {
-                ["minimal"] = ci.Parameter.Split(" ")?[0],
-                ["maximal"] = ci.Parameter.Split(" ")?[1]
-            }, ci.Category, 1);
-
-
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp))
-                return;
-            ci.InfoMsg.Add(resp);
-            ci.Result = true;
-        }
-
-        public string RpcQueryResult(string from, string to, string methodName, IMessage inputParameter)
+        public JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var tr = new Transaction()
             {
@@ -538,14 +429,56 @@ namespace AElf.Automation.Common.Helpers
             if (tr.MethodName == null)
             {
                 _logger.WriteError("Method not found.");
-                return string.Empty;
+                return new JObject();
             }
 
             tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
 
             var resp = CallTransaction(tr, "Call");
 
-            return resp;
+            if (resp == string.Empty)
+                return new JObject();
+
+            return JObject.Parse(resp);
+        }
+        
+        public T RpcQueryView<T>(string from, string to, string methodName, IMessage inputParameter) where T : IMessage<T>, new()
+        {
+            var tr = new Transaction()
+            {
+                From = Address.Parse(from),
+                To = Address.Parse(to),
+                MethodName = methodName
+            };
+
+            if (tr.MethodName == null)
+            {
+                _logger.WriteError("Method not found.");
+                return default(T);
+            }
+
+            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
+
+            var resp = CallTransaction(tr, "Call");
+            
+            //deserialize response
+            var jObject = new JObject();
+            if (resp != string.Empty)
+                jObject = JObject.Parse(resp);
+            else
+            {
+                _logger.WriteError($"Call response is null or empty.");
+                return default(T);
+            }
+            
+            var resultObj = jObject["result"];
+            if (resultObj == null)
+                return default(T);
+            
+            var byteArray = ByteArrayHelpers.FromHexString(resultObj.ToString());
+            var messageParser = new MessageParser<T>(()=>new T());
+
+            return messageParser.ParseFrom(byteArray);
         }
 
         public void RpcQueryViewInfo(CommandInfo ci)
@@ -565,21 +498,6 @@ namespace AElf.Automation.Common.Helpers
             ci.InfoMsg.Add(rObj.ToString());
 
             ci.Result = true;
-        }
-
-        private string CallTransaction(Transaction tx, string api)
-        {
-            MemoryStream ms = new MemoryStream();
-            Serializer.Serialize(ms, tx);
-
-            byte[] b = ms.ToArray();
-            string payload = b.ToHex();
-            var reqParams = new JObject {["rawTransaction"] = payload};
-            var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
-
-            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
-
-            return resp;
         }
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
@@ -632,7 +550,19 @@ namespace AElf.Automation.Common.Helpers
         }
 
         #endregion
+        
+        private string CallTransaction(Transaction tx, string api)
+        {
+            var rawTx = _transactionManager.ConvertTransactionRawTx(tx);
+            var reqParams = new JObject {
+                ["rawTransaction"] = rawTx["rawTransaction"].ToString()
+            };
+            var req = RpcRequestManager.CreateRequest(reqParams, api, 1);
 
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+
+            return resp;
+        }
         private bool CheckResponse(CommandInfo ci, string returnCode, string response)
         {
             if (response == null)
@@ -654,11 +584,6 @@ namespace AElf.Automation.Common.Helpers
             }
 
             return true;
-        }
-
-        private ulong GetRandomIncrId()
-        {
-            return Convert.ToUInt64(DateTime.Now.ToString("MMddHHmmss") + DateTime.Now.Millisecond.ToString());
         }
     }
 }
