@@ -36,7 +36,7 @@ namespace AElf.Automation.TransactionExecution
             CH = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("GetChainInformation");
+            var ci = new CommandInfo(ApiMethods.GetChainInformation);
             CH.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
@@ -45,14 +45,14 @@ namespace AElf.Automation.TransactionExecution
 
             for (int i = 0; i < 5; i++)
             {
-                ci = new CommandInfo("AccountNew", "account") {Parameter = "123"};
+                ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = CH.NewAccount(ci);
                 if(ci.Result)
                     Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo("AccountUnlock", "account");
-                uc.Parameter = string.Format("{0} {1} {2}", Users[i], "123", "notimeout");
+                var uc = new CommandInfo(ApiMethods.AccountUnlock);
+                uc.Parameter = $"{Users[i]} 123 notimeout";
                 CH.UnlockAccount(uc);
             }
             #endregion

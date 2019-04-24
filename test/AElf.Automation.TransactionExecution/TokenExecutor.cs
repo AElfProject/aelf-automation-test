@@ -47,7 +47,7 @@ namespace AElf.Automation.TransactionExecution
             {
                 Symbol = "ELF",
                 Amount = 1000_000L,
-                To = Address.FromString(Token.Address),
+                To = Address.FromString(Token.CallAddress),
                 Memo = "Test issue money to owner."
             });
         }

@@ -20,7 +20,7 @@ namespace AElf.Automation.RpcTesting
 
         public int GetCurrentHeight()
         {
-            var ci = new CommandInfo("GetBlockHeight");
+            var ci = new CommandInfo(ApiMethods.GetBlockHeight);
             Ch.ExecuteCommand(ci);
             if (ci.Result)
             {
@@ -36,7 +36,7 @@ namespace AElf.Automation.RpcTesting
 
         public JObject GetBlockInfo(int height)
         {
-            var ci = new CommandInfo("GetBlockInfo");
+            var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             ci.Parameter = $"{height.ToString()} true";
             Ch.ExecuteCommand(ci);
             if (ci.Result)
@@ -53,7 +53,7 @@ namespace AElf.Automation.RpcTesting
 
         public JObject GetTxResult(string txHash)
         {
-            var ci = new CommandInfo("GetTransactionResult");
+            var ci = new CommandInfo(ApiMethods.GetTransactionResult);
             ci.Parameter = txHash;
             Ch.ExecuteCommand(ci);
             if (ci.Result)

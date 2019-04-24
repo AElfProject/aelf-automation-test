@@ -57,6 +57,18 @@ namespace AElf.Automation.Common.Extensions
 
             return new JObject();
         }
+        
+        public JObject PostRequest(ApiMethods api)
+        {
+            var method = api.ToString();
+            var requestString = CreateRequest(new JObject(), method, 0).ToString();
+            string response = PostRequest(method, requestString, out var returnCode);
+            var result = CheckRpcRequestResult(returnCode, response);
+            if (result)
+                return JsonConvert.DeserializeObject<JObject>(response);
+
+            return new JObject();
+        }
 
         public string PostRequest(List<string> rpcBody, out string returnCode)
         {

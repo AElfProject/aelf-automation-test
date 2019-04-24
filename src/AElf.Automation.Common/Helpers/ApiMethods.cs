@@ -8,20 +8,16 @@
         AccountUnlock,
 
         //Chain
-        ConnectChain,
-        LoadContractAbi,
+        GetChainInformation,
         DeploySmartContract,
         BroadcastTransaction,
         BroadcastTransactions,
         GetCommands,
-        GetContractAbi,
-        GetIncrement,
         GetTransactionResult,
         GetTransactionsResult,
         GetBlockHeight,
         GetBlockInfo,
         GetMerklePath,
-        SetBlockVolumn,
         QueryView,
 
         //Net

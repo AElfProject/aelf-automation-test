@@ -26,12 +26,5 @@ namespace AElf.Automation.RpcTesting
         {
             var info = _rh.GetChainInformation();
         }
-
-        [TestMethod]
-        [DataRow("ELF_6jPmaBi4U8Q6E1skXLM9ubDykwYmMUpm3QbeqZSZV3NyotD")]
-        public void QueryContractAbi(string address)
-        {
-            var abiInfo = _rh.QueryContractAbi(address);
-        }
     }
 }

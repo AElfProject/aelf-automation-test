@@ -50,20 +50,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("GetChainInformation");
+            var ci = new CommandInfo(ApiMethods.GetChainInformation);
             CH.RpcGetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Get AElf.Contracts.MultiToken ABI
-            ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
-            ConsensusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
-            DividendsAbi = ci.JsonInfo["AElf.Contracts.Dividends"].ToObject<string>();
-
-            //Load default Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //Get BpNode Info
             BpNodeAccounts = new List<string>();

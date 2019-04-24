@@ -26,36 +26,17 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestRpcConnect()
         {
-            _ci = new CommandInfo("GetChainInformation");
+            _ci = new CommandInfo(ApiMethods.GetChainInformation);
             _ch.RpcGetChainInformation(_ci);
             Assert.IsTrue(_ci.Result);
         }
-
-        [TestMethod]
-        public void TestRpcLoadContractAbi()
-        {
-            _ci = new CommandInfo("LoadContractAbi");
-            _ch.RpcLoadContractAbi(_ci);
-            Assert.IsTrue(_ci.Result);
-        }
         
-        [DataTestMethod]
-        [Ignore("This api is not implemented on new version code.")]
-        [DataRow("1", "2000")]
-        public void TestNodeWithoutCli(string minValue, string maxValue)
-        {
-            _ci = new CommandInfo("SetBlockVolume");
-            _ci.Parameter = String.Format("{0} {1}", minValue, maxValue);
-            _ch.ExecuteCommand(_ci);
-            Assert.IsTrue(_ci.Result);
-        }
-
         [DataTestMethod]
         [DataRow("123")]
         [DataRow("12345")]
         public void TestNewAccount(string password)
         {
-            _ci = new CommandInfo("AccountNew");
+            _ci = new CommandInfo(ApiMethods.AccountNew);
             _ci.Parameter = password;
             _ch.ExecuteCommand(_ci);
             Assert.IsTrue(_ci.Result);
@@ -65,7 +46,7 @@ namespace AElf.Automation.RpcTesting
         [DataRow("0x04f92c1ea999922e443a807fd548060cde48", "123")]
         public void TestUnlockAccount(string account, string password)
         {
-            _ci = new CommandInfo("AccountUnlock");
+            _ci = new CommandInfo(ApiMethods.AccountUnlock);
             _ci.Parameter = string.Format("{0} {1} {2}", account, password, "notimeout");
             _ch.ExecuteCommand(_ci);
             Assert.IsTrue(_ci.Result);
@@ -74,7 +55,7 @@ namespace AElf.Automation.RpcTesting
         [TestMethod]
         public void TestListAccount()
         {
-            _ci = new CommandInfo("AccountList");
+            _ci = new CommandInfo(ApiMethods.AccountList);
             _ch.ExecuteCommand(_ci);
         }
     }

@@ -14,9 +14,9 @@ namespace AElf.Automation.Common.Contracts
 
         private CliHelper Ch { get; set; }
         private string FileName { get; set; }
-        public string Address { get; set; }
+        public string CallAddress { get; set; }
         
-        public Address Account {get; set;}
+        public Address CallAccount {get; set;}
         public string ContractAbi { get; set; }
 
         private ConcurrentQueue<string> TxResultList { get; set; }
@@ -24,14 +24,15 @@ namespace AElf.Automation.Common.Contracts
 
         #endregion
 
-        public BaseContract(CliHelper ch, string fileName, string address)
+        public BaseContract(CliHelper ch, string fileName, string callAddress)
         {
             Ch = ch;
             FileName = fileName;
-            Address = address;
+            CallAddress = callAddress;
+            CallAccount = Address.FromString(callAddress);
             TxResultList = new ConcurrentQueue<string>();
 
-            UnlockAccount(address);
+            UnlockAccount(callAddress);
             DeployContract();
         }
 
@@ -66,7 +67,7 @@ namespace AElf.Automation.Common.Contracts
 
         public bool GetTransactionResult(string txId, out CommandInfo ci)
         {
-            ci = new CommandInfo("GetTransactionResult");
+            ci = new CommandInfo(ApiMethods.GetTransactionResult);
             ci.Parameter = txId;
             Ch.ExecuteCommand(ci);
 
@@ -90,7 +91,7 @@ namespace AElf.Automation.Common.Contracts
             int checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo("GetTransactionResult");
+                ci = new CommandInfo(ApiMethods.GetTransactionResult);
                 ci.Parameter = txId;
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
@@ -130,11 +131,12 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public bool SetAccount(string account, string password = "123")
         {
-            Address = account;
+            CallAddress = account;
+            CallAccount = Address.FromString(account);
 
             //Unlock
-            var uc = new CommandInfo("AccountUnlock", "account");
-            uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
+            var uc = new CommandInfo(ApiMethods.AccountUnlock);
+            uc.Parameter = $"{account} {password} notimeout";
             uc = Ch.UnlockAccount(uc);
 
             return uc.Result;
@@ -153,7 +155,7 @@ namespace AElf.Automation.Common.Contracts
                 bool result = TxResultList.TryDequeue(out var txId);
                 if (!result)
                     break;
-                var ci = new CommandInfo("GetTransactionResult");
+                var ci = new CommandInfo(ApiMethods.GetTransactionResult);
                 ci.Parameter = txId;
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
@@ -196,7 +198,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public JObject CallContractViewMethod(string method, IMessage input)
         {
-            var resp = Ch.RpcQueryResult(Address, ContractAbi, method, input);
+            var resp = Ch.RpcQueryResult(CallAddress, ContractAbi, method, input);
             if (resp == string.Empty)
                 return new JObject();
 
@@ -219,8 +221,8 @@ namespace AElf.Automation.Common.Contracts
 
         public void UnlockAccount(string account, string password = "123")
         {
-            var uc = new CommandInfo("AccountUnlock", "account");
-            uc.Parameter = String.Format("{0} {1} {2}", account, password, "notimeout");
+            var uc = new CommandInfo(ApiMethods.AccountUnlock);
+            uc.Parameter = $"{account} {password} notimeout";
             Ch.UnlockAccount(uc);
         }
 
@@ -228,8 +230,8 @@ namespace AElf.Automation.Common.Contracts
 
         private void DeployContract()
         {
-            var ci = new CommandInfo("DeploySmartContract");
-            ci.Parameter = $"{FileName} 0 {Address}";
+            var ci = new CommandInfo(ApiMethods.DeploySmartContract);
+            ci.Parameter = $"{FileName} 0 {CallAddress}";
             Ch.RpcDeployContract(ci);
             if (ci.Result)
             {
@@ -246,7 +248,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return Ch.RpcGenerateTransactionRawTx(Address, ContractAbi, method, inputParameter);
+            return Ch.RpcGenerateTransactionRawTx(CallAddress, ContractAbi, method, inputParameter);
         }
 
         private bool GetContractAbi(string txId, out string contractAbi)
@@ -274,7 +276,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string ExecuteContractMethod(string rawTx)
         {
-            var ci = new CommandInfo("BroadcastTransaction");
+            var ci = new CommandInfo(ApiMethods.BroadcastTransactions);
             ci.Parameter = rawTx;
             Ch.RpcBroadcastTx(ci);
             if (ci.Result)

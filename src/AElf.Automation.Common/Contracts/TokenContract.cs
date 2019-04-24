@@ -29,16 +29,16 @@ namespace AElf.Automation.Common.Contracts
     }
     public class TokenContract : BaseContract
     {
-        public TokenContract(CliHelper ch, string address) :
-            base(ch, "AElf.Contracts.MultiToken", address)
+        public TokenContract(CliHelper ch, string callAddress) :
+            base(ch, "AElf.Contracts.MultiToken", callAddress)
         {
         }
 
-        public TokenContract(CliHelper ch, string address, string contractAbi):
+        public TokenContract(CliHelper ch, string callAddress, string contractAbi):
             base(ch, contractAbi)
         {
-            Address = address;
-            UnlockAccount(Address);
+            CallAddress = callAddress;
+            UnlockAccount(CallAddress);
         }
 
         public CommandInfo CallContractMethod(TokenMethod method, IMessage inputParameter)

@@ -1,5 +1,4 @@
-﻿using System;
-using AElf.Automation.Common.Extensions;
+﻿using AElf.Automation.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
@@ -18,27 +17,13 @@ namespace AElf.Automation.Common.Helpers
 
         public JObject QueryCommands()
         {
-            var api = "GetCommands";
-            return _request.PostRequest(api);
+            return _request.PostRequest(ApiMethods.GetCommands);
         }
 
         public JObject GetChainInformation()
         {
-            var api = "GetChainInformation";
-            return _request.PostRequest(api);
+            return _request.PostRequest(ApiMethods.GetChainInformation);
         }
-
-        public JObject QueryContractAbi(string address)
-        {
-            var api = "GetContractAbi";
-            var requestData = new JObject
-            {
-                ["address"] = address
-            };
-            return _request.PostRequest(api, requestData, 1);
-        }
-
-
 
         private bool CheckRpcRequestResult(string returnCode, string response)
         {
@@ -54,7 +39,7 @@ namespace AElf.Automation.Common.Helpers
                 return false;
             }
 
-            if (response == String.Empty)
+            if (response == string.Empty)
             {
                 _log.WriteError("Failed. Pleas check input.");
                 return false;

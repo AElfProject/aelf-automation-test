@@ -57,32 +57,22 @@ namespace AElf.Automation.ContractsTesting
             var ch = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("GetChainInformation");
+            var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Get AElf.Contracts.MultiToken ABI
-            ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
-            ConsesusAbi = ci.JsonInfo["AElf.Contracts.Consensus"].ToObject<string>();
-
-            //Load default Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            ch.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
 
             //Account preparation
             Users = new List<string>();
 
             for (int i = 0; i < 5; i++)
             {
-                ci = new CommandInfo("AccountNew", "account") {Parameter = "123"};
+                ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = ch.NewAccount(ci);
                 if(ci.Result)
                     Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo("AccountUnlock", "account");
+                var uc = new CommandInfo(ApiMethods.AccountUnlock);
                 uc.Parameter = string.Format("{0} {1} {2}", Users[i], "123", "notimeout");
                 ch.UnlockAccount(uc);
             }

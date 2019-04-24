@@ -58,10 +58,10 @@ namespace AElf.Automation.Common.Helpers
             Cmd = method.ToString();
             foreach (var parameter in objects)
             {
-                Parameter += parameter.ToString() + " ";
+                Parameter += parameter + " ";
             }
-            Parameter = Parameter.Trim();
-            
+            Parameter = Parameter?.Trim();
+
             InfoMsg = new List<string>();
             ErrorMsg = new List<string>();
             Result = false;
@@ -198,7 +198,7 @@ namespace AElf.Automation.Common.Helpers
                     item.AvageTimeInfo = 0;
 
                 _logger.WriteInfo("Total: {0}, Pass: {1}, Fail: {2}, {3}",
-                    item.Count, item.PassCount, item.FailCount, String.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
+                    item.Count, item.PassCount, item.FailCount, string.Format("AvageTime(milesecond): {0:F}", item.AvageTimeInfo));
             }
         }
         

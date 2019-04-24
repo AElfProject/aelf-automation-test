@@ -202,7 +202,7 @@ namespace AElf.Automation.RpcTesting
             List<object> blockInfos = new List<object>();
             string url = "http://192.168.199.221:8000/chain";
             var ch = new CliHelper(url);
-            var ci = new CommandInfo("GetBlockInfo");
+            var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             for(int i= begin; i<=end; i++)
             {
                 dynamic blockInfo = new System.Dynamic.ExpandoObject();

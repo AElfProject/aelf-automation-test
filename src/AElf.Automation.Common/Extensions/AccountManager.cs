@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.Extensions
 
         public CommandInfo NewAccount(string password="")
         {
-            var result = new CommandInfo("AccountNew", "account");
+            var result = new CommandInfo(ApiMethods.AccountList);
             if (password == "")
                 password = AskInvisible("password:");
             var keypair = _keyStore.CreateAsync(password, _chainId).Result;
@@ -41,7 +41,7 @@ namespace AElf.Automation.Common.Extensions
 
         public CommandInfo ListAccount()
         {
-            var result = new CommandInfo("AccountList", "account");
+            var result = new CommandInfo(ApiMethods.AccountList);
             result.InfoMsg = _keyStore.ListAccountsAsync().Result;
             if (result.InfoMsg.Count != 0)
                 result.Result = true;
@@ -51,7 +51,7 @@ namespace AElf.Automation.Common.Extensions
 
         public CommandInfo UnlockAccount(string address, string password = "", string notimeout = "")
         {
-            var result = new CommandInfo("AccountList", "account");
+            var result = new CommandInfo(ApiMethods.AccountList);
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = string.Format("{0} {1} {2}", address, password, notimeout);

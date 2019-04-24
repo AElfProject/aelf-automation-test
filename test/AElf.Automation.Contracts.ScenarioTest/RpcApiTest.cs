@@ -28,7 +28,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow(2441)]
         public void VerifyTransactionByHeight(int height)
         {
-            var ci = new CommandInfo("GetBlockInfo");
+            var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             ci.Parameter = $"{height.ToString()} {true}";
             Ch.RpcGetBlockInfo(ci);
             Assert.IsTrue(ci.Result, "Request block info failed.");
@@ -37,7 +37,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             foreach (var txId in txArray)
             {
-                var txCi = new CommandInfo("GetTransactionResult");
+                var txCi = new CommandInfo(ApiMethods.GetTransactionResult);
                 txCi.Parameter = txId;
                 Ch.RpcGetTxResult(txCi);
                 Assert.IsTrue(txCi.Result, "Request transaction result failed.");
