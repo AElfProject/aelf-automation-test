@@ -34,8 +34,8 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public TokenContract(CliHelper ch, string callAddress, string contractAbi):
-            base(ch, contractAbi)
+        public TokenContract(CliHelper ch, string callAddress, string contractAddress):
+            base(ch, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

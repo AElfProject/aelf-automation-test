@@ -30,8 +30,8 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public ResourceContract(CliHelper ch, string callAddress, string contractAbi) :
-            base(ch, contractAbi)
+        public ResourceContract(CliHelper ch, string callAddress, string contractAddress) :
+            base(ch, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

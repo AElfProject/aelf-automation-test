@@ -59,7 +59,7 @@ namespace AElf.Automation.TransactionExecution
 
             #region Transaction Execution
             Executor = new TokenExecutor(CH, Users[0]);
-            TokenAddress = Executor.Token.ContractAbi;
+            TokenAddress = Executor.Token.ContractAddress;
 
             //Transfer and check
             for (int i = 1; i < Users.Count; i++)

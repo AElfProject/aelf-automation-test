@@ -15,10 +15,8 @@ namespace AElf.Automation.Common.Contracts
         private CliHelper Ch { get; set; }
         private string FileName { get; set; }
         public string CallAddress { get; set; }
-        
         public Address CallAccount {get; set;}
-        public string ContractAbi { get; set; }
-
+        public string ContractAddress { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
@@ -36,10 +34,10 @@ namespace AElf.Automation.Common.Contracts
             DeployContract();
         }
 
-        public BaseContract(CliHelper ch, string contractAbi)
+        public BaseContract(CliHelper ch, string contractAddress)
         {
             Ch = ch;
-            ContractAbi = contractAbi;
+            ContractAddress = contractAddress;
             TxResultList = new ConcurrentQueue<string>();
         }
 
@@ -198,12 +196,12 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public JObject CallViewMethod(string method, IMessage input)
         {
-            return Ch.RpcQueryView(CallAddress, ContractAbi, method, input);
+            return Ch.RpcQueryView(CallAddress, ContractAddress, method, input);
         }
         
         public T CallViewMethod<T>(string method, IMessage input) where T : IMessage<T>, new()
         {
-            return Ch.RpcQueryView<T>(CallAddress, ContractAbi, method, input);
+            return Ch.RpcQueryView<T>(CallAddress, ContractAddress, method, input);
         }
 
         public void UnlockAccount(string account, string password = "123")
@@ -235,7 +233,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return Ch.RpcGenerateTransactionRawTx(CallAddress, ContractAbi, method, inputParameter);
+            return Ch.RpcGenerateTransactionRawTx(CallAddress, ContractAddress, method, inputParameter);
         }
 
         private bool GetContractAddress(string txId, out string contractAddress)
@@ -252,7 +250,7 @@ namespace AElf.Automation.Common.Contracts
                 if (deployResult == "Mined")
                 {
                     contractAddress = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
-                    ContractAbi = contractAddress;
+                    ContractAddress = contractAddress;
                     _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
                     return true;
                 }

@@ -17,8 +17,8 @@ namespace AElf.Automation.Common.Contracts
     }
     public class DividendsContract :BaseContract
     {
-        public DividendsContract(CliHelper ch, string callAddress, string dividendsAbi)
-            :base(ch, dividendsAbi)
+        public DividendsContract(CliHelper ch, string callAddress, string dividendsAddress)
+            :base(ch, dividendsAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

@@ -28,7 +28,7 @@ namespace AElf.Automation.TransactionExecution
             CH = cliHelper;
             CallOwner = callOwner;
             Token = new TokenContract(cliHelper, callOwner);
-            TokenAddress = Token.ContractAbi;
+            TokenAddress = Token.ContractAddress;
             InitToken(1000_000_000L);
         }
 

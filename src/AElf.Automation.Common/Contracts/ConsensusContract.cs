@@ -34,8 +34,8 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ConsensusContract : BaseContract
     {
-        public ConsensusContract(CliHelper ch, string callAddress, string consensusAbi) :
-            base(ch, consensusAbi)
+        public ConsensusContract(CliHelper ch, string callAddress, string consensusAddress) :
+            base(ch, consensusAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
