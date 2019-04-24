@@ -216,7 +216,7 @@ namespace AElf.Automation.Common.Contracts
         private void DeployContract()
         {
             var ci = new CommandInfo(ApiMethods.DeploySmartContract);
-            ci.Parameter = $"{FileName} 0 {CallAddress}";
+            ci.Parameter = $"{FileName} {CallAddress}";
             Ch.RpcDeployContract(ci);
             if (ci.Result)
             {

@@ -152,7 +152,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcDeployContract(CommandInfo ci)
         {
-            if (!ci.CheckParameterValid(3))
+            if (!ci.CheckParameterValid(2))
                 return;
             string filename = ci.Parameter.Split(" ")[0];
 
@@ -167,7 +167,6 @@ namespace AElf.Automation.Common.Helpers
 
             _transactionManager.SetCmdInfo(ci);
             var tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
-                ci.Parameter.Split(" ")[1],
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)

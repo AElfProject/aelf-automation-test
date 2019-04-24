@@ -141,7 +141,7 @@ namespace AElf.Automation.RpcPerformance
                 info.Account = AccountList[i].Account;
 
                 var ci = new CommandInfo(ApiMethods.DeploySmartContract);
-                ci.Parameter = $"AElf.Contracts.MultiToken 0 {AccountList[i].Account}";
+                ci.Parameter = $"AElf.Contracts.MultiToken {AccountList[i].Account}";
                 CH.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
 

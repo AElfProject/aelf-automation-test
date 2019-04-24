@@ -33,7 +33,7 @@ namespace AElf.Automation.Common.Extensions
             _cmdInfo = ci;
         }
 
-        public Transaction CreateTransaction(string from, string to, string incrementId,
+        public Transaction CreateTransaction(string from, string to,
             string methodName, ByteString input)
         {
             try
@@ -42,7 +42,6 @@ namespace AElf.Automation.Common.Extensions
                 {
                     From = Address.Parse(from),
                     To = Address.Parse(to),
-                    IncrementId = Convert.ToUInt64(incrementId),
                     MethodName = methodName,
                     Params = input ?? ByteString.Empty
                 };
