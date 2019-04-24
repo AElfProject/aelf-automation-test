@@ -25,6 +25,7 @@ namespace AElf.Automation.Common.Extensions
             var result = new CommandInfo(ApiMethods.AccountList);
             if (password == "")
                 password = AskInvisible("password:");
+            result.Parameter = password;
             var keypair = _keyStore.CreateAsync(password, _chainId).Result;
             var pubKey = keypair.PublicKey;
 

@@ -66,7 +66,8 @@ namespace AElf.Automation.ContractsTesting
 
             for (int i = 0; i < 5; i++)
             {
-                ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                ci = new CommandInfo(ApiMethods.AccountNew);
+                ci.Parameter = "123";
                 ci = ch.NewAccount(ci);
                 if(ci.Result)
                     Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
