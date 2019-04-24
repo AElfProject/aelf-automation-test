@@ -154,7 +154,9 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(2))
                 return;
-            string filename = ci.Parameter.Split(" ")[0];
+            var parameterArray = ci.Parameter.Split(" ");
+            var filename = parameterArray[0];
+            var from = parameterArray[1];
 
             // Read sc bytes
             var contractReader = new SmartContractReader();
@@ -166,7 +168,7 @@ namespace AElf.Automation.Common.Helpers
             };
 
             _transactionManager.SetCmdInfo(ci);
-            var tx = _transactionManager.CreateTransaction(ci.Parameter.Split(" ")[2], _genesisAddress,
+            var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)
