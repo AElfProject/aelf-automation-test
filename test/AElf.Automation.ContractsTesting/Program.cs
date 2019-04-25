@@ -13,10 +13,8 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        private string TokenAbi { get; set; }
-        private string ConsesusAbi { get; set; }
+        private string TokenContract { get; set; }
         private List<string> Users { get; set; }
-        private string FeeAccount { get; } = "ELF_4PAjijP5gDrWebRdjLBgJT6nyjdb3F2sZPEmBZzsbeA7i4s";
         #endregion
 
         #region Parameter Option
@@ -28,7 +26,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.43:8000/chain";
+        public string Endpoint { get; set; } = "http://192.168.197.13:8100/chain";
 
         #endregion
 
@@ -79,82 +77,24 @@ namespace AElf.Automation.ContractsTesting
             }
             #endregion
 
-            #region AElf.Token operation
-            //Deploy and Load ABI
-            var tokenContract = new TokenContract(ch, BpAccount, TokenAbi);
-//            //Set token fee
-//            tokenContract.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
-//
-//            var consesusContract = new ConsensusContract(ch, BpAccount, ConsesusAbi);
-//            consesusContract.CallContractMethod(ConsensusMethod.InitialBalance, BpAccount, "100000");
-//
-//            //Approve Test
-//            tokenContract.SetAccount(Users[1]);
-//            tokenContract.CallContractMethod(TokenMethod.Approve, Users[1], "1000");
-//
-//            //Transfer to Account A, B, C
-//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[1], "5000");
-//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[2], "10000");
-//            tokenContract.CallContractWithoutResult(TokenMethod.Transfer, Users[3], "15000");
-//
-//            tokenContract.CheckTransactionResultList();
-//
-//            //Get balance
-//            var txOwner = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[0]);
-//            var txBa = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[1]);
-//            var txBb = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[2]);
-//            var txBc = tokenContract.CallReadOnlyMethod(TokenMethod.GetBalance, Users[3]);
-//
-//            //Convert to Value
-//            Logger.WriteInfo($"Owner current balance: {tokenContract.ConvertViewResult(txOwner, true)}");
-//
-//            Logger.WriteInfo($"A current balance: {tokenContract.ConvertViewResult(txBa, true)}");
-//
-//            Logger.WriteInfo($"B current balance: {tokenContract.ConvertViewResult(txBb, true)}");
-//
-//            Logger.WriteInfo($"C current balance: {tokenContract.ConvertViewResult(txBc, true)}");
-//
-//            #endregion
-//
-//            #region AElf.Contract.Resource
-//            var resourceContract = new ResourceContract(ch, Users[0]);
-//
-//            resourceContract.CallContractMethod(ResourceMethod.Initialize, tokenContract.ContractAbi, Users[0], Users[0]);
-//
-//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "CPU", "1000000");
-//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
-//            resourceContract.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
-//            
-//            //Buy resource
-//            resourceContract.Account = Users[1];
-//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "1000");
-//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "6000");
-//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Ram", "10000");
-//
-//            //Account 4 have no money
-//            resourceContract.SetAccount(Users[4]);
-//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
-//            resourceContract.CallContractMethod(ResourceMethod.BuyResource, "NET", "10000");
-//
-//            //Query user resource
-//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[1], "Cpu");
-//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Cpu");
-//            resourceContract.CallReadOnlyMethod(ResourceMethod.GetUserBalance, Users[4], "Net");
-//
-//            //Query user token
-//            tokenContract.ExecuteContractMethod("BalanceOf", Users[0]);
-//
-//            //Sell resource
-//            resourceContract.SetAccount(Users[1]);
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "CPU", "100");
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "cpu", "500");
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Cpu", "1000");
-//
-//            resourceContract.SetAccount(Users[4]);
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "100");
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "500");
-//            resourceContract.CallContractMethod(ResourceMethod.GetUserBalance, Users[0], "Ram");
-//            resourceContract.CallContractMethod(ResourceMethod.SellResource, "Ram", "1000");
+            #region Block verify testing
+            var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
+            ch.RpcGetBlockHeight(heightCi);
+            heightCi.GetJsonInfo();
+            var height = Int32.Parse(heightCi.JsonInfo["result"].ToString());
+            for (var i = 1; i <= height; i++)
+            {
+                var blockCi = new CommandInfo(ApiMethods.GetBlockInfo)
+                {
+                    Parameter = $"{i} false"
+                };
+                ch.RpcGetBlockInfo(blockCi);
+                blockCi.GetJsonInfo();
+                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
+                    i,
+                    blockCi.JsonInfo["result"]["BlockHash"].ToString(),
+                    blockCi.JsonInfo["result"]["Body"]["TransactionsCount"].ToString());
+            }
 
             #endregion
         }

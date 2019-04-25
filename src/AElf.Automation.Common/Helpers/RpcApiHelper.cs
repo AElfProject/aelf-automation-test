@@ -174,8 +174,8 @@ namespace AElf.Automation.Common.Helpers
             tx = _transactionManager.SignTransaction(tx);
             if (tx == null)
                 return;
-            var rawtx = _transactionManager.ConvertTransactionRawTx(tx);
-            var req = RpcRequestManager.CreateRequest(rawtx, "BroadcastTransaction", 1);
+            var rawTx = _transactionManager.ConvertTransactionRawTx(tx);
+            var req = RpcRequestManager.CreateRequest(rawTx, "BroadcastTransaction", 1);
             string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -461,7 +461,7 @@ namespace AElf.Automation.Common.Helpers
             var resp = CallTransaction(tr, "Call");
             
             //deserialize response
-            var jObject = new JObject();
+            JObject jObject;
             if (resp != string.Empty)
                 jObject = JObject.Parse(resp);
             else

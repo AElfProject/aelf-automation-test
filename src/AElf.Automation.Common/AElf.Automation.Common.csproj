@@ -2,11 +2,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Models\**" />
-    <EmbeddedResource Remove="Models\**" />
-    <None Remove="Models\**" />
-  </ItemGroup>
+  <PropertyGroup>
+    <NoWarn>0436</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
@@ -33,6 +31,21 @@
     <Content Include="..\AElf\protobuf\aelf_options.proto">
       <Link>Protobuf/Proto/aelf_options.proto</Link>
     </Content>
+    <Content Include="..\AElf\protobuf\vote.proto">
+      <Link>Protobuf/Proto/vote.proto</Link>
+    </Content>
+    <Content Include="..\AElf\protobuf\election.proto">
+      <Link>Protobuf/Proto/election.proto</Link>
+    </Content>
+    <Content Include="..\AElf\protobuf\profit.proto">
+      <Link>Protobuf/Proto/profit.proto</Link>
+    </Content>
+    <Content Include="..\AElf\protobuf\consensus.proto">
+      <Link>Protobuf/Proto/consensus.proto</Link>
+    </Content>
+    <Content Include="..\AElf\protobuf\consensus_dpos.proto">
+      <Link>Protobuf/Proto/consensus_dpos.proto</Link>
+    </Content>
     <Content Include="..\AElf\protobuf\token_contract_messages.proto">
       <Link>Protobuf/Proto/token_contract_messages.proto</Link>
     </Content>
@@ -48,8 +61,8 @@
   </ItemGroup>
 
   <Target Name="Gen_proto" BeforeTargets="BeforeBuild">
-    <Exec Condition="!$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=../AElf/protobuf token_contract.proto --csharp_out=./Protobuf/Generated --csharp_opt=file_extension=.g.cs" />
-    <Exec Condition="$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=..\AElf\protobuf token_contract.proto --csharp_out=.\Protobuf\Generated --csharp_opt=file_extension=.g.cs" />
+    <Exec Condition="!$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=../AElf/protobuf token_contract.proto token_converter_contract.proto --csharp_out=./Protobuf/Generated --csharp_opt=file_extension=.g.cs" />
+    <Exec Condition="$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=..\AElf\protobuf token_contract.proto token_converter_contract.proto --csharp_out=.\Protobuf\Generated --csharp_opt=file_extension=.g.cs" />
   </Target>
   <Target Name="UpdateGeneratedFiles" DependsOnTargets="Gen_proto" BeforeTargets="BeforeBuild">
     <ItemGroup>
