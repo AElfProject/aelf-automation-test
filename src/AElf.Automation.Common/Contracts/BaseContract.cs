@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -22,6 +21,12 @@ namespace AElf.Automation.Common.Contracts
 
         #endregion
 
+        /// <summary>
+        /// 部署新合约
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <param name="fileName"></param>
+        /// <param name="callAddress"></param>
         public BaseContract(RpcApiHelper ch, string fileName, string callAddress)
         {
             Ch = ch;
@@ -34,6 +39,11 @@ namespace AElf.Automation.Common.Contracts
             DeployContract();
         }
 
+        /// <summary>
+        /// 使用已存在合约
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <param name="contractAddress"></param>
         public BaseContract(RpcApiHelper ch, string contractAddress)
         {
             Ch = ch;
@@ -180,7 +190,7 @@ namespace AElf.Automation.Common.Contracts
         }
 
         /// <summary>
-        /// 切换账号
+        /// 切换执行用户
         /// </summary>
         /// <param name="account"></param>
         /// <param name="password"></param>
@@ -267,13 +277,13 @@ namespace AElf.Automation.Common.Contracts
         {
             return CallViewMethod(method.ToString(), input);
         }
-        
+
         /// <summary>
         /// 调用合约View方法
         /// </summary>
         /// <param name="method"></param>
         /// <param name="input"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
         public TResult CallViewMethod<TResult>(string method, IMessage input) where TResult : IMessage<TResult>, new()
         {
@@ -291,11 +301,13 @@ namespace AElf.Automation.Common.Contracts
         {
             return Ch.RpcQueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
         }
-        
-        public void UnlockAccount(string account, string password = "123")
+
+        protected void UnlockAccount(string account, string password = "123")
         {
-            var uc = new CommandInfo(ApiMethods.AccountUnlock);
-            uc.Parameter = $"{account} {password} notimeout";
+            var uc = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{account} {password} notimeout"
+            };
             Ch.UnlockAccount(uc);
         }
 
@@ -303,8 +315,10 @@ namespace AElf.Automation.Common.Contracts
 
         private void DeployContract()
         {
-            var ci = new CommandInfo(ApiMethods.DeploySmartContract);
-            ci.Parameter = $"{FileName} {CallAddress}";
+            var ci = new CommandInfo(ApiMethods.DeploySmartContract)
+            {
+                Parameter = $"{FileName} {CallAddress}"
+            };
             Ch.RpcDeployContract(ci);
             if (ci.Result)
             {
@@ -312,8 +326,8 @@ namespace AElf.Automation.Common.Contracts
                 var txId = ci.JsonInfo["TransactionId"].ToString();
                 _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
 
-                bool result = GetContractAddress(txId, out _);
-                Assert.IsTrue(result, $"Get contract address failed.");
+                var result = GetContractAddress(txId, out _);
+                Assert.IsTrue(result, "Get contract address failed.");
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
@@ -329,28 +343,26 @@ namespace AElf.Automation.Common.Contracts
             contractAddress = string.Empty;
             var ci = CheckTransactionResult(txId);
 
-            if (ci.Result)
-            {
-                ci.GetJsonInfo();
-                ci.JsonInfo = ci.JsonInfo;
-                string deployResult = ci.JsonInfo["result"]["Status"].ToString();
-                _logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
-                if (deployResult == "Mined")
-                {
-                    contractAddress = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
-                    ContractAddress = contractAddress;
-                    _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
-                    return true;
-                }
-            }
+            if (!ci.Result) return false;
+            ci.GetJsonInfo();
+            ci.JsonInfo = ci.JsonInfo;
+            var deployResult = ci.JsonInfo["result"]["Status"].ToString();
+            _logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
+            
+            if (deployResult != "Mined") return false;
+            contractAddress = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
+            ContractAddress = contractAddress;
+            _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
+            return true;
 
-            return false;
         }
 
         private string ExecuteMethodWithTxId(string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.BroadcastTransactions);
-            ci.Parameter = rawTx;
+            var ci = new CommandInfo(ApiMethods.BroadcastTransactions)
+            {
+                Parameter = rawTx
+            };
             Ch.RpcBroadcastTx(ci);
             if (ci.Result)
             {

@@ -12,6 +12,7 @@ namespace AElf.Automation.Common.Contracts
         UpdateEpochNumber,
         AddOption,
         RemoveOption,
+        
         //view
         GetVotingResult,
         GetVotingHistories,
