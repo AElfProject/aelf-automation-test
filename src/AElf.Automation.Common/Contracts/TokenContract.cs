@@ -29,12 +29,12 @@ namespace AElf.Automation.Common.Contracts
     }
     public class TokenContract : BaseContract
     {
-        public TokenContract(CliHelper ch, string callAddress) :
+        public TokenContract(RpcApiHelper ch, string callAddress) :
             base(ch, "AElf.Contracts.MultiToken", callAddress)
         {
         }
 
-        public TokenContract(CliHelper ch, string callAddress, string contractAddress):
+        public TokenContract(RpcApiHelper ch, string callAddress, string contractAddress):
             base(ch, contractAddress)
         {
             CallAddress = callAddress;

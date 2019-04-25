@@ -1,42 +1,20 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
+using Newtonsoft.Json.Serialization;
+using Shouldly;
 
 namespace AElf.Automation.Common.Helpers
 {
     public static class HttpHelper
     {
-        /// <summary>
-        /// get请求
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="statusCode"></param>
-        /// <returns></returns>
-        public static string GetResponse(string url, out string statusCode)
-        {
-            if (url.StartsWith("https"))
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Add(
-              new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = httpClient.GetAsync(url).Result;
-            statusCode = response.StatusCode.ToString();
-            if (response.IsSuccessStatusCode)
-            {
-                string result = response.Content.ReadAsStringAsync().Result;
-                return result;
-            }
-            return null;
-        }
-
+        private static readonly HttpClient Client = new HttpClient();
+        
         /// <summary>
         /// post请求
         /// </summary>
@@ -126,128 +104,109 @@ namespace AElf.Automation.Common.Helpers
 
             return string.Empty;
         }
-
+        
         /// <summary>
-        /// 发起post请求
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="url">url</param>
-        /// <param name="postData">post数据</param>
-        /// <returns></returns>
-        public static T PostResponse<T>(string url, string postData)
-            where T : class, new()
-        {
-            if (url.StartsWith("https"))
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-
-            HttpContent httpContent = new StringContent(postData);
-            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            HttpClient httpClient = new HttpClient();
-
-            T result = default(T);
-
-            HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
-
-            if (response.IsSuccessStatusCode)
-            {
-                Task<string> t = response.Content.ReadAsStringAsync();
-                string s = t.Result;
-
-                result = JsonConvert.DeserializeObject<T>(s);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 反序列化Xml
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="xmlString"></param>
-        /// <returns></returns>
-        public static T XmlDeserialize<T>(string xmlString)
-            where T : class, new()
-        {
-            try
-            {
-                XmlSerializer ser = new XmlSerializer(typeof(T));
-                using (StringReader reader = new StringReader(xmlString))
-                {
-                    return (T)ser.Deserialize(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("XmlDeserialize发生异常：xmlString:" + xmlString + "异常信息：" + ex.Message);
-            }
-
-        }
-
-        /// <summary>
-        /// post请求
+        /// 异步Get请求
         /// </summary>
         /// <param name="url"></param>
-        /// <param name="postData"></param>
-        /// <param name="token"></param>
-        /// <param name="appId"></param>
-        /// <param name="serviceUrl"></param>
-        /// <param name="statusCode"></param>
+        /// <param name="version"></param>
+        /// <param name="expectedStatusCode"></param>
+        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string PostResponse(string url, string postData, string token, string appId, string serviceUrl, out string statusCode)
+        public static async Task<T> GetResponseAsync<T>(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            if (url.StartsWith("https"))
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-
-            HttpContent httpContent = new StringContent(postData);
-            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            httpContent.Headers.ContentType.CharSet = "utf-8";
-
-            httpContent.Headers.Add("token", token);
-            httpContent.Headers.Add("appId", appId);
-            httpContent.Headers.Add("serviceURL", serviceUrl);
-
-
-            HttpClient httpClient = new HttpClient();
-            //httpClient..setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, "utf-8");
-
-            HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
-
-            statusCode = response.StatusCode.ToString();
-            if (response.IsSuccessStatusCode)
+            var strResponse = await GetResponseAsStringAsync(url, version, expectedStatusCode);
+            return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
-                string result = response.Content.ReadAsStringAsync().Result;
-                return result;
-            }
-
-            return null;
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
         }
-
+        
         /// <summary>
-        /// 修改API
+        /// 异步Post请求
         /// </summary>
         /// <param name="url"></param>
-        /// <param name="postData"></param>
+        /// <param name="paramters"></param>
+        /// <param name="version"></param>
+        /// <param name="expectedStatusCode"></param>
+        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string KongPatchResponse(string url, string postData)
+        public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> paramters,
+            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpWebRequest.ContentType = "application/x-www-form-urlencoded";
-            httpWebRequest.Method = "PATCH";
-
-            byte[] btBodys = Encoding.UTF8.GetBytes(postData);
-            httpWebRequest.ContentLength = btBodys.Length;
-            httpWebRequest.GetRequestStream().Write(btBodys, 0, btBodys.Length);
-
-            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            var streamReader = new StreamReader(httpWebResponse.GetResponseStream() ?? throw new InvalidOperationException());
-            string responseContent = streamReader.ReadToEnd();
-
-            httpWebResponse.Close();
-            streamReader.Close();
-            httpWebRequest.Abort();
-            httpWebResponse.Close();
-
-            return responseContent;
+            var strResponse = await PostResponseAsStringAsync(url, paramters, version, expectedStatusCode);
+            return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
         }
 
+        private static async Task<string> GetResponseAsStringAsync(string url,string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            var response = await GetResponseAsync(url, version, expectedStatusCode);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        private static async Task<HttpResponseMessage> GetResponseAsync(string url,string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            
+            var response = await Client.GetAsync(url);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+            return response;
+        }
+
+        private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> paramters,
+            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            var response = await PostResponseAsync(url, paramters, version, expectedStatusCode);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string,string> paramters,string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
+            var content = new FormUrlEncodedContent(paramters);
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+            
+            var response = await Client.PostAsync(url, content);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+            return response;
+        }
+        
+        public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            var strResponse = await DeleteResponseAsStringAsync(url, version, expectedStatusCode);
+            return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+        }
+
+        public static async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            var response = await DeleteResponseAsync(url, version, expectedStatusCode);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            
+            var response = await Client.DeleteAsync(url);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+            return response;
+        }
     }
 }

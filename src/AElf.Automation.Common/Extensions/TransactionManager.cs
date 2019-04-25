@@ -87,6 +87,11 @@ namespace AElf.Automation.Common.Extensions
 
             return reqParams;
         }
+        
+        public string ConvertTransactionRawTxString(Transaction tx)
+        {
+            return tx.ToByteArray().ToHex();
+        }
 
         public Transaction ConvertFromJson(JObject jObject)
         {

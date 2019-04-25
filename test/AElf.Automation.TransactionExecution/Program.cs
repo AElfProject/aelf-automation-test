@@ -17,7 +17,7 @@ namespace AElf.Automation.TransactionExecution
         private static string TokenAddress { get; set; }
         private static List<string> Users { get; set; }
 
-        private static CliHelper CH { get; set; }
+        private static RpcApiHelper CH { get; set; }
 
         private static TokenExecutor Executor { get; set; }
 
@@ -33,7 +33,7 @@ namespace AElf.Automation.TransactionExecution
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            CH = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            CH = new RpcApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

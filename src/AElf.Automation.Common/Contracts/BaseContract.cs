@@ -12,7 +12,7 @@ namespace AElf.Automation.Common.Contracts
     {
         #region Priority
 
-        private CliHelper Ch { get; set; }
+        private RpcApiHelper Ch { get; set; }
         private string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount {get; set;}
@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
 
         #endregion
 
-        public BaseContract(CliHelper ch, string fileName, string callAddress)
+        public BaseContract(RpcApiHelper ch, string fileName, string callAddress)
         {
             Ch = ch;
             FileName = fileName;
@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.Contracts
             DeployContract();
         }
 
-        public BaseContract(CliHelper ch, string contractAddress)
+        public BaseContract(RpcApiHelper ch, string contractAddress)
         {
             Ch = ch;
             ContractAddress = contractAddress;

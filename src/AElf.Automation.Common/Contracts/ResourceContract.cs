@@ -25,12 +25,12 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ResourceContract : BaseContract
     {
-        public ResourceContract(CliHelper ch, string callAddress)
+        public ResourceContract(RpcApiHelper ch, string callAddress)
             :base(ch, "AElf.Contracts.Resource", callAddress)
         {
         }
 
-        public ResourceContract(CliHelper ch, string callAddress, string contractAddress) :
+        public ResourceContract(RpcApiHelper ch, string callAddress, string contractAddress) :
             base(ch, contractAddress)
         {
             CallAddress = callAddress;

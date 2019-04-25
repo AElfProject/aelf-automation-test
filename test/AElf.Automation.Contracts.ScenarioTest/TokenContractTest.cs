@@ -14,7 +14,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
-        public CliHelper CH { get; set; }
+        public RpcApiHelper CH { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
@@ -34,7 +34,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

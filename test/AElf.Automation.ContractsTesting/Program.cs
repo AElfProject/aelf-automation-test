@@ -54,7 +54,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            var ch = new CliHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            var ch = new RpcApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

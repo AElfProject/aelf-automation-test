@@ -8,13 +8,13 @@ namespace AElf.Automation.RpcTesting
     public class CliHelpTest
     {
         private const string RpcUrl = "http://192.168.199.221:8000";
-        private CliHelper _ch;
+        private RpcApiHelper _ch;
         private CommandInfo _ci;
         
         [TestInitialize]
         public void Initialize()
         {
-            _ch = new CliHelper(RpcUrl);
+            _ch = new RpcApiHelper(RpcUrl);
         }
 
         [TestCleanup]

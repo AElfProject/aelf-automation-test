@@ -12,9 +12,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class NetworkTest
     {
         private ILogHelper _logger = LogHelper.GetLogHelper();
-        private CliHelper _ch1 { get; set; }
-        private CliHelper _ch2 { get; set; }
-        private CliHelper _ch3 { get; set; }
+        private RpcApiHelper _ch1 { get; set; }
+        private RpcApiHelper _ch2 { get; set; }
+        private RpcApiHelper _ch3 { get; set; }
 
         [TestInitialize]
         public void InitTest()
@@ -24,9 +24,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            _ch1 = new CliHelper("http://192.168.197.34:8000/net", AccountManager.GetDefaultDataDir());
-            _ch2 = new CliHelper("http://192.168.197.13:8000/net", AccountManager.GetDefaultDataDir());
-            _ch3 = new CliHelper("http://192.168.197.29:8000/net", AccountManager.GetDefaultDataDir());
+            _ch1 = new RpcApiHelper("http://192.168.197.34:8000/net", AccountManager.GetDefaultDataDir());
+            _ch2 = new RpcApiHelper("http://192.168.197.13:8000/net", AccountManager.GetDefaultDataDir());
+            _ch3 = new RpcApiHelper("http://192.168.197.29:8000/net", AccountManager.GetDefaultDataDir());
         }
 
         [TestMethod]

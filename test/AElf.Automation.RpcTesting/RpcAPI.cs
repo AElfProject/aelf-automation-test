@@ -9,13 +9,13 @@ namespace AElf.Automation.RpcTesting
     public class RpcApi
     {
         private string RpcUrl { get; set; }
-        private CliHelper Ch { get; set; }
+        private RpcApiHelper Ch { get; set; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         public RpcApi(string rpcUrl)
         {
             RpcUrl = rpcUrl;
-            Ch = new CliHelper(rpcUrl);
+            Ch = new RpcApiHelper(rpcUrl);
         }
 
         public int GetCurrentHeight()

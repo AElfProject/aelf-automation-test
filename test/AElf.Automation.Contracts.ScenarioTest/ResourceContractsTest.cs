@@ -13,7 +13,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
-        public CliHelper CH { get; set; }
+        public RpcApiHelper CH { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
         public List<string> AccList { get; set; }
         public string InitAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";

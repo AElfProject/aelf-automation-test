@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Kernel;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
-using ProtoBuf;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public class CliHelper
+    public class RpcApiHelper
     {
         #region Properties
 
@@ -27,7 +25,7 @@ namespace AElf.Automation.Common.Helpers
 
         #endregion
 
-        public CliHelper(string rpcUrl, string keyPath = "")
+        public RpcApiHelper(string rpcUrl, string keyPath = "")
         {
             _rpcAddress = rpcUrl;
             _keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);

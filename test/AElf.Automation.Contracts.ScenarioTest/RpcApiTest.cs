@@ -10,7 +10,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class RpcApiTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        private CliHelper Ch { get; set; }
+        private RpcApiHelper Ch { get; set; }
         private const string ServiceUrl = "http://192.168.197.15:8020";
 
         [TestInitialize]
@@ -21,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            Ch = new CliHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
+            Ch = new RpcApiHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
         }
 
         [TestMethod]

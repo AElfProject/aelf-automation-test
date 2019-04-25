@@ -32,7 +32,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static DividendsContract dividendsService { get; set; }
 
         public string RpcUrl { get; } = "http://192.168.197.20:8010/chain";
-        public CliHelper CH { get; set; }
+        public RpcApiHelper CH { get; set; }
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper(dir);
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

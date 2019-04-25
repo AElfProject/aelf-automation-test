@@ -46,7 +46,7 @@ namespace AElf.Automation.SideChainVerification
 
     public class SideChain
     {
-        private readonly CliHelper _ch;
+        private readonly RpcApiHelper _ch;
         private readonly string _chainName;
         private string _account;
         private string _sideChainTxId;
@@ -62,7 +62,7 @@ namespace AElf.Automation.SideChainVerification
             var rpcUrl1 = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
             var keyStorePath = GetDefaultDataDir();
             _chainName = chainName;
-            _ch = new CliHelper(rpcUrl1, keyStorePath);
+            _ch = new RpcApiHelper(rpcUrl1, keyStorePath);
             //connection chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             _ch.RpcGetChainInformation(ci);

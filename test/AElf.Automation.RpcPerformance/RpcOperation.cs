@@ -53,7 +53,7 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Public Property
 
-        public CliHelper CH { get; set; }
+        public RpcApiHelper CH { get; set; }
         public string RpcUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }
@@ -93,7 +93,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Rpc Url: {0}", RpcUrl);
             Logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
             Logger.WriteInfo("Prepare new and unlock accounts.");
-            CH = new CliHelper(RpcUrl, KeyStorePath);
+            CH = new RpcApiHelper(RpcUrl, KeyStorePath);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
