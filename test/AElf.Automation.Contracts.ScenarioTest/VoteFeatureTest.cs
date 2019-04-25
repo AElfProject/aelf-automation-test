@@ -1,11 +1,17 @@
-﻿using AElf.Automation.Common.Extensions;
+﻿using System;
+using System.IO;
+using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Threading;
 using AElf.Automation.Common.Contracts;
-
+using AElf.Consensus.DPoS;
+using AElf.Contracts.MultiToken.Messages;
+using AElf.Kernel;
+using Google.Protobuf.WellKnownTypes;
+using VoteInput = AElf.Kernel.VoteInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -21,9 +27,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
         public ILogHelper Logger = LogHelper.GetLogHelper();
-        public string TokenAbi { get; set; }
-        public string ConsensusAbi { get; set; }
-        public string DividendsAbi { get; set; }
+        public string TokenContract { get; set; }
+        public string ConsensusContract { get; set; }
+        public string DividendsContract { get; set; }
+        
+        public string ElectionContract { get; set; }
+        
+        public string VoteContract { get; set; }
 
         public List<string> UserList { get; set; }
         public List<string> FullNodeAccounts { get; set; }
@@ -32,7 +42,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> CandidatePublicKeys { get; set; }
         public List<string> CurrentMinersKeys { get; set; }
         public List<CandidateInfo> CandidateInfos { get; set; }
-        public int TestNode { get; } = 3;
+
+        public string TokenSymbol { get; } = "ELF";
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
         public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
 
@@ -40,14 +51,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static TokenContract tokenService { get; set; }
         public static ConsensusContract consensusService { get; set; }
         public static DividendsContract dividendsService { get; set; }
+        public static ElectionContract electionService { get; set; }
+        public static VoteContract voteService { get; set; }
 
-        public string RpcUrl { get; } = "http://192.168.197.15:8010/chain";
+        public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
         public RpcApiHelper CH { get; set; }
 
         #endregion
 
         [TestInitialize]
-        public void Initlize()
+        public void Initialize()
         {
             //Init log
             string logName = "VoteBP_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
@@ -64,25 +77,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Get FullNode Info
             FullNodeAccounts = new List<string>();
-            FullNodeAccounts.Add("ELF_26cUpeiNb6q4DdFFEXTiPgWcifxtwEMsqshKHWGeYxaJkT1");
-            FullNodeAccounts.Add("ELF_2AQdMyH4bo6KKK7Wt5fN7LerrWdoPUYTcJHyZNKXqoD2a4V");
-            FullNodeAccounts.Add("ELF_3FWgHoNdR92rCSEbYqzD6ojCCmVKEpoPt87tpmwWYAkYm6d");
-            if (TestNode == 5)
-            {
-                FullNodeAccounts.Add("ELF_4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
-                FullNodeAccounts.Add("ELF_6Fp72su6EPmHkEiojK1FyP7DsMHm16MygkG93zyqSbnE84v");
-            }
+            FullNodeAccounts.Add("4KTaV1zZSCx4tKiEreqBEsB9DJoU2LqwRugcjowQpeX6YhM");
+            FullNodeAccounts.Add("3dZLptQfoqUqFeSvJd8wZeKQ2bHZZXPyuJPFikFJ5Tvgt1F");
+            FullNodeAccounts.Add("4GG2yVjPqYJd2zefrDJJkBnNeyvjPpTSKNANc39k7Q4JQpL");
 
             //Get BpNode Info
             BpNodeAccounts = new List<string>();
-            BpNodeAccounts.Add("ELF_2jLARdoRyaQ2m8W5s1Fnw7EgyvEr9SX9SgNhejzcwfBKkvy");
-            BpNodeAccounts.Add("ELF_2VsBNkgc9ZVkr6wQoNY7FjnPooMJscS9SLNQ5jDFtuSEKud");
-            BpNodeAccounts.Add("ELF_3YcUM4EjAcUYyZxsNb7KHPfXdnYdwKmwr9g3p2eipBE6Wym");
-            if (TestNode == 5)
-            {
-                BpNodeAccounts.Add("ELF_59w62zTynBKyQg5Pi4uNTz29QF7M1SHazN71g6pG5N25wY1");
-                BpNodeAccounts.Add("ELF_5tqoweoWNrCRKG8Z28LM63B4aiuBjhZwy6JYw57iqcDqgN6");
-            }
+            BpNodeAccounts.Add("23my6hyVjXvHn4cS8i1CLgmCgtZDcNLAKKsgCXLuKrQvHzf");
+            BpNodeAccounts.Add("4LCeZkfBMUKs5LeZDzPtGHwpK3kC4SyU4F5rU3Jhfe51JEg");
+            BpNodeAccounts.Add("5KxGVgyXhSr3hYi6PFaJAmgknvFhrDcgG1fNe2EcUv3y3UY");
 
             //Get candidate infos
             NodesPublicKeys = new List<string>();
@@ -107,11 +110,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             //Init service
-            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
-            consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
-            dividendsService = new DividendsContract(CH, InitAccount, DividendsAbi);
-
-            //QueryContractsBalance();
+            tokenService = new TokenContract(CH, InitAccount, TokenContract);
+            consensusService = new ConsensusContract(CH, InitAccount, ConsensusContract);
+            dividendsService = new DividendsContract(CH, InitAccount, DividendsContract);
+            voteService = new VoteContract(CH, InitAccount, VoteContract);
+            electionService = new ElectionContract(CH, InitAccount, ElectionContract);
         }
 
         [TestCleanup]
@@ -126,27 +129,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
         
-        /*
         private void QueryContractsBalance()
         {
-            var consensusResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, ConsensusAbi);
-            Logger.WriteInfo($"Consensus account balance : {tokenService.ConvertViewResult(consensusResult, true)}");
-            var dividensResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, DividendsAbi);
-            Logger.WriteInfo($"Dividends account balance : {tokenService.ConvertViewResult(dividensResult, true)}");
+            var consensusBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = Address.Parse(ConsensusContract),
+                Symbol = TokenSymbol
+            });
+            Logger.WriteInfo($"Consensus account balance : {consensusBalance.Balance}");
+            var dividendsResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = Address.Parse(DividendsContract),
+                Symbol = TokenSymbol
+            });
+            Logger.WriteInfo($"Dividends account balance : {dividendsResult.Balance}");
         }
 
         private void SetTokenFeeAddress()
         {
-            tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
-            var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
-            DataHelper.TryGetValueFromJson(out var feeAddress, feeResult, "result", "return");
-            Logger.WriteInfo($"Fee account address : {feeAddress}");
+            tokenService.ExecuteMethodWithResult(TokenMethod.SetFeePoolAddress, Address.Parse(FeeAccount));
         }
 
         private void QueryTokenFeeBalance()
         {
-            var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
-            Logger.WriteInfo($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
+            var feeBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = Address.Parse(FeeAccount),
+                Symbol = TokenSymbol
+            });
+            Logger.WriteInfo($"Fee account balance : {feeBalance.Balance}");
         }
 
         [TestMethod]
@@ -162,26 +173,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //查询余额
             foreach (var bpAcc in BpNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
-                Console.WriteLine($"BpNode-[{bpAcc}] balance: " + tokenService.ConvertViewResult(callResult, true));
+                var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Owner = Address.Parse(bpAcc),
+                    Symbol = TokenSymbol
+                });
+                Console.WriteLine($"BpNode-[{bpAcc}] balance: " + callResult.Balance);
             }
 
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
-                Console.WriteLine($"FullNode-[{fullAcc}] balance: " + tokenService.ConvertViewResult(callResult, true));
+                var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                    new GetBalanceInput
+                    {
+                        Owner = Address.Parse(fullAcc),
+                        Symbol = TokenSymbol
+                    });
+                Console.WriteLine($"FullNode-[{fullAcc}] balance: " + callResult.Balance);
             }
-        }
-
-        [TestMethod]
-        [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz", 10000)]
-        [DataRow("ELF_2N9soUD1FxhWS9JDkiee1uayZCnmhgwoSESThQYUqLX5AVG", 10000)]
-        public void InitialUserBalance(string account, long balance)
-        {
-            consensusService.SetAccount(BpNodeAccounts[0]);
-            consensusService.CallContractMethod(ConsensusMethod.InitialBalance, account, balance.ToString());
-            var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, account);
-            Console.WriteLine($"[{account}] balance: " + tokenService.ConvertViewResult(callResult, true));
         }
 
         [TestMethod]
@@ -202,24 +211,40 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var fullAcc in FullNodeAccounts)
             {
                 Logger.WriteInfo($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
-                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
-                var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
-                if (balance >= 100000)
+                var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Owner = Address.Parse(fullAcc),
+                    Symbol = TokenSymbol
+                });
+                if (balanceResult.Balance >= 100000)
                     continue;
 
-                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, fullAcc, "100000");
+                tokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput {
+                    Memo = "transfer balance for announcement election.",
+                    Amount = 100_000,
+                    Symbol = TokenSymbol,
+                    To = Address.Parse(fullAcc)
+                });
             }
             //分配资金给BP
             Logger.WriteInfo("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
                 Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
-                var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
-                var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
-                if (balance >= 100000)
+                var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Owner = Address.Parse(bpAcc),
+                    Symbol = TokenSymbol
+                });
+                if (balanceResult.Balance >= 100000)
                     continue;
 
-                consensusService.CallContractWithoutResult(ConsensusMethod.InitialBalance, bpAcc, "100000");
+                tokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput {
+                    Memo = "transfer balance for announcement election.",
+                    Amount = 100_000,
+                    Symbol = TokenSymbol,
+                    To = Address.Parse(bpAcc)
+                });
             }
 
             consensusService.CheckTransactionResultList();
@@ -239,14 +264,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //参加选举
             foreach (var bpAcc in BpNodeAccounts)
             {
-                consensusService.SetAccount(bpAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Bp-{bpAcc.Substring(5,4)}");
+                electionService.SetAccount(bpAcc);
+                electionService.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
             }
 
             foreach (var fullAcc in FullNodeAccounts)
             {
-                consensusService.SetAccount(fullAcc);
-                consensusService.CallContractWithoutResult(ConsensusMethod.AnnounceElection, $"Full-{fullAcc.Substring(5, 4)}");
+                electionService.SetAccount(fullAcc);
+                electionService.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
             }
 
             consensusService.CheckTransactionResultList(); 
@@ -262,28 +287,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void GetCandidateList()
         {
-            var candidateResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidatesListToFriendlyString);
-            string candidatesJson = consensusService.ConvertViewResult(candidateResult);
-            bool result = DataHelper.TryGetArrayFromJson(out var pubkeyList, candidatesJson, "Values");
-            Assert.IsTrue(result, "Candidate account is null.");
-            CandidatePublicKeys = pubkeyList;
+            //Get candidate event
+            var voteEvent = voteService.CallViewMethod<VotingEvent>(VoteMethod.GetVotingEvent, new GetVotingEventInput
+            {
+                Topic = "",
+                Sponsor = Address.Parse(InitAccount)
+            });
+            CandidatePublicKeys = voteEvent.Options.ToList();
+           
+            Assert.IsTrue(CandidatePublicKeys.Count == 0, "Candidate account is null.");
             var count = 1;
             foreach (var item in CandidatePublicKeys)
             {
                 Logger.WriteInfo($"Candidate {count++}: {item}");
             }
-        }
-
-        [TestMethod]
-        public void IsCandidate()
-        {
-            GetCandidateList();
-            //判断是否是Candidate
-            Logger.WriteInfo("IsCandidate Test");
-            var candidate1Result = consensusService.CallReadOnlyMethod(ConsensusMethod.IsCandidate, CandidatePublicKeys[4]);
-            Logger.WriteInfo(consensusService.ConvertViewResult(candidate1Result,true));
-            var candidate2Result = consensusService.CallReadOnlyMethod(ConsensusMethod.IsCandidate, "4ZNjzrUrNQGyWrAmxEtX7s5i4bNhXHECYHd4XK1hR9rJNFC");
-            Logger.WriteInfo(consensusService.ConvertViewResult(candidate2Result, true));
         }
 
         [TestMethod]
@@ -310,14 +327,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
             tokenService.SetAccount(BpNodeAccounts[0]);
             foreach (var acc in UserList)
             {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "100000");
+                tokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Amount = 100_000,
+                    Memo = "",
+                    Symbol = TokenSymbol,
+                    To = Address.Parse(acc) 
+                });
             }
             tokenService.CheckTransactionResultList();
 
             foreach (var userAcc in UserList)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
-                Console.WriteLine($"User-{userAcc} balance: " + tokenService.ConvertViewResult(callResult, true));
+                var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(userAcc)
+                });
+                Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
             Logger.WriteInfo("All accounts created and unlocked.");
@@ -330,16 +357,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void UserVoteForCandidate(string pubKey)
         {
             PrepareUserAccountAndBalance(1);
-            string voteVolumn = "100";
+           var voteVolumn = 100;
             string voteLock = "8";
 
-            consensusService.SetAccount(UserList[0]);
-            consensusService.CallContractMethod(ConsensusMethod.Vote, pubKey, voteVolumn, voteLock);
+            voteService.SetAccount(UserList[0]);
+            voteService.ExecuteMethodWithResult(VoteMethod.Vote, new VoteInput 
+            {
+                Topic = "",
+                Sponsor = Address.Parse(""),
+                Option = pubKey,
+                Amount = voteVolumn,
+            });
 
             //Get candidate ticket
             GetCandidateTicketsInfo(pubKey);
         }
-
 
         [TestMethod]
         [DataRow(5, 20)]
@@ -357,8 +389,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     string voteVolumn = rd.Next(10, 50).ToString();
                     string voteLock = rd.Next(5, 10).ToString();
 
-                    consensusService.SetAccount(voteAcc);
-                    consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
+                    voteService.SetAccount(voteAcc);
+                    voteService.ExecuteMethodWithTxId(VoteMethod.Vote, new VoteInput
+                    {
+                      //votePbk, voteVolumn, voteLock  
+                    });
                 }
             }
             consensusService.CheckTransactionResultList();
@@ -380,45 +415,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 //Vote For someone
 
-                string votePbk = NodesPublicKeys[candidates[i]];
-                string voteVolumn = "200";
-                string voteLock = "5";
+                var votePbk = NodesPublicKeys[candidates[i]];
+                var voteVolume = 200;
+                var voteLock = 5;
 
-                consensusService.SetAccount(UserList[i]);
-                consensusService.CallContractWithoutResult(ConsensusMethod.Vote, votePbk, voteVolumn, voteLock);
-                Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolumn}");
+                voteService.SetAccount(UserList[i]);
+                voteService.ExecuteMethodWithTxId(VoteMethod.Vote, new VoteMinerInput
+                {
+                    CandidatePublicKey = votePbk,
+                    Amount = voteVolume,
+                    LockTime = voteLock,
+                    LockTimeUnit = LockTimeUnit.Days
+                });
+                Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }
 
             consensusService.CheckTransactionResultList();
             //检查投票结果
             GetPageableElectionInfo();
             Logger.WriteInfo("Vote completed.");
-        }
-
-        [TestMethod]
-        public void GetBlockchainAge()
-        {
-            var ageInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetBlockchainAge);
-            Logger.WriteInfo($"Chain age: {consensusService.ConvertViewResult(ageInfo, true)}");
-        }
-
-        [TestMethod]
-        [DataRow(24)]
-        [DataRow(25)]
-        public void GetTermSnapshot(int termNo)
-        {
-            var termInfo = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermSnapshotToFriendlyString, termNo.ToString());
-            Logger.WriteInfo(consensusService.ConvertViewResult(termInfo));
-        }
-
-        [TestMethod]
-        [DataRow(100)]
-        [DataRow(260)]
-        public void GetTermNumberByRoundNumber(int termNo)
-        {
-            Logger.WriteInfo("GetTermNumberByRoundNumber Test");
-            var termNo1 = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTermNumberByRoundNumber, termNo.ToString());
-            Logger.WriteInfo(consensusService.ConvertViewResult(termNo1, true));
         }
 
         [TestMethod]
@@ -429,8 +444,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetCandidateList();
             foreach (var pubKey in CandidatePublicKeys)
             {
-                var historyResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCandidateHistoryInfoToFriendlyString, pubKey);
-                Logger.WriteInfo(consensusService.ConvertViewResult(historyResult));
+                var historyResult = consensusService.CallViewMethod<CandidateInHistory>(ConsensusMethod.GetCandidateHistoryInformation, new PublicKey
+                {
+                    Hex = pubKey
+                });
+                Logger.WriteInfo(historyResult.ToString());
             }
         }
 
@@ -438,10 +456,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetGetCurrentMinersInfo()
         {
             Logger.WriteInfo("GetCurrentVictories Test");
-            var minersResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentMinersToFriendlyString);
-            var jsonString = consensusService.ConvertViewResult(minersResult);
-            DataHelper.TryGetArrayFromJson(out var pubkeys, jsonString, "PublicKeys");
-            CurrentMinersKeys = pubkeys;
+            var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMiners, new Empty());
+            CurrentMinersKeys = minersResult.MinerList.PublicKeys.ToList();
             var count = 1;
             foreach (var miner in CurrentMinersKeys)
             {
@@ -456,69 +472,62 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetCandidateList();
             foreach (var candidate in CandidatePublicKeys)
             {
-                var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidate);
-                var ticketsJson = consensusService.ConvertViewResult(ticketResult);
-                Logger.WriteInfo(ticketsJson);
+                var ticketResult = consensusService.CallViewMethod<Tickets>(ConsensusMethod.GetTicketsInfo, new PublicKey
+                {
+                    Hex = candidate
+                });
+                Logger.WriteInfo(ticketResult.ToString());
 
-                DataHelper.TryGetValueFromJson(out var recordTickets, ticketsJson, "ObtainedTickets");
-                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {recordTickets}");
+                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {ticketResult.VotedTickets}");
             }
         }
 
         [TestMethod]
         [DataRow("04d5a0ab908b1e6a99be1d4b1d5e4ab7c3bd3b234f714d674a1aad7dc462436b0345cb6384b589a5be0aa6bc9c8a78ebb10e5d0a865deade3fc48b446075b26cb3")]
-        public void GetCandidateTicketsInfo(string candidatePubkey)
+        public void GetCandidateTicketsInfo(string candidatePublicKey)
         {
             Logger.WriteInfo("GetCandidateTicketsInfo Test");
-            var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidatePubkey);
-            Logger.WriteInfo(consensusService.ConvertViewResult(ticketResult));
+            var ticketResult = consensusService.CallViewMethod<Tickets>(ConsensusMethod.GetTicketsInfo, new PublicKey
+            {
+                Hex = candidatePublicKey
+            });
+            Logger.WriteInfo(ticketResult.ToString());
         }
 
         [TestMethod]
         public void GetPageableElectionInfo()
         {
             Logger.WriteInfo("GetCurrentElectionInfo Test");
-            var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetPageableElectionInfoToFriendlyString, "0", "0", "0");
-            Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
+            var currentElectionResult = consensusService.CallViewMethod<TicketsDictionary>(ConsensusMethod.GetPageableElectionInfo, new PageableElectionInfoInput
+            {
+                Length = 10,
+                OrderBy = 0,
+                Start = 0
+            });
+            Logger.WriteInfo(currentElectionResult.Maps.ToString());
         }
 
         [TestMethod]
         public void GetVotesCount()
         {
-            var voteCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetVotesCount);
-            Logger.WriteInfo($"Votes count: {consensusService.ConvertViewResult(voteCount, true)}");
+            var voteCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetVotesCount, new Empty());
+            Logger.WriteInfo($"Votes count: {voteCount.Value}");
         }
 
         [TestMethod]
         public void GetTicketsCount()
         {
             UserVoteAction(5, 1);
-            var ticketsCount = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsCount);
-            Logger.WriteInfo($"Tickets count: {consensusService.ConvertViewResult(ticketsCount, true)}");
+            var ticketsCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetTicketsCount, new Empty());
+            Logger.WriteInfo($"Tickets count: {ticketsCount.Value}");
         }
 
         [TestMethod]
         public void GetCurrentVictories()
         {
             Logger.WriteInfo("GetCurrentVictories Test");
-            var victoriesResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetCurrentVictoriesToFriendlyString);
-            Logger.WriteInfo(consensusService.ConvertViewResult(victoriesResult));
-        }
-
-        [TestMethod]
-        public void QueryCurrentDividends()
-        {
-            Logger.WriteInfo("QueryCurrentDividends Test");
-            var victoriesResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryCurrentDividends);
-            Logger.WriteInfo(consensusService.ConvertViewResult(victoriesResult, true));
-        }
-
-        [TestMethod]
-        public void QueryCurrentDividendsForVoters()
-        {
-            Logger.WriteInfo("QueryCurrentDividendsForVoters Test");
-            var dividendsResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryCurrentDividendsForVoters);
-            Logger.WriteInfo(consensusService.ConvertViewResult(dividendsResult, true));
+            var victoriesResult = consensusService.CallViewMethod<StringList>(ConsensusMethod.GetCurrentVictories, new Empty());
+            Logger.WriteInfo(victoriesResult.Values.ToString());
         }
 
         [TestMethod]
@@ -529,20 +538,31 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var userAcc in UserList)
             {
                 Logger.WriteInfo($"Account check: {userAcc}");
-                consensusService.SetAccount(userAcc);
-                var balanceBefore = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
-                Logger.WriteInfo($"Init balance: {tokenService.ConvertViewResult(balanceBefore, true)}");
+                var balanceBefore = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(userAcc)
+                });
+                Logger.WriteInfo($"Init balance: {balanceBefore.Balance}");
 
                 consensusService.SetAccount(userAcc);
-                consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
+                //consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
 
-                var balanceAfter1 = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
-                Logger.WriteInfo($"Received dividends balance: {tokenService.ConvertViewResult(balanceAfter1, true)}");
+                var balanceAfter1 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(userAcc)
+                });
+                Logger.WriteInfo($"Received dividends balance: {balanceAfter1.Balance}");
 
-                consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
+                //consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
 
-                var balanceAfter2 = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, userAcc);
-                Logger.WriteInfo($"Revertback vote balance: {tokenService.ConvertViewResult(balanceAfter2, true)}");
+                var balanceAfter2 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(userAcc)
+                });
+                Logger.WriteInfo($"Revert back vote balance: {balanceAfter2.Balance}");
             }
         }
 
@@ -552,37 +572,39 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetGetCurrentMinersInfo();
             foreach (var miner in CurrentMinersKeys)
             {
-                var blockResult = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryMinedBlockCountInCurrentTerm, miner);
-                Logger.WriteInfo($"Generate blocks count: {consensusService.ConvertViewResult(blockResult, true)}");
+                var blockResult = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.QueryMinedBlockCountInCurrentTerm, new PublicKey
+                {
+                    Hex = miner
+                });
+                Logger.WriteInfo($"Generate blocks count: {blockResult.Value}");
             }
-        }
-
-        [TestMethod]
-        public void QueryAliasesInUse()
-        {
-            var aliasResults = consensusService.CallReadOnlyMethod(ConsensusMethod.QueryAliasesInUseToFriendlyString);
-            Logger.WriteInfo($"Alias in use: {consensusService.ConvertViewResult(aliasResults)}");
         }
 
         //退出选举
         [TestMethod]
         public void QuitElection()
         {
-            consensusService.SetAccount(FullNodeAccounts[0]);
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
+            electionService.SetAccount(FullNodeAccounts[0]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.QuitElection, new Empty());
 
-            consensusService.SetAccount(FullNodeAccounts[1]);
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
+            electionService.SetAccount(FullNodeAccounts[1]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.QuitElection, new Empty());
 
-            consensusService.SetAccount(FullNodeAccounts[2]);
-            consensusService.CallContractMethod(ConsensusMethod.QuitElection);
+            electionService.SetAccount(FullNodeAccounts[2]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.QuitElection, new Empty());
+            
+            electionService.CheckTransactionResultList();
             GetCandidateList();
 
             //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
-                Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
+                var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(fullAcc)
+                });
+                Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);
             }
         }
 
@@ -590,21 +612,28 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ReAnnounceElection()
         {
-            consensusService.SetAccount(FullNodeAccounts[0]);
-            consensusService.CallContractMethod(ConsensusMethod.AnnounceElection, $"Full{FullNodeAccounts[0].Substring(8, 4)}");
+            electionService.SetAccount(FullNodeAccounts[0]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.AnnounceElection, new Empty());
 
-            consensusService.SetAccount(FullNodeAccounts[1]);
-            consensusService.CallContractMethod(ConsensusMethod.AnnounceElection, $"Full{FullNodeAccounts[1].Substring(8, 4)}");
+            electionService.SetAccount(FullNodeAccounts[1]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.AnnounceElection, new Empty());
 
-            consensusService.SetAccount(FullNodeAccounts[2]);
-            consensusService.CallContractMethod(ConsensusMethod.AnnounceElection, $"Full{FullNodeAccounts[2].Substring(8, 4)}");
+            electionService.SetAccount(FullNodeAccounts[2]);
+            electionService.ExecuteMethodWithTxId(ElectionMethod.AnnounceElection, new Empty());
+            
+            electionService.CheckTransactionResultList();
+            
             GetCandidateList();
 
             //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
-                var callResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, fullAcc);
-                Console.WriteLine($"FullNode token-{fullAcc}: " + tokenService.ConvertViewResult(callResult, true));
+                var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Owner = Address.Parse(fullAcc),
+                    Symbol = TokenSymbol
+                });
+                Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);
             }
         }
 
@@ -624,7 +653,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetTicketsInfo();
             GetCurrentVictories();
             QueryDividends();
-            QueryCurrentDividendsForVoters();
 
             //取消参选
             QuitElection();
@@ -660,6 +688,5 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
-        */
     }
 }
