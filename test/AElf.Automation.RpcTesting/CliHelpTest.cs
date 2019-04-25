@@ -1,5 +1,4 @@
-﻿using System;
-using AElf.Automation.Common.Helpers;
+﻿using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.RpcTesting

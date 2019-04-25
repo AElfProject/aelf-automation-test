@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Contracts
         CheckDividends,
         CheckDividendsOfPreviousTerm
     }
-    public class DividendsContract :BaseContract
+    public class DividendsContract :BaseContract<DicidendsMethod>
     {
         public DividendsContract(RpcApiHelper ch, string callAddress, string dividendsAddress)
             :base(ch, dividendsAddress)
@@ -27,21 +27,6 @@ namespace AElf.Automation.Common.Contracts
         public DividendsContract(RpcApiHelper ch, string callAddress)
             : base(ch, "AElf.Contracts.Dividends", callAddress)
         {
-        }
-
-        public CommandInfo CallContractMethod(DicidendsMethod method, IMessage inputParameter)
-        {
-            return ExecuteMethodWithResult(method.ToString(), inputParameter);
-        }
-
-        public void CallContractWithoutResult(DicidendsMethod method, IMessage inputParameter)
-        {
-            ExecuteMethodWithTxId(method.ToString(), inputParameter);
-        }
-
-        public JObject CallReadOnlyMethod(DicidendsMethod method, IMessage inputParameter)
-        {
-            return CallViewMethod(method.ToString(), inputParameter);
         }
     }
 }

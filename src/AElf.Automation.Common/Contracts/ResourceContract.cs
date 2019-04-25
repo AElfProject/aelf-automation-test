@@ -23,7 +23,7 @@ namespace AElf.Automation.Common.Contracts
         LockResource,
         WithdrawResource
     }
-    public class ResourceContract : BaseContract
+    public class ResourceContract : BaseContract<ResourceMethod>
     {
         public ResourceContract(RpcApiHelper ch, string callAddress)
             :base(ch, "AElf.Contracts.Resource", callAddress)
@@ -36,21 +36,5 @@ namespace AElf.Automation.Common.Contracts
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
-
-        public CommandInfo CallContractMethod(ResourceMethod method, IMessage inputParameter)
-        {
-            return ExecuteMethodWithResult(method.ToString(), inputParameter);
-        }
-
-        public void CallContractWithoutResult(ResourceMethod method, IMessage inputParameter)
-        {
-            ExecuteMethodWithTxId(method.ToString(), inputParameter);
-        }
-
-        public JObject CallReadOnlyMethod(ResourceMethod method, IMessage inputParameter)
-        {
-            return CallViewMethod(method.ToString(), inputParameter);
-        }
-
     }
 }

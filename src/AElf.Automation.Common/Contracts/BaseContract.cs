@@ -8,7 +8,7 @@ using Google.Protobuf;
 
 namespace AElf.Automation.Common.Contracts
 {
-    public class BaseContract
+    public class BaseContract<T>
     {
         #region Priority
 
@@ -41,6 +41,12 @@ namespace AElf.Automation.Common.Contracts
             TxResultList = new ConcurrentQueue<string>();
         }
 
+        /// <summary>
+        /// 执行交易，返回TransactionId，不等待执行结果
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <returns></returns>
         public string ExecuteMethodWithTxId(string method, IMessage inputParameter)
         {
             string rawTx = GenerateBroadcastRawTx(method, inputParameter);
@@ -51,7 +57,30 @@ namespace AElf.Automation.Common.Contracts
 
             return txId;
         }
+        
+        /// <summary>
+        /// 执行交易，返回TransactionId，不等待执行结果
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <returns></returns>
+        public string ExecuteMethodWithTxId(T method, IMessage inputParameter)
+        {
+            string rawTx = GenerateBroadcastRawTx(method.ToString(), inputParameter);
 
+            var txId = ExecuteMethodWithTxId(rawTx);
+            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            TxResultList.Enqueue(txId);
+
+            return txId;
+        }
+
+        /// <summary>
+        /// 执行交易，等待执行结果后返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <returns></returns>
         public CommandInfo ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             string rawTx = GenerateBroadcastRawTx(method, inputParameter);
@@ -62,7 +91,30 @@ namespace AElf.Automation.Common.Contracts
             //Chek result
             return CheckTransactionResult(txId, 30);
         }
+        
+        /// <summary>
+        /// 执行交易，等待执行结果后返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <returns></returns>
+        public CommandInfo ExecuteMethodWithResult(T method, IMessage inputParameter)
+        {
+            string rawTx = GenerateBroadcastRawTx(method.ToString(), inputParameter);
 
+            var txId = ExecuteMethodWithTxId(rawTx);
+            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+
+            //Chek result
+            return CheckTransactionResult(txId, 30);
+        }
+
+        /// <summary>
+        /// 获取执交易行结果是否成功
+        /// </summary>
+        /// <param name="txId"></param>
+        /// <param name="ci"></param>
+        /// <returns></returns>
         public bool GetTransactionResult(string txId, out CommandInfo ci)
         {
             ci = new CommandInfo(ApiMethods.GetTransactionResult);
@@ -83,6 +135,12 @@ namespace AElf.Automation.Common.Contracts
             return false;
         }
 
+        /// <summary>
+        /// 检查交易执行结果
+        /// </summary>
+        /// <param name="txId"></param>
+        /// <param name="maxTimes"></param>
+        /// <returns></returns>
         public CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
         {
             CommandInfo ci = null;
@@ -198,12 +256,42 @@ namespace AElf.Automation.Common.Contracts
         {
             return Ch.RpcQueryView(CallAddress, ContractAddress, method, input);
         }
-        
-        public T CallViewMethod<T>(string method, IMessage input) where T : IMessage<T>, new()
+
+        /// <summary>
+        /// 调用合约View方法
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public JObject CallViewMethod(T method, IMessage input)
         {
-            return Ch.RpcQueryView<T>(CallAddress, ContractAddress, method, input);
+            return CallViewMethod(method.ToString(), input);
+        }
+        
+        /// <summary>
+        /// 调用合约View方法
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="input"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public TResult CallViewMethod<TResult>(string method, IMessage input) where TResult : IMessage<TResult>, new()
+        {
+            return Ch.RpcQueryView<TResult>(CallAddress, ContractAddress, method, input);
         }
 
+        /// <summary>
+        /// 调用合约View方法
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="input"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public TResult CallViewMethod<TResult>(T method, IMessage input) where TResult : IMessage<TResult>, new()
+        {
+            return Ch.RpcQueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
+        }
+        
         public void UnlockAccount(string account, string password = "123")
         {
             var uc = new CommandInfo(ApiMethods.AccountUnlock);
@@ -225,7 +313,7 @@ namespace AElf.Automation.Common.Contracts
                 _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
 
                 bool result = GetContractAddress(txId, out _);
-                Assert.IsTrue(result, $"Get contract abi failed.");
+                Assert.IsTrue(result, $"Get contract address failed.");
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");

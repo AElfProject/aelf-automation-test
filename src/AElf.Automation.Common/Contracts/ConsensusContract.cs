@@ -32,7 +32,7 @@ namespace AElf.Automation.Common.Contracts
         WithdrawAll,
         InitialBalance
     }
-    public class ConsensusContract : BaseContract
+    public class ConsensusContract : BaseContract<ConsensusMethod>
     {
         public ConsensusContract(RpcApiHelper ch, string callAddress, string consensusAddress) :
             base(ch, consensusAddress)
@@ -44,21 +44,6 @@ namespace AElf.Automation.Common.Contracts
         public ConsensusContract(RpcApiHelper ch, string callAddress)
             :base(ch, "AElf.Contracts.Consensus", callAddress)
         {
-        }
-
-        public CommandInfo CallContractMethod(ConsensusMethod method, IMessage inputParameter)
-        {
-            return ExecuteMethodWithResult(method.ToString(), inputParameter);
-        }
-
-        public void CallContractWithoutResult(ConsensusMethod method, IMessage inputParameter)
-        {
-            ExecuteMethodWithTxId(method.ToString(), inputParameter);
-        }
-
-        public JObject CallReadOnlyMethod(ConsensusMethod method, IMessage inputParameter)
-        {
-            return CallViewMethod(method.ToString(), inputParameter);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace AElf.Automation.TransactionExecution
 
         #endregion
 
-        public static string Endpoint { get; set; } = "http://192.168.197.13:8000/chain";
+        public static string Endpoint { get; set; } = "http://192.168.197.13:8100/chain";
 
         static void Main(string[] args)
         {
@@ -65,7 +65,7 @@ namespace AElf.Automation.TransactionExecution
             for (int i = 1; i < Users.Count; i++)
             {
                 //Execute Transfer
-                Executor.Token.CallMethodWithResult(TokenMethod.Transfer, new TransferInput
+                Executor.Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
                     Amount = i * 100,

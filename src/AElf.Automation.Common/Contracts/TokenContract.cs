@@ -8,26 +8,30 @@ namespace AElf.Automation.Common.Contracts
     {
         //Action
         Create,
+        InitializeTokenContract,
+        CreateNativeToken,
         Issue,
-        SetFeePoolAddress,
-        ClaimTransactionFees,
+        IssueNativeToken,
         Transfer,
+        CrossChainTransfer,
+        CrossChainReceiveToken,
+        Lock,
+        Unlock,
         TransferFrom,
         Approve,
         UnApprove,
         Burn,
+        ChargeTransactionFees,
+        ClaimTransactionFees,
+        SetFeePoolAddress,
 
         //View
-        Symbol,
-        TokenName,
-        TotalSupply,
-        Decimals,
+        GetTokenInfo,
         GetBalance,
-        Allowance,
-        ChargedFees,
-        FeePoolAddress
+        GetAllowance,
+        IsInWhiteList
     }
-    public class TokenContract : BaseContract
+    public class TokenContract : BaseContract<TokenMethod>
     {
         public TokenContract(RpcApiHelper ch, string callAddress) :
             base(ch, "AElf.Contracts.MultiToken", callAddress)
@@ -39,26 +43,6 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
-        }
-
-        public CommandInfo CallMethodWithResult(TokenMethod method, IMessage inputParameter)
-        {
-            return ExecuteMethodWithResult(method.ToString(), inputParameter);
-        }
-
-        public void CallWithoutResult(TokenMethod method, IMessage inputParameter)
-        {
-            ExecuteMethodWithTxId(method.ToString(), inputParameter);
-        }
-
-        public JObject CallViewMethod(TokenMethod method, IMessage inputParameter)
-        {
-            return CallViewMethod(method.ToString(), inputParameter);
-        }
-        
-        public T CallViewMethod<T>(TokenMethod method, IMessage inputParameter) where T : IMessage<T>, new()
-        {
-            return CallViewMethod<T>(method.ToString(), inputParameter);
         }
     }
 }

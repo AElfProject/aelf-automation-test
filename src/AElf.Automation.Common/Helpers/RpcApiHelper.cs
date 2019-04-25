@@ -441,7 +441,7 @@ namespace AElf.Automation.Common.Helpers
             return JObject.Parse(resp);
         }
         
-        public T RpcQueryView<T>(string from, string to, string methodName, IMessage inputParameter) where T : IMessage<T>, new()
+        public TResult RpcQueryView<TResult>(string from, string to, string methodName, IMessage inputParameter) where TResult : IMessage<TResult>, new()
         {
             var tr = new Transaction()
             {
@@ -453,7 +453,7 @@ namespace AElf.Automation.Common.Helpers
             if (tr.MethodName == null)
             {
                 _logger.WriteError("Method not found.");
-                return default(T);
+                return default(TResult);
             }
 
             tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
@@ -467,15 +467,15 @@ namespace AElf.Automation.Common.Helpers
             else
             {
                 _logger.WriteError($"Call response is null or empty.");
-                return default(T);
+                return default(TResult);
             }
             
             var resultObj = jObject["result"];
             if (resultObj == null)
-                return default(T);
+                return default(TResult);
             
             var byteArray = ByteArrayHelpers.FromHexString(resultObj.ToString());
-            var messageParser = new MessageParser<T>(()=>new T());
+            var messageParser = new MessageParser<TResult>(()=>new TResult());
 
             return messageParser.ParseFrom(byteArray);
         }
