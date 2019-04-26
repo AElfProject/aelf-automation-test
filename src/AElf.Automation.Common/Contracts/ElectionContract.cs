@@ -17,8 +17,8 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ElectionContract : BaseContract<ElectionMethod>
     {
-        public ElectionContract(RpcApiHelper ch, string callAddress, string consensusAddress) :
-            base(ch, consensusAddress)
+        public ElectionContract(RpcApiHelper ch, string callAddress, string electionAddress) :
+            base(ch, electionAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

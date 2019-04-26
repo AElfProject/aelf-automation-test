@@ -13,7 +13,6 @@ namespace AElf.Automation.Common.Helpers
         #region Properties
 
         private string _rpcAddress;
-        private string _genesisAddress;
         private string _chainId;
         private AElfKeyStore _keyStore;
         private AccountManager _accountManager;
@@ -22,6 +21,7 @@ namespace AElf.Automation.Common.Helpers
 
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         public List<CommandInfo> CommandList { get; }
+        public string GenesisAddress { get; set; }
 
         #endregion
 
@@ -133,7 +133,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (j["GenesisContractAddress"] != null)
             {
-                _genesisAddress = j["GenesisContractAddress"].ToString();
+                GenesisAddress = j["GenesisContractAddress"].ToString();
             }
 
             if (j["ChainId"] != null)
@@ -166,7 +166,7 @@ namespace AElf.Automation.Common.Helpers
             };
 
             _transactionManager.SetCmdInfo(ci);
-            var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
+            var tx = _transactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)
