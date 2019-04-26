@@ -41,7 +41,7 @@ namespace AElf.Automation.Common.Contracts
             InitializeSystemContractName();
         }
 
-        public GenesisContract GetGenesisContract(RpcApiHelper ch, string callAddress)
+        public static GenesisContract GetGenesisContract(RpcApiHelper ch, string callAddress)
         {
             var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
             ch.RpcGetChainInformation(chainInfo);

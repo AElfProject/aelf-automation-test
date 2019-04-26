@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.TokenConverter;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -12,19 +14,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ResourceContractsTest
     {
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        public string TokenAbi { get; set; }
+        public string TokenContract { get; set; }
+        public string FeeReceiverContract { get; set; }
+        public string TokenConverterContract { get; set; }
         public RpcApiHelper CH { get; set; }
-        public string RpcUrl { get; } = "http://192.168.197.44:8000/chain";
+        public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
         public List<string> AccList { get; set; }
+        public string TokenSymbol { get; } = "ELF";
         public string InitAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
+        public string FeeReceiverAccount { get; } = "";
+        public string ManagerAccount { get; } = "";
+        
         //Contract service List
-
         public TokenContract tokenService { get; set; }
-        public ResourceContract resourceService { get; set; }
+        public FeeReceiverContract feeReceiverService { get; set; }
+        public TokenConverterContract tokenConverterService { get; set; }
 
-        /*
         [TestInitialize]
-        public void Initlize()
+        public void Initialize()
         {
             #region Basic Preparation
             //Init Logger
@@ -32,25 +39,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            CH = new CliHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
-            var ci = new CommandInfo("ConnectChain");
-            CH.RpcConnectChain(ci);
+            var ci = new CommandInfo(ApiMethods.GetChainInformation);
+            CH.RpcGetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
-            //Get AElf.Contracts.MultiToken ABI
-            ci.GetJsonInfo();
-            TokenAbi = ci.JsonInfo["AElf.Contracts.MultiToken"].ToObject<string>();
-
-            //Load default Contract Abi
-            ci = new CommandInfo("LoadContractAbi");
-            CH.RpcLoadContractAbi(ci);
-            Assert.IsTrue(ci.Result, "Load contract abi got exception.");
+            //Get MultiToken and TokenConverter contract address 
+           
 
             //Account preparation
             AccList = new List<string>();
-            ci = new CommandInfo("AccountNew", "account");
+            ci = new CommandInfo(ApiMethods.AccountNew);
             for (int i = 0; i < 5; i++)
             {
                 ci.Parameter = "123";
@@ -59,22 +60,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AccList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var ic = new CommandInfo("AccountUnlock", "account")
+                var ic = new CommandInfo(ApiMethods.AccountUnlock)
                 {
-                    Parameter = String.Format("{0} {1} {2}", AccList[i], "123", "notimeout")
+                    Parameter = $"{AccList[i]} 123 notimeout"
                 };
                 CH.UnlockAccount(ic);
             }
-            var uc = new CommandInfo("AccountUnlock", "account");
-            uc.Parameter = string.Format("{0} {1} {2}", InitAccount, "123", "notimeout");
+            var uc = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{InitAccount} 123 notimeout"
+            };
             CH.ExecuteCommand(uc);
 
-            //Init token service
+            //Init services
             PrepareUserTokens();
-      
-            //Init resource service
-            resourceService = new ResourceContract(CH, AccList[2]);
-            PrepareResourceToken();
+            
+            PrepareFeeReceiverContract();
+            
+            tokenConverterService = new TokenConverterContract(CH, InitAccount);
+            
             #endregion
         }
 
@@ -87,19 +91,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void BuyResource1()
         {
-            resourceService.Account = AccList[3];
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "100000");
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Ram", "500");
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
+            tokenConverterService.SetAccount(AccList[3]);
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Cpu", "100000");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Ram", "500");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Net", "1000");
             QueryResourceInfo();
         }
 
         public void BuyResource2()
         {
-            resourceService.Account = AccList[4];
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Cpu", "500");
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Ram", "500");
-            resourceService.CallContractMethod(ResourceMethod.BuyResource, "Net", "1000");
+            tokenConverterService.SetAccount(AccList[4]);
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Cpu", "500");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Ram", "500");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.BuyResource, "Net", "1000");
             QueryResourceInfo();
         }
 
@@ -110,80 +114,154 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void PrepareUserTokens()
         {
-            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
-            tokenService.CallContractMethod(TokenMethod.Initialize, "aelfToken", "ELF", "500000", "2");
+            tokenService = new TokenContract(CH, InitAccount, TokenContract);
+            tokenService.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+            {
+                Decimals = 2,
+                IsBurnable = true,
+                Issuer = Address.Parse(InitAccount),
+                Symbol = TokenSymbol,
+                TokenName = "AElf token",
+                TotalSupply = 1000_000L
+            });
+            tokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
+            {  
+                Symbol = TokenSymbol,
+                Amount = 1000_000L,
+                To = Address.Parse(InitAccount),
+                Memo = "Issue token to init account"
+            });
+            
             foreach (var acc in AccList)
             {
-                tokenService.CallContractWithoutResult(TokenMethod.Transfer, acc, "10000");
+                tokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Symbol = TokenSymbol,
+                    Amount = 10_000,
+                    Memo = "transfer for resource trade.",
+                    To = Address.Parse(acc)
+                });
             }
-
             tokenService.CheckTransactionResultList();
+            
             foreach (var acc in AccList)
             {
-                var queryResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, acc);
-                Logger.WriteInfo($"Account: {acc}, Balance: {tokenService.ConvertViewResult(queryResult, true)}");
+                var queryResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+                {
+                    Symbol = TokenSymbol,
+                    Owner = Address.Parse(acc)
+                });
+                Logger.WriteInfo($"Account: {acc}, Balance: {queryResult.Balance}");
             }
         }
+
+        private void PrepareFeeReceiverContract()
+        {
+            feeReceiverService = new FeeReceiverContract(CH, InitAccount);
+            feeReceiverService.ExecuteMethodWithResult(FeeReceiverMethod.Initialize, new InitializeInput
+            {
+                TokenContractAddress = Address.Parse(TokenContract),
+                BaseTokenSymbol = TokenSymbol,
+                FeeRate = "0.05",
+                FeeReceiverAddress = Address.Parse(FeeReceiverAccount),
+                ManagerAddress = Address.Parse(ManagerAccount)
+            });
+        }
+        
         private void PrepareResourceToken()
         {
             //Init
-            resourceService.CallContractMethod(ResourceMethod.Initialize, TokenAbi, InitAccount, InitAccount);
+            var ramConnector = new Connector
+            {
+                Symbol = "RAM",
+                VirtualBalance = 0,
+                Weight = "0.5",
+                IsPurchaseEnabled = true,
+                IsVirtualBalanceEnabled = false
+            };
+            
+            var netConnector = new Connector
+            {
+                Symbol = "NET",
+                VirtualBalance = 0,
+                Weight = "0.5",
+                IsPurchaseEnabled = true,
+                IsVirtualBalanceEnabled = false 
+            };
+            
+            var cpuConnector = new Connector
+            {
+                Symbol = "CPU",
+                VirtualBalance = 0,
+                Weight = "0.5",
+                IsPurchaseEnabled = true,
+                IsVirtualBalanceEnabled = false 
+            };
+            
+            tokenConverterService.ExecuteMethodWithResult(TokenConverterMethod.Initialize, new InitializeInput
+            {
+                BaseTokenSymbol = TokenSymbol,
+                FeeRate = "0.005",
+                ManagerAddress = Address.Parse(ManagerAccount),
+                TokenContractAddress = Address.Parse(TokenContract),
+                FeeReceiverAddress = Address.Parse(FeeReceiverAccount),
+                Connectors = {ramConnector, netConnector, cpuConnector }
+            });
 
             //Issue
-            resourceService.SetAccount(InitAccount);
-            resourceService.CallContractMethod(ResourceMethod.IssueResource, "Cpu", "1000000");
-            resourceService.CallContractMethod(ResourceMethod.IssueResource, "Net", "1000000");
-            resourceService.CallContractMethod(ResourceMethod.IssueResource, "Ram", "1000000");
+            tokenConverterService.SetAccount(InitAccount);
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.IssueResource, "Cpu", "1000000");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.IssueResource, "Net", "1000000");
+//            tokenConverterService.ExecuteMethodWithResult(ResourceMethod.IssueResource, "Ram", "1000000");
 
             //Query address
-            var tokenAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfTokenAddress);
-            Logger.WriteInfo(String.Format("Token address: {0}", resourceService.ConvertViewResult(tokenAddress, true)));
-
-            var feeAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetFeeAddress);
-            Logger.WriteInfo(String.Format("Fee address: {0}", resourceService.ConvertViewResult(feeAddress, true)));
-
-            var controllerAddress = resourceService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
-            Logger.WriteInfo(String.Format("Controller address: {0}", resourceService.ConvertViewResult(controllerAddress, true)));
+//            var tokenAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfTokenAddress);
+//            Logger.WriteInfo(String.Format("Token address: {0}", tokenConverterService.ConvertViewResult(tokenAddress, true)));
+//
+//            var feeAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetFeeAddress);
+//            Logger.WriteInfo(String.Format("Fee address: {0}", tokenConverterService.ConvertViewResult(feeAddress, true)));
+//
+//            var controllerAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
+//            Logger.WriteInfo(String.Format("Controller address: {0}", tokenConverterService.ConvertViewResult(controllerAddress, true)));
         }
 
         private void QueryResourceInfo()
         {
             //Converter message
-            var cpuConverter = resourceService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Cpu");
-            var ramConverter = resourceService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Ram");
-            var netConverter = resourceService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Net");
-            Logger.WriteInfo(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertViewResult(cpuConverter),
-                resourceService.ConvertViewResult(ramConverter),
-                resourceService.ConvertViewResult(netConverter)));
+//            var cpuConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Cpu");
+//            var ramConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Ram");
+//            var netConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Net");
+//            Logger.WriteInfo(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
+//                tokenConverterService.ConvertViewResult(cpuConverter),
+//                tokenConverterService.ConvertViewResult(ramConverter),
+//                tokenConverterService.ConvertViewResult(netConverter)));
 
             //User Balance
-            var cpuBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Cpu");
-            var ramBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Ram");
-            var netBalance = resourceService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Net");
-            Logger.WriteInfo(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertViewResult(cpuBalance, true),
-                resourceService.ConvertViewResult(ramBalance, true),
-                resourceService.ConvertViewResult(netBalance, true)));
+//            var cpuBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Cpu");
+//            var ramBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Ram");
+//            var netBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Net");
+//            Logger.WriteInfo(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//                tokenConverterService.ConvertViewResult(cpuBalance, true),
+//                tokenConverterService.ConvertViewResult(ramBalance, true),
+//                tokenConverterService.ConvertViewResult(netBalance, true)));
 
             //Exchange Balance
-            var cpuExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Cpu");
-            var ramExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Ram");
-            var netExchange = resourceService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Net");
-            Logger.WriteInfo(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertViewResult(cpuExchange, true),
-                resourceService.ConvertViewResult(ramExchange, true),
-                resourceService.ConvertViewResult(netExchange, true)));
+//            var cpuExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Cpu");
+//            var ramExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Ram");
+//            var netExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Net");
+//            Logger.WriteInfo(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//                tokenConverterService.ConvertViewResult(cpuExchange, true),
+//                tokenConverterService.ConvertViewResult(ramExchange, true),
+//                tokenConverterService.ConvertViewResult(netExchange, true)));
 
             //Elf Balance
-            var cpuElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Cpu");
-            var ramElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Ram");
-            var netElf = resourceService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Net");
-            Logger.WriteInfo(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
-                resourceService.ConvertViewResult(cpuElf, true),
-                resourceService.ConvertViewResult(ramElf, true),
-                resourceService.ConvertViewResult(netElf, true)));
+//            var cpuElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Cpu");
+//            var ramElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Ram");
+//            var netElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Net");
+//            Logger.WriteInfo(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//                tokenConverterService.ConvertViewResult(cpuElf, true),
+//                tokenConverterService.ConvertViewResult(ramElf, true),
+//                tokenConverterService.ConvertViewResult(netElf, true)));
         }
-        */
     }
 }
