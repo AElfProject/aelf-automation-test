@@ -101,7 +101,7 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //New
-            NewAccounts(100);
+            NewAccounts(200);
 
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
@@ -213,7 +213,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = symbol,
                     TokenName = $"elf token {GetRandomIncrementId()}",
-                    TotalSupply = 100_000_000L,
+                    TotalSupply = long.MaxValue,
                     Decimals = 2,
                     Issuer = Address.Parse(account),
                     IsBurnable = true
@@ -239,7 +239,7 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue");
                 ci.ParameterInput = new IssueInput()
                 {
-                    Amount = 100_000_000L,
+                    Amount = long.MaxValue,
                     Memo = "Issue all balance to owner.",
                     Symbol = symbol,
                     To = Address.Parse(account)
@@ -325,7 +325,7 @@ namespace AElf.Automation.RpcPerformance
                 ci.ParameterInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    Amount = 1L,
+                    Amount = (i + 1) % 32,
                     Memo = "transfer test",
                     To = Address.Parse(account1)
                 };
@@ -388,7 +388,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = Address.Parse(account1),
-                    Amount = 1L,
+                    Amount = (i+1) % 32,
                     Memo = "transfer test"
                 };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
@@ -448,7 +448,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = Address.Parse(account1),
-                    Amount = 1L,
+                    Amount = (i + 1) % 32,
                     Memo = "transfer test"
                 };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
