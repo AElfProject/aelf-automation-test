@@ -17,6 +17,7 @@ namespace AElf.Automation.Common.Contracts
         GetVotesInformation,
         GetCandidateHistory,
         GetVictories,
+        GetCandidates,
         GetMinersCount,
         GetVotesInformationWithRecords,
         GetVotesInformationWithAllRecords

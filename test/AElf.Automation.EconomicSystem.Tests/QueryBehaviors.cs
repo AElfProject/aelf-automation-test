@@ -6,40 +6,9 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
-    public class QueryBehaviors
+    public partial class Behaviors
     {
-        public readonly RpcApiHelper ApiHelper;
-        public readonly ContractServices ContractServices;
-        
-        public readonly ElectionContract ElectionService;
-        public readonly VoteContract VoteService;
-        public readonly ProfitContract ProfitService;
-        public readonly TokenContract TokenService;
-        public readonly ConsensusContract ConsensusService;
-
-        public QueryBehaviors(ContractServices contractServices)
-        {
-            ApiHelper = contractServices.ApiHelper;
-            ContractServices = contractServices;
-
-            ElectionService = ContractServices.ElectionService;
-            VoteService = ContractServices.VoteService;
-            ProfitService = ContractServices.ProfitService;
-            TokenService = ContractServices.TokenService;
-            ConsensusService = ContractServices.ConsensusService;
-        }
-        
         #region Election View Methods
-        
-        public ElectionResult GetElectionResult(long termNumber)
-        {
-            var electionResult = ElectionService.CallViewMethod<ElectionResult>(ElectionMethod.GetElectionResult,
-                new GetElectionResultInput
-                {
-                    TermNumber = termNumber
-                });
-            return electionResult;
-        }
 
         public PublicKeysList GetVictories()
         {
@@ -62,6 +31,13 @@ namespace AElf.Automation.EconomicSystem.Tests
                     {
                         Value = publicKey
                     });
+            return result;
+        }
+
+        public PublicKeysList GetCandidates()
+        {
+            var result =
+                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             return result;
         }
 

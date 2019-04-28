@@ -5,12 +5,20 @@ using Shouldly;
 namespace AElf.Automation.EconomicSystem.Tests
 {
     [TestClass]
-    public class ElectionUserTests : ElectionTests
+    public class UserTests : ElectionTests
     {
-        public ElectionUserTests() : base()
+        [TestInitialize]
+        public void InitializeUserTests()
         {
-            Initialize();
+            base.Initialize();
         }
+
+        [TestCleanup]
+        public void CleanUpUserTests()
+        {
+            base.TestCleanUp();
+        }
+        
         [TestMethod]
         public void Vote_One_Candidate_Scenario()
         {
@@ -45,21 +53,21 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow(0, 1, 2)]
         public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3)
         {
-            var voteResult1 = UserBehaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, 100);
+            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, 50);
             voteResult1.GetJsonInfo();
             voteResult1.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
-            var voteResult2 = UserBehaviors.UserVote(UserList[1], FullNodeAddress[no2], 90, 200);
+            var voteResult2 = Behaviors.UserVote(UserList[1], FullNodeAddress[no2], 90, 100);
             voteResult2.GetJsonInfo();
             voteResult2.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
-            var voteResult3 = UserBehaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 300);
+            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 150);
             voteResult3.GetJsonInfo();            
             voteResult3.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
             for (var i = 0; i < FullNodeAddress.Count; i++)
             {
-                var voteResult = UserBehaviors.UserVote(UserList[i+3], FullNodeAddress[i], 90, 50);
+                var voteResult = Behaviors.UserVote(UserList[i+3], FullNodeAddress[i], 90, 50);
                 voteResult.GetJsonInfo();
                 voteResult.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
             }
@@ -69,25 +77,26 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(0, 1, 2)]
+        [DataRow(3, 4, 5)]
         public void Query_Candidate_Victories(int no1, int no2, int no3)
         {
-            var victories = QueryBehaviors.GetVictories();
+            var victories = Behaviors.GetVictories();
             victories.Value.Count.ShouldBe(3);
             
             var publicKeys = victories.Value.Select(o => o.ToHex()).ToList();
             
             publicKeys.Contains(
-                QueryBehaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
             publicKeys.Contains(
-                QueryBehaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
             publicKeys.Contains(
-                QueryBehaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
         }
 
         [TestMethod]
         public void Get_Candidate_List()
         {
+            
         }
         
         [TestMethod]

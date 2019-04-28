@@ -5,29 +5,8 @@ using AElf.Kernel;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
-    public class UserBehaviors
+    public partial class Behaviors
     {
-        public readonly RpcApiHelper ApiHelper;
-        public readonly ContractServices ContractServices;
-        
-        public readonly ElectionContract ElectionService;
-        public readonly VoteContract VoteService;
-        public readonly ProfitContract ProfitService;
-        public readonly TokenContract TokenService;
-        public readonly ConsensusContract ConsensusService;
-
-        public UserBehaviors(ContractServices contractServices)
-        {
-            ApiHelper = contractServices.ApiHelper;
-            ContractServices = contractServices;
-            
-            ElectionService = ContractServices.ElectionService;
-            VoteService = ContractServices.VoteService;
-            ProfitService = ContractServices.ProfitService;
-            TokenService = ContractServices.TokenService;
-            ConsensusService = ContractServices.ConsensusService;
-        }
-        
         //action
         public CommandInfo UserVote(string account,string candidate, int lockTime, long amount)
         {

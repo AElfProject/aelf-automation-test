@@ -4,29 +4,8 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
-    public class NodeBehaviors
+    public partial class Behaviors
     {
-        public readonly RpcApiHelper ApiHelper;
-        public readonly ContractServices ContractServices;
-
-        public readonly ElectionContract ElectionService;
-        public readonly VoteContract VoteService;
-        public readonly ProfitContract ProfitService;
-        public readonly TokenContract TokenService;
-        public readonly ConsensusContract ConsensusService;
-        
-        public NodeBehaviors(ContractServices contractServices)
-        {
-            ApiHelper = contractServices.ApiHelper;
-            ContractServices = contractServices;
-
-            ElectionService = ContractServices.ElectionService;
-            VoteService = ContractServices.VoteService;
-            ProfitService = ContractServices.ProfitService;
-            TokenService = ContractServices.TokenService;
-            ConsensusService = ContractServices.ConsensusService;
-        }
-        
         //action
         public CommandInfo AnnouncementElection(string account)
         {
