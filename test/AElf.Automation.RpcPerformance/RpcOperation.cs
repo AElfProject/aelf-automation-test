@@ -325,8 +325,8 @@ namespace AElf.Automation.RpcPerformance
                 ci.ParameterInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    Amount = (i + 1) % 32,
-                    Memo = "transfer test",
+                    Amount = (i + 1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}",
                     To = Address.Parse(account1)
                 };
                 CH.ExecuteCommand(ci);
@@ -388,8 +388,8 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = Address.Parse(account1),
-                    Amount = (i+1) % 32,
-                    Memo = "transfer test"
+                    Amount = (i+1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 rpcRequest.Add(requestInfo);
@@ -448,8 +448,8 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = Address.Parse(account1),
-                    Amount = (i + 1) % 32,
-                    Memo = "transfer test"
+                    Amount = (i + 1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 string requestInfo = CH.RpcGenerateTransactionRawTx(ci);
                 ContractRpcList.Enqueue(requestInfo);

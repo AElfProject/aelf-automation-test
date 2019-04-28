@@ -52,7 +52,7 @@ namespace AElf.Automation.Common.Extensions
 
         public CommandInfo UnlockAccount(string address, string password = "", string notimeout = "")
         {
-            var result = new CommandInfo(ApiMethods.AccountList);
+            var result = new CommandInfo(ApiMethods.AccountUnlock);
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = string.Format("{0} {1} {2}", address, password, notimeout);

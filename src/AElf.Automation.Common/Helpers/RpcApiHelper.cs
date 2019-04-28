@@ -463,7 +463,11 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             JObject jObject;
             if (resp != string.Empty)
+            {
                 jObject = JObject.Parse(resp);
+                if(jObject["error"] != null)
+                    _logger.WriteError($"Call response return error, code={jObject["error"]["code"]}, message={jObject["error"]["message"]}");
+            }
             else
             {
                 _logger.WriteError($"Call response is null or empty.");

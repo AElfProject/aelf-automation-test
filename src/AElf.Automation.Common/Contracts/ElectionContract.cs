@@ -13,7 +13,13 @@ namespace AElf.Automation.Common.Contracts
         UpdateTermNumber,
         
         //view
-        GetElectionResult
+        GetElectionResult,
+        GetVotesInformation,
+        GetCandidateHistory,
+        GetVictories,
+        GetMinersCount,
+        GetVotesInformationWithRecords,
+        GetVotesInformationWithAllRecords
     }
     public class ElectionContract : BaseContract<ElectionMethod>
     {

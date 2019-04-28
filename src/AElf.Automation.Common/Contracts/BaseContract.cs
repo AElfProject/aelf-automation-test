@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
 using Google.Protobuf;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Common.Contracts
 {

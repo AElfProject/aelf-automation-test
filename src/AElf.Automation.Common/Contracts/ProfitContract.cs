@@ -19,7 +19,8 @@ namespace AElf.Automation.Common.Contracts
         GetCreatedProfitItems,
         GetProfitItemVirtualAddress,
         GetReleasedProfitsInformation,
-        GetProfitDetails
+        GetProfitDetails,
+        GetProfitItem
     }
     public class ProfitContract : BaseContract<ProfitMethod>
     {

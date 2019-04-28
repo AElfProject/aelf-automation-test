@@ -34,23 +34,23 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
             
-            //Token contract
+            //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
 
             //TokenConverter contract
-            var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
-            TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress, converterAddress.GetFormatted());
+            //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
+            //TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress, converterAddress.GetFormatted());
 
-            //Profit contract
+            //ProfitService contract
             var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
             ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
 
-            //Vote contract
+            //VoteService contract
             var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteSystemName);
             VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
 
-            //Election contract
+            //ElectionService contract
             var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
             ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
 

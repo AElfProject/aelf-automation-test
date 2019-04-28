@@ -290,7 +290,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Get candidate event
             var voteEvent = voteService.CallViewMethod<VotingEvent>(VoteMethod.GetVotingEvent, new GetVotingEventInput
             {
-                Topic = "",
+                Topic = Hash.Empty,
                 Sponsor = Address.Parse(InitAccount)
             });
             CandidatePublicKeys = voteEvent.Options.ToList();
@@ -363,7 +363,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             voteService.SetAccount(UserList[0]);
             voteService.ExecuteMethodWithResult(VoteMethod.Vote, new VoteInput 
             {
-                Topic = "",
+                Topic = Hash.Empty,
                 Sponsor = Address.Parse(""),
                 Option = pubKey,
                 Amount = voteVolumn,
