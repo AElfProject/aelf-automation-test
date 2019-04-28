@@ -64,16 +64,18 @@ namespace AElf.Automation.EconomicSystem.Tests
             var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 150);
             voteResult3.GetJsonInfo();            
             voteResult3.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
-
-            for (var i = 0; i < FullNodeAddress.Count; i++)
-            {
-                var voteResult = Behaviors.UserVote(UserList[i+3], FullNodeAddress[i], 90, 50);
-                voteResult.GetJsonInfo();
-                voteResult.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
-            }
             
             //verify victories
             Query_Candidate_Victories(no1, no2, no3);
+        }
+
+        [TestMethod]
+        [DataRow(4, 200)]
+        public void Vote_One_Candidates_ForBP(int no, long amount)
+        {
+            var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 90, amount);
+            voteResult.GetJsonInfo();
+            voteResult.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
         }
 
         [TestMethod]

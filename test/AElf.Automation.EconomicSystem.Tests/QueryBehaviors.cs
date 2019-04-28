@@ -1,8 +1,10 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Consensus.DPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
+using TermSnapshot = AElf.Kernel.TermSnapshot;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -70,6 +72,17 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Value = ApiHelper.GetPublicKeyFromAddress(voteAccount)
                 });
             return result;
+        }
+
+        public TermSnapshot GetTermSnapshot(long termNumber)
+        {
+            var snapshot = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
+                new GetTermSnapshotInput
+                {
+                    TermNumber = termNumber
+                });
+
+            return snapshot;
         }
         
         #endregion
@@ -148,6 +161,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             });
             return balance;
         }
+
+        #endregion
+        
+        #region Consensus view Method
 
         #endregion
     }

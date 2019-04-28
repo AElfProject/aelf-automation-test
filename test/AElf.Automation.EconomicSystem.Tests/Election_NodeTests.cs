@@ -110,7 +110,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var records = Behaviors.GetVotesInformationWithAllRecords(FullNodeAddress[nodeId]);
 
             var tickets = records.AllObtainedVotesAmount;
-            tickets.ShouldBe(100);
+            tickets.ShouldBe(50);
         }
 
         [TestMethod]
@@ -142,7 +142,18 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            candidates.Value.Count.ShouldBe(6);
+            candidates.Value.Count.ShouldBe(3);
+        }
+
+        [TestMethod]
+        [DataRow(2)]
+        public void GetTermShot(int termNumber)
+        {
+            var termshot = Behaviors.GetTermSnapshot(termNumber);
+            foreach (var candidate in termshot.CandidatesVotes.Keys)
+            {
+                _logger.WriteInfo($"Candidate: {candidate}, Tickets: {termshot.CandidatesVotes[candidate]}");
+            }
         }
     }
 }
