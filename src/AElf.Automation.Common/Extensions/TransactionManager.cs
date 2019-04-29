@@ -60,7 +60,7 @@ namespace AElf.Automation.Common.Extensions
         public Transaction SignTransaction(Transaction tx)
         {
             var txData = tx.GetHash().DumpByteArray();
-            tx.Sigs.Add(Sign(tx.From.GetFormatted(), txData));
+            tx.Signature = Sign(tx.From.GetFormatted(), txData);
             return tx;
         }
 

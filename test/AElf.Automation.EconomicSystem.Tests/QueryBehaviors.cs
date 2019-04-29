@@ -1,6 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Consensus.DPoS;
+using AElf.Contracts.Consensus.DPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;

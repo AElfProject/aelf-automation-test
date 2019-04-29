@@ -20,26 +20,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        public void Vote_One_Candidate_Scenario()
-        {
-        }
-
-        [TestMethod]
-        public void Vote_One_Candidate_MultipleTimes_Scenario()
-        {
-        }
-
-        [TestMethod]
-        public void Vote_Multiple_Candidates_Scenario()
-        {
-        }
-
-        [TestMethod]
-        public void Vote_One_NonCandidate_Scenario()
-        {
-        }
-
-        [TestMethod]
         public void Vote_One_Candidate_With_NotEnough_Token_Scenario()
         {
             var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[0], 90, 2000);

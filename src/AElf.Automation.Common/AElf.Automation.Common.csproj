@@ -34,12 +34,6 @@
     <Content Include="..\AElf\protobuf\profit.proto">
       <Link>Protobuf/Proto/profit.proto</Link>
     </Content>
-    <Content Include="..\AElf\protobuf\consensus.proto">
-      <Link>Protobuf/Proto/consensus.proto</Link>
-    </Content>
-    <Content Include="..\AElf\protobuf\consensus_dpos.proto">
-      <Link>Protobuf/Proto/consensus_dpos.proto</Link>
-    </Content>
     <Content Include="..\AElf\protobuf\token_contract_messages.proto">
       <Link>Protobuf/Proto/token_contract_messages.proto</Link>
     </Content>
@@ -52,11 +46,14 @@
     <Content Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf/Proto/basic_contract_zero.proto</Link>
     </Content>
+    <Content Include="..\AElf\protobuf\dpos_contract.proto">
+      <Link>Protobuf/Proto/dpos_contract.proto</Link>
+    </Content>
   </ItemGroup>
 
   <Target Name="Gen_proto" BeforeTargets="BeforeBuild">
-    <Exec Condition="!$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=../AElf/protobuf token_contract.proto token_converter_contract.proto consensus_dpos.proto --csharp_out=./Protobuf/Generated --csharp_opt=file_extension=.g.cs" />
-    <Exec Condition="$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=..\AElf\protobuf token_contract.proto token_converter_contract.proto consensus_dpos.proto --csharp_out=.\Protobuf\Generated --csharp_opt=file_extension=.g.cs" />
+    <Exec Condition="!$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=../AElf/protobuf vote.proto election.proto profit.proto token_contract.proto token_converter_contract.proto dpos_contract.proto --csharp_out=./Protobuf/Generated --csharp_opt=file_extension=.g.cs" />
+    <Exec Condition="$([MSBuild]::IsOsPlatform(Windows))" Command="protoc --proto_path=..\AElf\protobuf vote.proto election.proto profit.proto token_contract.proto token_converter_contract.proto dpos_contract.proto --csharp_out=.\Protobuf\Generated --csharp_opt=file_extension=.g.cs" />
   </Target>
   <Target Name="UpdateGeneratedFiles" DependsOnTargets="Gen_proto" BeforeTargets="BeforeBuild">
     <ItemGroup>

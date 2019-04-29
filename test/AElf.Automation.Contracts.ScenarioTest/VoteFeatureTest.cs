@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
-using AElf.Consensus.DPoS;
+using AElf.Contracts.Consensus.DPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
-using VoteInput = AElf.Kernel.VoteInput;
+using Vote;
+using VoteInput = Vote.VoteInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -363,9 +364,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             voteService.SetAccount(UserList[0]);
             voteService.ExecuteMethodWithResult(VoteMethod.Vote, new VoteInput 
             {
-                Topic = Hash.Empty,
-                Sponsor = Address.Parse(""),
-                Option = pubKey,
                 Amount = voteVolumn,
             });
 
@@ -425,7 +423,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePublicKey = votePbk,
                     Amount = voteVolume,
                     LockTime = voteLock,
-                    LockTimeUnit = LockTimeUnit.Days
+                    LockTimeUnit = TimeUnit.Days
                 });
                 Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }

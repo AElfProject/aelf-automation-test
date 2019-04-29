@@ -14,9 +14,11 @@
         BroadcastTransactions,
         GetCommands,
         GetTransactionResult,
-        GetTransactionsResult,
+        GetTransactionResults,
         GetBlockHeight,
-        GetBlockInfo,
+        GetBlockInfo, //rpc
+        GetBlockByHeight,
+        GetBlockByHash,
         GetMerklePath,
         QueryView,
 

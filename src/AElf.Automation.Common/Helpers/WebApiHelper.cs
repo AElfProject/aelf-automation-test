@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Kernel;
@@ -14,16 +13,17 @@ namespace AElf.Automation.Common.Helpers
     {
         #region Properties
 
-        private string _rpcAddress;
-        private string _genesisAddress;
+        private readonly string _rpcAddress;
         private string _chainId;
-        private AElfKeyStore _keyStore;
+        private readonly AElfKeyStore _keyStore;
         private AccountManager _accountManager;
         private TransactionManager _transactionManager;
-        private WebRequestManager _requestManager;
-
+        private readonly WebRequestManager _requestManager;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        public List<CommandInfo> CommandList { get; }
+        private List<CommandInfo> CommandList { get; }
+        
+        public string GenesisAddress;
+        public Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
         #endregion
 
@@ -34,6 +34,7 @@ namespace AElf.Automation.Common.Helpers
             _requestManager = new WebRequestManager(rpcUrl);
 
             CommandList = new List<CommandInfo>();
+            InitializeWebApiRoute();
         }
 
         public CommandInfo ExecuteCommand(CommandInfo ci)
@@ -121,7 +122,8 @@ namespace AElf.Automation.Common.Helpers
             if (!CheckResponse(ci, returnCode, statusDto?.GenesisContractAddress))
                 return;
 
-            _genesisAddress = statusDto?.GenesisContractAddress;
+            GenesisAddress = statusDto?.GenesisContractAddress;
+            
             _chainId = statusDto?.ChainId;
             _transactionManager = new TransactionManager(_keyStore, _chainId);
             _accountManager = new AccountManager(_keyStore, _chainId);
@@ -141,7 +143,7 @@ namespace AElf.Automation.Common.Helpers
 
             // Read sc bytes
             var contractReader = new SmartContractReader();
-            byte[] codeArray = contractReader.Read(filename);
+            var codeArray = contractReader.Read(filename);
             var input = new ContractDeploymentInput
             {
                 Category = KernelConstants.CodeCoverageRunnerCategory,
@@ -149,7 +151,7 @@ namespace AElf.Automation.Common.Helpers
             };
 
             _transactionManager.SetCmdInfo(ci);
-            var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
+            var tx = _transactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_rpcAddress);
             if (tx == null)
@@ -409,7 +411,7 @@ namespace AElf.Automation.Common.Helpers
             var resp = CallTransaction(tr, "Call");
 
             //deserialize response
-            var jObject = new JObject();
+            JObject jObject;
             if (resp != string.Empty)
                 jObject = JObject.Parse(resp);
             else
@@ -503,7 +505,7 @@ namespace AElf.Automation.Common.Helpers
             };
             var url = "/api/blockChain/call";
 
-            string resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
+            var resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
 
             return resp;
         }
@@ -522,13 +524,33 @@ namespace AElf.Automation.Common.Helpers
                 return false;
             }
 
-            if (response.IsNullOrEmpty())
-            {
-                ci.ErrorMsg.Add("Failed. Pleas check input.");
-                return false;
-            }
+            if (!response.IsNullOrEmpty()) return true;
+            
+            ci.ErrorMsg.Add("Failed. Pleas check input.");
+            return false;
 
-            return true;
+        }
+
+        private void InitializeWebApiRoute()
+        {
+            ApiRoute = new Dictionary<ApiMethods, string>();
+            
+            //chain route
+            ApiRoute.Add(ApiMethods.GetChainInformation, "/api/blockChain/chainStatus");
+            ApiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
+            ApiRoute.Add(ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
+            ApiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
+            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction");
+            ApiRoute.Add(ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction");
+            ApiRoute.Add(ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions");
+            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/call");
+            ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
+            ApiRoute.Add(ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
+            
+            //net route
+            ApiRoute.Add(ApiMethods.GetPeers, "api/net/peers");
+            ApiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
+            ApiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
         }
     }
 }
