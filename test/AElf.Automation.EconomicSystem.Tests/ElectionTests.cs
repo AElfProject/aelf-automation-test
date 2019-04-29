@@ -24,9 +24,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         
         public List<string> UserList { get; set; }
         public List<string> NodesPublicKeys { get; set; }
-        public List<string> CandidatePublicKeys { get; set; }
-        public List<string> CurrentMinersKeys { get; set; }
         public List<CandidateInfo> CandidateInfos { get; set; }
+        
+        public Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
         
         public class CandidateInfo
         {
@@ -34,15 +34,27 @@ namespace AElf.Automation.EconomicSystem.Tests
             public string Account { get; set; }
             public string PublicKey { get; set; }
         }
-        
-        public void Initialize()
+
+        protected void Initialize()
         {
             #region Get services
             CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
             var contractServices = new ContractServices(CH,InitAccount);
             Behaviors = new Behaviors(contractServices);
             
+            var result = Behaviors.GetCreatedProfitItems();
+            ProfitItemsIds = new Dictionary<Behaviors.ProfitType, Hash>
+            {
+                {Behaviors.ProfitType.Treasury, result.ProfitIds[0]},
+                {Behaviors.ProfitType.MinerReward, result.ProfitIds[1]},
+                {Behaviors.ProfitType.BackSubsidy, result.ProfitIds[2]},
+                {Behaviors.ProfitType.CitizenWelfare, result.ProfitIds[3]},
+                {Behaviors.ProfitType.BasicMinerReward, result.ProfitIds[4]},
+                {Behaviors.ProfitType.VotesWeightReward, result.ProfitIds[5]},
+                {Behaviors.ProfitType.ReElectionReward, result.ProfitIds[6]},
+            };
             #endregion
+            
             #region Basic Preparation
 
             //Init Logger
@@ -68,44 +80,60 @@ namespace AElf.Automation.EconomicSystem.Tests
             //Get candidate infos
             NodesPublicKeys = new List<string>();
             CandidateInfos = new List<CandidateInfo>();
-            for (int i = 0; i < BpNodeAddress.Count; i++)
+            for (var i = 0; i < BpNodeAddress.Count; i++)
             {
-                string name = $"Bp-{i+1}";
-                string account = BpNodeAddress[i];
-                string pubKey = CH.GetPublicKeyFromAddress(account);
+                var name = $"Bp-{i+1}";
+                var account = BpNodeAddress[i];
+                var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.WriteInfo($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
             }
-            for (int i = 0; i < FullNodeAddress.Count; i++)
+            for (var i = 0; i < FullNodeAddress.Count; i++)
             {
-                string name = $"Full-{i+1}";
-                string account = FullNodeAddress[i];
-                string pubKey = CH.GetPublicKeyFromAddress(account);
+                var name = $"Full-{i+1}";
+                var account = FullNodeAddress[i];
+                var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.WriteInfo($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
             }
             
             //Transfer candidate 200_000
-            for (int i = 0; i < FullNodeAddress.Count; i++)
+            var balance = Behaviors.GetBalance(FullNodeAddress[0]);
+            if (balance.Balance == 0)
             {
-                Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                foreach (var account in FullNodeAddress)
                 {
-                    Symbol = "ELF",
-                    Amount = 200_000L,
-                    To = Address.Parse(FullNodeAddress[i]),
-                    Memo = "Transfer token for announcement."
-                });
+                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        Symbol = "ELF",
+                        Amount = 200_000L,
+                        To = Address.Parse(account),
+                        Memo = "Transfer token for announcement."
+                    });
+                }
+
+                Behaviors.TokenService.CheckTransactionResultList();
             }
-            Behaviors.TokenService.CheckTransactionResultList();
             
             //Generate 50 accounts to vote
-            PrepareUserAccountAndBalance(50);
+            PrepareUserAccountAndBalance(10);
            
             #endregion
         }
 
+        protected void TestCleanUp()
+        {
+            if (UserList.Count == 0) return;
+            _logger.WriteInfo("Delete all account files created.");
+            foreach (var item in UserList)
+            {
+                var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
+                File.Delete(file);
+            }
+        }
+        
         private void PrepareUserAccountAndBalance(int userAccount)
         {
             //Account preparation
@@ -119,8 +147,10 @@ namespace AElf.Automation.EconomicSystem.Tests
                     UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo("AccountUnlock", "account");
-                uc.Parameter = $"{UserList[i]} 123 notimeout";
+                var uc = new CommandInfo(ApiMethods.AccountNew)
+                {
+                    Parameter = $"{UserList[i]} 123 notimeout"
+                };
                 CH.UnlockAccount(uc);
             }
 
@@ -133,7 +163,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Amount = 1000,
                     Memo = "transfer for balance test",
                     Symbol = "ELF",
-                    To = Address.Parse(acc) 
+                    To = Address.Parse(acc)
                 });
             }
             Behaviors.TokenService.CheckTransactionResultList();
@@ -149,17 +179,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
 
             _logger.WriteInfo("All accounts created and unlocked.");
-        }
-        
-        public void TestCleanUp()
-        {
-            if (UserList.Count == 0) return;
-            _logger.WriteInfo("Delete all account files created.");
-            foreach (var item in UserList)
-            {
-                string file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
-                File.Delete(file);
-            }
         }
     }
 }

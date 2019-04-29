@@ -25,13 +25,13 @@ namespace AElf.Automation.EconomicSystem.Tests
                 new Empty()).Value;
         }
         
-        public CandidateHistory GetCandidateHistory(string publicKey)
+        public CandidateHistory GetCandidateHistory(string account)
         {
             var result =
                 ElectionService.CallViewMethod<CandidateHistory>(ElectionMethod.GetCandidateHistory,
                     new StringInput
                     {
-                        Value = publicKey
+                        Value = ApiHelper.GetPublicKeyFromAddress(account)
                     });
             return result;
         }
@@ -91,33 +91,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         #endregion
 
-        #region ProfitService Method
-
-        //action
-        public CommandInfo ReleaseProfit(long period,int amount,string txId)
-        {
-            var result =
-                ProfitService.ExecuteMethodWithResult(ProfitMethod.ReleaseProfit, new ReleaseProfitInput
-                {
-                    Period = period,
-                    Amount = amount,
-                    ProfitId = Hash.LoadHex(txId)
-                });
-            return result;
-        }
-
-        public CommandInfo Profit(string txId)
-        {
-            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
-            {
-                ProfitId = Hash.LoadHex(txId)
-            });
-            
-            return result;
-        }
-        
-
-        //view
+        #region ProfitService View Method
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
         public CreatedProfitItems GetCreatedProfitItems()
         {
@@ -138,14 +112,47 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public Address GetProfitItemVirtualAddress(string hex)
+        public Address GetProfitItemVirtualAddress(Hash profitId,long period)
         {
             var result = ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
                 new GetProfitItemVirtualAddressInput
                 {
-                    ProfitId = Hash.LoadHex(hex)
+                    ProfitId = profitId,
+                    Period = period
                 });
 
+            return result;
+        }
+        public Address GetTreasuryAddress(Hash profitId, long period = 0)
+        {
+            return ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
+                new GetProfitItemVirtualAddressInput
+                {
+                    ProfitId = profitId,
+                    Period = period
+                });
+        }
+
+        public ProfitDetails GetProfitDetails(string voteAddress,Hash profitId)
+        {
+            var result =
+                ProfitService.CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
+                    new GetProfitDetailsInput
+                    {
+                        Receiver = Address.Parse(voteAddress),
+                        ProfitId = profitId
+                    });
+            return result;
+        }
+
+        public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
+        {
+            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetCreatedProfitItems,
+                new GetReleasedProfitsInformationInput
+                {
+                    ProfitId = profitId,
+                    Period = period
+                });
             return result;
         }
 
@@ -165,7 +172,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         #endregion
         
         #region Consensus view Method
-
+        public Miners GetCurrentMiners()
+        {
+            var miners = ConsensusService.CallViewMethod<Miners>(ConsensusMethod.GetCurrentMiners, new Empty());
+            return miners;
+        }
         #endregion
     }
 }

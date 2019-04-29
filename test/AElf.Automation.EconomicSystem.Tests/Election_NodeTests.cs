@@ -142,18 +142,101 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            candidates.Value.Count.ShouldBe(3);
+            foreach (var candidate in candidates.Value)
+            {
+                _logger.WriteInfo(candidate.ToHex());
+            }
         }
 
         [TestMethod]
         [DataRow(2)]
         public void GetTermShot(int termNumber)
         {
-            var termshot = Behaviors.GetTermSnapshot(termNumber);
-            foreach (var candidate in termshot.CandidatesVotes.Keys)
+            var termShot = Behaviors.GetTermSnapshot(termNumber);
+            foreach (var candidate in termShot.CandidatesVotes.Keys)
             {
-                _logger.WriteInfo($"Candidate: {candidate}, Tickets: {termshot.CandidatesVotes[candidate]}");
+                _logger.WriteInfo($"Candidate: {candidate}, Tickets: {termShot.CandidatesVotes[candidate]}");
             }
         }
+
+        [TestMethod]
+        public void GetAllCandidatesBalance()
+        {
+            for (var i=0 ; i< FullNodeAddress.Count; i++)
+            {
+                var balanceResult = Behaviors.GetBalance(FullNodeAddress[i]);
+                
+                _logger.WriteInfo($"Id: {i+1}, Address: {FullNodeAddress[i]}, Balance: {balanceResult.Balance}");
+            }
+        }
+        
+        [TestMethod]
+        public void GetProfitItems()
+        {
+            var result = Behaviors.GetCreatedProfitItems();
+            _logger.WriteInfo($"{result}");
+        }
+
+        [TestMethod]
+        [DataRow(2)]
+        public void GetPIBlance(long period)
+        {
+            var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
+            var treasuryBalance = Behaviors.GetBalance(treasuryAddress.GetFormatted());
+            _logger.WriteInfo($"Treasury balance is {treasuryBalance.Balance}");
+            
+            foreach (var profitId in ProfitItemsIds)
+            {
+                var address = Behaviors.GetProfitItemVirtualAddress(profitId.Value, period);                
+                var balance = Behaviors.GetBalance(address.GetFormatted());
+                _logger.WriteInfo($"{profitId.Key}balance is {balance.Balance}");
+            }
+        }
+
+        [TestMethod]
+        [DataRow(13)]
+        public void GetAllPeriodsBalance(int currentPeriod)
+        {
+            var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
+            var treasuryBalance = Behaviors.GetBalance(treasuryAddress.GetFormatted());
+            _logger.WriteInfo($"Treasury balance is {treasuryBalance.Balance}");
+            
+            for (int i = 1; i <= currentPeriod; i++)
+            {
+                _logger.WriteInfo($"term number: {i}");
+                foreach (var profitId in ProfitItemsIds)
+                {
+                    var address = Behaviors.GetProfitItemVirtualAddress(profitId.Value, i);                
+                    var balance = Behaviors.GetBalance(address.GetFormatted());
+                    _logger.WriteInfo($"{profitId.Key}balance is {balance.Balance}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetCandidateProfitItems()
+        {
+            foreach (var candidate in FullNodeAddress)
+            {
+                _logger.WriteInfo($"Candidate: {candidate}");
+                var basicProfit =
+                    Behaviors.GetProfitDetails(candidate, ProfitItemsIds[Behaviors.ProfitType.BasicMinerReward]);
+                var voteWeightProfit = 
+                    Behaviors.GetProfitDetails(candidate, ProfitItemsIds[Behaviors.ProfitType.VotesWeightReward]);
+                var reElectionProfit =
+                    Behaviors.GetProfitDetails(candidate, ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
+                var backupProfit = 
+                    Behaviors.GetProfitDetails(candidate, ProfitItemsIds[Behaviors.ProfitType.BackSubsidy]);
+                var voteProfit = 
+                    Behaviors.GetProfitDetails(candidate, ProfitItemsIds[Behaviors.ProfitType.CitizenWelfare]);
+                
+                _logger.WriteInfo($"40% basic generate block profit balance: {basicProfit}");
+                _logger.WriteInfo($"10% vote weight profit balance: {voteWeightProfit}");
+                _logger.WriteInfo($"10% re election profit balance: {reElectionProfit}");
+                _logger.WriteInfo($"20% backup node profit balance: {backupProfit}");
+                _logger.WriteInfo($"20% user vote profit balance: {voteProfit}");
+            }
+        }
+
     }
 }
