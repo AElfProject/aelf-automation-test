@@ -83,7 +83,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 });
 
             return snapshot;
-        }
+        } 
         
         #endregion
 

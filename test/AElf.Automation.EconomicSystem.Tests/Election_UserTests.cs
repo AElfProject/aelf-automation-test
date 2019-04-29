@@ -32,7 +32,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow(0, 1, 2)]
         public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3)
         {
-            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, 50);
+            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, 100);
             voteResult1.GetJsonInfo();
             voteResult1.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
@@ -40,7 +40,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             voteResult2.GetJsonInfo();
             voteResult2.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
-            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 150);
+            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 100);
             voteResult3.GetJsonInfo();
             voteResult3.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
 
@@ -49,7 +49,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(2, 150)]
+        [DataRow(3, 200)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
             var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 90, amount);
@@ -58,7 +58,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(3, 4, 5)]
+        [DataRow(0, 1, 2)]
         public void Query_Candidate_Victories(int no1, int no2, int no3)
         {
             var victories = Behaviors.GetVictories();
@@ -72,16 +72,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
             publicKeys.Contains(
                 Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void Get_Candidate_List()
-        {
-        }
-
-        [TestMethod]
-        public void Query_Vote_Records()
-        {
         }
 
         [TestMethod]

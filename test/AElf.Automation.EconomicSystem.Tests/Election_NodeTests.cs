@@ -85,11 +85,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        public void Announcement_AllNodes_scenario()
+        public void Announcement_AllNodes_Scenario()
         {
-            for (int i = 0; i < FullNodeAddress.Count; i++)
+            foreach (var nodeAddress in FullNodeAddress)
             {
-                var result = Behaviors.AnnouncementElection(FullNodeAddress[i]);
+                var result = Behaviors.AnnouncementElection(nodeAddress);
                 result.GetJsonInfo();
                 result.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
             }
@@ -125,7 +125,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(5)]
+        [DataRow(1)]
         public void QuitElection(int nodeId)
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
@@ -141,9 +141,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
+            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
             foreach (var candidate in candidates.Value)
             {
-                _logger.WriteInfo(candidate.ToHex());
+                _logger.WriteInfo($"Candidate: {candidate.ToHex()}");
             }
         }
 
@@ -191,16 +192,26 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"{profitId.Key}balance is {balance.Balance}");
             }
         }
+        
+        [TestMethod]
+        public void CandidateGetPiDetails()
+        {
+            foreach (var address in FullNodeAddress)
+            {
+                var reElectionResult =Behaviors.GetProfitDetails(address,ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
+                _logger.WriteInfo($"{address} ReElectionReward detail is {reElectionResult}");
+            }
+        }
 
         [TestMethod]
-        [DataRow(13)]
-        public void GetAllPeriodsBalance(int currentPeriod)
+        [DataRow(1, 4)]
+        public void GetAllPeriodsBalance(int startPeriod, int endPeriod)
         {
             var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
             var treasuryBalance = Behaviors.GetBalance(treasuryAddress.GetFormatted());
             _logger.WriteInfo($"Treasury balance is {treasuryBalance.Balance}");
 
-            for (int i = 1; i <= currentPeriod; i++)
+            for (int i = startPeriod; i <= endPeriod; i++)
             {
                 _logger.WriteInfo($"term number: {i}");
                 foreach (var profitId in ProfitItemsIds)
@@ -212,6 +223,24 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
+        [TestMethod]
+        public void GetCandidateHistory()
+        {
+            foreach (var candidate in FullNodeAddress)
+            {
+                var candidateResult = Behaviors.GetCandidateHistory(candidate);
+                _logger.WriteInfo("Candidate: ");
+                _logger.WriteInfo($"PublicKey: {candidateResult.PublicKey}");
+                _logger.WriteInfo($"Terms: {candidateResult.Terms}");
+                _logger.WriteInfo($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
+                _logger.WriteInfo($"ProducedBlocks: {candidateResult.ProducedBlocks}");
+                _logger.WriteInfo($"ReappointmentCount: {candidateResult.ReappointmentCount}");
+                _logger.WriteInfo($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
+                _logger.WriteInfo($"CurrentVotesNumber: {candidateResult.CurrentVotesNumber}");
+                _logger.WriteInfo($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
+            }
+        }
+        
         [TestMethod]
         public void GetCandidateProfitAndWithDraw()
         {
