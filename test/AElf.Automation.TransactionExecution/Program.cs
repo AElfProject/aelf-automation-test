@@ -48,7 +48,7 @@ namespace AElf.Automation.TransactionExecution
                 ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = CH.NewAccount(ci);
                 if(ci.Result)
-                    Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+                    Users.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo(ApiMethods.AccountUnlock);

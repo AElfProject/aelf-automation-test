@@ -18,14 +18,14 @@ namespace AElf.Automation.Common.Contracts
     
     public class FeeReceiverContract : BaseContract<FeeReceiverMethod>
     {
-        public FeeReceiverContract(RpcApiHelper ch, string callAddress, string feeReceiverAddress) :
+        public FeeReceiverContract(IApiHelper ch, string callAddress, string feeReceiverAddress) :
             base(ch, feeReceiverAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
-        public FeeReceiverContract(RpcApiHelper ch, string callAddress)
+        public FeeReceiverContract(IApiHelper ch, string callAddress)
             :base(ch, "AElf.Contracts.Resource.FeeReceiver", callAddress)
         {
         }

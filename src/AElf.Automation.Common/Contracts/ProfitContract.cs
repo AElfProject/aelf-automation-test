@@ -24,12 +24,12 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ProfitContract : BaseContract<ProfitMethod>
     {
-        public ProfitContract(RpcApiHelper ch, string callAddress) :
+        public ProfitContract(IApiHelper ch, string callAddress) :
             base(ch, "AElf.Contracts.Profit", callAddress)
         {
         }
 
-        public ProfitContract(RpcApiHelper ch, string callAddress, string contractAddress):
+        public ProfitContract(IApiHelper ch, string callAddress, string contractAddress):
             base(ch, contractAddress)
         {
             CallAddress = callAddress;

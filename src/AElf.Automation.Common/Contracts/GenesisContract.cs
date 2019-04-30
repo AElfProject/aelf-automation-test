@@ -33,7 +33,7 @@ namespace AElf.Automation.Common.Contracts
     public class GenesisContract : BaseContract<GenesisMethod>
     {
         private Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
-        private GenesisContract(RpcApiHelper ch, string callAddress, string genesisAddress) :
+        private GenesisContract(IApiHelper ch, string callAddress, string genesisAddress) :
             base(ch, genesisAddress)
         {
             CallAddress = callAddress;
@@ -41,11 +41,11 @@ namespace AElf.Automation.Common.Contracts
             InitializeSystemContractName();
         }
 
-        public static GenesisContract GetGenesisContract(RpcApiHelper ch, string callAddress)
+        public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
         {
             var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
             ch.RpcGetChainInformation(chainInfo);
-            var genesisContract = ch.GenesisAddress;
+            var genesisContract = ch.GetGenesisContractAddress();
             
             return new GenesisContract(ch, callAddress, genesisContract);
         }

@@ -1,7 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
+using AElf.WebApp.Application.Chain.Dto;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,10 +14,11 @@ namespace AElf.Automation.Common.Contracts
     {
         #region Priority
 
-        private RpcApiHelper Ch { get; set; }
+        private IApiHelper Ch { get; set; }
+        private ApiType ApiType { get; set; }
         private string FileName { get; set; }
         public string CallAddress { get; set; }
-        public Address CallAccount {get; set;}
+        public Address CallAccount { get; set; }
         public string ContractAddress { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
@@ -27,9 +31,10 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="ch"></param>
         /// <param name="fileName"></param>
         /// <param name="callAddress"></param>
-        public BaseContract(RpcApiHelper ch, string fileName, string callAddress)
+        public BaseContract(IApiHelper ch, string fileName, string callAddress)
         {
             Ch = ch;
+            ApiType = ch.GetApiType();
             FileName = fileName;
             CallAddress = callAddress;
             CallAccount = Address.Parse(callAddress);
@@ -44,9 +49,10 @@ namespace AElf.Automation.Common.Contracts
         /// </summary>
         /// <param name="ch"></param>
         /// <param name="contractAddress"></param>
-        public BaseContract(RpcApiHelper ch, string contractAddress)
+        public BaseContract(IApiHelper ch, string contractAddress)
         {
             Ch = ch;
+            ApiType = ch.GetApiType();
             ContractAddress = contractAddress;
             TxResultList = new ConcurrentQueue<string>();
         }
@@ -67,7 +73,7 @@ namespace AElf.Automation.Common.Contracts
 
             return txId;
         }
-        
+
         /// <summary>
         /// 执行交易，返回TransactionId，不等待执行结果
         /// </summary>
@@ -98,10 +104,10 @@ namespace AElf.Automation.Common.Contracts
             var txId = ExecuteMethodWithTxId(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
 
-            //Chek result
+            //Check result
             return CheckTransactionResult(txId, 30);
         }
-        
+
         /// <summary>
         /// 执行交易，等待执行结果后返回
         /// </summary>
@@ -115,7 +121,7 @@ namespace AElf.Automation.Common.Contracts
             var txId = ExecuteMethodWithTxId(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
 
-            //Chek result
+            //Check result
             return CheckTransactionResult(txId, 30);
         }
 
@@ -133,6 +139,14 @@ namespace AElf.Automation.Common.Contracts
 
             if (ci.Result)
             {
+                if (ApiType == ApiType.WebApi)
+                {
+                    var transactionResult = ci.InfoMsg[0] as TransactionResultDto;
+                    _logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
+
+                    return transactionResult?.Status == "Mined";
+                }
+
                 ci.GetJsonInfo();
                 ci.JsonInfo = ci.JsonInfo;
                 string txResult = ci.JsonInfo["result"]["Status"].ToString();
@@ -162,20 +176,39 @@ namespace AElf.Automation.Common.Contracts
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
                 {
-                    ci.GetJsonInfo();
-                    ci.JsonInfo = ci.JsonInfo;
-                    string txResult = ci.JsonInfo["result"]["Status"].ToString();
-                    if (txResult == "Mined")
+                    if (ApiType == ApiType.WebApi)
                     {
-                        _logger.WriteInfo($"Transaction status: {txResult}");
-                        return ci;
-                    }
+                        var transactionResult = ci.InfoMsg[0] as TransactionResultDto;
+                        if (transactionResult?.Status == "Mined")
+                        {
+                            _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                            return ci;
+                        }
 
-                    if (txResult == "Failed")
+                        if (transactionResult?.Status == "Failed")
+                        {
+                            _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                            _logger.WriteError(transactionResult?.Error);
+                            return ci;
+                        }
+                    }
+                    else
                     {
-                        _logger.WriteInfo($"Transaction status: {txResult}");
-                        _logger.WriteError(ci.JsonInfo.ToString());
-                        return ci;
+                        ci.GetJsonInfo();
+                        ci.JsonInfo = ci.JsonInfo;
+                        string txResult = ci.JsonInfo["result"]["Status"].ToString();
+                        if (txResult == "Mined")
+                        {
+                            _logger.WriteInfo($"Transaction status: {txResult}");
+                            return ci;
+                        }
+
+                        if (txResult == "Failed")
+                        {
+                            _logger.WriteInfo($"Transaction status: {txResult}");
+                            _logger.WriteError(ci.JsonInfo.ToString());
+                            return ci;
+                        }
                     }
                 }
 
@@ -201,8 +234,10 @@ namespace AElf.Automation.Common.Contracts
             CallAccount = Address.Parse(account);
 
             //Unlock
-            var uc = new CommandInfo(ApiMethods.AccountUnlock);
-            uc.Parameter = $"{account} {password} notimeout";
+            var uc = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{account} {password} notimeout"
+            };
             uc = Ch.UnlockAccount(uc);
 
             return uc.Result;
@@ -226,17 +261,32 @@ namespace AElf.Automation.Common.Contracts
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
                 {
-                    ci.GetJsonInfo();
-                    ci.JsonInfo = ci.JsonInfo;
-                    string txResult = ci.JsonInfo["result"]["Status"].ToString();
-
-                    if (txResult == "Mined")
-                        continue;
-                    if (txResult == "Failed" || txResult == "NotExisted")
+                    if (ApiType == ApiType.WebApi)
                     {
-                        _logger.WriteInfo($"Transaction status: {txResult}");
-                        _logger.WriteError(ci.JsonInfo.ToString());
-                        continue;
+                        var transactionResult = ci.InfoMsg[0] as TransactionResultDto;
+                        if (transactionResult?.Status == "Mined")
+                            continue;
+                        if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
+                        {
+                            _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                            _logger.WriteError(ci.JsonInfo.ToString());
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        ci.GetJsonInfo();
+                        ci.JsonInfo = ci.JsonInfo;
+                        string txResult = ci.JsonInfo["result"]["Status"].ToString();
+
+                        if (txResult == "Mined")
+                            continue;
+                        if (txResult == "Failed" || txResult == "NotExisted")
+                        {
+                            _logger.WriteInfo($"Transaction status: {txResult}");
+                            _logger.WriteError(ci.JsonInfo.ToString());
+                            continue;
+                        }
                     }
 
                     TxResultList.Enqueue(txId);
@@ -344,28 +394,45 @@ namespace AElf.Automation.Common.Contracts
             var ci = CheckTransactionResult(txId);
 
             if (!ci.Result) return false;
+            if (ApiType == ApiType.WebApi)
+            {
+                var transactionResult = ci.InfoMsg[0] as TransactionResultDto;
+                _logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
+                if (transactionResult?.Status != "Mined") return false;
+                contractAddress = transactionResult.ReadableReturnValue;
+                ContractAddress = contractAddress;
+                _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
+                return true;
+            }
+
             ci.GetJsonInfo();
             ci.JsonInfo = ci.JsonInfo;
             var deployResult = ci.JsonInfo["result"]["Status"].ToString();
             _logger.WriteInfo($"Transaction: {txId}, Status: {deployResult}");
-            
+
             if (deployResult != "Mined") return false;
-            contractAddress = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
+            contractAddress = ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"", "");
             ContractAddress = contractAddress;
             _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
             return true;
-
         }
 
         private string ExecuteMethodWithTxId(string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.BroadcastTransactions)
+            var ci = new CommandInfo(ApiMethods.BroadcastTransaction)
             {
                 Parameter = rawTx
             };
             Ch.RpcBroadcastTx(ci);
             if (ci.Result)
             {
+                if (ApiType == ApiType.WebApi)
+                {
+                    var transactionOutput = ci.InfoMsg[0] as BroadcastTransactionOutput;
+
+                    return transactionOutput?.TransactionId;
+                }
+
                 ci.GetJsonInfo();
                 var txId = ci.JsonInfo["TransactionId"].ToString();
                 return txId;

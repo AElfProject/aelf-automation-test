@@ -25,14 +25,14 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ElectionContract : BaseContract<ElectionMethod>
     {
-        public ElectionContract(RpcApiHelper ch, string callAddress, string electionAddress) :
+        public ElectionContract(IApiHelper ch, string callAddress, string electionAddress) :
             base(ch, electionAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
-        public ElectionContract(RpcApiHelper ch, string callAddress)
+        public ElectionContract(IApiHelper ch, string callAddress)
             :base(ch, "AElf.Contracts.Election", callAddress)
         {
         }

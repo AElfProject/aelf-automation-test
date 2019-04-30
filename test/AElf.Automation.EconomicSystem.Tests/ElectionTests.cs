@@ -11,24 +11,20 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
-        public readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        
-        public static string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
-        public Behaviors Behaviors;
- 
-        public RpcApiHelper CH { get; set; }        
-        public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
-        
-        public List<string> BpNodeAddress { get; set; }
-        public List<string> FullNodeAddress { get; set; }
-        
-        public List<string> UserList { get; set; }
-        public List<string> NodesPublicKeys { get; set; }
-        public List<CandidateInfo> CandidateInfos { get; set; }
-        
-        public Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
-        
-        public class CandidateInfo
+        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected static string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
+        protected Behaviors Behaviors;
+        //protected RpcApiHelper CH { get; set; }   
+        protected IApiHelper CH { get; set; } 
+        protected string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
+        protected List<string> BpNodeAddress { get; set; }
+        protected List<string> FullNodeAddress { get; set; }
+        protected List<string> UserList { get; set; }
+        protected List<string> NodesPublicKeys { get; set; }
+        protected List<CandidateInfo> CandidateInfos { get; set; }
+        protected Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
+
+        protected class CandidateInfo
         {
             public string Name { get; set; }
             public string Account { get; set; }
@@ -38,7 +34,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected void Initialize()
         {
             #region Get services
-            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
             var contractServices = new ContractServices(CH,InitAccount);
             Behaviors = new Behaviors(contractServices);
             
@@ -144,7 +140,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 ci.Parameter = "123";
                 ci = CH.NewAccount(ci);
                 if (ci.Result)
-                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+                    UserList.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo(ApiMethods.AccountNew)

@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public class WebApiHelper
+    public class WebApiHelper : IApiHelper
     {
         #region Properties
 
@@ -29,12 +29,22 @@ namespace AElf.Automation.Common.Helpers
 
         public WebApiHelper(string rpcUrl, string keyPath = "")
         {
-            _rpcAddress = rpcUrl;
+            _rpcAddress = rpcUrl.Replace("/chain", "");
             _keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
             _requestManager = new WebRequestManager(rpcUrl);
 
             CommandList = new List<CommandInfo>();
             InitializeWebApiRoute();
+        }
+
+        public ApiType GetApiType()
+        {
+            return ApiType.WebApi;
+        }
+
+        public string GetGenesisContractAddress()
+        {
+            return GenesisAddress;
         }
 
         public CommandInfo ExecuteCommand(CommandInfo ci)
@@ -46,7 +56,7 @@ namespace AElf.Automation.Common.Helpers
                     ci = NewAccount(ci);
                     break;
                 case "AccountList":
-                    ci = ListAccounts(ci);
+                    ci = ListAccounts();
                     break;
                 case "AccountUnlock":
                     ci = UnlockAccount(ci);
@@ -97,9 +107,9 @@ namespace AElf.Automation.Common.Helpers
             return ci;
         }
 
-        public CommandInfo ListAccounts(CommandInfo ci)
+        public CommandInfo ListAccounts()
         {
-            ci = _accountManager.ListAccount();
+            var ci = _accountManager.ListAccount();
             return ci;
         }
 
@@ -112,7 +122,7 @@ namespace AElf.Automation.Common.Helpers
 
         #endregion
 
-        #region Rpc request methods
+        #region Web request methods
 
         public void RpcGetChainInformation(CommandInfo ci)
         {
@@ -310,6 +320,11 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
+        public void RpcGetCommands(CommandInfo ci)
+        {
+            throw new NotImplementedException();
+        }
+
         public void RpcGetTxResult(CommandInfo ci)
         {
             if (!ci.CheckParameterValid(1))
@@ -320,7 +335,7 @@ namespace AElf.Automation.Common.Helpers
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, respDto?.TransactionId))
                 return;
-            ci.InfoMsg.Add(respDto?.ToString());
+            ci.InfoMsg.Add(respDto);
             ci.Result = true;
         }
 
@@ -333,6 +348,11 @@ namespace AElf.Automation.Common.Helpers
                 return;
             ci.InfoMsg.Add(resp.ToString());
             ci.Result = true;
+        }
+
+        public void RpcGetBlockInfo(CommandInfo ci)
+        {
+            throw new NotImplementedException();
         }
 
         public void RpcGetBlockByHeight(CommandInfo ci)
@@ -365,24 +385,23 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
+        public void RpcGetMerklePath(CommandInfo ci)
+        {
+            throw new NotImplementedException();
+        }
+
         public JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter)
         {
-            var tr = new Transaction()
+            var transaction = new Transaction()
             {
                 From = Address.Parse(from),
                 To = Address.Parse(to),
-                MethodName = methodName
+                MethodName = methodName,
+                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
+            transaction = _transactionManager.SignTransaction(transaction);
 
-            if (tr.MethodName == null)
-            {
-                _logger.WriteError("Method not found.");
-                return new JObject();
-            }
-
-            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
-
-            var resp = CallTransaction(tr, "Call");
+            var resp = CallTransaction(transaction, "call");
 
             if (resp == string.Empty)
                 return new JObject();
@@ -393,38 +412,25 @@ namespace AElf.Automation.Common.Helpers
         public T RpcQueryView<T>(string from, string to, string methodName, IMessage inputParameter)
             where T : IMessage<T>, new()
         {
-            var tr = new Transaction()
+            var transaction = new Transaction()
             {
                 From = Address.Parse(from),
                 To = Address.Parse(to),
-                MethodName = methodName
+                MethodName = methodName,
+                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
+            transaction = _transactionManager.SignTransaction(transaction);
 
-            if (tr.MethodName == null)
-            {
-                _logger.WriteError("Method not found.");
-                return default(T);
-            }
-
-            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
-
-            var resp = CallTransaction(tr, "Call");
+            var resp = CallTransaction(transaction, "call");
 
             //deserialize response
-            JObject jObject;
-            if (resp != string.Empty)
-                jObject = JObject.Parse(resp);
-            else
+            if(resp == null)
             {
                 _logger.WriteError($"Call response is null or empty.");
                 return default(T);
             }
 
-            var resultObj = jObject["result"];
-            if (resultObj == null)
-                return default(T);
-
-            var byteArray = ByteArrayHelpers.FromHexString(resultObj.ToString());
+            var byteArray = ByteArrayHelpers.FromHexString(resp.ToString());
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);

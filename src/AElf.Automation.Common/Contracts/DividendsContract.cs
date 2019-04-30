@@ -17,14 +17,14 @@ namespace AElf.Automation.Common.Contracts
     }
     public class DividendsContract :BaseContract<DicidendsMethod>
     {
-        public DividendsContract(RpcApiHelper ch, string callAddress, string dividendsAddress)
+        public DividendsContract(IApiHelper ch, string callAddress, string dividendsAddress)
             :base(ch, dividendsAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
-        public DividendsContract(RpcApiHelper ch, string callAddress)
+        public DividendsContract(IApiHelper ch, string callAddress)
             : base(ch, "AElf.Contracts.Dividends", callAddress)
         {
         }

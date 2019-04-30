@@ -316,7 +316,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ci.Parameter = "123";
                 ci = CH.NewAccount(ci);
                 if (ci.Result)
-                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+                    UserList.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");

@@ -32,13 +32,12 @@ namespace AElf.Automation.RpcPerformance
 
         public static int Main(string[] args)
         {
-            if (args.Length == 3)
-            {
-                var tc = args[0];
-                var tg = args[1];
-                var ru = args[2];
-                args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
-            }
+            if (args.Length != 3) return CommandLineApplication.Execute<Program>(args);
+            
+            var tc = args[0];
+            var tg = args[1];
+            var ru = args[2];
+            args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
 
             return CommandLineApplication.Execute<Program>(args);
         }
@@ -79,7 +78,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            var set = new CategoryInfoSet(performance.CH.CommandList);
+            var set = new CategoryInfoSet(performance.ApiHelper.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);

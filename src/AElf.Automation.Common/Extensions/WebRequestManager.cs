@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Extensions
         
         public WebRequestManager(string baseUrl)
         {
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Replace("/chain", "");
         }
 
         public T GetResponse<T>(string url,out string returnCode, out long timeSpan)

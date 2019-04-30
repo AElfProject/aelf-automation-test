@@ -188,7 +188,7 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = ci.Parameter.Substring(1);
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Execute transactions got exception.");
-            var result = ci.InfoMsg[0].Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
+            var result = ci.InfoMsg[0].ToString().Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
             ConcurrentQueue<string> txResList = new ConcurrentQueue<string>();
             foreach (var txHash in result)
             {
@@ -298,7 +298,7 @@ namespace AElf.Automation.SideChainVerification
                             string returnValue = ci.JsonInfo["result"]["return"].ToString();
                             if (returnValue != "01")
                             {
-                                Logger.WriteInfo(ci.InfoMsg[0]);
+                                Logger.WriteInfo(ci.InfoMsg[0].ToString());
                                 Assert.IsTrue(false,
                                     $"Verification failed with transaction with chain: {vr.NodeName} at height: {vr.Height}");
                             }
@@ -335,7 +335,7 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = "123";
             ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Create account got exception.");
-            _account = ci.InfoMsg?[0].Replace("Account address:", "").Trim();
+            _account = ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim();
 
             //Unlock
             ci = new CommandInfo(ApiMethods.AccountUnlock);

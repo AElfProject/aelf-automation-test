@@ -33,7 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Ch.RpcGetBlockInfo(ci);
             Assert.IsTrue(ci.Result, "Request block info failed.");
 
-            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg[0], "result", "result", "Body", "Transactions");
+            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg[0].ToString(), "result", "result", "Body", "Transactions");
 
             foreach (var txId in txArray)
             {
@@ -42,11 +42,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Ch.RpcGetTxResult(txCi);
                 Assert.IsTrue(txCi.Result, "Request transaction result failed.");
 
-                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg[0], "result", "result", "tx_status");
+                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg[0].ToString(), "result", "result", "tx_status");
                 if(status == "Mined")
                     _logger.WriteInfo($"{txId}: Mined");
                 else
-                    _logger.WriteError(txCi.InfoMsg[0]);
+                    _logger.WriteError(txCi.InfoMsg[0].ToString());
             }
         }
     }

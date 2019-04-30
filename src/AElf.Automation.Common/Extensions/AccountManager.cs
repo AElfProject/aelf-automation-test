@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security;
@@ -43,7 +44,7 @@ namespace AElf.Automation.Common.Extensions
         public CommandInfo ListAccount()
         {
             var result = new CommandInfo(ApiMethods.AccountList);
-            result.InfoMsg = _keyStore.ListAccountsAsync().Result;
+            result.InfoMsg = new List<object> {_keyStore.ListAccountsAsync().Result};
             if (result.InfoMsg.Count != 0)
                 result.Result = true;
 
