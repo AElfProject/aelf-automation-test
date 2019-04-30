@@ -1,6 +1,4 @@
 ﻿using AElf.Automation.Common.Helpers;
-using Google.Protobuf;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Cryptography;
 using Google.Protobuf;
 
 namespace AElf.Automation.Common.WebApi

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AElf.Automation.Common.Extensions;
 using AElf.Cryptography;
 using AElf.Kernel;
-using AElf.WebApp.Application.Chain.Dto;
+using AElf.Automation.Common.WebApi.Dto;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 

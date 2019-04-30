@@ -1,10 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
-using AElf.Kernel;
-using AElf.WebApp.Application.Chain.Dto;
+using AElf.Automation.Common.WebApi.Dto;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

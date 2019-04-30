@@ -2,9 +2,6 @@ using System;
 using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Extensions
 {

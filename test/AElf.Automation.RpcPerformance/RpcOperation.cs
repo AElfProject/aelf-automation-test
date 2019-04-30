@@ -11,9 +11,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Kernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ProtoBuf;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -107,7 +105,7 @@ namespace AElf.Automation.RpcPerformance
             UnlockAllAccounts(ThreadCount);
         }
 
-        public void CheckNodeStatus()
+        private void CheckNodeStatus()
         {
             for (var i = 0; i < 15; i++)
             {
@@ -170,7 +168,6 @@ namespace AElf.Automation.RpcPerformance
                         ApiHelper.ExecuteCommand(ci);
                         Assert.IsTrue(ci.Result);
                         ci.GetJsonInfo();
-                        ci.JsonInfo = ci.JsonInfo;
                         var deployResult = ci.JsonInfo["result"]["Status"].ToString();
 
                         if (deployResult == "Mined")
@@ -183,10 +180,7 @@ namespace AElf.Automation.RpcPerformance
                         }else if (deployResult == "Failed")
                         {
                             Logger.WriteError("Transaction failed.");
-                            var transactionResultArray = Encoding.Unicode.GetBytes(ci.JsonInfo["result"].ToString());
-                            var ms = new MemoryStream(transactionResultArray);
-                            var transactionResult = Serializer.Deserialize<TransactionResult>(ms);
-                            ms.Dispose();
+                            Logger.WriteError(ci.JsonInfo.ToString());
                         }
 
                         Thread.Sleep(10);
@@ -308,7 +302,7 @@ namespace AElf.Automation.RpcPerformance
         }
 
         //Without conflict group category
-        public void DoContractCategory(int threadNo, int times)
+        private void DoContractCategory(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
@@ -373,7 +367,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
         }
 
-        public void GenerateContractList(int threadNo, int times)
+        private void GenerateContractList(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
@@ -381,7 +375,7 @@ namespace AElf.Automation.RpcPerformance
             var set = new HashSet<int>();
 
             var rpcRequest = new List<string>();
-            for (int i = 0; i < times; i++)
+            for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
                 var randNumber = rd.Next(ThreadCount, AccountList.Count);
@@ -438,7 +432,7 @@ namespace AElf.Automation.RpcPerformance
             Thread.Sleep(100);
         }
 
-        public void GenerateRpcList(int round, int threadNo, int times)
+        private void GenerateRpcList(int round, int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
@@ -480,7 +474,7 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void ExecuteOneRpcTask(int group)
+        private void ExecuteOneRpcTask(int group)
         {
             while (true)
             {
