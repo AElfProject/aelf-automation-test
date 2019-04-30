@@ -126,7 +126,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcGetChainInformation(CommandInfo ci)
         {
-            var url = "/api/blockChain/chainStatus";            
+            var url = ApiRoute[ApiMethods.GetChainInformation];            
             var statusDto = _requestManager.GetResponse<ChainStatusDto>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, statusDto?.GenesisContractAddress))
@@ -175,7 +175,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransaction", rawTxString }
             };
-            var url = "/api/blockChain/broadcastTransaction";
+            var url = ApiRoute[ApiMethods.BroadcastTransaction];
             var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameters, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp?.TransactionId))
@@ -218,19 +218,14 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransaction", rawTxString }
             };
-            var url = "/api/blockChain/broadcastTransaction";
+            var url = ApiRoute[ApiMethods.BroadcastTransaction];
 
             var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameters, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp?.TransactionId))
                 return;
 
-            string hash = resp?.TransactionId;
-            var jobj = new JObject
-            {
-                ["TransactionId"] = hash
-            };
-            ci.InfoMsg.Add(jobj.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -240,19 +235,14 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransaction", ci.Parameter }
             };
-            var url = "/api/blockChain/broadcastTransaction";
+            var url = ApiRoute[ApiMethods.BroadcastTransaction];
 
             var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameter, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp?.TransactionId))
                 return;
-
             
-            var jobj = new JObject
-            {
-                ["TransactionId"] = resp?.TransactionId
-            };
-            ci.InfoMsg.Add(jobj.ToString());
+            ci.InfoMsg.Add(resp);
 
             ci.Result = true;
         }
@@ -275,9 +265,9 @@ namespace AElf.Automation.Common.Helpers
             tr = tr.AddBlockReference(_rpcAddress);
 
             _transactionManager.SignTransaction(tr);
-            var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
+            var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
 
-            return rawtx["rawTransaction"].ToString();
+            return rawTx["rawTransaction"].ToString();
         }
 
         public string RpcGenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
@@ -310,7 +300,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransactions", ci.Parameter }
             };
-            var url = "/api/blockChain/broadcastTransactions";
+            var url = ApiRoute[ApiMethods.BroadcastTransactions];
             var resp = _requestManager.PostResponse<string[]>(url, parameters, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp.ToString()))
@@ -330,7 +320,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            var url = $"/api/blockChain/transactionResult?transactionId={ci.Parameter}";
+            var url = string.Format(ApiRoute[ApiMethods.GetTransactionResult], ci.Parameter);
             var respDto = _requestManager.GetResponse<TransactionResultDto>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, respDto?.TransactionId))
@@ -341,12 +331,12 @@ namespace AElf.Automation.Common.Helpers
 
         public void RpcGetBlockHeight(CommandInfo ci)
         {
-            var url = "/api/blockChain/blockHeight";
+            var url = ApiRoute[ApiMethods.GetBlockHeight];
             var resp = _requestManager.GetResponse<long>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp.ToString()))
                 return;
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -361,12 +351,12 @@ namespace AElf.Automation.Common.Helpers
                 return;
 
             var parameterArray = ci.Parameter.Split(" ");
-            var url = $"/api/blockChain/blockByHeight?blockHeight={parameterArray[0]}&includeTransactions={parameterArray[1]}";
+            var url = string.Format(ApiRoute[ApiMethods.GetBlockByHeight], parameterArray[0], parameterArray[1]);
             var resp = _requestManager.GetResponse<BlockDto>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp?.BlockHash))
                 return;
-            ci.InfoMsg.Add(resp?.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
         
@@ -376,12 +366,12 @@ namespace AElf.Automation.Common.Helpers
                 return;
             
             var parameterArray = ci.Parameter.Split(" ");
-            var url = $"/api/blockChain/block?blockHash={parameterArray[0]}&includeTransactions={parameterArray[1]}";
+            var url = string.Format(ApiRoute[ApiMethods.GetBlockByHash], parameterArray[0], parameterArray[1]);
             var resp = _requestManager.GetResponse<BlockDto>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp?.BlockHash))
                 return;
-            ci.InfoMsg.Add(resp?.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -442,7 +432,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransaction", ci.Parameter }
             };
-            var url = "/api/blockChain/call";
+            var url = ApiRoute[ApiMethods.QueryView];
             string resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp))
@@ -462,13 +452,13 @@ namespace AElf.Automation.Common.Helpers
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {
-            var url = "api/net/peers";
+            var url = ApiRoute[ApiMethods.GetPeers];
             var resp = _requestManager.GetResponse<List<string>>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp.ToString()))
                 return;
 
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -478,25 +468,25 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "address", ci.Parameter }
             };
-            var url = "/api/net/peer";
+            var url = ApiRoute[ApiMethods.AddPeer];
             var resp = _requestManager.PostResponse<bool>(url, parameters, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp.ToString()))
                 return;
 
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
         public void NetRemovePeer(CommandInfo ci)
         {
-            var url = $"/api/net/peer?address={ci.Parameter}";
+            var url = string.Format(ApiRoute[ApiMethods.RemovePeer], ci.Parameter);
             var resp = _requestManager.DeleteResponse<bool>(url, out var returnCode, out var timeSpan);
             ci.TimeSpan = timeSpan;
             if (!CheckResponse(ci, returnCode, resp.ToString()))
                 return;
 
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg.Add(resp);
             ci.Result = true;
         }
 
@@ -509,7 +499,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 { "rawTransaction", rawTxString }
             };
-            var url = "/api/blockChain/call";
+            var url = ApiRoute[ApiMethods.QueryView];
 
             var resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
 

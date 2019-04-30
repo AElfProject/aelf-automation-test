@@ -256,8 +256,7 @@ namespace AElf.Automation.Common.Contracts
                 bool result = TxResultList.TryDequeue(out var txId);
                 if (!result)
                     break;
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult);
-                ci.Parameter = txId;
+                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
                 Ch.RpcGetTxResult(ci);
                 if (ci.Result)
                 {
