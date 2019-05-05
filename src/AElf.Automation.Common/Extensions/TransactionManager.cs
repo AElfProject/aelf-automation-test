@@ -4,6 +4,8 @@ using AElf.Cryptography;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Kernel;
 using Google.Protobuf;
 
@@ -52,7 +54,7 @@ namespace AElf.Automation.Common.Extensions
             }
             catch (Exception e)
             {
-                _cmdInfo.ErrorMsg.Add($"Invalid transaction data: {e.Message}");
+                _cmdInfo.ErrorMsg = $"Invalid transaction data: {e.Message}";
                 return null;
             }
         }
@@ -70,7 +72,7 @@ namespace AElf.Automation.Common.Extensions
 
             if (kp == null)
             {
-                _cmdInfo.ErrorMsg.Add($"The following account is locked: {addr}");
+                _cmdInfo.ErrorMsg = $"The following account is locked: {addr}";
                 _cmdInfo.Result = false;
                 return null;
             }
@@ -138,8 +140,8 @@ namespace AElf.Automation.Common.Extensions
             var hash = _cachedHash;
             if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60)
             {
-                height = long.Parse(GetBlkHeight(rpcAddress));
-                hash = GetBlkHash(rpcAddress, height.ToString());
+                height = GetBlkHeight(rpcAddress);
+                hash = GetBlkHash(rpcAddress, height);
                 _cachedHeight = height;
                 _cachedHash = hash;
                 _refBlockTime = DateTime.Now;
@@ -150,41 +152,32 @@ namespace AElf.Automation.Common.Extensions
             return transaction;
         }
 
-        private static string GetBlkHeight(string rpcAddress, int requestTimes = 4)
+        private static long GetBlkHeight(string baseUrl, int requestTimes = 4)
         {
-            requestTimes--;
-            var reqhttp = new RpcRequestManager(rpcAddress);
-            var resp = reqhttp.PostRequest("GetBlockHeight", "{}", out var returnCode);
-            Logger.WriteInfo("Query block height status: {0}, return message: {1}", returnCode, resp);
-            if (returnCode != "OK")
+            while (true)
             {
-                if (requestTimes >= 0)
-                {
-                    Thread.Sleep(500);
-                    return GetBlkHeight(rpcAddress, requestTimes);
-                }
-                throw new Exception("Get Block height failed exception.");
+                requestTimes--;
+                var webApi = new WebApiService(baseUrl);
+                var height = webApi.GetBlockHeight().Result;
+                if (height != 0) return height;
+                
+                if (requestTimes < 0) throw new Exception("Get Block height failed exception.");
+                Thread.Sleep(500);
             }
-            var jObj = JObject.Parse(resp);
-            return jObj["result"].ToString();
         }
 
-        private static string GetBlkHash(string rpcAddress, string height, int requestTimes = 4)
+        private static string GetBlkHash(string baseUrl, long height, int requestTimes = 4)
         {
-            requestTimes--;
-            var reqhttp = new RpcRequestManager(rpcAddress);
-            var resp = reqhttp.PostRequest("GetBlockInfo", "{\"blockHeight\":\""+ height +"\"}", out var returnCode);
-            if (returnCode != "OK")
+            while (true)
             {
-                if (requestTimes >= 0)
-                {
-                    Thread.Sleep(500);
-                    return GetBlkHash(rpcAddress, height, requestTimes);
-                }
-                throw new Exception("Get Block hash failed exception.");
+                requestTimes--;
+                var webApi = new WebApiService(baseUrl);
+                var blockInfo = webApi.GetBlockByHeight(height).Result;
+                if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
+                
+                if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");
+                Thread.Sleep(500);
             }
-            var jObj = JObject.Parse(resp);
-            return jObj["result"]["BlockHash"].ToString();
         }
     }
 }

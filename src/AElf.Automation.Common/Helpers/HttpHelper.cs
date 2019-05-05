@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
@@ -172,7 +173,9 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            var content = new FormUrlEncodedContent(paramters);
+            var stringPayload = JsonConvert.SerializeObject(paramters);
+            var content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
+            //var content = new FormUrlEncodedContent(paramters);
             content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
             
             var response = await Client.PostAsync(url, content);

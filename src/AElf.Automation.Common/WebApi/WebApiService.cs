@@ -150,6 +150,33 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.GetBlockState, blockHash);
             return await HttpHelper.GetResponseAsync<BlockStateDto>(url);
         }
+        
+        #region Net api
+
+        public async Task<bool> AddPeer(string address)
+        {
+            var url = GetRequestUrl(ApiMethods.AddPeer);
+            var parameters = new Dictionary<string, string>
+            {
+                { "address", address }
+            };
+
+            return await HttpHelper.PostResponseAsync<bool>(url, parameters);
+        }
+
+        public async Task<bool> RemovePeer(string address)
+        {
+            var url = GetRequestUrl(ApiMethods.RemovePeer, address);
+            return await HttpHelper.DeleteResponseAsObjectAsync<bool>(url);
+        }
+
+        public async Task<List<string>> GetPeers()
+        {
+            var url = GetRequestUrl(ApiMethods.GetPeers);
+            return await HttpHelper.GetResponseAsync<List<string>>(url);
+        }
+        
+        #endregion
 
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {

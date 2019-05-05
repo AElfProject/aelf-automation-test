@@ -6,26 +6,26 @@ namespace AElf.Automation.TransactionExecution
 {
     public class TokenExecutor
     {
-        private readonly RpcApiHelper CH;
+        private readonly IApiHelper _apiHelper;
         private readonly string TokenAddress;
         private string CallOwner;
 
         public TokenContract Token;
 
-        public TokenExecutor(RpcApiHelper rpcApiHelper, string callOwner, string tokenAddress)
+        public TokenExecutor(IApiHelper apiHelper, string callOwner, string tokenAddress)
         {
-            CH = rpcApiHelper;
+            _apiHelper = apiHelper;
             CallOwner = callOwner;
             TokenAddress = tokenAddress;
-            Token = new TokenContract(rpcApiHelper, callOwner, tokenAddress);
+            Token = new TokenContract(apiHelper, callOwner, tokenAddress);
             InitToken(1000_000_000L);
         }
 
-        public TokenExecutor(RpcApiHelper rpcApiHelper, string callOwner)
+        public TokenExecutor(IApiHelper apiHelper, string callOwner)
         {
-            CH = rpcApiHelper;
+            _apiHelper = apiHelper;
             CallOwner = callOwner;
-            Token = new TokenContract(rpcApiHelper, callOwner);
+            Token = new TokenContract(apiHelper, callOwner);
             TokenAddress = Token.ContractAddress;
             InitToken(1000_000_000L);
         }

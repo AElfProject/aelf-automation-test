@@ -33,15 +33,15 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ConsensusContract : BaseContract<ConsensusMethod>
     {
-        public ConsensusContract(IApiHelper ch, string callAddress, string consensusAddress) :
-            base(ch, consensusAddress)
+        public ConsensusContract(IApiHelper apiHelper, string callAddress, string consensusAddress) :
+            base(apiHelper, consensusAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
-        public ConsensusContract(IApiHelper ch, string callAddress)
-            :base(ch, "AElf.Contracts.Consensus", callAddress)
+        public ConsensusContract(IApiHelper apiHelper, string callAddress)
+            :base(apiHelper, "AElf.Contracts.Consensus", callAddress)
         {
         }
     }

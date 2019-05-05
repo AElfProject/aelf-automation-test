@@ -31,13 +31,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class TokenContract : BaseContract<TokenMethod>
     {
-        public TokenContract(IApiHelper ch, string callAddress) :
-            base(ch, "AElf.Contracts.MultiToken", callAddress)
+        public TokenContract(IApiHelper apiHelper, string callAddress) :
+            base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
         {
         }
 
-        public TokenContract(IApiHelper ch, string callAddress, string contractAddress):
-            base(ch, contractAddress)
+        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

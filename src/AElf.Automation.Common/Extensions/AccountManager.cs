@@ -18,10 +18,9 @@ namespace AElf.Automation.Common.Extensions
         {
             _keyStore = keyStore;
             _chainId = chainId;
-
         }
 
-        public CommandInfo NewAccount(string password="")
+        public CommandInfo NewAccount(string password = "")
         {
             var result = new CommandInfo(ApiMethods.AccountList);
             if (password == "")
@@ -31,11 +30,11 @@ namespace AElf.Automation.Common.Extensions
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
-            if(addr !=null)
+            if (addr != null)
             {
                 result.Result = true;
                 string account = addr.GetFormatted();
-                result.InfoMsg.Add("Account address: " + account);
+                result.InfoMsg = "Account address: " + account;
             }
 
             return result;
@@ -45,7 +44,7 @@ namespace AElf.Automation.Common.Extensions
         {
             var result = new CommandInfo(ApiMethods.AccountList);
             result.InfoMsg = new List<object> {_keyStore.ListAccountsAsync().Result};
-            if (result.InfoMsg.Count != 0)
+            if (result.InfoMsg != null)
                 result.Result = true;
 
             return result;
@@ -56,17 +55,17 @@ namespace AElf.Automation.Common.Extensions
             var result = new CommandInfo(ApiMethods.AccountUnlock);
             if (password == "")
                 password = AskInvisible("password:");
-            result.Parameter = string.Format("{0} {1} {2}", address, password, notimeout);
+            result.Parameter = $"{address} {password} {notimeout}";
             var accounts = _keyStore.ListAccountsAsync().Result;
             if (accounts == null || accounts.Count == 0)
             {
-                result.ErrorMsg.Add("Error: the account '" + address + "' does not exist.");
+                result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
                 return result;
             }
 
             if (!accounts.Contains(address))
             {
-                result.ErrorMsg.Add("Error: the account '" + address + "' does not exist.");
+                result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
                 return result;
             }
 
@@ -74,15 +73,15 @@ namespace AElf.Automation.Common.Extensions
             var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
 
             if (tryOpen == AElfKeyStore.Errors.WrongPassword)
-                result.ErrorMsg.Add("Error: incorrect password!");
+                result.ErrorMsg = "Error: incorrect password!";
             else if (tryOpen == AElfKeyStore.Errors.AccountAlreadyUnlocked)
             {
-                result.InfoMsg.Add("Account already unlocked!");
+                result.InfoMsg = "Account already unlocked!";
                 result.Result = true;
             }
             else if (tryOpen == AElfKeyStore.Errors.None)
             {
-                result.InfoMsg.Add("Account successfully unlocked!");
+                result.InfoMsg = "Account successfully unlocked!";
                 result.Result = true;
             }
 
@@ -133,6 +132,7 @@ namespace AElf.Automation.Common.Extensions
                 {
                     break;
                 }
+
                 if (i.Key == ConsoleKey.Backspace)
                 {
                     if (pwd.Length > 0)
