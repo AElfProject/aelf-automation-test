@@ -13,10 +13,9 @@ namespace AElf.Automation.Common.WebApi
         private Dictionary<ApiMethods, string> _apiRoute;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
-        public WebApiService(string baseUrl, string keyPath = "")
+        public WebApiService(string baseUrl)
         {
             _baseUrl = baseUrl;
-            _apiRoute = new Dictionary<ApiMethods, string>();
 
             InitializeWebApiRoute();
         }
@@ -164,8 +163,8 @@ namespace AElf.Automation.Common.WebApi
             
             //chain route
             _apiRoute.Add(ApiMethods.GetChainInformation, "/api/blockChain/chainStatus");
-            _apiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
             _apiRoute.Add(ApiMethods.GetChainStatus, "/api/blockChain/chainStatus");
+            _apiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
             _apiRoute.Add(ApiMethods.CreateRawTransaction, "/api/blockChain/rawTransaction");
             _apiRoute.Add(ApiMethods.GetTransactionPoolStatus, "/api/blockChain/transactionPoolStatus");
             _apiRoute.Add(ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
