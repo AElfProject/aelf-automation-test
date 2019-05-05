@@ -4,20 +4,20 @@ using AElf.Contracts.Consensus.DPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
-using TermSnapshot = AElf.Kernel.TermSnapshot;
+//using TermSnapshot = AElf.Kernel.TermSnapshot;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
         #region Election View Methods
-
-        public PublicKeysList GetVictories()
-        {
-            var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories, new Empty());
-            return result;
-        }
+//
+//        public PublicKeysList GetVictories()
+//        {
+//            var result =
+//                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories, new Empty());
+//            return result;
+//        }
 
         public int GetMinersCount()
         {
@@ -36,12 +36,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public PublicKeysList GetCandidates()
-        {
-            var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
-            return result;
-        }
+//        public PublicKeysList GetCandidates()
+//        {
+//            var result =
+//                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+//            return result;
+//        }
 
         public Votes GetVotesInformation(string voteAccount)
         {
@@ -74,16 +74,16 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public TermSnapshot GetTermSnapshot(long termNumber)
-        {
-            var snapshot = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
-                new GetTermSnapshotInput
-                {
-                    TermNumber = termNumber
-                });
-
-            return snapshot;
-        } 
+//        public TermSnapshot GetTermSnapshot(long termNumber)
+//        {
+//            var snapshot = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
+//                new GetTermSnapshotInput
+//                {
+//                    TermNumber = termNumber
+//                });
+//
+//            return snapshot;
+//        } 
         
         #endregion
 

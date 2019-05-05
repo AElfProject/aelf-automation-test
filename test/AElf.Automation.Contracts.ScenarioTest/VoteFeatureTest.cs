@@ -291,7 +291,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Get candidate event
             var voteEvent = voteService.CallViewMethod<VotingEvent>(VoteMethod.GetVotingEvent, new GetVotingEventInput
             {
-                Topic = Hash.Empty,
+                Topic = Hash.Empty.ToString(),
                 Sponsor = Address.Parse(InitAccount)
             });
             CandidatePublicKeys = voteEvent.Options.ToList();
@@ -423,7 +423,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePublicKey = votePbk,
                     Amount = voteVolume,
                     LockTime = voteLock,
-                    LockTimeUnit = TimeUnit.Days
+//                    LockTimeUnit = TimeUnit.Days
                 });
                 Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }
