@@ -107,8 +107,10 @@ namespace AElf.Automation.RpcPerformance
 
         private void CheckNodeStatus()
         {
-            for (var i = 0; i < 15; i++)
+            var checkTimes = 0;
+            while(true)
             {
+                checkTimes++;
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
                 ApiHelper.ExecuteCommand(ci);
                 ci.GetJsonInfo();
@@ -124,9 +126,10 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 Thread.Sleep(4000);
-                Logger.WriteWarn("Block height not changed round: {0}", i + 1);
+                Logger.WriteWarn("Block height not changed round: {0}", checkTimes);
+                if(checkTimes == 150)
+                    Assert.IsTrue(false, "Node block exception, block height not changed 10 minutes.");
             }
-            Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
         }
 
         public void DeployContract()
@@ -162,29 +165,28 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(2000);
                 foreach (dynamic item in contractList)
                 {
-                    if (item.Result == false)
+                    if (item.Result != false) continue;
+                    
+                    var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
+                    ApiHelper.ExecuteCommand(ci);
+                    Assert.IsTrue(ci.Result);
+                    ci.GetJsonInfo();
+                    var deployResult = ci.JsonInfo["result"]["Status"].ToString();
+
+                    if (deployResult == "Mined")
                     {
-                        var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
-                        ApiHelper.ExecuteCommand(ci);
-                        Assert.IsTrue(ci.Result);
-                        ci.GetJsonInfo();
-                        var deployResult = ci.JsonInfo["result"]["Status"].ToString();
-
-                        if (deployResult == "Mined")
-                        {
-                            count++;
-                            item.Result = true;
-                            var contractPath= ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
-                            ContractList.Add(new Contract(item.Id, contractPath));
-                            AccountList[item.Id].Increment = 1;
-                        }else if (deployResult == "Failed")
-                        {
-                            Logger.WriteError("Transaction failed.");
-                            Logger.WriteError(ci.JsonInfo.ToString());
-                        }
-
-                        Thread.Sleep(10);
+                        count++;
+                        item.Result = true;
+                        var contractPath= ci.JsonInfo["result"]["ReadableReturnValue"].ToString().Replace("\"","");
+                        ContractList.Add(new Contract(item.Id, contractPath));
+                        AccountList[item.Id].Increment = 1;
+                    }else if (deployResult == "Failed")
+                    {
+                        Logger.WriteError("Transaction failed.");
+                        Logger.WriteError(ci.JsonInfo.ToString());
                     }
+
+                    Thread.Sleep(10);
                 }
 
                 if (count == contractList.Count)
