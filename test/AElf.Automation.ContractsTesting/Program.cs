@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
@@ -64,38 +65,57 @@ namespace AElf.Automation.ContractsTesting
 
             for (int i = 0; i < 5; i++)
             {
-                ci = new CommandInfo(ApiMethods.AccountNew);
-                ci.Parameter = "123";
+                ci = new CommandInfo(ApiMethods.AccountNew)
+                {
+                    Parameter = "123"
+                };
                 ci = ch.NewAccount(ci);
                 if(ci.Result)
                     Users.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo(ApiMethods.AccountUnlock);
-                uc.Parameter = string.Format("{0} {1} {2}", Users[i], "123", "notimeout");
+                var uc = new CommandInfo(ApiMethods.AccountUnlock)
+                {
+                    Parameter = $"{Users[i]} 123 notimeout"
+                };
                 ch.UnlockAccount(uc);
             }
             #endregion
 
             #region Block verify testing
-            var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
-            ch.RpcGetBlockHeight(heightCi);
-            heightCi.GetJsonInfo();
-            var height = Int32.Parse(heightCi.JsonInfo["result"].ToString());
-            for (var i = 1; i <= height; i++)
-            {
-                var blockCi = new CommandInfo(ApiMethods.GetBlockInfo)
-                {
-                    Parameter = $"{i} false"
-                };
-                ch.RpcGetBlockInfo(blockCi);
-                blockCi.GetJsonInfo();
-                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
-                    i,
-                    blockCi.JsonInfo["result"]["BlockHash"].ToString(),
-                    blockCi.JsonInfo["result"]["Body"]["TransactionsCount"].ToString());
-            }
 
+            var blockHeight = 1;
+            while (true)
+            {
+                var heightCommand = new CommandInfo(ApiMethods.GetBlockHeight);
+                ch.RpcGetBlockHeight(heightCommand);
+                heightCommand.GetJsonInfo();
+                var height = int.Parse(heightCommand.JsonInfo["result"].ToString());
+                if (blockHeight == height)
+                {
+                    Thread.Sleep(100);
+                }
+                else
+                {
+                    for (var i = blockHeight; i <= height; i++)
+                    {
+                        var blockCommand = new CommandInfo(ApiMethods.GetBlockInfo)
+                        {
+                            Parameter = $"{i} false"
+                        };
+                        ch.RpcGetBlockInfo(blockCommand);
+                        blockCommand.GetJsonInfo();
+                        Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}, Time: {3}", 
+                            i,
+                            blockCommand.JsonInfo["result"]["BlockHash"].ToString(),
+                            blockCommand.JsonInfo["result"]["Body"]["TransactionsCount"].ToString(),
+                            blockCommand.JsonInfo["result"]["Header"]["Time"].ToString()); 
+                    }
+
+                    blockHeight = height;
+                }
+            }
+            
             #endregion
         }
     }

@@ -9,7 +9,7 @@ namespace AElf.Automation.RpcTesting
     public class RpcApiTest
     {
         private RpcHelper _rh;
-        private const string ServiceUrl = "http://192.168.197.34:8000";
+        private const string ServiceUrl = "http://192.168.197.13:8100";
         private readonly ILogHelper _log = LogHelper.GetLogHelper();
 
         [TestInitialize]
