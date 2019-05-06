@@ -3,8 +3,6 @@ using System.IO;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
-using Microsoft.Win32.SafeHandles;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {

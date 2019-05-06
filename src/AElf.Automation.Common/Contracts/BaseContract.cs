@@ -77,13 +77,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public string ExecuteMethodWithTxId(T method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method.ToString(), inputParameter);
-
-            var txId = ExecuteMethodWithTxId(rawTx);
-            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
-            TxResultList.Enqueue(txId);
-
-            return txId;
+            return ExecuteMethodWithTxId(method.ToString(), inputParameter);
         }
 
         /// <summary>
@@ -111,13 +105,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public CommandInfo ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method.ToString(), inputParameter);
-
-            var txId = ExecuteMethodWithTxId(rawTx);
-            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
-
-            //Check result
-            return CheckTransactionResult(txId, 30);
+            return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
 
         /// <summary>
@@ -229,7 +217,7 @@ namespace AElf.Automation.Common.Contracts
                         continue;
                     if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        _logger.WriteInfo($"Transaction status: {transactionResult.Status}");
                         _logger.WriteError(ci.JsonInfo.ToString());
                         continue;
                     }
@@ -317,12 +305,14 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper.DeployContract(ci);
             if (ci.Result)
             {
-                ci.GetJsonInfo();
-                var txId = ci.JsonInfo["TransactionId"].ToString();
-                _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
+                if (ci.InfoMsg is TransactionResultDto transactionOutput)
+                {
+                    var txId = transactionOutput.TransactionId;
+                    _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
 
-                var result = GetContractAddress(txId, out _);
-                Assert.IsTrue(result, "Get contract address failed.");
+                    var result = GetContractAddress(txId, out _);
+                    Assert.IsTrue(result, "Get contract address failed.");
+                }
             }
 
             Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");

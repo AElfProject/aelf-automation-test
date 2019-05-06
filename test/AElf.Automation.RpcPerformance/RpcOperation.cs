@@ -51,7 +51,7 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Public Property
 
-        public RpcApiHelper ApiHelper { get; set; }
+        public IApiHelper ApiHelper { get; set; }
         public string RpcUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }

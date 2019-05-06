@@ -165,18 +165,28 @@ namespace AElf.Automation.Common.Helpers
         private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> paramters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var response = await PostResponseAsync(url, paramters, version, expectedStatusCode);
+            var response = await PostResponseAsync(url, paramters, version, true, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
-        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string,string> paramters,string version = null,
+        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> paramters,
+            string version = null, bool useApplicationJson = false,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            var stringPayload = JsonConvert.SerializeObject(paramters);
-            var content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
-            //var content = new FormUrlEncodedContent(paramters);
-            content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+            HttpContent content;
+            if (useApplicationJson)
+            {
+                Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var paramsStr = JsonConvert.SerializeObject(paramters);
+                content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
+                content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
+            }
+            else
+            {
+                content = new FormUrlEncodedContent(paramters);
+                content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+            }
             
             var response = await Client.PostAsync(url, content);
             response.StatusCode.ShouldBe(expectedStatusCode);
