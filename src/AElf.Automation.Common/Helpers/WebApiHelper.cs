@@ -156,7 +156,7 @@ namespace AElf.Automation.Common.Helpers
             var codeArray = contractReader.Read(filename);
             var input = new ContractDeploymentInput
             {
-                Category = KernelConstants.CodeCoverageRunnerCategory,
+                Category = KernelConstants.DefaultRunnerCategory,
                 Code = ByteString.CopyFrom(codeArray)
             };
 

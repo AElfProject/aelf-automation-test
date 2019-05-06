@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -14,7 +17,6 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        private string TokenContract { get; set; }
         private List<string> Users { get; set; }
         #endregion
 
@@ -62,8 +64,7 @@ namespace AElf.Automation.ContractsTesting
 
             //Account preparation
             Users = new List<string>();
-
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 ci = new CommandInfo(ApiMethods.AccountNew)
                 {
@@ -85,6 +86,7 @@ namespace AElf.Automation.ContractsTesting
             #region Block verify testing
 
             var blockHeight = 1;
+            var transactionCollection = new List<string>();
             while (true)
             {
                 var heightCommand = new CommandInfo(ApiMethods.GetBlockHeight);
@@ -97,19 +99,28 @@ namespace AElf.Automation.ContractsTesting
                 }
                 else
                 {
-                    for (var i = blockHeight; i <= height; i++)
+                    for (var i = blockHeight; i < height; i++)
                     {
+                        var j = i;
                         var blockCommand = new CommandInfo(ApiMethods.GetBlockInfo)
                         {
-                            Parameter = $"{i} false"
+                            Parameter = $"{j} true"
                         };
                         ch.RpcGetBlockInfo(blockCommand);
                         blockCommand.GetJsonInfo();
+                        var blockHash = blockCommand.JsonInfo["result"]["BlockHash"].ToString();
+                        var txCount =
+                            int.Parse(blockCommand.JsonInfo["result"]["Body"]["TransactionsCount"].ToString());
+                        var time = blockCommand.JsonInfo["result"]["Header"]["Time"].ToString();
+                        var transactions = blockCommand.JsonInfo["result"]["Body"]["Transactions"].ToArray();
                         Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}, Time: {3}", 
-                            i,
-                            blockCommand.JsonInfo["result"]["BlockHash"].ToString(),
-                            blockCommand.JsonInfo["result"]["Body"]["TransactionsCount"].ToString(),
-                            blockCommand.JsonInfo["result"]["Header"]["Time"].ToString()); 
+                            j, blockHash, txCount, time);
+                        foreach (var transaction in transactions)
+                        {
+                            var tx = transaction.ToString();
+                            transactionCollection.Contains(tx).ShouldBeFalse($"height: {j}, transaction: {transaction}");
+                            transactionCollection.Add(tx);
+                        }
                     }
 
                     blockHeight = height;
