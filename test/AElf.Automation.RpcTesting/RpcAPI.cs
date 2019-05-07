@@ -9,13 +9,13 @@ namespace AElf.Automation.RpcTesting
     public class RpcApi
     {
         private string RpcUrl { get; set; }
-        private RpcApiHelper Ch { get; set; }
+        private WebApiHelper Ch { get; set; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         public RpcApi(string rpcUrl)
         {
             RpcUrl = rpcUrl;
-            Ch = new RpcApiHelper(rpcUrl);
+            Ch = new WebApiHelper(rpcUrl);
         }
 
         public int GetCurrentHeight()
@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                _logger.WriteError(ci.ErrorMsg?[0].ToString());
+                _logger.WriteError(ci.ErrorMsg.ToString());
                 return 0;
             }
         }
@@ -46,7 +46,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                _logger.WriteError(ci.ErrorMsg?[0].ToString());
+                _logger.WriteError(ci.ErrorMsg.ToString());
                 return null;
             }
         }
@@ -63,7 +63,7 @@ namespace AElf.Automation.RpcTesting
             }
             else
             {
-                _logger.WriteError(ci.ErrorMsg?[0].ToString());
+                _logger.WriteError(ci.ErrorMsg.ToString());
                 return null;
             }
         }

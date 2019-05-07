@@ -26,52 +26,61 @@ namespace AElf.Kernel {
           string.Concat(
             "Cgxwcm9maXQucHJvdG8aDGNvbW1vbi5wcm90byJKCh1Jbml0aWFsaXplUHJv",
             "Zml0Q29udHJhY3RJbnB1dBIpChp0b2tlbl9jb250cmFjdF9zeXN0ZW1fbmFt",
-            "ZRgBIAEoCzIFLkhhc2giYgoVQ3JlYXRlUHJvZml0SXRlbUlucHV0EhQKDHRv",
-            "dGFsX3dlaWdodBgBIAEoEhIUCgx0b2tlbl9zeW1ib2wYAiABKAkSHQoVZXhw",
-            "aXJlZF9wZXJpb2RfbnVtYmVyGAMgASgSIu0BCgpQcm9maXRJdGVtEiEKD3Zp",
-            "cnR1YWxfYWRkcmVzcxgBIAEoCzIILkFkZHJlc3MSFAoMdG90YWxfd2VpZ2h0",
-            "GAIgASgSEhQKDHRvdGFsX2Ftb3VudBgDIAEoEhIWCg5jdXJyZW50X3Blcmlv",
-            "ZBgEIAEoEhIUCgx0b2tlbl9zeW1ib2wYBSABKAkSKAoQc3ViX3Byb2ZpdF9p",
-            "dGVtcxgHIAMoCzIOLlN1YlByb2ZpdEl0ZW0SGQoHY3JlYXRvchgIIAEoCzII",
-            "LkFkZHJlc3MSHQoVZXhwaXJlZF9wZXJpb2RfbnVtYmVyGAkgASgSIjkKDVN1",
-            "YlByb2ZpdEl0ZW0SGAoJcHJvZml0X2lkGAEgASgLMgUuSGFzaBIOCgZ3ZWln",
-            "aHQYAiABKBIiagoOQWRkV2VpZ2h0SW5wdXQSGgoIcmVjZWl2ZXIYASABKAsy",
-            "CC5BZGRyZXNzEhgKCXByb2ZpdF9pZBgCIAEoCzIFLkhhc2gSDgoGd2VpZ2h0",
-            "GAMgASgSEhIKCmVuZF9wZXJpb2QYBCABKBIiRgoOU3ViV2VpZ2h0SW5wdXQS",
-            "GgoIcmVjZWl2ZXIYASABKAsyCC5BZGRyZXNzEhgKCXByb2ZpdF9pZBgCIAEo",
-            "CzIFLkhhc2giJwoLUHJvZml0SW5wdXQSGAoJcHJvZml0X2lkGAEgASgLMgUu",
-            "SGFzaCJOChJSZWxlYXNlUHJvZml0SW5wdXQSGAoJcHJvZml0X2lkGAEgASgL",
-            "MgUuSGFzaBIOCgZwZXJpb2QYAiABKBISDgoGYW1vdW50GAMgASgSIi8KDVBy",
-            "b2ZpdERldGFpbHMSHgoHRGV0YWlscxgBIAMoCzINLlByb2ZpdERldGFpbCJk",
-            "CgxQcm9maXREZXRhaWwSFAoMc3RhcnRfcGVyaW9kGAEgASgSEhIKCmVuZF9w",
-            "ZXJpb2QYAiABKBISDgoGd2VpZ2h0GAMgASgSEhoKEmxhc3RfcHJvZml0X3Bl",
-            "cmlvZBgEIAEoEiJLCg9BZGRQcm9maXRzSW5wdXQSGAoJcHJvZml0X2lkGAEg",
-            "ASgLMgUuSGFzaBIOCgZhbW91bnQYAiABKBISDgoGcGVyaW9kGAMgASgSIm0K",
-            "GlJlZ2lzdGVyU3ViUHJvZml0SXRlbUlucHV0EhgKCXByb2ZpdF9pZBgBIAEo",
-            "CzIFLkhhc2gSHAoNc3ViX3Byb2ZpdF9pZBgCIAEoCzIFLkhhc2gSFwoPc3Vi",
-            "X2l0ZW1fd2VpZ2h0GAMgASgSImgKGENhbmNlbFN1YlByb2ZpdEl0ZW1JbnB1",
-            "dBIRCglpdGVtX25hbWUYASABKAkSFQoNc3ViX2l0ZW1fbmFtZRgCIAEoCRIi",
-            "ChBzdWJfaXRlbV9jcmVhdG9yGAMgASgLMgguQWRkcmVzcyJfChpSZWxlYXNl",
-            "ZFByb2ZpdHNJbmZvcm1hdGlvbhIUCgx0b3RhbF93ZWlnaHQYASABKBISFgoO",
-            "cHJvZml0c19hbW91bnQYAiABKBISEwoLaXNfcmVsZWFzZWQYAyABKAgiLgoS",
-            "Q3JlYXRlZFByb2ZpdEl0ZW1zEhgKCVByb2ZpdElkcxgBIAMoCzIFLkhhc2gi",
-            "NwoaR2V0Q3JlYXRlZFByb2ZpdEl0ZW1zSW5wdXQSGQoHY3JlYXRvchgBIAEo",
-            "CzIILkFkZHJlc3MiTAogR2V0UHJvZml0SXRlbVZpcnR1YWxBZGRyZXNzSW5w",
-            "dXQSGAoJcHJvZml0X2lkGAEgASgLMgUuSGFzaBIOCgZwZXJpb2QYAiABKBIi",
-            "TgoiR2V0UmVsZWFzZWRQcm9maXRzSW5mb3JtYXRpb25JbnB1dBIYCglwcm9m",
-            "aXRfaWQYASABKAsyBS5IYXNoEg4KBnBlcmlvZBgCIAEoEiJNChVHZXRQcm9m",
-            "aXREZXRhaWxzSW5wdXQSGAoJcHJvZml0X2lkGAEgASgLMgUuSGFzaBIaCghy",
-            "ZWNlaXZlchgCIAEoCzIILkFkZHJlc3NCDqoCC0FFbGYuS2VybmVsYgZwcm90",
-            "bzM="));
+            "ZRgBIAEoCzIFLkhhc2giiQEKFUNyZWF0ZVByb2ZpdEl0ZW1JbnB1dBIUCgx0",
+            "b3RhbF93ZWlnaHQYASABKBISFAoMdG9rZW5fc3ltYm9sGAIgASgJEh0KFWV4",
+            "cGlyZWRfcGVyaW9kX251bWJlchgDIAEoEhIlCh1yZWxlYXNlX2FsbF9pZl9h",
+            "bW91bnRfaXNfemVybxgEIAEoCCKUAgoKUHJvZml0SXRlbRIhCg92aXJ0dWFs",
+            "X2FkZHJlc3MYASABKAsyCC5BZGRyZXNzEhQKDHRvdGFsX3dlaWdodBgCIAEo",
+            "EhIUCgx0b3RhbF9hbW91bnQYAyABKBISFgoOY3VycmVudF9wZXJpb2QYBCAB",
+            "KBISFAoMdG9rZW5fc3ltYm9sGAUgASgJEigKEHN1Yl9wcm9maXRfaXRlbXMY",
+            "ByADKAsyDi5TdWJQcm9maXRJdGVtEhkKB2NyZWF0b3IYCCABKAsyCC5BZGRy",
+            "ZXNzEh0KFWV4cGlyZWRfcGVyaW9kX251bWJlchgJIAEoEhIlCh1yZWxlYXNl",
+            "X2FsbF9pZl9hbW91bnRfaXNfemVybxgKIAEoCCI5Cg1TdWJQcm9maXRJdGVt",
+            "EhgKCXByb2ZpdF9pZBgBIAEoCzIFLkhhc2gSDgoGd2VpZ2h0GAIgASgSImoK",
+            "DkFkZFdlaWdodElucHV0EhoKCHJlY2VpdmVyGAEgASgLMgguQWRkcmVzcxIY",
+            "Cglwcm9maXRfaWQYAiABKAsyBS5IYXNoEg4KBndlaWdodBgDIAEoEhISCgpl",
+            "bmRfcGVyaW9kGAQgASgSIkYKDlN1YldlaWdodElucHV0EhoKCHJlY2VpdmVy",
+            "GAEgASgLMgguQWRkcmVzcxIYCglwcm9maXRfaWQYAiABKAsyBS5IYXNoIlwK",
+            "D0FkZFdlaWdodHNJbnB1dBIYCglwcm9maXRfaWQYASABKAsyBS5IYXNoEhsK",
+            "B3dlaWdodHMYAiADKAsyCi5XZWlnaHRNYXASEgoKZW5kX3BlcmlvZBgEIAEo",
+            "EiJICg9TdWJXZWlnaHRzSW5wdXQSGwoJcmVjZWl2ZXJzGAEgAygLMgguQWRk",
+            "cmVzcxIYCglwcm9maXRfaWQYAiABKAsyBS5IYXNoIjcKCVdlaWdodE1hcBIa",
+            "CghyZWNlaXZlchgBIAEoCzIILkFkZHJlc3MSDgoGd2VpZ2h0GAIgASgSIicK",
+            "C1Byb2ZpdElucHV0EhgKCXByb2ZpdF9pZBgBIAEoCzIFLkhhc2giTgoSUmVs",
+            "ZWFzZVByb2ZpdElucHV0EhgKCXByb2ZpdF9pZBgBIAEoCzIFLkhhc2gSDgoG",
+            "cGVyaW9kGAIgASgSEg4KBmFtb3VudBgDIAEoEiIvCg1Qcm9maXREZXRhaWxz",
+            "Eh4KB0RldGFpbHMYASADKAsyDS5Qcm9maXREZXRhaWwiZAoMUHJvZml0RGV0",
+            "YWlsEhQKDHN0YXJ0X3BlcmlvZBgBIAEoEhISCgplbmRfcGVyaW9kGAIgASgS",
+            "Eg4KBndlaWdodBgDIAEoEhIaChJsYXN0X3Byb2ZpdF9wZXJpb2QYBCABKBIi",
+            "SwoPQWRkUHJvZml0c0lucHV0EhgKCXByb2ZpdF9pZBgBIAEoCzIFLkhhc2gS",
+            "DgoGYW1vdW50GAIgASgSEg4KBnBlcmlvZBgDIAEoEiJtChpSZWdpc3RlclN1",
+            "YlByb2ZpdEl0ZW1JbnB1dBIYCglwcm9maXRfaWQYASABKAsyBS5IYXNoEhwK",
+            "DXN1Yl9wcm9maXRfaWQYAiABKAsyBS5IYXNoEhcKD3N1Yl9pdGVtX3dlaWdo",
+            "dBgDIAEoEiJoChhDYW5jZWxTdWJQcm9maXRJdGVtSW5wdXQSEQoJaXRlbV9u",
+            "YW1lGAEgASgJEhUKDXN1Yl9pdGVtX25hbWUYAiABKAkSIgoQc3ViX2l0ZW1f",
+            "Y3JlYXRvchgDIAEoCzIILkFkZHJlc3MiXwoaUmVsZWFzZWRQcm9maXRzSW5m",
+            "b3JtYXRpb24SFAoMdG90YWxfd2VpZ2h0GAEgASgSEhYKDnByb2ZpdHNfYW1v",
+            "dW50GAIgASgSEhMKC2lzX3JlbGVhc2VkGAMgASgIIi4KEkNyZWF0ZWRQcm9m",
+            "aXRJdGVtcxIYCglQcm9maXRJZHMYASADKAsyBS5IYXNoIjcKGkdldENyZWF0",
+            "ZWRQcm9maXRJdGVtc0lucHV0EhkKB2NyZWF0b3IYASABKAsyCC5BZGRyZXNz",
+            "IkwKIEdldFByb2ZpdEl0ZW1WaXJ0dWFsQWRkcmVzc0lucHV0EhgKCXByb2Zp",
+            "dF9pZBgBIAEoCzIFLkhhc2gSDgoGcGVyaW9kGAIgASgSIk4KIkdldFJlbGVh",
+            "c2VkUHJvZml0c0luZm9ybWF0aW9uSW5wdXQSGAoJcHJvZml0X2lkGAEgASgL",
+            "MgUuSGFzaBIOCgZwZXJpb2QYAiABKBIiTQoVR2V0UHJvZml0RGV0YWlsc0lu",
+            "cHV0EhgKCXByb2ZpdF9pZBgBIAEoCzIFLkhhc2gSGgoIcmVjZWl2ZXIYAiAB",
+            "KAsyCC5BZGRyZXNzQg6qAgtBRWxmLktlcm5lbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::AElf.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.InitializeProfitContractInput), global::AElf.Kernel.InitializeProfitContractInput.Parser, new[]{ "TokenContractSystemName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CreateProfitItemInput), global::AElf.Kernel.CreateProfitItemInput.Parser, new[]{ "TotalWeight", "TokenSymbol", "ExpiredPeriodNumber" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ProfitItem), global::AElf.Kernel.ProfitItem.Parser, new[]{ "VirtualAddress", "TotalWeight", "TotalAmount", "CurrentPeriod", "TokenSymbol", "SubProfitItems", "Creator", "ExpiredPeriodNumber" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CreateProfitItemInput), global::AElf.Kernel.CreateProfitItemInput.Parser, new[]{ "TotalWeight", "TokenSymbol", "ExpiredPeriodNumber", "ReleaseAllIfAmountIsZero" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ProfitItem), global::AElf.Kernel.ProfitItem.Parser, new[]{ "VirtualAddress", "TotalWeight", "TotalAmount", "CurrentPeriod", "TokenSymbol", "SubProfitItems", "Creator", "ExpiredPeriodNumber", "ReleaseAllIfAmountIsZero" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.SubProfitItem), global::AElf.Kernel.SubProfitItem.Parser, new[]{ "ProfitId", "Weight" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.AddWeightInput), global::AElf.Kernel.AddWeightInput.Parser, new[]{ "Receiver", "ProfitId", "Weight", "EndPeriod" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.SubWeightInput), global::AElf.Kernel.SubWeightInput.Parser, new[]{ "Receiver", "ProfitId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.AddWeightsInput), global::AElf.Kernel.AddWeightsInput.Parser, new[]{ "ProfitId", "Weights", "EndPeriod" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.SubWeightsInput), global::AElf.Kernel.SubWeightsInput.Parser, new[]{ "Receivers", "ProfitId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.WeightMap), global::AElf.Kernel.WeightMap.Parser, new[]{ "Receiver", "Weight" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ProfitInput), global::AElf.Kernel.ProfitInput.Parser, new[]{ "ProfitId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ReleaseProfitInput), global::AElf.Kernel.ReleaseProfitInput.Parser, new[]{ "ProfitId", "Period", "Amount" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ProfitDetails), global::AElf.Kernel.ProfitDetails.Parser, new[]{ "Details" }, null, null, null),
@@ -254,6 +263,7 @@ namespace AElf.Kernel {
       totalWeight_ = other.totalWeight_;
       tokenSymbol_ = other.tokenSymbol_;
       expiredPeriodNumber_ = other.expiredPeriodNumber_;
+      releaseAllIfAmountIsZero_ = other.releaseAllIfAmountIsZero_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -295,6 +305,17 @@ namespace AElf.Kernel {
       }
     }
 
+    /// <summary>Field number for the "release_all_if_amount_is_zero" field.</summary>
+    public const int ReleaseAllIfAmountIsZeroFieldNumber = 4;
+    private bool releaseAllIfAmountIsZero_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool ReleaseAllIfAmountIsZero {
+      get { return releaseAllIfAmountIsZero_; }
+      set {
+        releaseAllIfAmountIsZero_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as CreateProfitItemInput);
@@ -311,6 +332,7 @@ namespace AElf.Kernel {
       if (TotalWeight != other.TotalWeight) return false;
       if (TokenSymbol != other.TokenSymbol) return false;
       if (ExpiredPeriodNumber != other.ExpiredPeriodNumber) return false;
+      if (ReleaseAllIfAmountIsZero != other.ReleaseAllIfAmountIsZero) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -320,6 +342,7 @@ namespace AElf.Kernel {
       if (TotalWeight != 0L) hash ^= TotalWeight.GetHashCode();
       if (TokenSymbol.Length != 0) hash ^= TokenSymbol.GetHashCode();
       if (ExpiredPeriodNumber != 0L) hash ^= ExpiredPeriodNumber.GetHashCode();
+      if (ReleaseAllIfAmountIsZero != false) hash ^= ReleaseAllIfAmountIsZero.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -345,6 +368,10 @@ namespace AElf.Kernel {
         output.WriteRawTag(24);
         output.WriteSInt64(ExpiredPeriodNumber);
       }
+      if (ReleaseAllIfAmountIsZero != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(ReleaseAllIfAmountIsZero);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -361,6 +388,9 @@ namespace AElf.Kernel {
       }
       if (ExpiredPeriodNumber != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ExpiredPeriodNumber);
+      }
+      if (ReleaseAllIfAmountIsZero != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -381,6 +411,9 @@ namespace AElf.Kernel {
       }
       if (other.ExpiredPeriodNumber != 0L) {
         ExpiredPeriodNumber = other.ExpiredPeriodNumber;
+      }
+      if (other.ReleaseAllIfAmountIsZero != false) {
+        ReleaseAllIfAmountIsZero = other.ReleaseAllIfAmountIsZero;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -403,6 +436,10 @@ namespace AElf.Kernel {
           }
           case 24: {
             ExpiredPeriodNumber = input.ReadSInt64();
+            break;
+          }
+          case 32: {
+            ReleaseAllIfAmountIsZero = input.ReadBool();
             break;
           }
         }
@@ -444,6 +481,7 @@ namespace AElf.Kernel {
       subProfitItems_ = other.subProfitItems_.Clone();
       creator_ = other.creator_ != null ? other.creator_.Clone() : null;
       expiredPeriodNumber_ = other.expiredPeriodNumber_;
+      releaseAllIfAmountIsZero_ = other.releaseAllIfAmountIsZero_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -539,6 +577,17 @@ namespace AElf.Kernel {
       }
     }
 
+    /// <summary>Field number for the "release_all_if_amount_is_zero" field.</summary>
+    public const int ReleaseAllIfAmountIsZeroFieldNumber = 10;
+    private bool releaseAllIfAmountIsZero_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool ReleaseAllIfAmountIsZero {
+      get { return releaseAllIfAmountIsZero_; }
+      set {
+        releaseAllIfAmountIsZero_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as ProfitItem);
@@ -560,6 +609,7 @@ namespace AElf.Kernel {
       if(!subProfitItems_.Equals(other.subProfitItems_)) return false;
       if (!object.Equals(Creator, other.Creator)) return false;
       if (ExpiredPeriodNumber != other.ExpiredPeriodNumber) return false;
+      if (ReleaseAllIfAmountIsZero != other.ReleaseAllIfAmountIsZero) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -574,6 +624,7 @@ namespace AElf.Kernel {
       hash ^= subProfitItems_.GetHashCode();
       if (creator_ != null) hash ^= Creator.GetHashCode();
       if (ExpiredPeriodNumber != 0L) hash ^= ExpiredPeriodNumber.GetHashCode();
+      if (ReleaseAllIfAmountIsZero != false) hash ^= ReleaseAllIfAmountIsZero.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -616,6 +667,10 @@ namespace AElf.Kernel {
         output.WriteRawTag(72);
         output.WriteSInt64(ExpiredPeriodNumber);
       }
+      if (ReleaseAllIfAmountIsZero != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(ReleaseAllIfAmountIsZero);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -645,6 +700,9 @@ namespace AElf.Kernel {
       }
       if (ExpiredPeriodNumber != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ExpiredPeriodNumber);
+      }
+      if (ReleaseAllIfAmountIsZero != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -684,6 +742,9 @@ namespace AElf.Kernel {
       }
       if (other.ExpiredPeriodNumber != 0L) {
         ExpiredPeriodNumber = other.ExpiredPeriodNumber;
+      }
+      if (other.ReleaseAllIfAmountIsZero != false) {
+        ReleaseAllIfAmountIsZero = other.ReleaseAllIfAmountIsZero;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -732,6 +793,10 @@ namespace AElf.Kernel {
           }
           case 72: {
             ExpiredPeriodNumber = input.ReadSInt64();
+            break;
+          }
+          case 80: {
+            ReleaseAllIfAmountIsZero = input.ReadBool();
             break;
           }
         }
@@ -1297,6 +1362,507 @@ namespace AElf.Kernel {
 
   }
 
+  public sealed partial class AddWeightsInput : pb::IMessage<AddWeightsInput> {
+    private static readonly pb::MessageParser<AddWeightsInput> _parser = new pb::MessageParser<AddWeightsInput>(() => new AddWeightsInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<AddWeightsInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AddWeightsInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AddWeightsInput(AddWeightsInput other) : this() {
+      profitId_ = other.profitId_ != null ? other.profitId_.Clone() : null;
+      weights_ = other.weights_.Clone();
+      endPeriod_ = other.endPeriod_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AddWeightsInput Clone() {
+      return new AddWeightsInput(this);
+    }
+
+    /// <summary>Field number for the "profit_id" field.</summary>
+    public const int ProfitIdFieldNumber = 1;
+    private global::AElf.Hash profitId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Hash ProfitId {
+      get { return profitId_; }
+      set {
+        profitId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weights" field.</summary>
+    public const int WeightsFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::AElf.Kernel.WeightMap> _repeated_weights_codec
+        = pb::FieldCodec.ForMessage(18, global::AElf.Kernel.WeightMap.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Kernel.WeightMap> weights_ = new pbc::RepeatedField<global::AElf.Kernel.WeightMap>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Kernel.WeightMap> Weights {
+      get { return weights_; }
+    }
+
+    /// <summary>Field number for the "end_period" field.</summary>
+    public const int EndPeriodFieldNumber = 4;
+    private long endPeriod_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long EndPeriod {
+      get { return endPeriod_; }
+      set {
+        endPeriod_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as AddWeightsInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(AddWeightsInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(ProfitId, other.ProfitId)) return false;
+      if(!weights_.Equals(other.weights_)) return false;
+      if (EndPeriod != other.EndPeriod) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (profitId_ != null) hash ^= ProfitId.GetHashCode();
+      hash ^= weights_.GetHashCode();
+      if (EndPeriod != 0L) hash ^= EndPeriod.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (profitId_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(ProfitId);
+      }
+      weights_.WriteTo(output, _repeated_weights_codec);
+      if (EndPeriod != 0L) {
+        output.WriteRawTag(32);
+        output.WriteSInt64(EndPeriod);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (profitId_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ProfitId);
+      }
+      size += weights_.CalculateSize(_repeated_weights_codec);
+      if (EndPeriod != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EndPeriod);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(AddWeightsInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.profitId_ != null) {
+        if (profitId_ == null) {
+          ProfitId = new global::AElf.Hash();
+        }
+        ProfitId.MergeFrom(other.ProfitId);
+      }
+      weights_.Add(other.weights_);
+      if (other.EndPeriod != 0L) {
+        EndPeriod = other.EndPeriod;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (profitId_ == null) {
+              ProfitId = new global::AElf.Hash();
+            }
+            input.ReadMessage(ProfitId);
+            break;
+          }
+          case 18: {
+            weights_.AddEntriesFrom(input, _repeated_weights_codec);
+            break;
+          }
+          case 32: {
+            EndPeriod = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class SubWeightsInput : pb::IMessage<SubWeightsInput> {
+    private static readonly pb::MessageParser<SubWeightsInput> _parser = new pb::MessageParser<SubWeightsInput>(() => new SubWeightsInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<SubWeightsInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubWeightsInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubWeightsInput(SubWeightsInput other) : this() {
+      receivers_ = other.receivers_.Clone();
+      profitId_ = other.profitId_ != null ? other.profitId_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubWeightsInput Clone() {
+      return new SubWeightsInput(this);
+    }
+
+    /// <summary>Field number for the "receivers" field.</summary>
+    public const int ReceiversFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::AElf.Address> _repeated_receivers_codec
+        = pb::FieldCodec.ForMessage(10, global::AElf.Address.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Address> receivers_ = new pbc::RepeatedField<global::AElf.Address>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Address> Receivers {
+      get { return receivers_; }
+    }
+
+    /// <summary>Field number for the "profit_id" field.</summary>
+    public const int ProfitIdFieldNumber = 2;
+    private global::AElf.Hash profitId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Hash ProfitId {
+      get { return profitId_; }
+      set {
+        profitId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as SubWeightsInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(SubWeightsInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!receivers_.Equals(other.receivers_)) return false;
+      if (!object.Equals(ProfitId, other.ProfitId)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= receivers_.GetHashCode();
+      if (profitId_ != null) hash ^= ProfitId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      receivers_.WriteTo(output, _repeated_receivers_codec);
+      if (profitId_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(ProfitId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += receivers_.CalculateSize(_repeated_receivers_codec);
+      if (profitId_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ProfitId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(SubWeightsInput other) {
+      if (other == null) {
+        return;
+      }
+      receivers_.Add(other.receivers_);
+      if (other.profitId_ != null) {
+        if (profitId_ == null) {
+          ProfitId = new global::AElf.Hash();
+        }
+        ProfitId.MergeFrom(other.ProfitId);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            receivers_.AddEntriesFrom(input, _repeated_receivers_codec);
+            break;
+          }
+          case 18: {
+            if (profitId_ == null) {
+              ProfitId = new global::AElf.Hash();
+            }
+            input.ReadMessage(ProfitId);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class WeightMap : pb::IMessage<WeightMap> {
+    private static readonly pb::MessageParser<WeightMap> _parser = new pb::MessageParser<WeightMap>(() => new WeightMap());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<WeightMap> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WeightMap() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WeightMap(WeightMap other) : this() {
+      receiver_ = other.receiver_ != null ? other.receiver_.Clone() : null;
+      weight_ = other.weight_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WeightMap Clone() {
+      return new WeightMap(this);
+    }
+
+    /// <summary>Field number for the "receiver" field.</summary>
+    public const int ReceiverFieldNumber = 1;
+    private global::AElf.Address receiver_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Address Receiver {
+      get { return receiver_; }
+      set {
+        receiver_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weight" field.</summary>
+    public const int WeightFieldNumber = 2;
+    private long weight_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long Weight {
+      get { return weight_; }
+      set {
+        weight_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as WeightMap);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(WeightMap other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Receiver, other.Receiver)) return false;
+      if (Weight != other.Weight) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (receiver_ != null) hash ^= Receiver.GetHashCode();
+      if (Weight != 0L) hash ^= Weight.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (receiver_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Receiver);
+      }
+      if (Weight != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Weight);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (receiver_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Receiver);
+      }
+      if (Weight != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Weight);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(WeightMap other) {
+      if (other == null) {
+        return;
+      }
+      if (other.receiver_ != null) {
+        if (receiver_ == null) {
+          Receiver = new global::AElf.Address();
+        }
+        Receiver.MergeFrom(other.Receiver);
+      }
+      if (other.Weight != 0L) {
+        Weight = other.Weight;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (receiver_ == null) {
+              Receiver = new global::AElf.Address();
+            }
+            input.ReadMessage(Receiver);
+            break;
+          }
+          case 16: {
+            Weight = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
   public sealed partial class ProfitInput : pb::IMessage<ProfitInput> {
     private static readonly pb::MessageParser<ProfitInput> _parser = new pb::MessageParser<ProfitInput>(() => new ProfitInput());
     private pb::UnknownFieldSet _unknownFields;
@@ -1305,7 +1871,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[6]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1440,7 +2006,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[7]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1631,7 +2197,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[8]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1752,7 +2318,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[9]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1965,7 +2531,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[10]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2156,7 +2722,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[11]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2353,7 +2919,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[12]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2544,7 +3110,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[13]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2729,7 +3295,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[14]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2850,7 +3416,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[15]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2985,7 +3551,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[16]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3148,7 +3714,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[17]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3311,7 +3877,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[18]; }
+      get { return global::AElf.Kernel.ProfitReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

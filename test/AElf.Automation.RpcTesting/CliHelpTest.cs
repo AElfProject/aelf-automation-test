@@ -6,14 +6,14 @@ namespace AElf.Automation.RpcTesting
     [TestClass]
     public class CliHelpTest
     {
-        private const string RpcUrl = "http://192.168.199.221:8000";
-        private RpcApiHelper _ch;
+        private const string BaseUrl = "http://192.168.199.221:8000";
+        private WebApiHelper _ch;
         private CommandInfo _ci;
         
         [TestInitialize]
         public void Initialize()
         {
-            _ch = new RpcApiHelper(RpcUrl);
+            _ch = new WebApiHelper(BaseUrl);
         }
 
         [TestCleanup]
@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcTesting
         public void TestRpcConnect()
         {
             _ci = new CommandInfo(ApiMethods.GetChainInformation);
-            _ch.RpcGetChainInformation(_ci);
+            _ch.GetChainInformation(_ci);
             Assert.IsTrue(_ci.Result);
         }
         

@@ -25,90 +25,120 @@ namespace AElf.Kernel {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg5lbGVjdGlvbi5wcm90bxIIZWxlY3Rpb24aDGNvbW1vbi5wcm90bxofZ29v",
-            "Z2xlL3Byb3RvYnVmL3RpbWVzdGFtcC5wcm90byJzChxJbml0aWFsRWxlY3Rp",
-            "b25Db250cmFjdElucHV0EigKGXZvdGVfY29udHJhY3Rfc3lzdGVtX25hbWUY",
-            "ASABKAsyBS5IYXNoEikKGnRva2VuX2NvbnRyYWN0X3N5c3RlbV9uYW1lGAIg",
-            "ASgLMgUuSGFzaCImChVBbm5vdW5jZUVsZWN0aW9uSW5wdXQSDQoFYWxpYXMY",
-            "ASABKAkifQoOVm90ZU1pbmVySW5wdXQSGwoTY2FuZGlkYXRlX3B1YmxpY0tl",
-            "eRgBIAEoCRIOCgZhbW91bnQYAiABKBISEAoIbG9ja1RpbWUYAyABKBESLAoM",
-            "TG9ja1RpbWVVbml0GAQgASgOMhYuZWxlY3Rpb24uTG9ja1RpbWVVbml0IiwK",
-            "FVVwZGF0ZVRlcm1OdW1iZXJJbnB1dBITCgt0ZXJtX251bWJlchgBIAEoESIt",
-            "ChZHZXRFbGVjdGlvblJlc3VsdElucHV0EhMKC3Rlcm1fbnVtYmVyGAEgASgR",
-            "IqABCg5FbGVjdGlvblJlc3VsdBITCgt0ZXJtX251bWJlchgBIAEoERI2Cgdy",
-            "ZXN1bHRzGAIgAygLMiUuZWxlY3Rpb24uRWxlY3Rpb25SZXN1bHQuUmVzdWx0",
-            "c0VudHJ5EhEKCWlzX2FjdGl2ZRgDIAEoCBouCgxSZXN1bHRzRW50cnkSCwoD",
-            "a2V5GAEgASgJEg0KBXZhbHVlGAIgASgSOgI4ASJECgVWb3RlcxIbCgxhY3Rp",
-            "dmVfdm90ZXMYASADKAsyBS5IYXNoEh4KD3dpdGhkcmF3bl92b3RlcxgCIAMo",
-            "CzIFLkhhc2giwAIKEENhbmRpZGF0ZUhpc3RvcnkSEQoJUHVibGljS2V5GAEg",
-            "ASgJEg0KBVRlcm1zGAIgAygDEhYKDlByb2R1Y2VkQmxvY2tzGAMgASgDEhcK",
-            "D01pc3NlZFRpbWVTbG90cxgEIAEoAxIhChlDb250aW51YWxBcHBvaW50bWVu",
-            "dENvdW50GAUgASgDEhoKElJlYXBwb2ludG1lbnRDb3VudBgGIAEoAxIPCgdB",
-            "bGlhc2VzGAcgAygJEhQKDEN1cnJlbnRBbGlhcxgIIAEoCRIaChJDdXJyZW50",
-            "Vm90ZXNOdW1iZXIYCSABKAMSGQoHQWRkcmVzcxgLIAEoCzIILkFkZHJlc3MS",
-            "KAoZQW5ub3VuY2VtZW50VHJhbnNhY3Rpb25JZBgMIAEoCzIFLkhhc2gSEgoK",
-            "SXNFdmlsTm9kZRgNIAEoCCK1AgoPRWxlY3Rpb25UaWNrZXRzEj8KF2VsZWN0",
-            "aW9uX3ZvdGluZ19yZWNvcmRzGAEgAygLMh4uZWxlY3Rpb24uRWxlY3Rpb25W",
-            "b3RpbmdSZWNvcmQSGgoSVm90aW5nUmVjb3Jkc0NvdW50GAIgASgDEhcKD09i",
-            "dGFpbmVkVGlja2V0cxgDIAEoAxIUCgxWb3RlZFRpY2tldHMYBCABKAMSHgoW",
-            "SGlzdG9yeU9idGFpbmVkVGlja2V0cxgFIAEoAxIbChNIaXN0b3J5Vm90ZWRU",
-            "aWNrZXRzGAYgASgDEiEKElZvdGVUb1RyYW5zYWN0aW9ucxgIIAMoCzIFLkhh",
-            "c2gSIwoUVm90ZUZyb21UcmFuc2FjdGlvbnMYCSADKAsyBS5IYXNoEhEKCVB1",
-            "YmxpY0tleRgKIAEoCSL0AgoURWxlY3Rpb25Wb3RpbmdSZWNvcmQSDAoERnJv",
-            "bRgBIAEoCRIKCgJUbxgCIAEoCRINCgVDb3VudBgDIAEoAxITCgtSb3VuZE51",
-            "bWJlchgEIAEoAxIcCg1UcmFuc2FjdGlvbklkGAUgASgLMgUuSGFzaBIPCgdW",
-            "b3RlQWdlGAYgASgDEhQKDExvY2tEYXlzTGlzdBgHIAMoBRIRCglVbmxvY2tB",
-            "Z2UYCCABKAMSEgoKVGVybU51bWJlchgJIAEoAxIzCg9VbmxvY2tUaW1lc3Rh",
-            "bXAYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjUKEVdpdGhk",
-            "cmF3VGltZXN0YW1wGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
-            "cBIxCg1Wb3RlVGltZXN0YW1wGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
-            "bWVzdGFtcBITCgtJc1dpdGhkcmF3bhgNIAEoCCJUCiBQYWdlYWJsZUVsZWN0",
-            "aW9uVGlja2V0c0luZm9JbnB1dBINCgVzdGFydBgBIAEoERIOCgZsZW5ndGgY",
-            "AiABKBESEQoJcHVibGljS2V5GAMgASgJIikKCFBhZ2VJbmZvEg0KBXN0YXJ0",
-            "GAEgASgREg4KBmxlbmd0aBgCIAEoESK9AQoaQ2FuZGlkYXRlSGlzdG9yeURp",
-            "Y3Rpb25hcnkSPAoETWFwcxgBIAMoCzIuLmVsZWN0aW9uLkNhbmRpZGF0ZUhp",
-            "c3RvcnlEaWN0aW9uYXJ5Lk1hcHNFbnRyeRIYChBDYW5kaWRhdGVzTnVtYmVy",
-            "GAMgASgFGkcKCU1hcHNFbnRyeRILCgNrZXkYASABKAkSKQoFdmFsdWUYAiAB",
-            "KAsyGi5lbGVjdGlvbi5DYW5kaWRhdGVIaXN0b3J5OgI4ASJlChhFbGVjdGlv",
-            "blRpY2tldHNIaXN0b3JpZXMSMAoGVmFsdWVzGAEgAygLMiAuZWxlY3Rpb24u",
-            "RWxlY3Rpb25UaWNrZXRzSGlzdG9yeRIXCg9IaXN0b3JpZXNOdW1iZXIYAiAB",
-            "KAMitwEKFkVsZWN0aW9uVGlja2V0c0hpc3RvcnkSFgoOQ2FuZGlkYXRlQWxp",
-            "YXMYASABKAkSEwoLVm90ZXNOdW1iZXIYAiABKAMSLQoJVGltZXN0YW1wGAMg",
-            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgVTdGF0ZRgEIAEo",
-            "CBIyCgRUeXBlGAUgASgOMiQuZWxlY3Rpb24uRWxlY3Rpb25UaWNrZXRzSGlz",
-            "dG9yeVR5cGUiHAoLU3RyaW5nSW5wdXQSDQoFdmFsdWUYASABKAkiHQoMU3Ry",
-            "aW5nT3V0cHV0Eg0KBXZhbHVlGAEgASgJKiQKDExvY2tUaW1lVW5pdBIICgRE",
-            "YXlzEAASCgoGTW91dGhzEAEqPAoaRWxlY3Rpb25UaWNrZXRzSGlzdG9yeVR5",
-            "cGUSCAoETm9uZRAAEgoKBlJlZGVlbRABEggKBFZvdGUQAkIOqgILQUVsZi5L",
-            "ZXJuZWxiBnByb3RvMw=="));
+            "Z2xlL3Byb3RvYnVmL3RpbWVzdGFtcC5wcm90byKJAgocSW5pdGlhbEVsZWN0",
+            "aW9uQ29udHJhY3RJbnB1dBIoChl2b3RlX2NvbnRyYWN0X3N5c3RlbV9uYW1l",
+            "GAEgASgLMgUuSGFzaBIqChtwcm9maXRfY29udHJhY3Rfc3lzdGVtX25hbWUY",
+            "AiABKAsyBS5IYXNoEikKGnRva2VuX2NvbnRyYWN0X3N5c3RlbV9uYW1lGAMg",
+            "ASgLMgUuSGFzaBIyCiNhZWxmX2NvbnNlbnN1c19jb250cmFjdF9zeXN0ZW1f",
+            "bmFtZRgEIAEoCzIFLkhhc2gSGQoRbWluaW11bV9sb2NrX3RpbWUYBSABKBES",
+            "GQoRbWF4aW11bV9sb2NrX3RpbWUYBiABKBEiIgogUmVnaXN0ZXJFbGVjdGlv",
+            "blZvdGluZ0V2ZW50SW5wdXQiFQoTQ3JlYXRlVHJlYXN1cnlJbnB1dCIZChdS",
+            "ZWdpc3RlclRvVHJlYXN1cnlJbnB1dCIrChRHZXRUZXJtU25hcHNob3RJbnB1",
+            "dBITCgt0ZXJtX251bWJlchgBIAEoEiKRAQofVXBkYXRlQ2FuZGlkYXRlSW5m",
+            "b3JtYXRpb25JbnB1dBISCgpwdWJsaWNfa2V5GAEgASgJEiAKGHJlY2VudGx5",
+            "X3Byb2R1Y2VkX2Jsb2NrcxgCIAEoEhIiChpyZWNlbnRseV9taXNzZWRfdGlt",
+            "ZV9zbG90cxgDIAEoEhIUCgxpc19ldmlsX25vZGUYBCABKAgiXgobUmVsZWFz",
+            "ZVRyZWFzdXJ5UHJvZml0c0lucHV0EhMKC3Rlcm1fbnVtYmVyGAEgASgSEhQK",
+            "DG1pbmVkX2Jsb2NrcxgCIAEoEhIUCgxyb3VuZF9udW1iZXIYAyABKBIiJgoV",
+            "QW5ub3VuY2VFbGVjdGlvbklucHV0Eg0KBWFsaWFzGAEgASgJInIKDlZvdGVN",
+            "aW5lcklucHV0EhsKE2NhbmRpZGF0ZV9wdWJsaWNLZXkYASABKAkSDgoGYW1v",
+            "dW50GAIgASgSEhAKCGxvY2tUaW1lGAMgASgREiEKDmxvY2tfdGltZV91bml0",
+            "GAQgASgOMgkuVGltZVVuaXQiLAoVVXBkYXRlVGVybU51bWJlcklucHV0EhMK",
+            "C3Rlcm1fbnVtYmVyGAEgASgSIi0KFkdldEVsZWN0aW9uUmVzdWx0SW5wdXQS",
+            "EwoLdGVybV9udW1iZXIYASABKBIioAEKDkVsZWN0aW9uUmVzdWx0EhMKC3Rl",
+            "cm1fbnVtYmVyGAEgASgSEjYKB3Jlc3VsdHMYAiADKAsyJS5lbGVjdGlvbi5F",
+            "bGVjdGlvblJlc3VsdC5SZXN1bHRzRW50cnkSEQoJaXNfYWN0aXZlGAMgASgI",
+            "Gi4KDFJlc3VsdHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKBI6",
+            "AjgBItEECgVWb3RlcxIfChBhY3RpdmVfdm90ZXNfaWRzGAEgAygLMgUuSGFz",
+            "aBIiChN3aXRoZHJhd25fdm90ZXNfaWRzGAIgAygLMgUuSGFzaBIoChlvYnRh",
+            "aW5lZF9hY3RpdmVfdm90ZXNfaWRzGAMgAygLMgUuSGFzaBIrChxvYnRhaW5l",
+            "ZF93aXRoZHJhd25fdm90ZXNfaWRzGAQgAygLMgUuSGFzaBIjCht2YWxpZF9v",
+            "YnRhaW5lZF92b3Rlc19hbW91bnQYBSABKBISIAoYdmFsaWRfdm90ZWRfdm90",
+            "ZXNfYW1vdW50GAYgASgSEiEKGWFsbF9vYnRhaW5lZF92b3Rlc19hbW91bnQY",
+            "ByABKBISHgoWYWxsX3ZvdGVkX3ZvdGVzX2Ftb3VudBgIIAEoEhISCgpwdWJs",
+            "aWNfa2V5GAkgASgMEjwKFGFjdGl2ZV92b3Rlc19yZWNvcmRzGAogAygLMh4u",
+            "ZWxlY3Rpb24uRWxlY3Rpb25Wb3RpbmdSZWNvcmQSPwoXd2l0aGRyYXduX3Zv",
+            "dGVzX3JlY29yZHMYCyADKAsyHi5lbGVjdGlvbi5FbGVjdGlvblZvdGluZ1Jl",
+            "Y29yZBJFCh1vYnRhaW5lZF9hY3RpdmVfdm90ZXNfcmVjb3JkcxgMIAMoCzIe",
+            "LmVsZWN0aW9uLkVsZWN0aW9uVm90aW5nUmVjb3JkEkgKIG9idGFpbmVkX3dp",
+            "dGhkcmF3bl92b3Rlc19yZWNvcmRzGA0gAygLMh4uZWxlY3Rpb24uRWxlY3Rp",
+            "b25Wb3RpbmdSZWNvcmQi3AIKEENhbmRpZGF0ZUhpc3RvcnkSEgoKcHVibGlj",
+            "X2tleRgBIAEoCRINCgV0ZXJtcxgCIAMoAxIXCg9wcm9kdWNlZF9ibG9ja3MY",
+            "AyABKBISGQoRbWlzc2VkX3RpbWVfc2xvdHMYBCABKBISIwobY29udGludWFs",
+            "X2FwcG9pbnRtZW50X2NvdW50GAUgASgSEhsKE3JlYXBwb2ludG1lbnRfY291",
+            "bnQYBiABKBISDwoHYWxpYXNlcxgHIAMoCRIVCg1jdXJyZW50X2FsaWFzGAgg",
+            "ASgJEhwKFGN1cnJlbnRfdm90ZXNfbnVtYmVyGAkgASgSEioKG2Fubm91bmNl",
+            "bWVudF90cmFuc2FjdGlvbl9pZBgMIAEoCzIFLkhhc2gSFAoMaXNfZXZpbF9u",
+            "b2RlGA0gASgIEicKBXN0YXRlGA4gASgOMhguZWxlY3Rpb24uQ2FuZGlkYXRl",
+            "U3RhdGUiygIKFEVsZWN0aW9uVm90aW5nUmVjb3JkEhcKBXZvdGVyGAEgASgL",
+            "MgguQWRkcmVzcxIRCgljYW5kaWRhdGUYAiABKAkSDgoGYW1vdW50GAMgASgS",
+            "EhMKC3Rlcm1fbnVtYmVyGAQgASgSEhYKB3ZvdGVfaWQYBSABKAsyBS5IYXNo",
+            "EhEKCWxvY2tfdGltZRgHIAEoERI0ChB1bmxvY2tfdGltZXN0YW1wGAogASgL",
+            "MhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJ3aXRoZHJhd190aW1l",
+            "c3RhbXAYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjIKDnZv",
+            "dGVfdGltZXN0YW1wGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
+            "cBIUCgxpc193aXRoZHJhd24YDSABKAgiVAogUGFnZWFibGVFbGVjdGlvblRp",
+            "Y2tldHNJbmZvSW5wdXQSDQoFc3RhcnQYASABKBISDgoGbGVuZ3RoGAIgASgS",
+            "EhEKCXB1YmxpY0tleRgDIAEoCSIpCghQYWdlSW5mbxINCgVzdGFydBgBIAEo",
+            "EhIOCgZsZW5ndGgYAiABKBIivQEKGkNhbmRpZGF0ZUhpc3RvcnlEaWN0aW9u",
+            "YXJ5EjwKBE1hcHMYASADKAsyLi5lbGVjdGlvbi5DYW5kaWRhdGVIaXN0b3J5",
+            "RGljdGlvbmFyeS5NYXBzRW50cnkSGAoQQ2FuZGlkYXRlc051bWJlchgDIAEo",
+            "EhpHCglNYXBzRW50cnkSCwoDa2V5GAEgASgJEikKBXZhbHVlGAIgASgLMhou",
+            "ZWxlY3Rpb24uQ2FuZGlkYXRlSGlzdG9yeToCOAEiZQoYRWxlY3Rpb25UaWNr",
+            "ZXRzSGlzdG9yaWVzEjAKBlZhbHVlcxgBIAMoCzIgLmVsZWN0aW9uLkVsZWN0",
+            "aW9uVGlja2V0c0hpc3RvcnkSFwoPSGlzdG9yaWVzTnVtYmVyGAIgASgSIrcB",
+            "ChZFbGVjdGlvblRpY2tldHNIaXN0b3J5EhYKDkNhbmRpZGF0ZUFsaWFzGAEg",
+            "ASgJEhMKC1ZvdGVzTnVtYmVyGAIgASgSEi0KCVRpbWVzdGFtcBgDIAEoCzIa",
+            "Lmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFU3RhdGUYBCABKAgSMgoE",
+            "VHlwZRgFIAEoDjIkLmVsZWN0aW9uLkVsZWN0aW9uVGlja2V0c0hpc3RvcnlU",
+            "eXBlIhwKC1N0cmluZ0lucHV0Eg0KBXZhbHVlGAEgASgJIh0KDFN0cmluZ091",
+            "dHB1dBINCgV2YWx1ZRgBIAEoCSIfCg5QdWJsaWNLZXlzTGlzdBINCgV2YWx1",
+            "ZRgBIAMoDCLNAQoMVGVybVNuYXBzaG90EhYKDkVuZFJvdW5kTnVtYmVyGAEg",
+            "ASgSEhMKC1RvdGFsQmxvY2tzGAIgASgSEkQKD0NhbmRpZGF0ZXNWb3RlcxgD",
+            "IAMoCzIrLmVsZWN0aW9uLlRlcm1TbmFwc2hvdC5DYW5kaWRhdGVzVm90ZXNF",
+            "bnRyeRISCgpUZXJtTnVtYmVyGAQgASgSGjYKFENhbmRpZGF0ZXNWb3Rlc0Vu",
+            "dHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoEjoCOAEqQwoOQ2FuZGlk",
+            "YXRlU3RhdGUSEAoMTm90QW5ub3VuY2VkEAASDwoLSXNDYW5kaWRhdGUQARIO",
+            "CgpJc0V2aWxOb2RlEAIqPAoaRWxlY3Rpb25UaWNrZXRzSGlzdG9yeVR5cGUS",
+            "CAoETm9uZRAAEgoKBlJlZGVlbRABEggKBFZvdGUQAkIOqgILQUVsZi5LZXJu",
+            "ZWxiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::AElf.CommonReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::AElf.Kernel.LockTimeUnit), typeof(global::AElf.Kernel.ElectionTicketsHistoryType), }, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.InitialElectionContractInput), global::AElf.Kernel.InitialElectionContractInput.Parser, new[]{ "VoteContractSystemName", "TokenContractSystemName" }, null, null, null),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::AElf.Kernel.CandidateState), typeof(global::AElf.Kernel.ElectionTicketsHistoryType), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.InitialElectionContractInput), global::AElf.Kernel.InitialElectionContractInput.Parser, new[]{ "VoteContractSystemName", "ProfitContractSystemName", "TokenContractSystemName", "AelfConsensusContractSystemName", "MinimumLockTime", "MaximumLockTime" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.RegisterElectionVotingEventInput), global::AElf.Kernel.RegisterElectionVotingEventInput.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CreateTreasuryInput), global::AElf.Kernel.CreateTreasuryInput.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.RegisterToTreasuryInput), global::AElf.Kernel.RegisterToTreasuryInput.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.GetTermSnapshotInput), global::AElf.Kernel.GetTermSnapshotInput.Parser, new[]{ "TermNumber" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.UpdateCandidateInformationInput), global::AElf.Kernel.UpdateCandidateInformationInput.Parser, new[]{ "PublicKey", "RecentlyProducedBlocks", "RecentlyMissedTimeSlots", "IsEvilNode" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ReleaseTreasuryProfitsInput), global::AElf.Kernel.ReleaseTreasuryProfitsInput.Parser, new[]{ "TermNumber", "MinedBlocks", "RoundNumber" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.AnnounceElectionInput), global::AElf.Kernel.AnnounceElectionInput.Parser, new[]{ "Alias" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.VoteMinerInput), global::AElf.Kernel.VoteMinerInput.Parser, new[]{ "CandidatePublicKey", "Amount", "LockTime", "LockTimeUnit" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.UpdateTermNumberInput), global::AElf.Kernel.UpdateTermNumberInput.Parser, new[]{ "TermNumber" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.GetElectionResultInput), global::AElf.Kernel.GetElectionResultInput.Parser, new[]{ "TermNumber" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionResult), global::AElf.Kernel.ElectionResult.Parser, new[]{ "TermNumber", "Results", "IsActive" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.Votes), global::AElf.Kernel.Votes.Parser, new[]{ "ActiveVotes", "WithdrawnVotes" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CandidateHistory), global::AElf.Kernel.CandidateHistory.Parser, new[]{ "PublicKey", "Terms", "ProducedBlocks", "MissedTimeSlots", "ContinualAppointmentCount", "ReappointmentCount", "Aliases", "CurrentAlias", "CurrentVotesNumber", "Address", "AnnouncementTransactionId", "IsEvilNode" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionTickets), global::AElf.Kernel.ElectionTickets.Parser, new[]{ "ElectionVotingRecords", "VotingRecordsCount", "ObtainedTickets", "VotedTickets", "HistoryObtainedTickets", "HistoryVotedTickets", "VoteToTransactions", "VoteFromTransactions", "PublicKey" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionVotingRecord), global::AElf.Kernel.ElectionVotingRecord.Parser, new[]{ "From", "To", "Count", "RoundNumber", "TransactionId", "VoteAge", "LockDaysList", "UnlockAge", "TermNumber", "UnlockTimestamp", "WithdrawTimestamp", "VoteTimestamp", "IsWithdrawn" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.Votes), global::AElf.Kernel.Votes.Parser, new[]{ "ActiveVotesIds", "WithdrawnVotesIds", "ObtainedActiveVotesIds", "ObtainedWithdrawnVotesIds", "ValidObtainedVotesAmount", "ValidVotedVotesAmount", "AllObtainedVotesAmount", "AllVotedVotesAmount", "PublicKey", "ActiveVotesRecords", "WithdrawnVotesRecords", "ObtainedActiveVotesRecords", "ObtainedWithdrawnVotesRecords" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CandidateHistory), global::AElf.Kernel.CandidateHistory.Parser, new[]{ "PublicKey", "Terms", "ProducedBlocks", "MissedTimeSlots", "ContinualAppointmentCount", "ReappointmentCount", "Aliases", "CurrentAlias", "CurrentVotesNumber", "AnnouncementTransactionId", "IsEvilNode", "State" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionVotingRecord), global::AElf.Kernel.ElectionVotingRecord.Parser, new[]{ "Voter", "Candidate", "Amount", "TermNumber", "VoteId", "LockTime", "UnlockTimestamp", "WithdrawTimestamp", "VoteTimestamp", "IsWithdrawn" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.PageableElectionTicketsInfoInput), global::AElf.Kernel.PageableElectionTicketsInfoInput.Parser, new[]{ "Start", "Length", "PublicKey" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.PageInfo), global::AElf.Kernel.PageInfo.Parser, new[]{ "Start", "Length" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.CandidateHistoryDictionary), global::AElf.Kernel.CandidateHistoryDictionary.Parser, new[]{ "Maps", "CandidatesNumber" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionTicketsHistories), global::AElf.Kernel.ElectionTicketsHistories.Parser, new[]{ "Values", "HistoriesNumber" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.ElectionTicketsHistory), global::AElf.Kernel.ElectionTicketsHistory.Parser, new[]{ "CandidateAlias", "VotesNumber", "Timestamp", "State", "Type" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.StringInput), global::AElf.Kernel.StringInput.Parser, new[]{ "Value" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.StringOutput), global::AElf.Kernel.StringOutput.Parser, new[]{ "Value" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.StringOutput), global::AElf.Kernel.StringOutput.Parser, new[]{ "Value" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.PublicKeysList), global::AElf.Kernel.PublicKeysList.Parser, new[]{ "Value" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AElf.Kernel.TermSnapshot), global::AElf.Kernel.TermSnapshot.Parser, new[]{ "EndRoundNumber", "TotalBlocks", "CandidatesVotes", "TermNumber" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
 
   }
   #region Enums
-  public enum LockTimeUnit {
-    [pbr::OriginalName("Days")] Days = 0,
-    [pbr::OriginalName("Mouths")] Mouths = 1,
+  public enum CandidateState {
+    [pbr::OriginalName("NotAnnounced")] NotAnnounced = 0,
+    [pbr::OriginalName("IsCandidate")] IsCandidate = 1,
+    [pbr::OriginalName("IsEvilNode")] IsEvilNode = 2,
   }
 
   public enum ElectionTicketsHistoryType {
@@ -146,7 +176,11 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public InitialElectionContractInput(InitialElectionContractInput other) : this() {
       voteContractSystemName_ = other.voteContractSystemName_ != null ? other.voteContractSystemName_.Clone() : null;
+      profitContractSystemName_ = other.profitContractSystemName_ != null ? other.profitContractSystemName_.Clone() : null;
       tokenContractSystemName_ = other.tokenContractSystemName_ != null ? other.tokenContractSystemName_.Clone() : null;
+      aelfConsensusContractSystemName_ = other.aelfConsensusContractSystemName_ != null ? other.aelfConsensusContractSystemName_.Clone() : null;
+      minimumLockTime_ = other.minimumLockTime_;
+      maximumLockTime_ = other.maximumLockTime_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -166,14 +200,58 @@ namespace AElf.Kernel {
       }
     }
 
+    /// <summary>Field number for the "profit_contract_system_name" field.</summary>
+    public const int ProfitContractSystemNameFieldNumber = 2;
+    private global::AElf.Hash profitContractSystemName_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Hash ProfitContractSystemName {
+      get { return profitContractSystemName_; }
+      set {
+        profitContractSystemName_ = value;
+      }
+    }
+
     /// <summary>Field number for the "token_contract_system_name" field.</summary>
-    public const int TokenContractSystemNameFieldNumber = 2;
+    public const int TokenContractSystemNameFieldNumber = 3;
     private global::AElf.Hash tokenContractSystemName_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::AElf.Hash TokenContractSystemName {
       get { return tokenContractSystemName_; }
       set {
         tokenContractSystemName_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "aelf_consensus_contract_system_name" field.</summary>
+    public const int AelfConsensusContractSystemNameFieldNumber = 4;
+    private global::AElf.Hash aelfConsensusContractSystemName_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Hash AelfConsensusContractSystemName {
+      get { return aelfConsensusContractSystemName_; }
+      set {
+        aelfConsensusContractSystemName_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "minimum_lock_time" field.</summary>
+    public const int MinimumLockTimeFieldNumber = 5;
+    private int minimumLockTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int MinimumLockTime {
+      get { return minimumLockTime_; }
+      set {
+        minimumLockTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "maximum_lock_time" field.</summary>
+    public const int MaximumLockTimeFieldNumber = 6;
+    private int maximumLockTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int MaximumLockTime {
+      get { return maximumLockTime_; }
+      set {
+        maximumLockTime_ = value;
       }
     }
 
@@ -191,7 +269,11 @@ namespace AElf.Kernel {
         return true;
       }
       if (!object.Equals(VoteContractSystemName, other.VoteContractSystemName)) return false;
+      if (!object.Equals(ProfitContractSystemName, other.ProfitContractSystemName)) return false;
       if (!object.Equals(TokenContractSystemName, other.TokenContractSystemName)) return false;
+      if (!object.Equals(AelfConsensusContractSystemName, other.AelfConsensusContractSystemName)) return false;
+      if (MinimumLockTime != other.MinimumLockTime) return false;
+      if (MaximumLockTime != other.MaximumLockTime) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -199,7 +281,11 @@ namespace AElf.Kernel {
     public override int GetHashCode() {
       int hash = 1;
       if (voteContractSystemName_ != null) hash ^= VoteContractSystemName.GetHashCode();
+      if (profitContractSystemName_ != null) hash ^= ProfitContractSystemName.GetHashCode();
       if (tokenContractSystemName_ != null) hash ^= TokenContractSystemName.GetHashCode();
+      if (aelfConsensusContractSystemName_ != null) hash ^= AelfConsensusContractSystemName.GetHashCode();
+      if (MinimumLockTime != 0) hash ^= MinimumLockTime.GetHashCode();
+      if (MaximumLockTime != 0) hash ^= MaximumLockTime.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -217,9 +303,25 @@ namespace AElf.Kernel {
         output.WriteRawTag(10);
         output.WriteMessage(VoteContractSystemName);
       }
-      if (tokenContractSystemName_ != null) {
+      if (profitContractSystemName_ != null) {
         output.WriteRawTag(18);
+        output.WriteMessage(ProfitContractSystemName);
+      }
+      if (tokenContractSystemName_ != null) {
+        output.WriteRawTag(26);
         output.WriteMessage(TokenContractSystemName);
+      }
+      if (aelfConsensusContractSystemName_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(AelfConsensusContractSystemName);
+      }
+      if (MinimumLockTime != 0) {
+        output.WriteRawTag(40);
+        output.WriteSInt32(MinimumLockTime);
+      }
+      if (MaximumLockTime != 0) {
+        output.WriteRawTag(48);
+        output.WriteSInt32(MaximumLockTime);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -232,8 +334,20 @@ namespace AElf.Kernel {
       if (voteContractSystemName_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(VoteContractSystemName);
       }
+      if (profitContractSystemName_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ProfitContractSystemName);
+      }
       if (tokenContractSystemName_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(TokenContractSystemName);
+      }
+      if (aelfConsensusContractSystemName_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(AelfConsensusContractSystemName);
+      }
+      if (MinimumLockTime != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(MinimumLockTime);
+      }
+      if (MaximumLockTime != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(MaximumLockTime);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -252,11 +366,29 @@ namespace AElf.Kernel {
         }
         VoteContractSystemName.MergeFrom(other.VoteContractSystemName);
       }
+      if (other.profitContractSystemName_ != null) {
+        if (profitContractSystemName_ == null) {
+          ProfitContractSystemName = new global::AElf.Hash();
+        }
+        ProfitContractSystemName.MergeFrom(other.ProfitContractSystemName);
+      }
       if (other.tokenContractSystemName_ != null) {
         if (tokenContractSystemName_ == null) {
           TokenContractSystemName = new global::AElf.Hash();
         }
         TokenContractSystemName.MergeFrom(other.TokenContractSystemName);
+      }
+      if (other.aelfConsensusContractSystemName_ != null) {
+        if (aelfConsensusContractSystemName_ == null) {
+          AelfConsensusContractSystemName = new global::AElf.Hash();
+        }
+        AelfConsensusContractSystemName.MergeFrom(other.AelfConsensusContractSystemName);
+      }
+      if (other.MinimumLockTime != 0) {
+        MinimumLockTime = other.MinimumLockTime;
+      }
+      if (other.MaximumLockTime != 0) {
+        MaximumLockTime = other.MaximumLockTime;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -277,10 +409,862 @@ namespace AElf.Kernel {
             break;
           }
           case 18: {
+            if (profitContractSystemName_ == null) {
+              ProfitContractSystemName = new global::AElf.Hash();
+            }
+            input.ReadMessage(ProfitContractSystemName);
+            break;
+          }
+          case 26: {
             if (tokenContractSystemName_ == null) {
               TokenContractSystemName = new global::AElf.Hash();
             }
             input.ReadMessage(TokenContractSystemName);
+            break;
+          }
+          case 34: {
+            if (aelfConsensusContractSystemName_ == null) {
+              AelfConsensusContractSystemName = new global::AElf.Hash();
+            }
+            input.ReadMessage(AelfConsensusContractSystemName);
+            break;
+          }
+          case 40: {
+            MinimumLockTime = input.ReadSInt32();
+            break;
+          }
+          case 48: {
+            MaximumLockTime = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class RegisterElectionVotingEventInput : pb::IMessage<RegisterElectionVotingEventInput> {
+    private static readonly pb::MessageParser<RegisterElectionVotingEventInput> _parser = new pb::MessageParser<RegisterElectionVotingEventInput>(() => new RegisterElectionVotingEventInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<RegisterElectionVotingEventInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterElectionVotingEventInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterElectionVotingEventInput(RegisterElectionVotingEventInput other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterElectionVotingEventInput Clone() {
+      return new RegisterElectionVotingEventInput(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as RegisterElectionVotingEventInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(RegisterElectionVotingEventInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(RegisterElectionVotingEventInput other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class CreateTreasuryInput : pb::IMessage<CreateTreasuryInput> {
+    private static readonly pb::MessageParser<CreateTreasuryInput> _parser = new pb::MessageParser<CreateTreasuryInput>(() => new CreateTreasuryInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<CreateTreasuryInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateTreasuryInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateTreasuryInput(CreateTreasuryInput other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateTreasuryInput Clone() {
+      return new CreateTreasuryInput(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as CreateTreasuryInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(CreateTreasuryInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(CreateTreasuryInput other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class RegisterToTreasuryInput : pb::IMessage<RegisterToTreasuryInput> {
+    private static readonly pb::MessageParser<RegisterToTreasuryInput> _parser = new pb::MessageParser<RegisterToTreasuryInput>(() => new RegisterToTreasuryInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<RegisterToTreasuryInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterToTreasuryInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterToTreasuryInput(RegisterToTreasuryInput other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RegisterToTreasuryInput Clone() {
+      return new RegisterToTreasuryInput(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as RegisterToTreasuryInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(RegisterToTreasuryInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(RegisterToTreasuryInput other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class GetTermSnapshotInput : pb::IMessage<GetTermSnapshotInput> {
+    private static readonly pb::MessageParser<GetTermSnapshotInput> _parser = new pb::MessageParser<GetTermSnapshotInput>(() => new GetTermSnapshotInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<GetTermSnapshotInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetTermSnapshotInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetTermSnapshotInput(GetTermSnapshotInput other) : this() {
+      termNumber_ = other.termNumber_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetTermSnapshotInput Clone() {
+      return new GetTermSnapshotInput(this);
+    }
+
+    /// <summary>Field number for the "term_number" field.</summary>
+    public const int TermNumberFieldNumber = 1;
+    private long termNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long TermNumber {
+      get { return termNumber_; }
+      set {
+        termNumber_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetTermSnapshotInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetTermSnapshotInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (TermNumber != other.TermNumber) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (TermNumber != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(TermNumber);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetTermSnapshotInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.TermNumber != 0L) {
+        TermNumber = other.TermNumber;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            TermNumber = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class UpdateCandidateInformationInput : pb::IMessage<UpdateCandidateInformationInput> {
+    private static readonly pb::MessageParser<UpdateCandidateInformationInput> _parser = new pb::MessageParser<UpdateCandidateInformationInput>(() => new UpdateCandidateInformationInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<UpdateCandidateInformationInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateCandidateInformationInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateCandidateInformationInput(UpdateCandidateInformationInput other) : this() {
+      publicKey_ = other.publicKey_;
+      recentlyProducedBlocks_ = other.recentlyProducedBlocks_;
+      recentlyMissedTimeSlots_ = other.recentlyMissedTimeSlots_;
+      isEvilNode_ = other.isEvilNode_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateCandidateInformationInput Clone() {
+      return new UpdateCandidateInformationInput(this);
+    }
+
+    /// <summary>Field number for the "public_key" field.</summary>
+    public const int PublicKeyFieldNumber = 1;
+    private string publicKey_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string PublicKey {
+      get { return publicKey_; }
+      set {
+        publicKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "recently_produced_blocks" field.</summary>
+    public const int RecentlyProducedBlocksFieldNumber = 2;
+    private long recentlyProducedBlocks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long RecentlyProducedBlocks {
+      get { return recentlyProducedBlocks_; }
+      set {
+        recentlyProducedBlocks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "recently_missed_time_slots" field.</summary>
+    public const int RecentlyMissedTimeSlotsFieldNumber = 3;
+    private long recentlyMissedTimeSlots_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long RecentlyMissedTimeSlots {
+      get { return recentlyMissedTimeSlots_; }
+      set {
+        recentlyMissedTimeSlots_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "is_evil_node" field.</summary>
+    public const int IsEvilNodeFieldNumber = 4;
+    private bool isEvilNode_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool IsEvilNode {
+      get { return isEvilNode_; }
+      set {
+        isEvilNode_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as UpdateCandidateInformationInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(UpdateCandidateInformationInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (PublicKey != other.PublicKey) return false;
+      if (RecentlyProducedBlocks != other.RecentlyProducedBlocks) return false;
+      if (RecentlyMissedTimeSlots != other.RecentlyMissedTimeSlots) return false;
+      if (IsEvilNode != other.IsEvilNode) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
+      if (RecentlyProducedBlocks != 0L) hash ^= RecentlyProducedBlocks.GetHashCode();
+      if (RecentlyMissedTimeSlots != 0L) hash ^= RecentlyMissedTimeSlots.GetHashCode();
+      if (IsEvilNode != false) hash ^= IsEvilNode.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (PublicKey.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(PublicKey);
+      }
+      if (RecentlyProducedBlocks != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(RecentlyProducedBlocks);
+      }
+      if (RecentlyMissedTimeSlots != 0L) {
+        output.WriteRawTag(24);
+        output.WriteSInt64(RecentlyMissedTimeSlots);
+      }
+      if (IsEvilNode != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(IsEvilNode);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (PublicKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PublicKey);
+      }
+      if (RecentlyProducedBlocks != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(RecentlyProducedBlocks);
+      }
+      if (RecentlyMissedTimeSlots != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(RecentlyMissedTimeSlots);
+      }
+      if (IsEvilNode != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(UpdateCandidateInformationInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.PublicKey.Length != 0) {
+        PublicKey = other.PublicKey;
+      }
+      if (other.RecentlyProducedBlocks != 0L) {
+        RecentlyProducedBlocks = other.RecentlyProducedBlocks;
+      }
+      if (other.RecentlyMissedTimeSlots != 0L) {
+        RecentlyMissedTimeSlots = other.RecentlyMissedTimeSlots;
+      }
+      if (other.IsEvilNode != false) {
+        IsEvilNode = other.IsEvilNode;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            PublicKey = input.ReadString();
+            break;
+          }
+          case 16: {
+            RecentlyProducedBlocks = input.ReadSInt64();
+            break;
+          }
+          case 24: {
+            RecentlyMissedTimeSlots = input.ReadSInt64();
+            break;
+          }
+          case 32: {
+            IsEvilNode = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class ReleaseTreasuryProfitsInput : pb::IMessage<ReleaseTreasuryProfitsInput> {
+    private static readonly pb::MessageParser<ReleaseTreasuryProfitsInput> _parser = new pb::MessageParser<ReleaseTreasuryProfitsInput>(() => new ReleaseTreasuryProfitsInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ReleaseTreasuryProfitsInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ReleaseTreasuryProfitsInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ReleaseTreasuryProfitsInput(ReleaseTreasuryProfitsInput other) : this() {
+      termNumber_ = other.termNumber_;
+      minedBlocks_ = other.minedBlocks_;
+      roundNumber_ = other.roundNumber_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ReleaseTreasuryProfitsInput Clone() {
+      return new ReleaseTreasuryProfitsInput(this);
+    }
+
+    /// <summary>Field number for the "term_number" field.</summary>
+    public const int TermNumberFieldNumber = 1;
+    private long termNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long TermNumber {
+      get { return termNumber_; }
+      set {
+        termNumber_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mined_blocks" field.</summary>
+    public const int MinedBlocksFieldNumber = 2;
+    private long minedBlocks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long MinedBlocks {
+      get { return minedBlocks_; }
+      set {
+        minedBlocks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "round_number" field.</summary>
+    public const int RoundNumberFieldNumber = 3;
+    private long roundNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long RoundNumber {
+      get { return roundNumber_; }
+      set {
+        roundNumber_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ReleaseTreasuryProfitsInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ReleaseTreasuryProfitsInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (TermNumber != other.TermNumber) return false;
+      if (MinedBlocks != other.MinedBlocks) return false;
+      if (RoundNumber != other.RoundNumber) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
+      if (MinedBlocks != 0L) hash ^= MinedBlocks.GetHashCode();
+      if (RoundNumber != 0L) hash ^= RoundNumber.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (TermNumber != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(TermNumber);
+      }
+      if (MinedBlocks != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(MinedBlocks);
+      }
+      if (RoundNumber != 0L) {
+        output.WriteRawTag(24);
+        output.WriteSInt64(RoundNumber);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
+      }
+      if (MinedBlocks != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(MinedBlocks);
+      }
+      if (RoundNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(RoundNumber);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ReleaseTreasuryProfitsInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.TermNumber != 0L) {
+        TermNumber = other.TermNumber;
+      }
+      if (other.MinedBlocks != 0L) {
+        MinedBlocks = other.MinedBlocks;
+      }
+      if (other.RoundNumber != 0L) {
+        RoundNumber = other.RoundNumber;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            TermNumber = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            MinedBlocks = input.ReadSInt64();
+            break;
+          }
+          case 24: {
+            RoundNumber = input.ReadSInt64();
             break;
           }
         }
@@ -297,7 +1281,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[1]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -426,7 +1410,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[2]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -488,11 +1472,11 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "LockTimeUnit" field.</summary>
+    /// <summary>Field number for the "lock_time_unit" field.</summary>
     public const int LockTimeUnitFieldNumber = 4;
-    private global::AElf.Kernel.LockTimeUnit lockTimeUnit_ = 0;
+    private global::AElf.TimeUnit lockTimeUnit_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Kernel.LockTimeUnit LockTimeUnit {
+    public global::AElf.TimeUnit LockTimeUnit {
       get { return lockTimeUnit_; }
       set {
         lockTimeUnit_ = value;
@@ -622,7 +1606,7 @@ namespace AElf.Kernel {
             break;
           }
           case 32: {
-            LockTimeUnit = (global::AElf.Kernel.LockTimeUnit) input.ReadEnum();
+            LockTimeUnit = (global::AElf.TimeUnit) input.ReadEnum();
             break;
           }
         }
@@ -639,7 +1623,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[3]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -667,9 +1651,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "term_number" field.</summary>
     public const int TermNumberFieldNumber = 1;
-    private int termNumber_;
+    private long termNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int TermNumber {
+    public long TermNumber {
       get { return termNumber_; }
       set {
         termNumber_ = value;
@@ -696,7 +1680,7 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (TermNumber != 0) hash ^= TermNumber.GetHashCode();
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -710,9 +1694,9 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (TermNumber != 0) {
+      if (TermNumber != 0L) {
         output.WriteRawTag(8);
-        output.WriteSInt32(TermNumber);
+        output.WriteSInt64(TermNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -722,8 +1706,8 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (TermNumber != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(TermNumber);
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -736,7 +1720,7 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.TermNumber != 0) {
+      if (other.TermNumber != 0L) {
         TermNumber = other.TermNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -751,7 +1735,7 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            TermNumber = input.ReadSInt32();
+            TermNumber = input.ReadSInt64();
             break;
           }
         }
@@ -768,7 +1752,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[4]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -796,9 +1780,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "term_number" field.</summary>
     public const int TermNumberFieldNumber = 1;
-    private int termNumber_;
+    private long termNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int TermNumber {
+    public long TermNumber {
       get { return termNumber_; }
       set {
         termNumber_ = value;
@@ -825,7 +1809,7 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (TermNumber != 0) hash ^= TermNumber.GetHashCode();
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -839,9 +1823,9 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (TermNumber != 0) {
+      if (TermNumber != 0L) {
         output.WriteRawTag(8);
-        output.WriteSInt32(TermNumber);
+        output.WriteSInt64(TermNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -851,8 +1835,8 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (TermNumber != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(TermNumber);
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -865,7 +1849,7 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.TermNumber != 0) {
+      if (other.TermNumber != 0L) {
         TermNumber = other.TermNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -880,7 +1864,7 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            TermNumber = input.ReadSInt32();
+            TermNumber = input.ReadSInt64();
             break;
           }
         }
@@ -897,7 +1881,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[5]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -927,9 +1911,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "term_number" field.</summary>
     public const int TermNumberFieldNumber = 1;
-    private int termNumber_;
+    private long termNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int TermNumber {
+    public long TermNumber {
       get { return termNumber_; }
       set {
         termNumber_ = value;
@@ -979,7 +1963,7 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (TermNumber != 0) hash ^= TermNumber.GetHashCode();
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
       hash ^= Results.GetHashCode();
       if (IsActive != false) hash ^= IsActive.GetHashCode();
       if (_unknownFields != null) {
@@ -995,9 +1979,9 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (TermNumber != 0) {
+      if (TermNumber != 0L) {
         output.WriteRawTag(8);
-        output.WriteSInt32(TermNumber);
+        output.WriteSInt64(TermNumber);
       }
       results_.WriteTo(output, _map_results_codec);
       if (IsActive != false) {
@@ -1012,8 +1996,8 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (TermNumber != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(TermNumber);
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
       }
       size += results_.CalculateSize(_map_results_codec);
       if (IsActive != false) {
@@ -1030,7 +2014,7 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.TermNumber != 0) {
+      if (other.TermNumber != 0L) {
         TermNumber = other.TermNumber;
       }
       results_.Add(other.results_);
@@ -1049,7 +2033,7 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            TermNumber = input.ReadSInt32();
+            TermNumber = input.ReadSInt64();
             break;
           }
           case 18: {
@@ -1074,7 +2058,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[6]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1091,8 +2075,19 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Votes(Votes other) : this() {
-      activeVotes_ = other.activeVotes_.Clone();
-      withdrawnVotes_ = other.withdrawnVotes_.Clone();
+      activeVotesIds_ = other.activeVotesIds_.Clone();
+      withdrawnVotesIds_ = other.withdrawnVotesIds_.Clone();
+      obtainedActiveVotesIds_ = other.obtainedActiveVotesIds_.Clone();
+      obtainedWithdrawnVotesIds_ = other.obtainedWithdrawnVotesIds_.Clone();
+      validObtainedVotesAmount_ = other.validObtainedVotesAmount_;
+      validVotedVotesAmount_ = other.validVotedVotesAmount_;
+      allObtainedVotesAmount_ = other.allObtainedVotesAmount_;
+      allVotedVotesAmount_ = other.allVotedVotesAmount_;
+      publicKey_ = other.publicKey_;
+      activeVotesRecords_ = other.activeVotesRecords_.Clone();
+      withdrawnVotesRecords_ = other.withdrawnVotesRecords_.Clone();
+      obtainedActiveVotesRecords_ = other.obtainedActiveVotesRecords_.Clone();
+      obtainedWithdrawnVotesRecords_ = other.obtainedWithdrawnVotesRecords_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1101,24 +2096,139 @@ namespace AElf.Kernel {
       return new Votes(this);
     }
 
-    /// <summary>Field number for the "active_votes" field.</summary>
-    public const int ActiveVotesFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_activeVotes_codec
+    /// <summary>Field number for the "active_votes_ids" field.</summary>
+    public const int ActiveVotesIdsFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_activeVotesIds_codec
         = pb::FieldCodec.ForMessage(10, global::AElf.Hash.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Hash> activeVotes_ = new pbc::RepeatedField<global::AElf.Hash>();
+    private readonly pbc::RepeatedField<global::AElf.Hash> activeVotesIds_ = new pbc::RepeatedField<global::AElf.Hash>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Hash> ActiveVotes {
-      get { return activeVotes_; }
+    public pbc::RepeatedField<global::AElf.Hash> ActiveVotesIds {
+      get { return activeVotesIds_; }
     }
 
-    /// <summary>Field number for the "withdrawn_votes" field.</summary>
-    public const int WithdrawnVotesFieldNumber = 2;
-    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_withdrawnVotes_codec
+    /// <summary>Field number for the "withdrawn_votes_ids" field.</summary>
+    public const int WithdrawnVotesIdsFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_withdrawnVotesIds_codec
         = pb::FieldCodec.ForMessage(18, global::AElf.Hash.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Hash> withdrawnVotes_ = new pbc::RepeatedField<global::AElf.Hash>();
+    private readonly pbc::RepeatedField<global::AElf.Hash> withdrawnVotesIds_ = new pbc::RepeatedField<global::AElf.Hash>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Hash> WithdrawnVotes {
-      get { return withdrawnVotes_; }
+    public pbc::RepeatedField<global::AElf.Hash> WithdrawnVotesIds {
+      get { return withdrawnVotesIds_; }
+    }
+
+    /// <summary>Field number for the "obtained_active_votes_ids" field.</summary>
+    public const int ObtainedActiveVotesIdsFieldNumber = 3;
+    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_obtainedActiveVotesIds_codec
+        = pb::FieldCodec.ForMessage(26, global::AElf.Hash.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Hash> obtainedActiveVotesIds_ = new pbc::RepeatedField<global::AElf.Hash>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Hash> ObtainedActiveVotesIds {
+      get { return obtainedActiveVotesIds_; }
+    }
+
+    /// <summary>Field number for the "obtained_withdrawn_votes_ids" field.</summary>
+    public const int ObtainedWithdrawnVotesIdsFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_obtainedWithdrawnVotesIds_codec
+        = pb::FieldCodec.ForMessage(34, global::AElf.Hash.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Hash> obtainedWithdrawnVotesIds_ = new pbc::RepeatedField<global::AElf.Hash>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Hash> ObtainedWithdrawnVotesIds {
+      get { return obtainedWithdrawnVotesIds_; }
+    }
+
+    /// <summary>Field number for the "valid_obtained_votes_amount" field.</summary>
+    public const int ValidObtainedVotesAmountFieldNumber = 5;
+    private long validObtainedVotesAmount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long ValidObtainedVotesAmount {
+      get { return validObtainedVotesAmount_; }
+      set {
+        validObtainedVotesAmount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "valid_voted_votes_amount" field.</summary>
+    public const int ValidVotedVotesAmountFieldNumber = 6;
+    private long validVotedVotesAmount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long ValidVotedVotesAmount {
+      get { return validVotedVotesAmount_; }
+      set {
+        validVotedVotesAmount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "all_obtained_votes_amount" field.</summary>
+    public const int AllObtainedVotesAmountFieldNumber = 7;
+    private long allObtainedVotesAmount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long AllObtainedVotesAmount {
+      get { return allObtainedVotesAmount_; }
+      set {
+        allObtainedVotesAmount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "all_voted_votes_amount" field.</summary>
+    public const int AllVotedVotesAmountFieldNumber = 8;
+    private long allVotedVotesAmount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long AllVotedVotesAmount {
+      get { return allVotedVotesAmount_; }
+      set {
+        allVotedVotesAmount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "public_key" field.</summary>
+    public const int PublicKeyFieldNumber = 9;
+    private pb::ByteString publicKey_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString PublicKey {
+      get { return publicKey_; }
+      set {
+        publicKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "active_votes_records" field.</summary>
+    public const int ActiveVotesRecordsFieldNumber = 10;
+    private static readonly pb::FieldCodec<global::AElf.Kernel.ElectionVotingRecord> _repeated_activeVotesRecords_codec
+        = pb::FieldCodec.ForMessage(82, global::AElf.Kernel.ElectionVotingRecord.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> activeVotesRecords_ = new pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> ActiveVotesRecords {
+      get { return activeVotesRecords_; }
+    }
+
+    /// <summary>Field number for the "withdrawn_votes_records" field.</summary>
+    public const int WithdrawnVotesRecordsFieldNumber = 11;
+    private static readonly pb::FieldCodec<global::AElf.Kernel.ElectionVotingRecord> _repeated_withdrawnVotesRecords_codec
+        = pb::FieldCodec.ForMessage(90, global::AElf.Kernel.ElectionVotingRecord.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> withdrawnVotesRecords_ = new pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> WithdrawnVotesRecords {
+      get { return withdrawnVotesRecords_; }
+    }
+
+    /// <summary>Field number for the "obtained_active_votes_records" field.</summary>
+    public const int ObtainedActiveVotesRecordsFieldNumber = 12;
+    private static readonly pb::FieldCodec<global::AElf.Kernel.ElectionVotingRecord> _repeated_obtainedActiveVotesRecords_codec
+        = pb::FieldCodec.ForMessage(98, global::AElf.Kernel.ElectionVotingRecord.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> obtainedActiveVotesRecords_ = new pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> ObtainedActiveVotesRecords {
+      get { return obtainedActiveVotesRecords_; }
+    }
+
+    /// <summary>Field number for the "obtained_withdrawn_votes_records" field.</summary>
+    public const int ObtainedWithdrawnVotesRecordsFieldNumber = 13;
+    private static readonly pb::FieldCodec<global::AElf.Kernel.ElectionVotingRecord> _repeated_obtainedWithdrawnVotesRecords_codec
+        = pb::FieldCodec.ForMessage(106, global::AElf.Kernel.ElectionVotingRecord.Parser);
+    private readonly pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> obtainedWithdrawnVotesRecords_ = new pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> ObtainedWithdrawnVotesRecords {
+      get { return obtainedWithdrawnVotesRecords_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1134,16 +2244,38 @@ namespace AElf.Kernel {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if(!activeVotes_.Equals(other.activeVotes_)) return false;
-      if(!withdrawnVotes_.Equals(other.withdrawnVotes_)) return false;
+      if(!activeVotesIds_.Equals(other.activeVotesIds_)) return false;
+      if(!withdrawnVotesIds_.Equals(other.withdrawnVotesIds_)) return false;
+      if(!obtainedActiveVotesIds_.Equals(other.obtainedActiveVotesIds_)) return false;
+      if(!obtainedWithdrawnVotesIds_.Equals(other.obtainedWithdrawnVotesIds_)) return false;
+      if (ValidObtainedVotesAmount != other.ValidObtainedVotesAmount) return false;
+      if (ValidVotedVotesAmount != other.ValidVotedVotesAmount) return false;
+      if (AllObtainedVotesAmount != other.AllObtainedVotesAmount) return false;
+      if (AllVotedVotesAmount != other.AllVotedVotesAmount) return false;
+      if (PublicKey != other.PublicKey) return false;
+      if(!activeVotesRecords_.Equals(other.activeVotesRecords_)) return false;
+      if(!withdrawnVotesRecords_.Equals(other.withdrawnVotesRecords_)) return false;
+      if(!obtainedActiveVotesRecords_.Equals(other.obtainedActiveVotesRecords_)) return false;
+      if(!obtainedWithdrawnVotesRecords_.Equals(other.obtainedWithdrawnVotesRecords_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= activeVotes_.GetHashCode();
-      hash ^= withdrawnVotes_.GetHashCode();
+      hash ^= activeVotesIds_.GetHashCode();
+      hash ^= withdrawnVotesIds_.GetHashCode();
+      hash ^= obtainedActiveVotesIds_.GetHashCode();
+      hash ^= obtainedWithdrawnVotesIds_.GetHashCode();
+      if (ValidObtainedVotesAmount != 0L) hash ^= ValidObtainedVotesAmount.GetHashCode();
+      if (ValidVotedVotesAmount != 0L) hash ^= ValidVotedVotesAmount.GetHashCode();
+      if (AllObtainedVotesAmount != 0L) hash ^= AllObtainedVotesAmount.GetHashCode();
+      if (AllVotedVotesAmount != 0L) hash ^= AllVotedVotesAmount.GetHashCode();
+      if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
+      hash ^= activeVotesRecords_.GetHashCode();
+      hash ^= withdrawnVotesRecords_.GetHashCode();
+      hash ^= obtainedActiveVotesRecords_.GetHashCode();
+      hash ^= obtainedWithdrawnVotesRecords_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1157,8 +2289,34 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      activeVotes_.WriteTo(output, _repeated_activeVotes_codec);
-      withdrawnVotes_.WriteTo(output, _repeated_withdrawnVotes_codec);
+      activeVotesIds_.WriteTo(output, _repeated_activeVotesIds_codec);
+      withdrawnVotesIds_.WriteTo(output, _repeated_withdrawnVotesIds_codec);
+      obtainedActiveVotesIds_.WriteTo(output, _repeated_obtainedActiveVotesIds_codec);
+      obtainedWithdrawnVotesIds_.WriteTo(output, _repeated_obtainedWithdrawnVotesIds_codec);
+      if (ValidObtainedVotesAmount != 0L) {
+        output.WriteRawTag(40);
+        output.WriteSInt64(ValidObtainedVotesAmount);
+      }
+      if (ValidVotedVotesAmount != 0L) {
+        output.WriteRawTag(48);
+        output.WriteSInt64(ValidVotedVotesAmount);
+      }
+      if (AllObtainedVotesAmount != 0L) {
+        output.WriteRawTag(56);
+        output.WriteSInt64(AllObtainedVotesAmount);
+      }
+      if (AllVotedVotesAmount != 0L) {
+        output.WriteRawTag(64);
+        output.WriteSInt64(AllVotedVotesAmount);
+      }
+      if (PublicKey.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteBytes(PublicKey);
+      }
+      activeVotesRecords_.WriteTo(output, _repeated_activeVotesRecords_codec);
+      withdrawnVotesRecords_.WriteTo(output, _repeated_withdrawnVotesRecords_codec);
+      obtainedActiveVotesRecords_.WriteTo(output, _repeated_obtainedActiveVotesRecords_codec);
+      obtainedWithdrawnVotesRecords_.WriteTo(output, _repeated_obtainedWithdrawnVotesRecords_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1167,8 +2325,29 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      size += activeVotes_.CalculateSize(_repeated_activeVotes_codec);
-      size += withdrawnVotes_.CalculateSize(_repeated_withdrawnVotes_codec);
+      size += activeVotesIds_.CalculateSize(_repeated_activeVotesIds_codec);
+      size += withdrawnVotesIds_.CalculateSize(_repeated_withdrawnVotesIds_codec);
+      size += obtainedActiveVotesIds_.CalculateSize(_repeated_obtainedActiveVotesIds_codec);
+      size += obtainedWithdrawnVotesIds_.CalculateSize(_repeated_obtainedWithdrawnVotesIds_codec);
+      if (ValidObtainedVotesAmount != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ValidObtainedVotesAmount);
+      }
+      if (ValidVotedVotesAmount != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ValidVotedVotesAmount);
+      }
+      if (AllObtainedVotesAmount != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(AllObtainedVotesAmount);
+      }
+      if (AllVotedVotesAmount != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(AllVotedVotesAmount);
+      }
+      if (PublicKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(PublicKey);
+      }
+      size += activeVotesRecords_.CalculateSize(_repeated_activeVotesRecords_codec);
+      size += withdrawnVotesRecords_.CalculateSize(_repeated_withdrawnVotesRecords_codec);
+      size += obtainedActiveVotesRecords_.CalculateSize(_repeated_obtainedActiveVotesRecords_codec);
+      size += obtainedWithdrawnVotesRecords_.CalculateSize(_repeated_obtainedWithdrawnVotesRecords_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1180,8 +2359,29 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      activeVotes_.Add(other.activeVotes_);
-      withdrawnVotes_.Add(other.withdrawnVotes_);
+      activeVotesIds_.Add(other.activeVotesIds_);
+      withdrawnVotesIds_.Add(other.withdrawnVotesIds_);
+      obtainedActiveVotesIds_.Add(other.obtainedActiveVotesIds_);
+      obtainedWithdrawnVotesIds_.Add(other.obtainedWithdrawnVotesIds_);
+      if (other.ValidObtainedVotesAmount != 0L) {
+        ValidObtainedVotesAmount = other.ValidObtainedVotesAmount;
+      }
+      if (other.ValidVotedVotesAmount != 0L) {
+        ValidVotedVotesAmount = other.ValidVotedVotesAmount;
+      }
+      if (other.AllObtainedVotesAmount != 0L) {
+        AllObtainedVotesAmount = other.AllObtainedVotesAmount;
+      }
+      if (other.AllVotedVotesAmount != 0L) {
+        AllVotedVotesAmount = other.AllVotedVotesAmount;
+      }
+      if (other.PublicKey.Length != 0) {
+        PublicKey = other.PublicKey;
+      }
+      activeVotesRecords_.Add(other.activeVotesRecords_);
+      withdrawnVotesRecords_.Add(other.withdrawnVotesRecords_);
+      obtainedActiveVotesRecords_.Add(other.obtainedActiveVotesRecords_);
+      obtainedWithdrawnVotesRecords_.Add(other.obtainedWithdrawnVotesRecords_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1194,11 +2394,55 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            activeVotes_.AddEntriesFrom(input, _repeated_activeVotes_codec);
+            activeVotesIds_.AddEntriesFrom(input, _repeated_activeVotesIds_codec);
             break;
           }
           case 18: {
-            withdrawnVotes_.AddEntriesFrom(input, _repeated_withdrawnVotes_codec);
+            withdrawnVotesIds_.AddEntriesFrom(input, _repeated_withdrawnVotesIds_codec);
+            break;
+          }
+          case 26: {
+            obtainedActiveVotesIds_.AddEntriesFrom(input, _repeated_obtainedActiveVotesIds_codec);
+            break;
+          }
+          case 34: {
+            obtainedWithdrawnVotesIds_.AddEntriesFrom(input, _repeated_obtainedWithdrawnVotesIds_codec);
+            break;
+          }
+          case 40: {
+            ValidObtainedVotesAmount = input.ReadSInt64();
+            break;
+          }
+          case 48: {
+            ValidVotedVotesAmount = input.ReadSInt64();
+            break;
+          }
+          case 56: {
+            AllObtainedVotesAmount = input.ReadSInt64();
+            break;
+          }
+          case 64: {
+            AllVotedVotesAmount = input.ReadSInt64();
+            break;
+          }
+          case 74: {
+            PublicKey = input.ReadBytes();
+            break;
+          }
+          case 82: {
+            activeVotesRecords_.AddEntriesFrom(input, _repeated_activeVotesRecords_codec);
+            break;
+          }
+          case 90: {
+            withdrawnVotesRecords_.AddEntriesFrom(input, _repeated_withdrawnVotesRecords_codec);
+            break;
+          }
+          case 98: {
+            obtainedActiveVotesRecords_.AddEntriesFrom(input, _repeated_obtainedActiveVotesRecords_codec);
+            break;
+          }
+          case 106: {
+            obtainedWithdrawnVotesRecords_.AddEntriesFrom(input, _repeated_obtainedWithdrawnVotesRecords_codec);
             break;
           }
         }
@@ -1215,7 +2459,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[7]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1241,9 +2485,9 @@ namespace AElf.Kernel {
       aliases_ = other.aliases_.Clone();
       currentAlias_ = other.currentAlias_;
       currentVotesNumber_ = other.currentVotesNumber_;
-      address_ = other.address_ != null ? other.address_.Clone() : null;
       announcementTransactionId_ = other.announcementTransactionId_ != null ? other.announcementTransactionId_.Clone() : null;
       isEvilNode_ = other.isEvilNode_;
+      state_ = other.state_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1252,7 +2496,7 @@ namespace AElf.Kernel {
       return new CandidateHistory(this);
     }
 
-    /// <summary>Field number for the "PublicKey" field.</summary>
+    /// <summary>Field number for the "public_key" field.</summary>
     public const int PublicKeyFieldNumber = 1;
     private string publicKey_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1263,7 +2507,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "Terms" field.</summary>
+    /// <summary>Field number for the "terms" field.</summary>
     public const int TermsFieldNumber = 2;
     private static readonly pb::FieldCodec<long> _repeated_terms_codec
         = pb::FieldCodec.ForInt64(18);
@@ -1273,7 +2517,7 @@ namespace AElf.Kernel {
       get { return terms_; }
     }
 
-    /// <summary>Field number for the "ProducedBlocks" field.</summary>
+    /// <summary>Field number for the "produced_blocks" field.</summary>
     public const int ProducedBlocksFieldNumber = 3;
     private long producedBlocks_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1284,7 +2528,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "MissedTimeSlots" field.</summary>
+    /// <summary>Field number for the "missed_time_slots" field.</summary>
     public const int MissedTimeSlotsFieldNumber = 4;
     private long missedTimeSlots_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1295,7 +2539,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "ContinualAppointmentCount" field.</summary>
+    /// <summary>Field number for the "continual_appointment_count" field.</summary>
     public const int ContinualAppointmentCountFieldNumber = 5;
     private long continualAppointmentCount_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1306,7 +2550,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "ReappointmentCount" field.</summary>
+    /// <summary>Field number for the "reappointment_count" field.</summary>
     public const int ReappointmentCountFieldNumber = 6;
     private long reappointmentCount_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1317,7 +2561,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "Aliases" field.</summary>
+    /// <summary>Field number for the "aliases" field.</summary>
     public const int AliasesFieldNumber = 7;
     private static readonly pb::FieldCodec<string> _repeated_aliases_codec
         = pb::FieldCodec.ForString(58);
@@ -1327,7 +2571,7 @@ namespace AElf.Kernel {
       get { return aliases_; }
     }
 
-    /// <summary>Field number for the "CurrentAlias" field.</summary>
+    /// <summary>Field number for the "current_alias" field.</summary>
     public const int CurrentAliasFieldNumber = 8;
     private string currentAlias_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1338,7 +2582,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "CurrentVotesNumber" field.</summary>
+    /// <summary>Field number for the "current_votes_number" field.</summary>
     public const int CurrentVotesNumberFieldNumber = 9;
     private long currentVotesNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1349,18 +2593,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "Address" field.</summary>
-    public const int AddressFieldNumber = 11;
-    private global::AElf.Address address_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Address Address {
-      get { return address_; }
-      set {
-        address_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "AnnouncementTransactionId" field.</summary>
+    /// <summary>Field number for the "announcement_transaction_id" field.</summary>
     public const int AnnouncementTransactionIdFieldNumber = 12;
     private global::AElf.Hash announcementTransactionId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1371,7 +2604,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "IsEvilNode" field.</summary>
+    /// <summary>Field number for the "is_evil_node" field.</summary>
     public const int IsEvilNodeFieldNumber = 13;
     private bool isEvilNode_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1379,6 +2612,17 @@ namespace AElf.Kernel {
       get { return isEvilNode_; }
       set {
         isEvilNode_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "state" field.</summary>
+    public const int StateFieldNumber = 14;
+    private global::AElf.Kernel.CandidateState state_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Kernel.CandidateState State {
+      get { return state_; }
+      set {
+        state_ = value;
       }
     }
 
@@ -1404,9 +2648,9 @@ namespace AElf.Kernel {
       if(!aliases_.Equals(other.aliases_)) return false;
       if (CurrentAlias != other.CurrentAlias) return false;
       if (CurrentVotesNumber != other.CurrentVotesNumber) return false;
-      if (!object.Equals(Address, other.Address)) return false;
       if (!object.Equals(AnnouncementTransactionId, other.AnnouncementTransactionId)) return false;
       if (IsEvilNode != other.IsEvilNode) return false;
+      if (State != other.State) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1422,9 +2666,9 @@ namespace AElf.Kernel {
       hash ^= aliases_.GetHashCode();
       if (CurrentAlias.Length != 0) hash ^= CurrentAlias.GetHashCode();
       if (CurrentVotesNumber != 0L) hash ^= CurrentVotesNumber.GetHashCode();
-      if (address_ != null) hash ^= Address.GetHashCode();
       if (announcementTransactionId_ != null) hash ^= AnnouncementTransactionId.GetHashCode();
       if (IsEvilNode != false) hash ^= IsEvilNode.GetHashCode();
+      if (State != 0) hash ^= State.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1445,19 +2689,19 @@ namespace AElf.Kernel {
       terms_.WriteTo(output, _repeated_terms_codec);
       if (ProducedBlocks != 0L) {
         output.WriteRawTag(24);
-        output.WriteInt64(ProducedBlocks);
+        output.WriteSInt64(ProducedBlocks);
       }
       if (MissedTimeSlots != 0L) {
         output.WriteRawTag(32);
-        output.WriteInt64(MissedTimeSlots);
+        output.WriteSInt64(MissedTimeSlots);
       }
       if (ContinualAppointmentCount != 0L) {
         output.WriteRawTag(40);
-        output.WriteInt64(ContinualAppointmentCount);
+        output.WriteSInt64(ContinualAppointmentCount);
       }
       if (ReappointmentCount != 0L) {
         output.WriteRawTag(48);
-        output.WriteInt64(ReappointmentCount);
+        output.WriteSInt64(ReappointmentCount);
       }
       aliases_.WriteTo(output, _repeated_aliases_codec);
       if (CurrentAlias.Length != 0) {
@@ -1466,11 +2710,7 @@ namespace AElf.Kernel {
       }
       if (CurrentVotesNumber != 0L) {
         output.WriteRawTag(72);
-        output.WriteInt64(CurrentVotesNumber);
-      }
-      if (address_ != null) {
-        output.WriteRawTag(90);
-        output.WriteMessage(Address);
+        output.WriteSInt64(CurrentVotesNumber);
       }
       if (announcementTransactionId_ != null) {
         output.WriteRawTag(98);
@@ -1479,6 +2719,10 @@ namespace AElf.Kernel {
       if (IsEvilNode != false) {
         output.WriteRawTag(104);
         output.WriteBool(IsEvilNode);
+      }
+      if (State != 0) {
+        output.WriteRawTag(112);
+        output.WriteEnum((int) State);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1493,32 +2737,32 @@ namespace AElf.Kernel {
       }
       size += terms_.CalculateSize(_repeated_terms_codec);
       if (ProducedBlocks != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ProducedBlocks);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ProducedBlocks);
       }
       if (MissedTimeSlots != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(MissedTimeSlots);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(MissedTimeSlots);
       }
       if (ContinualAppointmentCount != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ContinualAppointmentCount);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ContinualAppointmentCount);
       }
       if (ReappointmentCount != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ReappointmentCount);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ReappointmentCount);
       }
       size += aliases_.CalculateSize(_repeated_aliases_codec);
       if (CurrentAlias.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CurrentAlias);
       }
       if (CurrentVotesNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(CurrentVotesNumber);
-      }
-      if (address_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Address);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(CurrentVotesNumber);
       }
       if (announcementTransactionId_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(AnnouncementTransactionId);
       }
       if (IsEvilNode != false) {
         size += 1 + 1;
+      }
+      if (State != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) State);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1554,12 +2798,6 @@ namespace AElf.Kernel {
       if (other.CurrentVotesNumber != 0L) {
         CurrentVotesNumber = other.CurrentVotesNumber;
       }
-      if (other.address_ != null) {
-        if (address_ == null) {
-          Address = new global::AElf.Address();
-        }
-        Address.MergeFrom(other.Address);
-      }
       if (other.announcementTransactionId_ != null) {
         if (announcementTransactionId_ == null) {
           AnnouncementTransactionId = new global::AElf.Hash();
@@ -1568,6 +2806,9 @@ namespace AElf.Kernel {
       }
       if (other.IsEvilNode != false) {
         IsEvilNode = other.IsEvilNode;
+      }
+      if (other.State != 0) {
+        State = other.State;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1590,19 +2831,19 @@ namespace AElf.Kernel {
             break;
           }
           case 24: {
-            ProducedBlocks = input.ReadInt64();
+            ProducedBlocks = input.ReadSInt64();
             break;
           }
           case 32: {
-            MissedTimeSlots = input.ReadInt64();
+            MissedTimeSlots = input.ReadSInt64();
             break;
           }
           case 40: {
-            ContinualAppointmentCount = input.ReadInt64();
+            ContinualAppointmentCount = input.ReadSInt64();
             break;
           }
           case 48: {
-            ReappointmentCount = input.ReadInt64();
+            ReappointmentCount = input.ReadSInt64();
             break;
           }
           case 58: {
@@ -1614,14 +2855,7 @@ namespace AElf.Kernel {
             break;
           }
           case 72: {
-            CurrentVotesNumber = input.ReadInt64();
-            break;
-          }
-          case 90: {
-            if (address_ == null) {
-              Address = new global::AElf.Address();
-            }
-            input.ReadMessage(Address);
+            CurrentVotesNumber = input.ReadSInt64();
             break;
           }
           case 98: {
@@ -1635,336 +2869,8 @@ namespace AElf.Kernel {
             IsEvilNode = input.ReadBool();
             break;
           }
-        }
-      }
-    }
-
-  }
-
-  /// <summary>
-  /// The ticket / voting information for one user.
-  /// </summary>
-  public sealed partial class ElectionTickets : pb::IMessage<ElectionTickets> {
-    private static readonly pb::MessageParser<ElectionTickets> _parser = new pb::MessageParser<ElectionTickets>(() => new ElectionTickets());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ElectionTickets> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[8]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ElectionTickets() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ElectionTickets(ElectionTickets other) : this() {
-      electionVotingRecords_ = other.electionVotingRecords_.Clone();
-      votingRecordsCount_ = other.votingRecordsCount_;
-      obtainedTickets_ = other.obtainedTickets_;
-      votedTickets_ = other.votedTickets_;
-      historyObtainedTickets_ = other.historyObtainedTickets_;
-      historyVotedTickets_ = other.historyVotedTickets_;
-      voteToTransactions_ = other.voteToTransactions_.Clone();
-      voteFromTransactions_ = other.voteFromTransactions_.Clone();
-      publicKey_ = other.publicKey_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ElectionTickets Clone() {
-      return new ElectionTickets(this);
-    }
-
-    /// <summary>Field number for the "election_voting_records" field.</summary>
-    public const int ElectionVotingRecordsFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::AElf.Kernel.ElectionVotingRecord> _repeated_electionVotingRecords_codec
-        = pb::FieldCodec.ForMessage(10, global::AElf.Kernel.ElectionVotingRecord.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> electionVotingRecords_ = new pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Kernel.ElectionVotingRecord> ElectionVotingRecords {
-      get { return electionVotingRecords_; }
-    }
-
-    /// <summary>Field number for the "VotingRecordsCount" field.</summary>
-    public const int VotingRecordsCountFieldNumber = 2;
-    private long votingRecordsCount_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long VotingRecordsCount {
-      get { return votingRecordsCount_; }
-      set {
-        votingRecordsCount_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "ObtainedTickets" field.</summary>
-    public const int ObtainedTicketsFieldNumber = 3;
-    private long obtainedTickets_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long ObtainedTickets {
-      get { return obtainedTickets_; }
-      set {
-        obtainedTickets_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "VotedTickets" field.</summary>
-    public const int VotedTicketsFieldNumber = 4;
-    private long votedTickets_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long VotedTickets {
-      get { return votedTickets_; }
-      set {
-        votedTickets_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "HistoryObtainedTickets" field.</summary>
-    public const int HistoryObtainedTicketsFieldNumber = 5;
-    private long historyObtainedTickets_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long HistoryObtainedTickets {
-      get { return historyObtainedTickets_; }
-      set {
-        historyObtainedTickets_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "HistoryVotedTickets" field.</summary>
-    public const int HistoryVotedTicketsFieldNumber = 6;
-    private long historyVotedTickets_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long HistoryVotedTickets {
-      get { return historyVotedTickets_; }
-      set {
-        historyVotedTickets_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "VoteToTransactions" field.</summary>
-    public const int VoteToTransactionsFieldNumber = 8;
-    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_voteToTransactions_codec
-        = pb::FieldCodec.ForMessage(66, global::AElf.Hash.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Hash> voteToTransactions_ = new pbc::RepeatedField<global::AElf.Hash>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Hash> VoteToTransactions {
-      get { return voteToTransactions_; }
-    }
-
-    /// <summary>Field number for the "VoteFromTransactions" field.</summary>
-    public const int VoteFromTransactionsFieldNumber = 9;
-    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_voteFromTransactions_codec
-        = pb::FieldCodec.ForMessage(74, global::AElf.Hash.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Hash> voteFromTransactions_ = new pbc::RepeatedField<global::AElf.Hash>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Hash> VoteFromTransactions {
-      get { return voteFromTransactions_; }
-    }
-
-    /// <summary>Field number for the "PublicKey" field.</summary>
-    public const int PublicKeyFieldNumber = 10;
-    private string publicKey_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string PublicKey {
-      get { return publicKey_; }
-      set {
-        publicKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as ElectionTickets);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ElectionTickets other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!electionVotingRecords_.Equals(other.electionVotingRecords_)) return false;
-      if (VotingRecordsCount != other.VotingRecordsCount) return false;
-      if (ObtainedTickets != other.ObtainedTickets) return false;
-      if (VotedTickets != other.VotedTickets) return false;
-      if (HistoryObtainedTickets != other.HistoryObtainedTickets) return false;
-      if (HistoryVotedTickets != other.HistoryVotedTickets) return false;
-      if(!voteToTransactions_.Equals(other.voteToTransactions_)) return false;
-      if(!voteFromTransactions_.Equals(other.voteFromTransactions_)) return false;
-      if (PublicKey != other.PublicKey) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= electionVotingRecords_.GetHashCode();
-      if (VotingRecordsCount != 0L) hash ^= VotingRecordsCount.GetHashCode();
-      if (ObtainedTickets != 0L) hash ^= ObtainedTickets.GetHashCode();
-      if (VotedTickets != 0L) hash ^= VotedTickets.GetHashCode();
-      if (HistoryObtainedTickets != 0L) hash ^= HistoryObtainedTickets.GetHashCode();
-      if (HistoryVotedTickets != 0L) hash ^= HistoryVotedTickets.GetHashCode();
-      hash ^= voteToTransactions_.GetHashCode();
-      hash ^= voteFromTransactions_.GetHashCode();
-      if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-      electionVotingRecords_.WriteTo(output, _repeated_electionVotingRecords_codec);
-      if (VotingRecordsCount != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(VotingRecordsCount);
-      }
-      if (ObtainedTickets != 0L) {
-        output.WriteRawTag(24);
-        output.WriteInt64(ObtainedTickets);
-      }
-      if (VotedTickets != 0L) {
-        output.WriteRawTag(32);
-        output.WriteInt64(VotedTickets);
-      }
-      if (HistoryObtainedTickets != 0L) {
-        output.WriteRawTag(40);
-        output.WriteInt64(HistoryObtainedTickets);
-      }
-      if (HistoryVotedTickets != 0L) {
-        output.WriteRawTag(48);
-        output.WriteInt64(HistoryVotedTickets);
-      }
-      voteToTransactions_.WriteTo(output, _repeated_voteToTransactions_codec);
-      voteFromTransactions_.WriteTo(output, _repeated_voteFromTransactions_codec);
-      if (PublicKey.Length != 0) {
-        output.WriteRawTag(82);
-        output.WriteString(PublicKey);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += electionVotingRecords_.CalculateSize(_repeated_electionVotingRecords_codec);
-      if (VotingRecordsCount != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(VotingRecordsCount);
-      }
-      if (ObtainedTickets != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ObtainedTickets);
-      }
-      if (VotedTickets != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(VotedTickets);
-      }
-      if (HistoryObtainedTickets != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(HistoryObtainedTickets);
-      }
-      if (HistoryVotedTickets != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(HistoryVotedTickets);
-      }
-      size += voteToTransactions_.CalculateSize(_repeated_voteToTransactions_codec);
-      size += voteFromTransactions_.CalculateSize(_repeated_voteFromTransactions_codec);
-      if (PublicKey.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(PublicKey);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ElectionTickets other) {
-      if (other == null) {
-        return;
-      }
-      electionVotingRecords_.Add(other.electionVotingRecords_);
-      if (other.VotingRecordsCount != 0L) {
-        VotingRecordsCount = other.VotingRecordsCount;
-      }
-      if (other.ObtainedTickets != 0L) {
-        ObtainedTickets = other.ObtainedTickets;
-      }
-      if (other.VotedTickets != 0L) {
-        VotedTickets = other.VotedTickets;
-      }
-      if (other.HistoryObtainedTickets != 0L) {
-        HistoryObtainedTickets = other.HistoryObtainedTickets;
-      }
-      if (other.HistoryVotedTickets != 0L) {
-        HistoryVotedTickets = other.HistoryVotedTickets;
-      }
-      voteToTransactions_.Add(other.voteToTransactions_);
-      voteFromTransactions_.Add(other.voteFromTransactions_);
-      if (other.PublicKey.Length != 0) {
-        PublicKey = other.PublicKey;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            electionVotingRecords_.AddEntriesFrom(input, _repeated_electionVotingRecords_codec);
-            break;
-          }
-          case 16: {
-            VotingRecordsCount = input.ReadInt64();
-            break;
-          }
-          case 24: {
-            ObtainedTickets = input.ReadInt64();
-            break;
-          }
-          case 32: {
-            VotedTickets = input.ReadInt64();
-            break;
-          }
-          case 40: {
-            HistoryObtainedTickets = input.ReadInt64();
-            break;
-          }
-          case 48: {
-            HistoryVotedTickets = input.ReadInt64();
-            break;
-          }
-          case 66: {
-            voteToTransactions_.AddEntriesFrom(input, _repeated_voteToTransactions_codec);
-            break;
-          }
-          case 74: {
-            voteFromTransactions_.AddEntriesFrom(input, _repeated_voteFromTransactions_codec);
-            break;
-          }
-          case 82: {
-            PublicKey = input.ReadString();
+          case 112: {
+            State = (global::AElf.Kernel.CandidateState) input.ReadEnum();
             break;
           }
         }
@@ -1981,7 +2887,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[9]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1998,15 +2904,12 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ElectionVotingRecord(ElectionVotingRecord other) : this() {
-      from_ = other.from_;
-      to_ = other.to_;
-      count_ = other.count_;
-      roundNumber_ = other.roundNumber_;
-      transactionId_ = other.transactionId_ != null ? other.transactionId_.Clone() : null;
-      voteAge_ = other.voteAge_;
-      lockDaysList_ = other.lockDaysList_.Clone();
-      unlockAge_ = other.unlockAge_;
+      voter_ = other.voter_ != null ? other.voter_.Clone() : null;
+      candidate_ = other.candidate_;
+      amount_ = other.amount_;
       termNumber_ = other.termNumber_;
+      voteId_ = other.voteId_ != null ? other.voteId_.Clone() : null;
+      lockTime_ = other.lockTime_;
       unlockTimestamp_ = other.unlockTimestamp_ != null ? other.unlockTimestamp_.Clone() : null;
       withdrawTimestamp_ = other.withdrawTimestamp_ != null ? other.withdrawTimestamp_.Clone() : null;
       voteTimestamp_ = other.voteTimestamp_ != null ? other.voteTimestamp_.Clone() : null;
@@ -2019,98 +2922,41 @@ namespace AElf.Kernel {
       return new ElectionVotingRecord(this);
     }
 
-    /// <summary>Field number for the "From" field.</summary>
-    public const int FromFieldNumber = 1;
-    private string from_ = "";
+    /// <summary>Field number for the "voter" field.</summary>
+    public const int VoterFieldNumber = 1;
+    private global::AElf.Address voter_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string From {
-      get { return from_; }
+    public global::AElf.Address Voter {
+      get { return voter_; }
       set {
-        from_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        voter_ = value;
       }
     }
 
-    /// <summary>Field number for the "To" field.</summary>
-    public const int ToFieldNumber = 2;
-    private string to_ = "";
+    /// <summary>Field number for the "candidate" field.</summary>
+    public const int CandidateFieldNumber = 2;
+    private string candidate_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string To {
-      get { return to_; }
+    public string Candidate {
+      get { return candidate_; }
       set {
-        to_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        candidate_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
-    /// <summary>Field number for the "Count" field.</summary>
-    public const int CountFieldNumber = 3;
-    private long count_;
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 3;
+    private long amount_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long Count {
-      get { return count_; }
+    public long Amount {
+      get { return amount_; }
       set {
-        count_ = value;
+        amount_ = value;
       }
     }
 
-    /// <summary>Field number for the "RoundNumber" field.</summary>
-    public const int RoundNumberFieldNumber = 4;
-    private long roundNumber_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long RoundNumber {
-      get { return roundNumber_; }
-      set {
-        roundNumber_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "TransactionId" field.</summary>
-    public const int TransactionIdFieldNumber = 5;
-    private global::AElf.Hash transactionId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash TransactionId {
-      get { return transactionId_; }
-      set {
-        transactionId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "VoteAge" field.</summary>
-    public const int VoteAgeFieldNumber = 6;
-    private long voteAge_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long VoteAge {
-      get { return voteAge_; }
-      set {
-        voteAge_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "LockDaysList" field.</summary>
-    public const int LockDaysListFieldNumber = 7;
-    private static readonly pb::FieldCodec<int> _repeated_lockDaysList_codec
-        = pb::FieldCodec.ForInt32(58);
-    private readonly pbc::RepeatedField<int> lockDaysList_ = new pbc::RepeatedField<int>();
-    /// <summary>
-    /// Can be renewed by adding items.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<int> LockDaysList {
-      get { return lockDaysList_; }
-    }
-
-    /// <summary>Field number for the "UnlockAge" field.</summary>
-    public const int UnlockAgeFieldNumber = 8;
-    private long unlockAge_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long UnlockAge {
-      get { return unlockAge_; }
-      set {
-        unlockAge_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "TermNumber" field.</summary>
-    public const int TermNumberFieldNumber = 9;
+    /// <summary>Field number for the "term_number" field.</summary>
+    public const int TermNumberFieldNumber = 4;
     private long termNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public long TermNumber {
@@ -2120,7 +2966,32 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "UnlockTimestamp" field.</summary>
+    /// <summary>Field number for the "vote_id" field.</summary>
+    public const int VoteIdFieldNumber = 5;
+    private global::AElf.Hash voteId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::AElf.Hash VoteId {
+      get { return voteId_; }
+      set {
+        voteId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "lock_time" field.</summary>
+    public const int LockTimeFieldNumber = 7;
+    private int lockTime_;
+    /// <summary>
+    /// Hours
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int LockTime {
+      get { return lockTime_; }
+      set {
+        lockTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "unlock_timestamp" field.</summary>
     public const int UnlockTimestampFieldNumber = 10;
     private global::Google.Protobuf.WellKnownTypes.Timestamp unlockTimestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2131,7 +3002,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "WithdrawTimestamp" field.</summary>
+    /// <summary>Field number for the "withdraw_timestamp" field.</summary>
     public const int WithdrawTimestampFieldNumber = 11;
     private global::Google.Protobuf.WellKnownTypes.Timestamp withdrawTimestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2142,7 +3013,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "VoteTimestamp" field.</summary>
+    /// <summary>Field number for the "vote_timestamp" field.</summary>
     public const int VoteTimestampFieldNumber = 12;
     private global::Google.Protobuf.WellKnownTypes.Timestamp voteTimestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2153,7 +3024,7 @@ namespace AElf.Kernel {
       }
     }
 
-    /// <summary>Field number for the "IsWithdrawn" field.</summary>
+    /// <summary>Field number for the "is_withdrawn" field.</summary>
     public const int IsWithdrawnFieldNumber = 13;
     private bool isWithdrawn_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2177,15 +3048,12 @@ namespace AElf.Kernel {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (From != other.From) return false;
-      if (To != other.To) return false;
-      if (Count != other.Count) return false;
-      if (RoundNumber != other.RoundNumber) return false;
-      if (!object.Equals(TransactionId, other.TransactionId)) return false;
-      if (VoteAge != other.VoteAge) return false;
-      if(!lockDaysList_.Equals(other.lockDaysList_)) return false;
-      if (UnlockAge != other.UnlockAge) return false;
+      if (!object.Equals(Voter, other.Voter)) return false;
+      if (Candidate != other.Candidate) return false;
+      if (Amount != other.Amount) return false;
       if (TermNumber != other.TermNumber) return false;
+      if (!object.Equals(VoteId, other.VoteId)) return false;
+      if (LockTime != other.LockTime) return false;
       if (!object.Equals(UnlockTimestamp, other.UnlockTimestamp)) return false;
       if (!object.Equals(WithdrawTimestamp, other.WithdrawTimestamp)) return false;
       if (!object.Equals(VoteTimestamp, other.VoteTimestamp)) return false;
@@ -2196,15 +3064,12 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (From.Length != 0) hash ^= From.GetHashCode();
-      if (To.Length != 0) hash ^= To.GetHashCode();
-      if (Count != 0L) hash ^= Count.GetHashCode();
-      if (RoundNumber != 0L) hash ^= RoundNumber.GetHashCode();
-      if (transactionId_ != null) hash ^= TransactionId.GetHashCode();
-      if (VoteAge != 0L) hash ^= VoteAge.GetHashCode();
-      hash ^= lockDaysList_.GetHashCode();
-      if (UnlockAge != 0L) hash ^= UnlockAge.GetHashCode();
+      if (voter_ != null) hash ^= Voter.GetHashCode();
+      if (Candidate.Length != 0) hash ^= Candidate.GetHashCode();
+      if (Amount != 0L) hash ^= Amount.GetHashCode();
       if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
+      if (voteId_ != null) hash ^= VoteId.GetHashCode();
+      if (LockTime != 0) hash ^= LockTime.GetHashCode();
       if (unlockTimestamp_ != null) hash ^= UnlockTimestamp.GetHashCode();
       if (withdrawTimestamp_ != null) hash ^= WithdrawTimestamp.GetHashCode();
       if (voteTimestamp_ != null) hash ^= VoteTimestamp.GetHashCode();
@@ -2222,38 +3087,29 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (From.Length != 0) {
+      if (voter_ != null) {
         output.WriteRawTag(10);
-        output.WriteString(From);
+        output.WriteMessage(Voter);
       }
-      if (To.Length != 0) {
+      if (Candidate.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(To);
+        output.WriteString(Candidate);
       }
-      if (Count != 0L) {
+      if (Amount != 0L) {
         output.WriteRawTag(24);
-        output.WriteInt64(Count);
-      }
-      if (RoundNumber != 0L) {
-        output.WriteRawTag(32);
-        output.WriteInt64(RoundNumber);
-      }
-      if (transactionId_ != null) {
-        output.WriteRawTag(42);
-        output.WriteMessage(TransactionId);
-      }
-      if (VoteAge != 0L) {
-        output.WriteRawTag(48);
-        output.WriteInt64(VoteAge);
-      }
-      lockDaysList_.WriteTo(output, _repeated_lockDaysList_codec);
-      if (UnlockAge != 0L) {
-        output.WriteRawTag(64);
-        output.WriteInt64(UnlockAge);
+        output.WriteSInt64(Amount);
       }
       if (TermNumber != 0L) {
-        output.WriteRawTag(72);
-        output.WriteInt64(TermNumber);
+        output.WriteRawTag(32);
+        output.WriteSInt64(TermNumber);
+      }
+      if (voteId_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(VoteId);
+      }
+      if (LockTime != 0) {
+        output.WriteRawTag(56);
+        output.WriteSInt32(LockTime);
       }
       if (unlockTimestamp_ != null) {
         output.WriteRawTag(82);
@@ -2279,30 +3135,23 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (From.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(From);
+      if (voter_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Voter);
       }
-      if (To.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(To);
+      if (Candidate.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Candidate);
       }
-      if (Count != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Count);
-      }
-      if (RoundNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(RoundNumber);
-      }
-      if (transactionId_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(TransactionId);
-      }
-      if (VoteAge != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(VoteAge);
-      }
-      size += lockDaysList_.CalculateSize(_repeated_lockDaysList_codec);
-      if (UnlockAge != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UnlockAge);
+      if (Amount != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Amount);
       }
       if (TermNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(TermNumber);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
+      }
+      if (voteId_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VoteId);
+      }
+      if (LockTime != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(LockTime);
       }
       if (unlockTimestamp_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(UnlockTimestamp);
@@ -2327,33 +3176,29 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.From.Length != 0) {
-        From = other.From;
-      }
-      if (other.To.Length != 0) {
-        To = other.To;
-      }
-      if (other.Count != 0L) {
-        Count = other.Count;
-      }
-      if (other.RoundNumber != 0L) {
-        RoundNumber = other.RoundNumber;
-      }
-      if (other.transactionId_ != null) {
-        if (transactionId_ == null) {
-          TransactionId = new global::AElf.Hash();
+      if (other.voter_ != null) {
+        if (voter_ == null) {
+          Voter = new global::AElf.Address();
         }
-        TransactionId.MergeFrom(other.TransactionId);
+        Voter.MergeFrom(other.Voter);
       }
-      if (other.VoteAge != 0L) {
-        VoteAge = other.VoteAge;
+      if (other.Candidate.Length != 0) {
+        Candidate = other.Candidate;
       }
-      lockDaysList_.Add(other.lockDaysList_);
-      if (other.UnlockAge != 0L) {
-        UnlockAge = other.UnlockAge;
+      if (other.Amount != 0L) {
+        Amount = other.Amount;
       }
       if (other.TermNumber != 0L) {
         TermNumber = other.TermNumber;
+      }
+      if (other.voteId_ != null) {
+        if (voteId_ == null) {
+          VoteId = new global::AElf.Hash();
+        }
+        VoteId.MergeFrom(other.VoteId);
+      }
+      if (other.LockTime != 0) {
+        LockTime = other.LockTime;
       }
       if (other.unlockTimestamp_ != null) {
         if (unlockTimestamp_ == null) {
@@ -2388,43 +3233,33 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            From = input.ReadString();
+            if (voter_ == null) {
+              Voter = new global::AElf.Address();
+            }
+            input.ReadMessage(Voter);
             break;
           }
           case 18: {
-            To = input.ReadString();
+            Candidate = input.ReadString();
             break;
           }
           case 24: {
-            Count = input.ReadInt64();
+            Amount = input.ReadSInt64();
             break;
           }
           case 32: {
-            RoundNumber = input.ReadInt64();
+            TermNumber = input.ReadSInt64();
             break;
           }
           case 42: {
-            if (transactionId_ == null) {
-              TransactionId = new global::AElf.Hash();
+            if (voteId_ == null) {
+              VoteId = new global::AElf.Hash();
             }
-            input.ReadMessage(TransactionId);
+            input.ReadMessage(VoteId);
             break;
           }
-          case 48: {
-            VoteAge = input.ReadInt64();
-            break;
-          }
-          case 58:
           case 56: {
-            lockDaysList_.AddEntriesFrom(input, _repeated_lockDaysList_codec);
-            break;
-          }
-          case 64: {
-            UnlockAge = input.ReadInt64();
-            break;
-          }
-          case 72: {
-            TermNumber = input.ReadInt64();
+            LockTime = input.ReadSInt32();
             break;
           }
           case 82: {
@@ -2466,7 +3301,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[10]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2496,9 +3331,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "start" field.</summary>
     public const int StartFieldNumber = 1;
-    private int start_;
+    private long start_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Start {
+    public long Start {
       get { return start_; }
       set {
         start_ = value;
@@ -2507,9 +3342,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "length" field.</summary>
     public const int LengthFieldNumber = 2;
-    private int length_;
+    private long length_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Length {
+    public long Length {
       get { return length_; }
       set {
         length_ = value;
@@ -2549,8 +3384,8 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Start != 0) hash ^= Start.GetHashCode();
-      if (Length != 0) hash ^= Length.GetHashCode();
+      if (Start != 0L) hash ^= Start.GetHashCode();
+      if (Length != 0L) hash ^= Length.GetHashCode();
       if (PublicKey.Length != 0) hash ^= PublicKey.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -2565,13 +3400,13 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Start != 0) {
+      if (Start != 0L) {
         output.WriteRawTag(8);
-        output.WriteSInt32(Start);
+        output.WriteSInt64(Start);
       }
-      if (Length != 0) {
+      if (Length != 0L) {
         output.WriteRawTag(16);
-        output.WriteSInt32(Length);
+        output.WriteSInt64(Length);
       }
       if (PublicKey.Length != 0) {
         output.WriteRawTag(26);
@@ -2585,11 +3420,11 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Start != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Start);
+      if (Start != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Start);
       }
-      if (Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Length);
+      if (Length != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Length);
       }
       if (PublicKey.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PublicKey);
@@ -2605,10 +3440,10 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.Start != 0) {
+      if (other.Start != 0L) {
         Start = other.Start;
       }
-      if (other.Length != 0) {
+      if (other.Length != 0L) {
         Length = other.Length;
       }
       if (other.PublicKey.Length != 0) {
@@ -2626,11 +3461,11 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Start = input.ReadSInt32();
+            Start = input.ReadSInt64();
             break;
           }
           case 16: {
-            Length = input.ReadSInt32();
+            Length = input.ReadSInt64();
             break;
           }
           case 26: {
@@ -2651,7 +3486,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[11]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2680,9 +3515,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "start" field.</summary>
     public const int StartFieldNumber = 1;
-    private int start_;
+    private long start_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Start {
+    public long Start {
       get { return start_; }
       set {
         start_ = value;
@@ -2691,9 +3526,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "length" field.</summary>
     public const int LengthFieldNumber = 2;
-    private int length_;
+    private long length_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Length {
+    public long Length {
       get { return length_; }
       set {
         length_ = value;
@@ -2721,8 +3556,8 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Start != 0) hash ^= Start.GetHashCode();
-      if (Length != 0) hash ^= Length.GetHashCode();
+      if (Start != 0L) hash ^= Start.GetHashCode();
+      if (Length != 0L) hash ^= Length.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2736,13 +3571,13 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Start != 0) {
+      if (Start != 0L) {
         output.WriteRawTag(8);
-        output.WriteSInt32(Start);
+        output.WriteSInt64(Start);
       }
-      if (Length != 0) {
+      if (Length != 0L) {
         output.WriteRawTag(16);
-        output.WriteSInt32(Length);
+        output.WriteSInt64(Length);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -2752,11 +3587,11 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Start != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Start);
+      if (Start != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Start);
       }
-      if (Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Length);
+      if (Length != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Length);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2769,10 +3604,10 @@ namespace AElf.Kernel {
       if (other == null) {
         return;
       }
-      if (other.Start != 0) {
+      if (other.Start != 0L) {
         Start = other.Start;
       }
-      if (other.Length != 0) {
+      if (other.Length != 0L) {
         Length = other.Length;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -2787,11 +3622,11 @@ namespace AElf.Kernel {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Start = input.ReadSInt32();
+            Start = input.ReadSInt64();
             break;
           }
           case 16: {
-            Length = input.ReadSInt32();
+            Length = input.ReadSInt64();
             break;
           }
         }
@@ -2808,7 +3643,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[12]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2847,9 +3682,9 @@ namespace AElf.Kernel {
 
     /// <summary>Field number for the "CandidatesNumber" field.</summary>
     public const int CandidatesNumberFieldNumber = 3;
-    private int candidatesNumber_;
+    private long candidatesNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CandidatesNumber {
+    public long CandidatesNumber {
       get { return candidatesNumber_; }
       set {
         candidatesNumber_ = value;
@@ -2878,7 +3713,7 @@ namespace AElf.Kernel {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= Maps.GetHashCode();
-      if (CandidatesNumber != 0) hash ^= CandidatesNumber.GetHashCode();
+      if (CandidatesNumber != 0L) hash ^= CandidatesNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2893,9 +3728,9 @@ namespace AElf.Kernel {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
       maps_.WriteTo(output, _map_maps_codec);
-      if (CandidatesNumber != 0) {
+      if (CandidatesNumber != 0L) {
         output.WriteRawTag(24);
-        output.WriteInt32(CandidatesNumber);
+        output.WriteSInt64(CandidatesNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -2906,8 +3741,8 @@ namespace AElf.Kernel {
     public int CalculateSize() {
       int size = 0;
       size += maps_.CalculateSize(_map_maps_codec);
-      if (CandidatesNumber != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CandidatesNumber);
+      if (CandidatesNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(CandidatesNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2921,7 +3756,7 @@ namespace AElf.Kernel {
         return;
       }
       maps_.Add(other.maps_);
-      if (other.CandidatesNumber != 0) {
+      if (other.CandidatesNumber != 0L) {
         CandidatesNumber = other.CandidatesNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -2940,7 +3775,7 @@ namespace AElf.Kernel {
             break;
           }
           case 24: {
-            CandidatesNumber = input.ReadInt32();
+            CandidatesNumber = input.ReadSInt64();
             break;
           }
         }
@@ -2957,7 +3792,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[13]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3044,7 +3879,7 @@ namespace AElf.Kernel {
       values_.WriteTo(output, _repeated_values_codec);
       if (HistoriesNumber != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt64(HistoriesNumber);
+        output.WriteSInt64(HistoriesNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -3056,7 +3891,7 @@ namespace AElf.Kernel {
       int size = 0;
       size += values_.CalculateSize(_repeated_values_codec);
       if (HistoriesNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(HistoriesNumber);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(HistoriesNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3089,7 +3924,7 @@ namespace AElf.Kernel {
             break;
           }
           case 16: {
-            HistoriesNumber = input.ReadInt64();
+            HistoriesNumber = input.ReadSInt64();
             break;
           }
         }
@@ -3106,7 +3941,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[14]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3239,7 +4074,7 @@ namespace AElf.Kernel {
       }
       if (VotesNumber != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt64(VotesNumber);
+        output.WriteSInt64(VotesNumber);
       }
       if (timestamp_ != null) {
         output.WriteRawTag(26);
@@ -3265,7 +4100,7 @@ namespace AElf.Kernel {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CandidateAlias);
       }
       if (VotesNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(VotesNumber);
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(VotesNumber);
       }
       if (timestamp_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Timestamp);
@@ -3321,7 +4156,7 @@ namespace AElf.Kernel {
             break;
           }
           case 16: {
-            VotesNumber = input.ReadInt64();
+            VotesNumber = input.ReadSInt64();
             break;
           }
           case 26: {
@@ -3353,7 +4188,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[15]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3482,7 +4317,7 @@ namespace AElf.Kernel {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[16]; }
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3595,6 +4430,332 @@ namespace AElf.Kernel {
             break;
           case 10: {
             Value = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class PublicKeysList : pb::IMessage<PublicKeysList> {
+    private static readonly pb::MessageParser<PublicKeysList> _parser = new pb::MessageParser<PublicKeysList>(() => new PublicKeysList());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<PublicKeysList> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[22]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PublicKeysList() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PublicKeysList(PublicKeysList other) : this() {
+      value_ = other.value_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PublicKeysList Clone() {
+      return new PublicKeysList(this);
+    }
+
+    /// <summary>Field number for the "value" field.</summary>
+    public const int ValueFieldNumber = 1;
+    private static readonly pb::FieldCodec<pb::ByteString> _repeated_value_codec
+        = pb::FieldCodec.ForBytes(10);
+    private readonly pbc::RepeatedField<pb::ByteString> value_ = new pbc::RepeatedField<pb::ByteString>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<pb::ByteString> Value {
+      get { return value_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as PublicKeysList);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(PublicKeysList other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!value_.Equals(other.value_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= value_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      value_.WriteTo(output, _repeated_value_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += value_.CalculateSize(_repeated_value_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(PublicKeysList other) {
+      if (other == null) {
+        return;
+      }
+      value_.Add(other.value_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            value_.AddEntriesFrom(input, _repeated_value_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class TermSnapshot : pb::IMessage<TermSnapshot> {
+    private static readonly pb::MessageParser<TermSnapshot> _parser = new pb::MessageParser<TermSnapshot>(() => new TermSnapshot());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<TermSnapshot> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::AElf.Kernel.ElectionReflection.Descriptor.MessageTypes[23]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public TermSnapshot() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public TermSnapshot(TermSnapshot other) : this() {
+      endRoundNumber_ = other.endRoundNumber_;
+      totalBlocks_ = other.totalBlocks_;
+      candidatesVotes_ = other.candidatesVotes_.Clone();
+      termNumber_ = other.termNumber_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public TermSnapshot Clone() {
+      return new TermSnapshot(this);
+    }
+
+    /// <summary>Field number for the "EndRoundNumber" field.</summary>
+    public const int EndRoundNumberFieldNumber = 1;
+    private long endRoundNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long EndRoundNumber {
+      get { return endRoundNumber_; }
+      set {
+        endRoundNumber_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "TotalBlocks" field.</summary>
+    public const int TotalBlocksFieldNumber = 2;
+    private long totalBlocks_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long TotalBlocks {
+      get { return totalBlocks_; }
+      set {
+        totalBlocks_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "CandidatesVotes" field.</summary>
+    public const int CandidatesVotesFieldNumber = 3;
+    private static readonly pbc::MapField<string, long>.Codec _map_candidatesVotes_codec
+        = new pbc::MapField<string, long>.Codec(pb::FieldCodec.ForString(10), pb::FieldCodec.ForSInt64(16), 26);
+    private readonly pbc::MapField<string, long> candidatesVotes_ = new pbc::MapField<string, long>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<string, long> CandidatesVotes {
+      get { return candidatesVotes_; }
+    }
+
+    /// <summary>Field number for the "TermNumber" field.</summary>
+    public const int TermNumberFieldNumber = 4;
+    private long termNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long TermNumber {
+      get { return termNumber_; }
+      set {
+        termNumber_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as TermSnapshot);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(TermSnapshot other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (EndRoundNumber != other.EndRoundNumber) return false;
+      if (TotalBlocks != other.TotalBlocks) return false;
+      if (!CandidatesVotes.Equals(other.CandidatesVotes)) return false;
+      if (TermNumber != other.TermNumber) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (EndRoundNumber != 0L) hash ^= EndRoundNumber.GetHashCode();
+      if (TotalBlocks != 0L) hash ^= TotalBlocks.GetHashCode();
+      hash ^= CandidatesVotes.GetHashCode();
+      if (TermNumber != 0L) hash ^= TermNumber.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (EndRoundNumber != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(EndRoundNumber);
+      }
+      if (TotalBlocks != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(TotalBlocks);
+      }
+      candidatesVotes_.WriteTo(output, _map_candidatesVotes_codec);
+      if (TermNumber != 0L) {
+        output.WriteRawTag(32);
+        output.WriteSInt64(TermNumber);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (EndRoundNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EndRoundNumber);
+      }
+      if (TotalBlocks != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TotalBlocks);
+      }
+      size += candidatesVotes_.CalculateSize(_map_candidatesVotes_codec);
+      if (TermNumber != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TermNumber);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(TermSnapshot other) {
+      if (other == null) {
+        return;
+      }
+      if (other.EndRoundNumber != 0L) {
+        EndRoundNumber = other.EndRoundNumber;
+      }
+      if (other.TotalBlocks != 0L) {
+        TotalBlocks = other.TotalBlocks;
+      }
+      candidatesVotes_.Add(other.candidatesVotes_);
+      if (other.TermNumber != 0L) {
+        TermNumber = other.TermNumber;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            EndRoundNumber = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            TotalBlocks = input.ReadSInt64();
+            break;
+          }
+          case 26: {
+            candidatesVotes_.AddEntriesFrom(input, _map_candidatesVotes_codec);
+            break;
+          }
+          case 32: {
+            TermNumber = input.ReadSInt64();
             break;
           }
         }
