@@ -59,9 +59,9 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
-                performance.InitExecRpcCommand();
-                performance.DeployContract();
-                performance.InitializeContract();
+                performance.InitExecCommand();
+                performance.DeployContracts();
+                performance.InitializeContracts();
 
                 ExecuteRpcTask(performance, ExecuteMode);
             }
@@ -111,20 +111,20 @@ namespace AElf.Automation.RpcPerformance
             switch (tm)
             {
                 case TestMode.CommonTx:
-                    Logger.WriteInfo("Run with tx mode [1].");
-                    performance.ExecuteContracts();
+                    Logger.WriteInfo($"Run with tx mode: {tm.ToString()}.");
+                    performance.ExecuteOneRoundTransactionTask();
                     break;
                 case TestMode.ContinuousTx:
-                    Logger.WriteInfo("Run with continuous tx mode [2].");
-                    performance.ExecuteMultiRpcTask();
+                    Logger.WriteInfo($"Run with continuous tx mode: {tm.ToString()}.");
+                    performance.ExecuteContinuousRoundsTransactionsTask();
                     break;
                 case TestMode.BatchTxs:
-                    Logger.WriteInfo("Run with txs mode [3].");
-                    performance.ExecuteContractsRpc();
+                    Logger.WriteInfo($"Run with txs mode: {tm.ToString()}.");
+                    performance.ExecuteOneRoundTransactionsTask();
                     break;
                 case TestMode.ContinuousTxs:
-                    Logger.WriteInfo("Run with continuous txs mode [4].");
-                    performance.ExecuteMultiRpcTask(true);
+                    Logger.WriteInfo($"Run with continuous txs mode: {tm.ToString()}.");
+                    performance.ExecuteContinuousRoundsTransactionsTask(true);
                     break;
                 case TestMode.NotSet:
                     break;

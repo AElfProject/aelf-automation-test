@@ -39,13 +39,6 @@ namespace AElf.Automation.RpcPerformance
             AccountId = accId;
             ContractPath = contractPath;
         }
-        
-        public Contract(int accId, string contractPath, string symbol)
-        {
-            AccountId = accId;
-            ContractPath = contractPath;
-            Symbol = symbol;
-        }
     }
 
     public class ExecutionCategory
@@ -61,7 +54,7 @@ namespace AElf.Automation.RpcPerformance
         public List<string> TxIdList { get; set; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
-        private ConcurrentQueue<string> DeployContracts { get; }
+        private ConcurrentQueue<string> DeployContractList { get; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         #endregion
@@ -76,7 +69,7 @@ namespace AElf.Automation.RpcPerformance
 
             AccountList = new List<AccountInfo>();
             ContractList = new List<Contract>();
-            DeployContracts = new ConcurrentQueue<string>();
+            DeployContractList = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
             BlockHeight = 1;
@@ -85,7 +78,7 @@ namespace AElf.Automation.RpcPerformance
             BaseUrl = baseUrl;
         }
 
-        public void InitExecRpcCommand()
+        public void InitExecCommand()
         {
             _logger.WriteInfo("Rpc Url: {0}", BaseUrl);
             _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
@@ -104,28 +97,7 @@ namespace AElf.Automation.RpcPerformance
             UnlockAllAccounts(ThreadCount);
         }
 
-        private void CheckNodeStatus()
-        {
-            for (var i = 0; i < 15; i++)
-            {
-                var ci = new CommandInfo(ApiMethods.GetBlockHeight);
-                ApiHelper.GetBlockHeight(ci);
-                var currentHeight = (long)ci.InfoMsg;
-
-                _logger.WriteInfo("Current block height: {0}", currentHeight);
-                if (BlockHeight != currentHeight)
-                {
-                    BlockHeight = currentHeight;
-                    return;
-                }
-
-                Thread.Sleep(4000);
-                _logger.WriteWarn("Block height not changed round: {0}", i + 1);
-            }
-            Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
-        }
-
-        public void DeployContract()
+        public void DeployContracts()
         {
             var contractList = new List<object>();
             for (var i = 0; i < ThreadCount; i++)
@@ -157,32 +129,33 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(2000);
                 foreach (dynamic item in contractList)
                 {
-                    if (item.Result == false)
+                    if (item.Result != false) continue;
+                    
+                    var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
+                    ApiHelper.ExecuteCommand(ci);
+                    Assert.IsTrue(ci.Result);
+                    var transactionResult = ci.InfoMsg as TransactionResultDto;
+                    var deployResult = transactionResult?.Status;
+                    switch (deployResult)
                     {
-                        var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
-                        ApiHelper.ExecuteCommand(ci);
-                        Assert.IsTrue(ci.Result);
-                        var transactionResult = ci.InfoMsg as TransactionResultDto;
-                        var deployResult = transactionResult?.Status;
-                        switch (deployResult)
+                        case "Mined":
                         {
-                            case "Mined":
-                            {
-                                count++;
-                                item.Result = true;
-                                var contractPath= transactionResult.ReadableReturnValue.Replace("\"","");
-                                ContractList.Add(new Contract(item.Id, contractPath));
-                                AccountList[item.Id].Increment = 1;
-                                break;
-                            }
-                            case "Failed":
-                                _logger.WriteError("Transaction failed.");
-                                _logger.WriteError(transactionResult.Error);
-                                break;
+                            count++;
+                            item.Result = true;
+                            var contractPath= transactionResult.ReadableReturnValue.Replace("\"","");
+                            ContractList.Add(new Contract(item.Id, contractPath));
+                            AccountList[item.Id].Increment = 1;
+                            break;
                         }
-
-                        Thread.Sleep(10);
+                        case "Failed":
+                            _logger.WriteError("Transaction failed.");
+                            _logger.WriteError(transactionResult.Error);
+                            break;
+                        default:
+                            continue;
                     }
+
+                    Thread.Sleep(10);
                 }
 
                 if (count == contractList.Count)
@@ -191,7 +164,7 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsFalse(true, "Deployed contract not executed successfully.");
         }
 
-        public void InitializeContract()
+        public void InitializeContracts()
         {
             //create all token
             foreach (var contract in ContractList)
@@ -250,7 +223,7 @@ namespace AElf.Automation.RpcPerformance
             
             CheckResultStatus(TxIdList);
         }
-        public void ExecuteContracts()
+        public void ExecuteOneRoundTransactionTask()
         {
             _logger.WriteInfo("Start contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Stopwatch exec = new Stopwatch();
@@ -259,17 +232,18 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < ThreadCount; i++)
             {
                 var j = i;
-                contractTasks.Add(Task.Run(() => DoContractCategory(j, ExeTimes)));
+                contractTasks.Add(Task.Run(() => ExecuteTransactionTask(j, ExeTimes)));
             }
 
             Task.WaitAll(contractTasks.ToArray<Task>());
+            
             exec.Stop();
             _logger.WriteInfo("End contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             _logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
             GetExecutedAccount();
         }
 
-        public void ExecuteContractsRpc()
+        public void ExecuteOneRoundTransactionsTask()
         {
             _logger.WriteInfo("Start all generate rpc request at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             var exec = new Stopwatch();
@@ -279,10 +253,10 @@ namespace AElf.Automation.RpcPerformance
             {
                 var j = i;
                 contractTasks.Add(Task.Run(() =>
-                {
+                { 
                     try
                     {
-                        GenerateContractList(j, ExeTimes);
+                        ExecuteBatchTransactionTask(j, ExeTimes);
                     }
                     catch (Exception e)
                     {
@@ -296,9 +270,75 @@ namespace AElf.Automation.RpcPerformance
             _logger.WriteInfo("All rpc requests completed at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             _logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
         }
+        
+        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
+        {
+            _logger.WriteInfo("Begin generate multi rpc requests.");
+            for (var r = 1; r > 0; r++) //continuous running
+            {
+                _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
+                if (useTxs)
+                {
+                    //multi task for BroadcastTransactions query
+                    var txsTasks = new List<Task>();
+                    for (var i = 0; i < ThreadCount; i++)
+                    {
+                        var j = i;
+                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
+                    }
 
+                    Task.WaitAll(txsTasks.ToArray<Task>());
+                }
+                else
+                {
+                    //multi task for BroadcastTransaction query
+                    for (var i = 0; i < ThreadCount; i++)
+                    {
+                        var j = i;
+                        //Generate Rpc contracts
+                        GenerateRawTransactionQueue(j, ExeTimes);
+                        //Send Rpc contracts request
+                        _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
+                        var txTasks = new List<Task>();
+                        for (var k = 0; k < ThreadCount; k++)
+                        {
+                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                        }
+
+                        Task.WaitAll(txTasks.ToArray<Task>());
+                    }
+                }
+
+                Thread.Sleep(1000);
+                CheckNodeStatus(); //check node whether is normal
+            }
+        }
+
+        public void DeleteAccounts()
+        {
+            foreach (var item in AccountList)
+            {
+                var file = Path.Combine(KeyStorePath, $"{item.Account}.ak");
+                File.Delete(file);
+            }
+        }
+        
+        public void PrintContractInfo()
+        {
+            _logger.WriteInfo("Execution account and contract address information:");
+            var count = 0;
+            foreach (var item in ContractList)
+            {
+                count++;
+                _logger.WriteInfo("{0:00}. Account: {1}, ContractAddress:{2}", count, AccountList[item.AccountId].Account,
+                    item.ContractPath);
+            }
+        }
+
+        #region Private Method
+        
         //Without conflict group category
-        private void DoContractCategory(int threadNo, int times)
+        private void ExecuteTransactionTask(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
@@ -362,14 +402,14 @@ namespace AElf.Automation.RpcPerformance
             _logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
         }
 
-        private void GenerateContractList(int threadNo, int times)
+        private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
 
             var set = new HashSet<int>();
 
-            var rpcRequest = new List<string>();
+            var rawTransactions = new List<string>();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
@@ -391,7 +431,7 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                rpcRequest.Add(requestInfo);
+                rawTransactions.Add(requestInfo);
 
                 //Get Balance Info
                 ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance")
@@ -402,32 +442,30 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                rpcRequest.Add(requestInfo);
+                rawTransactions.Add(requestInfo);
             }
 
             _logger.WriteInfo(
-                "Thread [{0}] contracts rpc list from account :{1} and contract abi: {2} generated completed.",
+                "Thread [{0}] from account: {1} and contract address: {2} raw transactions generated completed.",
                 threadNo, account, abiPath);
             //Send RPC Requests
             var ci1 = new CommandInfo(ApiMethods.BroadcastTransactions);
-            foreach (var rpc in rpcRequest)
+            foreach (var rawTransaction in rawTransactions)
             {
-                ci1.Parameter += "," + rpc;
+                ci1.Parameter += "," + rawTransaction;
             }
 
             ci1.Parameter = ci1.Parameter.Substring(1);
             ApiHelper.ExecuteCommand(ci1);
             Assert.IsTrue(ci1.Result);
-            var result = ci1.InfoMsg.ToString().Replace("[", "").Replace("]", "").Split(",");
-            _logger.WriteInfo("Batch request count: {0}, Pass count: {1} at {2}", rpcRequest.Count, result?.Length,
-                DateTime.Now.ToString("HH:mm:ss.fff"));
+            var transactions = (string[])ci1.InfoMsg;
+            _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}", rawTransactions.Count, transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work at {2}.", threadNo, times,
                 DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            _logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
             Thread.Sleep(100);
         }
 
-        private void GenerateRpcList(int threadNo, int times)
+        private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var abiPath = ContractList[threadNo].ContractPath;
@@ -454,7 +492,7 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                DeployContracts.Enqueue(requestInfo);
+                DeployContractList.Enqueue(requestInfo);
 
                 //Get Balance Info
                 ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance")
@@ -465,88 +503,43 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                DeployContracts.Enqueue(requestInfo);
+                DeployContractList.Enqueue(requestInfo);
             }
         }
 
-        private void ExecuteOneRpcTask(int group)
+        private void ExecuteAloneTransactionTask(int group)
         {
             while (true)
             {
-                if (!DeployContracts.TryDequeue(out var rpcMsg))
+                if (!DeployContractList.TryDequeue(out var rpcMsg))
                     break;
-                _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, DeployContracts.Count);
+                _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, DeployContractList.Count);
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }
         }
-
-        public void ExecuteMultiRpcTask(bool useTxs = false)
-        {
-            _logger.WriteInfo("Begin generate multi rpc requests.");
-            for (var r = 1; r > 0; r++) //continuous running
-            {
-                _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
-                if (useTxs)
-                {
-                    //multi task for BroadcastTransactions query
-                    var txsTasks = new List<Task>();
-                    for (var i = 0; i < ThreadCount; i++)
-                    {
-                        var j = i;
-                        txsTasks.Add(Task.Run(() => GenerateContractList(j, ExeTimes)));
-                    }
-
-                    Task.WaitAll(txsTasks.ToArray<Task>());
-                }
-                else
-                {
-                    //multi task for BroadcastTransaction query
-                    for (var i = 0; i < ThreadCount; i++)
-                    {
-                        var j = i;
-                        //Generate Rpc contracts
-                        GenerateRpcList(j, ExeTimes);
-                        //Send Rpc contracts request
-                        _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
-                        var txTasks = new List<Task>();
-                        for (var k = 0; k < ThreadCount; k++)
-                        {
-                            txTasks.Add(Task.Run(() => ExecuteOneRpcTask(j)));
-                        }
-
-                        Task.WaitAll(txTasks.ToArray<Task>());
-                    }
-                }
-
-                Thread.Sleep(1000);
-                CheckNodeStatus(); //check node whether is normal
-            }
-        }
-
-        public void DeleteAccounts()
-        {
-            foreach (var item in AccountList)
-            {
-                var file = Path.Combine(KeyStorePath, $"{item.Account}.ak");
-                File.Delete(file);
-            }
-        }
         
-        public void PrintContractInfo()
+        private void CheckNodeStatus()
         {
-            _logger.WriteInfo("Execution account and contract address information:");
-            var count = 0;
-            foreach (var item in ContractList)
+            for (var i = 0; i < 15; i++)
             {
-                count++;
-                _logger.WriteInfo("{0:00}. Account: {1}, ContractPath:{2}", count, AccountList[item.AccountId].Account,
-                    item.ContractPath);
-            }
-        }
+                var ci = new CommandInfo(ApiMethods.GetBlockHeight);
+                ApiHelper.GetBlockHeight(ci);
+                var currentHeight = (long)ci.InfoMsg;
 
-        #region Private Method
+                _logger.WriteInfo("Current block height: {0}", currentHeight);
+                if (BlockHeight != currentHeight)
+                {
+                    BlockHeight = currentHeight;
+                    return;
+                }
+
+                Thread.Sleep(4000);
+                _logger.WriteWarn("Block height not changed round: {0}", i + 1);
+            }
+            Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
+        }
 
         private void CheckResultStatus(IList<string> idList, int checkTimes = 60)
         {
@@ -671,6 +664,7 @@ namespace AElf.Automation.RpcPerformance
                 builder.Append((char)(26 * random.NextDouble() + startChar));
             return builder.ToString();
         }
+        
         #endregion
     }
 }

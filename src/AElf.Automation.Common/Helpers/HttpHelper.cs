@@ -14,8 +14,6 @@ namespace AElf.Automation.Common.Helpers
 {
     public static class HttpHelper
     {
-        private static readonly HttpClient Client = new HttpClient();
-        
         /// <summary>
         /// post请求
         /// </summary>
@@ -154,18 +152,23 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
             
-            var response = await Client.GetAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+                response = await client.GetAsync(url);
+                response.StatusCode.ShouldBe(expectedStatusCode);
+            }
+            
             return response;
         }
 
-        private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> paramters,
+        private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var response = await PostResponseAsync(url, paramters, version, true, expectedStatusCode);
+            var response = await PostResponseAsync(url, parameters, version, true, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
@@ -174,22 +177,27 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpContent content;
-            if (useApplicationJson)
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
             {
-                Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var paramsStr = JsonConvert.SerializeObject(parameters);
-                content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
-                content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
-            }
-            else
-            {
-                content = new FormUrlEncodedContent(parameters);
-                content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+                HttpContent content;
+                if (useApplicationJson)
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    var paramsStr = JsonConvert.SerializeObject(parameters);
+                    content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
+                }
+                else
+                {
+                    content = new FormUrlEncodedContent(parameters);
+                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+                }
+            
+                response = await client.PostAsync(url, content);
+                response.StatusCode.ShouldBe(expectedStatusCode);
             }
             
-            var response = await Client.PostAsync(url, content);
-            response.StatusCode.ShouldBe(expectedStatusCode);
             return response;
         }
         
@@ -203,22 +211,27 @@ namespace AElf.Automation.Common.Helpers
             });
         }
 
-        public static async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
+        private static async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             var response = await DeleteResponseAsync(url, version, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
-        public static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
+        private static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
             
-            var response = await Client.DeleteAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+                response = await client.DeleteAsync(url);
+                response.StatusCode.ShouldBe(expectedStatusCode);
+            }
+            
             return response;
         }
     }
