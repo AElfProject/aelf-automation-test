@@ -310,6 +310,12 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
+        public void GetTransactionPoolStatus(CommandInfo ci)
+        {
+            ci.InfoMsg = _apiService.GetTransactionPoolStatus().Result;
+            ci.Result = true;
+        }
+
         public JObject QueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var transaction = new Transaction()

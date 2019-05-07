@@ -9,7 +9,7 @@ namespace AElf.Automation.ContractsTesting
 
         public void NodeStateCheck(string name, string rpcUrl)
         {
-            var apiHelper = new RpcApiHelper(rpcUrl);
+            var apiHelper = new WebApiHelper(rpcUrl);
             var nodeStatus = new NodeStatus(apiHelper);
             long height = 1;
             while (true)

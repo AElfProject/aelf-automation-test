@@ -26,6 +26,7 @@ namespace AElf.Automation.Common.Helpers
         void GetBlockHeight(CommandInfo ci);
         void GetBlockByHeight(CommandInfo ci);
         void GetBlockByHash(CommandInfo ci);
+        void GetTransactionPoolStatus(CommandInfo ci);
         JObject QueryView(string from, string to, string methodName, IMessage inputParameter);
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
             where TResult : IMessage<TResult>, new();
