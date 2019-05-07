@@ -1,5 +1,7 @@
 using System;
+using System.Security.Cryptography;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -16,19 +18,20 @@ namespace AElf.Automation.ContractsTesting
         public long GetBlockHeight()
         {
             var command = new CommandInfo(ApiMethods.GetBlockHeight);
-            _apiHelper.RpcGetBlockHeight(command);
-            command.GetJsonInfo();
+            _apiHelper.GetBlockHeight(command);
 
-            return long.Parse(command.JsonInfo["result"].ToString());
+            var height = (long) command.InfoMsg;
+
+            return height;
         }
 
-        public long GetTransactionPoolStatus()
+        public int GetTransactionPoolStatus()
         {
             var command = new CommandInfo(ApiMethods.GetTransactionPoolStatus);
-            _apiHelper.RpcGetTransactionPoolStatus(command);
-            command.GetJsonInfo();
+            _apiHelper.GetTransactionPoolStatus(command);
+            var transactionPoolStatus = command.InfoMsg as GetTransactionPoolStatusOutput;
 
-            return long.Parse(command.JsonInfo["result"]["Queued"].ToString());
+            return transactionPoolStatus?.Queued ?? 0;
         }
     }
 }

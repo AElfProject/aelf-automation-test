@@ -27,56 +27,52 @@ namespace Vote {
             "Cgp2b3RlLnByb3RvEgR2b3RlGgxjb21tb24ucHJvdG8aH2dvb2dsZS9wcm90",
             "b2J1Zi90aW1lc3RhbXAucHJvdG8iRQoYSW5pdGlhbFZvdGVDb250cmFjdElu",
             "cHV0EikKGnRva2VuX2NvbnRyYWN0X3N5c3RlbV9uYW1lGAEgASgLMgUuSGFz",
-            "aCLJAQoTVm90aW5nUmVnaXN0ZXJJbnB1dBIUCgV0b3BpYxgBIAEoCzIFLkhh",
-            "c2gSMwoPc3RhcnRfdGltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVm",
-            "LlRpbWVzdGFtcBIZChFhY2NlcHRlZF9jdXJyZW5jeRgDIAEoCRITCgthY3Rp",
-            "dmVfZGF5cxgEIAEoEhIRCglkZWxlZ2F0ZWQYBSABKAgSEwoLdG90YWxfZXBv",
-            "Y2gYBiABKBISDwoHb3B0aW9ucxgHIAMoCSLmAgoLVm90aW5nRXZlbnQSFAoF",
-            "dG9waWMYASABKAsyBS5IYXNoEhkKB3Nwb25zb3IYAiABKAsyCC5BZGRyZXNz",
-            "EhkKEWFjY2VwdGVkX2N1cnJlbmN5GAMgASgJEhMKC2FjdGl2ZV9kYXlzGAQg",
-            "ASgSEhEKCWRlbGVnYXRlZBgFIAEoCBIVCg1jdXJyZW50X2Vwb2NoGAYgASgS",
-            "EhMKC3RvdGFsX2Vwb2NoGAcgASgSEg8KB29wdGlvbnMYCCADKAkSNgoScmVn",
-            "aXN0ZXJfdGltZXN0YW1wGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVz",
-            "dGFtcBIzCg9zdGFydF90aW1lc3RhbXAYCiABKAsyGi5nb29nbGUucHJvdG9i",
-            "dWYuVGltZXN0YW1wEjkKFWVwb2NoX3N0YXJ0X3RpbWVzdGFtcBgLIAEoCzIa",
-            "Lmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAijQEKCVZvdGVJbnB1dBIUCgV0",
-            "b3BpYxgBIAEoCzIFLkhhc2gSGQoHc3BvbnNvchgCIAEoCzIILkFkZHJlc3MS",
-            "DgoGYW1vdW50GAMgASgSEg4KBm9wdGlvbhgEIAEoCRIWCgd2b3RlX2lkGAUg",
-            "ASgLMgUuSGFzaBIXCgV2b3RlchgGIAEoCzIILkFkZHJlc3MiJwoNV2l0aGRy",
-            "YXdJbnB1dBIWCgd2b3RlX2lkGAEgASgLMgUuSGFzaCJdChRHZXRWb3RpbmdS",
-            "ZXN1bHRJbnB1dBIUCgV0b3BpYxgBIAEoCzIFLkhhc2gSGQoHc3BvbnNvchgC",
-            "IAEoCzIILkFkZHJlc3MSFAoMZXBvY2hfbnVtYmVyGAMgASgSIrUCCgxWb3Rp",
-            "bmdSZXN1bHQSFAoFdG9waWMYASABKAsyBS5IYXNoEhkKB3Nwb25zb3IYAiAB",
-            "KAsyCC5BZGRyZXNzEhQKDGVwb2NoX251bWJlchgDIAEoEhIwCgdyZXN1bHRz",
-            "GAQgAygLMh8udm90ZS5Wb3RpbmdSZXN1bHQuUmVzdWx0c0VudHJ5EhQKDHZv",
-            "dGVyc19jb3VudBgFIAEoEhIzCg9zdGFydF90aW1lc3RhbXAYBiABKAsyGi5n",
-            "b29nbGUucHJvdG9idWYuVGltZXN0YW1wEjEKDWVuZF90aW1lc3RhbXAYByAB",
-            "KAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGi4KDFJlc3VsdHNFbnRy",
-            "eRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKBI6AjgBIkQKFlVwZGF0ZUVw",
-            "b2NoTnVtYmVySW5wdXQSFAoFdG9waWMYASABKAsyBS5IYXNoEhQKDGVwb2No",
-            "X251bWJlchgDIAEoEiKiAgoMVm90aW5nUmVjb3JkEhQKBXRvcGljGAEgASgL",
-            "MgUuSGFzaBIZCgdzcG9uc29yGAIgASgLMgguQWRkcmVzcxIUCgxlcG9jaF9u",
-            "dW1iZXIYAyABKBISFwoFdm90ZXIYBCABKAsyCC5BZGRyZXNzEg4KBmFtb3Vu",
-            "dBgFIAEoEhI2ChJ3aXRoZHJhd190aW1lc3RhbXAYBiABKAsyGi5nb29nbGUu",
-            "cHJvdG9idWYuVGltZXN0YW1wEjIKDnZvdGVfdGltZXN0YW1wGAcgASgLMhou",
-            "Z29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgxpc193aXRoZHJhd24YCCAB",
-            "KAgSDgoGb3B0aW9uGAkgASgJEhAKCGN1cnJlbmN5GAogASgJIlEKDkFkZE9w",
-            "dGlvbklucHV0EhQKBXRvcGljGAEgASgLMgUuSGFzaBIZCgdzcG9uc29yGAIg",
-            "ASgLMgguQWRkcmVzcxIOCgZvcHRpb24YAyABKAkiVAoRUmVtb3ZlT3B0aW9u",
-            "SW5wdXQSFAoFdG9waWMYASABKAsyBS5IYXNoEhkKB3Nwb25zb3IYAiABKAsy",
-            "CC5BZGRyZXNzEg4KBm9wdGlvbhgDIAEoCSKeAQoPVm90aW5nSGlzdG9yaWVz",
-            "EhcKBXZvdGVyGAEgASgLMgguQWRkcmVzcxIvCgV2b3RlcxgCIAMoCzIgLnZv",
-            "dGUuVm90aW5nSGlzdG9yaWVzLlZvdGVzRW50cnkaQQoKVm90ZXNFbnRyeRIL",
-            "CgNrZXkYASABKAkSIgoFdmFsdWUYAiABKAsyEy52b3RlLlZvdGluZ0hpc3Rv",
-            "cnk6AjgBIkwKDVZvdGluZ0hpc3RvcnkSGwoMYWN0aXZlX3ZvdGVzGAEgAygL",
-            "MgUuSGFzaBIeCg93aXRoZHJhd25fdm90ZXMYAiADKAsyBS5IYXNoImEKFUdl",
-            "dFZvdGluZ0hpc3RvcnlJbnB1dBIXCgV2b3RlchgBIAEoCzIILkFkZHJlc3MS",
-            "FAoFdG9waWMYAiABKAsyBS5IYXNoEhkKB3Nwb25zb3IYAyABKAsyCC5BZGRy",
-            "ZXNzIkYKE0dldFZvdGluZ0V2ZW50SW5wdXQSFAoFdG9waWMYASABKAsyBS5I",
-            "YXNoEhkKB3Nwb25zb3IYAiABKAsyCC5BZGRyZXNzIisKFUdldFZvdGluZ1Jl",
-            "Y29yZHNJbnB1dBISCgNpZHMYASADKAsyBS5IYXNoIj0KFkdldFZvdGluZ1Jl",
-            "Y29yZHNPdXRwdXQSIwoHcmVjb3JkcxgBIAMoCzISLnZvdGUuVm90aW5nUmVj",
-            "b3JkYgZwcm90bzM="));
+            "aCLCAQoTVm90aW5nUmVnaXN0ZXJJbnB1dBINCgV0b3BpYxgBIAEoCRIzCg9z",
+            "dGFydF90aW1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0",
+            "YW1wEhkKEWFjY2VwdGVkX2N1cnJlbmN5GAMgASgJEhMKC2FjdGl2ZV9kYXlz",
+            "GAQgASgREhEKCWRlbGVnYXRlZBgFIAEoCBITCgt0b3RhbF9lcG9jaBgGIAEo",
+            "ERIPCgdvcHRpb25zGAcgAygJIt8CCgtWb3RpbmdFdmVudBINCgV0b3BpYxgB",
+            "IAEoCRIZCgdzcG9uc29yGAIgASgLMgguQWRkcmVzcxIZChFhY2NlcHRlZF9j",
+            "dXJyZW5jeRgDIAEoCRITCgthY3RpdmVfZGF5cxgEIAEoERIRCglkZWxlZ2F0",
+            "ZWQYBSABKAgSFQoNY3VycmVudF9lcG9jaBgGIAEoERITCgt0b3RhbF9lcG9j",
+            "aBgHIAEoERIPCgdvcHRpb25zGAggAygJEjYKEnJlZ2lzdGVyX3RpbWVzdGFt",
+            "cBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPc3RhcnRf",
+            "dGltZXN0YW1wGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI5",
+            "ChVlcG9jaF9zdGFydF90aW1lc3RhbXAYCyABKAsyGi5nb29nbGUucHJvdG9i",
+            "dWYuVGltZXN0YW1wIoYBCglWb3RlSW5wdXQSDQoFdG9waWMYASABKAkSGQoH",
+            "c3BvbnNvchgCIAEoCzIILkFkZHJlc3MSDgoGYW1vdW50GAMgASgSEg4KBm9w",
+            "dGlvbhgEIAEoCRIWCgd2b3RlX2lkGAUgASgLMgUuSGFzaBIXCgV2b3RlchgG",
+            "IAEoCzIILkFkZHJlc3MiJwoNV2l0aGRyYXdJbnB1dBIWCgd2b3RlX2lkGAEg",
+            "ASgLMgUuSGFzaCJWChRHZXRWb3RpbmdSZXN1bHRJbnB1dBINCgV0b3BpYxgB",
+            "IAEoCRIZCgdzcG9uc29yGAIgASgLMgguQWRkcmVzcxIUCgxlcG9jaF9udW1i",
+            "ZXIYAyABKBEirgIKDFZvdGluZ1Jlc3VsdBINCgV0b3BpYxgBIAEoCRIZCgdz",
+            "cG9uc29yGAIgASgLMgguQWRkcmVzcxIUCgxlcG9jaF9udW1iZXIYAyABKBES",
+            "MAoHcmVzdWx0cxgEIAMoCzIfLnZvdGUuVm90aW5nUmVzdWx0LlJlc3VsdHNF",
+            "bnRyeRIUCgx2b3RlcnNfY291bnQYBSABKBESMwoPc3RhcnRfdGltZXN0YW1w",
+            "GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCg1lbmRfdGlt",
+            "ZXN0YW1wGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBouCgxS",
+            "ZXN1bHRzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgSOgI4ASI9",
+            "ChZVcGRhdGVFcG9jaE51bWJlcklucHV0Eg0KBXRvcGljGAEgASgJEhQKDGVw",
+            "b2NoX251bWJlchgDIAEoESKbAgoMVm90aW5nUmVjb3JkEg0KBXRvcGljGAEg",
+            "ASgJEhkKB3Nwb25zb3IYAiABKAsyCC5BZGRyZXNzEhQKDGVwb2NoX251bWJl",
+            "chgDIAEoERIXCgV2b3RlchgEIAEoCzIILkFkZHJlc3MSDgoGYW1vdW50GAUg",
+            "ASgSEjYKEndpdGhkcmF3X3RpbWVzdGFtcBgGIAEoCzIaLmdvb2dsZS5wcm90",
+            "b2J1Zi5UaW1lc3RhbXASMgoOdm90ZV90aW1lc3RhbXAYByABKAsyGi5nb29n",
+            "bGUucHJvdG9idWYuVGltZXN0YW1wEhQKDGlzX3dpdGhkcmF3bhgIIAEoCBIO",
+            "CgZvcHRpb24YCSABKAkSEAoIY3VycmVuY3kYCiABKAkiSgoOQWRkT3B0aW9u",
+            "SW5wdXQSDQoFdG9waWMYASABKAkSGQoHc3BvbnNvchgCIAEoCzIILkFkZHJl",
+            "c3MSDgoGb3B0aW9uGAMgASgJIk0KEVJlbW92ZU9wdGlvbklucHV0Eg0KBXRv",
+            "cGljGAEgASgJEhkKB3Nwb25zb3IYAiABKAsyCC5BZGRyZXNzEg4KBm9wdGlv",
+            "bhgDIAEoCSKeAQoPVm90aW5nSGlzdG9yaWVzEhcKBXZvdGVyGAEgASgLMggu",
+            "QWRkcmVzcxIvCgV2b3RlcxgCIAMoCzIgLnZvdGUuVm90aW5nSGlzdG9yaWVz",
+            "LlZvdGVzRW50cnkaQQoKVm90ZXNFbnRyeRILCgNrZXkYASABKAkSIgoFdmFs",
+            "dWUYAiABKAsyEy52b3RlLlZvdGluZ0hpc3Rvcnk6AjgBIkwKDVZvdGluZ0hp",
+            "c3RvcnkSGwoMYWN0aXZlX3ZvdGVzGAEgAygLMgUuSGFzaBIeCg93aXRoZHJh",
+            "d25fdm90ZXMYAiADKAsyBS5IYXNoIloKFUdldFZvdGluZ0hpc3RvcnlJbnB1",
+            "dBIXCgV2b3RlchgBIAEoCzIILkFkZHJlc3MSDQoFdG9waWMYAiABKAkSGQoH",
+            "c3BvbnNvchgDIAEoCzIILkFkZHJlc3MiPwoTR2V0Vm90aW5nRXZlbnRJbnB1",
+            "dBINCgV0b3BpYxgBIAEoCRIZCgdzcG9uc29yGAIgASgLMgguQWRkcmVzc2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::AElf.CommonReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -94,9 +90,7 @@ namespace Vote {
             new pbr::GeneratedClrTypeInfo(typeof(global::Vote.VotingHistories), global::Vote.VotingHistories.Parser, new[]{ "Voter", "Votes" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::Vote.VotingHistory), global::Vote.VotingHistory.Parser, new[]{ "ActiveVotes", "WithdrawnVotes" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Vote.GetVotingHistoryInput), global::Vote.GetVotingHistoryInput.Parser, new[]{ "Voter", "Topic", "Sponsor" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Vote.GetVotingEventInput), global::Vote.GetVotingEventInput.Parser, new[]{ "Topic", "Sponsor" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Vote.GetVotingRecordsInput), global::Vote.GetVotingRecordsInput.Parser, new[]{ "Ids" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Vote.GetVotingRecordsOutput), global::Vote.GetVotingRecordsOutput.Parser, new[]{ "Records" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Vote.GetVotingEventInput), global::Vote.GetVotingEventInput.Parser, new[]{ "Topic", "Sponsor" }, null, null, null)
           }));
     }
     #endregion
@@ -263,7 +257,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public VotingRegisterInput(VotingRegisterInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       startTimestamp_ = other.startTimestamp_ != null ? other.startTimestamp_.Clone() : null;
       acceptedCurrency_ = other.acceptedCurrency_;
       activeDays_ = other.activeDays_;
@@ -280,12 +274,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -313,9 +307,9 @@ namespace Vote {
 
     /// <summary>Field number for the "active_days" field.</summary>
     public const int ActiveDaysFieldNumber = 4;
-    private long activeDays_;
+    private int activeDays_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long ActiveDays {
+    public int ActiveDays {
       get { return activeDays_; }
       set {
         activeDays_ = value;
@@ -335,9 +329,9 @@ namespace Vote {
 
     /// <summary>Field number for the "total_epoch" field.</summary>
     public const int TotalEpochFieldNumber = 6;
-    private long totalEpoch_;
+    private int totalEpoch_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long TotalEpoch {
+    public int TotalEpoch {
       get { return totalEpoch_; }
       set {
         totalEpoch_ = value;
@@ -367,7 +361,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(StartTimestamp, other.StartTimestamp)) return false;
       if (AcceptedCurrency != other.AcceptedCurrency) return false;
       if (ActiveDays != other.ActiveDays) return false;
@@ -380,12 +374,12 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (startTimestamp_ != null) hash ^= StartTimestamp.GetHashCode();
       if (AcceptedCurrency.Length != 0) hash ^= AcceptedCurrency.GetHashCode();
-      if (ActiveDays != 0L) hash ^= ActiveDays.GetHashCode();
+      if (ActiveDays != 0) hash ^= ActiveDays.GetHashCode();
       if (Delegated != false) hash ^= Delegated.GetHashCode();
-      if (TotalEpoch != 0L) hash ^= TotalEpoch.GetHashCode();
+      if (TotalEpoch != 0) hash ^= TotalEpoch.GetHashCode();
       hash ^= options_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -400,9 +394,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (startTimestamp_ != null) {
         output.WriteRawTag(18);
@@ -412,17 +406,17 @@ namespace Vote {
         output.WriteRawTag(26);
         output.WriteString(AcceptedCurrency);
       }
-      if (ActiveDays != 0L) {
+      if (ActiveDays != 0) {
         output.WriteRawTag(32);
-        output.WriteSInt64(ActiveDays);
+        output.WriteSInt32(ActiveDays);
       }
       if (Delegated != false) {
         output.WriteRawTag(40);
         output.WriteBool(Delegated);
       }
-      if (TotalEpoch != 0L) {
+      if (TotalEpoch != 0) {
         output.WriteRawTag(48);
-        output.WriteSInt64(TotalEpoch);
+        output.WriteSInt32(TotalEpoch);
       }
       options_.WriteTo(output, _repeated_options_codec);
       if (_unknownFields != null) {
@@ -433,8 +427,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (startTimestamp_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(StartTimestamp);
@@ -442,14 +436,14 @@ namespace Vote {
       if (AcceptedCurrency.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AcceptedCurrency);
       }
-      if (ActiveDays != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ActiveDays);
+      if (ActiveDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ActiveDays);
       }
       if (Delegated != false) {
         size += 1 + 1;
       }
-      if (TotalEpoch != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TotalEpoch);
+      if (TotalEpoch != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(TotalEpoch);
       }
       size += options_.CalculateSize(_repeated_options_codec);
       if (_unknownFields != null) {
@@ -463,11 +457,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.startTimestamp_ != null) {
         if (startTimestamp_ == null) {
@@ -478,13 +469,13 @@ namespace Vote {
       if (other.AcceptedCurrency.Length != 0) {
         AcceptedCurrency = other.AcceptedCurrency;
       }
-      if (other.ActiveDays != 0L) {
+      if (other.ActiveDays != 0) {
         ActiveDays = other.ActiveDays;
       }
       if (other.Delegated != false) {
         Delegated = other.Delegated;
       }
-      if (other.TotalEpoch != 0L) {
+      if (other.TotalEpoch != 0) {
         TotalEpoch = other.TotalEpoch;
       }
       options_.Add(other.options_);
@@ -500,10 +491,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -518,7 +506,7 @@ namespace Vote {
             break;
           }
           case 32: {
-            ActiveDays = input.ReadSInt64();
+            ActiveDays = input.ReadSInt32();
             break;
           }
           case 40: {
@@ -526,7 +514,7 @@ namespace Vote {
             break;
           }
           case 48: {
-            TotalEpoch = input.ReadSInt64();
+            TotalEpoch = input.ReadSInt32();
             break;
           }
           case 58: {
@@ -564,7 +552,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public VotingEvent(VotingEvent other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       acceptedCurrency_ = other.acceptedCurrency_;
       activeDays_ = other.activeDays_;
@@ -585,12 +573,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -618,9 +606,9 @@ namespace Vote {
 
     /// <summary>Field number for the "active_days" field.</summary>
     public const int ActiveDaysFieldNumber = 4;
-    private long activeDays_;
+    private int activeDays_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long ActiveDays {
+    public int ActiveDays {
       get { return activeDays_; }
       set {
         activeDays_ = value;
@@ -640,9 +628,9 @@ namespace Vote {
 
     /// <summary>Field number for the "current_epoch" field.</summary>
     public const int CurrentEpochFieldNumber = 6;
-    private long currentEpoch_;
+    private int currentEpoch_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long CurrentEpoch {
+    public int CurrentEpoch {
       get { return currentEpoch_; }
       set {
         currentEpoch_ = value;
@@ -651,9 +639,9 @@ namespace Vote {
 
     /// <summary>Field number for the "total_epoch" field.</summary>
     public const int TotalEpochFieldNumber = 7;
-    private long totalEpoch_;
+    private int totalEpoch_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long TotalEpoch {
+    public int TotalEpoch {
       get { return totalEpoch_; }
       set {
         totalEpoch_ = value;
@@ -716,7 +704,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (AcceptedCurrency != other.AcceptedCurrency) return false;
       if (ActiveDays != other.ActiveDays) return false;
@@ -733,13 +721,13 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (AcceptedCurrency.Length != 0) hash ^= AcceptedCurrency.GetHashCode();
-      if (ActiveDays != 0L) hash ^= ActiveDays.GetHashCode();
+      if (ActiveDays != 0) hash ^= ActiveDays.GetHashCode();
       if (Delegated != false) hash ^= Delegated.GetHashCode();
-      if (CurrentEpoch != 0L) hash ^= CurrentEpoch.GetHashCode();
-      if (TotalEpoch != 0L) hash ^= TotalEpoch.GetHashCode();
+      if (CurrentEpoch != 0) hash ^= CurrentEpoch.GetHashCode();
+      if (TotalEpoch != 0) hash ^= TotalEpoch.GetHashCode();
       hash ^= options_.GetHashCode();
       if (registerTimestamp_ != null) hash ^= RegisterTimestamp.GetHashCode();
       if (startTimestamp_ != null) hash ^= StartTimestamp.GetHashCode();
@@ -757,9 +745,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
@@ -769,21 +757,21 @@ namespace Vote {
         output.WriteRawTag(26);
         output.WriteString(AcceptedCurrency);
       }
-      if (ActiveDays != 0L) {
+      if (ActiveDays != 0) {
         output.WriteRawTag(32);
-        output.WriteSInt64(ActiveDays);
+        output.WriteSInt32(ActiveDays);
       }
       if (Delegated != false) {
         output.WriteRawTag(40);
         output.WriteBool(Delegated);
       }
-      if (CurrentEpoch != 0L) {
+      if (CurrentEpoch != 0) {
         output.WriteRawTag(48);
-        output.WriteSInt64(CurrentEpoch);
+        output.WriteSInt32(CurrentEpoch);
       }
-      if (TotalEpoch != 0L) {
+      if (TotalEpoch != 0) {
         output.WriteRawTag(56);
-        output.WriteSInt64(TotalEpoch);
+        output.WriteSInt32(TotalEpoch);
       }
       options_.WriteTo(output, _repeated_options_codec);
       if (registerTimestamp_ != null) {
@@ -806,8 +794,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -815,17 +803,17 @@ namespace Vote {
       if (AcceptedCurrency.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AcceptedCurrency);
       }
-      if (ActiveDays != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ActiveDays);
+      if (ActiveDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ActiveDays);
       }
       if (Delegated != false) {
         size += 1 + 1;
       }
-      if (CurrentEpoch != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(CurrentEpoch);
+      if (CurrentEpoch != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(CurrentEpoch);
       }
-      if (TotalEpoch != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TotalEpoch);
+      if (TotalEpoch != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(TotalEpoch);
       }
       size += options_.CalculateSize(_repeated_options_codec);
       if (registerTimestamp_ != null) {
@@ -848,11 +836,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -863,16 +848,16 @@ namespace Vote {
       if (other.AcceptedCurrency.Length != 0) {
         AcceptedCurrency = other.AcceptedCurrency;
       }
-      if (other.ActiveDays != 0L) {
+      if (other.ActiveDays != 0) {
         ActiveDays = other.ActiveDays;
       }
       if (other.Delegated != false) {
         Delegated = other.Delegated;
       }
-      if (other.CurrentEpoch != 0L) {
+      if (other.CurrentEpoch != 0) {
         CurrentEpoch = other.CurrentEpoch;
       }
-      if (other.TotalEpoch != 0L) {
+      if (other.TotalEpoch != 0) {
         TotalEpoch = other.TotalEpoch;
       }
       options_.Add(other.options_);
@@ -906,10 +891,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -924,7 +906,7 @@ namespace Vote {
             break;
           }
           case 32: {
-            ActiveDays = input.ReadSInt64();
+            ActiveDays = input.ReadSInt32();
             break;
           }
           case 40: {
@@ -932,11 +914,11 @@ namespace Vote {
             break;
           }
           case 48: {
-            CurrentEpoch = input.ReadSInt64();
+            CurrentEpoch = input.ReadSInt32();
             break;
           }
           case 56: {
-            TotalEpoch = input.ReadSInt64();
+            TotalEpoch = input.ReadSInt32();
             break;
           }
           case 66: {
@@ -995,7 +977,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public VoteInput(VoteInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       amount_ = other.amount_;
       option_ = other.option_;
@@ -1011,12 +993,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -1088,7 +1070,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (Amount != other.Amount) return false;
       if (Option != other.Option) return false;
@@ -1100,7 +1082,7 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (Amount != 0L) hash ^= Amount.GetHashCode();
       if (Option.Length != 0) hash ^= Option.GetHashCode();
@@ -1119,9 +1101,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
@@ -1151,8 +1133,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -1180,11 +1162,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -1222,10 +1201,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -1423,7 +1399,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetVotingResultInput(GetVotingResultInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       epochNumber_ = other.epochNumber_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -1436,12 +1412,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -1458,9 +1434,9 @@ namespace Vote {
 
     /// <summary>Field number for the "epoch_number" field.</summary>
     public const int EpochNumberFieldNumber = 3;
-    private long epochNumber_;
+    private int epochNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long EpochNumber {
+    public int EpochNumber {
       get { return epochNumber_; }
       set {
         epochNumber_ = value;
@@ -1480,7 +1456,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (EpochNumber != other.EpochNumber) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -1489,9 +1465,9 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
-      if (EpochNumber != 0L) hash ^= EpochNumber.GetHashCode();
+      if (EpochNumber != 0) hash ^= EpochNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1505,17 +1481,17 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
         output.WriteMessage(Sponsor);
       }
-      if (EpochNumber != 0L) {
+      if (EpochNumber != 0) {
         output.WriteRawTag(24);
-        output.WriteSInt64(EpochNumber);
+        output.WriteSInt32(EpochNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1525,14 +1501,14 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
       }
-      if (EpochNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EpochNumber);
+      if (EpochNumber != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(EpochNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1545,11 +1521,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -1557,7 +1530,7 @@ namespace Vote {
         }
         Sponsor.MergeFrom(other.Sponsor);
       }
-      if (other.EpochNumber != 0L) {
+      if (other.EpochNumber != 0) {
         EpochNumber = other.EpochNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1572,10 +1545,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -1586,7 +1556,7 @@ namespace Vote {
             break;
           }
           case 24: {
-            EpochNumber = input.ReadSInt64();
+            EpochNumber = input.ReadSInt32();
             break;
           }
         }
@@ -1620,7 +1590,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public VotingResult(VotingResult other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       epochNumber_ = other.epochNumber_;
       results_ = other.results_.Clone();
@@ -1637,12 +1607,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -1659,9 +1629,9 @@ namespace Vote {
 
     /// <summary>Field number for the "epoch_number" field.</summary>
     public const int EpochNumberFieldNumber = 3;
-    private long epochNumber_;
+    private int epochNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long EpochNumber {
+    public int EpochNumber {
       get { return epochNumber_; }
       set {
         epochNumber_ = value;
@@ -1680,9 +1650,9 @@ namespace Vote {
 
     /// <summary>Field number for the "voters_count" field.</summary>
     public const int VotersCountFieldNumber = 5;
-    private long votersCount_;
+    private int votersCount_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long VotersCount {
+    public int VotersCount {
       get { return votersCount_; }
       set {
         votersCount_ = value;
@@ -1724,7 +1694,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (EpochNumber != other.EpochNumber) return false;
       if (!Results.Equals(other.Results)) return false;
@@ -1737,11 +1707,11 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
-      if (EpochNumber != 0L) hash ^= EpochNumber.GetHashCode();
+      if (EpochNumber != 0) hash ^= EpochNumber.GetHashCode();
       hash ^= Results.GetHashCode();
-      if (VotersCount != 0L) hash ^= VotersCount.GetHashCode();
+      if (VotersCount != 0) hash ^= VotersCount.GetHashCode();
       if (startTimestamp_ != null) hash ^= StartTimestamp.GetHashCode();
       if (endTimestamp_ != null) hash ^= EndTimestamp.GetHashCode();
       if (_unknownFields != null) {
@@ -1757,22 +1727,22 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
         output.WriteMessage(Sponsor);
       }
-      if (EpochNumber != 0L) {
+      if (EpochNumber != 0) {
         output.WriteRawTag(24);
-        output.WriteSInt64(EpochNumber);
+        output.WriteSInt32(EpochNumber);
       }
       results_.WriteTo(output, _map_results_codec);
-      if (VotersCount != 0L) {
+      if (VotersCount != 0) {
         output.WriteRawTag(40);
-        output.WriteSInt64(VotersCount);
+        output.WriteSInt32(VotersCount);
       }
       if (startTimestamp_ != null) {
         output.WriteRawTag(50);
@@ -1790,18 +1760,18 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
       }
-      if (EpochNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EpochNumber);
+      if (EpochNumber != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(EpochNumber);
       }
       size += results_.CalculateSize(_map_results_codec);
-      if (VotersCount != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(VotersCount);
+      if (VotersCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(VotersCount);
       }
       if (startTimestamp_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(StartTimestamp);
@@ -1820,11 +1790,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -1832,11 +1799,11 @@ namespace Vote {
         }
         Sponsor.MergeFrom(other.Sponsor);
       }
-      if (other.EpochNumber != 0L) {
+      if (other.EpochNumber != 0) {
         EpochNumber = other.EpochNumber;
       }
       results_.Add(other.results_);
-      if (other.VotersCount != 0L) {
+      if (other.VotersCount != 0) {
         VotersCount = other.VotersCount;
       }
       if (other.startTimestamp_ != null) {
@@ -1863,10 +1830,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -1877,7 +1841,7 @@ namespace Vote {
             break;
           }
           case 24: {
-            EpochNumber = input.ReadSInt64();
+            EpochNumber = input.ReadSInt32();
             break;
           }
           case 34: {
@@ -1885,7 +1849,7 @@ namespace Vote {
             break;
           }
           case 40: {
-            VotersCount = input.ReadSInt64();
+            VotersCount = input.ReadSInt32();
             break;
           }
           case 50: {
@@ -1933,7 +1897,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public UpdateEpochNumberInput(UpdateEpochNumberInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       epochNumber_ = other.epochNumber_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -1945,20 +1909,20 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
     /// <summary>Field number for the "epoch_number" field.</summary>
     public const int EpochNumberFieldNumber = 3;
-    private long epochNumber_;
+    private int epochNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long EpochNumber {
+    public int EpochNumber {
       get { return epochNumber_; }
       set {
         epochNumber_ = value;
@@ -1978,7 +1942,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (EpochNumber != other.EpochNumber) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -1986,8 +1950,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
-      if (EpochNumber != 0L) hash ^= EpochNumber.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
+      if (EpochNumber != 0) hash ^= EpochNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2001,13 +1965,13 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
-      if (EpochNumber != 0L) {
+      if (EpochNumber != 0) {
         output.WriteRawTag(24);
-        output.WriteSInt64(EpochNumber);
+        output.WriteSInt32(EpochNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -2017,11 +1981,11 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
-      if (EpochNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EpochNumber);
+      if (EpochNumber != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(EpochNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2034,13 +1998,10 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
-      if (other.EpochNumber != 0L) {
+      if (other.EpochNumber != 0) {
         EpochNumber = other.EpochNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -2055,14 +2016,11 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 24: {
-            EpochNumber = input.ReadSInt64();
+            EpochNumber = input.ReadSInt32();
             break;
           }
         }
@@ -2096,7 +2054,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public VotingRecord(VotingRecord other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       epochNumber_ = other.epochNumber_;
       voter_ = other.voter_ != null ? other.voter_.Clone() : null;
@@ -2116,12 +2074,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -2138,9 +2096,9 @@ namespace Vote {
 
     /// <summary>Field number for the "epoch_number" field.</summary>
     public const int EpochNumberFieldNumber = 3;
-    private long epochNumber_;
+    private int epochNumber_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long EpochNumber {
+    public int EpochNumber {
       get { return epochNumber_; }
       set {
         epochNumber_ = value;
@@ -2237,7 +2195,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (EpochNumber != other.EpochNumber) return false;
       if (!object.Equals(Voter, other.Voter)) return false;
@@ -2253,9 +2211,9 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
-      if (EpochNumber != 0L) hash ^= EpochNumber.GetHashCode();
+      if (EpochNumber != 0) hash ^= EpochNumber.GetHashCode();
       if (voter_ != null) hash ^= Voter.GetHashCode();
       if (Amount != 0L) hash ^= Amount.GetHashCode();
       if (withdrawTimestamp_ != null) hash ^= WithdrawTimestamp.GetHashCode();
@@ -2276,17 +2234,17 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
         output.WriteMessage(Sponsor);
       }
-      if (EpochNumber != 0L) {
+      if (EpochNumber != 0) {
         output.WriteRawTag(24);
-        output.WriteSInt64(EpochNumber);
+        output.WriteSInt32(EpochNumber);
       }
       if (voter_ != null) {
         output.WriteRawTag(34);
@@ -2324,14 +2282,14 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
       }
-      if (EpochNumber != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(EpochNumber);
+      if (EpochNumber != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(EpochNumber);
       }
       if (voter_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Voter);
@@ -2365,11 +2323,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -2377,7 +2332,7 @@ namespace Vote {
         }
         Sponsor.MergeFrom(other.Sponsor);
       }
-      if (other.EpochNumber != 0L) {
+      if (other.EpochNumber != 0) {
         EpochNumber = other.EpochNumber;
       }
       if (other.voter_ != null) {
@@ -2422,10 +2377,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -2436,7 +2388,7 @@ namespace Vote {
             break;
           }
           case 24: {
-            EpochNumber = input.ReadSInt64();
+            EpochNumber = input.ReadSInt32();
             break;
           }
           case 34: {
@@ -2507,7 +2459,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public AddOptionInput(AddOptionInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       option_ = other.option_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -2520,12 +2472,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -2564,7 +2516,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (Option != other.Option) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -2573,7 +2525,7 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (Option.Length != 0) hash ^= Option.GetHashCode();
       if (_unknownFields != null) {
@@ -2589,9 +2541,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
@@ -2609,8 +2561,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -2629,11 +2581,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -2656,10 +2605,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -2704,7 +2650,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public RemoveOptionInput(RemoveOptionInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       option_ = other.option_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -2717,12 +2663,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -2761,7 +2707,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       if (Option != other.Option) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -2770,7 +2716,7 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (Option.Length != 0) hash ^= Option.GetHashCode();
       if (_unknownFields != null) {
@@ -2786,9 +2732,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
@@ -2806,8 +2752,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -2826,11 +2772,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -2853,10 +2796,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -3198,7 +3138,7 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetVotingHistoryInput(GetVotingHistoryInput other) : this() {
       voter_ = other.voter_ != null ? other.voter_.Clone() : null;
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -3221,12 +3161,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 2;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -3255,7 +3195,7 @@ namespace Vote {
         return true;
       }
       if (!object.Equals(Voter, other.Voter)) return false;
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -3264,7 +3204,7 @@ namespace Vote {
     public override int GetHashCode() {
       int hash = 1;
       if (voter_ != null) hash ^= Voter.GetHashCode();
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -3283,9 +3223,9 @@ namespace Vote {
         output.WriteRawTag(10);
         output.WriteMessage(Voter);
       }
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(26);
@@ -3302,8 +3242,8 @@ namespace Vote {
       if (voter_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Voter);
       }
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -3325,11 +3265,8 @@ namespace Vote {
         }
         Voter.MergeFrom(other.Voter);
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -3356,10 +3293,7 @@ namespace Vote {
             break;
           }
           case 18: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 26: {
@@ -3400,7 +3334,7 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetVotingEventInput(GetVotingEventInput other) : this() {
-      topic_ = other.topic_ != null ? other.topic_.Clone() : null;
+      topic_ = other.topic_;
       sponsor_ = other.sponsor_ != null ? other.sponsor_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -3412,12 +3346,12 @@ namespace Vote {
 
     /// <summary>Field number for the "topic" field.</summary>
     public const int TopicFieldNumber = 1;
-    private global::AElf.Hash topic_;
+    private string topic_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::AElf.Hash Topic {
+    public string Topic {
       get { return topic_; }
       set {
-        topic_ = value;
+        topic_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -3445,7 +3379,7 @@ namespace Vote {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Topic, other.Topic)) return false;
+      if (Topic != other.Topic) return false;
       if (!object.Equals(Sponsor, other.Sponsor)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -3453,7 +3387,7 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (topic_ != null) hash ^= Topic.GetHashCode();
+      if (Topic.Length != 0) hash ^= Topic.GetHashCode();
       if (sponsor_ != null) hash ^= Sponsor.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -3468,9 +3402,9 @@ namespace Vote {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (topic_ != null) {
+      if (Topic.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteMessage(Topic);
+        output.WriteString(Topic);
       }
       if (sponsor_ != null) {
         output.WriteRawTag(18);
@@ -3484,8 +3418,8 @@ namespace Vote {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (topic_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Topic);
+      if (Topic.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Topic);
       }
       if (sponsor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Sponsor);
@@ -3501,11 +3435,8 @@ namespace Vote {
       if (other == null) {
         return;
       }
-      if (other.topic_ != null) {
-        if (topic_ == null) {
-          Topic = new global::AElf.Hash();
-        }
-        Topic.MergeFrom(other.Topic);
+      if (other.Topic.Length != 0) {
+        Topic = other.Topic;
       }
       if (other.sponsor_ != null) {
         if (sponsor_ == null) {
@@ -3525,10 +3456,7 @@ namespace Vote {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (topic_ == null) {
-              Topic = new global::AElf.Hash();
-            }
-            input.ReadMessage(Topic);
+            Topic = input.ReadString();
             break;
           }
           case 18: {
@@ -3536,248 +3464,6 @@ namespace Vote {
               Sponsor = new global::AElf.Address();
             }
             input.ReadMessage(Sponsor);
-            break;
-          }
-        }
-      }
-    }
-
-  }
-
-  public sealed partial class GetVotingRecordsInput : pb::IMessage<GetVotingRecordsInput> {
-    private static readonly pb::MessageParser<GetVotingRecordsInput> _parser = new pb::MessageParser<GetVotingRecordsInput>(() => new GetVotingRecordsInput());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetVotingRecordsInput> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Vote.VoteReflection.Descriptor.MessageTypes[15]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsInput() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsInput(GetVotingRecordsInput other) : this() {
-      ids_ = other.ids_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsInput Clone() {
-      return new GetVotingRecordsInput(this);
-    }
-
-    /// <summary>Field number for the "ids" field.</summary>
-    public const int IdsFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::AElf.Hash> _repeated_ids_codec
-        = pb::FieldCodec.ForMessage(10, global::AElf.Hash.Parser);
-    private readonly pbc::RepeatedField<global::AElf.Hash> ids_ = new pbc::RepeatedField<global::AElf.Hash>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::AElf.Hash> Ids {
-      get { return ids_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetVotingRecordsInput);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetVotingRecordsInput other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!ids_.Equals(other.ids_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= ids_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-      ids_.WriteTo(output, _repeated_ids_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += ids_.CalculateSize(_repeated_ids_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetVotingRecordsInput other) {
-      if (other == null) {
-        return;
-      }
-      ids_.Add(other.ids_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            ids_.AddEntriesFrom(input, _repeated_ids_codec);
-            break;
-          }
-        }
-      }
-    }
-
-  }
-
-  public sealed partial class GetVotingRecordsOutput : pb::IMessage<GetVotingRecordsOutput> {
-    private static readonly pb::MessageParser<GetVotingRecordsOutput> _parser = new pb::MessageParser<GetVotingRecordsOutput>(() => new GetVotingRecordsOutput());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetVotingRecordsOutput> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Vote.VoteReflection.Descriptor.MessageTypes[16]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsOutput() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsOutput(GetVotingRecordsOutput other) : this() {
-      records_ = other.records_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetVotingRecordsOutput Clone() {
-      return new GetVotingRecordsOutput(this);
-    }
-
-    /// <summary>Field number for the "records" field.</summary>
-    public const int RecordsFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Vote.VotingRecord> _repeated_records_codec
-        = pb::FieldCodec.ForMessage(10, global::Vote.VotingRecord.Parser);
-    private readonly pbc::RepeatedField<global::Vote.VotingRecord> records_ = new pbc::RepeatedField<global::Vote.VotingRecord>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Vote.VotingRecord> Records {
-      get { return records_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetVotingRecordsOutput);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetVotingRecordsOutput other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!records_.Equals(other.records_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= records_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-      records_.WriteTo(output, _repeated_records_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += records_.CalculateSize(_repeated_records_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetVotingRecordsOutput other) {
-      if (other == null) {
-        return;
-      }
-      records_.Add(other.records_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            records_.AddEntriesFrom(input, _repeated_records_codec);
             break;
           }
         }

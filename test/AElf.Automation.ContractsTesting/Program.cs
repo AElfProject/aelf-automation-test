@@ -8,6 +8,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using AElf.Kernel;
+using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -18,6 +19,7 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private string TokenContract { get; set; }
         private List<string> Users { get; set; }
         #endregion
 
@@ -56,7 +58,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            var ch = new RpcApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -65,6 +67,7 @@ namespace AElf.Automation.ContractsTesting
 
             //Account preparation
             Users = new List<string>();
+
             for (var i = 0; i < 5; i++)
             {
                 ci = new CommandInfo(ApiMethods.AccountNew)
@@ -73,7 +76,7 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ci = ch.NewAccount(ci);
                 if(ci.Result)
-                    Users.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
+                    Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo(ApiMethods.AccountUnlock)
@@ -98,49 +101,23 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region Block verify testing
-
-            var blockHeight = 1;
-            var transactionCollection = new List<string>();
-            while (true)
+            var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
+            ch.GetBlockHeight(heightCi);
+            var height = (long)heightCi.InfoMsg;
+            for (var i = 1; i <= height; i++)
             {
-                var heightCommand = new CommandInfo(ApiMethods.GetBlockHeight);
-                ch.RpcGetBlockHeight(heightCommand);
-                heightCommand.GetJsonInfo();
-                var height = int.Parse(heightCommand.JsonInfo["result"].ToString());
-                if (blockHeight == height)
+                var blockCi = new CommandInfo(ApiMethods.GetBlockByHeight)
                 {
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    for (var i = blockHeight; i < height; i++)
-                    {
-                        var j = i;
-                        var blockCommand = new CommandInfo(ApiMethods.GetBlockInfo)
-                        {
-                            Parameter = $"{j} true"
-                        };
-                        ch.RpcGetBlockInfo(blockCommand);
-                        blockCommand.GetJsonInfo();
-                        var blockHash = blockCommand.JsonInfo["result"]["BlockHash"].ToString();
-                        var txCount =
-                            int.Parse(blockCommand.JsonInfo["result"]["Body"]["TransactionsCount"].ToString());
-                        var time = blockCommand.JsonInfo["result"]["Header"]["Time"].ToString();
-                        var transactions = blockCommand.JsonInfo["result"]["Body"]["Transactions"].ToArray();
-                        Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}, Time: {3}", 
-                            j, blockHash, txCount, time);
-                        foreach (var transaction in transactions)
-                        {
-                            var tx = transaction.ToString();
-                            transactionCollection.Contains(tx).ShouldBeFalse($"height: {j}, transaction: {transaction}");
-                            transactionCollection.Add(tx);
-                        }
-                    }
-
-                    blockHeight = height;
-                }
+                    Parameter = $"{i} false"
+                };
+                ch.GetBlockByHeight(blockCi);
+                var blockInfo = blockCi.InfoMsg as BlockDto;
+                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
+                    i,
+                    blockInfo?.BlockHash,
+                    blockInfo?.Body.TransactionsCount);
             }
-            
+
             #endregion
         }
     }

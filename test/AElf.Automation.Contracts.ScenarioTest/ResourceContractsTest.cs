@@ -17,7 +17,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string TokenContract { get; set; }
         public string FeeReceiverContract { get; set; }
         public string TokenConverterContract { get; set; }
-        public RpcApiHelper CH { get; set; }
+        public WebApiHelper CH { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
         public List<string> AccList { get; set; }
         public string TokenSymbol { get; } = "ELF";
@@ -39,11 +39,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.RpcGetChainInformation(ci);
+            CH.GetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Get MultiToken and TokenConverter contract address 
@@ -57,7 +57,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ci.Parameter = "123";
                 ci = CH.NewAccount(ci);
                 if (ci.Result)
-                    AccList.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
+                    AccList.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var ic = new CommandInfo(ApiMethods.AccountUnlock)

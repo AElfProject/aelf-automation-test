@@ -17,13 +17,13 @@ namespace AElf.Automation.TransactionExecution
         private static string TokenAddress { get; set; }
         private static List<string> Users { get; set; }
 
-        private static RpcApiHelper CH { get; set; }
+        private static WebApiHelper ApiHelper { get; set; }
 
         private static TokenExecutor Executor { get; set; }
 
         #endregion
 
-        public static string Endpoint { get; set; } = "http://192.168.197.13:8100/chain";
+        public static string Endpoint { get; set; } = "http://192.168.197.13:8100";
 
         static void Main(string[] args)
         {
@@ -33,11 +33,11 @@ namespace AElf.Automation.TransactionExecution
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            CH = new RpcApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            ApiHelper = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.ExecuteCommand(ci);
+            ApiHelper.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Account preparation
@@ -46,19 +46,19 @@ namespace AElf.Automation.TransactionExecution
             for (int i = 0; i < 5; i++)
             {
                 ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
-                ci = CH.NewAccount(ci);
+                ci = ApiHelper.NewAccount(ci);
                 if(ci.Result)
-                    Users.Add(ci.InfoMsg?[0].ToString().Replace("Account address:", "").Trim());
+                    Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo(ApiMethods.AccountUnlock);
                 uc.Parameter = $"{Users[i]} 123 notimeout";
-                CH.UnlockAccount(uc);
+                ApiHelper.UnlockAccount(uc);
             }
             #endregion
 
             #region Transaction Execution
-            Executor = new TokenExecutor(CH, Users[0]);
+            Executor = new TokenExecutor(ApiHelper, Users[0]);
             TokenAddress = Executor.Token.ContractAddress;
 
             //Transfer and check

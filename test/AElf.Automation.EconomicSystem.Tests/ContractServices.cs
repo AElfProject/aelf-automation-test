@@ -61,7 +61,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.RpcGetChainInformation(ci);
+            ApiHelper.GetChainInformation(ci);
         }
     }
 }

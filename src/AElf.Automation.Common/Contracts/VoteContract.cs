@@ -22,13 +22,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class VoteContract : BaseContract<VoteMethod>
     {
-        public VoteContract(IApiHelper ch, string callAddress) :
-            base(ch, "AElf.Contracts.Vote", callAddress)
+        public VoteContract(IApiHelper apiHelper, string callAddress) :
+            base(apiHelper, "AElf.Contracts.Vote", callAddress)
         {
         }
 
-        public VoteContract(IApiHelper ch, string callAddress, string contractAddress):
-            base(ch, contractAddress)
+        public VoteContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

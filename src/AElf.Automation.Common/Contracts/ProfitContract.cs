@@ -24,13 +24,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ProfitContract : BaseContract<ProfitMethod>
     {
-        public ProfitContract(IApiHelper ch, string callAddress) :
-            base(ch, "AElf.Contracts.Profit", callAddress)
+        public ProfitContract(IApiHelper apiHelper, string callAddress) :
+            base(apiHelper, "AElf.Contracts.Profit", callAddress)
         {
         }
 
-        public ProfitContract(IApiHelper ch, string callAddress, string contractAddress):
-            base(ch, contractAddress)
+        public ProfitContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

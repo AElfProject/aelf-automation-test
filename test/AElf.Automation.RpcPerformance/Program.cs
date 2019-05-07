@@ -50,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance = new RpcOperation(ThreadCount, TransactionGroup, RpcUrl);
+            var performance = new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl);
             //Init Logger
             var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
@@ -87,7 +87,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(RpcOperation performance, int execMode = 0)
+        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = 0)
         {
             if (execMode == 0)
             {

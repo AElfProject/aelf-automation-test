@@ -12,60 +12,51 @@ namespace AElf.Automation.Common.Helpers
     {
         public string Category { get; set; }
         public string Cmd { get; set; }
-        public string Parameter { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public string ContractMethod { get; set; }
-        
         public IMessage ParameterInput { get; set; }
+        public string Parameter { get; set; }
         public ApiMethods Method { get; set; }
+        public string ContractMethod { get; set; }
 
         public bool Result { get; set; }
         public JObject JsonInfo { get; set; }
-        public List<object> InfoMsg { get; set; }
-        public List<object> ErrorMsg { get; set; }
-        public long TimeSpan { get; set; }
+        public object InfoMsg { get; set; }
+        public object ErrorMsg { get; set; }
+        
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
+        public CommandInfo() {}
         public CommandInfo(string cmd, string category="")
         {
             Category = (category == "") ? cmd : category; 
             Cmd = cmd;
             Parameter = string.Empty;
-            InfoMsg = new List<object>();
-            ErrorMsg = new List<object>();
             Result = false;
-            TimeSpan = 0;
         }
 
         public CommandInfo(ApiMethods method, string from, string to, string contractMethod)
         {
             Category = method.ToString();
             Cmd = method.ToString();
+            Method = method;
             From = from;
             To = to;
             ContractMethod = contractMethod;
-            
-            InfoMsg = new List<object>();
-            ErrorMsg = new List<object>();
             Result = false;
-            TimeSpan = 0;
         }
 
         public CommandInfo(ApiMethods method, params object[] objects)
         {
             Category = method.ToString();
             Cmd = method.ToString();
+            Method = method;
             foreach (var parameter in objects)
             {
                 Parameter += parameter + " ";
             }
             Parameter = Parameter?.Trim();
-
-            InfoMsg = new List<object>();
-            ErrorMsg = new List<object>();
             Result = false;
-            TimeSpan = 0;
         }
 
         public CommandInfo Execute(IApiHelper apiHelper, bool convertJson = false)
@@ -80,28 +71,26 @@ namespace AElf.Automation.Common.Helpers
 
         public void GetJsonInfo()
         {
-            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg[0].ToString() : ErrorMsg[0].ToString());
+            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg.ToString() : ErrorMsg.ToString());
         }
 
         public void PrintResultMessage()
         {
             if (Result)
             {
-                _logger.WriteInfo("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Pass");
-                foreach(var item in InfoMsg)
-                    _logger.WriteInfo(item.ToString());
+                _logger.WriteInfo("Request: {0}: Result: {1}", Category, "Pass");
+                    _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
             }
             else
             {
-                _logger.WriteError("Request: {0}: ExecuteTime: {1}ms, Result: {2}", Category, TimeSpan, "Failed");
-                foreach(var item in ErrorMsg)
-                    _logger.WriteError(item.ToString());
+                _logger.WriteError("Request: {0}: Result: {1}", Category, "Failed");
+                    _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
             }
         }
 
         public string GetErrorMessage()
         {
-            return ErrorMsg.Count > 0 ? ErrorMsg[0].ToString() : string.Empty;
+            return ErrorMsg!=null ? ErrorMsg.ToString() : string.Empty;
         }
 
         public bool CheckParameterValid(int count)
@@ -112,7 +101,7 @@ namespace AElf.Automation.Common.Helpers
             var paraArray = Parameter.Split(" ");
             if (paraArray.Length == count) return true;
             
-            ErrorMsg.Add("Parameter error.");
+            ErrorMsg = "Parameter error.";
             _logger.WriteError("{0} command parameter is invalid.", Category);
             return false;
         }
@@ -128,7 +117,7 @@ namespace AElf.Automation.Common.Helpers
                 result = true;
 
             if (result) return true;
-            ErrorMsg.Add("Parameter error.");
+            ErrorMsg = "Parameter error.";
             _logger.WriteError($"{Method.ToString()} command parameter is invalid.");
 
             return false;
@@ -141,9 +130,6 @@ namespace AElf.Automation.Common.Helpers
         public int Count { get; set; }
         public int PassCount { get; set; }
         public int FailCount { get; set; }
-        public long TotalTimeInfo { get; set; }
-        public double AverageTimeInfo { get; set; }
-
         public List<CommandInfo> Commands { get; set; }
 
         public CategoryRequest()
@@ -152,8 +138,6 @@ namespace AElf.Automation.Common.Helpers
             Count = 0;
             PassCount = 0;
             FailCount = 0;
-            TotalTimeInfo = 0;
-            AverageTimeInfo = 0;
         }
      }
 
@@ -192,18 +176,6 @@ namespace AElf.Automation.Common.Helpers
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;
-                foreach (var command in item.Commands.FindAll(x => x.Result))
-                {
-                    item.TotalTimeInfo += command.TimeSpan;
-                }
-
-                if (item.PassCount != 0)
-                    item.AverageTimeInfo = (double)item.TotalTimeInfo / (double)item.PassCount;
-                else
-                    item.AverageTimeInfo = 0;
-
-                _logger.WriteInfo("Total Fail: {0}, {1}",
-                    item.FailCount, $"AverageTime(milliseconds): {item.AverageTimeInfo:F}");
             }
         }
         
@@ -228,18 +200,7 @@ namespace AElf.Automation.Common.Helpers
                 var category = xmlDoc.CreateAttribute("Category");
                 category.Value = item.Category;
 
-                var totalTimes = xmlDoc.CreateAttribute("TotalTimes");
-                totalTimes.Value = item.Count.ToString();
-
-                var averageTime = xmlDoc.CreateAttribute("AverageTime");
-                averageTime.Value = $"{item.AverageTimeInfo:F}";
-
                 rpc.Attributes.Append(category);
-                rpc.Attributes.Append(totalTimes);
-                rpc.Attributes.Append(averageTime);
-
-                var totalTimeInfo = xmlDoc.CreateElement("TotalExeTime");
-                totalTimeInfo.InnerText = item.TotalTimeInfo.ToString();
 
                 var passCount = xmlDoc.CreateElement("PassCount");
                 passCount.InnerText = item.PassCount.ToString();
@@ -247,7 +208,6 @@ namespace AElf.Automation.Common.Helpers
                 var failCount = xmlDoc.CreateElement("FailCount");
                 failCount.InnerText = item.FailCount.ToString();
 
-                rpc.AppendChild(totalTimeInfo);
                 rpc.AppendChild(passCount);
                 rpc.AppendChild(failCount);
 

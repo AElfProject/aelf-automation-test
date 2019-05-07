@@ -23,13 +23,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ResourceContract : BaseContract<ResourceMethod>
     {
-        public ResourceContract(IApiHelper ch, string callAddress)
-            :base(ch, "AElf.Contracts.Resource", callAddress)
+        public ResourceContract(IApiHelper apiHelper, string callAddress)
+            :base(apiHelper, "AElf.Contracts.Resource", callAddress)
         {
         }
 
-        public ResourceContract(IApiHelper ch, string callAddress, string contractAddress) :
-            base(ch, contractAddress)
+        public ResourceContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

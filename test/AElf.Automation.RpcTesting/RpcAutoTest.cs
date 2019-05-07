@@ -111,7 +111,7 @@ namespace AElf.Automation.RpcTesting
         [DataRow("http://192.168.197.34:8000/chain")]
         public void GetAllBlocksInfo(string rpcUrl)
         {
-            var ch = new RpcApiHelper(rpcUrl);
+            var ch = new WebApiHelper(rpcUrl);
             List<string> transactionIds = new List<string>();
 
             string method = "GetBlockHeight";
@@ -201,7 +201,7 @@ namespace AElf.Automation.RpcTesting
         {
             List<object> blockInfos = new List<object>();
             string url = "http://192.168.199.221:8000/chain";
-            var ch = new RpcApiHelper(url);
+            var ch = new WebApiHelper(url);
             var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             for(int i= begin; i<=end; i++)
             {

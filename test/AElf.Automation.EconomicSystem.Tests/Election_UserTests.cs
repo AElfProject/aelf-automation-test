@@ -62,9 +62,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void Query_Candidate_Victories(int no1, int no2, int no3)
         {
             var victories = Behaviors.GetVictories();
-            victories.Value.Count.ShouldBe(3);
+            victories.Count.ShouldBe(3);
 
-            var publicKeys = victories.Value.Select(o => o.ToHex()).ToList();
+            var publicKeys = victories.Select(o => o.ToHex()).ToList();
 
             publicKeys.Contains(
                 Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
