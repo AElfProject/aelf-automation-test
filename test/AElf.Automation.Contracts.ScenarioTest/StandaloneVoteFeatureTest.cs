@@ -120,7 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{ApiHelper.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
@@ -144,14 +144,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < userAccount; i++)
             {
                 ci.Parameter = "123";
-                ci = CH.NewAccount(ci);
+                ci = ApiHelper.NewAccount(ci);
                 if (ci.Result)
                     UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                CH.UnlockAccount(uc);
+                ApiHelper.UnlockAccount(uc);
             }
 
             //分配资金给普通用户

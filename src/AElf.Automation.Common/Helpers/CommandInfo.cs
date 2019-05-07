@@ -23,13 +23,16 @@ namespace AElf.Automation.Common.Helpers
         public JObject JsonInfo { get; set; }
         public object InfoMsg { get; set; }
         public object ErrorMsg { get; set; }
-        
+
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
-        public CommandInfo() {}
-        public CommandInfo(string cmd, string category="")
+        public CommandInfo()
         {
-            Category = (category == "") ? cmd : category; 
+        }
+
+        public CommandInfo(string cmd, string category = "")
+        {
+            Category = (category == "") ? cmd : category;
             Cmd = cmd;
             Parameter = string.Empty;
             Result = false;
@@ -55,6 +58,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 Parameter += parameter + " ";
             }
+
             Parameter = Parameter?.Trim();
             Result = false;
         }
@@ -62,8 +66,8 @@ namespace AElf.Automation.Common.Helpers
         public CommandInfo Execute(IApiHelper apiHelper, bool convertJson = false)
         {
             var ci = apiHelper.ExecuteCommand(this);
-            
-            if(convertJson)
+
+            if (convertJson)
                 ci.GetJsonInfo();
 
             return ci;
@@ -79,51 +83,34 @@ namespace AElf.Automation.Common.Helpers
             if (Result)
             {
                 _logger.WriteInfo("Request: {0}: Result: {1}", Category, "Pass");
-                    _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
+                _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
             }
             else
             {
                 _logger.WriteError("Request: {0}: Result: {1}", Category, "Failed");
-                    _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
+                _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
             }
         }
 
         public string GetErrorMessage()
         {
-            return ErrorMsg!=null ? ErrorMsg.ToString() : string.Empty;
+            return ErrorMsg != null ? ErrorMsg.ToString() : string.Empty;
         }
 
         public bool CheckParameterValid(int count)
         {
             if (count == 1 && Parameter.Trim() == "")
                 return false;
-            
+
             var paraArray = Parameter.Split(" ");
             if (paraArray.Length == count) return true;
-            
+
             ErrorMsg = "Parameter error.";
             _logger.WriteError("{0} command parameter is invalid.", Category);
             return false;
         }
-
-        public bool CheckParameterValid(string[] parameterArray, int count)
-        {
-            bool result;
-            if (parameterArray == null || parameterArray.Length == 0)
-                result = false;
-            else if (parameterArray.Length != count)
-                result = false;
-            else
-                result = true;
-
-            if (result) return true;
-            ErrorMsg = "Parameter error.";
-            _logger.WriteError($"{Method.ToString()} command parameter is invalid.");
-
-            return false;
-        }
     }
-    
+
     public class CategoryRequest
     {
         public string Category { get; set; }
@@ -139,7 +126,7 @@ namespace AElf.Automation.Common.Helpers
             PassCount = 0;
             FailCount = 0;
         }
-     }
+    }
 
     public class CategoryInfoSet
     {
@@ -172,18 +159,18 @@ namespace AElf.Automation.Common.Helpers
         {
             foreach (var item in CategoryList)
             {
-                _logger.WriteInfo("Rpc Category: {0}", item.Category);
+                _logger.WriteInfo("Command Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;
             }
         }
-        
+
         public string SaveTestResultXml(int threadCount, int transactionCount)
         {
             var xmlDoc = new XmlDocument();
             xmlDoc.AppendChild(xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null));
-            var el = xmlDoc.CreateElement("RpcApiResults");
+            var el = xmlDoc.CreateElement("WebApiResults");
             xmlDoc.AppendChild(el);
 
             var thread = xmlDoc.CreateAttribute("ThreadCount");
@@ -195,7 +182,7 @@ namespace AElf.Automation.Common.Helpers
 
             foreach (var item in CategoryList)
             {
-                var rpc = xmlDoc.CreateElement("RpcApi");
+                var rpc = xmlDoc.CreateElement("WebApi");
 
                 var category = xmlDoc.CreateAttribute("Category");
                 category.Value = item.Category;
@@ -214,7 +201,8 @@ namespace AElf.Automation.Common.Helpers
                 el.AppendChild(rpc);
             }
 
-            var fileName = "RpcTh_" + threadCount+"_Tx_" + transactionCount + "_"+ DateTime.Now.ToString("MMddHHmmss") + ".xml";
+            var fileName = "WebTh_" + threadCount + "_Tx_" + transactionCount + "_" +
+                           DateTime.Now.ToString("MMddHHmmss") + ".xml";
             var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
             xmlDoc.Save(fullPath);
             return fullPath;

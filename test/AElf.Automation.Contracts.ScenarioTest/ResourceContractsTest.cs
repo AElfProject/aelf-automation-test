@@ -15,9 +15,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenContract { get; set; }
-        public string FeeReceiverContract { get; set; }
-        public string TokenConverterContract { get; set; }
-        public WebApiHelper CH { get; set; }
+        public WebApiHelper ApiHelper { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
         public List<string> AccList { get; set; }
         public string TokenSymbol { get; } = "ELF";
@@ -39,11 +37,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            ApiHelper = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.GetChainInformation(ci);
+            ApiHelper.GetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Get MultiToken and TokenConverter contract address 
@@ -55,7 +53,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < 5; i++)
             {
                 ci.Parameter = "123";
-                ci = CH.NewAccount(ci);
+                ci = ApiHelper.NewAccount(ci);
                 if (ci.Result)
                     AccList.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
@@ -64,20 +62,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Parameter = $"{AccList[i]} 123 notimeout"
                 };
-                CH.UnlockAccount(ic);
+                ApiHelper.UnlockAccount(ic);
             }
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{InitAccount} 123 notimeout"
             };
-            CH.ExecuteCommand(uc);
+            ApiHelper.ExecuteCommand(uc);
 
             //Init services
             PrepareUserTokens();
             
             PrepareFeeReceiverContract();
             
-            tokenConverterService = new TokenConverterContract(CH, InitAccount);
+            tokenConverterService = new TokenConverterContract(ApiHelper, InitAccount);
             
             #endregion
         }
@@ -114,7 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void PrepareUserTokens()
         {
-            tokenService = new TokenContract(CH, InitAccount, TokenContract);
+            tokenService = new TokenContract(ApiHelper, InitAccount, TokenContract);
             tokenService.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
             {
                 Decimals = 2,
@@ -157,7 +155,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void PrepareFeeReceiverContract()
         {
-            feeReceiverService = new FeeReceiverContract(CH, InitAccount);
+            feeReceiverService = new FeeReceiverContract(ApiHelper, InitAccount);
             feeReceiverService.ExecuteMethodWithResult(FeeReceiverMethod.Initialize, new InitializeInput
             {
                 TokenContractAddress = Address.Parse(TokenContract),

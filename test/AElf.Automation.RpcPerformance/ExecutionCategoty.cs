@@ -223,9 +223,10 @@ namespace AElf.Automation.RpcPerformance
             
             CheckResultStatus(TxIdList);
         }
+        
         public void ExecuteOneRoundTransactionTask()
         {
-            _logger.WriteInfo("Start contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _logger.WriteInfo("Start transaction execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             Stopwatch exec = new Stopwatch();
             exec.Start();
             var contractTasks = new List<Task>();
@@ -238,7 +239,7 @@ namespace AElf.Automation.RpcPerformance
             Task.WaitAll(contractTasks.ToArray<Task>());
             
             exec.Stop();
-            _logger.WriteInfo("End contract execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _logger.WriteInfo("End transaction execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             _logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
             GetExecutedAccount();
         }
