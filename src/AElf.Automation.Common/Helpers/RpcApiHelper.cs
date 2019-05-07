@@ -437,6 +437,17 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
+        public void RpcGetTransactionPoolStatus(CommandInfo ci)
+        {
+            var req = RpcRequestManager.CreateRequest(new JObject(), ci.Cmd, 0);
+            string resp = _requestManager.PostRequest(req.ToString(), out var returnCode, out var timeSpan);
+            ci.TimeSpan = timeSpan;
+            if (!CheckResponse(ci, returnCode, resp))
+                return;
+            ci.InfoMsg.Add(resp);
+            ci.Result = true;
+        }
+
         public JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var transaction = new Transaction()

@@ -33,6 +33,7 @@ namespace AElf.Automation.Common.Helpers
         void RpcGetBlockByHeight(CommandInfo ci);
         void RpcGetBlockByHash(CommandInfo ci);
         void RpcGetMerklePath(CommandInfo ci);
+        void RpcGetTransactionPoolStatus(CommandInfo ci);
         JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter);
         TResult RpcQueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
             where TResult : IMessage<TResult>, new();

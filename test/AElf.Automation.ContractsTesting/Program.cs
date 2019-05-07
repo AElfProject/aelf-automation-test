@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
@@ -81,6 +82,19 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.UnlockAccount(uc);
             }
+            #endregion
+
+            #region Node status check
+            
+            var nodes = new NodesState();
+            var tasks = new List<Task>
+            {
+                Task.Run(() => nodes.NodeStateCheck("bp1", "http://192.168.199.126:1726/chain")),
+                Task.Run(() => nodes.NodeStateCheck("bp2", "http://192.168.199.126:1727/chain")),
+                Task.Run(() => nodes.NodeStateCheck("bp3", "http://192.168.199.126:1728/chain"))
+            };
+            Task.WaitAll(tasks.ToArray());
+
             #endregion
 
             #region Block verify testing

@@ -380,6 +380,11 @@ namespace AElf.Automation.Common.Helpers
             throw new NotImplementedException();
         }
 
+        public void RpcGetTransactionPoolStatus(CommandInfo ci)
+        {
+            throw new NotImplementedException();
+        }
+
         public JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var transaction = new Transaction()
