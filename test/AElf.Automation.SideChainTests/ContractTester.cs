@@ -53,27 +53,6 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
         
-        public  Hash RequestSideChainReturnId(string account)
-        {
-            ByteString code = ByteString.FromBase64("4d5a90000300");
-
-            var resourceBalance = new ResourceTypeBalancePair
-            {
-                Amount = 1,
-                Type = Kernel.ResourceType.Ram
-            };
-            
-            CrossChainService.SetAccount(account);
-            var result =CrossChainService.CallViewMethod<RequestChainCreationOutput>(CrossChainContractMethod.RequestChainCreation,
-                new SideChainCreationRequest
-                {
-                    LockedTokenAmount = 100_000,
-                    IndexingPrice = 1,
-                    ContractCode = code,
-                    ResourceBalances = { resourceBalance}
-                });
-            return result.ProposalId;
-        }
 
         public CommandInfo Recharge(int chainId, long amount)
         {
