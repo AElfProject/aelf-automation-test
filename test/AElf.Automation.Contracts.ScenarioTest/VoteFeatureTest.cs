@@ -291,7 +291,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Get candidate event
             var voteEvent = voteService.CallViewMethod<VotingEvent>(VoteMethod.GetVotingEvent, new GetVotingEventInput
             {
-                Topic = Hash.Empty,
+                Topic = Hash.Empty.ToString(),
                 Sponsor = Address.Parse(InitAccount)
             });
             CandidatePublicKeys = voteEvent.Options.ToList();
@@ -320,7 +320,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
+                uc.Parameter = $"{UserList[i]} 123 notimeout";
                 CH.UnlockAccount(uc);
             }
 
@@ -423,7 +423,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePublicKey = votePbk,
                     Amount = voteVolume,
                     LockTime = voteLock,
-                    LockTimeUnit = TimeUnit.Days
+                    LockTimeUnit = LockTimeUnit.Days
                 });
                 Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }

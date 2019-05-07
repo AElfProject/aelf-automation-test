@@ -16,7 +16,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
                 LockTime = lockTime,
-                LockTimeUnit = TimeUnit.Days,
+                LockTimeUnit = LockTimeUnit.Days,
                 Amount = amount,
             });
 

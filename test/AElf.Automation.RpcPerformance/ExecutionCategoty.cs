@@ -109,13 +109,13 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < 15; i++)
             {
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
-                ApiHelper.ExecuteCommand(ci);
+                ApiHelper.GetBlockHeight(ci);
                 var currentHeight = (long)ci.InfoMsg;
 
+                _logger.WriteInfo("Current block height: {0}", currentHeight);
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
-                    _logger.WriteInfo("Current block height: {0}", BlockHeight);
                     return;
                 }
 

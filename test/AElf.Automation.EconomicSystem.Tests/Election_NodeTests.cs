@@ -107,9 +107,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetVotesInformationResult(int nodeId)
         {
             var records = Behaviors.GetVotesInformationWithAllRecords(FullNodeAddress[nodeId]);
-
-            var tickets = records.AllObtainedVotesAmount;
-            tickets.ShouldBe(50);
         }
 
         [TestMethod]
@@ -117,7 +114,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var victories = Behaviors.GetVictories();
 
-            var publicKeys = victories.Value.Select(o => o.ToHex()).ToList();
+            var publicKeys = victories.Select(o => o.ToHex()).ToList();
 
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
@@ -141,8 +138,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
-            foreach (var candidate in candidates.Value)
+            _logger.WriteInfo($"Candidate count: {candidates.Count}");
+            foreach (var candidate in candidates)
             {
                 _logger.WriteInfo($"Candidate: {candidate.ToHex()}");
             }
@@ -153,10 +150,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetTermShot(int termNumber)
         {
             var termShot = Behaviors.GetTermSnapshot(termNumber);
-            foreach (var candidate in termShot.CandidatesVotes.Keys)
-            {
-                _logger.WriteInfo($"Candidate: {candidate}, Tickets: {termShot.CandidatesVotes[candidate]}");
-            }
         }
 
         [TestMethod]

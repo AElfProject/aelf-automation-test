@@ -1,10 +1,11 @@
+using System;
+using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Consensus.DPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Kernel;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using TermSnapshot = AElf.Kernel.TermSnapshot;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -12,11 +13,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         #region Election View Methods
 
-        public PublicKeysList GetVictories()
+        public List<ByteString> GetVictories()
         {
-            var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories, new Empty());
-            return result;
+            throw new NotImplementedException();
         }
 
         public int GetMinersCount()
@@ -36,11 +35,9 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public PublicKeysList GetCandidates()
+        public List<ByteString> GetCandidates()
         {
-            var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
-            return result;
+            throw new NotImplementedException();
         }
 
         public Votes GetVotesInformation(string voteAccount)
@@ -76,13 +73,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public TermSnapshot GetTermSnapshot(long termNumber)
         {
-            var snapshot = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
-                new GetTermSnapshotInput
-                {
-                    TermNumber = termNumber
-                });
-
-            return snapshot;
+            throw new NotImplementedException();
         } 
         
         #endregion
