@@ -23,7 +23,6 @@ namespace AElf.Automation.Common.Helpers
         private readonly WebApiService _apiService;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private string _genesisAddress;
-        private List<CommandInfo> CommandList { get; }
 
         public Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
@@ -39,6 +38,8 @@ namespace AElf.Automation.Common.Helpers
             
             InitializeWebApiRoute();
         }
+
+        public List<CommandInfo> CommandList { get; set; }
 
         public string GetGenesisContractAddress()
         {

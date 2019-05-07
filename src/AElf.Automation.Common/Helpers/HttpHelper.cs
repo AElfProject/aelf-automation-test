@@ -128,15 +128,15 @@ namespace AElf.Automation.Common.Helpers
         /// 异步Post请求
         /// </summary>
         /// <param name="url"></param>
-        /// <param name="paramters"></param>
+        /// <param name="parameters"></param>
         /// <param name="version"></param>
         /// <param name="expectedStatusCode"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> paramters,
+        public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var strResponse = await PostResponseAsStringAsync(url, paramters, version, expectedStatusCode);
+            var strResponse = await PostResponseAsStringAsync(url, parameters, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -169,7 +169,7 @@ namespace AElf.Automation.Common.Helpers
             return await response.Content.ReadAsStringAsync();
         }
 
-        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> paramters,
+        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> parameters,
             string version = null, bool useApplicationJson = false,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
@@ -178,13 +178,13 @@ namespace AElf.Automation.Common.Helpers
             if (useApplicationJson)
             {
                 Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var paramsStr = JsonConvert.SerializeObject(paramters);
+                var paramsStr = JsonConvert.SerializeObject(parameters);
                 content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
                 content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
             }
             else
             {
-                content = new FormUrlEncodedContent(paramters);
+                content = new FormUrlEncodedContent(parameters);
                 content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
             }
             

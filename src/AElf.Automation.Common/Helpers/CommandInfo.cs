@@ -79,12 +79,12 @@ namespace AElf.Automation.Common.Helpers
             if (Result)
             {
                 _logger.WriteInfo("Request: {0}: Result: {1}", Category, "Pass");
-                    _logger.WriteInfo(InfoMsg.ToString());
+                    _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
             }
             else
             {
                 _logger.WriteError("Request: {0}: Result: {1}", Category, "Failed");
-                    _logger.WriteError(ErrorMsg.ToString());
+                    _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
             }
         }
 

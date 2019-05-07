@@ -305,7 +305,7 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper.DeployContract(ci);
             if (ci.Result)
             {
-                if (ci.InfoMsg is TransactionResultDto transactionOutput)
+                if (ci.InfoMsg is BroadcastTransactionOutput transactionOutput)
                 {
                     var txId = transactionOutput.TransactionId;
                     _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
@@ -332,7 +332,7 @@ namespace AElf.Automation.Common.Contracts
             var transactionResult = ci.InfoMsg as TransactionResultDto;
             _logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
             if (transactionResult?.Status != "Mined") return false;
-            contractAddress = transactionResult.ReadableReturnValue;
+            contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
             _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
             return true;
