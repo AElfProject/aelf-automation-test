@@ -28,17 +28,16 @@ namespace AElf.Automation.RpcPerformance
 
         #endregion
 
-        static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static int Main(string[] args)
         {
-            if (args.Length == 3)
-            {
-                var tc = args[0];
-                var tg = args[1];
-                var ru = args[2];
-                args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
-            }
+            if (args.Length != 3) return CommandLineApplication.Execute<Program>(args);
+            
+            var tc = args[0];
+            var tg = args[1];
+            var ru = args[2];
+            args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
 
             return CommandLineApplication.Execute<Program>(args);
         }
@@ -51,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance = new RpcOperation(ThreadCount, TransactionGroup, RpcUrl);
+            var performance = new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl);
             //Init Logger
             var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
@@ -60,9 +59,9 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
-                performance.InitExecRpcCommand();
-                performance.DeployContract();
-                performance.InitializeContract();
+                performance.InitExecCommand();
+                performance.DeployContracts();
+                performance.InitializeContracts();
 
                 ExecuteRpcTask(performance, ExecuteMode);
             }
@@ -79,7 +78,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            var set = new CategoryInfoSet(performance.CH.CommandList);
+            var set = new CategoryInfoSet(performance.ApiHelper.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
@@ -88,7 +87,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(RpcOperation performance, int execMode = 0)
+        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = 0)
         {
             if (execMode == 0)
             {
@@ -100,7 +99,7 @@ namespace AElf.Automation.RpcPerformance
                 Console.Write("Input selection: ");
 
                 var runType = Console.ReadLine();
-                var check = Int32.TryParse(runType, out execMode);
+                var check = int.TryParse(runType, out execMode);
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
@@ -112,20 +111,20 @@ namespace AElf.Automation.RpcPerformance
             switch (tm)
             {
                 case TestMode.CommonTx:
-                    Logger.WriteInfo("Run with tx mode [1].");
-                    performance.ExecuteContracts();
+                    Logger.WriteInfo($"Run with tx mode: {tm.ToString()}.");
+                    performance.ExecuteOneRoundTransactionTask();
                     break;
                 case TestMode.ContinuousTx:
-                    Logger.WriteInfo("Run with continuous tx mode [2].");
-                    performance.ExecuteMultiRpcTask();
+                    Logger.WriteInfo($"Run with continuous tx mode: {tm.ToString()}.");
+                    performance.ExecuteContinuousRoundsTransactionsTask();
                     break;
                 case TestMode.BatchTxs:
-                    Logger.WriteInfo("Run with txs mode [3].");
-                    performance.ExecuteContractsRpc();
+                    Logger.WriteInfo($"Run with txs mode: {tm.ToString()}.");
+                    performance.ExecuteOneRoundTransactionsTask();
                     break;
                 case TestMode.ContinuousTxs:
-                    Logger.WriteInfo("Run with continuous txs mode [4].");
-                    performance.ExecuteMultiRpcTask(true);
+                    Logger.WriteInfo($"Run with continuous txs mode: {tm.ToString()}.");
+                    performance.ExecuteContinuousRoundsTransactionsTask(true);
                     break;
                 case TestMode.NotSet:
                     break;

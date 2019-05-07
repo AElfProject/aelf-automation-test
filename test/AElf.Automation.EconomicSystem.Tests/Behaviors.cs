@@ -5,7 +5,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
-        public readonly RpcApiHelper ApiHelper;
+        public readonly IApiHelper ApiHelper;
         public readonly ContractServices ContractServices;
         
         public readonly ElectionContract ElectionService;

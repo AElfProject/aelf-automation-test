@@ -1,6 +1,4 @@
 ﻿using AElf.Automation.Common.Helpers;
-using Google.Protobuf;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -25,13 +23,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ResourceContract : BaseContract<ResourceMethod>
     {
-        public ResourceContract(RpcApiHelper ch, string callAddress)
-            :base(ch, "AElf.Contracts.Resource", callAddress)
+        public ResourceContract(IApiHelper apiHelper, string callAddress)
+            :base(apiHelper, "AElf.Contracts.Resource", callAddress)
         {
         }
 
-        public ResourceContract(RpcApiHelper ch, string callAddress, string contractAddress) :
-            base(ch, contractAddress)
+        public ResourceContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

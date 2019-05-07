@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
@@ -13,8 +14,6 @@ namespace AElf.Automation.Common.Helpers
 {
     public static class HttpHelper
     {
-        private static readonly HttpClient Client = new HttpClient();
-        
         /// <summary>
         /// post请求
         /// </summary>
@@ -41,7 +40,7 @@ namespace AElf.Automation.Common.Helpers
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    string result = response.Content.ReadAsStringAsync().Result;
+                    var result = response.Content.ReadAsStringAsync().Result;
                     return result;
                 }
             }
@@ -127,15 +126,15 @@ namespace AElf.Automation.Common.Helpers
         /// 异步Post请求
         /// </summary>
         /// <param name="url"></param>
-        /// <param name="paramters"></param>
+        /// <param name="parameters"></param>
         /// <param name="version"></param>
         /// <param name="expectedStatusCode"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> paramters,
+        public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var strResponse = await PostResponseAsStringAsync(url, paramters, version, expectedStatusCode);
+            var strResponse = await PostResponseAsStringAsync(url, parameters, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
@@ -153,30 +152,54 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+                client.DefaultRequestHeaders.Add("Connection", "close");
             
-            var response = await Client.GetAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+                response = await client.GetAsync(url);
+                response.StatusCode.ShouldBe(expectedStatusCode);
+            }
+            
             return response;
         }
 
-        private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> paramters,
+        private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            var response = await PostResponseAsync(url, paramters, version, expectedStatusCode);
+            var response = await PostResponseAsync(url, parameters, version, true, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
-        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string,string> paramters,string version = null,
+        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> parameters,
+            string version = null, bool useApplicationJson = false,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            var content = new FormUrlEncodedContent(paramters);
-            content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
+            {
+                HttpContent content;
+                if (useApplicationJson)
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("Connection", "close");
+                    var paramsStr = JsonConvert.SerializeObject(parameters);
+                    content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
+                }
+                else
+                {
+                    content = new FormUrlEncodedContent(parameters);
+                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+                }
             
-            var response = await Client.PostAsync(url, content);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+                response = await client.PostAsync(url, content);
+                response.StatusCode.ShouldBe(expectedStatusCode);
+            }
+            
             return response;
         }
         
@@ -190,22 +213,28 @@ namespace AElf.Automation.Common.Helpers
             });
         }
 
-        public static async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
+        private static async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             var response = await DeleteResponseAsync(url, version, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
-        public static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
+        private static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            HttpResponseMessage response;
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+                client.DefaultRequestHeaders.Add("Connection", "close");
             
-            var response = await Client.DeleteAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+                response = await client.DeleteAsync(url);
+                response.StatusCode.ShouldBe(expectedStatusCode);
+            }
+            
             return response;
         }
     }

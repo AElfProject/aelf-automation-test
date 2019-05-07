@@ -1,6 +1,4 @@
 ﻿using AElf.Automation.Common.Helpers;
-using Google.Protobuf;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -33,13 +31,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class TokenContract : BaseContract<TokenMethod>
     {
-        public TokenContract(RpcApiHelper ch, string callAddress) :
-            base(ch, "AElf.Contracts.MultiToken", callAddress)
+        public TokenContract(IApiHelper apiHelper, string callAddress) :
+            base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
         {
         }
 
-        public TokenContract(RpcApiHelper ch, string callAddress, string contractAddress):
-            base(ch, contractAddress)
+        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

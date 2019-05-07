@@ -5,7 +5,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ContractServices
     {
-        public readonly RpcApiHelper ApiHelper;
+        public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
@@ -17,7 +17,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         
-        public ContractServices(RpcApiHelper apiHelper, string callAddress)
+        public ContractServices(IApiHelper apiHelper, string callAddress)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
@@ -61,7 +61,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.RpcGetChainInformation(ci);
+            ApiHelper.GetChainInformation(ci);
         }
     }
 }

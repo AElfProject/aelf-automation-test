@@ -10,7 +10,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class RpcApiTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        private RpcApiHelper Ch { get; set; }
+        private WebApiHelper Ch { get; set; }
         private const string ServiceUrl = "http://192.168.197.15:8020";
 
         [TestInitialize]
@@ -21,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            Ch = new RpcApiHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
+            Ch = new WebApiHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
         }
 
         [TestMethod]
@@ -30,23 +30,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             ci.Parameter = $"{height.ToString()} {true}";
-            Ch.RpcGetBlockInfo(ci);
+            Ch.GetBlockByHeight(ci);
             Assert.IsTrue(ci.Result, "Request block info failed.");
 
-            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg[0], "result", "result", "Body", "Transactions");
+            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg.ToString(), "result", "result", "Body", "Transactions");
 
             foreach (var txId in txArray)
             {
                 var txCi = new CommandInfo(ApiMethods.GetTransactionResult);
                 txCi.Parameter = txId;
-                Ch.RpcGetTxResult(txCi);
+                Ch.GetTxResult(txCi);
                 Assert.IsTrue(txCi.Result, "Request transaction result failed.");
 
-                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg[0], "result", "result", "tx_status");
+                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result", "tx_status");
                 if(status == "Mined")
                     _logger.WriteInfo($"{txId}: Mined");
                 else
-                    _logger.WriteError(txCi.InfoMsg[0]);
+                    _logger.WriteError(txCi.InfoMsg.ToString());
             }
         }
     }

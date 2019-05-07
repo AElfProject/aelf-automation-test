@@ -1,6 +1,4 @@
 ﻿using AElf.Automation.Common.Helpers;
-using Google.Protobuf;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -17,15 +15,15 @@ namespace AElf.Automation.Common.Contracts
     }
     public class DividendsContract :BaseContract<DicidendsMethod>
     {
-        public DividendsContract(RpcApiHelper ch, string callAddress, string dividendsAddress)
-            :base(ch, dividendsAddress)
+        public DividendsContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
+            :base(apiHelper, dividendsAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
-        public DividendsContract(RpcApiHelper ch, string callAddress)
-            : base(ch, "AElf.Contracts.Dividends", callAddress)
+        public DividendsContract(IApiHelper apiHelper, string callAddress)
+            : base(apiHelper, "AElf.Contracts.Dividends", callAddress)
         {
         }
     }

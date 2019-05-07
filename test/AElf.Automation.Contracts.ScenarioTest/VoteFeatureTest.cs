@@ -56,7 +56,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static VoteContract voteService { get; set; }
 
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
-        public RpcApiHelper CH { get; set; }
+        public WebApiHelper CH { get; set; }
 
         #endregion
 
@@ -69,11 +69,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper(dir);
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
             
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.RpcGetChainInformation(ci);
+            CH.GetChainInformation(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Get FullNode Info
@@ -316,11 +316,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ci.Parameter = "123";
                 ci = CH.NewAccount(ci);
                 if (ci.Result)
-                    UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+                    UserList.Add(ci.InfoMsg?.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
-                uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
+                uc.Parameter = $"{UserList[i]} 123 notimeout";
                 CH.UnlockAccount(uc);
             }
 
@@ -358,13 +358,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void UserVoteForCandidate(string pubKey)
         {
             PrepareUserAccountAndBalance(1);
-           var voteVolumn = 100;
-            string voteLock = "8";
+           const int voteVolume = 100;
 
             voteService.SetAccount(UserList[0]);
             voteService.ExecuteMethodWithResult(VoteMethod.Vote, new VoteInput 
             {
-                Amount = voteVolumn,
+                Amount = voteVolume,
+                
             });
 
             //Get candidate ticket
@@ -423,7 +423,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePublicKey = votePbk,
                     Amount = voteVolume,
                     LockTime = voteLock,
-//                    LockTimeUnit = TimeUnit.Days
+                    LockTimeUnit = LockTimeUnit.Days
                 });
                 Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }

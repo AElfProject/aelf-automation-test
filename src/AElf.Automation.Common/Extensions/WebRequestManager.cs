@@ -2,9 +2,6 @@ using System;
 using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Extensions
 {
@@ -15,7 +12,7 @@ namespace AElf.Automation.Common.Extensions
         
         public WebRequestManager(string baseUrl)
         {
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Replace("/chain", "");
         }
 
         public T GetResponse<T>(string url,out string returnCode, out long timeSpan)

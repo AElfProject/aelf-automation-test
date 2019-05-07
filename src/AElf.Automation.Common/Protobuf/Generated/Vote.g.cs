@@ -3463,7 +3463,8 @@ namespace Vote {
             if (sponsor_ == null) {
               sponsor_ = new global::AElf.Address();
             }
-            input.ReadMessage(sponsor_);
+
+            input.ReadMessage(Sponsor);
             break;
           }
         }

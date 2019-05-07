@@ -108,21 +108,19 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var records = Behaviors.GetVotesInformationWithAllRecords(FullNodeAddress[nodeId]);
 
-//            var tickets = records.AllObtainedVotesAmount;
-//            tickets.ShouldBe(50);
         }
 
-//        [TestMethod]
-//        public void GetVictories()
-//        {
-//            var victories = Behaviors.GetVictories();
-//
-//            var publicKeys = victories.Value.Select(o => o.ToHex()).ToList();
-//
-//            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
-//            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
-//            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
-//        }
+        [TestMethod]
+        public void GetVictories()
+        {
+            var victories = Behaviors.GetVictories();
+
+            var publicKeys = victories.Select(o => o.ToHex()).ToList();
+
+            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
+        }
 
         [TestMethod]
         [DataRow(1)]
@@ -137,27 +135,23 @@ namespace AElf.Automation.EconomicSystem.Tests
             beforeBalance.ShouldBe(afterBalance - 100_000L);
         }
 
-//        [TestMethod]
-//        public void GetCandidates()
-//        {
-//            var candidates = Behaviors.GetCandidates();
-//            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
-//            foreach (var candidate in candidates.Value)
-//            {
-//                _logger.WriteInfo($"Candidate: {candidate.ToHex()}");
-//            }
-//        }
-//
-//        [TestMethod]
-//        [DataRow(2)]
-//        public void GetTermShot(int termNumber)
-//        {
-//            var termShot = Behaviors.GetTermSnapshot(termNumber);
-//            foreach (var candidate in termShot.CandidatesVotes.Keys)
-//            {
-//                _logger.WriteInfo($"Candidate: {candidate}, Tickets: {termShot.CandidatesVotes[candidate]}");
-//            }
-//        }
+        [TestMethod]
+        public void GetCandidates()
+        {
+            var candidates = Behaviors.GetCandidates();
+            _logger.WriteInfo($"Candidate count: {candidates.Count}");
+            foreach (var candidate in candidates)
+            {
+                _logger.WriteInfo($"Candidate: {candidate.ToHex()}");
+            }
+        }
+
+        [TestMethod]
+        [DataRow(2)]
+        public void GetTermShot(int termNumber)
+        {
+            var termShot = Behaviors.GetTermSnapshot(termNumber);
+        }
 
         [TestMethod]
         public void GetAllCandidatesBalance()

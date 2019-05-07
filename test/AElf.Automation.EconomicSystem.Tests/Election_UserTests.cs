@@ -10,13 +10,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestInitialize]
         public void InitializeUserTests()
         {
-            base.Initialize();
+            Initialize();
         }
 
         [TestCleanup]
         public void CleanUpUserTests()
         {
-            base.TestCleanUp();
+            TestCleanUp();
         }
 
         [TestMethod]
@@ -57,22 +57,22 @@ namespace AElf.Automation.EconomicSystem.Tests
             voteResult.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
         }
 
-//        [TestMethod]
-//        [DataRow(0, 1, 2)]
-//        public void Query_Candidate_Victories(int no1, int no2, int no3)
-//        {
-//            var victories = Behaviors.GetVictories();
-//            victories.Value.Count.ShouldBe(3);
-//
-//            var publicKeys = victories.Value.Select(o => o.ToHex()).ToList();
-//
-//            publicKeys.Contains(
-//                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
-//            publicKeys.Contains(
-//                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
-//            publicKeys.Contains(
-//                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
-//        }
+        [TestMethod]
+        [DataRow(0, 1, 2)]
+        public void Query_Candidate_Victories(int no1, int no2, int no3)
+        {
+            var victories = Behaviors.GetVictories();
+            victories.Count.ShouldBe(3);
+
+            var publicKeys = victories.Select(o => o.ToHex()).ToList();
+
+            publicKeys.Contains(
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
+            publicKeys.Contains(
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
+            publicKeys.Contains(
+                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
+        }
 
         [TestMethod]
         public void Get_Current_Miners()

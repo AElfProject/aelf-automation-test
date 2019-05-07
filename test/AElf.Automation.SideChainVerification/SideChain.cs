@@ -46,7 +46,7 @@ namespace AElf.Automation.SideChainVerification
 
     public class SideChain
     {
-        private readonly RpcApiHelper _ch;
+        private readonly WebApiHelper _ch;
         private readonly string _chainName;
         private string _account;
         private string _sideChainTxId;
@@ -62,10 +62,10 @@ namespace AElf.Automation.SideChainVerification
             var rpcUrl1 = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
             var keyStorePath = GetDefaultDataDir();
             _chainName = chainName;
-            _ch = new RpcApiHelper(rpcUrl1, keyStorePath);
+            _ch = new WebApiHelper(rpcUrl1, keyStorePath);
             //connection chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            _ch.RpcGetChainInformation(ci);
+            _ch.GetChainInformation(ci);
             VerifyResultList = new ConcurrentQueue<VerifyResult>();
             CancellationList = new List<CancellationTokenSource>();
 
@@ -125,7 +125,7 @@ namespace AElf.Automation.SideChainVerification
 
             var ci = new CommandInfo(ApiMethods.GetBlockInfo);
             ci.Parameter = $"{height} {true}";
-            _ch.RpcGetBlockInfo(ci);
+            _ch.GetBlockByHeight(ci);
             Assert.IsTrue(ci.Result, "Query block information got exception.");
             ci.GetJsonInfo();
             var transactions = ci.JsonInfo["result"]["Body"]["Transactions"].ToArray();
@@ -143,7 +143,7 @@ namespace AElf.Automation.SideChainVerification
             merkle.TxId = txId;
             var ci = new CommandInfo(ApiMethods.GetMerklePath);
             ci.Parameter = txId;
-            _ch.RpcGetMerklePath(ci);
+            //_ch.GetMerklePath(ci);
             Assert.IsTrue(ci.Result, "Get merkel path got exception.");
             ci.GetJsonInfo();
             if (ci.JsonInfo["result"]["error"] != null)
@@ -188,7 +188,7 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = ci.Parameter.Substring(1);
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Execute transactions got exception.");
-            var result = ci.InfoMsg[0].Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
+            var result = ci.InfoMsg.ToString().Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
             ConcurrentQueue<string> txResList = new ConcurrentQueue<string>();
             foreach (var txHash in result)
             {
@@ -281,7 +281,7 @@ namespace AElf.Automation.SideChainVerification
 
                     var ci = new CommandInfo(ApiMethods.GetTransactionResult);
                     ci.Parameter = txId;
-                    _ch.RpcGetTxResult(ci);
+                    _ch.GetTxResult(ci);
                     if (ci.Result)
                     {
                         ci.GetJsonInfo();
@@ -298,7 +298,7 @@ namespace AElf.Automation.SideChainVerification
                             string returnValue = ci.JsonInfo["result"]["return"].ToString();
                             if (returnValue != "01")
                             {
-                                Logger.WriteInfo(ci.InfoMsg[0]);
+                                Logger.WriteInfo(ci.InfoMsg.ToString());
                                 Assert.IsTrue(false,
                                     $"Verification failed with transaction with chain: {vr.NodeName} at height: {vr.Height}");
                             }
@@ -323,7 +323,7 @@ namespace AElf.Automation.SideChainVerification
                                    "\",\"" + merkle.PHeight + "\"]}";
             var ci = new CommandInfo(ApiMethods.BroadcastTransaction);
             ci.Parameter = parameterinfo;
-            string requestInfo = _ch.RpcGenerateTransactionRawTx(ci);
+            string requestInfo = _ch.GenerateTransactionRawTx(ci);
 
             return requestInfo;
         }
@@ -335,7 +335,7 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = "123";
             ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Create account got exception.");
-            _account = ci.InfoMsg?[0].Replace("Account address:", "").Trim();
+            _account = ci.InfoMsg?.ToString().Replace("Account address:", "").Trim();
 
             //Unlock
             ci = new CommandInfo(ApiMethods.AccountUnlock);

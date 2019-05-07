@@ -22,13 +22,13 @@ namespace AElf.Automation.Common.Contracts
     }
     public class TokenConverterContract : BaseContract<TokenConverterMethod>
     {
-        public TokenConverterContract(RpcApiHelper ch, string callAddress) :
-            base(ch, "AElf.Contracts.TokenConverter", callAddress)
+        public TokenConverterContract(IApiHelper apiHelper, string callAddress) :
+            base(apiHelper, "AElf.Contracts.TokenConverter", callAddress)
         {
         }
 
-        public TokenConverterContract(RpcApiHelper ch, string callAddress, string contractAddress):
-            base(ch, contractAddress)
+        public TokenConverterContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

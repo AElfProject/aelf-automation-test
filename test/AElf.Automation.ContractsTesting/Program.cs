@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
+using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -52,7 +58,7 @@ namespace AElf.Automation.ContractsTesting
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            var ch = new RpcApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -62,38 +68,54 @@ namespace AElf.Automation.ContractsTesting
             //Account preparation
             Users = new List<string>();
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
-                ci = new CommandInfo(ApiMethods.AccountNew);
-                ci.Parameter = "123";
+                ci = new CommandInfo(ApiMethods.AccountNew)
+                {
+                    Parameter = "123"
+                };
                 ci = ch.NewAccount(ci);
                 if(ci.Result)
-                    Users.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
+                    Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo(ApiMethods.AccountUnlock);
-                uc.Parameter = string.Format("{0} {1} {2}", Users[i], "123", "notimeout");
+                var uc = new CommandInfo(ApiMethods.AccountUnlock)
+                {
+                    Parameter = $"{Users[i]} 123 notimeout"
+                };
                 ch.UnlockAccount(uc);
             }
             #endregion
 
+            #region Node status check
+            
+            var nodes = new NodesState();
+            var tasks = new List<Task>
+            {
+                Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.199.126:1726/chain")),
+                Task.Run(() => NodesState.NodeStateCheck("bp2", "http://192.168.199.126:1727/chain")),
+                Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.199.126:1728/chain"))
+            };
+            Task.WaitAll(tasks.ToArray());
+
+            #endregion
+
             #region Block verify testing
             var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
-            ch.RpcGetBlockHeight(heightCi);
-            heightCi.GetJsonInfo();
-            var height = Int32.Parse(heightCi.JsonInfo["result"].ToString());
+            ch.GetBlockHeight(heightCi);
+            var height = (long)heightCi.InfoMsg;
             for (var i = 1; i <= height; i++)
             {
-                var blockCi = new CommandInfo(ApiMethods.GetBlockInfo)
+                var blockCi = new CommandInfo(ApiMethods.GetBlockByHeight)
                 {
                     Parameter = $"{i} false"
                 };
-                ch.RpcGetBlockInfo(blockCi);
-                blockCi.GetJsonInfo();
+                ch.GetBlockByHeight(blockCi);
+                var blockInfo = blockCi.InfoMsg as BlockDto;
                 Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
                     i,
-                    blockCi.JsonInfo["result"]["BlockHash"].ToString(),
-                    blockCi.JsonInfo["result"]["Body"]["TransactionsCount"].ToString());
+                    blockInfo?.BlockHash,
+                    blockInfo?.Body.TransactionsCount);
             }
 
             #endregion

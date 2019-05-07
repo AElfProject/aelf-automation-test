@@ -1,82 +1,99 @@
 using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.WebApi;
 using AElf.Cryptography;
 using AElf.Kernel;
-using AElf.WebApp.Application.Chain.Dto;
+using AElf.Automation.Common.WebApi.Dto;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public class WebApiHelper
+    public class WebApiHelper : IApiHelper
     {
         #region Properties
 
-        private readonly string _rpcAddress;
+        private readonly string _baseUrl;
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
         private AccountManager _accountManager;
         private TransactionManager _transactionManager;
         private readonly WebRequestManager _requestManager;
+        private readonly WebApiService _apiService;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        private List<CommandInfo> CommandList { get; }
-        
-        public string GenesisAddress;
+        private string _genesisAddress;
+
         public Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
         #endregion
 
-        public WebApiHelper(string rpcUrl, string keyPath = "")
+        public WebApiHelper(string baseUrl, string keyPath = "")
         {
-            _rpcAddress = rpcUrl;
+            _baseUrl = baseUrl;
+            _requestManager = new WebRequestManager(baseUrl);
+            _apiService = new WebApiService(baseUrl);
             _keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
-            _requestManager = new WebRequestManager(rpcUrl);
-
             CommandList = new List<CommandInfo>();
+            
             InitializeWebApiRoute();
+        }
+
+        public List<CommandInfo> CommandList { get; set; }
+
+        public string GetGenesisContractAddress()
+        {
+            if (string.IsNullOrEmpty(_genesisAddress))
+            {
+                GetChainInformation(new CommandInfo
+                {
+                    Method = ApiMethods.GetChainInformation
+                });
+            }
+            
+            return _genesisAddress;
         }
 
         public CommandInfo ExecuteCommand(CommandInfo ci)
         {
-            switch (ci.Cmd)
+            switch (ci.Method)
             {
                 //Account request
-                case "AccountNew":
+                case ApiMethods.AccountNew:
                     ci = NewAccount(ci);
                     break;
-                case "AccountList":
-                    ci = ListAccounts(ci);
+                case ApiMethods.AccountList:
+                    ci = ListAccounts();
                     break;
-                case "AccountUnlock":
+                case ApiMethods.AccountUnlock:
                     ci = UnlockAccount(ci);
                     break;
-                case "GetChainInformation":
-                    RpcGetChainInformation(ci);
+                case ApiMethods.GetChainInformation:
+                    GetChainInformation(ci);
                     break;
-                case "DeploySmartContract":
-                    RpcDeployContract(ci);
+                case ApiMethods.DeploySmartContract:
+                    DeployContract(ci);
                     break;
-                case "BroadcastTransaction":
-                    RpcBroadcastTx(ci);
+                case ApiMethods.BroadcastTransaction:
+                    BroadcastTx(ci);
                     break;
-                case "BroadcastTransactions":
-                    RpcBroadcastTxs(ci);
+                case ApiMethods.BroadcastTransactions:
+                    BroadcastTxs(ci);
                     break;
-                case "GetTransactionResult":
-                    RpcGetTxResult(ci);
+                case ApiMethods.GetTransactionResult:
+                    GetTxResult(ci);
                     break;
-                case "GetBlockHeight":
-                    RpcGetBlockHeight(ci);
+                case ApiMethods.GetBlockHeight:
+                    GetBlockHeight(ci);
                     break;
-                case "GetBlockByHeight":
-                    RpcGetBlockByHeight(ci);
+                case ApiMethods.GetBlockByHeight:
+                    GetBlockByHeight(ci);
                     break;
-                case "GetBlockByHash":
-                    RpcGetBlockByHash(ci);
+                case ApiMethods.GetBlockByHash:
+                    GetBlockByHash(ci);
                     break;
-                case "QueryView":
-                    RpcQueryViewInfo(ci);
+                case ApiMethods.QueryView:
+                    QueryViewInfo(ci);
                     break;
                 default:
                     _logger.WriteError("Invalid command.");
@@ -84,7 +101,9 @@ namespace AElf.Automation.Common.Helpers
             }
 
             ci.PrintResultMessage();
-            CommandList.Add(ci);
+            
+            if(!ci.Result)    //analyze failed result
+                CommandList.Add(ci);
 
             return ci;
         }
@@ -97,9 +116,9 @@ namespace AElf.Automation.Common.Helpers
             return ci;
         }
 
-        public CommandInfo ListAccounts(CommandInfo ci)
+        public CommandInfo ListAccounts()
         {
-            ci = _accountManager.ListAccount();
+            var ci = _accountManager.ListAccount();
             return ci;
         }
 
@@ -112,28 +131,23 @@ namespace AElf.Automation.Common.Helpers
 
         #endregion
 
-        #region Rpc request methods
+        #region Web request methods
 
-        public void RpcGetChainInformation(CommandInfo ci)
+        public void GetChainInformation(CommandInfo ci)
         {
-            var url = "/api/blockChain/chainStatus";            
-            var statusDto = _requestManager.GetResponse<ChainStatusDto>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, statusDto?.GenesisContractAddress))
-                return;
-
-            GenesisAddress = statusDto?.GenesisContractAddress;
+            var statusDto = _apiService.GetChainStatus().Result;
             
-            _chainId = statusDto?.ChainId;
+            _genesisAddress = statusDto.GenesisContractAddress;
+            
+            _chainId = statusDto.ChainId;
             _transactionManager = new TransactionManager(_keyStore, _chainId);
             _accountManager = new AccountManager(_keyStore, _chainId);
             
-            var message = statusDto?.ToString();
-            ci.InfoMsg.Add(message);
+            ci.InfoMsg = statusDto;
             ci.Result = true;
         }
 
-        public void RpcDeployContract(CommandInfo ci)
+        public void DeployContract(CommandInfo ci)
         {
             if (!ci.CheckParameterValid(2))
                 return;
@@ -151,9 +165,9 @@ namespace AElf.Automation.Common.Helpers
             };
 
             _transactionManager.SetCmdInfo(ci);
-            var tx = _transactionManager.CreateTransaction(from, GenesisAddress,
+            var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
                 ci.Cmd, input.ToByteString());
-            tx = tx.AddBlockReference(_rpcAddress);
+            tx = tx.AddBlockReference(_baseUrl);
             if (tx == null)
                 return;
             tx = _transactionManager.SignTransaction(tx);
@@ -161,33 +175,20 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
             
-            var parameters = new Dictionary<string, string>()
-            {
-                { "rawTransaction", rawTxString }
-            };
-            var url = "/api/blockChain/broadcastTransaction";
-            var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameters, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp?.TransactionId))
-            {
-                ci.Result = false;
-                ci.ErrorMsg.Add(resp?.ToString());
-                return;
-            }
+            var transactionOutput = _apiService.BroadcastTransaction(rawTxString).Result;
 
-            ci.InfoMsg.Add(resp?.TransactionId);
-
+            ci.InfoMsg = transactionOutput;
             ci.Result = true;
         }
 
-        public void RpcBroadcastTx(CommandInfo ci)
+        public void BroadcastTx(CommandInfo ci)
         {
             JObject j = null;
             if (ci.Parameter != null)
             {
                 if (!ci.Parameter.Contains("{"))
                 {
-                    RpcBroadcastWithRawTx(ci);
+                    BroadcastWithRawTx(ci);
                     return;
                 }
 
@@ -199,55 +200,26 @@ namespace AElf.Automation.Common.Helpers
             var parameter = ci.ParameterInput.ToByteString();
             tr.Params = parameter == null ? ByteString.Empty : parameter;
 
-            tr = tr.AddBlockReference(_rpcAddress);
+            tr = tr.AddBlockReference(_baseUrl);
 
             _transactionManager.SignTransaction(tr);
             
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tr);
-            var parameters = new Dictionary<string, string>
-            {
-                { "rawTransaction", rawTxString }
-            };
-            var url = "/api/blockChain/broadcastTransaction";
 
-            var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameters, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp?.TransactionId))
-                return;
-
-            string hash = resp?.TransactionId;
-            var jobj = new JObject
-            {
-                ["TransactionId"] = hash
-            };
-            ci.InfoMsg.Add(jobj.ToString());
+            ci.InfoMsg = _apiService.BroadcastTransaction(rawTxString).Result;
             ci.Result = true;
         }
 
-        public void RpcBroadcastWithRawTx(CommandInfo ci)
+        public void BroadcastWithRawTx(CommandInfo ci)
         {
-            var parameter = new Dictionary<string, string>
-            {
-                { "rawTransaction", ci.Parameter }
-            };
-            var url = "/api/blockChain/broadcastTransaction";
-
-            var resp = _requestManager.PostResponse<BroadcastTransactionOutput>(url, parameter, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp?.TransactionId))
+            if (!ci.CheckParameterValid(1))
                 return;
-
-            
-            var jobj = new JObject
-            {
-                ["TransactionId"] = resp?.TransactionId
-            };
-            ci.InfoMsg.Add(jobj.ToString());
-
+        
+            ci.InfoMsg = _apiService.BroadcastTransaction(ci.Parameter).Result;
             ci.Result = true;
         }
 
-        public string RpcGenerateTransactionRawTx(CommandInfo ci)
+        public string GenerateTransactionRawTx(CommandInfo ci)
         {
             JObject j = null;
             if (ci.Parameter != null)
@@ -256,37 +228,13 @@ namespace AElf.Automation.Common.Helpers
 
             if (tr.MethodName == null)
             {
-                ci.ErrorMsg.Add("Method not found.");
+                ci.ErrorMsg = "Method not found.";
                 return string.Empty;
             }
 
             var parameter = ci.ParameterInput.ToByteString();
             tr.Params = parameter == null ? ByteString.Empty : parameter;
-            tr = tr.AddBlockReference(_rpcAddress);
-
-            _transactionManager.SignTransaction(tr);
-            var rawtx = _transactionManager.ConvertTransactionRawTx(tr);
-
-            return rawtx["rawTransaction"].ToString();
-        }
-
-        public string RpcGenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
-        {
-            var tr = new Transaction()
-            {
-                From = Address.Parse(from),
-                To = Address.Parse(to),
-                MethodName = methodName
-            };
-
-            if (tr.MethodName == null)
-            {
-                _logger.WriteError("Method not found.");
-                return string.Empty;
-            }
-
-            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
-            tr = tr.AddBlockReference(_rpcAddress);
+            tr = tr.AddBlockReference(_baseUrl);
 
             _transactionManager.SignTransaction(tr);
             var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
@@ -294,156 +242,126 @@ namespace AElf.Automation.Common.Helpers
             return rawTx["rawTransaction"].ToString();
         }
 
-        public void RpcBroadcastTxs(CommandInfo ci)
+        public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
         {
-            var parameters = new Dictionary<string, string>
+            var tr = new Transaction()
             {
-                { "rawTransactions", ci.Parameter }
+                From = Address.Parse(from),
+                To = Address.Parse(to),
+                MethodName = methodName
             };
-            var url = "/api/blockChain/broadcastTransactions";
-            var resp = _requestManager.PostResponse<string[]>(url, parameters, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp.ToString()))
-                return;
 
-            ci.InfoMsg.Add(resp.JoinAsString(","));
+            if (tr.MethodName == null)
+            {
+                _logger.WriteError("Method not found.");
+                return string.Empty;
+            }
+
+            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
+            tr = tr.AddBlockReference(_baseUrl);
+
+            _transactionManager.SignTransaction(tr);
+            var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
+
+            return rawTx["rawTransaction"].ToString();
+        }
+
+        public void BroadcastTxs(CommandInfo ci)
+        {
+            if (!ci.CheckParameterValid(1))
+                return;
+            
+            ci.InfoMsg = _apiService.BroadcastTransactions(ci.Parameter).Result;
             ci.Result = true;
         }
 
-        public void RpcGetTxResult(CommandInfo ci)
+        public void GetTxResult(CommandInfo ci)
         {
             if (!ci.CheckParameterValid(1))
                 return;
 
-            var url = $"/api/blockChain/transactionResult?transactionId={ci.Parameter}";
-            var respDto = _requestManager.GetResponse<TransactionResultDto>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, respDto?.TransactionId))
-                return;
-            ci.InfoMsg.Add(respDto?.ToString());
+            ci.InfoMsg = _apiService.GetTransactionResult(ci.Parameter).Result;
             ci.Result = true;
         }
 
-        public void RpcGetBlockHeight(CommandInfo ci)
+        public void GetBlockHeight(CommandInfo ci)
         {
-            var url = "/api/blockChain/blockHeight";
-            var resp = _requestManager.GetResponse<long>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp.ToString()))
-                return;
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg = _apiService.GetBlockHeight().Result;    
             ci.Result = true;
         }
 
-        public void RpcGetBlockByHeight(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(2))
-                return;
-
-            var parameterArray = ci.Parameter.Split(" ");
-            var url = $"/api/blockChain/blockByHeight?blockHeight={parameterArray[0]}&includeTransactions={parameterArray[1]}";
-            var resp = _requestManager.GetResponse<BlockDto>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp?.BlockHash))
-                return;
-            ci.InfoMsg.Add(resp?.ToString());
-            ci.Result = true;
-        }
-        
-        public void RpcGetBlockByHash(CommandInfo ci)
+        public void GetBlockByHeight(CommandInfo ci)
         {
             if (!ci.CheckParameterValid(2))
                 return;
             
             var parameterArray = ci.Parameter.Split(" ");
-            var url = $"/api/blockChain/block?blockHash={parameterArray[0]}&includeTransactions={parameterArray[1]}";
-            var resp = _requestManager.GetResponse<BlockDto>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp?.BlockHash))
+            ci.InfoMsg = _apiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1])).Result;
+            ci.Result = true;
+        }
+        
+        public void GetBlockByHash(CommandInfo ci)
+        {
+            if (!ci.CheckParameterValid(2))
                 return;
-            ci.InfoMsg.Add(resp?.ToString());
+            
+            var parameterArray = ci.Parameter.Split(" ");
+            ci.InfoMsg = _apiService.GetBlock(parameterArray[0], bool.Parse(parameterArray[1])).Result;
             ci.Result = true;
         }
 
-        public JObject RpcQueryView(string from, string to, string methodName, IMessage inputParameter)
+        public void GetTransactionPoolStatus(CommandInfo ci)
         {
-            var tr = new Transaction()
-            {
-                From = Address.Parse(from),
-                To = Address.Parse(to),
-                MethodName = methodName
-            };
-
-            if (tr.MethodName == null)
-            {
-                _logger.WriteError("Method not found.");
-                return new JObject();
-            }
-
-            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
-
-            var resp = CallTransaction(tr, "Call");
-
-            if (resp == string.Empty)
-                return new JObject();
-
-            return JObject.Parse(resp);
+            ci.InfoMsg = _apiService.GetTransactionPoolStatus().Result;
+            ci.Result = true;
         }
 
-        public T RpcQueryView<T>(string from, string to, string methodName, IMessage inputParameter)
-            where T : IMessage<T>, new()
+        public JObject QueryView(string from, string to, string methodName, IMessage inputParameter)
         {
-            var tr = new Transaction()
+            var transaction = new Transaction()
             {
                 From = Address.Parse(from),
                 To = Address.Parse(to),
-                MethodName = methodName
+                MethodName = methodName,
+                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
+            transaction = _transactionManager.SignTransaction(transaction);
 
-            if (tr.MethodName == null)
+            var resp = CallTransaction(transaction);
+
+            return resp == string.Empty ? new JObject() : JObject.Parse(resp);
+        }
+
+        public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)
+            where T : IMessage<T>, new()
+        {
+            var transaction = new Transaction()
             {
-                _logger.WriteError("Method not found.");
-                return default(T);
-            }
+                From = Address.Parse(from),
+                To = Address.Parse(to),
+                MethodName = methodName,
+                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
+            };
+            transaction = _transactionManager.SignTransaction(transaction);
 
-            tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
-
-            var resp = CallTransaction(tr, "Call");
+            var resp = CallTransaction(transaction);
 
             //deserialize response
-            JObject jObject;
-            if (resp != string.Empty)
-                jObject = JObject.Parse(resp);
-            else
+            if(resp == null)
             {
                 _logger.WriteError($"Call response is null or empty.");
                 return default(T);
             }
 
-            var resultObj = jObject["result"];
-            if (resultObj == null)
-                return default(T);
-
-            var byteArray = ByteArrayHelpers.FromHexString(resultObj.ToString());
+            var byteArray = ByteArrayHelpers.FromHexString(resp);
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);
         }
 
-        public void RpcQueryViewInfo(CommandInfo ci)
+        public void QueryViewInfo(CommandInfo ci)
         {
-            var parameters = new Dictionary<string, string>
-            {
-                { "rawTransaction", ci.Parameter }
-            };
-            var url = "/api/blockChain/call";
-            string resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp))
-                return;
-
-            ci.InfoMsg.Add(resp);
-
+            ci.InfoMsg = _apiService.Call(ci.Parameter).Result;
             ci.Result = true;
         }
 
@@ -456,77 +374,53 @@ namespace AElf.Automation.Common.Helpers
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {
-            var url = "api/net/peers";
-            var resp = _requestManager.GetResponse<List<string>>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp.ToString()))
-                return;
-
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg = _apiService.GetPeers().Result;
             ci.Result = true;
         }
 
         public void NetAddPeer(CommandInfo ci)
         {
-            var parameters = new Dictionary<string, string>
-            {
-                { "address", ci.Parameter }
-            };
-            var url = "/api/net/peer";
-            var resp = _requestManager.PostResponse<bool>(url, parameters, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp.ToString()))
+            if (!ci.CheckParameterValid(1))
                 return;
-
-            ci.InfoMsg.Add(resp.ToString());
+            
+            ci.InfoMsg = _apiService.AddPeer(ci.Parameter).Result;
             ci.Result = true;
         }
 
         public void NetRemovePeer(CommandInfo ci)
         {
-            var url = $"/api/net/peer?address={ci.Parameter}";
-            var resp = _requestManager.DeleteResponse<bool>(url, out var returnCode, out var timeSpan);
-            ci.TimeSpan = timeSpan;
-            if (!CheckResponse(ci, returnCode, resp.ToString()))
+            if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg.Add(resp.ToString());
+            ci.InfoMsg = _apiService.RemovePeer(ci.Parameter).Result;
             ci.Result = true;
         }
 
         #endregion
 
-        private string CallTransaction(Transaction tx, string api)
+        private string CallTransaction(Transaction tx)
         {
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
-            var parameters = new Dictionary<string, string>
-            {
-                { "rawTransaction", rawTxString }
-            };
-            var url = "/api/blockChain/call";
-
-            var resp = _requestManager.PostResponse<string>(url, parameters, out var returnCode, out var timeSpan);
-
-            return resp;
+            return _apiService.Call(rawTxString).Result;
         }
 
         private bool CheckResponse(CommandInfo ci, string returnCode, string response)
         {
             if (response == null)
             {
-                ci.ErrorMsg.Add("Could not connect to server.");
+                ci.ErrorMsg = "Could not connect to server.";
                 return false;
             }
 
             if (returnCode != "OK")
             {
-                ci.ErrorMsg.Add("Http request failed, status: " + returnCode);
+                ci.ErrorMsg = "Http request failed, status: " + returnCode;
                 return false;
             }
 
             if (!response.IsNullOrEmpty()) return true;
             
-            ci.ErrorMsg.Add("Failed. Pleas check input.");
+            ci.ErrorMsg = "Failed. Pleas check input.";
             return false;
 
         }

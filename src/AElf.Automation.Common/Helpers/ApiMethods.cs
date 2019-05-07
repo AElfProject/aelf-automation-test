@@ -20,7 +20,14 @@
         GetBlockByHeight,
         GetBlockByHash,
         GetMerklePath,
+        GetBlockState,
+        GetChainStatus,
+        GetTransactionPoolStatus,
+        SendRawTransaction,
+        CreateRawTransaction,
+        GetContractFileDescriptorSet,
         QueryView,
+        Call,
 
         //Net
         GetPeers,
