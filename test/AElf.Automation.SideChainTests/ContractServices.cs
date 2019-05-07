@@ -17,7 +17,7 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         
-        public ContractServices(RpcApiHelper apiHelper, string callAddress)
+        public ContractServices(RpcApiHelper apiHelper, string callAddress,string type)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
@@ -26,11 +26,18 @@ namespace AElf.Automation.SideChainTests
             //connect chain
             ConnectionChain();
             
-            //get all contract services
-            GetAllContractServices();
-        }
+            //get services
+            GetContractServices();
 
-        public void GetAllContractServices()
+            if (type.Equals("Main"))
+            {
+                //ParliamentAuth contract
+                var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
+                ParliamentService = new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
+            }
+        }
+        
+        public void GetContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
             
@@ -45,12 +52,8 @@ namespace AElf.Automation.SideChainTests
             //CrossChain contract
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChainName);
             CrossChainService = new CrossChainContract(ApiHelper, CallAddress, crossChainAddress.GetFormatted());
-            
-            //ParliamentAuth contract
-            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
-            ParliamentService = new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
-            
         }
+        
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

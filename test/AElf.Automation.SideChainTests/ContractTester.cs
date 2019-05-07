@@ -2,6 +2,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.CrossChain;
 using AElf.Kernel;
 using Google.Protobuf;
 using ApproveInput = Acs3.ApproveInput;
@@ -27,8 +28,7 @@ namespace AElf.Automation.SideChainTests
                 CrossChainService = ContractServices.CrossChainService;
                 ParliamentService = ContractServices.ParliamentService;
         }
-        
-        
+
         #region side chain create method
 
         public CommandInfo RequestSideChain(string account)
@@ -52,6 +52,40 @@ namespace AElf.Automation.SideChainTests
                 });
             return result;
         }
+        
+        public  Hash RequestSideChainReturnId(string account)
+        {
+            ByteString code = ByteString.FromBase64("4d5a90000300");
+
+            var resourceBalance = new ResourceTypeBalancePair
+            {
+                Amount = 1,
+                Type = Kernel.ResourceType.Ram
+            };
+            
+            CrossChainService.SetAccount(account);
+            var result =CrossChainService.CallViewMethod<RequestChainCreationOutput>(CrossChainContractMethod.RequestChainCreation,
+                new SideChainCreationRequest
+                {
+                    LockedTokenAmount = 100_000,
+                    IndexingPrice = 1,
+                    ContractCode = code,
+                    ResourceBalances = { resourceBalance}
+                });
+            return result.ProposalId;
+        }
+
+        public CommandInfo Recharge(int chainId, long amount)
+        {
+            var result =
+                CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.Recharge, new RechargeInput
+                {
+                    ChainId = chainId,
+                    Amount = amount
+                });
+            return result;
+        }
+
 
         public SInt32Value GetChainStatus(int chainId)
         {
@@ -59,10 +93,33 @@ namespace AElf.Automation.SideChainTests
                 CrossChainService.CallViewMethod<SInt32Value>(CrossChainContractMethod.GetChainStatus, new SInt32Value{Value = chainId});
             return result;
         }
+        
+        #endregion
+
+        #region cross chain verify 
+        
+        public CommandInfo VerifyTransaction(VerifyTransactionInput input,string account)
+        {
+            CrossChainService.SetAccount(account);
+            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.VerifyTransaction, input);
+            return result;
+        }
+
+        public CommandInfo GetBoundParentChainHeightAndMerklePathByHeight(string account,long blockNumber)
+        {
+            CrossChainService.SetAccount(account);
+            var result = CrossChainService.ExecuteMethodWithResult(
+                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                {
+                    Value = blockNumber
+                });
+            return result;
+        }
 
 
         #endregion
-
+        
+        
         #region Parliament Method
 
         public CommandInfo Approve(string account,string proposalId)

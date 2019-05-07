@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.CSharp.Core.Utils;
+using AElf.Kernel;
 
 namespace AElf.Automation.SideChainTests
 {    
@@ -15,8 +18,6 @@ namespace AElf.Automation.SideChainTests
  
         public RpcApiHelper CH { get; set; }        
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public static string SideAChainAccount { get; } = "";
-        public static string SideBChainAccount { get; } = "";
         
         public List<string> BpNodeAddress { get; set; }        
         public List<string> UserList { get; set; }
@@ -24,10 +25,10 @@ namespace AElf.Automation.SideChainTests
         protected void Initialize()
         {
             CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            var contractServices = new ContractServices(CH,InitAccount);
+            var contractServices = new ContractServices(CH,InitAccount,"Main");
             Tester = new ContractTester(contractServices);
             //Init Logger
-            string logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            string logName = "CrossChainTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
             //Get BpNode Info
@@ -35,9 +36,60 @@ namespace AElf.Automation.SideChainTests
             BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
-            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
+//            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
         }
-        
+
+        protected ContractTester ChangeToSideChain(RpcApiHelper rpcApiHelper, string SideAChainAccount)
+        {
+            var contractServices = new ContractServices(rpcApiHelper,SideAChainAccount,"Side");
+            var tester = new ContractTester(contractServices);
+            return tester;
+        }
+
+        protected RpcApiHelper ChangeRpc(string url)
+        {
+            var rpcApiHelper = new RpcApiHelper(url, AccountManager.GetDefaultDataDir());
+            return rpcApiHelper;
+        }
+
+        protected MerklePath GetMerklePath(string blockNumber,int index, RpcApiHelper rpcApiHelper)
+        {
+            var ci = new CommandInfo("GetBlockInfo");
+            ci.Parameter = $"{blockNumber} {true}";
+            var blockInfoResult = rpcApiHelper.ExecuteCommand(ci);
+            blockInfoResult.GetJsonInfo();
+            var transactionIds = blockInfoResult.JsonInfo["result"]["Body"]["Transactions"].ToArray();
+            var transactionStatus = new List<string>();
+            
+            foreach (var transactionId in transactionIds)
+            {
+                var CI = new CommandInfo("GetTransactionResult");
+                CI.Parameter = $"{transactionId}";
+                var txResult = rpcApiHelper.ExecuteCommand(CI);
+                txResult.GetJsonInfo();
+                var resultStatus = txResult.JsonInfo["result"]["Status"].ToString();
+                transactionStatus.Add(resultStatus);
+            }
+
+            var txIdsWithStatus = new List<Hash>();
+            for(int num =0; num<transactionIds.Length;num++)
+            {
+                var txId = Hash.LoadHex(transactionIds[num].ToString());
+                string txRes = transactionStatus[num];
+                var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                    .ToArray();
+                var txIdWithStatus = Hash.FromRawBytes(rawBytes);
+                txIdsWithStatus.Add(txIdWithStatus);
+            }
+            
+            var bmt = new BinaryMerkleTree();
+            bmt.AddNodes(txIdsWithStatus);
+            var root = bmt.ComputeRootHash();
+            var merklePath = bmt.GenerateMerklePath(index);
+
+            return merklePath;
+        }
+
         protected void TestCleanUp()
         {
             if (UserList.Count == 0) return;

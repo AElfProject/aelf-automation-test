@@ -1,3 +1,4 @@
+using AElf.Automation.Common.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainTests
@@ -24,8 +25,9 @@ namespace AElf.Automation.SideChainTests
             _logger.WriteInfo($"proposal id is {proposalId}");
         }
 
+        //f95200242dbedfa4eed01557274037edebbff826095b4ad46df1a82e7e8c49f3
         [TestMethod]
-        [DataRow("446e83c9c9d9b653c3626bf80097cdd77c3dc9871376e4dc111e948aa7793a8e")]
+        [DataRow("2c966cb232c97a2d67848919fdd1875ffa6a9a3c583cda37b0e396b124ceac0f")]
         public void ApproveProposal(string proposalId)
         {
             foreach (var bp in BpNodeAddress)
@@ -40,6 +42,20 @@ namespace AElf.Automation.SideChainTests
         {
             var status =Tester.GetChainStatus(chainId);
             _logger.WriteInfo($"side chain is {status}");
+        }
+
+        [TestMethod]
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2750978,100000)]
+        public void Recharge(string account,int chainId,long amount)
+        {
+            if (Tester.GetBalance(account,"ELF").Balance < amount)
+            {
+                Tester.TransferToken(InitAccount, account, amount, "ELF");
+            }
+            Tester.TokenApprove(account, amount);
+            var reCharge = Tester.Recharge(chainId, amount);
+            var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
+            _logger.WriteInfo($"side chain lock balance is {balance}");
         }
     }
 }
