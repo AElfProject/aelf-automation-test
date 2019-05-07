@@ -5,9 +5,9 @@ namespace AElf.Automation.ContractsTesting
 {
     public class NodesState
     {
-        private static readonly ILogHelper _log = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Log = LogHelper.GetLogHelper();
 
-        public void NodeStateCheck(string name, string rpcUrl)
+        public static void NodeStateCheck(string name, string rpcUrl)
         {
             var apiHelper = new WebApiHelper(rpcUrl);
             var nodeStatus = new NodeStatus(apiHelper);
@@ -20,14 +20,14 @@ namespace AElf.Automation.ContractsTesting
                 if (currentHeight == height)
                 {
                     message = $"Node: {name}, TxPool Count: {txPoolCount}";
-                    _log.WriteInfo(message);
+                    Log.WriteInfo(message);
                     Thread.Sleep(250);
                 }
                 else
                 {
                     height = currentHeight;
                     message = $"Node: {name}, Height: {currentHeight}, TxPool Count: {txPoolCount}";
-                    _log.WriteInfo(message);
+                    Log.WriteInfo(message);
                     Thread.Sleep(500);
                 }
             }

@@ -1,5 +1,3 @@
-using System;
-using System.Security.Cryptography;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 
@@ -8,7 +6,7 @@ namespace AElf.Automation.ContractsTesting
     public class NodeStatus
     {
         private readonly IApiHelper _apiHelper;
-        private static readonly ILogHelper _log = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Log = LogHelper.GetLogHelper();
 
         public NodeStatus(IApiHelper apiHelper)
         {

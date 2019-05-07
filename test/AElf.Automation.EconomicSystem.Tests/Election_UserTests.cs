@@ -10,13 +10,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestInitialize]
         public void InitializeUserTests()
         {
-            base.Initialize();
+            Initialize();
         }
 
         [TestCleanup]
         public void CleanUpUserTests()
         {
-            base.TestCleanUp();
+            TestCleanUp();
         }
 
         [TestMethod]
