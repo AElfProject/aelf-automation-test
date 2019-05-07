@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.Kernel;
 using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -14,19 +19,20 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private string TokenContract { get; set; }
         private List<string> Users { get; set; }
         #endregion
 
         #region Parameter Option
 
-        [Option("-ba|--bp.account", Description = "Bp account info")]
+        [Option("-ba|--bp.accoount", Description = "Bp account info")]
         public string BpAccount { get; set; } = "ELF_3SMq6XUt2ogboq3fTXwKF6bs3zt9f3EBqsMfDpVzvaX4U4K";
 
         [Option("-bp|--bp.password", Description = "Bp account password info")]
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.199.126:1726";
+        public string Endpoint { get; set; } = "http://192.168.197.13:8100/chain";
 
         #endregion
 
@@ -79,6 +85,19 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.UnlockAccount(uc);
             }
+            #endregion
+
+            #region Node status check
+            
+            var nodes = new NodesState();
+            var tasks = new List<Task>
+            {
+                Task.Run(() => nodes.NodeStateCheck("bp1", "http://192.168.199.126:1726/chain")),
+                Task.Run(() => nodes.NodeStateCheck("bp2", "http://192.168.199.126:1727/chain")),
+                Task.Run(() => nodes.NodeStateCheck("bp3", "http://192.168.199.126:1728/chain"))
+            };
+            Task.WaitAll(tasks.ToArray());
+
             #endregion
 
             #region Block verify testing
