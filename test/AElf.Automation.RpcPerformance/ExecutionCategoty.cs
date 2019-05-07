@@ -460,8 +460,7 @@ namespace AElf.Automation.RpcPerformance
             Assert.IsTrue(ci1.Result);
             var transactions = (string[])ci1.InfoMsg;
             _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}", rawTransactions.Count, transactions.Length);
-            _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work at {2}.", threadNo, times,
-                DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(100);
         }
 

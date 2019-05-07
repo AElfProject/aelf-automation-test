@@ -40,7 +40,7 @@ namespace AElf.Automation.Common.Helpers
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    string result = response.Content.ReadAsStringAsync().Result;
+                    var result = response.Content.ReadAsStringAsync().Result;
                     return result;
                 }
             }
@@ -157,6 +157,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+                client.DefaultRequestHeaders.Add("Connection", "close");
             
                 response = await client.GetAsync(url);
                 response.StatusCode.ShouldBe(expectedStatusCode);
@@ -184,6 +185,7 @@ namespace AElf.Automation.Common.Helpers
                 if (useApplicationJson)
                 {
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("Connection", "close");
                     var paramsStr = JsonConvert.SerializeObject(parameters);
                     content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
                     content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
@@ -227,6 +229,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+                client.DefaultRequestHeaders.Add("Connection", "close");
             
                 response = await client.DeleteAsync(url);
                 response.StatusCode.ShouldBe(expectedStatusCode);

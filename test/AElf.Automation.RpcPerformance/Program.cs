@@ -28,7 +28,7 @@ namespace AElf.Automation.RpcPerformance
 
         #endregion
 
-        static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public static int Main(string[] args)
         {
@@ -99,7 +99,7 @@ namespace AElf.Automation.RpcPerformance
                 Console.Write("Input selection: ");
 
                 var runType = Console.ReadLine();
-                var check = Int32.TryParse(runType, out execMode);
+                var check = int.TryParse(runType, out execMode);
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
