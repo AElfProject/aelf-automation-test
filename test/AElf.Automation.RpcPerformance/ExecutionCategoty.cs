@@ -522,7 +522,8 @@ namespace AElf.Automation.RpcPerformance
         
         private void CheckNodeStatus()
         {
-            for (var i = 0; i < 15; i++)
+            var checkTimes = 1;
+            while(true)
             {
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
                 ApiHelper.GetBlockHeight(ci);
@@ -536,9 +537,11 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 Thread.Sleep(4000);
-                _logger.WriteWarn("Block height not changed round: {0}", i + 1);
+                _logger.WriteWarn("Block height not changed round: {0}", checkTimes++);
+                
+                if(checkTimes == 75)
+                    Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
-            Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
         }
 
         private void CheckResultStatus(IList<string> idList, int checkTimes = 60)
