@@ -32,7 +32,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.13:8100/chain";
+        public string Endpoint { get; set; } = "http://192.168.197.13:8100";
 
         #endregion
 
@@ -89,12 +89,11 @@ namespace AElf.Automation.ContractsTesting
 
             #region Node status check
             
-            var nodes = new NodesState();
             var tasks = new List<Task>
             {
-                Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.199.126:1726/chain")),
-                Task.Run(() => NodesState.NodeStateCheck("bp2", "http://192.168.199.126:1727/chain")),
-                Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.199.126:1728/chain"))
+                Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.197.13:8100")),
+                Task.Run(() => NodesState.NodeStateCheck("full1", "http://192.168.197.13:8200")),
+                //Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.197.33:8200"))
             };
             Task.WaitAll(tasks.ToArray());
 

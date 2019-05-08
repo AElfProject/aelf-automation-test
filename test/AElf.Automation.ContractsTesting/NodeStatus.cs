@@ -6,7 +6,6 @@ namespace AElf.Automation.ContractsTesting
     public class NodeStatus
     {
         private readonly IApiHelper _apiHelper;
-        private static readonly ILogHelper Log = LogHelper.GetLogHelper();
 
         public NodeStatus(IApiHelper apiHelper)
         {
@@ -30,6 +29,17 @@ namespace AElf.Automation.ContractsTesting
             var transactionPoolStatus = command.InfoMsg as GetTransactionPoolStatusOutput;
 
             return transactionPoolStatus?.Queued ?? 0;
+        }
+
+        public BlockDto GetBlockInfo(long height)
+        {
+            var command = new CommandInfo(ApiMethods.GetBlockByHeight)
+            {
+                Parameter = $"{height} false"
+            };
+            _apiHelper.GetBlockByHeight(command);
+
+            return command.InfoMsg as BlockDto;
         }
     }
 }
