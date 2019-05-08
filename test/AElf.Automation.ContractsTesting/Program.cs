@@ -92,8 +92,8 @@ namespace AElf.Automation.ContractsTesting
             var tasks = new List<Task>
             {
                 Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.197.13:8100")),
-                Task.Run(() => NodesState.NodeStateCheck("full1", "http://192.168.197.13:8200")),
-                //Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.197.33:8200"))
+                Task.Run(() => NodesState.NodeStateCheck("bp2", "http://192.168.197.28:8100")),
+                Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.197.33:8100"))
             };
             Task.WaitAll(tasks.ToArray());
 

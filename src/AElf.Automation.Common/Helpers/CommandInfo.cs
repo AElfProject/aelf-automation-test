@@ -63,16 +63,6 @@ namespace AElf.Automation.Common.Helpers
             Result = false;
         }
 
-        public CommandInfo Execute(IApiHelper apiHelper, bool convertJson = false)
-        {
-            var ci = apiHelper.ExecuteCommand(this);
-
-            if (convertJson)
-                ci.GetJsonInfo();
-
-            return ci;
-        }
-
         public void GetJsonInfo()
         {
             JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg.ToString() : ErrorMsg.ToString());

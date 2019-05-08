@@ -371,8 +371,8 @@ namespace AElf.Automation.RpcPerformance
 
                 if (ci.Result)
                 {
-                    ci.GetJsonInfo();
-                    txIdList.Add(ci.JsonInfo["TransactionId"].ToString());
+                    var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                    txIdList.Add(transactionResult?.TransactionId);
                     passCount++;
                 }
 
