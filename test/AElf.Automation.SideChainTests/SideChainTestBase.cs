@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 
@@ -14,9 +16,10 @@ namespace AElf.Automation.SideChainTests
         public ContractTester Tester;
         public readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
-        public static string RpcUrl { get; } = "http://192.168.197.70:8001/chain";       
+        public static string RpcUrl { get; } = "http://192.168.197.56:8001";       
  
-        public RpcApiHelper CH { get; set; }        
+        public IApiHelper CH { get; set; }
+        public IApiService IS { get; set; }
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         
         public List<string> BpNodeAddress { get; set; }        
@@ -24,7 +27,8 @@ namespace AElf.Automation.SideChainTests
 
         protected void Initialize()
         {
-            CH = new RpcApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            IS = new WebApiService(RpcUrl);
             var contractServices = new ContractServices(CH,InitAccount,"Main");
             Tester = new ContractTester(contractServices);
             //Init Logger
@@ -33,46 +37,40 @@ namespace AElf.Automation.SideChainTests
             _logger.InitLogHelper(dir);
             //Get BpNode Info
             BpNodeAddress = new List<string>();
-            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
+//            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
-//            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
+            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
         }
 
-        protected ContractTester ChangeToSideChain(RpcApiHelper rpcApiHelper, string SideAChainAccount)
+        protected ContractTester ChangeToSideChain(IApiHelper rpcApiHelper, string SideAChainAccount)
         {
             var contractServices = new ContractServices(rpcApiHelper,SideAChainAccount,"Side");
             var tester = new ContractTester(contractServices);
             return tester;
         }
 
-        protected RpcApiHelper ChangeRpc(string url)
+        protected WebApiHelper ChangeRpc(string url)
         {
-            var rpcApiHelper = new RpcApiHelper(url, AccountManager.GetDefaultDataDir());
+            var rpcApiHelper = new WebApiHelper(url, AccountManager.GetDefaultDataDir());
             return rpcApiHelper;
         }
 
-        protected MerklePath GetMerklePath(string blockNumber,int index, RpcApiHelper rpcApiHelper)
+        protected MerklePath GetMerklePath(string blockNumber,int index,IApiService apiService)
         {
-            var ci = new CommandInfo("GetBlockInfo");
-            ci.Parameter = $"{blockNumber} {true}";
-            var blockInfoResult = rpcApiHelper.ExecuteCommand(ci);
-            blockInfoResult.GetJsonInfo();
-            var transactionIds = blockInfoResult.JsonInfo["result"]["Body"]["Transactions"].ToArray();
+            var blockInfoResult = apiService.GetBlockByHeight(long.Parse(blockNumber),true).Result;
+            var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
             
             foreach (var transactionId in transactionIds)
             {
-                var CI = new CommandInfo("GetTransactionResult");
-                CI.Parameter = $"{transactionId}";
-                var txResult = rpcApiHelper.ExecuteCommand(CI);
-                txResult.GetJsonInfo();
-                var resultStatus = txResult.JsonInfo["result"]["Status"].ToString();
+                var txResult = apiService.GetTransactionResult(transactionId).Result;
+                var resultStatus = txResult.Status;
                 transactionStatus.Add(resultStatus);
             }
 
             var txIdsWithStatus = new List<Hash>();
-            for(int num =0; num<transactionIds.Length;num++)
+            for(int num =0; num<transactionIds.Count;num++)
             {
                 var txId = Hash.LoadHex(transactionIds[num].ToString());
                 string txRes = transactionStatus[num];

@@ -7,7 +7,7 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractServices
     {
-        public readonly RpcApiHelper ApiHelper;
+        public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -17,7 +17,7 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         
-        public ContractServices(RpcApiHelper apiHelper, string callAddress,string type)
+        public ContractServices(IApiHelper apiHelper, string callAddress,string type)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
@@ -57,7 +57,7 @@ namespace AElf.Automation.SideChainTests
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.RpcGetChainInformation(ci);
+            ApiHelper.GetChainInformation(ci);
         }
     }
 }

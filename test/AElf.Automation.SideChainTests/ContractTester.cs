@@ -1,3 +1,4 @@
+using System.Diagnostics.SymbolStore;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
@@ -11,7 +12,7 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractTester
     {
-        public readonly RpcApiHelper ApiHelper;
+        public readonly IApiHelper ApiHelper;
         public readonly ContractServices ContractServices;      
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
@@ -31,31 +32,53 @@ namespace AElf.Automation.SideChainTests
 
         #region side chain create method
 
-        public CommandInfo RequestSideChain(string account)
+        public CommandInfo RequestSideChain(string account,long lockToken)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
 
             var resourceBalance = new ResourceTypeBalancePair
             {
                 Amount = 1,
-                Type = Kernel.ResourceType.Ram
+                Type = ResourceType.Ram
             };
             
             CrossChainService.SetAccount(account);
             var result =CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainCreation,
                 new SideChainCreationRequest
                 {
-                    LockedTokenAmount = 100_000,
+                    LockedTokenAmount = lockToken,
                     IndexingPrice = 1,
                     ContractCode = code,
-                    ResourceBalances = { resourceBalance}
+                    ResourceBalances = {resourceBalance}
                 });
             return result;
         }
-        
 
-        public CommandInfo Recharge(int chainId, long amount)
+        public CommandInfo RequestChainDisposal(string account,int chainId)
         {
+            CrossChainService.SetAccount(account);
+            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal, new SInt32Value
+            {
+                Value = chainId
+            });
+
+            return result;
+        }
+
+        public CommandInfo WithdrawRequest(string account,int chainId)
+        {
+            CrossChainService.SetAccount(account);
+            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.WithdrawRequest, new SInt32Value
+            {
+                Value = chainId
+            });
+
+            return result;
+        }
+
+        public CommandInfo Recharge(string account,int chainId, long amount)
+        {
+            CrossChainService.SetAccount(account);
             var result =
                 CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.Recharge, new RechargeInput
                 {
@@ -84,10 +107,10 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo GetBoundParentChainHeightAndMerklePathByHeight(string account,long blockNumber)
+        public CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(string account,long blockNumber)
         {
             CrossChainService.SetAccount(account);
-            var result = CrossChainService.ExecuteMethodWithResult(
+            var result = CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
                 CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
                 {
                     Value = blockNumber
@@ -174,6 +197,28 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
+        public CommandInfo CrossChainTransfer(string fromAccount,string toAccount,TokenInfo tokenInfo, int toChainId, long amount)
+        {
+            TokenService.SetAccount(fromAccount);
+            var result = TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainTransfer, new  CrossChainTransferInput
+            {
+                Amount = amount,
+                Memo= "transfer to side chain",
+                To = Address.Parse(toAccount),
+                ToChainId = toChainId,
+                TokenInfo = tokenInfo
+            });
+
+            return result;
+        }
+
+        public CommandInfo CrossChainReceive(string account,CrossChainReceiveTokenInput input)
+        {
+            TokenService.SetAccount(account);
+            var result = TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
+            return result;
+        }
+
         //view
         public GetBalanceOutput GetBalance(string account,string symbol)
         {
@@ -184,7 +229,16 @@ namespace AElf.Automation.SideChainTests
             });
             return balance;
         }
-        
+
+        public TokenInfo GetTokenInfo(string symbol)
+        {
+            var tokenInfo = TokenService.CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
+            {
+                Symbol = symbol
+            });
+
+            return tokenInfo;
+        }
 
         #endregion
     }

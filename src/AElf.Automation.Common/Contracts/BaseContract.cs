@@ -92,6 +92,7 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteMethodWithTxId(rawTx);
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            _logger.WriteInfo($"Transaction rawTx: {rawTx}");
 
             //Check result
             return CheckTransactionResult(txId, 30);

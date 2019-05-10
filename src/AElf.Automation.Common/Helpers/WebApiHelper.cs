@@ -442,7 +442,7 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
             
             //net route
-            ApiRoute.Add(ApiMethods.GetPeers, "api/net/peers");
+            ApiRoute.Add(ApiMethods.GetPeers, "/api/net/peers");
             ApiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
             ApiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
         }

@@ -170,10 +170,10 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.DeleteResponseAsObjectAsync<bool>(url);
         }
 
-        public async Task<List<string>> GetPeers()
+        public async Task<List<PeerDto>> GetPeers()
         {
             var url = GetRequestUrl(ApiMethods.GetPeers);
-            return await HttpHelper.GetResponseAsync<List<string>>(url);
+            return await HttpHelper.GetResponseAsync<List<PeerDto>>(url);
         }
         
         #endregion
@@ -207,7 +207,7 @@ namespace AElf.Automation.Common.WebApi
             _apiRoute.Add(ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
             
             //net route
-            _apiRoute.Add(ApiMethods.GetPeers, "api/net/peers");
+            _apiRoute.Add(ApiMethods.GetPeers, "/api/net/peers");
             _apiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
             _apiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
         }

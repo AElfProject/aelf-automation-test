@@ -23,12 +23,12 @@ namespace AElf.Automation.Common.Contracts
     }
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
     {
-        public CrossChainContract(RpcApiHelper ch, string account) :
+        public CrossChainContract(IApiHelper ch, string account) :
             base(ch, "AElf.Contracts.CrossChain", account)
         {
         }
     
-        public CrossChainContract(RpcApiHelper ch, string callAddress, string contractAbi):
+        public CrossChainContract(IApiHelper ch, string callAddress, string contractAbi):
             base(ch, contractAbi)
         {
             CallAddress = callAddress;
