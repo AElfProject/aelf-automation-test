@@ -20,6 +20,8 @@ namespace AElf.Automation.Common.WebApi
             InitializeWebApiRoute();
         }
         
+        #region Chain Api
+        
         public async Task<string> Call(string rawTransaction)
         {
             var url = GetRequestUrl(ApiMethods.Call);
@@ -36,7 +38,7 @@ namespace AElf.Automation.Common.WebApi
             
             if(hexString.IsNullOrEmpty())
             {
-                _logger.WriteError($"Call response is null or empty.");
+                _logger.WriteError("Call response is null or empty.");
                 return default(TResult);
             }
 
@@ -151,6 +153,8 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.GetResponseAsync<BlockStateDto>(url);
         }
         
+        #endregion
+        
         #region Net api
 
         public async Task<bool> AddPeer(string address)
@@ -170,10 +174,10 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.DeleteResponseAsObjectAsync<bool>(url);
         }
 
-        public async Task<List<string>> GetPeers()
+        public async Task<List<PeerDto>> GetPeers()
         {
             var url = GetRequestUrl(ApiMethods.GetPeers);
-            return await HttpHelper.GetResponseAsync<List<string>>(url);
+            return await HttpHelper.GetResponseAsync<List<PeerDto>>(url);
         }
         
         #endregion
@@ -186,30 +190,31 @@ namespace AElf.Automation.Common.WebApi
         }
         private void InitializeWebApiRoute()
         {
-            _apiRoute = new Dictionary<ApiMethods, string>();
-            
-            //chain route
-            _apiRoute.Add(ApiMethods.GetChainInformation, "/api/blockChain/chainStatus");
-            _apiRoute.Add(ApiMethods.GetChainStatus, "/api/blockChain/chainStatus");
-            _apiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
-            _apiRoute.Add(ApiMethods.CreateRawTransaction, "/api/blockChain/rawTransaction");
-            _apiRoute.Add(ApiMethods.GetTransactionPoolStatus, "/api/blockChain/transactionPoolStatus");
-            _apiRoute.Add(ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
-            _apiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
-            _apiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction");
-            _apiRoute.Add(ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction");
-            _apiRoute.Add(ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions");
-            _apiRoute.Add(ApiMethods.SendRawTransaction, "/api/blockChain/sendRawTransaction");
-            _apiRoute.Add(ApiMethods.GetBlockState, "/api/blockChain/blockState?blockHash={0}");
-            _apiRoute.Add(ApiMethods.Call, "/api/blockChain/call");
-            _apiRoute.Add(ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}");
-            _apiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
-            _apiRoute.Add(ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
-            
-            //net route
-            _apiRoute.Add(ApiMethods.GetPeers, "api/net/peers");
-            _apiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
-            _apiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
+            _apiRoute = new Dictionary<ApiMethods, string>
+            {
+                //chain route
+                {ApiMethods.GetChainInformation, "/api/blockChain/chainStatus"},
+                {ApiMethods.GetChainStatus, "/api/blockChain/chainStatus"},
+                {ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight"},
+                {ApiMethods.CreateRawTransaction, "/api/blockChain/rawTransaction"},
+                {ApiMethods.GetTransactionPoolStatus, "/api/blockChain/transactionPoolStatus"},
+                {ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}"},
+                {ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}"},
+                {ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction"},
+                {ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction"},
+                {ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions"},
+                {ApiMethods.SendRawTransaction, "/api/blockChain/sendRawTransaction"},
+                {ApiMethods.GetBlockState, "/api/blockChain/blockState?blockHash={0}"},
+                {ApiMethods.Call, "/api/blockChain/call"},
+                {ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}"},
+                {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
+                {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},
+                
+                //net route
+                {ApiMethods.GetPeers, "api/net/peers"},
+                {ApiMethods.AddPeer, "/api/net/peer"},
+                {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
+            };
         }
     }
 }

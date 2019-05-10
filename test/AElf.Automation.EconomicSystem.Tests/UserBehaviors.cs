@@ -1,8 +1,12 @@
+using System;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -15,9 +19,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
                 CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
-                LockTime = lockTime,
-                LockTimeUnit = LockTimeUnit.Days,
                 Amount = amount,
+                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
 
             return vote;

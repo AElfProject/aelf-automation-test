@@ -59,7 +59,8 @@ namespace AElf.Automation.ContractsTesting
             Logger.InitLogHelper(dir);
 
             var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
-
+            
+            /*
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ch.ExecuteCommand(ci);
@@ -85,15 +86,19 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.UnlockAccount(uc);
             }
+            */
+            
             #endregion
 
             #region Node status check
             
             var tasks = new List<Task>
             {
-                Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.197.13:8100")),
-                Task.Run(() => NodesState.NodeStateCheck("bp2", "http://192.168.197.28:8100")),
-                Task.Run(() => NodesState.NodeStateCheck("bp3", "http://192.168.197.33:8100"))
+                //Task.Run(() => NodesState.NodeStateCheck("bp1", "http://119.254.209.177:8000")),
+                //Task.Run(() => NodesState.NodeStateCheck("bp2", "http://54.154.97.61:8000")),
+                //Task.Run(() => NodesState.NodeStateCheck("bp3", "http://34.220.37.238:8000")),
+                Task.Run(() => NodesState.NodeStateCheck("full1", "http://103.61.37.19:8000")),
+                //Task.Run(() => NodesState.NodeStateCheck("full2", "http://54.169.140.30:8000"))
             };
             Task.WaitAll(tasks.ToArray());
 

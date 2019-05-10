@@ -1,4 +1,5 @@
 using System.Linq;
+using AElf.Automation.Common.WebApi.Dto;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -10,13 +11,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestInitialize]
         public void InitializeNodeTests()
         {
-            base.Initialize();
+            Initialize();
         }
 
         [TestCleanup]
         public void CleanUpNodeTests()
         {
-            base.TestCleanUp();
+            TestCleanUp();
         }
 
         [TestMethod]
@@ -24,8 +25,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[0]).Balance;
             var result = Behaviors.AnnouncementElection(FullNodeAddress[0]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+            var transactionResult = result.InfoMsg as TransactionResultDto;
+            transactionResult?.Status.ShouldBe("Mined");
 
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[0]).Balance;
             beforeBalance.ShouldBe(afterBalance + 100_000L);
@@ -36,16 +37,16 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[1]).Balance;
             var result = Behaviors.AnnouncementElection(FullNodeAddress[1]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+            var transactionResult = result.InfoMsg as TransactionResultDto;
+            transactionResult?.Status.ShouldBe("Mined");
 
             var result1 = Behaviors.AnnouncementElection(FullNodeAddress[1]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Failed");
+            var transactionResult1 = result1.InfoMsg as TransactionResultDto;
+            transactionResult1?.Status.ShouldBe("Failed");
 
             var result2 = Behaviors.AnnouncementElection(FullNodeAddress[1]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Failed");
+            var transactionResult2 = result2.InfoMsg as TransactionResultDto;
+            transactionResult2?.Status.ShouldBe("Failed");
 
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[1]).Balance;
             beforeBalance.ShouldBe(afterBalance + 100_000L);
@@ -56,8 +57,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var beforeBalance = Behaviors.GetBalance(UserList[0]).Balance;
             var result = Behaviors.AnnouncementElection(UserList[0]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Failed");
+            var transactionResult = result.InfoMsg as TransactionResultDto;
+            transactionResult?.Status.ShouldBe("Failed");
 
             var afterBalance = Behaviors.GetBalance(UserList[0]).Balance;
             beforeBalance.ShouldBe(afterBalance);
@@ -69,16 +70,16 @@ namespace AElf.Automation.EconomicSystem.Tests
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[5]).Balance;
 
             var announcement1 = Behaviors.AnnouncementElection(FullNodeAddress[5]);
-            announcement1.GetJsonInfo();
-            announcement1.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+            var transactionResult1 = announcement1.InfoMsg as TransactionResultDto;
+            transactionResult1?.Status.ShouldBe("Mined");
 
             var quitElection = Behaviors.QuitElection(FullNodeAddress[5]);
-            quitElection.GetJsonInfo();
-            quitElection.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+            var transactionResult2 = quitElection.InfoMsg as TransactionResultDto;
+            transactionResult2?.Status.ShouldBe("Mined");
 
             var announcement2 = Behaviors.AnnouncementElection(FullNodeAddress[5]);
-            announcement2.GetJsonInfo();
-            announcement2.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+            var transactionResult3 = announcement2.InfoMsg as TransactionResultDto;
+            transactionResult3?.Status.ShouldBe("Mined");
 
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[5]).Balance;
             beforeBalance.ShouldBe(afterBalance + 100_000L);
@@ -90,8 +91,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var nodeAddress in FullNodeAddress)
             {
                 var result = Behaviors.AnnouncementElection(nodeAddress);
-                result.GetJsonInfo();
-                result.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
+                var transactionResult = result.InfoMsg as TransactionResultDto;
+                transactionResult?.Status.ShouldBe("Mined");
             }
         }
 
@@ -114,7 +115,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var victories = Behaviors.GetVictories();
 
-            var publicKeys = victories.Select(o => o.ToHex()).ToList();
+            var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
@@ -127,9 +128,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
-            result.GetJsonInfo();
-            result.JsonInfo["result"]["Status"].ToString().ShouldBe("Mined");
-
+            
+            var transactionResult = result.InfoMsg as TransactionResultDto;
+            transactionResult?.Status.ShouldBe("Mined");
+            
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             beforeBalance.ShouldBe(afterBalance - 100_000L);
         }
@@ -138,10 +140,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            _logger.WriteInfo($"Candidate count: {candidates.Count}");
-            foreach (var candidate in candidates)
+            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
+            foreach (var candidate in candidates.Value)
             {
-                _logger.WriteInfo($"Candidate: {candidate.ToHex()}");
+                _logger.WriteInfo($"Candidate: {candidate.ToByteArray().ToHex()}");
             }
         }
 
@@ -197,14 +199,14 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(1, 4)]
+        [DataRow(1, 9)]
         public void GetAllPeriodsBalance(int startPeriod, int endPeriod)
         {
             var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
             var treasuryBalance = Behaviors.GetBalance(treasuryAddress.GetFormatted());
             _logger.WriteInfo($"Treasury balance is {treasuryBalance.Balance}");
 
-            for (int i = startPeriod; i <= endPeriod; i++)
+            for (var i = startPeriod; i <= endPeriod; i++)
             {
                 _logger.WriteInfo($"term number: {i}");
                 foreach (var profitId in ProfitItemsIds)
@@ -221,15 +223,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             foreach (var candidate in FullNodeAddress)
             {
-                var candidateResult = Behaviors.GetCandidateHistory(candidate);
+                var candidateResult = Behaviors.GetCandidateInformation(candidate);
                 _logger.WriteInfo("Candidate: ");
                 _logger.WriteInfo($"PublicKey: {candidateResult.PublicKey}");
                 _logger.WriteInfo($"Terms: {candidateResult.Terms}");
                 _logger.WriteInfo($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
                 _logger.WriteInfo($"ProducedBlocks: {candidateResult.ProducedBlocks}");
-                _logger.WriteInfo($"ReappointmentCount: {candidateResult.ReappointmentCount}");
                 _logger.WriteInfo($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
-                _logger.WriteInfo($"CurrentVotesNumber: {candidateResult.CurrentVotesNumber}");
                 _logger.WriteInfo($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
             }
         }

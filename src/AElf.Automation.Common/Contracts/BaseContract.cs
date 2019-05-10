@@ -218,7 +218,7 @@ namespace AElf.Automation.Common.Contracts
                     if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
                     {
                         _logger.WriteInfo($"Transaction status: {transactionResult.Status}");
-                        _logger.WriteError(ci.JsonInfo.ToString());
+                        _logger.WriteError(transactionResult.Error);
                         continue;
                     }
 
