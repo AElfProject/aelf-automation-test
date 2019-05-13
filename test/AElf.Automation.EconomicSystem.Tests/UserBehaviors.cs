@@ -1,12 +1,14 @@
 using System;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -15,6 +17,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         //action
         public CommandInfo UserVote(string account,string candidate, int lockTime, long amount)
         {
+            //check balance
+            var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner =  Address.Parse(account),
+                Symbol = "ELF"
+            }).Balance;
+            
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
@@ -22,6 +31,16 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
+            var transactionResult = vote.InfoMsg as TransactionResultDto;
+            transactionResult?.Status.ShouldBe("Mined"); 
+            
+            var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner =  Address.Parse(account),
+                Symbol = "ELF"
+            }).Balance;
+            
+            beforeBalance.ShouldBe(afterBalance + amount, "user voted but user balance not correct.");
 
             return vote;
         }

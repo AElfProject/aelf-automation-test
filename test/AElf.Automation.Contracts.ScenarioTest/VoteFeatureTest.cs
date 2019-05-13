@@ -415,7 +415,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var votePbk = NodesPublicKeys[candidates[i]];
                 var voteVolume = 200;
-                var voteLock = 5;
 
                 voteService.SetAccount(UserList[i]);
                 voteService.ExecuteMethodWithTxId(VoteMethod.Vote, new VoteMinerInput

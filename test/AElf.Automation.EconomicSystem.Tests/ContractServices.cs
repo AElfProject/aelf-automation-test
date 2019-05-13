@@ -55,7 +55,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
 
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
+            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
         }
         private void ConnectionChain()
