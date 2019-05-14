@@ -14,6 +14,7 @@ using AElf.Contracts.Vote;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
 using VoteInput = AElf.Contracts.Consensus.DPoS.VoteInput;
+using VoteMinerInput = AElf.Contracts.Election.VoteMinerInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {

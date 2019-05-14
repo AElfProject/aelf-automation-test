@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Consensus.DPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Profit;
-using AElf.Kernel;
-using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using TermSnapshot = AElf.Contracts.Consensus.DPoS.TermSnapshot;
+using TermSnapshot = AElf.Contracts.Election.TermSnapshot;
+
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
