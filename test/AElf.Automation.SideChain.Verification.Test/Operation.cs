@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
@@ -10,6 +11,7 @@ namespace AElf.Automation.SideChain.Verification.Test
     public class Operation
     {
         public readonly IApiHelper ApiHelper;
+        public readonly string chainId;
         public readonly ContractServices ContractServices;
      
         public readonly TokenContract TokenService;
@@ -17,15 +19,21 @@ namespace AElf.Automation.SideChain.Verification.Test
         public readonly CrossChainContract CrossChainService;
         public readonly ParliamentAuthContract ParliamentService;
 
-        public Operation(ContractServices contractServices)
+        public Operation(ContractServices contractServices,string type)
         {
             ApiHelper = contractServices.ApiHelper;
+            var ci = new CommandInfo(ApiMethods.GetChainInformation);
+            var result = ApiHelper.ExecuteCommand(ci);
+            var returnResult = result.InfoMsg as ChainStatusDto;
+            chainId = returnResult.ChainId;
             ContractServices = contractServices;
 
             TokenService = ContractServices.TokenService;
-            ConsensusService = ContractServices.ConsensusService;
             CrossChainService = ContractServices.CrossChainService;
-            ParliamentService = ContractServices.ParliamentService;
+            if (type.Equals("Main"))
+            {
+                ParliamentService = ContractServices.ParliamentService;
+            }
         }
 
         #region Token Method
@@ -102,5 +110,6 @@ namespace AElf.Automation.SideChain.Verification.Test
         }
 
         #endregion
+
     }
 }

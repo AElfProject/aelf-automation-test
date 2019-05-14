@@ -132,19 +132,21 @@ namespace AElf.Automation.Common.Extensions
         private static DateTime _refBlockTime = DateTime.Now;
         private static long _cachedHeight;
         private static string _cachedHash;
+        private static string _chainId;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
-        public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress)
+        public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,string chainId)
         {
             var height = _cachedHeight;
             var hash = _cachedHash;
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60)
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || !_chainId.Equals(chainId))
             {
                 height = GetBlkHeight(rpcAddress);
                 hash = GetBlkHash(rpcAddress, height);
                 _cachedHeight = height;
                 _cachedHash = hash;
                 _refBlockTime = DateTime.Now;
+                _chainId = chainId;
             }
 
             transaction.RefBlockNumber = height;

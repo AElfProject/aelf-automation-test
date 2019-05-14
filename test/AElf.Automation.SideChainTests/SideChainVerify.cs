@@ -125,7 +125,7 @@ namespace AElf.Automation.SideChainTests
             TesterB = ChangeToSideChain(SideChainB,sideChainBccount);
 
             var result2 =
-                Tester.VerifyTransaction(verificationInput, sideChainBccount);
+                TesterB.VerifyTransaction(verificationInput, sideChainBccount);
             var verifyResult2 = result2.InfoMsg as TransactionResultDto;
             verifyResult2.ReadableReturnValue.ShouldBe("true");
         }
@@ -147,7 +147,7 @@ namespace AElf.Automation.SideChainTests
         }
                 
         [TestMethod]
-        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","3150",2,"0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a20aaa58b6cf58d4ef337f6dc55b701fd57d622015a3548a91a4e40892aa355d70e18cd182204042a9e332a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f104418c4193447b0c20b1c9948b82b45c0e6ed169af3dd324cde12f5dfbe80d76aac2488e5edf804df98ca71e356c716c97a17644f3040cb0a27abd54376e718bad9200")]
+        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","12483",2,"0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a20aaa58b6cf58d4ef337f6dc55b701fd57d622015a3548a91a4e40892aa355d70e18c261220454cea1902a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f10441e1fd8bde4e5ede6358808faa8f3ad4422c1844c79c89d09e693a2001606f0c33619fc6238df8dc8e28f980904cd841e9b321a7f67577fe74cfa00a77f936b3e901")]
         public void SideChainAReceive(string accountA,string blockNumber,int index,string rawTx)
         {
             var merklePath = GetMerklePath(blockNumber,index,IS);
