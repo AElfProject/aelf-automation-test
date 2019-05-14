@@ -7,13 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Consensus.DPoS;
-using AElf.Contracts.Election;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Vote;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
-using VoteInput = AElf.Contracts.Consensus.DPoS.VoteInput;
 using VoteMinerInput = AElf.Contracts.Election.VoteMinerInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -132,6 +130,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
         
+        /*
         private void QueryContractsBalance()
         {
             var consensusBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -432,7 +431,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetPageableElectionInfo();
             Logger.WriteInfo("Vote completed.");
         }
-
+        
         [TestMethod]
         public void GetCandidateHistoryInfo()
         {
@@ -454,7 +453,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Logger.WriteInfo("GetCurrentVictories Test");
             var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMiners, new Empty());
-            CurrentMinersKeys = minersResult.MinerList.PublicKeys.ToList();
+            CurrentMinersKeys = minersResult.MinerList.PublicKeys.Select(o=>o.ToByteArray().ToHex()).ToList();
             var count = 1;
             foreach (var miner in CurrentMinersKeys)
             {
@@ -685,5 +684,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
+        */
     }
 }
