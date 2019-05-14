@@ -271,3 +271,6 @@ slnx.sqlite
 
 #Remove testing result files
 RpcResult_Thread*
+
+#Protobuf generated code
+*.g.cs
