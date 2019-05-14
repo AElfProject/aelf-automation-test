@@ -1,5 +1,8 @@
 using System.Linq;
+using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Profit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -72,17 +75,22 @@ namespace AElf.Automation.EconomicSystem.Tests
             var announcement1 = Behaviors.AnnouncementElection(FullNodeAddress[5]);
             var transactionResult1 = announcement1.InfoMsg as TransactionResultDto;
             transactionResult1?.Status.ShouldBe("Mined");
+            var balance1 = Behaviors.GetBalance(FullNodeAddress[5]).Balance;
 
             var quitElection = Behaviors.QuitElection(FullNodeAddress[5]);
             var transactionResult2 = quitElection.InfoMsg as TransactionResultDto;
             transactionResult2?.Status.ShouldBe("Mined");
+            var balance2 = Behaviors.GetBalance(FullNodeAddress[5]).Balance;
 
             var announcement2 = Behaviors.AnnouncementElection(FullNodeAddress[5]);
             var transactionResult3 = announcement2.InfoMsg as TransactionResultDto;
             transactionResult3?.Status.ShouldBe("Mined");
 
+            var candidates = Behaviors.GetCandidates();
+            candidates.Value.Count.ShouldBe(0);
+
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[5]).Balance;
-            beforeBalance.ShouldBe(afterBalance + 100_000L);
+            beforeBalance.ShouldBe(afterBalance);
         }
 
         [TestMethod]
@@ -119,19 +127,19 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[3])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
         }
 
         [TestMethod]
-        [DataRow(1)]
+        [DataRow(5)]
         public void QuitElection(int nodeId)
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
-            
+
             var transactionResult = result.InfoMsg as TransactionResultDto;
             transactionResult?.Status.ShouldBe("Mined");
-            
+
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             beforeBalance.ShouldBe(afterBalance - 100_000L);
         }
@@ -148,7 +156,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(2)]
+        [DataRow(1)]
         public void GetTermShot(int termNumber)
         {
             var termShot = Behaviors.GetTermSnapshot(termNumber);
@@ -187,19 +195,20 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"{profitId.Key}balance is {balance.Balance}");
             }
         }
-        
+
         [TestMethod]
         public void CandidateGetPiDetails()
         {
             foreach (var address in FullNodeAddress)
             {
-                var reElectionResult =Behaviors.GetProfitDetails(address,ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
+                var reElectionResult =
+                    Behaviors.GetProfitDetails(address, ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
                 _logger.WriteInfo($"{address} ReElectionReward detail is {reElectionResult}");
             }
         }
 
         [TestMethod]
-        [DataRow(1, 9)]
+        [DataRow(1, 3)]
         public void GetAllPeriodsBalance(int startPeriod, int endPeriod)
         {
             var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
@@ -233,7 +242,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
             }
         }
-        
+
         [TestMethod]
         public void GetCandidateProfitAndWithDraw()
         {
@@ -260,13 +269,30 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"20% backup node profit balance: {backupProfit}");
                 _logger.WriteInfo($"20% user vote profit balance: {voteProfit}");
 
-                Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BasicMinerReward]);
-                Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.VotesWeightReward]);
-                Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
-                Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BackSubsidy]);
+                if (!basicProfit.Equals(new ProfitDetails()))
+                {
+                    Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BasicMinerReward]);
+                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                }
 
-                var afterBalance = Behaviors.GetBalance(candidate);
-                _logger.WriteInfo($"After Balance: {afterBalance.Balance}");
+                if (!voteWeightProfit.Equals(new ProfitDetails()))
+                {
+                    Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.VotesWeightReward]);
+                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                }
+
+                if (!reElectionProfit.Equals(new ProfitDetails()))
+                {
+                    Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
+                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                }
+
+                if (!backupProfit.Equals(new ProfitDetails()))
+                {
+                    Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BackSubsidy]);
+                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                }
+
                 _logger.WriteInfo(string.Empty);
             }
         }

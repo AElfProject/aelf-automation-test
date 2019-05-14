@@ -121,6 +121,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         protected void TestCleanUp()
         {
+            /*
             if (UserList.Count == 0) return;
             _logger.WriteInfo("Delete all account files created.");
             foreach (var item in UserList)
@@ -128,27 +129,25 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
                 File.Delete(file);
             }
+            */
         }
         
         private void PrepareUserAccountAndBalance(int userAccount)
         {
             //Account preparation
-            UserList = new List<string>();
-            var ci = new CommandInfo(ApiMethods.AccountNew);
-            for (int i = 0; i < userAccount; i++)
+            UserList = new List<string>
             {
-                ci.Parameter = "123";
-                ci = CH.NewAccount(ci);
-                if (ci.Result)
-                    UserList.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
-
-                //unlock
-                var uc = new CommandInfo(ApiMethods.AccountNew)
-                {
-                    Parameter = $"{UserList[i]} 123 notimeout"
-                };
-                CH.UnlockAccount(uc);
-            }
+                "yzXWLxTJ84p13FqyUzjh8maNafookpAQNUh5x3YzMVGkQ9oPm",
+                "yzuQMgwfsCB3tjJsE9nrvxqrP83RbioVHnHuf3B97cqWgz569",
+                "z11jRfppmoDShUregbcPA6zXpNPqW6wmzbs4Bpf15L7AWxXAZ",
+                "z2LvgQxUoiFBnjGCvxAA6Q4EaUhR4REzR7m5Ji3akiVhbtVS1",
+                "z4ZCyrr5yXWuY1WgU4eczY3ebkdChB2He8f1dqFo2Y8CALAf3",
+                "z4j62HffC7WReuvZVTNExn1nST2R4YD4JkFLhv8sqQYhfm7Tg",
+                "z7EHxChMWreVdKMDfn7dSTYN7VBhQ1CC73Xjmb59Z37aKmLPK",
+                "zDR4wfhvqD6XyqKThZfEYzE5BTFZn75qbeRJtdRUDKMp7aAWe",
+                "zE8HtCKT76YqNdHcKqyK4HKrMhaShaFNJYp2SXyZZpSfwBfMj",
+                "zFkbQKXovPeKXhHd1JuJJT7bKoJ9zw71rFQCmst3DqxUSA6dz"
+            };
 
             //分配资金给普通用户
             Behaviors.TokenService.SetAccount(BpNodeAddress[0]);

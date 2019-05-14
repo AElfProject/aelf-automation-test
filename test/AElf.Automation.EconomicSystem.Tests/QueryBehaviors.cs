@@ -180,6 +180,13 @@ namespace AElf.Automation.EconomicSystem.Tests
             var miners = ConsensusService.CallViewMethod<Miners>(ConsensusMethod.GetCurrentMiners, new Empty());
             return miners;
         }
+
+        public long GetCurrentTermInformation()
+        {
+            var round = ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+
+            return round.TermNumber;
+        }
         #endregion
     }
 }

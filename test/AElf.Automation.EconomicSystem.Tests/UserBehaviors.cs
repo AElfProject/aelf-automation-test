@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
@@ -42,6 +43,26 @@ namespace AElf.Automation.EconomicSystem.Tests
             beforeBalance.ShouldBe(afterBalance + amount, "user voted but user balance not correct.");
 
             return vote;
+        }
+        
+        public List<string> UserVoteWithTxIds(string account,string candidate, int lockTime, int times)
+        {
+            
+            ElectionService.SetAccount(account);
+            var list = new List<string>();
+            for (int i = 1; i <= times; i++)
+            {
+                var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
+                {
+                    CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                    Amount = i,
+                    EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
+                });
+                
+                list.Add(txId);
+            }
+            
+            return list;
         }
 
         public CommandInfo ReleaseProfit(long period,int amount,string profitId)
