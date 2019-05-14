@@ -107,7 +107,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow(0)]
         public void GetVotesInformationResult(int nodeId)
         {
-            var records = Behaviors.GetVotesInformationWithAllRecords(FullNodeAddress[nodeId]);
+            var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
         }
 
         [TestMethod]
@@ -119,7 +119,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
             publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[3])).ShouldBeTrue();
         }
 
         [TestMethod]

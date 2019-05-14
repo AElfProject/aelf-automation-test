@@ -30,21 +30,21 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(0, 1, 2)]
-        public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3)
+        [DataRow(0, 2, 5, 100)]
+        public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3, long amount)
         {
-            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, 100);
+            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, amount);
             
             var txResult1 = voteResult1.InfoMsg as TransactionResultDto;
             txResult1.ShouldNotBeNull();
             txResult1.Status.ShouldBe("Mined");
 
-            var voteResult2 = Behaviors.UserVote(UserList[1], FullNodeAddress[no2], 90, 100);
+            var voteResult2 = Behaviors.UserVote(UserList[1], FullNodeAddress[no2], 90, amount);
             var txResult2 = voteResult2.InfoMsg as TransactionResultDto;
             txResult2.ShouldNotBeNull();
             txResult2.Status.ShouldBe("Mined");
             
-            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, 100);
+            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, amount);
             
             var txResult3 = voteResult3.InfoMsg as TransactionResultDto;
             txResult3.ShouldNotBeNull();
@@ -55,7 +55,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(1, 100)]
+        [DataRow(5, 100)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
             var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 90, amount);
@@ -66,7 +66,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(0, 1, 2)]
+        [DataRow(0, 1, 3)]
         public void Query_Candidate_Victories(int no1, int no2, int no3)
         {
             var victories = Behaviors.GetVictories();
@@ -86,9 +86,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void Get_Current_Miners()
         {
             var miners = Behaviors.GetCurrentMiners();
-            foreach (var miner in miners.Addresses)
+            foreach (var publicKey in miners.PublicKeys)
             {
-                _logger.WriteInfo($"Miner: {miner}");
+                _logger.WriteInfo($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
             }
         }
     }

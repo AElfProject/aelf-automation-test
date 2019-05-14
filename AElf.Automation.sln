@@ -16,6 +16,7 @@ ProjectSection(SolutionItems) = preProject
 	scripts\nodes-scenario-test.sh = scripts\nodes-scenario-test.sh
 	scripts\sh-record.sh = scripts\sh-record.sh
 	scripts\sh-replay.sh = scripts\sh-replay.sh
+	scripts\test-build.sh = scripts\test-build.sh
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{35D838ED-B1AC-4F0F-8657-24F2B52F59EA}"

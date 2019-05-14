@@ -1,5 +1,5 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Consensus.DPoS;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Profit;
@@ -30,7 +30,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public CandidateInformation GetCandidateInformation(string account)
         {
             var result =
-                ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateHistory,
+                ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
                     new StringInput
                     {
                         Value = ApiHelper.GetPublicKeyFromAddress(account)
@@ -68,9 +68,9 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public ElectorVote GetVotesInformationWithAllRecords(string voteAccount)
+        public ElectorVote GetElectorVoteWithAllRecords(string voteAccount)
         {
-            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformationWithAllRecords,
+            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithAllRecords,
                 new StringInput
                 {
                     Value = ApiHelper.GetPublicKeyFromAddress(voteAccount)
@@ -80,7 +80,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public TermSnapshot GetTermSnapshot(long termNumber)
         {
-            var result = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetVotesInformationWithAllRecords,
+            var result = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
                 new GetTermSnapshotInput
                 {
                     TermNumber = termNumber
