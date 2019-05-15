@@ -31,7 +31,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(0, 1, 2, 100)]
+        [DataRow(3, 4, 5, 150)]
         public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3, long amount)
         {
             var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, amount);

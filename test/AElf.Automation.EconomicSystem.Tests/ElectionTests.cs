@@ -150,6 +150,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             };
 
             //分配资金给普通用户
+            var balance = Behaviors.GetBalance(UserList[0]);
+            if (balance.Balance >= 500)
+                return;
+            
             Behaviors.TokenService.SetAccount(BpNodeAddress[0]);
             foreach (var acc in UserList)
             {
@@ -173,7 +177,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
-            _logger.WriteInfo("All accounts created and unlocked.");
+            _logger.WriteInfo("All accounts prepared and unlocked.");
         }
     }
 }

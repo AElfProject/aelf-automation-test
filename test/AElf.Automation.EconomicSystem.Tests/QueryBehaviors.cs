@@ -150,7 +150,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
         {
-            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetCreatedProfitItems,
+            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetReleasedProfitsInformation,
                 new GetReleasedProfitsInformationInput
                 {
                     ProfitId = profitId,

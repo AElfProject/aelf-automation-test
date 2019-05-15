@@ -41,5 +41,13 @@ namespace AElf.Automation.ContractsTesting
 
             return command.InfoMsg as BlockDto;
         }
+
+        public ChainStatusDto GetChainInformation()
+        {
+            var command = new CommandInfo(ApiMethods.GetChainInformation);
+            _apiHelper.GetChainInformation(command);
+
+            return command.InfoMsg as ChainStatusDto;
+        }
     }
 }

@@ -208,7 +208,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(1, 3)]
+        [DataRow(1, 4)]
         public void GetAllPeriodsBalance(int startPeriod, int endPeriod)
         {
             var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);
@@ -246,6 +246,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestMethod]
         public void GetCandidateProfitAndWithDraw()
         {
+            foreach (var profitItem in ProfitItemsIds)
+            {
+                _logger.WriteInfo($"{profitItem.Key.ToString()}: {profitItem.Value}");             
+            }
             foreach (var candidate in FullNodeAddress)
             {
                 var beforeBalance = Behaviors.GetBalance(candidate);
@@ -272,25 +276,29 @@ namespace AElf.Automation.EconomicSystem.Tests
                 if (!basicProfit.Equals(new ProfitDetails()))
                 {
                     Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BasicMinerReward]);
-                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                    var balance = Behaviors.GetBalance(candidate).Balance;
+                    _logger.WriteInfo($"Balance: {balance}");
                 }
 
                 if (!voteWeightProfit.Equals(new ProfitDetails()))
                 {
                     Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.VotesWeightReward]);
-                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                    var balance = Behaviors.GetBalance(candidate).Balance;
+                    _logger.WriteInfo($"Balance: {balance}");
                 }
 
                 if (!reElectionProfit.Equals(new ProfitDetails()))
                 {
                     Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.ReElectionReward]);
-                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                    var balance = Behaviors.GetBalance(candidate).Balance;
+                    _logger.WriteInfo($"Balance: {balance}");
                 }
 
                 if (!backupProfit.Equals(new ProfitDetails()))
                 {
                     Behaviors.Profit(candidate, ProfitItemsIds[Behaviors.ProfitType.BackSubsidy]);
-                    _logger.WriteInfo($"Balance: {Behaviors.GetBalance(candidate)}");
+                    var balance = Behaviors.GetBalance(candidate).Balance;
+                    _logger.WriteInfo($"Balance: {balance}");
                 }
 
                 _logger.WriteInfo(string.Empty);
