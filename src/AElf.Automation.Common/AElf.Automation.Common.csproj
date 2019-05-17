@@ -75,7 +75,7 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
-    <Folder Include="Protobuf\Generated" />
+    <Folder Include="Protobuf\Proto" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />

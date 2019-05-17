@@ -38,5 +38,19 @@ namespace AElf.Automation.ContractsTesting
                 }
             }
         }
+
+        public static void GetAllBlockTimes(string name, string url)
+        {
+            var apiHelper = new WebApiHelper(url);
+            var nodeStatus = new NodeStatus(apiHelper);
+
+            var currentHeight = nodeStatus.GetBlockHeight();
+            for (var i = 1; i <= currentHeight; i++)
+            {
+                var height = i;
+                var blockInfo = nodeStatus.GetBlockInfo(height);
+                Log.WriteInfo($"Node: {name}, Height={blockInfo.Header.Height}, TxCount={blockInfo.Body.TransactionsCount}, Time={blockInfo.Header.Time:hh:mm:ss.fff}");
+            }
+        }
     }
 }
