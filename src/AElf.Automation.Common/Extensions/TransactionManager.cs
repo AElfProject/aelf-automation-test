@@ -138,14 +138,14 @@ namespace AElf.Automation.Common.Extensions
         {
             var height = _cachedHeight;
             var hash = _cachedHash;
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || _chainId != chainId)
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
                 height = GetBlkHeight(rpcAddress);
                 hash = GetBlkHash(rpcAddress, height);
                 _cachedHeight = height;
                 _cachedHash = hash;
-                _refBlockTime = DateTime.Now;
+                _refBlockTime = DateTime.Now;         
             }
 
             transaction.RefBlockNumber = height;

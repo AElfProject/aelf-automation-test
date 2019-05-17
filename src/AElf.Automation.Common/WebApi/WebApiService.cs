@@ -217,8 +217,7 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.AddPeer, "/api/net/peer"},
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };
-        }
-        
+        }        
         #endregion
     }
 }

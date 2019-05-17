@@ -94,9 +94,9 @@ namespace AElf.Automation.Common.Contracts
             _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
-            return CheckTransactionResult(txId, 30);
+            return CheckTransactionResult(txId);
         }
-
+        
         /// <summary>
         /// 执行交易，等待执行结果后返回
         /// </summary>
@@ -168,7 +168,8 @@ namespace AElf.Automation.Common.Contracts
                 Thread.Sleep(1000);
             }
 
-            _logger.WriteError(ci?.JsonInfo.ToString());
+            var result = ci.InfoMsg as TransactionResultDto;
+            _logger.WriteError(result?.Error);
             Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
 
             return ci;
