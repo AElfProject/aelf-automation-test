@@ -4,8 +4,8 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.CrossChain;
 using Google.Protobuf;
+using CrossChainMerkleProofContext = AElf.Contracts.CrossChain.CrossChainMerkleProofContext;
 
 namespace AElf.Automation.SideChain.Verification.Test
 {
