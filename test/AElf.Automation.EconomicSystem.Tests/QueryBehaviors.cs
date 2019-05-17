@@ -175,9 +175,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         #endregion
         
         #region Consensus view Method
-        public Miners GetCurrentMiners()
+        public MinerList GetCurrentMiners()
         {
-            var miners = ConsensusService.CallViewMethod<Miners>(ConsensusMethod.GetCurrentMiners, new Empty());
+            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             return miners;
         }
 
