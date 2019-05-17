@@ -30,18 +30,6 @@ namespace AElf.Automation.SideChain.Verification.Test
         }
     }
 
-    public class Contract
-    {
-        public string ContractPath { get; }
-        public string Symbol { get; set; }
-        public int AccountId { get; }
-
-        public Contract(int accId, string contractPath)
-        {
-            AccountId = accId;
-            ContractPath = contractPath;
-        }
-    }
 
     public class TxInfo
     {
@@ -91,6 +79,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         public string InitAccount { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public List<List<string>> AccountLists { get; set; }
+        public List<string> MainChainAccountList { get; set; }
         public string KeyStorePath { get; set; }
         public long BlockHeight { get; set; }
         public List<string> TxIdList { get; set; }
@@ -117,6 +106,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 SideUrls = sideUrls;
                 AccountList = new List<AccountInfo>();
                 AccountLists = new List<List<string>>();
+                MainChainAccountList = new List<string>();
                 TxIdList = new List<string>();
                 TxInfos = new List<TxInfo>();
                 RawTxInfos = new List<TxInfo>();
@@ -140,10 +130,10 @@ namespace AElf.Automation.SideChain.Verification.Test
             MainChain = InitMain(InitAccount);
             SideChains = InitSideNodes(InitAccount);
             //New
-            NewAccounts(MainChain, 5);
+            MainChainAccountList = NewAccount(MainChain,5);
 
             //Unlock Account
-            UnlockAllAccounts(MainChain, 5);
+            UnlockAccounts(MainChain,5,MainChainAccountList);
         }
 
         public void MainChainTransactionVerifyOnSideChains()
@@ -167,9 +157,9 @@ namespace AElf.Automation.SideChain.Verification.Test
                     var blockResult = result.InfoMsg as BlockDto;
                     var txIds = blockResult.Body.Transactions;
 
-                    for (int j = 0; j < txIds.Count; j++)
+                    foreach (var txId in txIds)
                     {
-                        var txInfo = new TxInfo(i,txIds[j]);
+                        var txInfo = new TxInfo(i,txId);
                         TxInfos.Add(txInfo);
                         _logger.WriteInfo($"the transactions block is:{txInfo.BlockNumber},transaction id is: {txInfo.TxId}");
                     }
@@ -179,12 +169,12 @@ namespace AElf.Automation.SideChain.Verification.Test
                 Thread.Sleep(20000);
                 _logger.WriteInfo("Verify on the side chain");
 
-                for (int j = 0; j < TxInfos.Count; j++)
+                foreach (var txInfo in TxInfos)
                 {
-                    for (int k = 0; k < SideChains.Count; k++)
+                    foreach (var sideChain in SideChains)
                     {
-                        _logger.WriteInfo($"Verify block:{TxInfos[j].BlockNumber},transaction:{TxInfos[j].TxId}");
-                        var result = VerifyMainChainTransaction(SideChains[k],TxInfos[j],InitAccount);
+                        _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                        var result = VerifyMainChainTransaction(sideChain,txInfo,InitAccount);
 
                         if (result.Equals("false"))
                         {
@@ -194,7 +184,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                             while (checkTime>0)
                             {
                                 checkTime--;
-                                result = VerifyMainChainTransaction(SideChains[k],TxInfos[j],InitAccount);
+                                result = VerifyMainChainTransaction(sideChain,txInfo,InitAccount);
                                 if(result.Equals("true"))
                                     return;
                                 Thread.Sleep(4000);
@@ -202,9 +192,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                             _logger.WriteInfo($"result is {result},verify failed");
                         }
                         
-                        var verifyResult = new VerifyResult(result,TxInfos[j],SideChains[k].chainId);
+                        var verifyResult = new VerifyResult(result,txInfo,sideChain.chainId);
                         VerifyResultsList.Add(verifyResult);
                     }
+
                     Thread.Sleep(100);
                 }
 
@@ -262,15 +253,15 @@ namespace AElf.Automation.SideChain.Verification.Test
                 Thread.Sleep(20000);
                 _logger.WriteInfo("Verify on the other chain");
 
-                for (int j = 0; j < TxInfos.Count; j++)
+                foreach (var txInfo in TxInfos)
                 {
                     //verify on other side chain
                     for (int k = 0; k < SideChains.Count; k++)
                     {
                         if(k == sideChainNum) continue;
                         _logger.WriteInfo($"Verify on the side chain {k}");
-                        _logger.WriteInfo($"Verify block:{TxInfos[j].BlockNumber},transaction:{TxInfos[j].TxId}");
-                        var result = VerifySideChainTransaction(SideChains[k],TxInfos[j],sideChainNum,InitAccount);
+                        _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                        var result = VerifySideChainTransaction(SideChains[k],txInfo,sideChainNum,InitAccount);
                         
                         if (result.Equals("false"))
                         {
@@ -280,7 +271,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                             while (checkTime>0)
                             {
                                 checkTime--;
-                                result = VerifySideChainTransaction(SideChains[k],TxInfos[j],sideChainNum,InitAccount);
+                                result = VerifySideChainTransaction(SideChains[k],txInfo,sideChainNum,InitAccount);
                                 if(result.Equals("true"))
                                     return;
                                 Thread.Sleep(4000);
@@ -288,15 +279,15 @@ namespace AElf.Automation.SideChain.Verification.Test
                             _logger.WriteInfo($"result is {result},verify failed");
                         }
                         
-                        var verifyResult = new VerifyResult(result,TxInfos[j],SideChains[k].chainId);
+                        var verifyResult = new VerifyResult(result,txInfo,SideChains[k].chainId);
                         VerifyResultsList.Add(verifyResult);
                     }
                     Thread.Sleep(100);
                     
                     //verify on main chain 
                     _logger.WriteInfo($"Verify on the Main chain");
-                    _logger.WriteInfo($"Verify block:{TxInfos[j].BlockNumber},transaction:{TxInfos[j].TxId}");
-                     var resultOnMain = VerifySideChainTransaction(MainChain,TxInfos[j],sideChainNum,InitAccount);
+                    _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                    var resultOnMain = VerifySideChainTransaction(MainChain,txInfo,sideChainNum,InitAccount);
                     if (resultOnMain.Equals("false"))
                     {
                         Thread.Sleep(4000);
@@ -305,14 +296,14 @@ namespace AElf.Automation.SideChain.Verification.Test
                         while (checkTime>0)
                         {
                             checkTime--;
-                            resultOnMain = VerifySideChainTransaction(MainChain,TxInfos[j],sideChainNum,InitAccount);
+                            resultOnMain = VerifySideChainTransaction(MainChain,txInfo,sideChainNum,InitAccount);
                             if(resultOnMain.Equals("true"))
                                 return;
                             Thread.Sleep(4000);
                         }
                         _logger.WriteInfo($"result is {resultOnMain},verify failed");
                     }
-                    var verifyResultOnMain = new VerifyResult(resultOnMain,TxInfos[j],MainChain.chainId);
+                    var verifyResultOnMain = new VerifyResult(resultOnMain,txInfo,MainChain.chainId);
                     VerifyResultsList.Add(verifyResultOnMain);
                 }
 
@@ -342,9 +333,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             _logger.WriteInfo("Transfer on the Main chain");
             TxInfos = new List<TxInfo>();
             VerifyResultsList = new List<VerifyResult>();
-            for (int i = 0; i < AccountList.Count; i++)
+            foreach (var mainChainAccount in MainChainAccountList)
             {
-                var txInfo = Transfer(MainChain, InitAccount, AccountList[i].Account, 10000);
+                var txInfo = Transfer(MainChain, InitAccount, mainChainAccount, 10000);
                 TxInfos.Add(txInfo);
                 Thread.Sleep(100);
                 _logger.WriteInfo($"the transactions block is:{txInfo.BlockNumber},transaction id is{txInfo.TxId}");
@@ -355,11 +346,11 @@ namespace AElf.Automation.SideChain.Verification.Test
             Thread.Sleep(60000);
             _logger.WriteInfo("Verify on the side chain");
 
-            for (int j = 0; j < TxInfos.Count; j++)
+            foreach (var txInfos in TxInfos)
             {
-                for (int k = 0; k < SideChains.Count; k++)
+                foreach (var sideChain in SideChains)
                 {
-                    var result = VerifyMainChainTransaction(SideChains[k],TxInfos[j],InitAccount);
+                    var result = VerifyMainChainTransaction(sideChain,txInfos,InitAccount);
                     if (result.Equals("false"))
                     {
                         Thread.Sleep(4000);
@@ -368,7 +359,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                         while (checkTime>0)
                         {
                             checkTime--;
-                            result = VerifyMainChainTransaction(SideChains[k],TxInfos[j],InitAccount);
+                            result = VerifyMainChainTransaction(sideChain,txInfos,InitAccount);
                             if(result.Equals("true"))
                                 return;
                             Thread.Sleep(4000);
@@ -376,9 +367,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                         _logger.WriteInfo($"result is {result},verify failed");
                     }
                   
-                    var verifyResult = new VerifyResult(result,TxInfos[j],SideChains[k].chainId);
+                    var verifyResult = new VerifyResult(result,txInfos,sideChain.chainId);
                     VerifyResultsList.Add(verifyResult);
                 }
+
                 Thread.Sleep(100);
             }
 
@@ -406,16 +398,16 @@ namespace AElf.Automation.SideChain.Verification.Test
             //Get all side chain id;
             _logger.WriteInfo("Get all side chain ids");
             var chainIdList = new List<int>();
-            for (int i = 0; i < SideUrls.Count; i++)
+            for (var i = 0; i < SideUrls.Count; i++)
             {
-                int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                var chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
                 chainIdList.Add(chainId);
             }
             
             _logger.WriteInfo("Main chan transfer to side chain InitAccount ");
-            for (int i = 0; i < chainIdList.Count; i++)
+            foreach (var chainId in chainIdList)
             {
-                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,InitAccount,chainIdList[i], 10000000);
+                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,InitAccount,chainId, 10000000);
                 Thread.Sleep(100);
                 RawTxInfos.Add(rawTxInfo);
                 _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is{rawTxInfo.TxId}");
@@ -442,9 +434,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             
             //Main Chain Transfer to SideChain
             int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[sideChainNumber].chainId);
-            for (int i = 0; i < AccountList.Count; i++)
+            foreach (var account in AccountList)
             {
-                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,AccountList[i].Account,chainId, amount);
+                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,account.Account,chainId, amount);
                 Thread.Sleep(100);
                 RawTxInfos.Add(rawTxInfo);
                 _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is{rawTxInfo.TxId}");
@@ -453,156 +445,183 @@ namespace AElf.Automation.SideChain.Verification.Test
             Thread.Sleep(60000);
             _logger.WriteInfo($"Side chain {sideChainNumber} receive the token");
             //Side Chain Receive 
-            for (int i = 0; i < RawTxInfos.Count; i++)
+            foreach (var rawTxInfo in RawTxInfos)
             {
-                var accountBalance = ReceiveFromMainChain(SideChains[sideChainNumber], RawTxInfos[i]);
+                var accountBalance = ReceiveFromMainChain(SideChains[sideChainNumber], rawTxInfo);
                 Assert.IsTrue(accountBalance.Balance == amount);
-                _logger.WriteInfo($"Account:{RawTxInfos[i].ReceiveAccount} balance is {accountBalance.Balance}");
+                _logger.WriteInfo($"Account:{rawTxInfo.ReceiveAccount} balance is {accountBalance.Balance}");
             }
         }
 
-        public void MultiCrossChainTransferFromMainChain()
+        public void MultiCrossChainTransfer()
         {
             AccountLists = new List<List<string>>();
-            _logger.WriteInfo("Create account on main chain:");
-            var mainAccountList = NewAccount(MainChain,5);
-            UnlockAccounts(MainChain,5,mainAccountList);
-            AccountLists.Add(mainAccountList);
-            
+
             _logger.WriteInfo("Create account on each side chain:");
             for (int i = 0; i < SideUrls.Count; i++)
             {
                 _logger.WriteInfo($"On chain {SideChains[i].chainId}: ");
-                var accountList = NewAccount(SideChains[i],5);
-                UnlockAccounts(SideChains[i],5,accountList);
+                var accountList = NewAccount(SideChains[i], 5);
+                UnlockAccounts(SideChains[i], 5, accountList);
                 AccountLists.Add(accountList);
             }
-            
+
             _logger.WriteInfo("Transfer token to each account :");
-            for (int i = 0; i < AccountLists[0].Count; i++)
+            foreach (var mainChainAccount in MainChainAccountList)
             {
-                Transfer(MainChain,InitAccount,AccountLists[0][i],10000);
+                Transfer(MainChain, InitAccount, mainChainAccount, 10000);
             }
 
-            for (int i = 1; i < AccountLists.Count; i++)
+            for (var i = 0; i < AccountLists.Count; i++)
+            {
+                for (var j = 0; j < AccountLists[i].Count; j++)
+                {
+                    Transfer(SideChains[i], InitAccount, AccountLists[i][j], 10000);
+                }
+            }
+
+            _logger.WriteInfo("show the balance of all account");
+
+            foreach (var mainAccount in MainChainAccountList)
+            {
+                var accountBalance = MainChain.GetBalance(mainAccount, "ELF");
+                _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
+            }
+
+            for (int i = 0; i < SideChains.Count; i++)
             {
                 for (int j = 0; j < AccountLists[i].Count; j++)
                 {
-                    Transfer(SideChains[i-1], InitAccount, AccountLists[i][j], 10000);
-                }
-            }
-
-            _logger.WriteInfo("Main chain transfer to each account");
-            var sideRawTxInfos = new List<List<TxInfo>>();
-            for (int i = 0; i < SideChains.Count; i++)
-            {
-                RawTxInfos = new List<TxInfo>();
-               
-                int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
-                for (int j = 0; j < AccountLists[0].Count; j++)
-                {
-                    for (int k = 0; k < AccountLists[i+1].Count; k++)
-                    {
-                        var rawTxInfo = CrossChainTransfer(MainChain, AccountLists[0][j],AccountLists[i+1][k],chainId,100);
-                        Thread.Sleep(100);
-                        RawTxInfos.Add(rawTxInfo);
-                        _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
-                    } 
-                }
-                sideRawTxInfos.Add(RawTxInfos);
-            }
-            
-            _logger.WriteInfo("Waiting for the index");
-            Thread.Sleep(60000);
-            _logger.WriteInfo("Side chain receive the token");
-            //Side Chain Receive 
-            for (int i = 0; i < SideChains.Count; i++)
-            {
-                for (int j = 0; j < sideRawTxInfos[i].Count; j++)
-                {
-                    var accountBalance = ReceiveFromMainChain(SideChains[i], sideRawTxInfos[i][j]);
-                    _logger.WriteInfo($"Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance.Balance}");
-                }
-            }
-            
-            _logger.WriteInfo("show the balance of all account");
-
-            for (int i = 0; i < AccountLists[0].Count; i++)
-            {
-                var accountBalacnce = MainChain.GetBalance(AccountLists[0][i], "ELF");
-                _logger.WriteInfo($"Account:{accountBalacnce.Owner}, balance is:{accountBalacnce.Balance}");
-            }
-
-            for (int i = 0; i < SideChains.Count; i++)
-            {
-                for (int j = 0; j < AccountLists[i+1].Count; j++)
-                {
-                    var accountBalance = SideChains[i].GetBalance(AccountLists[i+1][j], "ELF");
+                    var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
                     _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
                 }
             }
 
-            // side chain cross transfer
-            for (int i = 0; i < SideChains.Count; i++)
+            for (var r = 1; r > 0; r++) //continuous running
             {
-                MultiCrossChainTransferFromSideChain(i);
+                _logger.WriteInfo("Main chain transfer to each account");
+                var sideRawTxInfos = new List<List<TxInfo>>();
+                for (int i = 0; i < SideChains.Count; i++)
+                {
+                    RawTxInfos = new List<TxInfo>();
+
+                    int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                    for (int j = 0; j < MainChainAccountList.Count; j++)
+                    {
+                        for (int k = 0; k < AccountLists[i].Count; k++)
+                        {
+                            var rawTxInfo = CrossChainTransfer(MainChain, MainChainAccountList[j], AccountLists[i][k],
+                                chainId, 100);
+                            Thread.Sleep(100);
+                            RawTxInfos.Add(rawTxInfo);
+                            _logger.WriteInfo(
+                                $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
+                        }
+                    }
+                    sideRawTxInfos.Add(RawTxInfos);
+                }
+
+                _logger.WriteInfo("Show the transaction info:");
+                foreach (var rawTxInfos in sideRawTxInfos)
+                {
+                    foreach (var rawTxInfo in rawTxInfos)
+                    {
+                        _logger.WriteInfo($"Transaction info: From account: {rawTxInfo.FromAccount},\nReceive account:{rawTxInfo.ReceiveAccount}, \nRawTx:{rawTxInfo.RawTx}, \nTxId:{rawTxInfo.TxId}, \nBlockNum:{rawTxInfo.BlockNumber} ");
+                    }
+                }
+
+                _logger.WriteInfo("Waiting for the index");
+                Thread.Sleep(60000);
+                _logger.WriteInfo("Side chain receive the token");
+                //Side Chain Receive 
+                for (int i = 0; i < SideChains.Count; i++)
+                {
+                    for (int j = 0; j < sideRawTxInfos[i].Count; j++)
+                    {
+                        var accountBalance = ReceiveFromMainChain(SideChains[i], sideRawTxInfos[i][j]);
+                        _logger.WriteInfo(
+                            $"Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance.Balance}");
+                    }
+                }
+
+                _logger.WriteInfo("show the balance of all account");
+
+                for (int i = 0; i < MainChainAccountList.Count; i++)
+                {
+                    var accountBalance = MainChain.GetBalance(MainChainAccountList[i], "ELF");
+                    _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
+                }
+
+                for (int i = 0; i < SideChains.Count; i++)
+                {
+                    for (int j = 0; j < AccountLists[i].Count; j++)
+                    {
+                        var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
+                        _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
+                    }
+                }
+
+                // side chain cross transfer
+                for (int i = 0; i < SideChains.Count; i++)
+                {
+                    MultiCrossChainTransferFromSideChain(i);
+                }
             }
         }
 
         public void MultiCrossChainTransferFromSideChain(int fromSideChainNum)
         {            
-            _logger.WriteInfo("Side chain transfer to each account");
+            _logger.WriteInfo($"Side chain {fromSideChainNum} transfer to each account");
             var sideRawTxInfos = new List<List<TxInfo>>();
             var mainRawTxInfos = new List<TxInfo>();
-            for (int i = 0; i < AccountLists[fromSideChainNum+1].Count; i++) //from side chain account
+            for (int i = 0; i < SideChains.Count; i++) //to side chain
             {
-                for (int j = 0; j < SideChains.Count; j++)
+                if (i == fromSideChainNum) continue;
+                RawTxInfos = new List<TxInfo>();
+                for (int j = 0; j < AccountLists[fromSideChainNum].Count; j++) // from side chain
                 {
-                    if (j == fromSideChainNum) continue;
-                    int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[j].chainId);
-                    RawTxInfos = new List<TxInfo>();
-                    for (int k = 0; k < AccountLists[i + 1].Count; k++) // to side chain account
+                    int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                    for (int k = 0; k < AccountLists[i].Count; k++) // to side chain account
                     {
                         var rawTxInfo = CrossChainTransfer(SideChains[fromSideChainNum],
-                            AccountLists[fromSideChainNum + 1][i], AccountLists[j + 1][k], chainId, 100);
+                            AccountLists[fromSideChainNum][j], AccountLists[i][k], chainId, 100);
                         Thread.Sleep(100);
                         RawTxInfos.Add(rawTxInfo);
                         _logger.WriteInfo(
-                                $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
+                            $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                     }
-                    sideRawTxInfos.Add(RawTxInfos);
                 }
-
+                sideRawTxInfos.Add(RawTxInfos);
+            }
+            
+            for (int j = 0; j < AccountLists[fromSideChainNum].Count; j++) // from side chain
+            {
                 int mainChainId = ChainHelpers.ConvertBase58ToChainId(MainChain.chainId);
-                RawTxInfos = new List<TxInfo>();
-                for (int k = 0; k < AccountLists[0].Count; k++)
+                for (int k = 0; k < MainChainAccountList.Count; k++)
                 {
-                    var rawTxInfo = CrossChainTransfer(SideChains[fromSideChainNum], AccountLists[fromSideChainNum+1][i],AccountLists[0][k],mainChainId,100);
+                    var rawTxInfo = CrossChainTransfer(SideChains[fromSideChainNum], AccountLists[fromSideChainNum][j],MainChainAccountList[k],mainChainId,100);
                     Thread.Sleep(100);
                     mainRawTxInfos.Add(rawTxInfo);
                     _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                 }
             }
+            
             _logger.WriteInfo("Waiting for the index");
             Thread.Sleep(60000);
             _logger.WriteInfo("Other chain receive the token");
             //Side Chain Receive 
             int fromChainId = ChainHelpers.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
-            for (int i = 0; i < sideRawTxInfos.Count(); i++)
-            {   
-                for (int j = 0; j < sideRawTxInfos[i].Count; j++)
+            for (int i = 0; i < SideChains.Count; i++)
+            {
+                if (i == fromSideChainNum) continue;
+                for (int j = 0; j < sideRawTxInfos.Count; j++)
                 {
-                    if (i == fromSideChainNum)
+                    for (int k = 0; k < sideRawTxInfos[j].Count; k++)
                     {
-                        var accountBalance = ReceiveFromSideChain(SideChains[i+1], fromSideChainNum, sideRawTxInfos[i][j],fromChainId);
-                        _logger.WriteInfo($"Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance.Balance}");
-                    }
-                    else
-                    {
-                        var accountBalance = ReceiveFromSideChain(SideChains[i],fromSideChainNum, sideRawTxInfos[i][j],fromChainId);
+                        var accountBalance = ReceiveFromSideChain(SideChains[i],fromSideChainNum, sideRawTxInfos[j][k],fromChainId);
                         _logger.WriteInfo(
-                            $"Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance.Balance}");
-                    }
+                            $"Account:{sideRawTxInfos[j][k].ReceiveAccount} balance is {accountBalance.Balance}");
+                    } 
                 }
             }
             
@@ -616,34 +635,39 @@ namespace AElf.Automation.SideChain.Verification.Test
             
             _logger.WriteInfo("show the balance of all account");
 
-            for (int i = 0; i < AccountLists[0].Count; i++)
+            for (int i = 0; i < MainChainAccountList.Count; i++)
             {
-                var accountBalacnce = MainChain.GetBalance(AccountLists[0][i], "ELF");
+                var accountBalacnce = MainChain.GetBalance(MainChainAccountList[i], "ELF");
                 _logger.WriteInfo($"Account:{accountBalacnce.Owner}, balance is:{accountBalacnce.Balance}");
             }
 
             for (int i = 0; i < SideChains.Count; i++)
             {
-                for (int j = 0; j < AccountLists[i+1].Count; j++)
+                for (int j = 0; j < AccountLists[i].Count; j++)
                 {
-                    var accountBalance = SideChains[i].GetBalance(AccountLists[i+1][j], "ELF");
+                    var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
                     _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
                 }
             }
         }
 
-
-
-
         public void DeleteAccounts()
         {
-            foreach (var item in AccountList)
+            foreach (var item in MainChainAccountList)
             {
-                var file = Path.Combine(KeyStorePath, $"{item.Account}.ak");
+                var file = Path.Combine(KeyStorePath, $"{item}.ak");
                 File.Delete(file);
             }
+            
+            foreach (var items in AccountLists)
+            {
+                foreach (var item in items)
+                {
+                    var file = Path.Combine(KeyStorePath, $"{item}.ak");
+                    File.Delete(file);
+                }
+            }
         }
-
 
         private Operation InitMain(string initAccount)
         {
@@ -735,12 +759,16 @@ namespace AElf.Automation.SideChain.Verification.Test
                 ToChainId = toChainId,
                 TokenInfo = tokenInfo
             };
-            var result = chain.CrossChainTransfer(fromAccount,crossChainTransferInput);
-            var rawTx = chain.ApiHelper.GenerateTransactionRawTx(MainChain.TokenService.CallAddress,
+            // var result = chain.CrossChainTransfer(fromAccount,crossChainTransferInput);
+            // execute cross chain transfer
+            var rawTx = chain.ApiHelper.GenerateTransactionRawTx(chain.TokenService.CallAddress,
                 chain.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(), crossChainTransferInput);
-            var resultReturn = result.InfoMsg as TransactionResultDto;
-            var blockNumber = resultReturn.BlockNumber;
-            var txId = resultReturn.TransactionId;
+            var txId = ExecuteMethodWithTxId(chain,rawTx);
+            var result = CheckTransactionResult(txId);
+            
+            // get transaction info            
+            var txResult = result.InfoMsg as TransactionResultDto;
+            var blockNumber = txResult.BlockNumber;
             var receiveAccount = toAccount;
             var rawTxInfo = new TxInfo(blockNumber,txId,rawTx,fromAccount,receiveAccount);
             return rawTxInfo;
@@ -918,6 +946,62 @@ namespace AElf.Automation.SideChain.Verification.Test
                 _logger.WriteWarn("Block height not changed round: {0}", i + 1);
             }
             Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
+        }
+        
+        private string ExecuteMethodWithTxId(Operation chain,string rawTx)
+        {
+            var ci = new CommandInfo(ApiMethods.BroadcastTransaction)
+            {
+                Parameter = rawTx
+            };
+            chain.ApiHelper.BroadcastTx(ci);
+            if (ci.Result)
+            {
+                var transactionOutput = ci.InfoMsg as BroadcastTransactionOutput;
+
+                return transactionOutput?.TransactionId;
+            }
+
+            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return string.Empty;
+        }
+        
+        private CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
+        {
+            CommandInfo ci = null;
+            int checkTimes = 1;
+            while (checkTimes <= maxTimes)
+            {
+                ci = new CommandInfo(ApiMethods.GetTransactionResult);
+                ci.Parameter = txId;
+                ApiHelper.GetTxResult(ci);
+                if (ci.Result)
+                {
+                    var transactionResult = ci.InfoMsg as TransactionResultDto;
+                    if (transactionResult?.Status == "Mined")
+                    {
+                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        return ci;
+                    }
+
+                    if (transactionResult?.Status == "Failed")
+                    {
+                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        _logger.WriteError(transactionResult?.Error);
+                        return ci;
+                    }
+                }
+
+                checkTimes++;
+                Thread.Sleep(1000);
+            }
+
+            var result = ci.InfoMsg as TransactionResultDto;
+            _logger.WriteError(result?.Error);
+            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
+
+            return ci;
         }
     }
 }

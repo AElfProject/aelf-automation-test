@@ -18,17 +18,14 @@ namespace AElf.Automation.SideChain.Verification.Test
         [Option("-ruM|--mainRpc.url", Description = "Rpc service url of node. It's required parameter.")]
         public string MainUrl { get; }
         
-        [Option("-ruS1|--side1Rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        public string SideUrl1 { get; }
-        
-        [Option("-ruS2|--side2Rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        public string SideUrl2 { get; }
+        [Option("-ruS|--sideRpc.url", Description = "Rpc service url of node. It's required parameter.")]
+        public string SideUrl { get; }
         
         [Option("-ac|--chain.account", Description = "Main Chain account, It's required parameter.")]
         public static string InitAccount { get; }
         
         [Option("-em|--execute.mode", Description =
-            "Transaction execution mode include: \n0. Not set \n1. Verify main chain transaction \n2. Verify side chain transaction ")]
+            "Transaction execution mode include: \n0. Not set \n1. Verify main chain transaction \n2. Verify side chain transaction \n3. Cross Chain Transfer ")]
         public int ExecuteMode { get; } = 0;
         
         public int ThreadCount { get; } = 1;
@@ -42,14 +39,12 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         public static int Main(string[] args)
         {
-            if (args.Length != 4) return CommandLineApplication.Execute<Program>(args);
+            if (args.Length != 3) return CommandLineApplication.Execute<Program>(args);
             
             var ruM = args[0];
-            var ruS1 = args[1];
-            var ruS2 = args[2];
-            var ac = args[3];
-            var em = args[4];
-            args = new[] {"-ruM",ruM,"-ruS1",ruS1,"-ruS2",ruS2, "-ac",ac, "-em", "0"};
+            var ruS = args[1];
+            var ac = args[2];
+            args = new[] {"-ruM",ruM, "-ruS",ruS, "-ac",ac, "-em", "0"};
 
             return CommandLineApplication.Execute<Program>(args);
         }
@@ -61,14 +56,13 @@ namespace AElf.Automation.SideChain.Verification.Test
                 app.ShowHelp();
                 return;
             }
-            SideUrls = new List<string>();
-            SideUrls.Add(SideUrl1);
-            SideUrls.Add(SideUrl2);
+            var sides = SideUrl.Split(",");
+            SideUrls = new List<string>(sides);
 
             var operationSet = new OperationSet(ThreadCount,TransactionGroup,InitAccount,SideUrls,MainUrl);
             
             //Init Logger
-            var logName = "RpcTh_" + operationSet.ThreadCount + "_Tx_" + operationSet.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var logName = "CrossCHainTh_" + operationSet.ThreadCount + "_Tx_" + operationSet.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
             
@@ -142,8 +136,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 case TestMode.CrossChainTransfer:
                     Logger.WriteInfo($"Run with cross chain transfer: {tm.ToString()}."); 
                     operationSet.CrossChainTransferToInitAccount();
-                    operationSet.MultiCrossChainTransferFromMainChain();
-//                    operationSet.MultiSideChainCrossChainTransfer();
+                    operationSet.MultiCrossChainTransfer();
                     break;
                 case TestMode.NotSet:
                     break;

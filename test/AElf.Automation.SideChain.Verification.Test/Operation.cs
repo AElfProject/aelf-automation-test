@@ -5,6 +5,7 @@ using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.CrossChain;
+using Google.Protobuf;
 
 namespace AElf.Automation.SideChain.Verification.Test
 {
@@ -110,6 +111,11 @@ namespace AElf.Automation.SideChain.Verification.Test
         }
 
         #endregion
+        
+        public string GenerateBroadcastRawTx(string method, IMessage inputParameter,string CallAddress,string ContractAddress)
+        {
+            return ApiHelper.GenerateTransactionRawTx(CallAddress,ContractAddress, method, inputParameter);
+        }
 
     }
 }
