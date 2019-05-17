@@ -26,11 +26,21 @@ namespace AElf.Automation.RpcPerformance
 
         public void ContinuousCheckTransactionPerformance()
         {
+            var checkTimes = 0;
             while (true)
             {
+                if(checkTimes == 60)
+                    break;
+                    
                 var height = GetBlockHeight();
-                if(height == _blockHeight)
+                if (height == _blockHeight)
+                {
+                    checkTimes++;
                     Thread.Sleep(5000);
+                    continue;
+                }
+
+                checkTimes = 0;
                 if(height < _blockHeight)
                     continue;
                 for (var i = _blockHeight; i < height; i++)
