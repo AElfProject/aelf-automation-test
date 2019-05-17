@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.CrossChain;
-using AElf.CSharp.Core.Utils;
-using AElf.Kernel;
 using Google.Protobuf;
 using Shouldly;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
