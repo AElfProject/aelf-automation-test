@@ -208,7 +208,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(1, 4)]
+        [DataRow(1, 20)]
         public void GetAllPeriodsBalance(int startPeriod, int endPeriod)
         {
             var treasuryAddress = Behaviors.GetTreasuryAddress(ProfitItemsIds[Behaviors.ProfitType.Treasury]);

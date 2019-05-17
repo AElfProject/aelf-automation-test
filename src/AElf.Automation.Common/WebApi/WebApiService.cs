@@ -182,6 +182,8 @@ namespace AElf.Automation.Common.WebApi
         
         #endregion
 
+        #region Private methods
+        
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {
             var subUrl = string.Format(_apiRoute[api], parameters);
@@ -216,5 +218,7 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };
         }
+        
+        #endregion
     }
 }

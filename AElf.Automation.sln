@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.RpcTesting"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainVerification", "test\AElf.Automation.SideChainVerification\AElf.Automation.SideChainVerification.csproj", "{D3C1BAF8-20CE-4B9F-82CE-12C81730B55D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.TransactionExecution", "test\AElf.Automation.TransactionExecution\AElf.Automation.TransactionExecution.csproj", "{EEDDE6EB-0F86-477C-A19E-084E95BF157D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ScenariosExecution", "test\AElf.Automation.ScenariosExecution\AElf.Automation.ScenariosExecution.csproj", "{EEDDE6EB-0F86-477C-A19E-084E95BF157D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.EconomicSystem.Tests", "test\AElf.Automation.EconomicSystem.Tests\AElf.Automation.EconomicSystem.Tests.csproj", "{20598CEE-7AB1-4B6A-A0FF-3DD5FC0AFE26}"
 EndProject

@@ -7,7 +7,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.TransactionExecution
+namespace AElf.Automation.ScenariosExecution
 {
     class Program
     {

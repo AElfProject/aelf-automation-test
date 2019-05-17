@@ -46,6 +46,7 @@ namespace AElf.Automation.RpcPerformance
         #region Public Property
 
         public IApiHelper ApiHelper { get; set; }
+        public ExecutionSummary Summary { get; set; }
         public string BaseUrl { get; set; }
         public List<AccountInfo> AccountList { get; set; }
         public string KeyStorePath { get; set; }
@@ -76,6 +77,7 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl;
+            Summary = new ExecutionSummary(baseUrl);
         }
 
         public void InitExecCommand()
@@ -274,45 +276,55 @@ namespace AElf.Automation.RpcPerformance
         
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
-            _logger.WriteInfo("Begin generate multi rpc requests.");
-            for (var r = 1; r > 0; r++) //continuous running
+            //add transaction performance check process
+            var taskList = new List<Task>
             {
-                _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
-                if (useTxs)
+                Task.Run(() => { Summary.ContinuousCheckTransactionPerformance(); }),
+                Task.Run(() => 
                 {
-                    //multi task for BroadcastTransactions query
-                    var txsTasks = new List<Task>();
-                    for (var i = 0; i < ThreadCount; i++)
+                    _logger.WriteInfo("Begin generate multi rpc requests.");
+                    for (var r = 1; r > 0; r++) //continuous running
                     {
-                        var j = i;
-                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
-                    }
-
-                    Task.WaitAll(txsTasks.ToArray<Task>());
-                }
-                else
-                {
-                    //multi task for BroadcastTransaction query
-                    for (var i = 0; i < ThreadCount; i++)
-                    {
-                        var j = i;
-                        //Generate Rpc contracts
-                        GenerateRawTransactionQueue(j, ExeTimes);
-                        //Send Rpc contracts request
-                        _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j+1);
-                        var txTasks = new List<Task>();
-                        for (var k = 0; k < ThreadCount; k++)
+                        _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
+                        if (useTxs)
                         {
-                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                            //multi task for BroadcastTransactions query
+                            var txsTasks = new List<Task>();
+                            for (var i = 0; i < ThreadCount; i++)
+                            {
+                                var j = i;
+                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
+                            }
+
+                            Task.WaitAll(txsTasks.ToArray<Task>());
+                        }
+                        else
+                        {
+                            //multi task for BroadcastTransaction query
+                            for (var i = 0; i < ThreadCount; i++)
+                            {
+                                var j = i;
+                                //Generate Rpc contracts
+                                GenerateRawTransactionQueue(j, ExeTimes);
+                                //Send Rpc contracts request
+                                _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j + 1);
+                                var txTasks = new List<Task>();
+                                for (var k = 0; k < ThreadCount; k++)
+                                {
+                                    txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                                }
+
+                                Task.WaitAll(txTasks.ToArray<Task>());
+                            }
                         }
 
-                        Task.WaitAll(txTasks.ToArray<Task>());
+                        Thread.Sleep(1000);
+                        CheckNodeStatus(); //check node whether is normal
                     }
-                }
+                })
+            };
 
-                Thread.Sleep(1000);
-                CheckNodeStatus(); //check node whether is normal
-            }
+            Task.WaitAll(taskList.ToArray<Task>());
         }
 
         public void DeleteAccounts()

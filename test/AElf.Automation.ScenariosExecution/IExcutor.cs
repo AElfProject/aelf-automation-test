@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace AElf.Automation.TransactionExecution
+namespace AElf.Automation.ScenariosExecution
 {
     public interface IExcutor<T>
     {

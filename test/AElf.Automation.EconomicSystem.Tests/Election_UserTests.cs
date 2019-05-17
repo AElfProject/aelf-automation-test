@@ -24,28 +24,28 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestMethod]
         public void Vote_One_Candidate_With_NotEnough_Token_Scenario()
         {
-            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[0], 90, 2000);
+            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[0], 10, 2000);
             var transactionResult = voteResult1.InfoMsg as TransactionResultDto;
             transactionResult?.Status.ShouldBe("Failed");
             transactionResult?.Error.Contains("Insufficient balance").ShouldBeTrue();
         }
 
         [TestMethod]
-        [DataRow(3, 4, 5, 150)]
+        [DataRow(0, 1, 2, 200)]
         public void Vote_Three_Candidates_ForBP(int no1, int no2, int no3, long amount)
         {
-            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 90, amount);
+            var voteResult1 = Behaviors.UserVote(UserList[0], FullNodeAddress[no1], 10, amount);
             
             var txResult1 = voteResult1.InfoMsg as TransactionResultDto;
             txResult1.ShouldNotBeNull();
             txResult1.Status.ShouldBe("Mined");
 
-            var voteResult2 = Behaviors.UserVote(UserList[1], FullNodeAddress[no2], 90, amount);
+            var voteResult2 = Behaviors.UserVote(UserList[1], FullNodeAddress[no2], 10, amount);
             var txResult2 = voteResult2.InfoMsg as TransactionResultDto;
             txResult2.ShouldNotBeNull();
             txResult2.Status.ShouldBe("Mined");
             
-            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 90, amount);
+            var voteResult3 = Behaviors.UserVote(UserList[2], FullNodeAddress[no3], 10, amount);
             
             var txResult3 = voteResult3.InfoMsg as TransactionResultDto;
             txResult3.ShouldNotBeNull();
@@ -105,7 +105,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(3)]
+        [DataRow(0)]
         public void GetUserProfitAndWithDraw(int userId)
         {
             var user = UserList[userId];
