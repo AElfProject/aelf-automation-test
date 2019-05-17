@@ -91,7 +91,13 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region Node status check
-            
+            NodesState.GetAllBlockTimes("bp1", "http://192.168.197.13:8100");
+            Console.ReadLine();
+            NodesState.GetAllBlockTimes("bp2", "http://192.168.197.29:8100");
+            Console.ReadLine();
+            NodesState.GetAllBlockTimes("bp3", "http://192.168.197.33:8100");
+            Console.ReadLine();
+
             var tasks = new List<Task>
             {
                 Task.Run(() => NodesState.NodeStateCheck("bp1", "http://192.168.197.13:8100")),

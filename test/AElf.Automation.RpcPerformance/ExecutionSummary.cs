@@ -44,6 +44,7 @@ namespace AElf.Automation.RpcPerformance
                 }
                 
                 _blockHeight = height;
+                Thread.Sleep(100);
             }
         }
 

@@ -283,43 +283,52 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => 
                 {
                     _logger.WriteInfo("Begin generate multi rpc requests.");
-                    for (var r = 1; r > 0; r++) //continuous running
+                    try
                     {
-                        _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
-                        if (useTxs)
+                        for (var r = 1; r > 0; r++) //continuous running
                         {
-                            //multi task for BroadcastTransactions query
-                            var txsTasks = new List<Task>();
-                            for (var i = 0; i < ThreadCount; i++)
+                            _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
+                            if (useTxs)
                             {
-                                var j = i;
-                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
-                            }
-
-                            Task.WaitAll(txsTasks.ToArray<Task>());
-                        }
-                        else
-                        {
-                            //multi task for BroadcastTransaction query
-                            for (var i = 0; i < ThreadCount; i++)
-                            {
-                                var j = i;
-                                //Generate Rpc contracts
-                                GenerateRawTransactionQueue(j, ExeTimes);
-                                //Send Rpc contracts request
-                                _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j + 1);
-                                var txTasks = new List<Task>();
-                                for (var k = 0; k < ThreadCount; k++)
+                                //multi task for BroadcastTransactions query
+                                var txsTasks = new List<Task>();
+                                for (var i = 0; i < ThreadCount; i++)
                                 {
-                                    txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                                    var j = i;
+                                    txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
                                 }
 
-                                Task.WaitAll(txTasks.ToArray<Task>());
+                                Task.WaitAll(txsTasks.ToArray<Task>());
                             }
-                        }
+                            else
+                            {
+                                //multi task for BroadcastTransaction query
+                                for (var i = 0; i < ThreadCount; i++)
+                                {
+                                    var j = i;
+                                    //Generate Rpc contracts
+                                    GenerateRawTransactionQueue(j, ExeTimes);
+                                    //Send Rpc contracts request
+                                    _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j + 1);
+                                    var txTasks = new List<Task>();
+                                    for (var k = 0; k < ThreadCount; k++)
+                                    {
+                                        txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                                    }
 
-                        Thread.Sleep(1000);
-                        CheckNodeStatus(); //check node whether is normal
+                                    Task.WaitAll(txTasks.ToArray<Task>());
+                                }
+                            }
+
+                            Thread.Sleep(1000);
+                            CheckNodeStatus(); //check node whether is normal
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.WriteInfo($"Execute continuous transaction got exception.");
+                        _logger.WriteInfo($"Message: {e.Message}");
+                        _logger.WriteInfo($"StackTrace: {e.StackTrace}");
                     }
                 })
             };
@@ -418,7 +427,7 @@ namespace AElf.Automation.RpcPerformance
         private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
-            var abiPath = ContractList[threadNo].ContractPath;
+            var contractPath = ContractList[threadNo].ContractPath;
 
             var set = new HashSet<int>();
 
@@ -433,7 +442,7 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -447,7 +456,7 @@ namespace AElf.Automation.RpcPerformance
                 rawTransactions.Add(requestInfo);
 
                 //Get Balance Info
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance")
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "GetBalance")
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -460,7 +469,7 @@ namespace AElf.Automation.RpcPerformance
 
             _logger.WriteInfo(
                 "Thread [{0}] from account: {1} and contract address: {2} raw transactions generated completed.",
-                threadNo, account, abiPath);
+                threadNo, account, contractPath);
             //Send RPC Requests
             var ci1 = new CommandInfo(ApiMethods.BroadcastTransactions);
             foreach (var rawTransaction in rawTransactions)
