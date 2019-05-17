@@ -52,7 +52,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             txResult3.Status.ShouldBe("Mined");
 
             //verify victories
-//            Query_Candidate_Victories(no1, no2, no3);
+            Query_Candidate_Victories(no1, no2, no3);
         }
 
         [TestMethod]
