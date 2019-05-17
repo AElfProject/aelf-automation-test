@@ -132,7 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void TransferFrom()
         {
-            var tokenContract1 = new TokenContract(CH, UserList[0]);
+            var tokenContract1 = new TokenContract(ApiHelper, UserList[0]);
             tokenContract1.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "200000", "2");
             tokenContract1.CallContractMethod(TokenMethod.Transfer, UserList[1], "2000");
             var abResult = tokenContract1.CallReadOnlyMethod(TokenMethod.GetBalance, UserList[0]);
@@ -166,14 +166,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < userCoouont; i++)
             {
                 ci.Parameter = "123";
-                ci = CH.NewAccount(ci);
+                ci = ApiHelper.NewAccount(ci);
                 if (ci.Result)
                     UserList.Add(ci.InfoMsg?[0].Replace("Account address:", "").Trim());
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                uc = CH.UnlockAccount(uc);
+                uc = ApiHelper.UnlockAccount(uc);
             }
         }
         */

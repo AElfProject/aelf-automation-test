@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Consensus.DPoS;
+using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Kernel;
-using Google.Protobuf;
+using AElf.Contracts.Profit;
 using Google.Protobuf.WellKnownTypes;
+using TermSnapshot = AElf.Contracts.Election.TermSnapshot;
+
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -13,10 +13,12 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         #region Election View Methods
 
-
-        public List<ByteString> GetVictories()
+        public PublicKeysList GetVictories()
         {
-            throw new NotImplementedException();
+            var result = ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories,
+                new Empty());
+
+            return result;
         }
 
         public int GetMinersCount()
@@ -25,10 +27,10 @@ namespace AElf.Automation.EconomicSystem.Tests
                 new Empty()).Value;
         }
         
-        public CandidateHistory GetCandidateHistory(string account)
+        public CandidateInformation GetCandidateInformation(string account)
         {
             var result =
-                ElectionService.CallViewMethod<CandidateHistory>(ElectionMethod.GetCandidateHistory,
+                ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
                     new StringInput
                     {
                         Value = ApiHelper.GetPublicKeyFromAddress(account)
@@ -36,15 +38,19 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public List<ByteString> GetCandidates()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Votes GetVotesInformation(string voteAccount)
+        public PublicKeysList GetCandidates()
         {
             var result =
-                ElectionService.CallViewMethod<Votes>(ElectionMethod.GetVotesInformation, new StringInput
+                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates,
+                    new Empty());
+            
+            return result; 
+        }
+
+        public ElectorVote GetVotesInformation(string voteAccount)
+        {
+            var result =
+                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringInput
                 {
                     Value = ApiHelper.GetPublicKeyFromAddress(voteAccount)
                 });
@@ -52,9 +58,9 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public Votes GetVotesInformationWithRecords(string voteAccount)
+        public ElectorVote GetVotesInformationWithRecords(string voteAccount)
         {
-            var result = ElectionService.CallViewMethod<Votes>(ElectionMethod.GetVotesInformationWithRecords,
+            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformationWithRecords,
                 new StringInput
                 {
                     Value = ApiHelper.GetPublicKeyFromAddress(voteAccount)
@@ -62,9 +68,9 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public Votes GetVotesInformationWithAllRecords(string voteAccount)
+        public ElectorVote GetElectorVoteWithAllRecords(string voteAccount)
         {
-            var result = ElectionService.CallViewMethod<Votes>(ElectionMethod.GetVotesInformationWithAllRecords,
+            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithAllRecords,
                 new StringInput
                 {
                     Value = ApiHelper.GetPublicKeyFromAddress(voteAccount)
@@ -74,7 +80,12 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public TermSnapshot GetTermSnapshot(long termNumber)
         {
-            throw new NotImplementedException();
+            var result = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
+                new GetTermSnapshotInput
+                {
+                    TermNumber = termNumber
+                });
+            return result;
         } 
         
         #endregion
@@ -139,7 +150,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
         {
-            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetCreatedProfitItems,
+            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetReleasedProfitsInformation,
                 new GetReleasedProfitsInformationInput
                 {
                     ProfitId = profitId,
@@ -168,6 +179,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var miners = ConsensusService.CallViewMethod<Miners>(ConsensusMethod.GetCurrentMiners, new Empty());
             return miners;
+        }
+
+        public long GetCurrentTermInformation()
+        {
+            var round = ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+
+            return round.TermNumber;
         }
         #endregion
     }

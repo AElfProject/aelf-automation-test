@@ -168,6 +168,7 @@ namespace AElf.Automation.Common.Helpers
             var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl,_chainId);
+
             if (tx == null)
                 return;
             tx = _transactionManager.SignTransaction(tx);
@@ -199,11 +200,9 @@ namespace AElf.Automation.Common.Helpers
 
             var parameter = ci.ParameterInput.ToByteString();
             tr.Params = parameter == null ? ByteString.Empty : parameter;
-
-            tr = tr.AddBlockReference(_baseUrl,_chainId);
-
+            tr = tr.AddBlockReference(_baseUrl, _chainId);
             _transactionManager.SignTransaction(tr);
-            
+
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tr);
 
             ci.InfoMsg = _apiService.BroadcastTransaction(rawTxString).Result;

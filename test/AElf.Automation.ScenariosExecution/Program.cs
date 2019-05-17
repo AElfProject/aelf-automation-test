@@ -7,7 +7,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.TransactionExecution
+namespace AElf.Automation.ScenariosExecution
 {
     class Program
     {
@@ -43,7 +43,7 @@ namespace AElf.Automation.TransactionExecution
             //Account preparation
             Users = new List<string>();
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = ApiHelper.NewAccount(ci);
@@ -51,8 +51,10 @@ namespace AElf.Automation.TransactionExecution
                     Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
 
                 //unlock
-                var uc = new CommandInfo(ApiMethods.AccountUnlock);
-                uc.Parameter = $"{Users[i]} 123 notimeout";
+                var uc = new CommandInfo(ApiMethods.AccountUnlock)
+                {
+                    Parameter = $"{Users[i]} 123 notimeout"
+                };
                 ApiHelper.UnlockAccount(uc);
             }
             #endregion

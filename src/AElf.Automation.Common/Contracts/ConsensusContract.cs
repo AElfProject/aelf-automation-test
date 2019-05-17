@@ -12,6 +12,7 @@ namespace AElf.Automation.Common.Contracts
         GetCandidatesList,
         GetCandidateHistoryInformation,
         GetCurrentMiners,
+        GetCurrentRoundInformation,
         GetTicketsInfo,
         GetPageableElectionInfo,
         GetBlockchainAge,

@@ -15,13 +15,13 @@ namespace AElf.Automation.Common.Contracts
         //view
         GetElectionResult,
         GetVotesInformation,
-        GetCandidateHistory,
+        GetCandidateInformation,
+        GetCandidates,
         GetVictories,
         GetTermSnapshot,
-        GetCandidates,
         GetMinersCount,
         GetVotesInformationWithRecords,
-        GetVotesInformationWithAllRecords
+        GetElectorVoteWithAllRecords
     }
     public class ElectionContract : BaseContract<ElectionMethod>
     {

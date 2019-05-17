@@ -2,7 +2,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 
-namespace AElf.Automation.TransactionExecution
+namespace AElf.Automation.ScenariosExecution
 {
     public class TokenExecutor
     {

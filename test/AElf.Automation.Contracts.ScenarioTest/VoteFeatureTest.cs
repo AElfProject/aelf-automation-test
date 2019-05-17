@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Consensus.DPoS;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.Vote;
 using AElf.Kernel;
 using Google.Protobuf.WellKnownTypes;
-using Vote;
-using VoteInput = Vote.VoteInput;
+using VoteMinerInput = AElf.Contracts.Election.VoteMinerInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -130,6 +130,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
         
+        /*
         private void QueryContractsBalance()
         {
             var consensusBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -289,10 +290,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetCandidateList()
         {
             //Get candidate event
-            var voteEvent = voteService.CallViewMethod<VotingEvent>(VoteMethod.GetVotingEvent, new GetVotingEventInput
+            var voteEvent = voteService.CallViewMethod<VotingItem>(VoteMethod.GetVotingItem, new GetVotingItemInput
             {
-                Topic = Hash.Empty.ToString(),
-                Sponsor = Address.Parse(InitAccount)
+                VotingItemId = Hash.Generate(), //need update item id
             });
             CandidatePublicKeys = voteEvent.Options.ToList();
            
@@ -415,15 +415,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var votePbk = NodesPublicKeys[candidates[i]];
                 var voteVolume = 200;
-                var voteLock = 5;
 
                 voteService.SetAccount(UserList[i]);
                 voteService.ExecuteMethodWithTxId(VoteMethod.Vote, new VoteMinerInput
                 {
                     CandidatePublicKey = votePbk,
                     Amount = voteVolume,
-                    LockTime = voteLock,
-                    LockTimeUnit = LockTimeUnit.Days
+                    EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(90)).ToTimestamp()
                 });
                 Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }
@@ -433,7 +431,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetPageableElectionInfo();
             Logger.WriteInfo("Vote completed.");
         }
-
+        
         [TestMethod]
         public void GetCandidateHistoryInfo()
         {
@@ -455,7 +453,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Logger.WriteInfo("GetCurrentVictories Test");
             var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMiners, new Empty());
-            CurrentMinersKeys = minersResult.MinerList.PublicKeys.ToList();
+            CurrentMinersKeys = minersResult.MinerList.PublicKeys.Select(o=>o.ToByteArray().ToHex()).ToList();
             var count = 1;
             foreach (var miner in CurrentMinersKeys)
             {
@@ -686,5 +684,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetTicketsInfo();
         }
+        */
     }
 }

@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.Contracts
         GetVotingResult,
         GetVotingHistories,
         GetVotingRecord,
-        GetVotingEvent,
+        GetVotingItem,
         GetVotingHistory
     }
     public class VoteContract : BaseContract<VoteMethod>
