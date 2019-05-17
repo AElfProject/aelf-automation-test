@@ -13,4 +13,8 @@
       <PackageReference Include="Shouldly" Version="3.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="figures" />
+    </ItemGroup>
+
 </Project>
