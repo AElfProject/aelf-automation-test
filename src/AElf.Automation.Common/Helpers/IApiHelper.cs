@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AElf.Automation.Common.WebApi;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
@@ -6,6 +7,7 @@ namespace AElf.Automation.Common.Helpers
 {
     public interface IApiHelper
     {
+        WebApiService ApiService { get; set; }
         List<CommandInfo> CommandList { get; set; }
         string GetGenesisContractAddress();
         CommandInfo ExecuteCommand(CommandInfo ci);

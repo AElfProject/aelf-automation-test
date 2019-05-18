@@ -55,7 +55,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ci.Parameter = "123";
                 ci = ApiHelper.NewAccount(ci);
                 if (ci.Result)
-                    AccList.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
+                    AccList.Add(ci.InfoMsg.ToString());
 
                 //unlock
                 var ic = new CommandInfo(ApiMethods.AccountUnlock)

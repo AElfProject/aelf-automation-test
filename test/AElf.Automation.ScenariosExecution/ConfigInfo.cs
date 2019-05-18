@@ -1,0 +1,77 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AElf.Automation.Common.WebApi;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+
+namespace AElf.Automation.ScenariosExecution
+{
+    public class Node
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
+        [JsonProperty("service_url")]
+        public string ServiceUrl { get; set; }
+        
+        [JsonProperty("account")]
+        public string Account { get; set; }
+        
+        [JsonProperty("password")]
+        public string Password { get; set; }
+        
+        public string PublicKey { get; set; }
+
+        public bool Status { get; set; } = false;
+        
+        public WebApiService ApiService { get; set; }
+    }
+
+    public class ConfigInfo
+    {
+        [JsonProperty("BpNodes")]
+        public List<Node> BpNodes { get; set; }
+        
+        [JsonProperty("FullNodes")]
+        public List<Node> FullNodes { get; set; }
+        
+        [JsonProperty("UserCount")]
+        public int UserCount { get; set; }
+    }
+
+    public static class ConfigInfoHelper
+    {
+        private static ConfigInfo _instance = null;
+        private static readonly object LockObj = new object();
+
+        public static ConfigInfo Config => GetConfigInfo();
+        
+        public static List<string> GetAccounts()
+        {
+            var accounts = new List<string>();
+            
+            accounts.AddRange(Config.BpNodes.Select(o=>o.Account));
+            accounts.AddRange(Config.FullNodes.Select(o=>o.Account));
+
+            return accounts;
+        } 
+
+        public static ConfigInfo GetConfigInfo()
+        {
+            lock (LockObj)
+            {
+                if (_instance != null) return _instance;
+                
+                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                var content = File.ReadAllText(configFile);
+                _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
+            }
+
+            return _instance;
+        }
+    }
+}

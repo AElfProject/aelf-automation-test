@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.Extensions
             {
                 result.Result = true;
                 string account = addr.GetFormatted();
-                result.InfoMsg = "Account address: " + account;
+                result.InfoMsg = account;
             }
 
             return result;
@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Extensions
         public CommandInfo ListAccount()
         {
             var result = new CommandInfo(ApiMethods.AccountList);
-            result.InfoMsg = new List<object> {_keyStore.ListAccountsAsync().Result};
+            result.InfoMsg = _keyStore.ListAccountsAsync().Result;
             if (result.InfoMsg != null)
                 result.Result = true;
 
@@ -98,11 +98,11 @@ namespace AElf.Automation.Common.Extensions
         {
             try
             {
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                string keyPath = Path.Combine(path, "keys");
+                var keyPath = Path.Combine(path, "keys");
                 if (!Directory.Exists(keyPath))
                     Directory.CreateDirectory(keyPath);
 
@@ -120,14 +120,14 @@ namespace AElf.Automation.Common.Extensions
             return kp;
         }
 
-        private string AskInvisible(string prefix)
+        private static string AskInvisible(string prefix)
         {
             Console.WriteLine(prefix);
 
             var pwd = new SecureString();
             while (true)
             {
-                ConsoleKeyInfo i = Console.ReadKey(true);
+                var i = Console.ReadKey(true);
                 if (i.Key == ConsoleKey.Enter)
                 {
                     break;

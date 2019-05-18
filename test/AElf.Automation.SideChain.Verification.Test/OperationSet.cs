@@ -895,7 +895,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = chain.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                AccountList.Add(new AccountInfo(ci.InfoMsg.ToString().Replace("Account address:", "").Trim()));
+                AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
             }
         }
         
@@ -907,7 +907,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = chain.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                accountList.Add(ci.InfoMsg.ToString().Replace("Account address:","").Trim());
+                accountList.Add(ci.InfoMsg.ToString());
             }
 
             return accountList;

@@ -6,9 +6,9 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 
-namespace AElf.Automation.RpcPerformance
+namespace AElf.Automation.ScenariosExecution.Scenarios
 {
-    public class ExecutionSummary
+    public class ChainSummary
     {
         private readonly IApiService _apiHelper;
         private long _blockHeight;
@@ -17,14 +17,14 @@ namespace AElf.Automation.RpcPerformance
         
         private const int Phase = 120;
         
-        public ExecutionSummary(string baseUrl)
+        public ChainSummary(string baseUrl)
         {
             _apiHelper = new WebApiService(baseUrl);
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = GetBlockHeight();
         }
 
-        public void ContinuousCheckTransactionPerformance()
+        public void ContinuousCheckChainStatus()
         {
             var checkTimes = 0;
             while (true)
@@ -68,7 +68,6 @@ namespace AElf.Automation.RpcPerformance
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
                               $"{totalTransactions} transactions, average per block is {averageTx} tx during " +
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. Block generated per {timePerBlock} milliseconds.");
-            _logger.WriteInfo("-----------------------------------------------------------------------------------------------------------------------------------------------------");
         }
 
         private long GetBlockHeight()

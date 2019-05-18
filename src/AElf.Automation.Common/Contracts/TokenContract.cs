@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using AElf.Contracts.MultiToken.Messages;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -41,6 +42,15 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+        }
+
+        public long GetUserBalance(string account, string symbol = "ELF")
+        {
+            return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = Address.Parse(account),
+                Symbol = symbol
+            }).Balance;
         }
     }
 }

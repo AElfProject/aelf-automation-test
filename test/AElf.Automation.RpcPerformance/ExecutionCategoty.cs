@@ -638,7 +638,7 @@ namespace AElf.Automation.RpcPerformance
                 var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                AccountList.Add(new AccountInfo(ci.InfoMsg.ToString().Replace("Account address:", "").Trim()));
+                AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
             }
         }
 

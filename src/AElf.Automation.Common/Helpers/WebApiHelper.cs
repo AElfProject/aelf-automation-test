@@ -4,7 +4,6 @@ using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.WebApi;
 using AElf.Cryptography;
 using AElf.Kernel;
-using AElf.Automation.Common.WebApi.Dto;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
@@ -19,25 +18,24 @@ namespace AElf.Automation.Common.Helpers
         private readonly AElfKeyStore _keyStore;
         private AccountManager _accountManager;
         private TransactionManager _transactionManager;
-        private readonly WebRequestManager _requestManager;
-        private readonly WebApiService _apiService;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private string _genesisAddress;
-
-        public Dictionary<ApiMethods, string> ApiRoute { get; set; }
-
+        private Dictionary<ApiMethods, string> ApiRoute { get; set; }
+        
         #endregion
 
         public WebApiHelper(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _requestManager = new WebRequestManager(baseUrl);
-            _apiService = new WebApiService(baseUrl);
             _keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
+            
+            ApiService = new WebApiService(baseUrl);
             CommandList = new List<CommandInfo>();
             
             InitializeWebApiRoute();
         }
+        
+        public WebApiService ApiService { get; set; }
 
         public List<CommandInfo> CommandList { get; set; }
 
@@ -112,18 +110,24 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo NewAccount(CommandInfo ci)
         {
+            if(_accountManager == null)
+                _accountManager = new AccountManager(_keyStore, "AELF");
             ci = _accountManager.NewAccount(ci.Parameter);
             return ci;
         }
 
         public CommandInfo ListAccounts()
         {
+            if(_accountManager == null)
+                _accountManager = new AccountManager(_keyStore, "AELF");
             var ci = _accountManager.ListAccount();
             return ci;
         }
 
         public CommandInfo UnlockAccount(CommandInfo ci)
         {
+            if(_accountManager == null)
+                _accountManager = new AccountManager(_keyStore, "AELF");
             ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1],
                 ci.Parameter.Split(" ")?[2]);
             return ci;
@@ -135,7 +139,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void GetChainInformation(CommandInfo ci)
         {
-            var statusDto = _apiService.GetChainStatus().Result;
+            var statusDto = ApiService.GetChainStatus().Result;
             
             _genesisAddress = statusDto.GenesisContractAddress;
             
@@ -176,7 +180,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
             
-            var transactionOutput = _apiService.BroadcastTransaction(rawTxString).Result;
+            var transactionOutput = ApiService.BroadcastTransaction(rawTxString).Result;
 
             ci.InfoMsg = transactionOutput;
             ci.Result = true;
@@ -205,7 +209,7 @@ namespace AElf.Automation.Common.Helpers
 
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tr);
 
-            ci.InfoMsg = _apiService.BroadcastTransaction(rawTxString).Result;
+            ci.InfoMsg = ApiService.BroadcastTransaction(rawTxString).Result;
             ci.Result = true;
         }
 
@@ -214,7 +218,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
         
-            ci.InfoMsg = _apiService.BroadcastTransaction(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.BroadcastTransaction(ci.Parameter).Result;
             ci.Result = true;
         }
 
@@ -270,7 +274,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
             
-            ci.InfoMsg = _apiService.BroadcastTransactions(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.BroadcastTransactions(ci.Parameter).Result;
             ci.Result = true;
         }
 
@@ -279,13 +283,13 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = _apiService.GetTransactionResult(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.GetTransactionResult(ci.Parameter).Result;
             ci.Result = true;
         }
 
         public void GetBlockHeight(CommandInfo ci)
         {
-            ci.InfoMsg = _apiService.GetBlockHeight().Result;    
+            ci.InfoMsg = ApiService.GetBlockHeight().Result;    
             ci.Result = true;
         }
 
@@ -295,7 +299,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             
             var parameterArray = ci.Parameter.Split(" ");
-            ci.InfoMsg = _apiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1])).Result;
+            ci.InfoMsg = ApiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1])).Result;
             ci.Result = true;
         }
         
@@ -305,13 +309,13 @@ namespace AElf.Automation.Common.Helpers
                 return;
             
             var parameterArray = ci.Parameter.Split(" ");
-            ci.InfoMsg = _apiService.GetBlock(parameterArray[0], bool.Parse(parameterArray[1])).Result;
+            ci.InfoMsg = ApiService.GetBlock(parameterArray[0], bool.Parse(parameterArray[1])).Result;
             ci.Result = true;
         }
 
         public void GetTransactionPoolStatus(CommandInfo ci)
         {
-            ci.InfoMsg = _apiService.GetTransactionPoolStatus().Result;
+            ci.InfoMsg = ApiService.GetTransactionPoolStatus().Result;
             ci.Result = true;
         }
 
@@ -360,12 +364,14 @@ namespace AElf.Automation.Common.Helpers
 
         public void QueryViewInfo(CommandInfo ci)
         {
-            ci.InfoMsg = _apiService.Call(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.Call(ci.Parameter).Result;
             ci.Result = true;
         }
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
         {
+            if(_accountManager == null)
+                _accountManager = new AccountManager(_keyStore, "AELF");
             _accountManager.UnlockAccount(account, password, "notimeout");
             return _accountManager.GetPublicKey(account);
         }
@@ -373,7 +379,7 @@ namespace AElf.Automation.Common.Helpers
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {
-            ci.InfoMsg = _apiService.GetPeers().Result;
+            ci.InfoMsg = ApiService.GetPeers().Result;
             ci.Result = true;
         }
 
@@ -382,7 +388,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
             
-            ci.InfoMsg = _apiService.AddPeer(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.AddPeer(ci.Parameter).Result;
             ci.Result = true;
         }
 
@@ -391,7 +397,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = _apiService.RemovePeer(ci.Parameter).Result;
+            ci.InfoMsg = ApiService.RemovePeer(ci.Parameter).Result;
             ci.Result = true;
         }
 
@@ -400,7 +406,7 @@ namespace AElf.Automation.Common.Helpers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
-            return _apiService.Call(rawTxString).Result;
+            return ApiService.Call(rawTxString).Result;
         }
 
         private bool CheckResponse(CommandInfo ci, string returnCode, string response)

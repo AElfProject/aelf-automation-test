@@ -335,7 +335,7 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = "123";
             ci = _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Create account got exception.");
-            _account = ci.InfoMsg?.ToString().Replace("Account address:", "").Trim();
+            _account = ci.InfoMsg?.ToString();
 
             //Unlock
             ci = new CommandInfo(ApiMethods.AccountUnlock);
