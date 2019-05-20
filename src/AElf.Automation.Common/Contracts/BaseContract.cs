@@ -13,12 +13,12 @@ namespace AElf.Automation.Common.Contracts
         #region Priority
 
         public IApiHelper ApiHelper { get; set; }
-        private string FileName { get; set; }
+        public string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         public string ContractAddress { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         #endregion
 
@@ -63,7 +63,7 @@ namespace AElf.Automation.Common.Contracts
             string rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
-            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
             TxResultList.Enqueue(txId);
 
             return txId;
@@ -91,7 +91,7 @@ namespace AElf.Automation.Common.Contracts
             string rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
-            _logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
             return CheckTransactionResult(txId);
@@ -123,12 +123,12 @@ namespace AElf.Automation.Common.Contracts
             if (ci.Result)
             {
                 var transactionResult = ci.InfoMsg as TransactionResultDto;
-                _logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
+                Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
 
                 return transactionResult?.Status == "Mined";
             }
 
-            _logger.WriteError(ci.GetErrorMessage());
+            Logger.WriteError(ci.GetErrorMessage());
             return false;
         }
 
@@ -152,14 +152,14 @@ namespace AElf.Automation.Common.Contracts
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
                     if (transactionResult?.Status == "Mined")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
                         return ci;
                     }
 
                     if (transactionResult?.Status == "Failed")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
-                        _logger.WriteError(transactionResult?.Error);
+                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
+                        Logger.WriteError(transactionResult?.Error);
                         return ci;
                     }
                 }
@@ -169,7 +169,7 @@ namespace AElf.Automation.Common.Contracts
             }
 
             var result = ci.InfoMsg as TransactionResultDto;
-            _logger.WriteError(result?.Error);
+            Logger.WriteError(result?.Error);
             Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
 
             return ci;
@@ -218,8 +218,8 @@ namespace AElf.Automation.Common.Contracts
                         continue;
                     if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult.Status}");
-                        _logger.WriteError(transactionResult.Error);
+                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                        Logger.WriteError(transactionResult.Error);
                         continue;
                     }
 
@@ -309,7 +309,7 @@ namespace AElf.Automation.Common.Contracts
                 if (ci.InfoMsg is BroadcastTransactionOutput transactionOutput)
                 {
                     var txId = transactionOutput.TransactionId;
-                    _logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
+                    Logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
 
                     var result = GetContractAddress(txId, out _);
                     Assert.IsTrue(result, "Get contract address failed.");
@@ -331,11 +331,11 @@ namespace AElf.Automation.Common.Contracts
 
             if (!ci.Result) return false;
             var transactionResult = ci.InfoMsg as TransactionResultDto;
-            _logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
+            Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
             if (transactionResult?.Status != "Mined") return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
-            _logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
+            Logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
             return true;
         }
 

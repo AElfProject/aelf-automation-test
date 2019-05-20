@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 
@@ -11,6 +14,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
+        
+        public List<string> Testers { get; }
 
         public TokenScenario()
         {
@@ -18,6 +23,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Token = Services.TokenService;
             Election = Services.ElectionService;
+            Testers = AllTesters.GetRange(25, 25);
+        }
+
+        public void RunTokenScenario()
+        {
+            while (true)
+            {
+                TransferAction();
+            
+                ApproveTransferAction(); 
+            }            
         }
 
         public void TransferAction()
@@ -26,13 +42,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             try
             {
                 Token.SetAccount(from);
-                Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
                     Symbol = "ELF",
                     To = Address.Parse(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
+                Logger.WriteInfo($"Transfer success - from {from} to {to} with amount {amount}.");
             }
             catch (Exception e)
             {
@@ -47,15 +64,34 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             try
             {
                 Token.SetAccount(from);
-                Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
+                var txResult1 = Token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                 {
                     Amount = amount,
                     Spender = Address.Parse(to),
                     Symbol = "ELF"
                 });
+                if (txResult1.InfoMsg is TransactionResultDto txDto1)
+                {
+                    if(txDto1.Status == "Mined")
+                        Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
+                    else
+                    {
+                        Logger.WriteError(txDto1.Error);
+                    }
+                }
 
+                var approveResult = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
+                    new GetAllowanceInput
+                    {
+                        Owner = Address.Parse(from),
+                        Spender = Address.Parse(to),
+                        Symbol = "ELF"
+                    }).Allowance;
+                if (approveResult - amount < 0)
+                    return;
+                
                 Token.SetAccount(to);
-                Token.ExecuteMethodWithTxId(TokenMethod.TransferFrom, new TransferFromInput
+                var txResult2 = Token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {
                     Amount = amount,
                     From = Address.Parse(from),
@@ -63,6 +99,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = "ELF",
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 });
+                if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
+                if (txDto2.Status == "Mined")
+                    Logger.WriteInfo($"TransferFrom success - from {@from} to {to} with amount {amount}.");
+                else
+                {
+                    Logger.WriteError(txDto2.Error);
+                }
             }
             catch (Exception e)
             {
@@ -85,7 +128,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(bp.Account, bp.Password);
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))
                 {
-                    Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
                         Amount = 100_000,
@@ -98,12 +141,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //prepare other user token
             var otherBp = BpNodes.Last();
             Token.SetAccount(otherBp.Account, otherBp.Password);
-            foreach (var user in TestUsers)
+            foreach (var user in Testers)
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 10_000)
                 {
-                    Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
                         Amount = 10_000 - balance,
@@ -120,23 +163,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             while (true)
             {
-                var randomNo = GenerateRandomNumber(TestUsers.Count - 1);
-                var acc = TestUsers[randomNo];
+                var randomNo = GenerateRandomNumber(0, Testers.Count - 1);
+                var acc = Testers[randomNo];
                 var balance = Token.GetUserBalance(acc);
                 if (balance < 100)
                     continue;
 
                 accountFrom = acc;
-                accountTo = TestUsers[randomNo - 1];
-                amount = randomNo % 10 + 1;
+                accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
+                amount = (long)randomNo % 10 + 1;
                 return;
             }
-        }
-
-        private static int GenerateRandomNumber(int maxValue)
-        {
-            var rd = new Random(DateTime.Now.Millisecond);
-            return rd.Next(1, maxValue);
         }
     }
 }

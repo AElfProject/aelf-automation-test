@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
 
@@ -31,13 +32,30 @@ namespace AElf.Automation.ScenariosExecution
 
             var token = new TokenScenario();
             token.PrepareAccountBalance();
-            token.ExecuteContinuousTasks(new Action[]
-            {
-                token.TransferAction,
-                token.ApproveTransferAction,
-                token.GetChainTransactionAction
-            });
             
+            var contract = new ContractScenario();
+            
+            var resource = new ResourceScenario();
+            
+            var node = new NodeScenario();
+            
+            var user = new UserScenario();
+
+            var tasks = new List<Task>()
+            {
+                //scenario task
+                Task.Run(() => token.RunTokenScenario()),
+                Task.Run(() => resource.RunResourceScenario()),
+                Task.Run(() => contract.RunContractScenario()),
+                Task.Run(() => node.RunNodeScenario()),
+                Task.Run(() => user.RunUserScenario()),
+                
+                //node task
+                Task.Run(()=>node.CheckNodeStatusAction()),
+                Task.Run(()=>node.CheckNodeTransactionAction())
+            };
+            Task.WaitAll(tasks.ToArray());
+        
             Console.ReadLine();
         }
     }

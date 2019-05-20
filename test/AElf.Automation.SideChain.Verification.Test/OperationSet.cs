@@ -981,13 +981,13 @@ namespace AElf.Automation.SideChain.Verification.Test
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
                     if (transactionResult?.Status == "Mined")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        _logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
                         return ci;
                     }
 
                     if (transactionResult?.Status == "Failed")
                     {
-                        _logger.WriteInfo($"Transaction status: {transactionResult?.Status}");
+                        _logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
                         _logger.WriteError(transactionResult?.Error);
                         return ci;
                     }

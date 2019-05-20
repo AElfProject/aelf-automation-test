@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
+using AElf.Kernel;
+using Google.Protobuf;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -53,6 +56,31 @@ namespace AElf.Automation.Common.Contracts
             return new GenesisContract(ch, callAddress, genesisContract);
         }
 
+        public bool UpdateContract(string account, string contractAddress, string contractFileName)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            
+            var contractOwner = GetContractOwner(contractAddress);
+            if(contractOwner.GetFormatted() != account)
+                Logger.WriteError("Account have no permission to update.");
+            
+            SetAccount(account);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
+            {
+                Address = Address.Parse(contractAddress),
+                Code = ByteString.CopyFrom(codeArray)
+            });
+            if (txResult.InfoMsg is TransactionResultDto txDto)
+            {
+                if (txDto.Status == "Mined")
+                    return true;
+                Logger.WriteError(txDto.Error);
+            }
+
+            return false;
+        }
+        
         public Address GetContractAddressByName(NameProvider name)
         {
             var hash = _nameProviders[name];
@@ -71,9 +99,7 @@ namespace AElf.Automation.Common.Contracts
         
         public Address GetContractOwner(string contractAddress)
         {
-            var address = CallViewMethod<Address>(GenesisMethod.GetContractOwner, Address.Parse(contractAddress));
-
-            return address;
+            return GetContractOwner(Address.Parse(contractAddress));
         }
 
         private void InitializeSystemContractName()

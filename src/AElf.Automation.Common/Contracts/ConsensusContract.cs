@@ -1,4 +1,6 @@
 ﻿using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Consensus.AEDPoS;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -44,6 +46,13 @@ namespace AElf.Automation.Common.Contracts
         public ConsensusContract(IApiHelper apiHelper, string callAddress)
             :base(apiHelper, "AElf.Contracts.Consensus", callAddress)
         {
+        }
+        
+        public long GetCurrentTermInformation()
+        {
+            var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+
+            return round.TermNumber;
         }
     }
 }

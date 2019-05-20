@@ -2,7 +2,7 @@
 
 namespace AElf.Automation.Common.Contracts
 {
-    public enum DicidendsMethod
+    public enum DividendsMethod
     {
         GetTermDividends,
         GetTermTotalWeights,
@@ -13,7 +13,7 @@ namespace AElf.Automation.Common.Contracts
         CheckDividends,
         CheckDividendsOfPreviousTerm
     }
-    public class DividendsContract :BaseContract<DicidendsMethod>
+    public class DividendsContract :BaseContract<DividendsMethod>
     {
         public DividendsContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
             :base(apiHelper, dividendsAddress)
