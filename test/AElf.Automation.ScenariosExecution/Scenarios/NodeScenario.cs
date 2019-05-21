@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
@@ -55,8 +56,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (publicKeysList.Contains(fullNode.PublicKey))
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
-                election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
-                count++;
+                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                if (electionResult.InfoMsg is TransactionResultDto electionDto)
+                {
+                    count++;
+                    if (electionDto.Status == "Mined")
+                    {
+                        Logger.WriteInfo($"User {fullNode.Account} announcement election success.");
+                        UserScenario.GetCandidates(Election); //更新candidates列表
+                    }
+                }
                 if(count==2)
                     break;
             }
@@ -81,7 +90,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (!candidatesKeysList.Contains(fullNode.PublicKey) || minerKeysList.Contains(fullNode.PublicKey))
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
-                election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
+                var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
+                if (quitResult.InfoMsg is TransactionResultDto electionDto)
+                {
+                    if (electionDto.Status == "Mined")
+                    {
+                        Logger.WriteInfo($"User {fullNode.Account} quit election success.");
+                        UserScenario.GetCandidates(Election); //更新candidates列表
+                    }
+                }
+                
                 break;
             }
             
@@ -189,8 +207,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, profitId);
-            Logger.WriteInfo($"ProfitAmount: user {account} profit amount is {profitAmount}");
+            if (profitAmount == 0)
+                return;
 
+            Logger.WriteInfo($"ProfitAmount: node {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
             profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
@@ -200,7 +220,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var afterBalance = Token.GetUserBalance(account);
             if (beforeBalance != afterBalance)
-                Logger.WriteInfo($"Get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
+                Logger.WriteInfo($"Profit success - node {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
         }
     }
 }

@@ -14,7 +14,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
-        
+
         public List<string> Testers { get; }
 
         public TokenScenario()
@@ -28,14 +28,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public void RunTokenScenario()
         {
-            while (true)
+            ExecuteContinuousTasks(new Action[]
             {
-                TransferAction();
-            
-                ApproveTransferAction();
-                
-                Thread.Sleep(2000);
-            }            
+                TransferAction,
+                ApproveTransferAction
+            }, true, 2);
         }
 
         public void TransferAction()
@@ -76,12 +73,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (txResult1.InfoMsg is TransactionResultDto txDto1)
                 {
-                    if(txDto1.Status == "Mined")
+                    if (txDto1.Status == "Mined")
                         Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
-                    else
-                    {
-                        Logger.WriteError(txDto1.Error);
-                    }
                 }
 
                 var approveResult = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
@@ -93,7 +86,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     }).Allowance;
                 if (approveResult - amount < 0)
                     return;
-                
+
                 //Token.SetAccount(to);
                 token = Token.GetNewTester(to);
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
@@ -138,6 +131,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Memo = "Transfer for announcement event"
                     });
                 }
+
                 token.CheckTransactionResultList();
             }
 
@@ -176,7 +170,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 accountFrom = acc;
                 accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
-                amount = (long)randomNo % 10 + 1;
+                amount = (long) randomNo % 10 + 1;
                 return;
             }
         }
