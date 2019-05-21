@@ -126,6 +126,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             return result;
         }
+        
         public Address GetTreasuryAddress(Hash profitId, long period = 0)
         {
             return ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,

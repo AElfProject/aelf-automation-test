@@ -141,17 +141,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //prepare other user token
             var otherBp = BpNodes.Last();
             Token.SetAccount(otherBp.Account, otherBp.Password);
-            foreach (var user in Testers)
+            foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
-                if (balance < 10_000)
+                if (balance < 500_000)
                 {
                     Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
                         Amount = 10_000 - balance,
                         To = Address.Parse(user),
-                        Memo = "Transfer for announcement."
+                        Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
             }

@@ -129,7 +129,7 @@ namespace AElf.Automation.ScenariosExecution
             }
             catch (Exception e)
             {
-                Logger.WriteInfo($"Node {node.Name} cannot connected successfully due to exception: {e.Message}");
+                Logger.WriteInfo($"Node {node.Name} connected failed due to exception: {e.Message}");
             }
 
             return false;
@@ -141,7 +141,7 @@ namespace AElf.Automation.ScenariosExecution
             return File.Exists(path);
         }
 
-        private void GetConfigNodesPublicKey(IApiHelper helper)
+        private static void GetConfigNodesPublicKey(IApiHelper helper)
         {
             foreach (var node in _config.BpNodes)
             {

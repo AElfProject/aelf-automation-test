@@ -49,6 +49,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void UserVotesAction()
         {
             GetCandidates();
+            if (candidates.Count < 2)
+                return;
             
             var times = GenerateRandomNumber(10, 20);
             for (var i = 0; i < times; i++)
@@ -94,7 +96,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
             var afterBalance = Token.GetUserBalance(account);
             if(afterBalance != beforeBalance)
-                Logger.WriteInfo($"Profit success - User: {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
+                Logger.WriteInfo($"Profit success - {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
         }
 
         private void UserVote(string account)

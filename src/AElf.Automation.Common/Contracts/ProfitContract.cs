@@ -88,6 +88,28 @@ namespace AElf.Automation.Common.Contracts
             }).Value;
         }
         
+        public Address GetTreasuryAddress(Hash profitId, long period = 0)
+        {
+            return CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
+                new GetProfitItemVirtualAddressInput
+                {
+                    ProfitId = profitId,
+                    Period = period
+                });
+        }
+        
+        public Address GetProfitItemVirtualAddress(Hash profitId,long period)
+        {
+            var result = CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
+                new GetProfitItemVirtualAddressInput
+                {
+                    ProfitId = profitId,
+                    Period = period
+                });
+
+            return result;
+        }
+
         private CreatedProfitItems GetCreatedProfitItems(string electionContractAddress)
         {
             var result = CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,

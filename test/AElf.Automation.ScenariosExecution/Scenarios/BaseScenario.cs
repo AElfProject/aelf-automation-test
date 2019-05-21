@@ -24,7 +24,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 try
                 {
-                    ExecuteStandaloneTask(actions);
+                    ExecuteStandaloneTask(actions, sleepSeconds);
                 }
                 catch (Exception e)
                 {

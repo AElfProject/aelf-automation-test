@@ -19,7 +19,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
 
-        public long _termNumber = 1;
+        private long _termNumber = 1;
 
         public NodeScenario()
         {
@@ -40,23 +40,27 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 NodeAnnounceElectionAction,
                 NodeTakeProfitAction,
-                NodeQuitElectionAction
-            }, true, 30);
+                NodeQuitElectionAction,
+                NodeGetHistoryBalanceAction
+            }, true, 10);
         }
 
         public void NodeAnnounceElectionAction()
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+            var count = 0;
             foreach (var fullNode in FullNodes)
             {
                 if (publicKeysList.Contains(fullNode.PublicKey))
                     continue;
                 Election.SetAccount(fullNode.Account, fullNode.Password);
                 Election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
-                break;
+                count++;
+                if(count==2)
+                    break;
             }
-
+            
             Thread.Sleep(30 * 1000);
         }
 
@@ -64,6 +68,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+            if (candidatesKeysList.Count < 2)
+            {
+                Logger.WriteInfo("Only one candidate, don't quit election.");
+                return;
+            }
 
             var currentMiners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minerKeysList = currentMiners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
@@ -75,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 break;
             }
-
+            
             Thread.Sleep(30 * 1000);
         }
 
@@ -84,7 +93,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var termNumber = Consensus.GetCurrentTermInformation();
             if (termNumber == _termNumber) return;
             _termNumber = termNumber;
-            
+
             var id = GenerateRandomNumber(0, FullNodes.Count - 1);
             var node = FullNodes[id];
 
@@ -123,18 +132,65 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             Logger.WriteInfo(string.Empty);
-
-            Thread.Sleep(30 * 1000);
+            
+            Thread.Sleep(10 * 1000);
         }
 
+        public void NodeGetHistoryBalanceAction()
+        {
+            var termNumber = Consensus.GetCurrentTermInformation();
+            if (_termNumber == termNumber)
+                return;
+            
+            Logger.WriteInfo($"Current term number is: {termNumber}");
+            _termNumber = termNumber;
+
+            GetLastTermBalanceInformation(termNumber); 
+            GetCandidateHistoryInformation();
+        }
+
+        private void GetLastTermBalanceInformation(long termNumber)
+        {
+            var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
+            var treasuryBalance = Token.GetUserBalance(treasuryAddress.GetFormatted());
+
+            var balanceMessage = $"\r\nTerm number: {termNumber}" +
+                                 $"Treasury balance is {treasuryBalance}\r\n";
+            foreach (var (key, value) in ProfitItemIds)
+            {
+                if(key == ProfitType.Treasury) continue;
+                var address = Profit.GetProfitItemVirtualAddress(value, termNumber-1);
+                var balance = Token.GetUserBalance(address.GetFormatted());
+                balanceMessage += $"{key} balance is {balance}\r\n";
+            }
+            Logger.WriteInfo(balanceMessage);
+        }
+
+        private void GetCandidateHistoryInformation()
+        {
+            foreach (var fullNode in FullNodes)
+            {
+                var candidateResult = Election.GetCandidateInformation(fullNode.Account);
+                if(candidateResult.AnnouncementTransactionId == Hash.Empty) continue;
+                
+                var historyMessage = $"\r\nCandidate: {fullNode.Account}\r\n" +
+                    $"PublicKey: {candidateResult.PublicKey}\r\n" + 
+                    $"Term: {candidateResult.Terms}\r\n" +
+                    $"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}\r\n" + 
+                    $"ProducedBlocks: {candidateResult.ProducedBlocks}\r\n" +
+                    $"MissedTimeSlots: {candidateResult.MissedTimeSlots}\r\n" +
+                    $"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}";
+                Logger.WriteInfo(historyMessage);
+            }
+        }
         private void TakeProfit(string account, Hash profitId)
         {
             var beforeBalance = Token.GetUserBalance(account);
-            
+
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, profitId);
             Logger.WriteInfo($"ProfitAmount: user {account} profit amount is {profitAmount}");
-            
+
             Profit.SetAccount(account);
             Profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
             {
@@ -142,7 +198,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
 
             var afterBalance = Token.GetUserBalance(account);
-            if(beforeBalance != afterBalance)
+            if (beforeBalance != afterBalance)
                 Logger.WriteInfo($"Get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
         }
     }

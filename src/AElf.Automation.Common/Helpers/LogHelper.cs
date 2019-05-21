@@ -23,21 +23,21 @@ namespace AElf.Automation.Common.Helpers
 
     public enum LogType
     {
-        INFO,
-        WARNING,
-        ERROR
+        Info,
+        Warning,
+        Error
     }
 
     public class LogHelper:ILogHelper, IDisposable
     {
         private static LogHelper _logger;
 
-        private static readonly Object initLogHelper = new Object();
-        private static readonly Object writeLogHelper = new Object();
-        private static readonly Object disposeLockHelper = new Object();
+        private static readonly object InitObject = new object();
+        private static readonly object WriteObject = new object();
+        private static readonly object DisposeObject = new object();
 
         //private FileStream fileStream;
-        private String _logFilePath;
+        private string _logFilePath;
 
         private StreamWriter _streamWriter;
 
@@ -47,27 +47,25 @@ namespace AElf.Automation.Common.Helpers
 
         public void Dispose()
         {
-            if (_streamWriter != null)
+            if (_streamWriter == null) return;
+            lock (DisposeObject)
             {
-                lock (disposeLockHelper)
+                if (_streamWriter != null)
                 {
-                    if (_streamWriter != null)
+                    if (_streamWriter.BaseStream.CanRead)
                     {
-                        if (_streamWriter.BaseStream.CanRead)
-                        {
-                            _streamWriter.Dispose();
-                        }
-                        _streamWriter = null;
+                        _streamWriter.Dispose();
                     }
-
-                    _logger = null;
+                    _streamWriter = null;
                 }
+
+                _logger = null;
             }
         }
 
-        public void InitLogHelper(String logFileSavePath)
+        public void InitLogHelper(string logFileSavePath)
         {
-            if (String.IsNullOrEmpty(logFileSavePath))
+            if (string.IsNullOrEmpty(logFileSavePath))
             {
                 throw new ArgumentNullException(nameof(logFileSavePath));
             }
@@ -82,13 +80,19 @@ namespace AElf.Automation.Common.Helpers
                 {
                     Directory.CreateDirectory(logDirPath);
                 }
-                _logFilePath = logFileSavePath;
-                if (!File.Exists(_logFilePath))
+                lock (InitObject)
                 {
-                    File.Create(_logFilePath).Close();
+                    _logFilePath = logFileSavePath;
+                    if (!File.Exists(_logFilePath))
+                    {
+                        File.Create(_logFilePath).Close();
+                    }
                 }
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
-                _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
+                lock (WriteObject)
+                {
+                    _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
+                }
                 WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
@@ -97,49 +101,52 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        public void WriteInfo(String logText, params object[] arg)
+        public void WriteInfo(string logText, params object[] arg)
         {
-            Write(LogType.INFO, logText, arg);
+            Write(LogType.Info, logText, arg);
         }
 
-        public void WriteWarn(String logText, params object[] arg)
+        public void WriteWarn(string logText, params object[] arg)
         {
-            Write(LogType.WARNING, logText, arg);
+            Write(LogType.Warning, logText, arg);
         }
 
-        public void WriteError(String logText, params object[] arg)
+        public void WriteError(string logText, params object[] arg)
         {
-            Write(LogType.ERROR, logText, arg);
+            Write(LogType.Error, logText, arg);
         }
 
-        public void Write(LogType logType, String logText, params object[] arg)
+        public void Write(LogType logType, string logText, params object[] arg)
         {
             if (logText == string.Empty)
                 return;
 
-            string timeStamp = "yyyy-MM-dd HH:mm:ss";
-            lock (writeLogHelper)
+            const string timeStamp = "yyyy-MM-dd HH:mm:ss.fff";
+            lock (WriteObject)
             {
-                if (String.IsNullOrEmpty(_logFilePath))
+                if (string.IsNullOrEmpty(_logFilePath))
                 {
                     throw new Exception("Please initial log helper first.");
                 }
                 try
                 {
-                    String text;
-                    String content = arg?.Length>0 ? String.Format(logText, arg) : logText;
+                    string text;
+                    var content = arg?.Length>0 ? string.Format(logText, arg) : logText;
                     switch (logType)
                     {
-                        case LogType.INFO:
+                        case LogType.Info:
                             text = "[" + DateTime.Now.ToString(timeStamp) + " - Info]: " + content;
+                            text.WriteSuccessLine();
                             break;
 
-                        case LogType.WARNING:
+                        case LogType.Warning:
                             text = "[" + DateTime.Now.ToString(timeStamp) + " - Warn]: " + content;
+                            text.WriteWarningLine();
                             break;
 
-                        case LogType.ERROR:
+                        case LogType.Error:
                             text = "[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + content;
+                            text.WriteErrorLine();
                             break;
 
                         default:
@@ -149,7 +156,7 @@ namespace AElf.Automation.Common.Helpers
                     _streamWriter.WriteLine(text);
                     _streamWriter.Flush();
 
-                    Console.WriteLine(text);
+                    //Console.WriteLine(text);
                 }
                 catch (Exception exception)
                 {
@@ -160,10 +167,10 @@ namespace AElf.Automation.Common.Helpers
 
         public void WriteException(Exception exception)
         {
-            string timeStamp = "yyyy-MM-dd HH:mm:ss";
-            lock (writeLogHelper)
+            const string timeStamp = "yyyy-MM-dd HH:mm:ss.fff";
+            lock (WriteObject)
             {
-                if (String.IsNullOrEmpty(_logFilePath))
+                if (string.IsNullOrEmpty(_logFilePath))
                 {
                     throw new Exception("Please initial log helper first.");
                 }
@@ -182,14 +189,13 @@ namespace AElf.Automation.Common.Helpers
 
         public static ILogHelper GetLogHelper()
         {
-            if (_logger == null)
+            if (_logger != null) return _logger;
+            lock (InitObject)
             {
-                lock (initLogHelper)
+                if (_logger == null)
                 {
-                    if (_logger == null)
-                    {
-                        _logger = new LogHelper();
-                    }
+                    // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
+                    _logger = new LogHelper();
                 }
             }
             return _logger;

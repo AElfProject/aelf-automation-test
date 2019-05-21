@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Election;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -35,6 +36,17 @@ namespace AElf.Automation.Common.Contracts
         public ElectionContract(IApiHelper apiHelper, string callAddress)
             :base(apiHelper, "AElf.Contracts.Election", callAddress)
         {
+        }
+        
+        public CandidateInformation GetCandidateInformation(string account)
+        {
+            var result =
+                CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
+                    new StringInput
+                    {
+                        Value = ApiHelper.GetPublicKeyFromAddress(account)
+                    });
+            return result;
         }
     }
 }

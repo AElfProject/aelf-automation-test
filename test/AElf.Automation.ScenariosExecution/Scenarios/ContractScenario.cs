@@ -83,6 +83,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 Thread.Sleep(10 * 1000);
             }
+            Logger.WriteInfo("Test contract old methods executed successful.");
         }
 
         public void UpdateTestContractOwner()
@@ -114,13 +115,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
             
             Genesis.SetAccount(owner.GetFormatted());
-            if (IsUpdateContract)
+            if (!IsUpdateContract)
             {
                 //update to update contract
                 var result = Genesis.UpdateContract(owner.GetFormatted(), FunctionContract.ContractAddress, BasicUpdateContract.ContractFileName);
                 if (!result) return;
                 IsUpdateContract = true;
                 UpdateContract = new BasicUpdateContract(Services.ApiHelper, owner.GetFormatted(), FunctionContract.ContractAddress);
+                Logger.WriteInfo("Update contract to UpdateContract successful.");
             }
             else
             {
@@ -129,6 +131,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (!result) return;
                 IsUpdateContract = false;
                 FunctionContract = new BasicFunctionContract(Services.ApiHelper, owner.GetFormatted(), UpdateContract.ContractAddress);
+                Logger.WriteInfo("Update contract to BasicContract successful.");
             }
         }
 
