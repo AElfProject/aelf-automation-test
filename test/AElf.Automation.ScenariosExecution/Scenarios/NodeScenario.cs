@@ -54,8 +54,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 if (publicKeysList.Contains(fullNode.PublicKey))
                     continue;
-                Election.SetAccount(fullNode.Account, fullNode.Password);
-                Election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
+                election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
                 count++;
                 if(count==2)
                     break;
@@ -80,8 +80,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 if (!candidatesKeysList.Contains(fullNode.PublicKey) || minerKeysList.Contains(fullNode.PublicKey))
                     continue;
-                Election.SetAccount(fullNode.Account, fullNode.Password);
-                Election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
+                var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
+                election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 break;
             }
             
@@ -155,13 +155,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var treasuryBalance = Token.GetUserBalance(treasuryAddress.GetFormatted());
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
-                                 $"Treasury balance is {treasuryBalance}\r\n";
+                                 $"\r\nTreasury balance is {treasuryBalance}";
             foreach (var (key, value) in ProfitItemIds)
             {
                 if(key == ProfitType.Treasury) continue;
                 var address = Profit.GetProfitItemVirtualAddress(value, termNumber-1);
                 var balance = Token.GetUserBalance(address.GetFormatted());
-                balanceMessage += $"{key} balance is {balance}\r\n";
+                balanceMessage += $"\r\n{key} balance is {balance}";
             }
             Logger.WriteInfo(balanceMessage);
         }
@@ -191,8 +191,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profitAmount = Profit.GetProfitAmount(account, profitId);
             Logger.WriteInfo($"ProfitAmount: user {account} profit amount is {profitAmount}");
 
-            Profit.SetAccount(account);
-            Profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            //Profit.SetAccount(account);
+            var profit = Profit.GetNewTester(account);
+            profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
             {
                 ProfitId = profitId
             });

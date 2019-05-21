@@ -8,6 +8,8 @@ namespace AElf.Automation.ScenariosExecution
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
+        
+        public FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
@@ -41,6 +43,10 @@ namespace AElf.Automation.ScenariosExecution
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
 
+            //FeeReceiver contract
+            var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
+            FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+            
             //TokenConverter contract
             //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
             //TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress, converterAddress.GetFormatted());

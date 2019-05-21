@@ -38,7 +38,7 @@ namespace AElf.Automation.Common.Contracts
     }
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        private Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
+        private readonly Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
         private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
             base(apiHelper, genesisAddress)
         {
@@ -71,14 +71,8 @@ namespace AElf.Automation.Common.Contracts
                 Address = Address.Parse(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            if (txResult.InfoMsg is TransactionResultDto txDto)
-            {
-                if (txDto.Status == "Mined")
-                    return true;
-                Logger.WriteError(txDto.Error);
-            }
-
-            return false;
+            if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
+            return txDto.Status == "Mined";
         }
         
         public Address GetContractAddressByName(NameProvider name)

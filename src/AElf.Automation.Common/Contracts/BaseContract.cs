@@ -52,6 +52,33 @@ namespace AElf.Automation.Common.Contracts
             TxResultList = new ConcurrentQueue<string>();
         }
 
+        private BaseContract()
+        {
+        }
+
+        public BaseContract<T> GetNewTester(string account, string password = "123")
+        {
+            return GetNewTester(ApiHelper, account, password);
+        }
+
+        public BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
+        {
+            UnlockAccount(account);
+            
+            var contract = new BaseContract<T>
+            {
+                ApiHelper = apiHelper,
+                ContractAddress = ContractAddress,
+                
+                CallAccount = Address.Parse(account),
+                CallAddress = account,
+                
+                TxResultList = new ConcurrentQueue<string>()
+            };
+
+            return contract;
+        }
+
         /// <summary>
         /// 执行交易，返回TransactionId，不等待执行结果
         /// </summary>
@@ -158,8 +185,9 @@ namespace AElf.Automation.Common.Contracts
 
                     if (transactionResult?.Status == "Failed")
                     {
-                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
-                        Logger.WriteError(transactionResult?.Error);
+                        var message = $"Transaction {txId} status: {transactionResult?.Status}";
+                        message += $"\r\t{transactionResult?.Error}";
+                        Logger.WriteError(message);
                         return ci;
                     }
                 }
@@ -218,8 +246,9 @@ namespace AElf.Automation.Common.Contracts
                         continue;
                     if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
                     {
-                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
-                        Logger.WriteError(transactionResult.Error);
+                        var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
+                        message += $"{transactionResult.Error}";
+                        Logger.WriteError(message);
                         continue;
                     }
 

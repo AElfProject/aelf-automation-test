@@ -32,7 +32,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 TransferAction();
             
-                ApproveTransferAction(); 
+                ApproveTransferAction();
+                
+                Thread.Sleep(2000);
             }            
         }
 
@@ -41,8 +43,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetTransferPair(out var from, out var to, out var amount);
             try
             {
-                Token.SetAccount(from);
-                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                //Token.SetAccount(from);
+                var token = Token.GetNewTester(from);
+                token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
                     Symbol = "ELF",
@@ -63,8 +66,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetTransferPair(out var from, out var to, out var amount);
             try
             {
-                Token.SetAccount(from);
-                var txResult1 = Token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
+                //Token.SetAccount(from);
+                var token = Token.GetNewTester(from);
+                var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                 {
                     Amount = amount,
                     Spender = Address.Parse(to),
@@ -90,8 +94,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (approveResult - amount < 0)
                     return;
                 
-                Token.SetAccount(to);
-                var txResult2 = Token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
+                //Token.SetAccount(to);
+                token = Token.GetNewTester(to);
+                var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {
                     Amount = amount,
                     From = Address.Parse(from),
@@ -102,10 +107,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
                 if (txDto2.Status == "Mined")
                     Logger.WriteInfo($"TransferFrom success - from {@from} to {to} with amount {amount}.");
-                else
-                {
-                    Logger.WriteError(txDto2.Error);
-                }
             }
             catch (Exception e)
             {
@@ -125,38 +126,42 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (!isAnnounced && tokenBalance == 0)
             {
                 var bp = BpNodes.First();
-                Token.SetAccount(bp.Account, bp.Password);
+                //Token.SetAccount(bp.Account, bp.Password);
+                var token = Token.GetNewTester(bp.Account, bp.Password);
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
-                        Amount = 100_000,
+                        Amount = 200_000,
                         To = Address.Parse(fullAccount),
-                        Memo = "Transfer for announcement."
+                        Memo = "Transfer for announcement event"
                     });
                 }
+                token.CheckTransactionResultList();
             }
 
             //prepare other user token
             var otherBp = BpNodes.Last();
-            Token.SetAccount(otherBp.Account, otherBp.Password);
+            //Token.SetAccount(otherBp.Account, otherBp.Password);
+            var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
+            Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
             foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                    token1.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
-                        Amount = 10_000 - balance,
+                        Amount = 500_000 - balance,
                         To = Address.Parse(user),
                         Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
             }
 
-            Token.CheckTransactionResultList();
+            token1.CheckTransactionResultList();
         }
 
         private void GetTransferPair(out string accountFrom, out string accountTo, out long amount)

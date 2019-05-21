@@ -6,7 +6,6 @@ using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
-using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -20,7 +19,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public List<string> Testers { get; }
 
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
-        private List<string> candidates;
+        private List<string> _candidates;
 
         public UserScenario()
         {
@@ -49,7 +48,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void UserVotesAction()
         {
             GetCandidates();
-            if (candidates.Count < 2)
+            if (_candidates.Count < 2)
                 return;
             
             var times = GenerateRandomNumber(10, 20);
@@ -89,8 +88,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo($"ProfitAmount: user {account} profit amount is {profitAmount}");
             
             var beforeBalance = Token.GetUserBalance(account);
-            Profit.SetAccount(account);
-            Profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            //Profit.SetAccount(account);
+            var profit = Profit.GetNewTester(account);
+            profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
             {
                 ProfitId = profitId
             });
@@ -101,11 +101,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void UserVote(string account)
         {
-            var id = GenerateRandomNumber(0, candidates.Count - 1);
+            var id = GenerateRandomNumber(0, _candidates.Count - 1);
             var lockTime = GenerateRandomNumber(90, 1080);
             var amount = GenerateRandomNumber(1, 5) * 10;
 
-            UserVote(account, candidates[id], lockTime, amount);
+            UserVote(account, _candidates[id], lockTime, amount);
         }
         
         private void UserVote(string account, string candidatePublicKey, int lockTime, long amount)
@@ -114,8 +114,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (beforeBalance < amount)
                 return;
             
-            Election.SetAccount(account);
-            Election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
+            //Election.SetAccount(account);
+            var election = Election.GetNewTester(account);
+            election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
                 CandidatePublicKey = candidatePublicKey,
                 Amount = amount,
@@ -130,7 +131,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void GetCandidates()
         {
             var candidatePublicKeys = Election.CallViewMethod<Candidates>(ElectionMethod.GetCandidates, new Empty());
-            candidates = candidatePublicKeys.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            _candidates = candidatePublicKeys.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
         }
     }
 }
