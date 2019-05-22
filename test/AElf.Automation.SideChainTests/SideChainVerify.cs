@@ -4,6 +4,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Types;
 using Google.Protobuf;
 using Shouldly;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

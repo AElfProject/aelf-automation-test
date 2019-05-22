@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AElf.Cryptography;
 using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

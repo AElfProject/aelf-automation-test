@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Acs0;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 
 namespace AElf.Automation.Common.Contracts

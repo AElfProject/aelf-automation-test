@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Types;
 
 namespace AElf.Automation.SideChain.VerificationTest
 {

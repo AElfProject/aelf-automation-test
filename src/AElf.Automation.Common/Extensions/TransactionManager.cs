@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using AElf.Cryptography;
-using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 
 namespace AElf.Automation.Common.Extensions

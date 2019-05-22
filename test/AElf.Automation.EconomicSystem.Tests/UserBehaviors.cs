@@ -7,6 +7,7 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 

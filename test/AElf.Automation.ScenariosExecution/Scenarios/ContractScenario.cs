@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.TestContract;
+using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Acs0;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.WebApi;
 using AElf.Cryptography;
 using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
@@ -16,11 +18,12 @@ namespace AElf.Automation.Common.Helpers
         private readonly string _baseUrl;
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
-        private AccountManager _accountManager;
-        private TransactionManager _transactionManager;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private string _genesisAddress;
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
+        
+        public AccountManager AccountManager { get; set; }
+        public TransactionManager TransactionManager { get; set; }
         
         #endregion
 
@@ -110,25 +113,25 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo NewAccount(CommandInfo ci)
         {
-            if(_accountManager == null)
-                _accountManager = new AccountManager(_keyStore, "AELF");
-            ci = _accountManager.NewAccount(ci.Parameter);
+            if(AccountManager == null)
+                AccountManager = new AccountManager(_keyStore, "AELF");
+            ci = AccountManager.NewAccount(ci.Parameter);
             return ci;
         }
 
         public CommandInfo ListAccounts()
         {
-            if(_accountManager == null)
-                _accountManager = new AccountManager(_keyStore, "AELF");
-            var ci = _accountManager.ListAccount();
+            if(AccountManager == null)
+                AccountManager = new AccountManager(_keyStore, "AELF");
+            var ci = AccountManager.ListAccount();
             return ci;
         }
 
         public CommandInfo UnlockAccount(CommandInfo ci)
         {
-            if(_accountManager == null)
-                _accountManager = new AccountManager(_keyStore, "AELF");
-            ci = _accountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1],
+            if(AccountManager == null)
+                AccountManager = new AccountManager(_keyStore, "AELF");
+            ci = AccountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1],
                 ci.Parameter.Split(" ")?[2]);
             return ci;
         }
@@ -144,8 +147,8 @@ namespace AElf.Automation.Common.Helpers
             _genesisAddress = statusDto.GenesisContractAddress;
             
             _chainId = statusDto.ChainId;
-            _transactionManager = new TransactionManager(_keyStore, _chainId);
-            _accountManager = new AccountManager(_keyStore, _chainId);
+            TransactionManager = new TransactionManager(_keyStore, _chainId);
+            AccountManager = new AccountManager(_keyStore, _chainId);
             
             ci.InfoMsg = statusDto;
             ci.Result = true;
@@ -168,17 +171,17 @@ namespace AElf.Automation.Common.Helpers
                 Code = ByteString.CopyFrom(codeArray)
             };
 
-            _transactionManager.SetCmdInfo(ci);
-            var tx = _transactionManager.CreateTransaction(from, _genesisAddress,
+            TransactionManager.SetCmdInfo(ci);
+            var tx = TransactionManager.CreateTransaction(from, _genesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl,_chainId);
 
             if (tx == null)
                 return;
-            tx = _transactionManager.SignTransaction(tx);
+            tx = TransactionManager.SignTransaction(tx);
             if (tx == null)
                 return;
-            var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             
             var transactionOutput = ApiService.BroadcastTransaction(rawTxString).Result;
 
@@ -200,14 +203,14 @@ namespace AElf.Automation.Common.Helpers
                 j = JObject.Parse(ci.Parameter);
             }
 
-            var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
+            var tr = TransactionManager.ConvertFromJson(j) ?? TransactionManager.ConvertFromCommandInfo(ci);
 
             var parameter = ci.ParameterInput.ToByteString();
             tr.Params = parameter == null ? ByteString.Empty : parameter;
             tr = tr.AddBlockReference(_baseUrl, _chainId);
-            _transactionManager.SignTransaction(tr);
+            TransactionManager.SignTransaction(tr);
 
-            var rawTxString = _transactionManager.ConvertTransactionRawTxString(tr);
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tr);
 
             ci.InfoMsg = ApiService.BroadcastTransaction(rawTxString).Result;
             ci.Result = true;
@@ -227,7 +230,7 @@ namespace AElf.Automation.Common.Helpers
             JObject j = null;
             if (ci.Parameter != null)
                 j = JObject.Parse(ci.Parameter);
-            var tr = _transactionManager.ConvertFromJson(j) ?? _transactionManager.ConvertFromCommandInfo(ci);
+            var tr = TransactionManager.ConvertFromJson(j) ?? TransactionManager.ConvertFromCommandInfo(ci);
 
             if (tr.MethodName == null)
             {
@@ -239,8 +242,8 @@ namespace AElf.Automation.Common.Helpers
             tr.Params = parameter == null ? ByteString.Empty : parameter;
             tr = tr.AddBlockReference(_baseUrl,_chainId);
 
-            _transactionManager.SignTransaction(tr);
-            var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
+            TransactionManager.SignTransaction(tr);
+            var rawTx = TransactionManager.ConvertTransactionRawTx(tr);
 
             return rawTx["rawTransaction"].ToString();
         }
@@ -263,8 +266,8 @@ namespace AElf.Automation.Common.Helpers
             tr.Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString();
             tr = tr.AddBlockReference(_baseUrl,_chainId);
 
-            _transactionManager.SignTransaction(tr);
-            var rawTx = _transactionManager.ConvertTransactionRawTx(tr);
+            TransactionManager.SignTransaction(tr);
+            var rawTx = TransactionManager.ConvertTransactionRawTx(tr);
 
             return rawTx["rawTransaction"].ToString();
         }
@@ -328,7 +331,7 @@ namespace AElf.Automation.Common.Helpers
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
-            transaction = _transactionManager.SignTransaction(transaction);
+            transaction = TransactionManager.SignTransaction(transaction);
 
             var resp = CallTransaction(transaction);
 
@@ -345,7 +348,7 @@ namespace AElf.Automation.Common.Helpers
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
-            transaction = _transactionManager.SignTransaction(transaction);
+            transaction = TransactionManager.SignTransaction(transaction);
 
             var resp = CallTransaction(transaction);
 
@@ -370,10 +373,10 @@ namespace AElf.Automation.Common.Helpers
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
         {
-            if(_accountManager == null)
-                _accountManager = new AccountManager(_keyStore, "AELF");
-            _accountManager.UnlockAccount(account, password, "notimeout");
-            return _accountManager.GetPublicKey(account);
+            if(AccountManager == null)
+                AccountManager = new AccountManager(_keyStore, "AELF");
+            AccountManager.UnlockAccount(account, password, "notimeout");
+            return AccountManager.GetPublicKey(account);
         }
 
         //Net Api
@@ -405,7 +408,7 @@ namespace AElf.Automation.Common.Helpers
 
         private string CallTransaction(Transaction tx)
         {
-            var rawTxString = _transactionManager.ConvertTransactionRawTxString(tx);
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             return ApiService.Call(rawTxString).Result;
         }
 

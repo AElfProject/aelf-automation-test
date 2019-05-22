@@ -16,7 +16,8 @@ ProjectSection(SolutionItems) = preProject
 	scripts\nodes-scenario-test.sh = scripts\nodes-scenario-test.sh
 	scripts\sh-record.sh = scripts\sh-record.sh
 	scripts\sh-replay.sh = scripts\sh-replay.sh
-	scripts\test-build.sh = scripts\test-build.sh
+	scripts\generate-message.bat = scripts\generate-message.bat
+	scripts\generate-message.sh = scripts\generate-message.sh
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{35D838ED-B1AC-4F0F-8657-24F2B52F59EA}"
@@ -62,6 +63,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainTests", "test\AElf.Automation.SideChainTests\AElf.Automation.SideChainTests.csproj", "{8CF84008-15DB-4A0C-94E7-CB9D6070E7AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChain.Verification.Test", "test\AElf.Automation.SideChain.Verification.Test\AElf.Automation.SideChain.Verification.Test.csproj", "{936CBD3F-C909-4B51-B383-60BF68A0A51E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Contracts.Deployer", "src\AElf\src\AElf.Contracts.Deployer\AElf.Contracts.Deployer.csproj", "{6CC54660-56E4-43DB-92AF-584717BDB810}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,6 +148,10 @@ Global
 		{936CBD3F-C909-4B51-B383-60BF68A0A51E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{936CBD3F-C909-4B51-B383-60BF68A0A51E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{936CBD3F-C909-4B51-B383-60BF68A0A51E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CC54660-56E4-43DB-92AF-584717BDB810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CC54660-56E4-43DB-92AF-584717BDB810}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CC54660-56E4-43DB-92AF-584717BDB810}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CC54660-56E4-43DB-92AF-584717BDB810}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +177,7 @@ Global
 		{1BD984FB-1BC1-4C28-9DF2-B92747D9C259} = {EEBB8695-7962-4C3A-8ABA-EA1BD612D289}
 		{0B42275E-EF7D-4BD3-AEC0-B4F1A1BC5657} = {EEBB8695-7962-4C3A-8ABA-EA1BD612D289}
 		{936CBD3F-C909-4B51-B383-60BF68A0A51E} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{6CC54660-56E4-43DB-92AF-584717BDB810} = {EEBB8695-7962-4C3A-8ABA-EA1BD612D289}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

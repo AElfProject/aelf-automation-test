@@ -3,6 +3,7 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 

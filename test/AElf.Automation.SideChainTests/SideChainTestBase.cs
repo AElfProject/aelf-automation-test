@@ -8,6 +8,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
+using AElf.Types;
 
 namespace AElf.Automation.SideChainTests
 {    
