@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
+using AElf.Types;
 
 namespace AElf.Automation.Common.Extensions
 {

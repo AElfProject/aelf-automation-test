@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Acs0;
 using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.WebApi;
 using AElf.Cryptography;
 using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 

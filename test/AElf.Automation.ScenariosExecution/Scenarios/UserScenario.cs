@@ -90,7 +90,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (profitAmount == 0)
                 return;
             
-            Logger.WriteInfo($"ProfitAmount: user {account} profit amount is {profitAmount}");
+            Logger.WriteInfo($"Profit amount: user {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput

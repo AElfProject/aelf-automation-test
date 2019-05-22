@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Profit;
+using AElf.Types;
 
 namespace AElf.Automation.Common.Contracts
 {

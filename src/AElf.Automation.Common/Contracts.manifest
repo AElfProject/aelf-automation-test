@@ -1,0 +1,6 @@
+AElf.Contracts.MultiToken, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AElf.Contracts.TokenConverter, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AElf.Contracts.Consensus.AEDPoS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AElf.Contracts.Profit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AElf.Contracts.Election, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+AElf.Contracts.Vote, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
