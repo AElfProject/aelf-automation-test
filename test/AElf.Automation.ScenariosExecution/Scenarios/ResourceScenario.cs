@@ -5,6 +5,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.TokenConverter;
+using AElf.Types;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {

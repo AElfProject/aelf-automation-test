@@ -17,56 +17,50 @@
     <ProjectReference Include="..\AElf\src\AElf.Sdk.CSharp\AElf.Sdk.CSharp.csproj" />
     <ProjectReference Include="..\AElf\src\AElf.Types\AElf.Types.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Contract Include="..\AElf\src\AElf.Contracts.MultiToken\AElf.Contracts.MultiToken.csproj" />
-    <Contract Include="..\AElf\src\AElf.Contracts.TokenConverter\AElf.Contracts.TokenConverter.csproj" />
-    <Contract Include="..\AElf\src\AElf.Contracts.Consensus.AEDPoS\AElf.Contracts.Consensus.AEDPoS.csproj" />
-    <Contract Include="..\AElf\src\AElf.Contracts.Profit\AElf.Contracts.Profit.csproj" />
-    <Contract Include="..\AElf\src\AElf.Contracts.Election\AElf.Contracts.Election.csproj" />
-    <Contract Include="..\AElf\src\AElf.Contracts.Vote\AElf.Contracts.Vote.csproj" />
-  </ItemGroup>
   
   <ItemGroup>
-    <ContractStub Include="..\AElf\protobuf\acs0.proto">
+    <ProtoMessage Include="..\AElf\protobuf\acs0.proto">
       <Link>Protobuf/Proto/stub/acs0.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\acs1.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\acs1.proto">
       <Link>Protobuf\Proto\stub\acs1.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\acs3.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\acs3.proto">
       <Link>Protobuf\Proto\stub\acs3.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\test_basic_function_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\test_basic_function_contract.proto">
       <Link>Protobuf/Proto/stub/test_basic_function_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\test_basic_update_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\test_basic_update_contract.proto">
       <Link>Protobuf/Proto/stub/test_basic_update_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\token_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\token_contract.proto">
       <Link>Protobuf\Proto\stub\token_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\basic_contract_zero.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\election_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\election_contract.proto">
       <Link>Protobuf\Proto\stub\election_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\profit_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\profit_contract.proto">
       <Link>Protobuf\Proto\stub\profit_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\aedpos_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\aedpos_contract.proto">
       <Link>Protobuf\Proto\stub\aedpos_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\parliament_auth_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\parliament_auth_contract.proto">
       <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
-    </ContractStub>
-    <ContractStub Include="..\AElf\protobuf\vote_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\vote_contract.proto">
       <Link>Protobuf\Proto\stub\vote_contract.proto</Link>
-    </ContractStub>
-    <Content Include="..\AElf\protobuf\token_converter_contract.proto">
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\token_converter_contract.proto">
       <Link>Protobuf\Proto\stub\token_converter_contract.protot</Link>
-    </Content>
+    </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\cross_chain_contract.proto">
+      <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
+    </ProtoMessage>
   </ItemGroup>
 
   <ItemGroup>
@@ -75,8 +69,5 @@
     <PackageReference Include="protobuf-net" Version="2.4.0" />
     <PackageReference Include="Shouldly" Version="3.0.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Protobuf\Generated" />
-  </ItemGroup>
+  
 </Project>

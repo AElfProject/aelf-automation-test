@@ -1,6 +1,7 @@
 using System;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Types;
 using Xunit;
 
 namespace AElf.Automation.SideChainTests

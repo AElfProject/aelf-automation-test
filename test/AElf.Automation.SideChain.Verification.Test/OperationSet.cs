@@ -1,20 +1,20 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
+using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MerklePath = AElf.Kernel.MerklePath;
 
 namespace AElf.Automation.SideChain.Verification.Test
 {
@@ -833,10 +833,10 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
 
             var txIdsWithStatus = new List<Hash>();
-            for(int num =0; num<transactionIds.Count;num++)
+            for(var num =0; num<transactionIds.Count;num++)
             {
                 var txId = Hash.LoadHex(transactionIds[num]);
-                string txRes = transactionStatus[num];
+                var txRes = transactionStatus[num];
                 var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);

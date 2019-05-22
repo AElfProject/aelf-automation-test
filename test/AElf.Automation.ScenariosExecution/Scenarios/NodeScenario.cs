@@ -7,6 +7,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
