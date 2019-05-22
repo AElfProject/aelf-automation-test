@@ -275,3 +275,4 @@ RpcResult_Thread*
 
 #Protobuf generated code
 *.g.cs
+*.c.cs
