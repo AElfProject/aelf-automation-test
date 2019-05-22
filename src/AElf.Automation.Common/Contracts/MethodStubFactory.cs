@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Cryptography;
@@ -10,26 +12,30 @@ using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.DependencyInjection;
 
 namespace AElf.Automation.Common.Contracts
 {
     public class MethodStubFactory : IMethodStubFactory, ITransientDependency
     {
-        public ECKeyPair KeyPair { get; set; } = CryptoHelpers.GenerateKeyPair();
-
         public Address ContractAddress { get; set; }
-
-        public Address Sender => Address.FromPublicKey(KeyPair.PublicKey);
+        public string SenderAddress { get; set; }
+        public Address Sender { get; set; }
+        public WebApiHelper ApiHelper { get; }
+        public WebApiService ApiService { get; }
         
-        public string BaseUrl { get; set; }
-        
-        public WebApiService ApiService { get; set; }
+        private readonly string _baseUrl;
 
-        public MethodStubFactory(string baseUrl)
+        public MethodStubFactory(string baseUrl, string keyPath = "")
         {
-            BaseUrl = baseUrl;
-            ApiService = new WebApiService(BaseUrl);
+            var keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
+            
+            _baseUrl = baseUrl;
+            ApiHelper = new WebApiHelper(baseUrl, keyPath);
+            ApiService = ApiHelper.ApiService;
+            
+            ApiHelper.GetChainInformation(new CommandInfo(ApiMethods.GetChainInformation));
         }
         
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -45,18 +51,33 @@ namespace AElf.Automation.Common.Contracts
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
                 };
-                transaction.AddBlockReference(BaseUrl);
+                transaction.AddBlockReference(_baseUrl);
+                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
                 
-                var signature = CryptoHelpers.SignWithPrivateKey(
-                    KeyPair.PrivateKey, transaction.GetHash().Value.ToByteArray());
-                transaction.Signature = ByteString.CopyFrom(signature);
-                await ApiService.BroadcastTransaction(transaction.ToByteArray().ToHex());
-                var transactionResult = await ApiService.GetTransactionResult(transaction.GetHash().ToHex());
+                var transactionOutput =  await ApiService.BroadcastTransaction(transaction.ToByteArray().ToHex());
+                
+                var checkTimes = 0;
+                TransactionResultDto transactionResult;
+                while (true)
+                {
+                    checkTimes++;
+                    transactionResult = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
+                    var status =
+                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status);
+                    if (status != TransactionResultStatus.Pending)
+                        break;
+                    
+                    if(checkTimes == 120)
+                        Assert.IsTrue(false, $"Transaction {transactionResult.TransactionId} in pending status more than one minutes.");
+                    Thread.Sleep(500);
+                }
+
                 return new ExecutionResult<TOutput>()
                 {
                     Transaction = transaction, 
                     TransactionResult = new TransactionResult
                     {
+                        TransactionId = Hash.LoadHex(transactionResult.TransactionId),
                         BlockHash = Hash.FromString(transactionResult.BlockHash),
                         BlockNumber = transactionResult.BlockNumber,
                         Logs = { 
@@ -68,10 +89,10 @@ namespace AElf.Automation.Common.Contracts
                             }).ToList()
                         },
                         Bloom = ByteString.CopyFromUtf8(transactionResult.Bloom),
-                        Error = transactionResult.Error,
+                        Error = transactionResult.Error ?? "",
                         Status = (TransactionResultStatus)Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status),
-                    },
-                    Output = method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(transactionResult.ReadableReturnValue))
+                        ReadableReturnValue = transactionResult.ReadableReturnValue
+                    }
                 };
             }
             
@@ -84,6 +105,8 @@ namespace AElf.Automation.Common.Contracts
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
+                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                
                 var returnValue = await ApiService.Call(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(returnValue));
             }

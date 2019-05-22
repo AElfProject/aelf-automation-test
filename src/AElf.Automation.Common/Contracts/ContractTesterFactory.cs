@@ -1,4 +1,7 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AElf.Automation.Common.Helpers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -8,28 +11,35 @@ namespace AElf.Automation.Common.Contracts
 {
     public interface IContractTesterFactory
     {
-        T Create<T>(Address contractAddress, ECKeyPair senderKey) where T : ContractStubBase, new();
+        T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true) where T : ContractStubBase, new();
     }
-
-    public class ContractTesterFactory
+    
+    public class ContractTesterFactory : IContractTesterFactory
     {
-        private readonly string BaseUrl;
+        private readonly string _baseUrl;
+        private readonly string _keyPath;
 
-        public ContractTesterFactory(string baseUrl)
+        public ContractTesterFactory(string baseUrl, string keyPath = "")
         {
-            BaseUrl = baseUrl;
+            _baseUrl = baseUrl;
+            _keyPath = keyPath;
         }
 
-        public  T Create<T>(Address contractAddress, ECKeyPair senderKey) where T : ContractStubBase, new()
+        public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true) where T : ContractStubBase, new()
         {
-            return new T()
+            var factory = new MethodStubFactory(_baseUrl, _keyPath)
             {
-                __factory = new MethodStubFactory(BaseUrl)
-                {
-                    ContractAddress = contractAddress,
-                    KeyPair = senderKey
-                }
+                SenderAddress = account,
+                Sender = Address.Parse(account),
+                ContractAddress = contractAddress
             };
+            var timeout = notimeout ? "notimeout" : "";
+            factory.ApiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{account} {password} {timeout}"
+            });
+            
+            return new T(){ __factory = factory };
         }
     }
 }

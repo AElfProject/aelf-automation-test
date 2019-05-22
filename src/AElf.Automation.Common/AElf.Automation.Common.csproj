@@ -34,9 +34,9 @@
     <ProtoMessage Include="..\AElf\protobuf\test_basic_update_contract.proto">
       <Link>Protobuf/Proto/stub/test_basic_update_contract.proto</Link>
     </ProtoMessage>
-    <ProtoMessage Include="..\AElf\protobuf\token_contract.proto">
+    <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
       <Link>Protobuf\Proto\stub\token_contract.proto</Link>
-    </ProtoMessage>
+    </ProtoContract>
     <ProtoMessage Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
     </ProtoMessage>

@@ -5,7 +5,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using AElf.Contracts.MultiToken.Messages;
+using AElf.Cryptography;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -17,35 +22,60 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public WebApiHelper CH { get; set; }
         public List<string> UserList { get; set; }
 
-        public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
-        public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
-        public string NoTokenAccount { get; } = "ELF_1sGf6rf4r8VvmgzH1x2YuVKTJBPGXnuau3xg9X5wU2XXCk";
-
-        private TokenContract tokenService { get; set; }
-
-        private static string RpcUrl { get; } = "http://192.168.197.34:8000/chain";
+        public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
+        public string TestAccount { get; } = "2cHBbC8CNriMQBJiNAm3bfiuoBEb8uS39avkLNdZa2hhBsARdr";
+        private static string RpcUrl { get; } = "http://192.168.197.13:8100";
 
         [TestInitialize]
         public void Initialize()
         {
             #region Basic Preparation
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
-
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.GetChainInformation(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Init contract service
-            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
-
             #endregion
         }
+
+        [TestMethod]
+        public async Task NewStubTest_Call()
+        {
+            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+            var tester = new ContractTesterFactory(RpcUrl, keyPath);
+            var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
+            var tokenInfo = await tokenStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
+            {
+                Symbol = "ELF"
+            });
+            tokenInfo.ShouldNotBeNull();
+        }
+
+        [TestMethod]
+        public async Task NewStubTest_Execution()
+        {
+            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+            var tester = new ContractTesterFactory(RpcUrl, keyPath);
+            var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
+            var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 100,
+                Symbol = "ELF",
+                To = Address.Parse(TestAccount),
+                Memo = "Test transfer with new sdk"
+            });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //query balance
+            var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = Address.Parse(TestAccount),
+                Symbol = "ELF"
+            });
+            result.Balance.ShouldBeGreaterThanOrEqualTo(100);
+        }
+        
         /*
         [TestMethod]
         public void QueryTokenFeeAddress()
