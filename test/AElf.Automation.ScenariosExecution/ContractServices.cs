@@ -46,7 +46,15 @@ namespace AElf.Automation.ScenariosExecution
 
             //FeeReceiver contract
             var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
-            FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+            if (feeReceiverAddress == new Address())
+            {
+                FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
+                FeeReceiverService.InitializeFeeReceiver(tokenAddress, CallAccount);
+            }
+            else
+            {
+                FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+            }
             
             //TokenConverter contract
             //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);

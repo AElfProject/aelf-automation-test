@@ -18,6 +18,10 @@ ProjectSection(SolutionItems) = preProject
 	scripts\sh-replay.sh = scripts\sh-replay.sh
 	scripts\generate-message.bat = scripts\generate-message.bat
 	scripts\generate-message.sh = scripts\generate-message.sh
+	scripts\test-transaction.sh = scripts\test-transaction.sh
+	scripts\download_binary.bat = scripts\download_binary.bat
+	scripts\download_binary.sh = scripts\download_binary.sh
+	scripts\generate-stub.bat = scripts\generate-stub.bat
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{35D838ED-B1AC-4F0F-8657-24F2B52F59EA}"

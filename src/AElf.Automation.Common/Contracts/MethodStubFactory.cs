@@ -29,9 +29,8 @@ namespace AElf.Automation.Common.Contracts
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {
-            var keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
-            
             _baseUrl = baseUrl;
+            
             ApiHelper = new WebApiHelper(baseUrl, keyPath);
             ApiService = ApiHelper.ApiService;
             
