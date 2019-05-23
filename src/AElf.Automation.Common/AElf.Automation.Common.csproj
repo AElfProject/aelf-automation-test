@@ -37,6 +37,9 @@
     <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
       <Link>Protobuf\Proto\stub\token_contract.proto</Link>
     </ProtoContract>
+    <ProtoContract Include="..\AElf\protobuf\fee_receiver_contract.proto">
+      <Link>Protobuf\Proto\stub\fee_receiver_contract.proto</Link>
+    </ProtoContract>
     <ProtoMessage Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
     </ProtoMessage>
