@@ -276,3 +276,4 @@ RpcResult_Thread*
 #Protobuf generated code
 *.g.cs
 *.c.cs
+contract_csharp_plugin
