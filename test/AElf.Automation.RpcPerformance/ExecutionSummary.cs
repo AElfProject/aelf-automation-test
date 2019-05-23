@@ -63,11 +63,14 @@ namespace AElf.Automation.RpcPerformance
             var totalTransactions = _blockMap.Values.Sum(o=>o.Body.TransactionsCount);
             var averageTx = totalTransactions / Phase;
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
+            var timePerTx = totalTransactions / GetTotalBlockSeconds(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
             _logger.WriteInfo($"Summary Information: {Phase} blocks from height " +
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
-                              $"{totalTransactions} transactions, average per block is {averageTx} tx during " +
-                              $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. Block generated per {timePerBlock} milliseconds.");
+                              $"{totalTransactions} transactions. Average per block are {averageTx} txs during " +
+                              $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +
+                              $"Average each block generated in {timePerBlock} milliseconds. " +
+                              $"{timePerTx} txs executed per second.");
             _logger.WriteInfo("-----------------------------------------------------------------------------------------------------------------------------------------------------");
         }
 
@@ -90,6 +93,16 @@ namespace AElf.Automation.RpcPerformance
             var milliseconds = timeSpan.Milliseconds;
             
             return (hours*60*60*1000 + minutes*60*1000 + seconds*1000 + milliseconds) / Phase;
+        }
+        
+        private static int GetTotalBlockSeconds(BlockDto startBlock, BlockDto endBlockDto)
+        {
+            var timeSpan = new TimeSpan(endBlockDto.Header.Time.Ticks - startBlock.Header.Time.Ticks);
+            var hours = timeSpan.Hours;
+            var minutes = timeSpan.Minutes;
+            var seconds = timeSpan.Seconds;
+            
+            return hours*60*60 + minutes*60 + seconds;
         }
     }
 }
