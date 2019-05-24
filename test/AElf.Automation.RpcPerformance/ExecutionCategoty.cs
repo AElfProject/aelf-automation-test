@@ -566,7 +566,7 @@ namespace AElf.Automation.RpcPerformance
                 checkTimes++;
                 Thread.Sleep(100);
                 if(checkTimes % 100 == 0)
-                    _logger.WriteWarn($"Current block height {currentHeight}, not changed in {checkTimes/2} seconds.");
+                    _logger.WriteWarn($"Current block height {currentHeight}, not changed in {checkTimes/10} seconds.");
                 
                 if(checkTimes == 3000)
                     Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
