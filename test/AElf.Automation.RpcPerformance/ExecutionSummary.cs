@@ -76,7 +76,6 @@ namespace AElf.Automation.RpcPerformance
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +
                               $"Average each block generated in {timePerBlock} milliseconds. " +
                               $"{timePerTx} txs executed per second.");
-            _logger.WriteInfo("-----------------------------------------------------------------------------------------------------------------------------------------------------");
         }
 
         private long GetBlockHeight()

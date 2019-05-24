@@ -56,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
-        private ConcurrentQueue<string> DeployContractList { get; }
+        private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
 
         #endregion
@@ -71,7 +71,7 @@ namespace AElf.Automation.RpcPerformance
 
             AccountList = new List<AccountInfo>();
             ContractList = new List<Contract>();
-            DeployContractList = new ConcurrentQueue<string>();
+            GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
             BlockHeight = 1;
@@ -151,7 +151,7 @@ namespace AElf.Automation.RpcPerformance
                             break;
                         }
                         case "Failed":
-                            _logger.WriteError("Transaction failed.");
+                            _logger.WriteError($"Transaction {item.TxId} execution failed.");
                             _logger.WriteError(transactionResult.Error);
                             break;
                         default:
@@ -182,7 +182,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new CreateInput
                     {
                         Symbol = symbol,
-                        TokenName = $"elf token {GetRandomIncrementId()}",
+                        TokenName = $"elf token {symbol}",
                         TotalSupply = long.MaxValue,
                         Decimals = 2,
                         Issuer = Address.Parse(account),
@@ -242,14 +242,14 @@ namespace AElf.Automation.RpcPerformance
             Task.WaitAll(contractTasks.ToArray<Task>());
             
             exec.Stop();
-            _logger.WriteInfo("End transaction execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            _logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
+            _logger.WriteInfo("End transaction execution at: {0}, execution time span is {1}",
+                DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
             GetExecutedAccount();
         }
 
         public void ExecuteOneRoundTransactionsTask()
         {
-            _logger.WriteInfo("Start all generate rpc request at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _logger.WriteInfo("Start generate all requests at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
             var exec = new Stopwatch();
             exec.Start();
             var contractTasks = new List<Task>();
@@ -271,8 +271,8 @@ namespace AElf.Automation.RpcPerformance
 
             Task.WaitAll(contractTasks.ToArray<Task>());
             exec.Stop();
-            _logger.WriteInfo("All rpc requests completed at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            _logger.WriteInfo("Execution time: {0}", exec.ElapsedMilliseconds);
+            _logger.WriteInfo("All requests execution completed at: {0}, execution time span: {1}", 
+                DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
         
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
@@ -328,8 +328,10 @@ namespace AElf.Automation.RpcPerformance
                             CheckNodeStatus();
                             
                             stopwatch.Stop();
-                            TransactionSentPerSecond(ThreadCount * ExeTimes * 2 * 3, stopwatch.ElapsedMilliseconds);
-                            stopwatch.Restart();
+                            TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+                            
+                            stopwatch = new Stopwatch();
+                            stopwatch.Start();
                         }
                     }
                     catch (Exception e)
@@ -408,6 +410,7 @@ namespace AElf.Automation.RpcPerformance
 
                 Thread.Sleep(10);
                 //Get Balance Info
+                /*
                 ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance")
                 {
                     ParameterInput = new GetBalanceInput
@@ -425,6 +428,7 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 Thread.Sleep(10);
+                */
             }
 
             _logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
@@ -438,15 +442,12 @@ namespace AElf.Automation.RpcPerformance
             var account = AccountList[ContractList[threadNo].AccountId].Account;
             var contractPath = ContractList[threadNo].ContractPath;
 
-            var set = new HashSet<int>();
-
             var rawTransactions = new List<string>();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
                 var randNumber = rd.Next(ThreadCount, AccountList.Count);
                 var countNo = randNumber;
-                set.Add(countNo);
                 var account1 = AccountList[countNo].Account;
                 AccountList[countNo].Increment++;
 
@@ -465,6 +466,7 @@ namespace AElf.Automation.RpcPerformance
                 rawTransactions.Add(requestInfo);
 
                 //Get Balance Info
+                /*
                 ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "GetBalance")
                 {
                     ParameterInput = new GetBalanceInput
@@ -474,44 +476,37 @@ namespace AElf.Automation.RpcPerformance
                 };
                 requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
                 rawTransactions.Add(requestInfo);
+                */
             }
 
-            _logger.WriteInfo(
-                "Thread [{0}] from account: {1} and contract address: {2} raw transactions generated completed.",
-                threadNo, account, contractPath);
-            //Send RPC Requests
-            var ci1 = new CommandInfo(ApiMethods.BroadcastTransactions);
-            foreach (var rawTransaction in rawTransactions)
+            //Send batch transaction requests
+            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
             {
-                ci1.Parameter += "," + rawTransaction;
-            }
-
-            ci1.Parameter = ci1.Parameter.Substring(1);
-            ApiHelper.ExecuteCommand(ci1);
-            Assert.IsTrue(ci1.Result);
-            var transactions = (string[])ci1.InfoMsg;
+                Parameter = string.Join(",", rawTransactions)
+            };
+            ApiHelper.ExecuteCommand(commandInfo);
+            Assert.IsTrue(commandInfo.Result);
+            var transactions = (string[])commandInfo.InfoMsg;
             _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}", rawTransactions.Count, transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
-            Thread.Sleep(100);
+            Thread.Sleep(50);
         }
 
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             var account = AccountList[ContractList[threadNo].AccountId].Account;
-            var abiPath = ContractList[threadNo].ContractPath;
+            var contractPath = ContractList[threadNo].ContractPath;
 
-            var set = new HashSet<int>();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
                 var randNumber = rd.Next(ThreadCount, AccountList.Count);
                 var countNo = randNumber;
-                set.Add(countNo);
                 var account1 = AccountList[countNo].Account;
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -522,10 +517,11 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                DeployContractList.Enqueue(requestInfo);
+                GenerateTransactionQueue.Enqueue(requestInfo);
 
                 //Get Balance Info
-                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "GetBalance")
+                /*
+                ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "GetBalance")
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -534,7 +530,8 @@ namespace AElf.Automation.RpcPerformance
                     }
                 };
                 requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
-                DeployContractList.Enqueue(requestInfo);
+                GenerateTransactionQueue.Enqueue(requestInfo);
+                */
             }
         }
 
@@ -542,9 +539,9 @@ namespace AElf.Automation.RpcPerformance
         {
             while (true)
             {
-                if (!DeployContractList.TryDequeue(out var rpcMsg))
+                if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
                     break;
-                _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, DeployContractList.Count);
+                _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, GenerateTransactionQueue.Count);
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
@@ -567,11 +564,11 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 checkTimes++;
-                Thread.Sleep(500);
-                if(checkTimes % 10 == 0)
+                Thread.Sleep(100);
+                if(checkTimes % 100 == 0)
                     _logger.WriteWarn($"Current block height {currentHeight}, not changed in {checkTimes/2} seconds.");
                 
-                if(checkTimes == 600)
+                if(checkTimes == 3000)
                     Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
         }
@@ -684,12 +681,6 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private static string GetRandomIncrementId()
-        {
-            var random = new Random(DateTime.Now.Millisecond);
-            return random.Next().ToString();
-        }
-
         private static string RandomString(int size, bool lowerCase)
         {
             var random = new Random(DateTime.Now.Millisecond);
@@ -707,7 +698,7 @@ namespace AElf.Automation.RpcPerformance
 
             var result = tx * 1000 / time;
             
-            _logger.WriteInfo($"Summary analyze: One round transaction request {transactionCount} transactions in {time/1000:0.000} seconds, average {result:0.00} tx/second.");
+            _logger.WriteInfo($"Summary analyze: Total request {transactionCount} transactions in {time/1000:0.000} seconds, average {result:0.00} txs/second.");
         }
         
         #endregion
