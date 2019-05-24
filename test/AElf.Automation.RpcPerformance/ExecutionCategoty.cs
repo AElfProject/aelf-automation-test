@@ -286,14 +286,14 @@ namespace AElf.Automation.RpcPerformance
                     _logger.WriteInfo("Begin generate multi rpc requests.");
                     try
                     {
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
                         for (var r = 1; r > 0; r++) //continuous running
                         {
-                            _logger.WriteInfo("Execution transaction rpc request round: {0}", r);
+                            _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
                                 //multi task for BroadcastTransactions query
-                                var stopwatch = new Stopwatch();
-                                stopwatch.Start();
                                 var txsTasks = new List<Task>();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
@@ -302,15 +302,10 @@ namespace AElf.Automation.RpcPerformance
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
-                                
-                                stopwatch.Stop();
-                                TransactionSentPerSecond(ThreadCount * ExeTimes *2, stopwatch.ElapsedMilliseconds);
                             }
                             else
                             {
                                 //multi task for BroadcastTransaction query
-                                var stopwatch = new Stopwatch();
-                                stopwatch.Start();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
@@ -326,12 +321,15 @@ namespace AElf.Automation.RpcPerformance
 
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
-                                stopwatch.Stop();
-                                TransactionSentPerSecond(ThreadCount * ExeTimes * 2, stopwatch.ElapsedMilliseconds);
                             }
 
-                            Thread.Sleep(1000);
-                            CheckNodeStatus(); //check node whether is normal
+                            if (r % 3 != 0) continue;
+                            
+                            CheckNodeStatus();
+                            
+                            stopwatch.Stop();
+                            TransactionSentPerSecond(ThreadCount * ExeTimes * 2 * 3, stopwatch.ElapsedMilliseconds);
+                            stopwatch.Restart();
                         }
                     }
                     catch (Exception e)
@@ -339,7 +337,7 @@ namespace AElf.Automation.RpcPerformance
                         var message = "Execute continuous transaction got exception." +
                                       $"\r\nMessage: {e.Message}" +
                                       $"\r\nStackTrace: {e.StackTrace}";
-                        _logger.WriteInfo(message);
+                        _logger.WriteError(message);
                     }
                 })
             };
@@ -531,7 +529,8 @@ namespace AElf.Automation.RpcPerformance
                 {
                     ParameterInput = new GetBalanceInput
                     {
-                        Symbol = ContractList[threadNo].Symbol, Owner = Address.Parse(account)
+                        Symbol = ContractList[threadNo].Symbol, 
+                        Owner = Address.Parse(account)
                     }
                 };
                 requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
@@ -554,24 +553,25 @@ namespace AElf.Automation.RpcPerformance
         
         private void CheckNodeStatus()
         {
-            var checkTimes = 1;
+            var checkTimes = 0;
             while(true)
             {
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
                 ApiHelper.GetBlockHeight(ci);
                 var currentHeight = (long)ci.InfoMsg;
 
-                _logger.WriteInfo("Current block height: {0}", currentHeight);
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
                     return;
                 }
 
-                Thread.Sleep(4000);
-                _logger.WriteWarn("Block height not changed round: {0}", checkTimes++);
+                checkTimes++;
+                Thread.Sleep(500);
+                if(checkTimes % 10 == 0)
+                    _logger.WriteWarn($"Current block height {currentHeight}, not changed in {checkTimes/2} seconds.");
                 
-                if(checkTimes == 75)
+                if(checkTimes == 600)
                     Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
         }
