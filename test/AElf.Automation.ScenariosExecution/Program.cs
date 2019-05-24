@@ -13,7 +13,6 @@ namespace AElf.Automation.ScenariosExecution
 
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
-        private static ConfigInfo ConfigInfo { get; set; }
         #endregion
 
         static void Main(string[] args)

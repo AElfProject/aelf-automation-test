@@ -13,18 +13,18 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        public int ThreadCount { get; } = 4;
+        private int ThreadCount { get; } = 4;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        public int TransactionGroup { get; } = 10;
+        private int TransactionGroup { get; } = 10;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        public string RpcUrl { get; }
+        private string RpcUrl { get; }
 
         [Option("-em|--execute.mode", Description =
             "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
-        public int ExecuteMode { get; } = 0;
+        private int ExecuteMode { get; } = 0;
 
         #endregion
 
@@ -59,6 +59,14 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
+                if (ExecuteMode == 0) //检测链交易和出块结果
+                {
+                    Logger.WriteInfo("Check node transaction status information");
+                    var nodeSummary = new ExecutionSummary(performance.BaseUrl, true);
+                    nodeSummary.ContinuousCheckTransactionPerformance();
+                    return;
+                }
+                
                 performance.InitExecCommand();
                 performance.DeployContracts();
                 performance.InitializeContracts();
@@ -67,9 +75,8 @@ namespace AElf.Automation.RpcPerformance
             }
             catch (Exception e)
             {
-                Logger.WriteError("Message: " + e.Message);
-                Logger.WriteError("Source: " + e.Source);
-                Logger.WriteError("StackTrace: " + e.StackTrace);
+                var message = $"Message: {e.Message}\r\nSource: {e.Source}\r\nStackTrace: {e.StackTrace}";
+                Logger.WriteError(message);
             }
             finally
             {

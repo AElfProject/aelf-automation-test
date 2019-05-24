@@ -17,11 +17,16 @@ namespace AElf.Automation.RpcPerformance
         
         private const int Phase = 120;
         
-        public ExecutionSummary(string baseUrl)
+        /// <summary>
+        /// 统计出块信息
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="fromStart">是否从高度为1开始检测</param>
+        public ExecutionSummary(string baseUrl, bool fromStart = false)
         {
             _apiHelper = new WebApiService(baseUrl);
             _blockMap = new Dictionary<long, BlockDto>();
-            _blockHeight = GetBlockHeight();
+            _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
 
         public void ContinuousCheckTransactionPerformance()

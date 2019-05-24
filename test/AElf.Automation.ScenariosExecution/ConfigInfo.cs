@@ -2,11 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.WebApi;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -58,9 +54,9 @@ namespace AElf.Automation.ScenariosExecution
             accounts.AddRange(Config.FullNodes.Select(o=>o.Account));
 
             return accounts;
-        } 
+        }
 
-        public static ConfigInfo GetConfigInfo()
+        private static ConfigInfo GetConfigInfo()
         {
             lock (LockObj)
             {

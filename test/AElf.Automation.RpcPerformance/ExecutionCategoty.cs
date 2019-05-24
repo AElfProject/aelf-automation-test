@@ -46,14 +46,14 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Public Property
 
-        public IApiHelper ApiHelper { get; set; }
-        public ExecutionSummary Summary { get; set; }
-        public string BaseUrl { get; set; }
-        public List<AccountInfo> AccountList { get; set; }
-        public string KeyStorePath { get; set; }
-        public long BlockHeight { get; set; }
-        public List<Contract> ContractList { get; set; }
-        public List<string> TxIdList { get; set; }
+        public IApiHelper ApiHelper { get; private set; }
+        private ExecutionSummary Summary { get; }
+        public string BaseUrl { get; }
+        private List<AccountInfo> AccountList { get; }
+        private string KeyStorePath { get; }
+        private long BlockHeight { get; set; }
+        private List<Contract> ContractList { get; }
+        private List<string> TxIdList { get; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
         private ConcurrentQueue<string> DeployContractList { get; }
@@ -230,7 +230,7 @@ namespace AElf.Automation.RpcPerformance
         public void ExecuteOneRoundTransactionTask()
         {
             _logger.WriteInfo("Start transaction execution at: {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
-            Stopwatch exec = new Stopwatch();
+            var exec = new Stopwatch();
             exec.Start();
             var contractTasks = new List<Task>();
             for (var i = 0; i < ThreadCount; i++)
@@ -292,6 +292,8 @@ namespace AElf.Automation.RpcPerformance
                             if (useTxs)
                             {
                                 //multi task for BroadcastTransactions query
+                                var stopwatch = new Stopwatch();
+                                stopwatch.Start();
                                 var txsTasks = new List<Task>();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
@@ -300,10 +302,15 @@ namespace AElf.Automation.RpcPerformance
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
+                                
+                                stopwatch.Stop();
+                                TransactionSentPerSecond(ThreadCount * ExeTimes *2, stopwatch.ElapsedMilliseconds);
                             }
                             else
                             {
                                 //multi task for BroadcastTransaction query
+                                var stopwatch = new Stopwatch();
+                                stopwatch.Start();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
@@ -319,6 +326,8 @@ namespace AElf.Automation.RpcPerformance
 
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
+                                stopwatch.Stop();
+                                TransactionSentPerSecond(ThreadCount * ExeTimes * 2, stopwatch.ElapsedMilliseconds);
                             }
 
                             Thread.Sleep(1000);
@@ -327,9 +336,10 @@ namespace AElf.Automation.RpcPerformance
                     }
                     catch (Exception e)
                     {
-                        _logger.WriteInfo($"Execute continuous transaction got exception.");
-                        _logger.WriteInfo($"Message: {e.Message}");
-                        _logger.WriteInfo($"StackTrace: {e.StackTrace}");
+                        var message = "Execute continuous transaction got exception." +
+                                      $"\r\nMessage: {e.Message}" +
+                                      $"\r\nStackTrace: {e.StackTrace}";
+                        _logger.WriteInfo(message);
                     }
                 })
             };
@@ -688,6 +698,16 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < size; i++)
                 builder.Append((char)(26 * random.NextDouble() + startChar));
             return builder.ToString();
+        }
+
+        private void TransactionSentPerSecond(int transactionCount, long milliseconds)
+        {
+            var tx = (float) transactionCount;
+            var time = (float) milliseconds;
+
+            var result = tx * 1000 / time;
+            
+            _logger.WriteInfo($"Summary analyze: One round transaction request {transactionCount} transactions in {time/1000:0.000} seconds, average {result:0.00} tx/second.");
         }
         
         #endregion
