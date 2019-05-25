@@ -119,9 +119,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 case TestMode.VerifyMainTx:
                     Logger.WriteInfo($"Run with verify main chain transaction: {tm.ToString()}.");
-                    Console.Write("Input the block number: ");
-                    var blockNumber = Console.ReadLine();
-                    operationSet.MainChainTransactionVerifyOnSideChains(blockNumber);
+                    Console.Write("Input the txids: ");
+                    var txids = Console.ReadLine();
+                    operationSet.MainChainTransactionVerifyOnSideChains(txids);
                     break;
                 case TestMode.VerifySideTx:
                     Logger.WriteInfo($"Run with verify side chain transaction: {tm.ToString()}.");

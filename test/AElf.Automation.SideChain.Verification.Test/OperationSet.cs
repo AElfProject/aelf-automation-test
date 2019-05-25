@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -137,9 +136,23 @@ namespace AElf.Automation.SideChain.Verification.Test
             UnlockAccounts(MainChain,5,MainChainAccountList);
         }
 
-        public void MainChainTransactionVerifyOnSideChains(string blockNumber)
+        public void MainChainTransactionVerifyOnSideChains(string transactionIds)
         {
-            long blockHeight = long.Parse(blockNumber);
+            var transactionId = transactionIds.Split(",");
+            var transactionIdList = new List<string>(transactionId);
+            var blockNumberList = new List<long>();
+            //find the block number
+            foreach (var txid in transactionIdList)
+            {
+                var CI = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txid};
+                var result = MainChain.ApiHelper.ExecuteCommand(CI);
+                var txResult = result.InfoMsg as TransactionResultDto;
+                var block = txResult.BlockNumber;
+                blockNumberList.Add(block);
+            }
+            long blockHeight = blockNumberList.Max();
+            _logger.WriteInfo($"Verify from block {blockHeight}");
+            
             for (var r = 1; r > 0; r++) //continuous running
             {
                 TxInfos = new List<TxInfo>();
@@ -410,7 +423,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             _logger.WriteInfo("Main chan transfer to side chain InitAccount ");
             foreach (var chainId in chainIdList)
             {
-                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,InitAccount,chainId, 10000000);
+                var rawTxInfo = CrossChainTransfer(MainChain, InitAccount,InitAccount,chainId, 100000);
                 Thread.Sleep(100);
                 RawTxInfos.Add(rawTxInfo);
                 _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is{rawTxInfo.TxId}");
@@ -419,9 +432,18 @@ namespace AElf.Automation.SideChain.Verification.Test
             Thread.Sleep(60000);
             for (int i = 0; i < chainIdList.Count; i++)
             {
-                _logger.WriteInfo($"Side chain {chainIdList[i]} receive the token");
-                var accountBalance = ReceiveFromMainChain(SideChains[i], RawTxInfos[i]);
-                _logger.WriteInfo($"On side chain {chainIdList[i]}, InitAccount:{InitAccount} balance is {accountBalance.Balance}");
+                _logger.WriteInfo($"Main chain account receive the {chainIdList[i]} token");
+                var checktimes = 20;
+                var result = ReceiveFromMainChain(SideChains[i], RawTxInfos[i]);
+                var resultReturn = result.InfoMsg as TransactionResultDto;
+
+                if (resultReturn.Status.Equals("Failed") )
+                    _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                
+                _logger.WriteInfo($"check the balance on the side chain {chainIdList[i]}");
+                var accountBalance = SideChains[i].GetBalance(InitAccount, "ELF").Balance;
+                
+                _logger.WriteInfo($"On side chain {chainIdList[i]}, InitAccount:{InitAccount} balance is {accountBalance}");
             }
         }
 
@@ -446,13 +468,24 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
 
             Thread.Sleep(60000);
-            _logger.WriteInfo($"Side chain {sideChainNumber} receive the token");
-            //Side Chain Receive 
+            _logger.WriteInfo($"Main chain receive the side chain {sideChainNumber} token");
+            //Main Chain Receive 
             foreach (var rawTxInfo in RawTxInfos)
             {
-                var accountBalance = ReceiveFromMainChain(SideChains[sideChainNumber], rawTxInfo);
-                Assert.IsTrue(accountBalance.Balance == amount);
-                _logger.WriteInfo($"Account:{rawTxInfo.ReceiveAccount} balance is {accountBalance.Balance}");
+                var checkTimes = 20;
+                var result = ReceiveFromMainChain(SideChains[sideChainNumber], rawTxInfo);
+                var resultReturn = result.InfoMsg as TransactionResultDto;
+
+                if (resultReturn.Status.Equals("Failed") )
+                    _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                
+                _logger.WriteInfo($"check the balance on the side chain {sideChainNumber}");
+                var accountBalance = SideChains[sideChainNumber].GetBalance(InitAccount, "ELF").Balance;
+                
+                _logger.WriteInfo($"On side chain {sideChainNumber}, InitAccount:{InitAccount} balance is {accountBalance}");
+                Assert.IsTrue(accountBalance == amount);
+                
+                _logger.WriteInfo($"Account:{rawTxInfo.ReceiveAccount} balance is {accountBalance}");
             }
         }
 
@@ -483,7 +516,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
             }
 
-            _logger.WriteInfo("show the balance of all account");
+            _logger.WriteInfo("show the main chain account balance: ");
 
             foreach (var mainAccount in MainChainAccountList)
             {
@@ -491,6 +524,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
             }
 
+            _logger.WriteInfo("show the side chain account balance: ");
             for (int i = 0; i < SideChains.Count; i++)
             {
                 for (int j = 0; j < AccountLists[i].Count; j++)
@@ -524,16 +558,6 @@ namespace AElf.Automation.SideChain.Verification.Test
                     sideRawTxInfos.Add(RawTxInfos);
                 }
 
-                _logger.WriteInfo("Show the transaction info:");
-                foreach (var rawTxInfos in sideRawTxInfos)
-                {
-                    foreach (var rawTxInfo in rawTxInfos)
-                    {
-                        _logger.WriteInfo($"Transaction info: From account: {rawTxInfo.FromAccount},\nReceive account:{rawTxInfo.ReceiveAccount}, \nRawTx:{rawTxInfo.RawTx}, \nTxId:{rawTxInfo.TxId}, \nBlockNum:{rawTxInfo.BlockNumber} ");
-                    }
-                }
-
-                _logger.WriteInfo("Waiting for the index");
                 Thread.Sleep(60000);
                 _logger.WriteInfo("Side chain receive the token");
                 //Side Chain Receive 
@@ -541,13 +565,20 @@ namespace AElf.Automation.SideChain.Verification.Test
                 {
                     for (int j = 0; j < sideRawTxInfos[i].Count; j++)
                     {
-                        var accountBalance = ReceiveFromMainChain(SideChains[i], sideRawTxInfos[i][j]);
-                        _logger.WriteInfo(
-                            $"Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance.Balance}");
+                        var checkTimes = 5;
+                        var result = ReceiveFromMainChain(SideChains[i],sideRawTxInfos[i][j]);
+                        var resultReturn = result.InfoMsg as TransactionResultDto;
+                        if (resultReturn.Status.Equals("Failed") )
+                            _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                
+                        _logger.WriteInfo($"check the balance on the side chain");
+                        var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[i][j].ReceiveAccount, "ELF").Balance;
+                
+                        _logger.WriteInfo($"On side chain {i+1}, Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance}");
                     }
                 }
 
-                _logger.WriteInfo("show the balance of all account");
+                _logger.WriteInfo("show the main chain account balance: ");
 
                 for (int i = 0; i < MainChainAccountList.Count; i++)
                 {
@@ -555,6 +586,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                     _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
                 }
 
+                _logger.WriteInfo("show the side chain account balance: ");
                 for (int i = 0; i < SideChains.Count; i++)
                 {
                     for (int j = 0; j < AccountLists[i].Count; j++)
@@ -611,7 +643,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             
             _logger.WriteInfo("Waiting for the index");
             Thread.Sleep(60000);
-            _logger.WriteInfo("Other chain receive the token");
+            _logger.WriteInfo("side chain receive the token");
             //Side Chain Receive 
             int fromChainId = ChainHelpers.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
             for (int i = 0; i < SideChains.Count; i++)
@@ -621,9 +653,17 @@ namespace AElf.Automation.SideChain.Verification.Test
                 {
                     for (int k = 0; k < sideRawTxInfos[j].Count; k++)
                     {
-                        var accountBalance = ReceiveFromSideChain(SideChains[i],fromSideChainNum, sideRawTxInfos[j][k],fromChainId);
-                        _logger.WriteInfo(
-                            $"Account:{sideRawTxInfos[j][k].ReceiveAccount} balance is {accountBalance.Balance}");
+                        var checkTimes = 20;
+                        var result = ReceiveFromSideChain(SideChains[i],fromSideChainNum,sideRawTxInfos[j][k],fromChainId);
+                        var resultReturn = result.InfoMsg as TransactionResultDto;
+
+                        if (resultReturn.Status.Equals("Failed") )
+                            _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                
+                        _logger.WriteInfo($"check the balance on the side chain");
+                        var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[j][k].ReceiveAccount, "ELF").Balance;
+                
+                        _logger.WriteInfo($"On side chain {i+1}, Account:{sideRawTxInfos[j][k].ReceiveAccount} balance is {accountBalance}");
                     } 
                 }
             }
@@ -631,19 +671,28 @@ namespace AElf.Automation.SideChain.Verification.Test
             //Main chain receive
             for (int i = 0; i < mainRawTxInfos.Count(); i++)
             {   
-                var accountBalance = ReceiveFromSideChain(MainChain, fromSideChainNum, mainRawTxInfos[i],fromChainId);
-                _logger.WriteInfo($"Account:{mainRawTxInfos[i].ReceiveAccount} balance is {accountBalance.Balance}");   
+                var result = ReceiveFromSideChain(MainChain,fromSideChainNum,mainRawTxInfos[i],fromChainId);
+                var resultReturn = result.InfoMsg as TransactionResultDto;
+                
+                if (resultReturn.Status.Equals("Failed") )
+                    _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                
+                _logger.WriteInfo($"check the balance on the main chain");
+                var accountBalance = MainChain.GetBalance(mainRawTxInfos[i].ReceiveAccount, "ELF").Balance;
+                
+                _logger.WriteInfo($"On main chain , Account:{mainRawTxInfos[i].ReceiveAccount} balance is {accountBalance}");
             }
             
             
-            _logger.WriteInfo("show the balance of all account");
+            _logger.WriteInfo("show the main chain account balance: ");
 
             for (int i = 0; i < MainChainAccountList.Count; i++)
             {
                 var accountBalacnce = MainChain.GetBalance(MainChainAccountList[i], "ELF");
                 _logger.WriteInfo($"Account:{accountBalacnce.Owner}, balance is:{accountBalacnce.Balance}");
             }
-
+            
+            _logger.WriteInfo("show the side chain account balance: ");
             for (int i = 0; i < SideChains.Count; i++)
             {
                 for (int j = 0; j < AccountLists[i].Count; j++)
@@ -764,10 +813,10 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             // var result = chain.CrossChainTransfer(fromAccount,crossChainTransferInput);
             // execute cross chain transfer
-            var rawTx = chain.ApiHelper.GenerateTransactionRawTx(chain.TokenService.CallAddress,
+            var rawTx = chain.ApiHelper.GenerateTransactionRawTx(fromAccount,
                 chain.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(), crossChainTransferInput);
             var txId = ExecuteMethodWithTxId(chain,rawTx);
-            var result = CheckTransactionResult(txId);
+            var result = CheckTransactionResult(chain,txId);
             
             // get transaction info            
             var txResult = result.InfoMsg as TransactionResultDto;
@@ -777,7 +826,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             return rawTxInfo;
         }
 
-        private GetBalanceOutput ReceiveFromMainChain(Operation chain,TxInfo rawTxInfo)
+        private CommandInfo ReceiveFromMainChain(Operation chain,TxInfo rawTxInfo)
         {
             var merklePath = GetMerklePath(MainChain,rawTxInfo.BlockNumber,rawTxInfo.TxId);
                       
@@ -788,14 +837,11 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTxInfo.RawTx));
-            chain.CrossChainReceive(rawTxInfo.ReceiveAccount, crossChainReceiveToken);
-            
-           //Get Balance
-            var balance = chain.GetBalance(rawTxInfo.ReceiveAccount, "ELF");
-            return balance;
+            var result = chain.CrossChainReceive(rawTxInfo.FromAccount, crossChainReceiveToken);
+            return result;
         }
 
-        private GetBalanceOutput ReceiveFromSideChain(Operation chain, int fromSideChainNum,TxInfo rawTxInfo,int fromChainId)
+        private CommandInfo ReceiveFromSideChain(Operation chain, int fromSideChainNum,TxInfo rawTxInfo,int fromChainId)
         {
             var merklePath = GetMerklePath(SideChains[fromSideChainNum],rawTxInfo.BlockNumber,rawTxInfo.TxId);                          
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
@@ -811,10 +857,8 @@ namespace AElf.Automation.SideChain.Verification.Test
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTxInfo.RawTx));
             
-            chain.CrossChainReceive(rawTxInfo.ReceiveAccount, crossChainReceiveToken);
-            //Get Balance
-            var balance = chain.GetBalance(rawTxInfo.ReceiveAccount, "ELF");
-            return balance;
+            var result = chain.CrossChainReceive(rawTxInfo.FromAccount, crossChainReceiveToken);
+            return result;
         }
         
         private MerklePath GetMerklePath(Operation chain,long blockNumber,string TxId)
@@ -970,7 +1014,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             return string.Empty;
         }
         
-        private CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
+        private CommandInfo CheckTransactionResult(Operation chain,string txId, int maxTimes = 60)
         {
             CommandInfo ci = null;
             int checkTimes = 1;
@@ -978,7 +1022,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 ci = new CommandInfo(ApiMethods.GetTransactionResult);
                 ci.Parameter = txId;
-                ApiHelper.GetTxResult(ci);
+                chain.ApiHelper.GetTxResult(ci);
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
