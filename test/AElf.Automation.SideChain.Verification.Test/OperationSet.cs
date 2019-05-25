@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -136,12 +137,13 @@ namespace AElf.Automation.SideChain.Verification.Test
             UnlockAccounts(MainChain,5,MainChainAccountList);
         }
 
-        public void MainChainTransactionVerifyOnSideChains()
+        public void MainChainTransactionVerifyOnSideChains(string blockNumber)
         {
-            TxInfos = new List<TxInfo>();
-            long blockHeight = 1;
+            long blockHeight = long.Parse(blockNumber);
             for (var r = 1; r > 0; r++) //continuous running
             {
+                TxInfos = new List<TxInfo>();
+                VerifyResultsList = new List<VerifyResult>();
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
                 MainChain.ApiHelper.GetBlockHeight(ci);
                 var currentHeight = (long) ci.InfoMsg;
@@ -222,10 +224,11 @@ namespace AElf.Automation.SideChain.Verification.Test
         
         public void SideChainTransactionVerifyOnMainChain(int sideChainNum)
         {
-            TxInfos = new List<TxInfo>();
             long blockHeight = 1;
             for (var r = 1; r > 0; r++) //continuous running
             {
+                TxInfos = new List<TxInfo>();
+                VerifyResultsList = new List<VerifyResult>();
                 var ci = new CommandInfo(ApiMethods.GetBlockHeight);
                 SideChains[sideChainNum].ApiHelper.GetBlockHeight(ci);
                 var currentHeight = (long) ci.InfoMsg;
