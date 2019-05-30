@@ -7,7 +7,7 @@ using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.OptionManagers
 {
     public class AccountManager
     {

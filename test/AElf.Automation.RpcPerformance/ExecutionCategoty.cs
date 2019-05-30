@@ -135,13 +135,15 @@ namespace AElf.Automation.RpcPerformance
                     if (item.Result != false) continue;
                     
                     var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
-                    ApiHelper.ExecuteCommand(ci);
+                    ApiHelper.GetTxResult(ci);
                     Assert.IsTrue(ci.Result);
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var deployResult = transactionResult?.Status;
-                    switch (deployResult)
+                    if(!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
+                    var status =
+                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                            transactionResult.Status);
+                    switch (status)
                     {
-                        case "Mined":
+                        case TransactionResultStatus.Mined:
                         {
                             count++;
                             item.Result = true;
@@ -150,12 +152,19 @@ namespace AElf.Automation.RpcPerformance
                             AccountList[item.Id].Increment = 1;
                             break;
                         }
-                        case "Failed":
-                            _logger.WriteError($"Transaction {item.TxId} execution failed.");
-                            _logger.WriteError(transactionResult.Error);
+                        case TransactionResultStatus.Failed:
+                        case TransactionResultStatus.NotExisted:
+                        case TransactionResultStatus.Unexecutable:
+                            var message =
+                                $"Transaction {item.TxId} execution status: {transactionResult.Status}." +
+                                $"\r\nDetail Message: {JsonConvert.SerializeObject(transactionResult)}";
+                            _logger.WriteError(message);
                             break;
-                        default:
+                        case TransactionResultStatus.Pending:
+                            _logger.WriteInfo($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
                             continue;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
 
                     Thread.Sleep(10);
@@ -283,7 +292,7 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => { Summary.ContinuousCheckTransactionPerformance(); }),
                 Task.Run(() => 
                 {
-                    _logger.WriteInfo("Begin generate multi rpc requests.");
+                    _logger.WriteInfo("Begin generate multi requests.");
                     try
                     {
                         var stopwatch = new Stopwatch();
@@ -309,10 +318,10 @@ namespace AElf.Automation.RpcPerformance
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
-                                    //Generate Rpc contracts
+                                    //Generate transaction requests
                                     GenerateRawTransactionQueue(j, ExeTimes);
-                                    //Send Rpc contracts request
-                                    _logger.WriteInfo("Begin execute group {0} transactions with 4 threads.", j + 1);
+                                    //Send  transaction requests
+                                    _logger.WriteInfo($"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                     var txTasks = new List<Task>();
                                     for (var k = 0; k < ThreadCount; k++)
                                     {

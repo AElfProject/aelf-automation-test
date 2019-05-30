@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -34,6 +33,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Get Profit items
             Profit.GetProfitItemIds(Election.ContractAddress);
             ProfitItemIds = Profit.ProfitItemIds;
+            
+            //Announcement
+            NodeAnnounceElectionAction();
         }
 
         public void RunNodeScenario()
@@ -43,11 +45,22 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 NodeAnnounceElectionAction,
                 NodeTakeProfitAction,
                 NodeQuitElectionAction,
-                NodeGetHistoryBalanceAction
+                NodeQueryInformationAction
             }, true, 10);
         }
 
-        public void NodeAnnounceElectionAction()
+        public void NodeScenarioJob()
+        {
+            ExecuteStandaloneTask(new Action[]
+            {
+                NodeAnnounceElectionAction,
+                NodeTakeProfitAction,
+                NodeQuitElectionAction,
+                NodeQueryInformationAction
+            });
+        }
+        
+        private void NodeAnnounceElectionAction()
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
@@ -60,21 +73,18 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
                 if (electionResult.InfoMsg is TransactionResultDto electionDto)
                 {
-                    count++;
                     if (electionDto.Status == "Mined")
                     {
+                        count++;
                         Logger.WriteInfo($"User {fullNode.Account} announcement election success.");
                         UserScenario.GetCandidates(Election); //更新candidates列表
                     }
                 }
-                if(count==2)
+                if(count==3)
                     break;
             }
-            
-            Thread.Sleep(30 * 1000);
         }
-
-        public void NodeQuitElectionAction()
+        private void NodeQuitElectionAction()
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
@@ -92,26 +102,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
-                if (quitResult.InfoMsg is TransactionResultDto electionDto)
-                {
-                    if (electionDto.Status == "Mined")
-                    {
-                        Logger.WriteInfo($"User {fullNode.Account} quit election success.");
-                        UserScenario.GetCandidates(Election); //更新candidates列表
-                    }
-                }
-                
+                if (!(quitResult.InfoMsg is TransactionResultDto electionDto)) continue;
+                if (electionDto.Status != "Mined") continue;
+                Logger.WriteInfo($"User {fullNode.Account} quit election success.");
+                UserScenario.GetCandidates(Election); //更新candidates列表
                 break;
             }
-            
-            Thread.Sleep(30 * 1000);
         }
-
-        public void NodeTakeProfitAction()
+        private void NodeTakeProfitAction()
         {
             var termNumber = Consensus.GetCurrentTermInformation();
             if (termNumber == _termNumber) return;
-            _termNumber = termNumber;
 
             var id = GenerateRandomNumber(0, FullNodes.Count - 1);
             var node = FullNodes[id];
@@ -151,11 +152,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             Logger.WriteInfo(string.Empty);
-            
-            Thread.Sleep(10 * 1000);
         }
-
-        public void NodeGetHistoryBalanceAction()
+        private void NodeQueryInformationAction()
         {
             var termNumber = Consensus.GetCurrentTermInformation();
             if (_termNumber == termNumber)
@@ -165,9 +163,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             _termNumber = termNumber;
 
             GetLastTermBalanceInformation(termNumber); 
+            GetCurrentMinersInformation(termNumber);
             GetCandidateHistoryInformation();
         }
-
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
@@ -184,7 +182,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
             Logger.WriteInfo(balanceMessage);
         }
-
         private void GetCandidateHistoryInformation()
         {
             foreach (var fullNode in FullNodes)
@@ -201,6 +198,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     $"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}";
                 Logger.WriteInfo(historyMessage);
             }
+        }
+
+        private void GetCurrentMinersInformation(long termNumber)
+        {
+            var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minerArray = new List<string>();
+            foreach (var bp in BpNodes)
+            {
+                if(minersPublicKeys.Contains(bp.PublicKey))
+                    minerArray.Add(bp.Name);
+            }
+
+            foreach (var full in FullNodes)
+            {
+                if(minersPublicKeys.Contains(full.PublicKey))
+                    minerArray.Add(full.Name);
+            }
+            Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
         }
         private void TakeProfit(string account, Hash profitId)
         {

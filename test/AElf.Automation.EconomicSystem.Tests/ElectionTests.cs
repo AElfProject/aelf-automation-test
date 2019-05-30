@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -13,11 +14,11 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class ElectionTests
     {
         protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        protected static string RpcUrl { get; } = "http://192.168.197.13:8100";
+        protected static string RpcUrl { get; } = "http://192.168.199.205:8100";
         protected Behaviors Behaviors;
         //protected RpcApiHelper CH { get; set; }   
         protected IApiHelper CH { get; set; } 
-        protected string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
+        protected string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
         protected List<string> UserList { get; set; }
@@ -116,7 +117,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             
             //Generate 50 accounts to vote
             PrepareUserAccountAndBalance(10);
-           
+            
             #endregion
         }
 

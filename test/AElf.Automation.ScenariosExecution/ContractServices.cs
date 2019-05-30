@@ -10,7 +10,7 @@ namespace AElf.Automation.ScenariosExecution
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         
-        public FeeReceiverContract FeeReceiverService { get; set; }
+        public static FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
@@ -30,11 +30,6 @@ namespace AElf.Automation.ScenariosExecution
             //get all contract services
             GetAllContractServices();
         }
-
-        public long GetBlockHeight()
-        {
-            return ApiHelper.ApiService.GetBlockHeight().Result;
-        }
         
         private void GetAllContractServices()
         {
@@ -45,15 +40,18 @@ namespace AElf.Automation.ScenariosExecution
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
 
             //FeeReceiver contract
-            var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
-            if (feeReceiverAddress == new Address())
+            if (FeeReceiverService == null)
             {
-                FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                FeeReceiverService.InitializeFeeReceiver(tokenAddress, CallAccount);
-            }
-            else
-            {
-                FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+                var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
+                if (feeReceiverAddress == new Address())
+                {
+                    FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
+                    FeeReceiverService.InitializeFeeReceiver(tokenAddress, CallAccount);
+                }
+                else
+                {
+                    FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+                }
             }
             
             //TokenConverter contract

@@ -1,6 +1,8 @@
 using System.Linq;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Profit;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -70,7 +72,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow(10)]
         public void Vote_MultipleTimes(int userCount)
         {
-            for (int i = 0; i < userCount; i++)
+            for (var i = 0; i < userCount; i++)
             {
                 Behaviors.UserVoteWithTxIds(UserList[i], FullNodeAddress[i%6], 90, 20);
             }
@@ -133,6 +135,14 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"TotalWeight: {profitsInformation.TotalWeight}");
                 _logger.WriteInfo($"ProfitsAmount: {profitsInformation.ProfitsAmount}");
             }
+        }
+
+        [TestMethod]
+        public void GetCurrentRoundInformation()
+        {
+            var roundInformation =
+                Behaviors.ConsensusService.CallViewMethod(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+            _logger.WriteInfo(roundInformation.ToString());
         }
     }
 }

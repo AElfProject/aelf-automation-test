@@ -47,34 +47,43 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 TakeVotesProfitAction
             }, true, 30);
         }
-        
-        public void UserVotesAction()
+
+        public void UserScenarioJob()
+        {
+            ExecuteStandaloneTask(new Action[]
+            {
+                UserVotesAction,
+                TakeVotesProfitAction
+            });
+        }
+
+        private void UserVotesAction()
         {
             GetCandidates(Election);
             if (_candidates.Count < 2)
                 return;
             
-            var times = GenerateRandomNumber(10, 20);
+            var times = GenerateRandomNumber(5, 10);
             for (var i = 0; i < times; i++)
             {
                 var id = GenerateRandomNumber(0, Testers.Count-1);
                 UserVote(Testers[id]);
                 
-                Thread.Sleep(3 * 1000);
+                Thread.Sleep(10);
             }
         }
 
-        public void TakeVotesProfitAction()
+        private void TakeVotesProfitAction()
         {
             GetCandidates(Election);
             
-            var times = GenerateRandomNumber(5, 10);
+            var times = GenerateRandomNumber(3, 5);
             for (var i = 0; i < times; i++)
             {
                 var id = GenerateRandomNumber(0, Testers.Count - 1);
                 TakeUserProfit(Testers[id]);
                 
-                Thread.Sleep(10 * 1000);
+                Thread.Sleep(10);
             }
         }
 
@@ -107,7 +116,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void UserVote(string account)
         {
             var id = GenerateRandomNumber(0, _candidates.Count - 1);
-            var lockTime = GenerateRandomNumber(90, 1080);
+            var lockTime = GenerateRandomNumber(3, 36) * 30;
             var amount = GenerateRandomNumber(1, 5) * 10;
 
             UserVote(account, _candidates[id], lockTime, amount);
@@ -134,7 +143,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 CandidatePublicKey = candidatePublicKey,
                 Amount = amount,
-                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
+                EndTimestamp = DateTime.UtcNow.
+                    Add(TimeSpan.FromDays(lockTime))
+                    .Add(TimeSpan.FromHours(1))
+                    .ToTimestamp()
             });
 
             var afterBalance = Token.GetUserBalance(account);

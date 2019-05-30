@@ -36,5 +36,7 @@ namespace AElf.Automation.Common.WebApi.Dto
         public string ChainId { get; set; }
         
         public string Bloom { get; set; }
+        
+        public string SignerPubkey { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using AElf.Automation.Common.Extensions;
+﻿using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

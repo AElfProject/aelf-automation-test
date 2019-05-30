@@ -29,7 +29,7 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="apiHelper"></param>
         /// <param name="fileName"></param>
         /// <param name="callAddress"></param>
-        public BaseContract(IApiHelper apiHelper, string fileName, string callAddress)
+        protected BaseContract(IApiHelper apiHelper, string fileName, string callAddress)
         {
             ApiHelper = apiHelper;
             FileName = fileName;
@@ -46,7 +46,7 @@ namespace AElf.Automation.Common.Contracts
         /// </summary>
         /// <param name="apiHelper"></param>
         /// <param name="contractAddress"></param>
-        public BaseContract(IApiHelper apiHelper, string contractAddress)
+        protected BaseContract(IApiHelper apiHelper, string contractAddress)
         {
             ApiHelper = apiHelper;
             ContractAddress = contractAddress;
@@ -144,8 +144,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public bool GetTransactionResult(string txId, out CommandInfo ci)
         {
-            ci = new CommandInfo(ApiMethods.GetTransactionResult);
-            ci.Parameter = txId;
+            ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
             ApiHelper.ExecuteCommand(ci);
 
             if (ci.Result)
@@ -169,36 +168,40 @@ namespace AElf.Automation.Common.Contracts
         public CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
         {
             CommandInfo ci = null;
-            int checkTimes = 1;
+            var checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo(ApiMethods.GetTransactionResult);
-                ci.Parameter = txId;
+                ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
                 ApiHelper.GetTxResult(ci);
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    if (transactionResult?.Status == "Mined")
+                    switch (transactionResult?.Status)
                     {
-                        Logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
-                        return ci;
-                    }
-
-                    if (transactionResult?.Status == "Failed")
-                    {
-                        var message = $"Transaction {txId} status: {transactionResult?.Status}";
-                        message += $"\r\t{transactionResult?.Error}";
-                        Logger.WriteError(message);
-                        return ci;
+                        case "Mined":
+                            Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                            return ci;
+                        case "Failed":
+                        {
+                            var message = $"Transaction {txId} status: {transactionResult.Status}";
+                            message += $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                            message += $"\r\nError Message: {transactionResult.Error}";
+                            Logger.WriteError(message);
+                            return ci;
+                        }
                     }
                 }
 
                 checkTimes++;
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
 
-            var result = ci.InfoMsg as TransactionResultDto;
-            Logger.WriteError(result?.Error);
+            if (ci != null)
+            {
+                var result = ci.InfoMsg as TransactionResultDto;
+                Logger.WriteError(result?.Error);
+            }
+
             Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
 
             return ci;
@@ -230,12 +233,12 @@ namespace AElf.Automation.Common.Contracts
         /// </summary>
         public void CheckTransactionResultList()
         {
-            int queueLength = 0;
-            int queueSameTimes = 0;
+            var queueLength = 0;
+            var queueSameTimes = 0;
 
             while (true)
             {
-                bool result = TxResultList.TryDequeue(out var txId);
+                var result = TxResultList.TryDequeue(out var txId);
                 if (!result)
                     break;
                 var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
@@ -243,17 +246,22 @@ namespace AElf.Automation.Common.Contracts
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    if (transactionResult?.Status == "Mined")
-                        continue;
-                    if (transactionResult?.Status == "Failed" || transactionResult?.Status == "NotExisted")
+                    switch (transactionResult?.Status)
                     {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
-                        message += $"{transactionResult.Error}";
-                        Logger.WriteError(message);
-                        continue;
+                        case "Mined":
+                            continue;
+                        case "Failed":
+                        case "NotExisted":
+                        {
+                            var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
+                            message += $"{transactionResult.Error}";
+                            Logger.WriteError(message);
+                            continue;
+                        }
+                        default:
+                            TxResultList.Enqueue(txId);
+                            break;
                     }
-
-                    TxResultList.Enqueue(txId);
                 }
 
                 if (queueLength == TxResultList.Count)

@@ -9,7 +9,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.OptionManagers
 {
     public class TransactionManager
     {
@@ -138,7 +138,7 @@ namespace AElf.Automation.Common.Extensions
         {
             var height = _cachedHeight;
             var hash = _cachedHash;
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || !_chainId.Equals(chainId))
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 30 || !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
                 height = GetBlkHeight(rpcAddress);
