@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -8,11 +8,9 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Reference Include="McMaster.Extensions.CommandLineUtils, Version=2.3.4.0, Culture=neutral, PublicKeyToken=6f71cb76b82f055d">
-        <HintPath>..\..\..\..\.nuget\packages\mcmaster.extensions.commandlineutils\2.3.4\lib\netstandard2.0\McMaster.Extensions.CommandLineUtils.dll</HintPath>
-      </Reference>
+      <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 
 </Project>
