@@ -16,6 +16,8 @@ namespace AElf.Automation.RpcPerformance
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
         private const int Phase = 120;
+
+        public int MaxTransactionLimit { get; private set; } = 1000;
         
         /// <summary>
         /// 统计出块信息
@@ -41,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
                 if (height == _blockHeight)
                 {
                     checkTimes++;
-                    Thread.Sleep(5000);
+                    Thread.Sleep(4000);
                     continue;
                 }
 
@@ -53,7 +55,9 @@ namespace AElf.Automation.RpcPerformance
                     var j = i;
                     var block = GetBlockByHeight(j);
                     _blockMap.Add(j, block);
-                    
+                    MaxTransactionLimit = MaxTransactionLimit > block.Body.TransactionsCount
+                        ? MaxTransactionLimit
+                        : block.Body.TransactionsCount; 
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
                 }

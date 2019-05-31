@@ -26,6 +26,9 @@ namespace AElf.Automation.RpcPerformance
             "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
         private int ExecuteMode { get; } = 0;
 
+        [Option("-lt|--limit.transaction", Description = "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
+        private bool LimitTransaction { get; } = true;
+
         #endregion
 
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
@@ -50,7 +53,7 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance = new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl);
+            var performance = new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl, limitTransaction: LimitTransaction);
             //Init Logger
             var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
