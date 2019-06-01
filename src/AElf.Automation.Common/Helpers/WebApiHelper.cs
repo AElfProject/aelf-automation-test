@@ -220,8 +220,17 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(1))
                 return;
-        
-            ci.InfoMsg = ApiService.BroadcastTransaction(ci.Parameter).Result;
+            try
+            {
+                ci.InfoMsg = ApiService.BroadcastTransaction(ci.Parameter).Result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex}, Execute tx failed");
+                ci.Result = false;
+                throw;
+            }
+            
             ci.Result = true;
         }
 
@@ -302,7 +311,18 @@ namespace AElf.Automation.Common.Helpers
                 return;
             
             var parameterArray = ci.Parameter.Split(" ");
-            ci.InfoMsg = ApiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1])).Result;
+
+            try
+            {
+                ci.InfoMsg = ApiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1])).Result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e}, GetBlockByHeight failed");
+                ci.Result = false;
+                throw;
+            }
+           
             ci.Result = true;
         }
         

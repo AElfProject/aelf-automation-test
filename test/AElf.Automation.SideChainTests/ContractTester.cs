@@ -1,9 +1,11 @@
+using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Google.Protobuf;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
 using CrossChainMerkleProofContext = AElf.Contracts.CrossChain.CrossChainMerkleProofContext;
 using ResourceType = AElf.Contracts.CrossChain.ResourceType;
@@ -96,7 +98,14 @@ namespace AElf.Automation.SideChainTests
                 CrossChainService.CallViewMethod<SInt32Value>(CrossChainContractMethod.GetChainStatus, new SInt32Value{Value = chainId});
             return result;
         }
-        
+
+        public ProposalOutput GetProposal(string proposalId)
+        {
+            var result =
+                ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal, Hash.LoadHex(proposalId));
+            return result;
+        }
+
         #endregion
 
         #region cross chain verify 
@@ -242,5 +251,15 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
+        
+        public void UnlockAllAccounts(ContractServices contractServices,string account)
+        {
+                var ci = new CommandInfo(ApiMethods.AccountUnlock)
+                {
+                    Parameter = $"{account} 123 notimeout"
+                };
+                ci = contractServices.ApiHelper.ExecuteCommand(ci);
+                Assert.IsTrue(ci.Result);
+        }
     }
 }

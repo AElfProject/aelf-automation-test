@@ -1,3 +1,4 @@
+using System;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
@@ -6,6 +7,7 @@ using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Google.Protobuf;
+using Shouldly;
 using CrossChainMerkleProofContext = AElf.Contracts.CrossChain.CrossChainMerkleProofContext;
 
 namespace AElf.Automation.SideChain.Verification.Test
@@ -29,7 +31,6 @@ namespace AElf.Automation.SideChain.Verification.Test
             var returnResult = result.InfoMsg as ChainStatusDto;
             chainId = returnResult.ChainId;
             ContractServices = contractServices;
-
             TokenService = ContractServices.TokenService;
             CrossChainService = ContractServices.CrossChainService;
             if (type.Equals("Main"))

@@ -152,7 +152,7 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpResponseMessage response;
+            HttpResponseMessage response = null;
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -178,7 +178,7 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpResponseMessage response;
+            HttpResponseMessage response =null;
             using (var client = new HttpClient())
             {
                 HttpContent content;
@@ -195,9 +195,24 @@ namespace AElf.Automation.Common.Helpers
                     content = new FormUrlEncodedContent(parameters);
                     content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
                 }
-            
-                response = await client.PostAsync(url, content);
-                response.StatusCode.ShouldBe(expectedStatusCode);
+
+                var message = "";
+                try
+                {
+                    response = await client.PostAsync(url, content);
+                    message = response.Content.ReadAsStringAsync().Result;
+                    Console.WriteLine($"{message}{url}");
+                    if (response.StatusCode != expectedStatusCode)
+                    {
+                        throw new Exception();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{response},{url},{content}: {message}");
+                    throw;
+                }
+
             }
             
             return response;
