@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
@@ -55,13 +54,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var tokenUsers = GetAvailableBuyUser(testTimes);
             foreach (var user in tokenUsers)
             {
-                var amount = GenerateRandomNumber(500, 1000);
+                var amount = GenerateRandomNumber(100, 500);
                 //TokenConverter.SetAccount(user);
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var buyResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Buy, new BuyInput
                 {
                     Amount = amount,
-                    Symbol = connector.Symbol,
+                    Symbol = connector.Symbol
                 });
                 if (!(buyResult.InfoMsg is TransactionResultDto txDto)) continue;
                 if (txDto.Status == "Mined")
@@ -77,7 +76,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var resourceUsers = GetAvailableSellUser(connector.Symbol, testTimes);
             foreach (var user in resourceUsers)
             {
-                var amount = GenerateRandomNumber(200, 500);
+                var amount = GenerateRandomNumber(100, 200);
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var sellResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Sell, new SellInput
                 {
@@ -177,7 +176,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             TokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Initialize, new InitializeInput
             {
                 BaseTokenSymbol = "ELF",
-                FeeRate = "0.005",
+                FeeRate = "0.01",
                 ManagerAddress = Address.Parse(Testers[0]),
                 TokenContractAddress = Address.Parse(Token.ContractAddress),
                 FeeReceiverAddress = Address.Parse(FeeReceiver.ContractAddress),
@@ -234,7 +233,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private Connector ElfConnector = new Connector
         {
             Symbol = "ELF",
-            VirtualBalance = 100_0000,
+            VirtualBalance = 1000_0000,
             Weight = "0.5",
             IsPurchaseEnabled = true,
             IsVirtualBalanceEnabled = true

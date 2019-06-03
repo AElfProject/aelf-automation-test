@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.OptionManagers;
@@ -398,26 +397,6 @@ namespace AElf.Automation.Common.Helpers
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             return AsyncHelper.RunSync(() => ApiService.Call(rawTxString));
-        }
-
-        private bool CheckResponse(CommandInfo ci, string returnCode, string response)
-        {
-            if (response == null)
-            {
-                ci.ErrorMsg = "Could not connect to server.";
-                return false;
-            }
-
-            if (returnCode != "OK")
-            {
-                ci.ErrorMsg = "Http request failed, status: " + returnCode;
-                return false;
-            }
-
-            if (!response.IsNullOrEmpty()) return true;
-
-            ci.ErrorMsg = "Failed. Pleas check input.";
-            return false;
         }
 
         private void InitializeWebApiRoute()

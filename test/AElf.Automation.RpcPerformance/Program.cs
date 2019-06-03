@@ -76,11 +76,11 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
 
-//                performance.InitExecCommand(2000 + ThreadCount);
-//                performance.DeployContracts();
-//                performance.InitializeContracts();
-//
-//                ExecuteRpcTask(performance, ExecuteMode);
+                performance.InitExecCommand(2000 + ThreadCount);
+                performance.DeployContracts();
+                performance.InitializeContracts();
+
+                ExecuteRpcTask(performance, ExecuteMode);
             }
             catch (Exception e)
             {
@@ -89,12 +89,6 @@ namespace AElf.Automation.RpcPerformance
             }
             finally
             {
-                performance.InitExecCommand(2000 + ThreadCount);
-                performance.DeployContracts();
-                performance.InitializeContracts();
-
-                ExecuteRpcTask(performance, ExecuteMode);
-                
                 //Delete accounts
                 performance.DeleteAccounts();
             }
