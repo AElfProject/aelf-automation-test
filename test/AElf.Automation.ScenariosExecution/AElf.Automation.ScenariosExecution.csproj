@@ -19,7 +19,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="appsettings.json" />
+        <None Update="scenario-nodes.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
