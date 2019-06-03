@@ -146,9 +146,10 @@ namespace AElf.Automation.Common.Helpers
             var client = GetDefaultClient(version);
 
             var response = await client.GetAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
-
-            return response;
+            if (response.StatusCode == expectedStatusCode) return response;
+            var message = await response.Content.ReadAsStringAsync();
+            message.WriteErrorLine();
+            throw new Exception(response.StatusCode.ToString());
         }
 
         private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> parameters,
@@ -180,9 +181,10 @@ namespace AElf.Automation.Common.Helpers
             }
 
             var response = await client.PostAsync(url, content);
-            response.StatusCode.ShouldBe(expectedStatusCode);
-
-            return response;
+            if (response.StatusCode == expectedStatusCode) return response;
+            var message = await response.Content.ReadAsStringAsync();
+            message.WriteErrorLine();
+            throw new Exception(response.StatusCode.ToString());
         }
 
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
@@ -209,9 +211,11 @@ namespace AElf.Automation.Common.Helpers
             var client = GetDefaultClient(version);
 
             var response = await client.DeleteAsync(url);
-            response.StatusCode.ShouldBe(expectedStatusCode);
+            if (response.StatusCode == expectedStatusCode) return response;
+            var message = await response.Content.ReadAsStringAsync();
+            message.WriteErrorLine();
+            throw new Exception(response.StatusCode.ToString());
 
-            return response;
         }
 
         private static HttpClient GetDefaultClient(string version = null)

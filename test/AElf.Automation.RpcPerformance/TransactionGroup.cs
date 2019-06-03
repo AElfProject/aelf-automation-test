@@ -91,23 +91,14 @@ namespace AElf.Automation.RpcPerformance
 
         public void GenerateAllContractTransactions()
         {
-            var checkTimes = 0;
             while (true)
             {
                 if (TransactionsQueue.Count > 5)
                 {
-                    checkTimes++;
-                    if (checkTimes == 100)
-                    {
-                        _logger.WriteWarn("No raw transactions request generated long time.");
-                        return;
-                    }
-                    
                     Thread.Sleep(100);
                     continue;
                 }
 
-                checkTimes = 0;
                 var tasks = new List<Task>();
                 foreach (var contract in Contracts)
                 {
