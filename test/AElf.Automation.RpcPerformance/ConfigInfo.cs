@@ -37,7 +37,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (_instance != null) return _instance;
                 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "rpc-performance.json");
                 var content = File.ReadAllText(configFile);
                 _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
             }

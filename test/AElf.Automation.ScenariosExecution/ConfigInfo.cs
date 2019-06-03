@@ -62,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 if (_instance != null) return _instance;
                 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
                 var content = File.ReadAllText(configFile);
                 _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
             }

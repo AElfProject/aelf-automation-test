@@ -148,8 +148,7 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 TransactionsQueue.Enqueue(rawTransactions);
-                _logger.WriteInfo($"Generate successful transaction: {TransactionsQueue.Count * 50}");
-            }
+             }
         }
     }
 }

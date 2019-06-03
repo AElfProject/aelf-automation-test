@@ -17,7 +17,7 @@
     <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="appsettings.json">
+    <None Update="rpc-performance.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
