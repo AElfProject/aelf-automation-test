@@ -383,7 +383,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 Parameter = rawTx
             };
-            ApiHelper.BroadcastTx(ci);
+            ApiHelper.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
                 var transactionOutput = ci.InfoMsg as BroadcastTransactionOutput;
