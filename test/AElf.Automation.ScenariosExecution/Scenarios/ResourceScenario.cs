@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.TokenConverter;
@@ -140,7 +141,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (tokenInfo.TotalSupply != 0)
                     {
                         connector.Symbol =
-                            $"{connector.Symbol.Replace(connector.Symbol.Substring(3), RandomString(4, false))}";
+                            $"{connector.Symbol.Replace(connector.Symbol.Substring(3), CommonHelper.RandomString(4, false))}";
                         continue;
                     }
 
@@ -241,7 +242,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private Connector RamConnector = new Connector
         {
-            Symbol = $"RAM{RandomString(4, false)}",
+            Symbol = $"RAM{CommonHelper.RandomString(4, false)}",
             VirtualBalance = 0,
             Weight = "0.5",
             IsPurchaseEnabled = true,
@@ -250,7 +251,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private Connector CpuConnector = new Connector
         {
-            Symbol = $"CPU{RandomString(4, false)}",
+            Symbol = $"CPU{CommonHelper.RandomString(4, false)}",
             VirtualBalance = 0,
             Weight = "0.5",
             IsPurchaseEnabled = true,
@@ -259,7 +260,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private Connector NetConnector = new Connector
         {
-            Symbol = $"NET{RandomString(4, false)}",
+            Symbol = $"NET{CommonHelper.RandomString(4, false)}",
             VirtualBalance = 0,
             Weight = "0.5",
             IsPurchaseEnabled = true,
@@ -278,16 +279,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var id = GenerateRandomNumber(0, Connectors.Count() - 1);
 
             return Connectors.ToArray()[id];
-        }
-
-        private static string RandomString(int size, bool lowerCase)
-        {
-            var random = new Random(DateTime.Now.Millisecond);
-            var builder = new StringBuilder(size);
-            var startChar = lowerCase ? 97 : 65; //65 = A / 97 = a
-            for (var i = 0; i < size; i++)
-                builder.Append((char) (26 * random.NextDouble() + startChar));
-            return builder.ToString();
         }
     }
 }

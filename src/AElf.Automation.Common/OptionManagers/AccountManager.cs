@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security;
@@ -13,11 +14,13 @@ namespace AElf.Automation.Common.OptionManagers
     {
         private readonly AElfKeyStore _keyStore;
         private readonly string _chainId;
+        private readonly List<string> _accounts;
 
         public AccountManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
             _chainId = chainId;
+            _accounts = _keyStore.ListAccountsAsync().Result;
         }
 
         public CommandInfo NewAccount(string password = "")
@@ -30,20 +33,21 @@ namespace AElf.Automation.Common.OptionManagers
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
-            if (addr != null)
-            {
-                result.Result = true;
-                string account = addr.GetFormatted();
-                result.InfoMsg = account;
-            }
+            if (addr == null) return result;
+            result.Result = true;
+            var account = addr.GetFormatted();
+            result.InfoMsg = account;
+            _accounts.Add(account);
 
             return result;
         }
 
         public CommandInfo ListAccount()
         {
-            var result = new CommandInfo(ApiMethods.AccountList);
-            result.InfoMsg = _keyStore.ListAccountsAsync().Result;
+            var result = new CommandInfo(ApiMethods.AccountList)
+            {
+                InfoMsg = _keyStore.ListAccountsAsync().Result
+            };
             if (result.InfoMsg != null)
                 result.Result = true;
 
@@ -56,14 +60,13 @@ namespace AElf.Automation.Common.OptionManagers
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = $"{address} {password} {notimeout}";
-            var accounts = _keyStore.ListAccountsAsync().Result;
-            if (accounts == null || accounts.Count == 0)
+            if (_accounts == null || _accounts.Count == 0)
             {
                 result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
                 return result;
             }
 
-            if (!accounts.Contains(address))
+            if (!_accounts.Contains(address))
             {
                 result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
                 return result;
@@ -72,17 +75,25 @@ namespace AElf.Automation.Common.OptionManagers
             var timeout = notimeout == "";
             var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
 
-            if (tryOpen == AElfKeyStore.Errors.WrongPassword)
-                result.ErrorMsg = "Error: incorrect password!";
-            else if (tryOpen == AElfKeyStore.Errors.AccountAlreadyUnlocked)
+            switch (tryOpen)
             {
-                result.InfoMsg = "Account already unlocked!";
-                result.Result = true;
-            }
-            else if (tryOpen == AElfKeyStore.Errors.None)
-            {
-                result.InfoMsg = "Account successfully unlocked!";
-                result.Result = true;
+                case AElfKeyStore.Errors.WrongPassword:
+                    result.ErrorMsg = "Error: incorrect password!";
+                    break;
+                case AElfKeyStore.Errors.AccountAlreadyUnlocked:
+                    result.InfoMsg = "Account already unlocked!";
+                    result.Result = true;
+                    break;
+                case AElfKeyStore.Errors.None:
+                    result.InfoMsg = "Account successfully unlocked!";
+                    result.Result = true;
+                    break;
+                case AElfKeyStore.Errors.WrongAccountFormat:
+                    break;
+                case AElfKeyStore.Errors.AccountFileNotFound:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             return result;

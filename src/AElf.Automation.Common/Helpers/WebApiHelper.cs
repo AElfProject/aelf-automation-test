@@ -31,7 +31,7 @@ namespace AElf.Automation.Common.Helpers
         public WebApiHelper(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _keyStore = new AElfKeyStore(keyPath == "" ? ApplicationHelper.GetDefaultDataDir() : keyPath);
+            _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetDefaultDataDir() : keyPath);
 
             ApiService = new WebApiService(baseUrl);
             CommandList = new List<CommandInfo>();
@@ -132,8 +132,9 @@ namespace AElf.Automation.Common.Helpers
         {
             if (AccountManager == null)
                 AccountManager = new AccountManager(_keyStore, "AELF");
-            ci = AccountManager.UnlockAccount(ci.Parameter.Split(" ")?[0], ci.Parameter.Split(" ")?[1],
-                ci.Parameter.Split(" ")?[2]);
+            var parameters = ci.Parameter.Split(" ");
+            ci = AccountManager.UnlockAccount(parameters[0], parameters[1],
+                parameters[2]);
             return ci;
         }
 
@@ -192,19 +193,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void BroadcastTx(CommandInfo ci)
         {
-            JObject j = null;
-            if (ci.Parameter != null)
-            {
-                if (!ci.Parameter.Contains("{"))
-                {
-                    BroadcastWithRawTx(ci);
-                    return;
-                }
-
-                j = JObject.Parse(ci.Parameter);
-            }
-
-            var tr = TransactionManager.ConvertFromJson(j) ?? TransactionManager.ConvertFromCommandInfo(ci);
+            var tr = TransactionManager.ConvertFromCommandInfo(ci);
 
             var parameter = ci.ParameterInput.ToByteString();
             tr.Params = parameter == null ? ByteString.Empty : parameter;
@@ -228,10 +217,7 @@ namespace AElf.Automation.Common.Helpers
 
         public string GenerateTransactionRawTx(CommandInfo ci)
         {
-            JObject j = null;
-            if (ci.Parameter != null)
-                j = JObject.Parse(ci.Parameter);
-            var tr = TransactionManager.ConvertFromJson(j) ?? TransactionManager.ConvertFromCommandInfo(ci);
+            var tr = TransactionManager.ConvertFromCommandInfo(ci);
 
             if (tr.MethodName == null)
             {
@@ -244,9 +230,8 @@ namespace AElf.Automation.Common.Helpers
             tr = tr.AddBlockReference(_baseUrl, _chainId);
 
             TransactionManager.SignTransaction(tr);
-            var rawTx = TransactionManager.ConvertTransactionRawTx(tr);
 
-            return rawTx["rawTransaction"].ToString();
+            return tr.ToByteArray().ToHex();
         }
 
         public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
@@ -268,9 +253,8 @@ namespace AElf.Automation.Common.Helpers
             tr = tr.AddBlockReference(_baseUrl, _chainId);
 
             TransactionManager.SignTransaction(tr);
-            var rawTx = TransactionManager.ConvertTransactionRawTx(tr);
 
-            return rawTx["rawTransaction"].ToString();
+            return tr.ToByteArray().ToHex();
         }
 
         public void BroadcastTxs(CommandInfo ci)

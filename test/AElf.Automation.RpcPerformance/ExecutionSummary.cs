@@ -10,23 +10,23 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ExecutionSummary
     {
-        private readonly IApiService _apiHelper;
+        private readonly IApiService ApiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
         private const int Phase = 120;
 
-        public int MaxTransactionLimit { get; private set; } = 1000;
+        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.TransactionLimit;
         
         /// <summary>
         /// 统计出块信息
         /// </summary>
-        /// <param name="baseUrl"></param>
+        /// <param name="apiHelper"></param>
         /// <param name="fromStart">是否从高度为1开始检测</param>
-        public ExecutionSummary(string baseUrl, bool fromStart = false)
+        public ExecutionSummary(IApiHelper apiHelper, bool fromStart = false)
         {
-            _apiHelper = new WebApiService(baseUrl);
+            ApiService = apiHelper.ApiService;
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
@@ -84,12 +84,12 @@ namespace AElf.Automation.RpcPerformance
 
         private long GetBlockHeight()
         {
-            return _apiHelper.GetBlockHeight().Result;
+            return ApiService.GetBlockHeight().Result;
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return _apiHelper.GetBlockByHeight(height).Result;
+            return ApiService.GetBlockByHeight(height).Result;
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

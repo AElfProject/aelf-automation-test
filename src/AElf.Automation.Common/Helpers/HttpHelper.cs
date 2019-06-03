@@ -30,12 +30,10 @@ namespace AElf.Automation.Common.Helpers
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.DefaultRequestHeaders.Add("Connection", "close");
+            var httpClient = GetDefaultClient();
             try
             {
-                HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
+                var response = httpClient.PostAsync(url, httpContent).Result;
 
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
@@ -47,10 +45,6 @@ namespace AElf.Automation.Common.Helpers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-            }
-            finally
-            {
-                httpClient.Dispose();
             }
 
             return string.Empty;
@@ -75,18 +69,16 @@ namespace AElf.Automation.Common.Helpers
             HttpContent httpContent = new StringContent(postData);
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.DefaultRequestHeaders.Add("Connection", "close");
-            Stopwatch exec = new Stopwatch();
+            var httpClient = GetDefaultClient();
+            var exec = new Stopwatch();
             try
             {
                 exec.Start();
-                HttpResponseMessage response = httpClient.PostAsync(url, httpContent).Result;
+                var response = httpClient.PostAsync(url, httpContent).Result;
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    string result = response.Content.ReadAsStringAsync().Result;
+                    var result = response.Content.ReadAsStringAsync().Result;
                     return result;
                 }
             }
@@ -98,12 +90,11 @@ namespace AElf.Automation.Common.Helpers
             {
                 exec.Stop();
                 timeSpan = exec.ElapsedMilliseconds;
-                httpClient.Dispose();
             }
 
             return string.Empty;
         }
-        
+
         /// <summary>
         /// 异步Get请求
         /// </summary>
@@ -121,7 +112,7 @@ namespace AElf.Automation.Common.Helpers
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
         }
-        
+
         /// <summary>
         /// 异步Post请求
         /// </summary>
@@ -141,28 +132,22 @@ namespace AElf.Automation.Common.Helpers
             });
         }
 
-        private static async Task<string> GetResponseAsStringAsync(string url,string version = null,
+        private static async Task<string> GetResponseAsStringAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             var response = await GetResponseAsync(url, version, expectedStatusCode);
             return await response.Content.ReadAsStringAsync();
         }
 
-        private static async Task<HttpResponseMessage> GetResponseAsync(string url,string version = null,
+        private static async Task<HttpResponseMessage> GetResponseAsync(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpResponseMessage response;
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
-                client.DefaultRequestHeaders.Add("Connection", "close");
-            
-                response = await client.GetAsync(url);
-                response.StatusCode.ShouldBe(expectedStatusCode);
-            }
-            
+            var client = GetDefaultClient(version);
+
+            var response = await client.GetAsync(url);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+
             return response;
         }
 
@@ -173,36 +158,33 @@ namespace AElf.Automation.Common.Helpers
             return await response.Content.ReadAsStringAsync();
         }
 
-        private static async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> parameters,
+        private static async Task<HttpResponseMessage> PostResponseAsync(string url,
+            Dictionary<string, string> parameters,
             string version = null, bool useApplicationJson = false,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpResponseMessage response;
-            using (var client = new HttpClient())
+            var client = GetDefaultClient(version);
+            HttpContent content;
+            if (useApplicationJson)
             {
-                HttpContent content;
-                if (useApplicationJson)
-                {
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.DefaultRequestHeaders.Add("Connection", "close");
-                    var paramsStr = JsonConvert.SerializeObject(parameters);
-                    content = new StringContent(paramsStr,Encoding.UTF8, "application/json");
-                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
-                }
-                else
-                {
-                    content = new FormUrlEncodedContent(parameters);
-                    content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
-                }
-            
-                response = await client.PostAsync(url, content);
-                response.StatusCode.ShouldBe(expectedStatusCode);
+                var paramsStr = JsonConvert.SerializeObject(parameters);
+                content = new StringContent(paramsStr, Encoding.UTF8, "application/json");
+                content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
             }
-            
+            else
+            {
+                content = new FormUrlEncodedContent(parameters);
+                content.Headers.ContentType =
+                    MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
+            }
+
+            var response = await client.PostAsync(url, content);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+
             return response;
         }
-        
+
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
@@ -224,18 +206,26 @@ namespace AElf.Automation.Common.Helpers
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
-            HttpResponseMessage response;
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
-                client.DefaultRequestHeaders.Add("Connection", "close");
-            
-                response = await client.DeleteAsync(url);
-                response.StatusCode.ShouldBe(expectedStatusCode);
-            }
-            
+            var client = GetDefaultClient(version);
+
+            var response = await client.DeleteAsync(url);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+
             return response;
         }
+
+        private static HttpClient GetDefaultClient(string version = null)
+        {
+            if (Client != null) return Client;
+            Client = new HttpClient();
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(
+                MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            Client.DefaultRequestHeaders.Add("Connection", "close");
+
+            return Client;
+        }
+
+        private static HttpClient Client { get; set; }
     }
 }

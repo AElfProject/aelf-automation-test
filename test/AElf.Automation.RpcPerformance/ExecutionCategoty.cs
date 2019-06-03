@@ -21,12 +21,12 @@ namespace AElf.Automation.RpcPerformance
     public class AccountInfo
     {
         public string Account { get; }
-        public int Increment { get; set; }
+        public int Balance { get; set; }
 
         public AccountInfo(string account)
         {
             Account = account;
-            Increment = 0;
+            Balance = 0;
         }
     }
 
@@ -34,11 +34,11 @@ namespace AElf.Automation.RpcPerformance
     {
         public string ContractPath { get; }
         public string Symbol { get; set; }
-        public int AccountId { get; }
+        public string Owner { get; set; }
 
-        public Contract(int accId, string contractPath)
+        public Contract(string owner, string contractPath)
         {
-            AccountId = accId;
+            Owner = owner;
             ContractPath = contractPath;
         }
     }
@@ -48,7 +48,11 @@ namespace AElf.Automation.RpcPerformance
         #region Public Property
 
         public IApiHelper ApiHelper { get; private set; }
-        private ExecutionSummary Summary { get; }
+        private ExecutionSummary Summary { get; set; }
+        
+        private TransactionGroup Group { get; set; }
+        
+        private NodeStatusMonitor Monitor { get; set; }
         public string BaseUrl { get; }
         private List<AccountInfo> AccountList { get; }
         private string KeyStorePath { get; }
@@ -70,7 +74,7 @@ namespace AElf.Automation.RpcPerformance
             bool limitTransaction = true)
         {
             if (keyStorePath == "")
-                keyStorePath = GetDefaultDataDir();
+                keyStorePath = CommonHelper.GetCurrentDataDir();
 
             AccountList = new List<AccountInfo>();
             ContractList = new List<Contract>();
@@ -82,25 +86,29 @@ namespace AElf.Automation.RpcPerformance
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl;
             LimitTransaction = limitTransaction;
-            Summary = new ExecutionSummary(baseUrl);
         }
 
-        public void InitExecCommand()
+        public void InitExecCommand(int userCount = 200)
         {
             _logger.WriteInfo("Host Url: {0}", BaseUrl);
             _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
+            
             ApiHelper = new WebApiHelper(BaseUrl, KeyStorePath);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
+            
             //New
-            NewAccounts(200);
+            NewAccounts(userCount);
 
             //Unlock Account
-            UnlockAllAccounts(ThreadCount);
+            UnlockAllAccounts(userCount);
+            
+            //Init other services
+            Summary = new ExecutionSummary(ApiHelper);
+            Monitor = new NodeStatusMonitor(ApiHelper);
         }
 
         public void DeployContracts()
@@ -151,8 +159,7 @@ namespace AElf.Automation.RpcPerformance
                             count++;
                             item.Result = true;
                             var contractPath = transactionResult.ReadableReturnValue.Replace("\"", "");
-                            ContractList.Add(new Contract(item.Id, contractPath));
-                            AccountList[item.Id].Increment = 1;
+                            ContractList.Add(new Contract(AccountList[item.Id].Account, contractPath));
                             break;
                         }
                         case TransactionResultStatus.Failed:
@@ -185,10 +192,10 @@ namespace AElf.Automation.RpcPerformance
             //create all token
             foreach (var contract in ContractList)
             {
-                var account = AccountList[contract.AccountId].Account;
+                var account = contract.Owner;
                 var contractPath = contract.ContractPath;
 
-                var symbol = $"ELF{RandomString(4, false)}";
+                var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create")
                 {
@@ -209,13 +216,12 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
-
-            CheckResultStatus(TxIdList);
+            Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
             foreach (var contract in ContractList)
             {
-                var account = AccountList[contract.AccountId].Account;
+                var account = contract.Owner;
                 var contractPath = contract.ContractPath;
                 var symbol = contract.Symbol;
 
@@ -236,8 +242,23 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
+            Monitor.CheckTransactionsStatus(TxIdList);
+            
+            //prepare conflict environment
+            var conflict = ConfigInfoHelper.Config.Conflict;
+            if(!conflict)
+                InitializeTransactionGroup();
+        }
 
-            CheckResultStatus(TxIdList);
+        public void InitializeTransactionGroup()
+        {
+            var apiHelper = ApiHelper;
+            var users = AccountList.Skip(ThreadCount).ToList();
+            var contracts = ContractList;
+            
+            Group = new TransactionGroup(apiHelper, users, contracts);
+            Group.InitializeAllUsersToken();
+            Task.Run(() => Group.GenerateAllContractTransactions());
         }
 
         public void ExecuteOneRoundTransactionTask()
@@ -258,7 +279,6 @@ namespace AElf.Automation.RpcPerformance
             exec.Stop();
             _logger.WriteInfo("End transaction execution at: {0}, execution time span is {1}",
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
-            GetExecutedAccount();
         }
 
         public void ExecuteOneRoundTransactionsTask()
@@ -290,7 +310,7 @@ namespace AElf.Automation.RpcPerformance
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
-        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
+        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
             //add transaction performance check process
             var taskList = new List<Task>
@@ -313,7 +333,9 @@ namespace AElf.Automation.RpcPerformance
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
-                                    txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes)));
+                                    txsTasks.Add(conflict
+                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes))
+                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, ExeTimes)));
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
@@ -341,7 +363,7 @@ namespace AElf.Automation.RpcPerformance
 
                             if (r % 3 != 0) continue;
 
-                            CheckNodeStatus();
+                            Monitor.CheckNodeHeightStatus();
 
                             stopwatch.Stop();
                             TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
@@ -380,7 +402,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 count++;
                 _logger.WriteInfo("{0:00}. Account: {1}, ContractAddress:{2}", count,
-                    AccountList[item.AccountId].Account,
+                    item.Owner,
                     item.ContractPath);
             }
         }
@@ -390,7 +412,7 @@ namespace AElf.Automation.RpcPerformance
         //Without conflict group category
         private void ExecuteTransactionTask(int threadNo, int times)
         {
-            var account = AccountList[ContractList[threadNo].AccountId].Account;
+            var account = ContractList[threadNo].Owner;
             var abiPath = ContractList[threadNo].ContractPath;
 
             var set = new HashSet<int>();
@@ -403,7 +425,6 @@ namespace AElf.Automation.RpcPerformance
                 var countNo = randNumber;
                 set.Add(countNo);
                 var account1 = AccountList[countNo].Account;
-                AccountList[countNo].Increment++;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer")
@@ -430,16 +451,16 @@ namespace AElf.Automation.RpcPerformance
 
             _logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
             txIdList.Reverse();
-            CheckResultStatus(txIdList);
+            Monitor.CheckTransactionsStatus(txIdList);
             _logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
         }
 
         private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
-            var account = AccountList[ContractList[threadNo].AccountId].Account;
+            var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractPath;
 
-            CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
 
             var rawTransactions = new List<string>();
             for (var i = 0; i < times; i++)
@@ -448,7 +469,6 @@ namespace AElf.Automation.RpcPerformance
                 var randNumber = rd.Next(ThreadCount, AccountList.Count);
                 var countNo = randNumber;
                 var account1 = AccountList[countNo].Account;
-                AccountList[countNo].Increment++;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
@@ -473,18 +493,37 @@ namespace AElf.Automation.RpcPerformance
             ApiHelper.ExecuteCommand(commandInfo);
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}", rawTransactions.Count,
+            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
                 transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
 
+        private void ExecuteNonConflictBatchTransactionTask(int threadNo, int times)
+        {
+            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            var rawTransactions = Group.GetRawTransactions();
+            
+            //Send batch transaction requests
+            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
+            {
+                Parameter = string.Join(",", rawTransactions)
+            };
+            ApiHelper.ExecuteCommand(commandInfo);
+            Assert.IsTrue(commandInfo.Result);
+            var transactions = (string[]) commandInfo.InfoMsg;
+            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
+                transactions.Length);
+            _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
+            Thread.Sleep(50);
+        }
+        
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
-            var account = AccountList[ContractList[threadNo].AccountId].Account;
+            var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractPath;
 
-            CheckTransactionPoolStatus(LimitTransaction);
+            Monitor.CheckTransactionPoolStatus(LimitTransaction);
             
             for (var i = 0; i < times; i++)
             {
@@ -492,7 +531,6 @@ namespace AElf.Automation.RpcPerformance
                 var randNumber = rd.Next(ThreadCount, AccountList.Count);
                 var countNo = randNumber;
                 var account1 = AccountList[countNo].Account;
-                AccountList[countNo].Increment++;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
@@ -524,85 +562,6 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private void CheckNodeStatus()
-        {
-            var checkTimes = 0;
-            while (true)
-            {
-                var ci = new CommandInfo(ApiMethods.GetBlockHeight);
-                ApiHelper.GetBlockHeight(ci);
-                var currentHeight = (long) ci.InfoMsg;
-
-                if (BlockHeight != currentHeight)
-                {
-                    BlockHeight = currentHeight;
-                    return;
-                }
-
-                checkTimes++;
-                Thread.Sleep(100);
-                if (checkTimes % 100 == 0)
-                    _logger.WriteWarn(
-                        $"Current block height {currentHeight}, not changed in {checkTimes / 10} seconds.");
-
-                if (checkTimes == 3000)
-                    Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
-            }
-        }
-
-        private void CheckResultStatus(IList<string> idList, int checkTimes = 60)
-        {
-            if (checkTimes < 0)
-                Assert.IsTrue(false, "Transaction status check is over time.");
-            checkTimes--;
-            var listCount = idList.Count;
-            Thread.Sleep(2000);
-            var length = idList.Count;
-            for (var i = length - 1; i >= 0; i--)
-            {
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = idList[i]};
-                ApiHelper.ExecuteCommand(ci);
-
-                if (ci.Result)
-                {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var deployResult = transactionResult?.Status;
-                    if (deployResult == "Mined")
-                        idList.Remove(idList[i]);
-                }
-
-                Thread.Sleep(50);
-            }
-
-            if (idList.Count > 0 && idList.Count != 1)
-            {
-                _logger.WriteInfo("***************** {0} ******************", idList.Count);
-                if (listCount == idList.Count && checkTimes == 0)
-                    Assert.IsTrue(false, "Transaction not executed successfully.");
-                CheckResultStatus(idList, checkTimes);
-            }
-
-            if (idList.Count == 1)
-            {
-                _logger.WriteInfo("Last one: {0}", idList[0]);
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = idList[0]};
-                ApiHelper.ExecuteCommand(ci);
-
-                if (ci.Result)
-                {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var deployResult = transactionResult?.Status;
-                    if (deployResult != "Mined")
-                    {
-                        Thread.Sleep(50);
-                        CheckResultStatus(idList, checkTimes);
-                    }
-                }
-            }
-
-            Thread.Sleep(50);
-        }
-
         private void UnlockAllAccounts(int count)
         {
             for (var i = 0; i < count; i++)
@@ -618,90 +577,36 @@ namespace AElf.Automation.RpcPerformance
 
         private void NewAccounts(int count)
         {
-            for (var i = 0; i < count; i++)
+            var accounts = GetExistAccounts();
+            if (accounts.Count > count)
             {
-                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
-                ci = ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
-            }
-        }
-
-        private void GetExecutedAccount()
-        {
-            var accounts = AccountList.FindAll(x => x.Increment != 0);
-            var count = 0;
-            foreach (var item in accounts)
-            {
-                count++;
-                _logger.WriteInfo("{0:000} Account: {1}, Execution times: {2}", count, item.Account, item.Increment);
-            }
-        }
-
-        private static string GetDefaultDataDir()
-        {
-            try
-            {
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                var keyPath = Path.Combine(path, "keys");
-                if (!Directory.Exists(keyPath))
-                    Directory.CreateDirectory(keyPath);
-
-                return path;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private static int _checkCount = 0;
-        private object checkObj = new object();
-        private void CheckTransactionPoolStatus(bool enable)
-        {
-            if (!enable) return;
-            while (true)
-            {
-                var txCount = GetTransactionPoolTxCount();
-                if (txCount < Summary.MaxTransactionLimit)
+                foreach (var acc in accounts.Take(count))
                 {
-                    lock (checkObj)
-                    {
-                        _checkCount = 0;
-                    }
-                    break;
+                    AccountList.Add(new AccountInfo(acc));
                 }
-
-                lock (checkObj)
+            }
+            else
+            {
+                foreach (var acc in accounts)
                 {
-                    _checkCount++;
+                    AccountList.Add(new AccountInfo(acc));
                 }
-                Thread.Sleep(100);
-                if (_checkCount % (10 * ThreadCount) == 0)
-                    _logger.WriteWarn(
-                        $"TxHub transaction count is {txCount}, test limit number is: {Summary.MaxTransactionLimit}");
+                for (var i = 0; i < count - accounts.Count; i++)
+                {
+                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                    ci = ApiHelper.ExecuteCommand(ci);
+                    Assert.IsTrue(ci.Result);
+                    AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
+                }
             }
         }
 
-        private int GetTransactionPoolTxCount()
+        private List<string> GetExistAccounts()
         {
-            var transactionPoolStatusOutput =
-                AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus());
+            var ci = ApiHelper.ListAccounts();
+            var accounts = ci.InfoMsg as List<string>;
 
-            return transactionPoolStatusOutput.Queued;
-        }
-
-        private static string RandomString(int size, bool lowerCase)
-        {
-            var random = new Random(DateTime.Now.Millisecond);
-            var builder = new StringBuilder(size);
-            var startChar = lowerCase ? 97 : 65; //65 = A / 97 = a
-            for (var i = 0; i < size; i++)
-                builder.Append((char) (26 * random.NextDouble() + startChar));
-            return builder.ToString();
+            return accounts;
         }
 
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)

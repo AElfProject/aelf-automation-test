@@ -12,7 +12,7 @@ namespace AElf.Automation.Common.Helpers
 
         public SmartContractReader()
         {
-            _dataDirectory = ApplicationHelper.GetDefaultDataDir();
+            _dataDirectory = CommonHelper.GetDefaultDataDir();
         }
 
         public byte[] Read(string name)
