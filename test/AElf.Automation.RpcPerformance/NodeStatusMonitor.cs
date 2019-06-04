@@ -11,8 +11,10 @@ namespace AElf.Automation.RpcPerformance
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private IApiHelper ApiHelper { get; }
-        private int MaxLimit { get; }
+        
         private long BlockHeight { get; set; } = 1;
+        
+        public static int MaxLimit { get; set; }
         
         public NodeStatusMonitor(IApiHelper apiHelper)
         {

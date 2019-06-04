@@ -57,7 +57,8 @@ namespace AElf.Automation.RpcPerformance
                     _blockMap.Add(j, block);
                     MaxTransactionLimit = MaxTransactionLimit > block.Body.TransactionsCount
                         ? MaxTransactionLimit
-                        : block.Body.TransactionsCount; 
+                        : block.Body.TransactionsCount;
+                    NodeStatusMonitor.MaxLimit = MaxTransactionLimit;
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
                 }
