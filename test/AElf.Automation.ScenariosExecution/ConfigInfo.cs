@@ -27,6 +27,15 @@ namespace AElf.Automation.ScenariosExecution
         public WebApiService ApiService { get; set; }
     }
 
+    public class TestCase
+    {
+        [JsonProperty("case_name")]
+        public string CaseName { get; set; }
+        
+        [JsonProperty("enable")]
+        public bool Enable { get; set; }
+    }
+    
     public class ConfigInfo
     {
         [JsonProperty("BpNodes")]
@@ -37,6 +46,9 @@ namespace AElf.Automation.ScenariosExecution
         
         [JsonProperty("UserCount")]
         public int UserCount { get; set; }
+        
+        [JsonProperty("TestCases")]
+        public List<TestCase> TestCases { get; set; }
     }
 
     public static class ConfigInfoHelper

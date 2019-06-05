@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
+using AElf.Contracts.MultiToken.Messages;
 using FluentScheduler;
 
 namespace AElf.Automation.ScenariosExecution
@@ -26,6 +28,10 @@ namespace AElf.Automation.ScenariosExecution
             
             #endregion
 
+            var enableCases = ConfigInfoHelper.Config.TestCases.
+                FindAll(o => o.Enable).
+                Select(o=>o.CaseName).ToList();
+
             var token = new TokenScenario();
             token.PrepareAccountBalance();
             var contract = new ContractScenario();
@@ -37,15 +43,23 @@ namespace AElf.Automation.ScenariosExecution
             
             var registry = new Registry();
             //scenario tasks
-            registry.Schedule(()=>token.TokenScenarioJob()).WithName("TokenScenario")
+            if(enableCases.Contains("TokenScenario"))
+                registry.Schedule(()=>token.TokenScenarioJob()).WithName("TokenScenario")
                 .ToRunEvery(3).Seconds();
-            registry.Schedule(() => resource.ResourceScenarioJob()).WithName("ResourceScenario")
+            
+            if(enableCases.Contains("ResourceScenario"))
+                registry.Schedule(() => resource.ResourceScenarioJob()).WithName("ResourceScenario")
                 .ToRunEvery(3).Seconds();
-            registry.Schedule(()=>user.UserScenarioJob()).WithName("UserScenario")
+            
+            if(enableCases.Contains("UserScenario"))
+                registry.Schedule(()=>user.UserScenarioJob()).WithName("UserScenario")
                 .ToRunEvery(6).Seconds();
-            registry.Schedule(() => node.NodeScenarioJob()).WithName("NodeScenario")
+            
+            if(enableCases.Contains("NodeScenario"))
+                registry.Schedule(() => node.NodeScenarioJob()).WithName("NodeScenario")
                 .ToRunEvery(1).Minutes();
-            registry.Schedule(() => contract.RunContractScenario()).WithName("ContractScenario")
+            if(enableCases.Contains("ContractScenario"))
+                registry.Schedule(() => contract.RunContractScenario()).WithName("ContractScenario")
                 .ToRunEvery(3).Minutes();
             
             JobManager.Initialize(registry);
