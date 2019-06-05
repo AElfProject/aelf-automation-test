@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
-using AElf.Contracts.MultiToken.Messages;
 using FluentScheduler;
 
 namespace AElf.Automation.ScenariosExecution
