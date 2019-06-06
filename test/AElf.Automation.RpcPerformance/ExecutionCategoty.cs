@@ -135,7 +135,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             var count = 0;
-            var checkTimes = 30;
+            var checkTimes = 60;
 
             while (checkTimes > 0)
             {
