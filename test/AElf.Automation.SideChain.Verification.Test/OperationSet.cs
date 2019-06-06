@@ -749,6 +749,8 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
         }
 
+        #region private method
+
         private Operation InitMain(string initAccount)
         {
             var mainService = new ContractServices(BaseUrl, initAccount, "Main");
@@ -1082,5 +1084,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
             return ci;
         }
+        
+        #endregion
     }
 }

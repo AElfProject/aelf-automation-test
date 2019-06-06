@@ -201,7 +201,7 @@ namespace AElf.Automation.Common.Helpers
                 {
                     response = await client.PostAsync(url, content);
                     message = response.Content.ReadAsStringAsync().Result;
-                    Console.WriteLine($"{message}{url}");
+                    Console.WriteLine($"{message}, {url}");
                     if (response.StatusCode != expectedStatusCode)
                     {
                         throw new Exception();
