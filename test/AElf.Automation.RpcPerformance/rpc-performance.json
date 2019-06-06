@@ -1,8 +1,8 @@
 {
-    "ThreadCount": 8,
-    "GroupCount": 50, 
-    "ServiceUrl": "http://127.0.0.1:8000",
-    "TransactionLimit": 2000,
+    "GroupCount": 16,
+    "TransactionCount": 1000, 
+    "ServiceUrl": "http://192.168.199.205:8100",
+    "TransactionLimit": 5000,
     "ExecuteMode": 4,
     
     "Conflict": true

@@ -13,11 +13,11 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        private int ThreadCount { get; } = ConfigInfoHelper.Config.ThreadCount;
+        private int ThreadCount { get; } = ConfigInfoHelper.Config.GroupCount;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionGroup { get; } = ConfigInfoHelper.Config.GroupCount;
+        private int TransactionGroup { get; } = ConfigInfoHelper.Config.TransactionCount;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
         private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
@@ -76,7 +76,7 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
 
-                performance.InitExecCommand(2000 + ThreadCount);
+                performance.InitExecCommand(1000 + ThreadCount);
                 performance.DeployContracts();
                 performance.InitializeContracts();
 
@@ -103,9 +103,9 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = 0)
+        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = -1)
         {
-            if (execMode == 0)
+            if (execMode == -1)
             {
                 Logger.WriteInfo("Select execution type:");
                 Console.WriteLine("1. Normal mode");

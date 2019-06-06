@@ -5,11 +5,11 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ConfigInfo
     {
-        [JsonProperty("ThreadCount")]
-        public int ThreadCount { get; set; }
-        
         [JsonProperty("GroupCount")]
         public int GroupCount { get; set; }
+        
+        [JsonProperty("TransactionCount")]
+        public int TransactionCount { get; set; }
         
         [JsonProperty("ServiceUrl")]
         public string ServiceUrl { get; set; }
