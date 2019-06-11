@@ -108,10 +108,10 @@ namespace AElf.Automation.RpcPerformance
             if (execMode == -1)
             {
                 Logger.WriteInfo("Select execution type:");
-                Console.WriteLine("1. Normal mode");
-                Console.WriteLine("2. Continue Tx mode");
-                Console.WriteLine("3. Batch mode");
-                Console.WriteLine("4. Continue Txs mode");
+                "1. Normal mode".WriteSuccessLine();
+                "2. Continue Tx mode".WriteSuccessLine();
+                "3. Batch mode".WriteSuccessLine();
+                "4. Continue Txs mode".WriteSuccessLine();
                 Console.Write("Input selection: ");
 
                 var runType = Console.ReadLine();
