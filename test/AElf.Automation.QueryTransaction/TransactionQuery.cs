@@ -49,7 +49,7 @@ namespace AElf.Automation.QueryTransaction
                 for (var i = _blockHeight; i <= height; i++)
                 {
                     var block = await _apiService.GetBlockByHeight(i, true);
-                    Logger.WriteInfo($"Block height: {i}, Block hash: {block.BlockHash}");
+                    Logger.WriteInfo($"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
                     block.Body.Transactions.ForEach(item => _transactionQueue.Enqueue(item));
                 }
 

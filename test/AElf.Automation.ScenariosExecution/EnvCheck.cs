@@ -14,6 +14,8 @@ namespace AElf.Automation.ScenariosExecution
         private string AccountDir { get; }
         private static ConfigInfo _config;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        
+        public static ContractServices Services { get; set; }
 
         public EnvCheck()
         {
@@ -50,17 +52,19 @@ namespace AElf.Automation.ScenariosExecution
 
         public ContractServices GetContractServices(string url = "")
         {
+            if (Services != null) return Services;
+            
             if(url == "")
                 url = _config.BpNodes.First(o => o.Status).ServiceUrl;
             var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);
             
-            return new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
+            Services = new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
+            
+            return Services;
         }
-
  
-
         private static List<string> GenerateTestUsers(IApiHelper helper, int count)
         {
             
