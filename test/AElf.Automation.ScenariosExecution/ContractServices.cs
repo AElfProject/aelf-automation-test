@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
@@ -51,7 +52,8 @@ namespace AElf.Automation.ScenariosExecution
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
             
             CurrentBpNodes = GetCurrentBpNodes(ConsensusService, bpNodes, fullNodes);
-            ApiHelper.UpdateApiUrl(CurrentBpNodes.First().ServiceUrl);
+            var rd = new Random(DateTime.Now.Millisecond); //随机选择bp执行
+            ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count-1)].ServiceUrl); 
             
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
