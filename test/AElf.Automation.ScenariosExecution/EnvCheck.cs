@@ -48,15 +48,18 @@ namespace AElf.Automation.ScenariosExecution
             }
         }
 
-        public ContractServices GetContractServices()
+        public ContractServices GetContractServices(string url = "")
         {
-            var baseUrl = _config.BpNodes.First(o => o.Status).ServiceUrl;
-            var apiHelper = new WebApiHelper(baseUrl, AccountDir);
+            if(url == "")
+                url = _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);
             
             return new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
         }
+
+ 
 
         private static List<string> GenerateTestUsers(IApiHelper helper, int count)
         {

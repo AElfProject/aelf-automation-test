@@ -46,7 +46,7 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(100);
                 if (_checkCount % 10 == 0)
                     _logger.WriteWarn(
-                        $"TxHub transaction userCount is {txCount}, test limit number is: {MaxLimit}");
+                        $"TxHub current transaction count:{txCount}, current test limit number: {MaxLimit}");
             }
         }
 
