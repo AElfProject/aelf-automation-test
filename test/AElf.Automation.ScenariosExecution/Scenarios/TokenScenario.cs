@@ -128,7 +128,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (!isAnnounced && tokenBalance == 0)
             {
-                var bp = BpNodes.First();
+                var bp = ContractServices.CurrentBpNodes.First();
                 //Token.SetAccount(bp.Account, bp.Password);
                 var token = Token.GetNewTester(bp.Account, bp.Password);
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))

@@ -24,7 +24,7 @@ namespace AElf.Automation.ScenariosExecution
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         
-        public List<Node> CurrentBpNodes { get; set; }
+        public static List<Node> CurrentBpNodes { get; set; }
         
         public ContractServices(IApiHelper apiHelper, string callAddress)
         {
