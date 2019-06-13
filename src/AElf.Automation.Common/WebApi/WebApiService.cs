@@ -213,7 +213,7 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},
                 
                 //net route
-                {ApiMethods.GetPeers, "api/net/peers"},
+                {ApiMethods.GetPeers, "/api/net/peers"},
                 {ApiMethods.AddPeer, "/api/net/peer"},
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
@@ -14,7 +13,6 @@ using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -34,7 +32,7 @@ namespace AElf.Automation.RpcPerformance
     {
         public string ContractPath { get; }
         public string Symbol { get; set; }
-        public string Owner { get; set; }
+        public string Owner { get; private set; }
 
         public Contract(string owner, string contractPath)
         {
