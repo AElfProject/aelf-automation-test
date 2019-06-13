@@ -94,8 +94,5 @@ namespace AElf.Automation.EconomicSystem.Tests
                 count++;
             }
         }
-        
-        [TestMethod]
-        
     }
 }

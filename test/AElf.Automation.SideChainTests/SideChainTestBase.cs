@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Acs7;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Types;
@@ -86,7 +86,8 @@ namespace AElf.Automation.SideChainTests
             var root = bmt.ComputeRootHash();
             var merklePath = bmt.GenerateMerklePath(index);
 
-            return merklePath;
+            //return merklePath;
+            return null;
         }
 
         protected void TestCleanUp()

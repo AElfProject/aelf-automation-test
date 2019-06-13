@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
@@ -15,7 +15,6 @@ using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MerklePath = AElf.Kernel.MerklePath;
 
 namespace AElf.Automation.SideChain.Verification.Test
 {
@@ -855,7 +854,8 @@ namespace AElf.Automation.SideChain.Verification.Test
             var root = bmt.ComputeRootHash();
             var merklePath = bmt.GenerateMerklePath(index);
 
-            return merklePath;
+            //return merklePath;
+            return null;
         }
         
         private static string GetDefaultDataDir()

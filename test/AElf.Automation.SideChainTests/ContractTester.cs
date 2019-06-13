@@ -1,3 +1,4 @@
+using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
@@ -5,9 +6,6 @@ using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Google.Protobuf;
 using ApproveInput = Acs3.ApproveInput;
-using CrossChainMerkleProofContext = AElf.Contracts.CrossChain.CrossChainMerkleProofContext;
-using ResourceType = AElf.Contracts.CrossChain.ResourceType;
-using ResourceTypeBalancePair = AElf.Contracts.CrossChain.ResourceTypeBalancePair;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -50,7 +48,7 @@ namespace AElf.Automation.SideChainTests
                     LockedTokenAmount = lockToken,
                     IndexingPrice = 1,
                     ContractCode = code,
-                    ResourceBalances = {resourceBalance}
+                    //ResourceBalances = {resourceBalance}
                 });
             return result;
         }
