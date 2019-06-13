@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Helpers
     {
         #region Properties
 
-        private readonly string _baseUrl;
+        private string _baseUrl;
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
@@ -36,6 +36,11 @@ namespace AElf.Automation.Common.Helpers
             CommandList = new List<CommandInfo>();
 
             InitializeWebApiRoute();
+        }
+
+        public void UpdateApiUrl(string url)
+        {
+            _baseUrl = url;
         }
 
         public WebApiService ApiService { get; set; }

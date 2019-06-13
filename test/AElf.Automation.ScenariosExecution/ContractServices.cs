@@ -1,11 +1,16 @@
+using System.Collections.Generic;
+using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.ScenariosExecution
 {
     public class ContractServices
     {
+        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
@@ -17,6 +22,8 @@ namespace AElf.Automation.ScenariosExecution
         public ConsensusContract ConsensusService { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
+        
+        public List<Node> CurrentBpNodes { get; set; }
         
         public ContractServices(IApiHelper apiHelper, string callAddress)
         {
@@ -33,7 +40,18 @@ namespace AElf.Automation.ScenariosExecution
         
         private void GetAllContractServices()
         {
+            var configInfo = ConfigInfoHelper.Config;
+            var bpNodes = configInfo.BpNodes;
+            var fullNodes = configInfo.FullNodes;
+            
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            
+            //Consensus contract
+            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
+            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
+            
+            CurrentBpNodes = GetCurrentBpNodes(ConsensusService, bpNodes, fullNodes);
+            ApiHelper.UpdateApiUrl(CurrentBpNodes.First().ServiceUrl);
             
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
@@ -69,15 +87,34 @@ namespace AElf.Automation.ScenariosExecution
             //ElectionService contract
             var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
             ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
-
-            //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
-            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
         }
+        
+        
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
+        }
+        
+        private List<Node> GetCurrentBpNodes(ConsensusContract consensus, List<Node> bpNodes, List<Node> fullNodes)
+        {
+            var currentBps = new List<Node>();
+            var miners = consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            foreach (var bp in bpNodes)
+            {
+                if(minersPublicKeys.Contains(bp.PublicKey))
+                    currentBps.Add(bp);
+            }
+
+            foreach (var full in fullNodes)
+            {
+                if(minersPublicKeys.Contains(full.PublicKey))
+                    currentBps.Add(full);
+            }
+            Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o=>o.Name))}");
+
+            return currentBps;
         }
     }
 }

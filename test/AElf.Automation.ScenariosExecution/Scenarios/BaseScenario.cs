@@ -16,13 +16,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class BaseScenario
     {
         protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-
         protected List<string> AllTesters { get; set; }
-
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
-        
-        protected List<Node> CurrentBpNodes { get; set; }
         protected ContractServices Services { get; set; }
 
         protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true, int sleepSeconds = 0)
@@ -114,35 +110,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;
             FullNodes = configInfo.FullNodes;
-            GetCurrentBpNodes();
-            Services = envCheck.GetContractServices(CurrentBpNodes.First().ServiceUrl);
-            Logger.WriteInfo($"All request would be sent from: {CurrentBpNodes.First().Name}");
         }
 
         protected static int GenerateRandomNumber(int min, int max)
         {
             var random = new Random(DateTime.UtcNow.Millisecond);
             return random.Next(min, max);
-        }
-        
-        protected void GetCurrentBpNodes()
-        {
-            CurrentBpNodes = new List<Node>();
-            var consensus = Services.ConsensusService;
-            var miners = consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
-            foreach (var bp in BpNodes)
-            {
-                if(minersPublicKeys.Contains(bp.PublicKey))
-                    CurrentBpNodes.Add(bp);
-            }
-
-            foreach (var full in FullNodes)
-            {
-                if(minersPublicKeys.Contains(full.PublicKey))
-                    CurrentBpNodes.Add(full);
-            }
-            Logger.WriteInfo($"Current miners are: [{string.Join(",", CurrentBpNodes.Select(o=>o.Name))}]");
         }
     }
 }
