@@ -19,9 +19,14 @@ namespace AElf.Automation.RpcPerformance
         
         [JsonProperty("ExecuteMode")]
         public int ExecuteMode { get; set; }
+        [JsonProperty("Timeout")]
+        public int Timeout { get; set; }
         
         [JsonProperty("Conflict")]
         public bool Conflict { get; set; }
+        
+        [JsonProperty("ReadOnlyTransaction")]
+        public bool ReadOnlyTransaction { get; set; }
     }
 
     public static class ConfigInfoHelper

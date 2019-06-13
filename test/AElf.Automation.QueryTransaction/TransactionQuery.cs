@@ -14,7 +14,7 @@ namespace AElf.Automation.QueryTransaction
         private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private readonly WebApiService _apiService;
         private long _blockHeight = 1;
-        private bool _completeQuery = false;
+        private bool _completeQuery;
 
         public TransactionQuery(string url)
         {
@@ -61,7 +61,12 @@ namespace AElf.Automation.QueryTransaction
         {
             while(!_completeQuery || _transactionQueue.Count != 0)
             {
-                if (!_transactionQueue.TryDequeue(out var txId)) continue;
+                if (!_transactionQueue.TryDequeue(out var txId))
+                {
+                    Thread.Sleep(50);
+                    continue;
+                }
+                
                 var transaction = await _apiService.GetTransactionResult(txId);
                 Logger.WriteInfo($"Transaction: {txId},{transaction.Status}");
             }

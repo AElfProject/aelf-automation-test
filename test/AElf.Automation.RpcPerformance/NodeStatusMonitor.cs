@@ -50,8 +50,10 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = 60)
+        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1)
         {
+            if (checkTimes == -1)
+                checkTimes = ConfigInfoHelper.Config.Timeout*10;
             if (checkTimes < 0)
                 Assert.IsTrue(false, "Transaction status check is timeout.");
             checkTimes--;
@@ -101,7 +103,7 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            Thread.Sleep(50);
+            Thread.Sleep(100);
         }
         
         public void CheckNodeHeightStatus()

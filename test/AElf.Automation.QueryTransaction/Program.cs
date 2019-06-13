@@ -12,7 +12,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://34.212.171.27:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.13:8100";
         
         public static int Main(string[] args)
         {

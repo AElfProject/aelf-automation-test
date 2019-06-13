@@ -133,12 +133,12 @@ namespace AElf.Automation.RpcPerformance
             }
 
             var count = 0;
-            var checkTimes = 60;
+            var checkTimes = ConfigInfoHelper.Config.Timeout;
 
             while (checkTimes > 0)
             {
                 checkTimes--;
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
                 foreach (dynamic item in contractList)
                 {
                     if (item.Result != false) continue;
