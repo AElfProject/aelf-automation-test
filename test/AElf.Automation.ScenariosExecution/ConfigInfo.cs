@@ -44,11 +44,14 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("FullNodes")]
         public List<Node> FullNodes { get; set; }
         
+        [JsonProperty("TestCases")]
+        public List<TestCase> TestCases { get; set; }
+        
         [JsonProperty("UserCount")]
         public int UserCount { get; set; }
         
-        [JsonProperty("TestCases")]
-        public List<TestCase> TestCases { get; set; }
+        [JsonProperty("Timeout")]
+        public int Timeout { get; set; }
     }
 
     public static class ConfigInfoHelper

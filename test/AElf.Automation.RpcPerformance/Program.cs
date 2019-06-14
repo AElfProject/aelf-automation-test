@@ -56,8 +56,12 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance =
-                new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl, limitTransaction: LimitTransaction);
+            var transactionType = ConfigInfoHelper.Config.ReadOnlyTransaction;
+            var performance = transactionType
+                ? (IPerformanceCategory) new ReadOnlyCategory(ThreadCount, TransactionGroup, RpcUrl,
+                    limitTransaction: LimitTransaction)
+                : new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl, limitTransaction: LimitTransaction);
+
             //Init Logger
             var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes + "_" +
                           DateTime.Now.ToString("MMddHHmmss") + ".log";
@@ -80,17 +84,12 @@ namespace AElf.Automation.RpcPerformance
                 performance.DeployContracts();
                 performance.InitializeContracts();
 
-                ExecuteRpcTask(performance, ExecuteMode);
+                ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (Exception e)
             {
                 var message = $"Message: {e.Message}\r\nSource: {e.Source}\r\nStackTrace: {e.StackTrace}";
                 Logger.WriteError(message);
-            }
-            finally
-            {
-                //Delete accounts
-                performance.DeleteAccounts();
             }
 
             //Result summary
@@ -103,7 +102,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = -1)
+        private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)
         {
             if (execMode == -1)
             {
@@ -119,7 +118,7 @@ namespace AElf.Automation.RpcPerformance
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
-                    ExecuteRpcTask(performance);
+                    ExecuteTransactionPerformanceTask(performance);
                 }
             }
 
@@ -147,7 +146,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 default:
                     Logger.WriteInfo("Wrong input, please input again.");
-                    ExecuteRpcTask(performance);
+                    ExecuteTransactionPerformanceTask(performance);
                     break;
             }
 

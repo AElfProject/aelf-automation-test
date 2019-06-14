@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
     public class TransactionGroup
     {
         private List<AccountInfo> TestUsers { get; }
-        private List<Contract> Contracts { get; }
+        private List<ContractInfo> Contracts { get; }
 
         private IApiHelper ApiHelper { get; }
         private ConcurrentQueue<List<string>> TransactionsQueue { get; }
@@ -24,7 +24,7 @@ namespace AElf.Automation.RpcPerformance
 
         private NodeStatusMonitor NodeMonitor { get; }
 
-        public TransactionGroup(IApiHelper apiHelper, List<AccountInfo> users, List<Contract> contracts)
+        public TransactionGroup(IApiHelper apiHelper, List<AccountInfo> users, List<ContractInfo> contracts)
         {
             TransactionsQueue = new ConcurrentQueue<List<string>>();
             TestUsers = users;
