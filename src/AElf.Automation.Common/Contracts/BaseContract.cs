@@ -186,6 +186,7 @@ namespace AElf.Automation.Common.Contracts
                     switch (transactionResult?.Status)
                     {
                         case "Mined":
+                        case "NotExisted":
                             Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
                             return ci;
                         case "Failed":
@@ -209,7 +210,7 @@ namespace AElf.Automation.Common.Contracts
                 Logger.WriteError(result?.Error);
             }
 
-            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
+            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after 5 minutes.");
 
             return ci;
         }
