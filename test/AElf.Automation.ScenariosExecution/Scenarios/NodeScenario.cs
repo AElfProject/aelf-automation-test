@@ -17,7 +17,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
-
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
 
         private long _termNumber = 1;
@@ -199,7 +198,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Logger.WriteInfo(historyMessage);
             }
         }
-
         private void GetCurrentMinersInformation(long termNumber)
         {
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());

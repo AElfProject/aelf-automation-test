@@ -15,7 +15,6 @@ namespace AElf.Automation.ScenariosExecution
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
-        
         public static FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
         public ProfitContract ProfitService { get; set; }
@@ -90,7 +89,6 @@ namespace AElf.Automation.ScenariosExecution
             var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
             ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
         }
-        
         
         private void ConnectionChain()
         {

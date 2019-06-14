@@ -131,7 +131,7 @@ namespace AElf.Automation.Common.Helpers
             _cancellationTokenSource.Dispose();
         }
 
-        private void ProcessTimeoutAction(T task)
+        public void ProcessTimeoutAction(T task)
         {
             using (var cts = new CancellationTokenSource())
             {

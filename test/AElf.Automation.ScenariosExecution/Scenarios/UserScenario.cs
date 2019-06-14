@@ -20,8 +20,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
         public List<string> Testers { get; }
-
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
+        
         private static List<string> _candidates;
 
         public UserScenario()

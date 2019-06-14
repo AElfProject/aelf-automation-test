@@ -22,9 +22,7 @@ namespace AElf.Automation.RpcPerformance
 
         public IApiHelper ApiHelper { get; private set; }
         private ExecutionSummary Summary { get; set; }
-        
         private TransactionGroup Group { get; set; }
-        
         private NodeStatusMonitor Monitor { get; set; }
         public string BaseUrl { get; }
         private List<AccountInfo> AccountList { get; }
