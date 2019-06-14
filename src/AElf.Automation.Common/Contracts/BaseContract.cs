@@ -18,6 +18,8 @@ namespace AElf.Automation.Common.Contracts
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         public string ContractAddress { get; set; }
+        
+        public static int Timeout { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
         protected readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
@@ -165,8 +167,13 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="txId"></param>
         /// <param name="maxTimes"></param>
         /// <returns></returns>
-        public CommandInfo CheckTransactionResult(string txId, int maxTimes = 60)
+        public CommandInfo CheckTransactionResult(string txId, int maxTimes = -1)
         {
+            if (maxTimes == -1)
+            {
+                maxTimes = Timeout == 0 ? 600 : Timeout;
+            }
+            
             CommandInfo ci = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
