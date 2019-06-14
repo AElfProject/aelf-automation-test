@@ -19,7 +19,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
-        protected ContractServices Services { get; set; }
+        protected static ContractServices Services { get; set; }
 
         protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true, int sleepSeconds = 0)
         {
@@ -105,7 +105,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var envCheck = new EnvCheck();
             envCheck.CheckInitialEnvironment();
             AllTesters = envCheck.GenerateOrGetTestUsers();
-            Services = envCheck.GetContractServices();
+            if(Services == null)
+                Services = envCheck.GetContractServices();
 
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;
