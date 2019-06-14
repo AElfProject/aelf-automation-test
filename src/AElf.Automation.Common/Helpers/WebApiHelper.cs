@@ -88,7 +88,7 @@ namespace AElf.Automation.Common.Helpers
                     BroadcastTxs(ci);
                     break;
                 case ApiMethods.GetTransactionResult:
-                    GetTxResult(ci);
+                    GetTransactionResult(ci);
                     break;
                 case ApiMethods.GetBlockHeight:
                     GetBlockHeight(ci);
@@ -271,7 +271,7 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
-        public void GetTxResult(CommandInfo ci)
+        public void GetTransactionResult(CommandInfo ci)
         {
             if (!ci.CheckParameterValid(1))
                 return;

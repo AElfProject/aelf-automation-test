@@ -179,7 +179,7 @@ namespace AElf.Automation.Common.Contracts
             while (checkTimes <= maxTimes)
             {
                 ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                ApiHelper.GetTxResult(ci);
+                ApiHelper.GetTransactionResult(ci);
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
@@ -250,7 +250,7 @@ namespace AElf.Automation.Common.Contracts
                 if (!result)
                     break;
                 var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                ApiHelper.GetTxResult(ci);
+                ApiHelper.GetTransactionResult(ci);
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;

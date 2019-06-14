@@ -25,7 +25,7 @@ namespace AElf.Automation.Common.Helpers
         string GenerateTransactionRawTx(CommandInfo ci);
         string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter);
         void BroadcastTxs(CommandInfo ci);
-        void GetTxResult(CommandInfo ci);
+        void GetTransactionResult(CommandInfo ci);
         void GetBlockHeight(CommandInfo ci);
         void GetBlockByHeight(CommandInfo ci);
         void GetBlockByHash(CommandInfo ci);

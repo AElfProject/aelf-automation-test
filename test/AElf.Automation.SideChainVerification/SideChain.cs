@@ -281,7 +281,7 @@ namespace AElf.Automation.SideChainVerification
 
                     var ci = new CommandInfo(ApiMethods.GetTransactionResult);
                     ci.Parameter = txId;
-                    _ch.GetTxResult(ci);
+                    _ch.GetTransactionResult(ci);
                     if (ci.Result)
                     {
                         ci.GetJsonInfo();

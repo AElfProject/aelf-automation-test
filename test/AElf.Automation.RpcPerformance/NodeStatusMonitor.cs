@@ -62,7 +62,7 @@ namespace AElf.Automation.RpcPerformance
             for (var i = length - 1; i >= 0; i--)
             {
                 var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionIds[i]};
-                ApiHelper.GetTxResult(ci);
+                ApiHelper.GetTransactionResult(ci);
 
                 if (ci.Result)
                 {

@@ -144,7 +144,7 @@ namespace AElf.Automation.RpcPerformance
                     if (item.Result != false) continue;
 
                     var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = item.TxId};
-                    ApiHelper.GetTxResult(ci);
+                    ApiHelper.GetTransactionResult(ci);
                     Assert.IsTrue(ci.Result);
                     if (!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
                     var status =
