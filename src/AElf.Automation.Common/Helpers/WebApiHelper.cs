@@ -215,7 +215,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(1))
                 return;
-
+            _logger.WriteInfo($"Sent request from: {_baseUrl}");
             ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(ci.Parameter));
             ci.Result = true;
         }
