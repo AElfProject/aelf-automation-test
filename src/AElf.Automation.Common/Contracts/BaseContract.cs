@@ -275,14 +275,14 @@ namespace AElf.Automation.Common.Contracts
                 if (queueLength == TxResultList.Count)
                 {
                     queueSameTimes++;
-                    Thread.Sleep(3000);
+                    Thread.Sleep(1000);
                 }
                 else
                     queueSameTimes = 0;
 
                 queueLength = TxResultList.Count;
-                if (queueSameTimes == 10)
-                    Assert.IsTrue(false, "Transaction result check failed due to pending results.");
+                if (queueSameTimes == 300)
+                    Assert.IsTrue(false, "Transaction result check failed due to pending results in 5 minutes.");
             }
         }
 
