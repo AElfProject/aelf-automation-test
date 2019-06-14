@@ -51,7 +51,7 @@ namespace AElf.Automation.ScenariosExecution
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
             
-            CurrentBpNodes = GetCurrentBpNodes(ConsensusService, bpNodes, fullNodes);
+            CurrentBpNodes = GetCurrentBpNodes(bpNodes, fullNodes);
             var rd = new Random(DateTime.Now.Millisecond); //随机选择bp执行
             ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count-1)].ServiceUrl); 
             
@@ -98,22 +98,12 @@ namespace AElf.Automation.ScenariosExecution
             ApiHelper.GetChainInformation(ci);
         }
         
-        private List<Node> GetCurrentBpNodes(ConsensusContract consensus, List<Node> bpNodes, List<Node> fullNodes)
+        private List<Node> GetCurrentBpNodes(IEnumerable<Node> bpNodes, IEnumerable<Node> fullNodes)
         {
-            var currentBps = new List<Node>();
-            var miners = consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
-            foreach (var bp in bpNodes)
-            {
-                if(minersPublicKeys.Contains(bp.PublicKey))
-                    currentBps.Add(bp);
-            }
-
-            foreach (var full in fullNodes)
-            {
-                if(minersPublicKeys.Contains(full.PublicKey))
-                    currentBps.Add(full);
-            }
+            var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
+            currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
             Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o=>o.Name))}");
 
             return currentBps;

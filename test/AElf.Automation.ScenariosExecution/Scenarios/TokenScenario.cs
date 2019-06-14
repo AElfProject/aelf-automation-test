@@ -14,7 +14,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
-
         public List<string> Testers { get; }
 
         public TokenScenario()

@@ -50,12 +50,12 @@ namespace AElf.Automation.ScenariosExecution
             }
         }
 
-        public ContractServices GetContractServices(string url = "")
+        public ContractServices GetContractServices()
         {
-            if (Services != null) return Services;
+            if (Services != null) 
+                return Services;
             
-            if(url == "")
-                url = _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var url = _config.BpNodes.First(o => o.Status).ServiceUrl;
             var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);

@@ -22,7 +22,6 @@ namespace AElf.Automation.ScenariosExecution
             var logName = "ScenarioTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
-            
             #endregion
 
             var enableCases = ConfigInfoHelper.Config.TestCases.
