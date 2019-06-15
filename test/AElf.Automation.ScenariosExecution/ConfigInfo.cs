@@ -35,6 +35,15 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("enable")]
         public bool Enable { get; set; }
     }
+
+    public class SpecifyEndpoint
+    {
+        [JsonProperty("enable")]
+        public bool Enable { get; set; }
+        
+        [JsonProperty("service_url")]
+        public string ServiceUrl { get; set; }
+    }
     
     public class ConfigInfo
     {
@@ -52,6 +61,9 @@ namespace AElf.Automation.ScenariosExecution
         
         [JsonProperty("Timeout")]
         public int Timeout { get; set; }
+        
+        [JsonProperty("SpecifyEndpoint")]
+        public SpecifyEndpoint SpecifyEndpoint { get; set; }
     }
 
     public static class ConfigInfoHelper

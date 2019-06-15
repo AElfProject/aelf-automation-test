@@ -49,10 +49,18 @@ namespace AElf.Automation.ScenariosExecution
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
-            
+
             CurrentBpNodes = GetCurrentBpNodes(bpNodes, fullNodes);
-            var rd = new Random(DateTime.Now.Millisecond); //随机选择bp执行
-            ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count-1)].ServiceUrl); 
+            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            if (specifyEndpoint.Enable)
+            {
+                ApiHelper.UpdateApiUrl(specifyEndpoint.ServiceUrl); 
+            }
+            else
+            {
+                var rd = new Random(DateTime.Now.Millisecond); //随机选择bp执行
+                ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count-1)].ServiceUrl); 
+            }
             
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);

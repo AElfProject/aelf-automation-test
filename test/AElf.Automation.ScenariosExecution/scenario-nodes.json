@@ -140,5 +140,9 @@
     }
   ],
   "UserCount": 100,
-  "Timeout": 300
+  "Timeout": 300,
+  "SpecifyEndpoint": {
+    "enable": true,
+    "service_url": ""
+  }
 }
