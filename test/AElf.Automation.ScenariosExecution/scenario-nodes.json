@@ -143,6 +143,6 @@
   "Timeout": 300,
   "SpecifyEndpoint": {
     "enable": true,
-    "service_url": "http://52.66.212.142:8000"
+    "service_url": "http://103.61.37.19:8000"
   }
 }

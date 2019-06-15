@@ -96,8 +96,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected void InitializeScenario()
         {
-            var envCheck = new EnvCheck();
-            envCheck.CheckInitialEnvironment();
+            var envCheck = EnvCheck.GetDefaultEnvCheck();
             AllTesters = envCheck.GenerateOrGetTestUsers();
             if(Services == null)
                 Services = envCheck.GetContractServices();

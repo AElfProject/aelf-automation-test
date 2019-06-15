@@ -17,13 +17,22 @@ namespace AElf.Automation.ScenariosExecution
         
         public static ContractServices Services { get; set; }
 
-        public EnvCheck()
+        public static EnvCheck GetDefaultEnvCheck()
+        {
+            return _EnvCheck ?? (_EnvCheck = new EnvCheck());
+        }
+        
+        private static EnvCheck _EnvCheck { get; set; }
+        
+        private EnvCheck()
         {
             AccountDir = AccountManager.GetDefaultDataDir();
             _config = ConfigInfoHelper.Config;
+            
+            CheckInitialEnvironment();
         }
 
-        public void CheckInitialEnvironment()
+        private void CheckInitialEnvironment()
         {
             var allAccountsExist = CheckAllAccountsExist();
             Assert.IsTrue(allAccountsExist, $"Node account file not found, should copy configured accounts to path: {AccountDir}");
@@ -107,6 +116,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void CheckAllNodesConnection()
         {
+            Logger.WriteInfo("Check all node connection status.");
             _config.BpNodes.ForEach(CheckNodeConnection);
             _config.FullNodes.ForEach(CheckNodeConnection);
         }
@@ -123,9 +133,9 @@ namespace AElf.Automation.ScenariosExecution
                     node.Status = true;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.WriteInfo($"Node {node.Name} connected failed due to exception: {e.Message}");
+                Logger.WriteError($"Node {node.Name} connection failed due to {ex.Message}");
             }
         }
             
