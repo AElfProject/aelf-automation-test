@@ -72,7 +72,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         public string PostRequest(List<string> rpcBody, out string returnCode)
         {
-            RpcMethod = "BroadcastTransactions";
+            RpcMethod = "SendTransactions";
             foreach(var rpc in rpcBody)
             {
                 RpcParameter += "," + rpc;

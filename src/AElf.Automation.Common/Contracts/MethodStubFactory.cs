@@ -53,7 +53,7 @@ namespace AElf.Automation.Common.Contracts
                 transaction.AddBlockReference(_baseUrl);
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
                 
-                var transactionOutput =  await ApiService.BroadcastTransaction(transaction.ToByteArray().ToHex());
+                var transactionOutput =  await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
                 
                 var checkTimes = 0;
                 TransactionResultDto transactionResult;
@@ -106,7 +106,7 @@ namespace AElf.Automation.Common.Contracts
                 };
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
                 
-                var returnValue = await ApiService.Call(transaction.ToByteArray().ToHex());
+                var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(returnValue));
             }
 

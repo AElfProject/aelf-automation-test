@@ -352,7 +352,7 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper.DeployContract(ci);
             if (ci.Result)
             {
-                if (ci.InfoMsg is BroadcastTransactionOutput transactionOutput)
+                if (ci.InfoMsg is SendTransactionOutput transactionOutput)
                 {
                     var txId = transactionOutput.TransactionId;
                     Logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
@@ -387,14 +387,14 @@ namespace AElf.Automation.Common.Contracts
 
         private string ExecuteMethodWithTxId(string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.BroadcastTransaction)
+            var ci = new CommandInfo(ApiMethods.SendTransaction)
             {
                 Parameter = rawTx
             };
             ApiHelper.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
-                var transactionOutput = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
 
                 return transactionOutput?.TransactionId;
             }

@@ -59,7 +59,7 @@ namespace AElf.Automation.RpcPerformance
                         user.Balance = 10000;
 
                         if (count % 50 != 0) continue;
-                        var ci = new CommandInfo(ApiMethods.BroadcastTransactions)
+                        var ci = new CommandInfo(ApiMethods.SendTransactions)
                         {
                             Parameter = string.Join(",", rawTransactions)
                         };
@@ -133,7 +133,7 @@ namespace AElf.Automation.RpcPerformance
                     from.Balance -= amount;
                     to.Balance += amount;
      
-                    var bt = new CommandInfo(ApiMethods.BroadcastTransaction, from.Account, contractAddress, "Transfer")
+                    var bt = new CommandInfo(ApiMethods.SendTransaction, from.Account, contractAddress, "Transfer")
                     {
                         ParameterInput = new TransferInput
                         {

@@ -86,10 +86,10 @@ namespace AElf.Automation.Common.Helpers
                 case ApiMethods.DeploySmartContract:
                     DeployContract(ci);
                     break;
-                case ApiMethods.BroadcastTransaction:
+                case ApiMethods.SendTransaction:
                     BroadcastTx(ci);
                     break;
-                case ApiMethods.BroadcastTransactions:
+                case ApiMethods.SendTransactions:
                     BroadcastTxs(ci);
                     break;
                 case ApiMethods.GetTransactionResult:
@@ -195,7 +195,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
 
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(rawTxString));
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
 
             ci.InfoMsg = transactionOutput;
             ci.Result = true;
@@ -212,7 +212,7 @@ namespace AElf.Automation.Common.Helpers
 
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tr);
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(rawTxString));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
             ci.Result = true;
         }
 
@@ -220,7 +220,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(1))
                 return;
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(ci.Parameter));
             ci.Result = true;
         }
 
@@ -271,7 +271,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransactions(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactions(ci.Parameter));
             ci.Result = true;
         }
 
@@ -352,7 +352,7 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             if (resp == null)
             {
-                _logger.WriteError($"Call response is null or empty.");
+                _logger.WriteError($"ExecuteTransaction response is null or empty.");
                 return default(T);
             }
 
@@ -364,7 +364,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void QueryViewInfo(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.Call(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(ci.Parameter));
             ci.Result = true;
         }
 
@@ -406,7 +406,7 @@ namespace AElf.Automation.Common.Helpers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.Call(rawTxString));
+            return AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(rawTxString));
         }
 
         private void InitializeWebApiRoute()
@@ -419,9 +419,9 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetBlockByHeight,
                 "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
             ApiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
-            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction");
-            ApiRoute.Add(ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction");
-            ApiRoute.Add(ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions");
+            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction");
+            ApiRoute.Add(ApiMethods.SendTransaction, "/api/blockChain/sendTransaction");
+            ApiRoute.Add(ApiMethods.SendTransactions, "/api/blockChain/sendTransactions");
             ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/call");
             ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
             ApiRoute.Add(ApiMethods.GetTransactionResults,

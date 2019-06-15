@@ -97,7 +97,7 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var txId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(txId), "Transaction Id is null or empty");
                 info.TxId = txId;
@@ -168,7 +168,7 @@ namespace AElf.Automation.RpcPerformance
 
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Create")
                 {
                     ParameterInput = new CreateInput
                     {
@@ -182,7 +182,7 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var transactionId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
@@ -196,7 +196,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractPath;
                 var symbol = contract.Symbol;
 
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Issue")
                 {
                     ParameterInput = new IssueInput()
                     {
@@ -208,7 +208,7 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var transactionId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
@@ -299,7 +299,7 @@ namespace AElf.Automation.RpcPerformance
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
-                                //multi task for BroadcastTransactions query
+                                //multi task for SendTransactions query
                                 var txsTasks = new List<Task>();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
@@ -313,7 +313,7 @@ namespace AElf.Automation.RpcPerformance
                             }
                             else
                             {
-                                //multi task for BroadcastTransaction query
+                                //multi task for SendTransaction query
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
@@ -389,7 +389,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, abiPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -403,7 +403,7 @@ namespace AElf.Automation.RpcPerformance
 
                 if (ci.Result)
                 {
-                    var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                    var transactionResult = ci.InfoMsg as SendTransactionOutput;
                     txIdList.Add(transactionResult?.TransactionId);
                     passCount++;
                 }
@@ -433,7 +433,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -448,7 +448,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Send batch transaction requests
-            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
+            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
@@ -467,7 +467,7 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactions = Group.GetRawTransactions();
             
             //Send batch transaction requests
-            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
+            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
@@ -495,7 +495,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -518,7 +518,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
+                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }

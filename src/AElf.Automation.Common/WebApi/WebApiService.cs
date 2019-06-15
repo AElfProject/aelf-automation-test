@@ -22,9 +22,9 @@ namespace AElf.Automation.Common.WebApi
         
         #region Chain Api
         
-        public async Task<string> Call(string rawTransaction)
+        public async Task<string> ExecuteTransaction(string rawTransaction)
         {
-            var url = GetRequestUrl(ApiMethods.Call);
+            var url = GetRequestUrl(ApiMethods.ExecuteTransaction);
             var parameters = new Dictionary<string, string>
             {
                 { "rawTransaction", rawTransaction }
@@ -32,13 +32,13 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.PostResponseAsync<string>(url, parameters);
         }
 
-        public async Task<TResult> Call<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new()
+        public async Task<TResult> ExecuteTransaction<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new()
         {
-            var hexString = await Call(rawTransaction);
+            var hexString = await ExecuteTransaction(rawTransaction);
             
             if(hexString.IsNullOrEmpty())
             {
-                _logger.WriteError("Call response is null or empty.");
+                _logger.WriteError("ExecuteTransaction response is null or empty.");
                 return default(TResult);
             }
 
@@ -85,19 +85,19 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.PostResponseAsync<SendRawTransactionOutput>(url, parameters);
         }
 
-        public async Task<BroadcastTransactionOutput> BroadcastTransaction(string rawTransaction)
+        public async Task<SendTransactionOutput> SendTransaction(string rawTransaction)
         {
-            var url = GetRequestUrl(ApiMethods.BroadcastTransaction);
+            var url = GetRequestUrl(ApiMethods.SendTransaction);
             var parameters = new Dictionary<string,string>
             {
                 {"rawTransaction",rawTransaction}
             };
-            return await HttpHelper.PostResponseAsync<BroadcastTransactionOutput>(url, parameters);
+            return await HttpHelper.PostResponseAsync<SendTransactionOutput>(url, parameters);
         }
 
-        public async Task<string[]> BroadcastTransactions(string rawTransactions)
+        public async Task<string[]> SendTransactions(string rawTransactions)
         {
-            var url = GetRequestUrl(ApiMethods.BroadcastTransactions);
+            var url = GetRequestUrl(ApiMethods.SendTransactions);
             var parameters = new Dictionary<string,string>
             {
                 {"rawTransactions",rawTransactions}
@@ -202,12 +202,12 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.GetTransactionPoolStatus, "/api/blockChain/transactionPoolStatus"},
                 {ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}"},
                 {ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}"},
-                {ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction"},
-                {ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction"},
-                {ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions"},
+                {ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction"},
+                {ApiMethods.SendTransaction, "/api/blockChain/sendTransaction"},
+                {ApiMethods.SendTransactions, "/api/blockChain/sendTransactions"},
                 {ApiMethods.SendRawTransaction, "/api/blockChain/sendRawTransaction"},
                 {ApiMethods.GetBlockState, "/api/blockChain/blockState?blockHash={0}"},
-                {ApiMethods.Call, "/api/blockChain/call"},
+                {ApiMethods.ExecuteTransaction, "/api/blockChain/executeTransaction"},
                 {ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}"},
                 {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
                 {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},

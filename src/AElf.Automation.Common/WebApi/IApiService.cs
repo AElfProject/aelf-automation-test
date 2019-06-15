@@ -7,9 +7,9 @@ namespace AElf.Automation.Common.WebApi
 {
     public interface IApiService
     {
-        Task<string> Call(string rawTransaction);
+        Task<string> ExecuteTransaction(string rawTransaction);
         
-        Task<TResult> Call<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new();
+        Task<TResult> ExecuteTransaction<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new();
 
         Task<byte[]> GetContractFileDescriptorSet(string address);
 
@@ -17,9 +17,9 @@ namespace AElf.Automation.Common.WebApi
         
         Task<SendRawTransactionOutput> SendRawTransaction(SendRawTransactionInput input);
 
-        Task<BroadcastTransactionOutput> BroadcastTransaction(string rawTransaction);
+        Task<SendTransactionOutput> SendTransaction(string rawTransaction);
 
-        Task<string[]> BroadcastTransactions(string rawTransactions);
+        Task<string[]> SendTransactions(string rawTransactions);
 
         Task<TransactionResultDto> GetTransactionResult(string transactionId);
 

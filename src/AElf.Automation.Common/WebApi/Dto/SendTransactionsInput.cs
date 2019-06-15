@@ -1,6 +1,6 @@
 namespace AElf.Automation.Common.WebApi.Dto
 {
-    public class BroadcastTransactionsInput
+    public class SendTransactionsInput
     {
         /// <summary>
         /// raw transactions

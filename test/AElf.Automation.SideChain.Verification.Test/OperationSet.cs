@@ -953,14 +953,14 @@ namespace AElf.Automation.SideChain.Verification.Test
         
         private string ExecuteMethodWithTxId(Operation chain,string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.BroadcastTransaction)
+            var ci = new CommandInfo(ApiMethods.SendTransaction)
             {
                 Parameter = rawTx
             };
             chain.ApiHelper.BroadcastTx(ci);
             if (ci.Result)
             {
-                var transactionOutput = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
 
                 return transactionOutput?.TransactionId;
             }
