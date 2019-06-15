@@ -55,7 +55,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         
         public void CheckNodeTransactionAction()
         {
-            var chain = new ChainSummary(BpNodes.Last().ServiceUrl);
+            var chain = new ChainSummary(Services.ApiHelper.GetApiUrl());
             chain.ContinuousCheckChainStatus();
         }
 

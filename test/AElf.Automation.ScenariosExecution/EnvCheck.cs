@@ -33,8 +33,9 @@ namespace AElf.Automation.ScenariosExecution
 
         public List<string> GenerateOrGetTestUsers()
         {
-            var baseUrl = _config.BpNodes.First(o => o.Status).ServiceUrl;
-            var webHelper = new WebApiHelper(baseUrl, AccountDir);
+            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var webHelper = new WebApiHelper(url, AccountDir);
 
             var accountCommand = webHelper.ListAccounts();
 

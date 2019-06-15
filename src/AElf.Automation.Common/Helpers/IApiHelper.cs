@@ -7,6 +7,7 @@ namespace AElf.Automation.Common.Helpers
 {
     public interface IApiHelper
     {
+        string GetApiUrl();
         void UpdateApiUrl(string url);
         WebApiService ApiService { get; set; }
         List<CommandInfo> CommandList { get; set; }

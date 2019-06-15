@@ -38,6 +38,11 @@ namespace AElf.Automation.Common.Helpers
             InitializeWebApiRoute();
         }
 
+        public string GetApiUrl()
+        {
+            return _baseUrl;
+        }
+
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
