@@ -151,7 +151,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
             Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
             //foreach (var user in AllTesters)
-            Parallel.ForEach(AllTesters, user =>
+            foreach(var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
@@ -164,7 +164,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
-            });
+            }
 
             token1.CheckTransactionResultList();
         }

@@ -190,7 +190,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void SetAllowanceForResourceTest()
         {
-            Parallel.ForEach(Testers.GetRange(1, Testers.Count - 1), user =>
+            foreach(var user in Testers.GetRange(1, Testers.Count - 1))
             {
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
@@ -217,7 +217,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NetConnector.Symbol,
                     Amount = 1000_0000
                 });
-            });    
+            }    
 
             Token.CheckTransactionResultList();
         }

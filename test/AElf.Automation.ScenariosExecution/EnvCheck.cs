@@ -28,7 +28,7 @@ namespace AElf.Automation.ScenariosExecution
             var allAccountsExist = CheckAllAccountsExist();
             Assert.IsTrue(allAccountsExist, $"Node account file not found, should copy configured accounts to path: {AccountDir}");
 
-            _ = CheckAllNodesConnection();
+            CheckAllNodesConnection();
         }
 
         public List<string> GenerateOrGetTestUsers()
@@ -103,22 +103,10 @@ namespace AElf.Automation.ScenariosExecution
             return true;
         }
 
-        private static bool CheckAllNodesConnection()
+        private static void CheckAllNodesConnection()
         {
-            foreach (var node in _config.BpNodes)
-            {
-                var result = CheckNodeConnection(node);
-                if(result) continue;
-                return false;
-            }
-            foreach (var node in _config.BpNodes)
-            {
-                var result = CheckNodeConnection(node);
-                if(result) continue;
-                return false;
-            }
-
-            return true;
+            _config.BpNodes.ForEach(node=>CheckNodeConnection(node));
+            _config.FullNodes.ForEach(node=>CheckNodeConnection(node));
         }
 
         private static bool CheckNodeConnection(Node node)

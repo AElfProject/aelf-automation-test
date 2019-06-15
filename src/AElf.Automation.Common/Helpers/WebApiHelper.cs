@@ -213,6 +213,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void BroadcastWithRawTx(CommandInfo ci)
         {
+            _logger.WriteInfo($"Request to endpoint: {_baseUrl}");
             if (!ci.CheckParameterValid(1))
                 return;
             ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(ci.Parameter));
@@ -240,6 +241,7 @@ namespace AElf.Automation.Common.Helpers
 
         public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
         {
+            _logger.WriteInfo($"Request to endpoint: {_baseUrl}");
             var tr = new Transaction()
             {
                 From = Address.Parse(from),
