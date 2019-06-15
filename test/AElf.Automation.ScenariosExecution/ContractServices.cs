@@ -40,17 +40,13 @@ namespace AElf.Automation.ScenariosExecution
         
         private void GetAllContractServices()
         {
-            var configInfo = ConfigInfoHelper.Config;
-            var bpNodes = configInfo.BpNodes;
-            var fullNodes = configInfo.FullNodes;
-            
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
             
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
 
-            CurrentBpNodes = GetCurrentBpNodes(bpNodes, fullNodes);
+            CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             if (specifyEndpoint.Enable)
             {
@@ -104,8 +100,12 @@ namespace AElf.Automation.ScenariosExecution
             ApiHelper.GetChainInformation(ci);
         }
         
-        private List<Node> GetCurrentBpNodes(IEnumerable<Node> bpNodes, IEnumerable<Node> fullNodes)
+        private List<Node> GetCurrentBpNodes()
         {
+            var configInfo = ConfigInfoHelper.Config;
+            var bpNodes = configInfo.BpNodes;
+            var fullNodes = configInfo.FullNodes;
+            
             var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
