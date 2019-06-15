@@ -14,15 +14,13 @@ namespace AElf.Automation.ScenariosExecution
         private string AccountDir { get; }
         private static ConfigInfo _config;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        
-        public static ContractServices Services { get; set; }
-
+        private static ContractServices Services { get; set; }
         public static EnvCheck GetDefaultEnvCheck()
         {
-            return _EnvCheck ?? (_EnvCheck = new EnvCheck());
+            return Instance;
         }
-        
-        private static EnvCheck _EnvCheck { get; set; }
+
+        private static readonly EnvCheck Instance = new EnvCheck();
         
         private EnvCheck()
         {
