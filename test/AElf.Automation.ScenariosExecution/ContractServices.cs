@@ -54,7 +54,7 @@ namespace AElf.Automation.ScenariosExecution
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             if (specifyEndpoint.Enable)
             {
-                ApiHelper.UpdateApiUrl(specifyEndpoint.ServiceUrl); 
+                ApiHelper.UpdateApiUrl(specifyEndpoint.ServiceUrl);
             }
             else
             {

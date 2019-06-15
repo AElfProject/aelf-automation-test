@@ -2,7 +2,7 @@
   "BpNodes": [
     {
       "name": "bp1",
-      "service_url": "http://34.212.171.27:8000",
+      "service_url": "http://52.37.18.222:8000",
       "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     },
@@ -143,6 +143,6 @@
   "Timeout": 300,
   "SpecifyEndpoint": {
     "enable": true,
-    "service_url": ""
+    "service_url": "http://45.120.217.124:8000"
   }
 }
