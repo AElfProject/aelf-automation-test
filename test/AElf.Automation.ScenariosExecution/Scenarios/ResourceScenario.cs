@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
@@ -189,7 +190,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void SetAllowanceForResourceTest()
         {
-            foreach (var user in Testers.GetRange(1, Testers.Count - 1))
+            Parallel.ForEach(Testers.GetRange(1, Testers.Count - 1), user =>
             {
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
@@ -216,7 +217,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NetConnector.Symbol,
                     Amount = 1000_0000
                 });
-            }
+            });    
 
             Token.CheckTransactionResultList();
         }

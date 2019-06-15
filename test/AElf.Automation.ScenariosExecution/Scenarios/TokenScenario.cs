@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
@@ -149,7 +150,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Token.SetAccount(otherBp.Account, otherBp.Password);
             var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
             Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
-            foreach (var user in AllTesters)
+            //foreach (var user in AllTesters)
+            Parallel.ForEach(AllTesters, user =>
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
@@ -162,7 +164,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
-            }
+            });
 
             token1.CheckTransactionResultList();
         }
