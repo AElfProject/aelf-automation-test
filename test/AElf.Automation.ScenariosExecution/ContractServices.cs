@@ -48,13 +48,9 @@ namespace AElf.Automation.ScenariosExecution
 
             CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
-            if (specifyEndpoint.Enable)
+            if (!specifyEndpoint.Enable) //随机选择bp执行
             {
-                ApiHelper.UpdateApiUrl(specifyEndpoint.ServiceUrl);
-            }
-            else
-            {
-                var rd = new Random(DateTime.Now.Millisecond); //随机选择bp执行
+                var rd = new Random(DateTime.Now.Millisecond); 
                 ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count-1)].ServiceUrl); 
             }
             

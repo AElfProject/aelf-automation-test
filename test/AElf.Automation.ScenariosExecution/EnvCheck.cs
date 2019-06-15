@@ -52,10 +52,11 @@ namespace AElf.Automation.ScenariosExecution
 
         public ContractServices GetContractServices()
         {
-            if (Services != null) 
+            if (Services != null)
                 return Services;
             
-            var url = _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
             var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);
@@ -105,29 +106,26 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void CheckAllNodesConnection()
         {
-            _config.BpNodes.ForEach(node=>CheckNodeConnection(node));
-            _config.FullNodes.ForEach(node=>CheckNodeConnection(node));
+            _config.BpNodes.ForEach(CheckNodeConnection);
+            _config.FullNodes.ForEach(CheckNodeConnection);
         }
 
-        private static bool CheckNodeConnection(Node node)
+        private static void CheckNodeConnection(Node node)
         {
             var service = new WebApiService(node.ServiceUrl);
             try
             {
+                node.ApiService = service;
                 var chainStatus = service.GetChainStatus().Result;
                 if (chainStatus != null)
                 {
                     node.Status = true;
-                    node.ApiService = service;
-                    return true;
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteInfo($"Node {node.Name} connected failed due to exception: {e.Message}");
             }
-
-            return false;
         }
             
         private bool CheckAccountExist(string account)
