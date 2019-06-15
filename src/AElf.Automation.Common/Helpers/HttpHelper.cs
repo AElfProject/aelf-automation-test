@@ -106,6 +106,7 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> GetResponseAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
+            $"Get request to: {url}".WriteInfoLine();
             var strResponse = await GetResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -125,6 +126,7 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
+            $"Post request to: {url}".WriteInfoLine();
             var strResponse = await PostResponseAsStringAsync(url, parameters, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -190,6 +192,7 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
+            $"Delete request to: {url}".WriteInfoLine();
             var strResponse = await DeleteResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
