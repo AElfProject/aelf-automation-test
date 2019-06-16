@@ -422,7 +422,7 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction");
             ApiRoute.Add(ApiMethods.SendTransaction, "/api/blockChain/sendTransaction");
             ApiRoute.Add(ApiMethods.SendTransactions, "/api/blockChain/sendTransactions");
-            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/call");
+            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/executeTransaction");
             ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
             ApiRoute.Add(ApiMethods.GetTransactionResults,
                 "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
