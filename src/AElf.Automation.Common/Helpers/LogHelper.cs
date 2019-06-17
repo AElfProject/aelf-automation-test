@@ -6,16 +6,16 @@ namespace AElf.Automation.Common.Helpers
 {
     public interface ILogHelper
     {
-        void InitLogHelper(String logFilePath);
+        void InitLogHelper(string logFilePath);
 
-        void WriteInfo(String logText, params object[] arg);
+        void WriteInfo(string logText, params object[] arg);
 
-        void WriteWarn(String logText, params object[] arg);
+        void WriteWarn(string logText, params object[] arg);
 
-        void WriteError(String logText, params object[] arg);
+        void WriteError(string logText, params object[] arg);
 
-        void Write(LogType logType, String logText, params object[] arg);
-
+        void Write(LogType logType, string logText, params object[] arg);
+        
         void WriteException(Exception exception);
 
         void Dispose();
@@ -31,7 +31,6 @@ namespace AElf.Automation.Common.Helpers
     public class LogHelper:ILogHelper, IDisposable
     {
         private static LogHelper _logger;
-
         private static readonly object InitObject = new object();
         private static readonly object WriteObject = new object();
         private static readonly object DisposeObject = new object();
@@ -43,6 +42,20 @@ namespace AElf.Automation.Common.Helpers
 
         private LogHelper()
         {
+        }
+        
+        public static ILogHelper GetLogHelper()
+        {
+            if (_logger != null) return _logger;
+            lock (InitObject)
+            {
+                if (_logger == null)
+                {
+                    // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
+                    _logger = new LogHelper();
+                }
+            }
+            return _logger;
         }
 
         public void Dispose()
@@ -185,20 +198,6 @@ namespace AElf.Automation.Common.Helpers
                     throw new Exception("Can write to log file.", ex);
                 }
             }
-        }
-
-        public static ILogHelper GetLogHelper()
-        {
-            if (_logger != null) return _logger;
-            lock (InitObject)
-            {
-                if (_logger == null)
-                {
-                    // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
-                    _logger = new LogHelper();
-                }
-            }
-            return _logger;
         }
 
         ~LogHelper()

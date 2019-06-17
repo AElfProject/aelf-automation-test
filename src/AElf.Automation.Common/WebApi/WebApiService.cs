@@ -9,13 +9,13 @@ namespace AElf.Automation.Common.WebApi
 {
     public class WebApiService : IApiService
     {
-        private readonly string _baseUrl;
+        public string BaseUrl { get; }
         private Dictionary<ApiMethods, string> _apiRoute;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
         public WebApiService(string baseUrl)
         {
-            _baseUrl = baseUrl;
+            BaseUrl = baseUrl;
 
             InitializeWebApiRoute();
         }
@@ -188,7 +188,7 @@ namespace AElf.Automation.Common.WebApi
         {
             var subUrl = string.Format(_apiRoute[api], parameters);
 
-            return $"{_baseUrl}{subUrl}";
+            return $"{BaseUrl}{subUrl}";
         }
         private void InitializeWebApiRoute()
         {
@@ -213,7 +213,7 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},
                 
                 //net route
-                {ApiMethods.GetPeers, "api/net/peers"},
+                {ApiMethods.GetPeers, "/api/net/peers"},
                 {ApiMethods.AddPeer, "/api/net/peer"},
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };

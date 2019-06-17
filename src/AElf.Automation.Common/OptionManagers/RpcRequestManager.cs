@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.OptionManagers
 {
     public class RpcRequestManager
     {

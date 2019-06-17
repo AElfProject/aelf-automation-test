@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,19 +10,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class BaseScenario
     {
         protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        
-        public List<string> AllTesters { get; set; }
-        
-        public List<Node> BpNodes { get; set; }
-        public List<Node> FullNodes { get; set; }
-        public ContractServices Services { get; set; }
-        
-        public void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true, int sleepSeconds = 0)
+        protected List<string> AllTesters { get; set; }
+        protected List<Node> BpNodes { get; set; }
+        protected List<Node> FullNodes { get; set; }
+        protected static ContractServices Services { get; set; }
+
+        protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true, int sleepSeconds = 0)
         {
             while (true)
             {
                 try
                 {
+                    if (actions == null)
+                        throw new ArgumentException("Action methods is null.");
                     ExecuteStandaloneTask(actions, sleepSeconds);
                 }
                 catch (Exception e)
@@ -34,12 +33,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
             }
         }
-        
-        public void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0)
+
+        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0)
         {
             try
             {
-                Task.WaitAll(actions.Select(action => Task.Run(() => action.Invoke())).ToArray());
+                foreach (var action in actions)
+                {
+                    action.Invoke();
+                }
+
                 if(sleepSeconds != 0)
                     Thread.Sleep(1000*sleepSeconds);
             }
@@ -49,14 +52,23 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 throw;
             }
         }
-
+        
         public void CheckNodeTransactionAction()
         {
-            var chain = new ChainSummary(BpNodes.Last().ServiceUrl);
+            var chain = new ChainSummary(Services.ApiHelper.GetApiUrl());
             chain.ContinuousCheckChainStatus();
         }
 
         public void CheckNodeStatusAction()
+        {
+            while (true)
+            {
+                CheckNodeHeightStatus();
+                Thread.Sleep(30 * 1000);
+            }
+        }
+
+        private void CheckNodeHeightStatus()
         {
             long height = 1;
             var checkTimes = 0;
@@ -65,13 +77,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if(checkTimes == 120)
                     break;
                 
-                Thread.Sleep(1000);
                 var newHeight = Services.ApiHelper.ApiService.GetBlockHeight().Result;
                 if (newHeight == height)
                 {
                     checkTimes++;
                     if(checkTimes % 10 == 0)
-                        Logger.WriteWarn($"Node height not changed {checkTimes} seconds.");
+                        Logger.WriteWarn($"Node height not changed {checkTimes/2} seconds.");
+                    Thread.Sleep(500);
                 }
                 else
                 {
@@ -79,15 +91,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     checkTimes = 0;
                 }
             }
-            Assert.IsTrue(false,$"Node height not changed 2 minutes later.");
+            Assert.IsTrue(false,$"Node height not changed 1 minutes later.");
         }
 
         protected void InitializeScenario()
         {
-            var envCheck = new EnvCheck();
-            envCheck.CheckInitialEnvironment();
+            var envCheck = EnvCheck.GetDefaultEnvCheck();
             AllTesters = envCheck.GenerateOrGetTestUsers();
-            Services = envCheck.GetContractServices();
+            if(Services == null)
+                Services = envCheck.GetContractServices();
 
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;

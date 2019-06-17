@@ -9,7 +9,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.OptionManagers
 {
     public class TransactionManager
     {
@@ -82,36 +82,9 @@ namespace AElf.Automation.Common.Extensions
             return ByteString.CopyFrom(signature);
         }
 
-        public JObject ConvertTransactionRawTx(Transaction tx)
-        {
-            string payload = tx.ToByteArray().ToHex();
-            var reqParams = new JObject { ["rawTransaction"] = payload };
-
-            return reqParams;
-        }
-        
         public string ConvertTransactionRawTxString(Transaction tx)
         {
             return tx.ToByteArray().ToHex();
-        }
-
-        public Transaction ConvertFromJson(JObject jObject)
-        {
-            try
-            {
-                var tr = new Transaction
-                {
-                    From = Address.Parse(jObject["from"].ToString()),
-                    To = Address.Parse(jObject["to"].ToString()),
-                    MethodName = jObject["method"].ToObject<string>()
-                };
-
-                return tr;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         public Transaction ConvertFromCommandInfo(CommandInfo commandInfo)

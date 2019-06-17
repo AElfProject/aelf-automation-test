@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Acs7;
 using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.CSharp.Core.Utils;
@@ -93,7 +94,8 @@ namespace AElf.Automation.SideChainTests
             var merklePath = new MerklePath();
             merklePath.Path.AddRange(bmt.GenerateMerklePath(index));
 
-            return merklePath;
+            //return merklePath;
+            return null;
         }
 
         protected void TestCleanUp()

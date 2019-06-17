@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Kernel;
 using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -19,8 +14,6 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        private string TokenContract { get; set; }
-        private List<string> Users { get; set; }
         #endregion
 
         #region Parameter Option

@@ -1031,6 +1031,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 ci = new CommandInfo(ApiMethods.GetTransactionResult);
                 ci.Parameter = txId;
                 chain.ApiHelper.GetTxResult(ci);
+
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;

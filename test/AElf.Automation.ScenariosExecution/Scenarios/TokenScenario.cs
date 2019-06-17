@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
@@ -14,7 +15,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
-
         public List<string> Testers { get; }
 
         public TokenScenario()
@@ -35,7 +35,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, true, 2);
         }
 
-        public void TransferAction()
+        public void TokenScenarioJob()
+        {
+            ExecuteStandaloneTask(new Action[]
+            {
+                TransferAction,
+                ApproveTransferAction
+            });
+        }
+
+        private void TransferAction()
         {
             GetTransferPair(out var from, out var to, out var amount);
             try
@@ -54,39 +63,41 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             catch (Exception e)
             {
                 Logger.WriteError($"TransferAction: {e.Message}");
-                throw;
             }
         }
 
-        public void ApproveTransferAction()
+        private void ApproveTransferAction()
         {
             GetTransferPair(out var from, out var to, out var amount);
             try
             {
-                //Token.SetAccount(from);
-                var token = Token.GetNewTester(from);
-                var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
-                {
-                    Amount = amount,
-                    Spender = Address.Parse(to),
-                    Symbol = "ELF"
-                });
-                if (txResult1.InfoMsg is TransactionResultDto txDto1)
-                {
-                    if (txDto1.Status == "Mined")
-                        Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
-                }
-
-                var approveResult = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
+                var allowance = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
                     new GetAllowanceInput
                     {
                         Owner = Address.Parse(from),
                         Spender = Address.Parse(to),
                         Symbol = "ELF"
                     }).Allowance;
-                if (approveResult - amount < 0)
-                    return;
-
+                
+                var token = Token.GetNewTester(from);
+                if (allowance - amount < 0)
+                {
+                    
+                    var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
+                    {
+                        Amount = 1000,
+                        Spender = Address.Parse(to),
+                        Symbol = "ELF"
+                    });
+                    if (txResult1.InfoMsg is TransactionResultDto txDto1)
+                    {
+                        if (txDto1.Status == "Mined")
+                            Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
+                        else
+                            return;
+                    }
+                }
+                
                 //Token.SetAccount(to);
                 token = Token.GetNewTester(to);
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
@@ -104,7 +115,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             catch (Exception e)
             {
                 Logger.WriteError($"ApproveTransferAction: {e.Message}");
-                throw;
             }
         }
 
@@ -118,7 +128,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (!isAnnounced && tokenBalance == 0)
             {
-                var bp = BpNodes.First();
+                var bp = ContractServices.CurrentBpNodes.First();
                 //Token.SetAccount(bp.Account, bp.Password);
                 var token = Token.GetNewTester(bp.Account, bp.Password);
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))
@@ -140,12 +150,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Token.SetAccount(otherBp.Account, otherBp.Password);
             var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
             Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
-            foreach (var user in AllTesters)
+            //foreach (var user in AllTesters)
+            foreach(var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
                 {
-                    token1.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                    token1.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
                         Amount = 500_000 - balance,

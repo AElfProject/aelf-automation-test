@@ -27,6 +27,24 @@ namespace AElf.Automation.ScenariosExecution
         public WebApiService ApiService { get; set; }
     }
 
+    public class TestCase
+    {
+        [JsonProperty("case_name")]
+        public string CaseName { get; set; }
+        
+        [JsonProperty("enable")]
+        public bool Enable { get; set; }
+    }
+
+    public class SpecifyEndpoint
+    {
+        [JsonProperty("enable")]
+        public bool Enable { get; set; }
+        
+        [JsonProperty("service_url")]
+        public string ServiceUrl { get; set; }
+    }
+    
     public class ConfigInfo
     {
         [JsonProperty("BpNodes")]
@@ -35,8 +53,17 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("FullNodes")]
         public List<Node> FullNodes { get; set; }
         
+        [JsonProperty("TestCases")]
+        public List<TestCase> TestCases { get; set; }
+        
         [JsonProperty("UserCount")]
         public int UserCount { get; set; }
+        
+        [JsonProperty("Timeout")]
+        public int Timeout { get; set; }
+        
+        [JsonProperty("SpecifyEndpoint")]
+        public SpecifyEndpoint SpecifyEndpoint { get; set; }
     }
 
     public static class ConfigInfoHelper
@@ -62,7 +89,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 if (_instance != null) return _instance;
                 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
                 var content = File.ReadAllText(configFile);
                 _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
             }

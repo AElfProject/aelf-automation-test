@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -39,7 +39,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var txCi = new CommandInfo(ApiMethods.GetTransactionResult);
                 txCi.Parameter = txId;
-                Ch.GetTxResult(txCi);
+                Ch.GetTransactionResult(txCi);
                 Assert.IsTrue(txCi.Result, "Request transaction result failed.");
 
                 DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result", "tx_status");

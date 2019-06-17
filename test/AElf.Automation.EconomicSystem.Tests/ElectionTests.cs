@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -13,7 +14,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class ElectionTests
     {
         protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        protected static string RpcUrl { get; } = "http://192.168.197.13:8100";
+        protected static string RpcUrl { get; } = "http://192.168.197.13:8000";
         protected Behaviors Behaviors;
         //protected RpcApiHelper CH { get; set; }   
         protected IApiHelper CH { get; set; } 
@@ -61,18 +62,16 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             //Get FullNode Info
             FullNodeAddress = new List<string>();
-            FullNodeAddress.Add("27TQjMxBx2Ep9MqnTupxXoz9ByoAMgZJvBjn4eJNGKzvEMxNsE"); //13-20
-            FullNodeAddress.Add("j524cYcfkxFCSoSV5Lh9BavWw2vu3PD9YrUFrJcQ2Hwqf9kWb"); //28-20
-            FullNodeAddress.Add("2nyWx5YoBZeVPASHPGdiTjwPdU2XKmY1pq48c2JQT1cAFgJFoY"); //33-20
-            FullNodeAddress.Add("rmXn6GFX1P82KthaovPoFU2QLP9n2YS6qMZNCuHHv7CjGxuzh"); //13-30
-            FullNodeAddress.Add("2G9ygXZixbjUvbAP8TE4o5cZ9oCLG3n3iY899tN6dEmdbb7oaA"); //28-30
-            FullNodeAddress.Add("2kYRs5eHFaskGQ18sARc5BKnguy3NRJs5WTnaVmWtFoMBzCLxo"); //33-30
+            FullNodeAddress.Add("Ckk45Me2h1mG92VttavsW2FToqh8iq9MkLcytAQhGwastYKdB");
+            FullNodeAddress.Add("JLF7Cox7yMkw9zJDgUTmH1dJehndszZW2UTRqkwCsE9evq5Uq"); 
+            FullNodeAddress.Add("2sfQXA7WtHL2cpmDRw6uUEdMYhosf3gYBZQCD564yjW9ZhNFy6"); 
+            FullNodeAddress.Add("2im4Yo9tz81fpTo64y1PdFbvdFTVCqmHusHjJknGGuhK7mjdHF"); 
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
-            BpNodeAddress.Add("2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs"); //13-10
-            BpNodeAddress.Add("jdJz9LkXkePfTHmHfYPaksnUueymUpHVRSsA7mRWCvkZpA2gL"); //28-10
-            BpNodeAddress.Add("3PezHjVGutQefW54XjRNvXGN8SfNqz4v2pzuQZ7as5HwaVDeT"); //33-10
+            BpNodeAddress.Add("2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs"); 
+            BpNodeAddress.Add("jdJz9LkXkePfTHmHfYPaksnUueymUpHVRSsA7mRWCvkZpA2gL"); 
+            BpNodeAddress.Add("3PezHjVGutQefW54XjRNvXGN8SfNqz4v2pzuQZ7as5HwaVDeT");
 
             //Get candidate infos
             NodesPublicKeys = new List<string>();
@@ -116,7 +115,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             
             //Generate 50 accounts to vote
             PrepareUserAccountAndBalance(10);
-           
+            
             #endregion
         }
 
@@ -138,16 +137,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             //Account preparation
             UserList = new List<string>
             {
-                "yzXWLxTJ84p13FqyUzjh8maNafookpAQNUh5x3YzMVGkQ9oPm",
-                "yzuQMgwfsCB3tjJsE9nrvxqrP83RbioVHnHuf3B97cqWgz569",
-                "z11jRfppmoDShUregbcPA6zXpNPqW6wmzbs4Bpf15L7AWxXAZ",
-                "z2LvgQxUoiFBnjGCvxAA6Q4EaUhR4REzR7m5Ji3akiVhbtVS1",
-                "z4ZCyrr5yXWuY1WgU4eczY3ebkdChB2He8f1dqFo2Y8CALAf3",
-                "z4j62HffC7WReuvZVTNExn1nST2R4YD4JkFLhv8sqQYhfm7Tg",
-                "z7EHxChMWreVdKMDfn7dSTYN7VBhQ1CC73Xjmb59Z37aKmLPK",
-                "zDR4wfhvqD6XyqKThZfEYzE5BTFZn75qbeRJtdRUDKMp7aAWe",
-                "zE8HtCKT76YqNdHcKqyK4HKrMhaShaFNJYp2SXyZZpSfwBfMj",
-                "zFkbQKXovPeKXhHd1JuJJT7bKoJ9zw71rFQCmst3DqxUSA6dz"
+                "2KTYvsWxcnjQPNnD1zWFCm83aLvmRGAQ8bvLnLFUV7XrrnYWNv"
             };
 
             //分配资金给普通用户

@@ -3,7 +3,7 @@ using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace AElf.Automation.Common.Extensions
+namespace AElf.Automation.Common.OptionManagers
 {
     public class WebRequestManager
     {

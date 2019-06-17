@@ -38,11 +38,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             UpdateTestContractOwner();
             
             ExecuteTestContractMethod();
-            
-            Thread.Sleep(30 * 1000);
         }
-        
-        public void DeployTestContract()
+
+        private void DeployTestContract()
         {
             if (FunctionContract != null)
                 return;
@@ -69,7 +67,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             IsUpdateContract = false;
         }
 
-        public void ExecuteTestContractMethod()
+        private void ExecuteTestContractMethod()
         {
             if (IsUpdateContract)
                 return;
@@ -86,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo("Test contract old methods executed successful.");
         }
 
-        public void UpdateTestContractOwner()
+        private void UpdateTestContractOwner()
         {
             var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
             var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
@@ -110,7 +108,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Logger.WriteInfo($"TestContract owner updated from {owner} to {newOwner}");
         }
 
-        public void UpdateTestContractCode()
+        private void UpdateTestContractCode()
         {
             var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
             
@@ -135,7 +133,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
         }
 
-        public void ExecuteTestContractNewMethod()
+        private void ExecuteTestContractNewMethod()
         {
             if (!IsUpdateContract)
                 return;

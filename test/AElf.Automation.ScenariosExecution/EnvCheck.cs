@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Extensions;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,25 +14,35 @@ namespace AElf.Automation.ScenariosExecution
         private string AccountDir { get; }
         private static ConfigInfo _config;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static ContractServices Services { get; set; }
+        public static EnvCheck GetDefaultEnvCheck()
+        {
+            return Instance;
+        }
 
-        public EnvCheck()
+        private static readonly EnvCheck Instance = new EnvCheck();
+        
+        private EnvCheck()
         {
             AccountDir = AccountManager.GetDefaultDataDir();
             _config = ConfigInfoHelper.Config;
+            
+            CheckInitialEnvironment();
         }
 
-        public void CheckInitialEnvironment()
+        private void CheckInitialEnvironment()
         {
             var allAccountsExist = CheckAllAccountsExist();
             Assert.IsTrue(allAccountsExist, $"Node account file not found, should copy configured accounts to path: {AccountDir}");
 
-            _ = CheckAllNodesConnection();
+            CheckAllNodesConnection();
         }
 
         public List<string> GenerateOrGetTestUsers()
         {
-            var baseUrl = _config.BpNodes.First(o => o.Status).ServiceUrl;
-            var webHelper = new WebApiHelper(baseUrl, AccountDir);
+            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var webHelper = new WebApiHelper(url, AccountDir);
 
             var accountCommand = webHelper.ListAccounts();
 
@@ -50,14 +60,20 @@ namespace AElf.Automation.ScenariosExecution
 
         public ContractServices GetContractServices()
         {
-            var baseUrl = _config.BpNodes.First(o => o.Status).ServiceUrl;
-            var apiHelper = new WebApiHelper(baseUrl, AccountDir);
+            if (Services != null)
+                return Services;
+            
+            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);
             
-            return new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
+            Services = new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
+            
+            return Services;
         }
-
+ 
         private static List<string> GenerateTestUsers(IApiHelper helper, int count)
         {
             
@@ -96,43 +112,29 @@ namespace AElf.Automation.ScenariosExecution
             return true;
         }
 
-        private static bool CheckAllNodesConnection()
+        private static void CheckAllNodesConnection()
         {
-            foreach (var node in _config.BpNodes)
-            {
-                var result = CheckNodeConnection(node);
-                if(result) continue;
-                return false;
-            }
-            foreach (var node in _config.BpNodes)
-            {
-                var result = CheckNodeConnection(node);
-                if(result) continue;
-                return false;
-            }
-
-            return true;
+            Logger.WriteInfo("Check all node connection status.");
+            _config.BpNodes.ForEach(CheckNodeConnection);
+            _config.FullNodes.ForEach(CheckNodeConnection);
         }
 
-        private static bool CheckNodeConnection(Node node)
+        private static void CheckNodeConnection(Node node)
         {
             var service = new WebApiService(node.ServiceUrl);
             try
             {
+                node.ApiService = service;
                 var chainStatus = service.GetChainStatus().Result;
                 if (chainStatus != null)
                 {
                     node.Status = true;
-                    node.ApiService = service;
-                    return true;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.WriteInfo($"Node {node.Name} connected failed due to exception: {e.Message}");
+                Logger.WriteError($"Node {node.Name} connection failed due to {ex.Message}");
             }
-
-            return false;
         }
             
         private bool CheckAccountExist(string account)

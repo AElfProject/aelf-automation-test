@@ -13,18 +13,24 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        private int ThreadCount { get; } = 4;
+        private int ThreadCount { get; } = ConfigInfoHelper.Config.GroupCount;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionGroup { get; } = 10;
+        private int TransactionGroup { get; } = ConfigInfoHelper.Config.TransactionCount;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        private string RpcUrl { get; }
+        private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
 
         [Option("-em|--execute.mode", Description =
             "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
-        private int ExecuteMode { get; } = 0;
+        private int ExecuteMode { get; } = ConfigInfoHelper.Config.ExecuteMode;
+
+        [Option("-lt|--limit.transaction", Description =
+            "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
+        private string LimitTransactionString { get; } = "true";
+
+        private bool LimitTransaction => LimitTransactionString.ToLower().Trim() == "true";
 
         #endregion
 
@@ -33,7 +39,7 @@ namespace AElf.Automation.RpcPerformance
         public static int Main(string[] args)
         {
             if (args.Length != 3) return CommandLineApplication.Execute<Program>(args);
-            
+
             var tc = args[0];
             var tg = args[1];
             var ru = args[2];
@@ -50,9 +56,15 @@ namespace AElf.Automation.RpcPerformance
                 return;
             }
 
-            var performance = new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl);
+            var transactionType = ConfigInfoHelper.Config.ReadOnlyTransaction;
+            var performance = transactionType
+                ? (IPerformanceCategory) new ReadOnlyCategory(ThreadCount, TransactionGroup, RpcUrl,
+                    limitTransaction: LimitTransaction)
+                : new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl, limitTransaction: LimitTransaction);
+
             //Init Logger
-            var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes +"_"+ DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes + "_" +
+                          DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
@@ -62,26 +74,22 @@ namespace AElf.Automation.RpcPerformance
                 if (ExecuteMode == 0) //检测链交易和出块结果
                 {
                     Logger.WriteInfo("Check node transaction status information");
-                    var nodeSummary = new ExecutionSummary(performance.BaseUrl, true);
+                    var apiHelper = new WebApiHelper(performance.BaseUrl);
+                    var nodeSummary = new ExecutionSummary(apiHelper, true);
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
-                
-                performance.InitExecCommand();
+
+                performance.InitExecCommand(1000 + ThreadCount);
                 performance.DeployContracts();
                 performance.InitializeContracts();
 
-                ExecuteRpcTask(performance, ExecuteMode);
+                ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (Exception e)
             {
                 var message = $"Message: {e.Message}\r\nSource: {e.Source}\r\nStackTrace: {e.StackTrace}";
                 Logger.WriteError(message);
-            }
-            finally
-            {
-                //Delete accounts
-                performance.DeleteAccounts();
             }
 
             //Result summary
@@ -94,15 +102,15 @@ namespace AElf.Automation.RpcPerformance
             Logger.WriteInfo("Complete performance testing.");
         }
 
-        private static void ExecuteRpcTask(ExecutionCategory performance, int execMode = 0)
+        private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)
         {
-            if (execMode == 0)
+            if (execMode == -1)
             {
                 Logger.WriteInfo("Select execution type:");
-                Console.WriteLine("1. Normal mode");
-                Console.WriteLine("2. Continue Tx mode");
-                Console.WriteLine("3. Batch mode");
-                Console.WriteLine("4. Continue Txs mode");
+                "1. Normal mode".WriteSuccessLine();
+                "2. Continue Tx mode".WriteSuccessLine();
+                "3. Batch mode".WriteSuccessLine();
+                "4. Continue Txs mode".WriteSuccessLine();
                 Console.Write("Input selection: ");
 
                 var runType = Console.ReadLine();
@@ -110,11 +118,12 @@ namespace AElf.Automation.RpcPerformance
                 if (!check)
                 {
                     Logger.WriteInfo("Wrong input, please input again.");
-                    ExecuteRpcTask(performance);
+                    ExecuteTransactionPerformanceTask(performance);
                 }
             }
 
             var tm = (TestMode) execMode;
+            var conflict = ConfigInfoHelper.Config.Conflict;
             switch (tm)
             {
                 case TestMode.CommonTx:
@@ -131,13 +140,13 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 case TestMode.ContinuousTxs:
                     Logger.WriteInfo($"Run with continuous txs mode: {tm.ToString()}.");
-                    performance.ExecuteContinuousRoundsTransactionsTask(true);
+                    performance.ExecuteContinuousRoundsTransactionsTask(true, conflict);
                     break;
                 case TestMode.NotSet:
                     break;
                 default:
                     Logger.WriteInfo("Wrong input, please input again.");
-                    ExecuteRpcTask(performance);
+                    ExecuteTransactionPerformanceTask(performance);
                     break;
             }
 

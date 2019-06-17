@@ -58,6 +58,9 @@
     <ProtoMessage Include="..\AElf\protobuf\parliament_auth_contract.proto">
       <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
     </ProtoMessage>
+    <ProtoMessage Include="..\AElf\protobuf\association_auth_contract.proto">
+      <Link>Protobuf\Proto\stub\association_auth_contract.proto</Link>
+    </ProtoMessage>
     <ProtoMessage Include="..\AElf\protobuf\vote_contract.proto">
       <Link>Protobuf\Proto\stub\vote_contract.proto</Link>
     </ProtoMessage>
