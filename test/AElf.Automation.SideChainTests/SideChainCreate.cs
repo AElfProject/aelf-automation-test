@@ -30,7 +30,7 @@ namespace AElf.Automation.SideChainTests
         //708d7c62cb33df097c68686796fa4cba9b418ef3b73cd83ab85086037b5a0a9f 2882050
         //a2cc529ec1574adaf61f433c0acd5846449fac0896a9e118912b2687e743337b 2947586
         [TestMethod]
-        [DataRow("c2852f0758761c75eea9a02c3d0c591322eea381ba8e77ed67d07159ec6b69e5")]
+        [DataRow("1de7c2cbfee7cd9ad6726442388dce3ab020d76c2ab87cb343c9e9042ca0e8b2")]
 //        [DataRow("4739211d42fa6c77b51a72c18f2ddaa21dbe0369cf40e3d4c4f69f6f7dd059b3")]
 //        [DataRow("b8ed3964a6567a2aafd62a82e4cfe4515757cb0acacea675f7bdd9664737f5c1")]
 //        [DataRow("921d7e83dc9f4fc2a7e643c11ca6d272684539b5cdb3ef5b1a5d7c902b7f64db")] //disposal
@@ -66,8 +66,8 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-//        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2750978,500000)]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2816514,300000)]
+//        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2750978,1000000)]
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2816514,1000000)]
         public void Recharge(string account,int chainId,long amount)
         {
             CheckBalance(account);

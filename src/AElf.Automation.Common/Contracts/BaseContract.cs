@@ -200,9 +200,9 @@ namespace AElf.Automation.Common.Contracts
 
             var result = ci.InfoMsg as TransactionResultDto;
             Logger.WriteError(result?.Error);
-            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
-
-            return ci;
+//            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
+            Logger.WriteError("Transaction execute status cannot be 'Mined' after one minutes.");
+            return null;
         }
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string ExecuteMethodWithTxId(string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.BroadcastTransaction)
+            var ci = new CommandInfo(ApiMethods.SendTransaction)
             {
                 Parameter = rawTx
             };

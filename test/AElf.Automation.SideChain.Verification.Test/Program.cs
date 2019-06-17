@@ -133,7 +133,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                         Logger.WriteInfo("Wrong input, please input again.");
                         ExecuteOperation(operationSet);
                     }
-                    operationSet.SideChainTransactionVerifyOnMainChain(num-1);
+                    Console.Write("Input the blockNumber: ");
+                    var blockNumber = Console.ReadLine();
+                    var bn = long.Parse(blockNumber);
+                    operationSet.SideChainTransactionVerifyOnMainChain(num-1,bn);
                     break;
                 case TestMode.CrossChainTransfer:
                     Logger.WriteInfo($"Run with cross chain transfer: {tm.ToString()}."); 

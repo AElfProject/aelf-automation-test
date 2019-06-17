@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Helpers
                 case ApiMethods.DeploySmartContract:
                     DeployContract(ci);
                     break;
-                case ApiMethods.BroadcastTransaction:
+                case ApiMethods.SendTransaction:
                     BroadcastTx(ci);
                     break;
                 case ApiMethods.BroadcastTransactions:
@@ -440,10 +440,10 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
             ApiRoute.Add(ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
             ApiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
-            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction");
-            ApiRoute.Add(ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction");
+            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction");
+            ApiRoute.Add(ApiMethods.SendTransaction, "/api/blockChain/sendTransaction");
             ApiRoute.Add(ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions");
-            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/call");
+            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/executeTransaction");
             ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
             ApiRoute.Add(ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
             

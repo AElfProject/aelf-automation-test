@@ -177,7 +177,7 @@ namespace AElf.Automation.RpcPerformance
 
                 var symbol = $"ELF{RandomString(4, false)}";
                 contract.Symbol = symbol;
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Create")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Create")
                 {
                     ParameterInput = new CreateInput
                     {
@@ -206,7 +206,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractPath;
                 var symbol = contract.Symbol;
 
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Issue")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Issue")
                 {
                     ParameterInput = new IssueInput()
                     {
@@ -389,7 +389,7 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, abiPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, abiPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -452,7 +452,7 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -506,7 +506,7 @@ namespace AElf.Automation.RpcPerformance
                 AccountList[countNo].Increment++;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, account, contractPath, "Transfer")
+                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
                 {
                     ParameterInput = new TransferInput
                     {
@@ -542,7 +542,7 @@ namespace AElf.Automation.RpcPerformance
                 if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
                     break;
                 _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group+1, GenerateTransactionQueue.Count);
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
+                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }

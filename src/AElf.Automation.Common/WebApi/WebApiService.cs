@@ -24,7 +24,7 @@ namespace AElf.Automation.Common.WebApi
         
         public async Task<string> Call(string rawTransaction)
         {
-            var url = GetRequestUrl(ApiMethods.Call);
+            var url = GetRequestUrl(ApiMethods.ExecuteTransaction);
             var parameters = new Dictionary<string, string>
             {
                 { "rawTransaction", rawTransaction }
@@ -87,7 +87,7 @@ namespace AElf.Automation.Common.WebApi
 
         public async Task<BroadcastTransactionOutput> BroadcastTransaction(string rawTransaction)
         {
-            var url = GetRequestUrl(ApiMethods.BroadcastTransaction);
+            var url = GetRequestUrl(ApiMethods.SendTransaction);
             var parameters = new Dictionary<string,string>
             {
                 {"rawTransaction",rawTransaction}
@@ -202,12 +202,12 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.GetTransactionPoolStatus, "/api/blockChain/transactionPoolStatus"},
                 {ApiMethods.GetBlockByHeight, "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}"},
                 {ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}"},
-                {ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction"},
-                {ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction"},
+                {ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction"},
+                {ApiMethods.SendTransaction, "/api/blockChain/sendTransaction"},
                 {ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions"},
                 {ApiMethods.SendRawTransaction, "/api/blockChain/sendRawTransaction"},
                 {ApiMethods.GetBlockState, "/api/blockChain/blockState?blockHash={0}"},
-                {ApiMethods.Call, "/api/blockChain/call"},
+                {ApiMethods.ExecuteTransaction, "/api/blockChain/executeTransaction"},
                 {ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}"},
                 {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
                 {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},

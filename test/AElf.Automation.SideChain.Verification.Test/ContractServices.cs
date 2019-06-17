@@ -22,6 +22,7 @@ namespace AElf.Automation.SideChain.VerificationTest
             Url = url;
             ApiHelper = new WebApiHelper(url);
             CallAddress = callAddress;
+            UnlockInitAccount(callAddress);
             CallAccount = Address.Parse(callAddress);
             
             //connect chain
@@ -55,6 +56,15 @@ namespace AElf.Automation.SideChain.VerificationTest
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
+        }
+        
+        private void UnlockInitAccount(string InitAccount)
+        {
+            var ci = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{InitAccount} 123 notimeout"
+            };
+            ApiHelper.ExecuteCommand(ci);
         }
     }
 }

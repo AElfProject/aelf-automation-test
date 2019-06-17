@@ -321,7 +321,7 @@ namespace AElf.Automation.SideChainVerification
                                    "\",\"method\":\"VerifyTransaction\",\"incr\":\"" +
                                    GetCurrentTimeStamp() + "\",\"params\":[\"" + merkle.TxId + "\",\"" + merkle.MPath +
                                    "\",\"" + merkle.PHeight + "\"]}";
-            var ci = new CommandInfo(ApiMethods.BroadcastTransaction);
+            var ci = new CommandInfo(ApiMethods.SendTransaction);
             ci.Parameter = parameterinfo;
             string requestInfo = _ch.GenerateTransactionRawTx(ci);
 

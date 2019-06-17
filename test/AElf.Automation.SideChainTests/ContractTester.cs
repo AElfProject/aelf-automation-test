@@ -1,4 +1,5 @@
 using Acs3;
+using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
@@ -7,9 +8,6 @@ using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
-using CrossChainMerkleProofContext = AElf.Contracts.CrossChain.CrossChainMerkleProofContext;
-using ResourceType = AElf.Contracts.CrossChain.ResourceType;
-using ResourceTypeBalancePair = AElf.Contracts.CrossChain.ResourceTypeBalancePair;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -39,12 +37,6 @@ namespace AElf.Automation.SideChainTests
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
 
-            var resourceBalance = new ResourceTypeBalancePair
-            {
-                Amount = 1,
-                Type = ResourceType.Ram
-            };
-            
             CrossChainService.SetAccount(account);
             var result =CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainCreation,
                 new SideChainCreationRequest
@@ -52,7 +44,6 @@ namespace AElf.Automation.SideChainTests
                     LockedTokenAmount = lockToken,
                     IndexingPrice = 1,
                     ContractCode = code,
-                    ResourceBalances = {resourceBalance}
                 });
             return result;
         }
@@ -130,7 +121,6 @@ namespace AElf.Automation.SideChainTests
 
 
         #endregion
-        
         
         #region Parliament Method
 
