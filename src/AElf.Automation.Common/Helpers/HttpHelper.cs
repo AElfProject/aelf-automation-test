@@ -169,6 +169,8 @@ namespace AElf.Automation.Common.Helpers
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             var client = GetDefaultClient(version);
             HttpContent content;
+            HttpResponseMessage response = null;
+
             if (useApplicationJson)
             {
                 var paramsStr = JsonConvert.SerializeObject(parameters);
@@ -182,22 +184,24 @@ namespace AElf.Automation.Common.Helpers
                     MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
             }
 
-                var message = "";
-                try
+            var message = "";
+            try
+            {
+                response = await client.PostAsync(url, content);
+                message = response.Content.ReadAsStringAsync().Result;
+                Console.WriteLine($"{message}, {url}");
+                if (response.StatusCode != expectedStatusCode)
                 {
-                    response = await client.PostAsync(url, content);
-                    message = response.Content.ReadAsStringAsync().Result;
-                    Console.WriteLine($"{message}, {url}");
-                    if (response.StatusCode != expectedStatusCode)
-                    {
-                        throw new Exception();
-                    }
+                    throw new Exception();
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{response},{url},{content}: {message}");
-                    throw;
-                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{response},{url},{content}: {message}");
+                throw;
+            }
+
+            return response;
         }
 
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
@@ -229,7 +233,6 @@ namespace AElf.Automation.Common.Helpers
             var message = await response.Content.ReadAsStringAsync();
             message.WriteErrorLine();
             throw new Exception(response.StatusCode.ToString());
-
         }
 
         private static HttpClient GetDefaultClient(string version = null)

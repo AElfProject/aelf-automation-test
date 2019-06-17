@@ -1030,7 +1030,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 ci = new CommandInfo(ApiMethods.GetTransactionResult);
                 ci.Parameter = txId;
-                chain.ApiHelper.GetTxResult(ci);
+                chain.ApiHelper.GetTransactionResult(ci);
 
                 if (ci.Result)
                 {

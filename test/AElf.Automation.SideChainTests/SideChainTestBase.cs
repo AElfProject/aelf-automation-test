@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Acs7;
-using AElf.Automation.Common.Extensions;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;

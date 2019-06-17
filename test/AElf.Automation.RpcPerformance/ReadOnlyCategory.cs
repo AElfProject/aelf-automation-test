@@ -254,7 +254,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -292,7 +292,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -330,7 +330,7 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -351,7 +351,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
+                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }

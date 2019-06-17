@@ -518,7 +518,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
-                var ci = new CommandInfo(ApiMethods.BroadcastTransaction) {Parameter = rpcMsg};
+                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }
