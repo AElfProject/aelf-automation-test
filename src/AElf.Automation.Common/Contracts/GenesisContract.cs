@@ -54,6 +54,7 @@ namespace AElf.Automation.Common.Contracts
             var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
             ch.GetChainInformation(chainInfo);
             var genesisContract = ch.GetGenesisContractAddress();
+            Logger.WriteInfo($"Genesis contract Address: {genesisContract}");
             
             return new GenesisContract(ch, callAddress, genesisContract);
         }
@@ -82,7 +83,9 @@ namespace AElf.Automation.Common.Contracts
             var hash = _nameProviders[name];
 
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
-
+            var addString = address != new Address() ? address.GetFormatted() : "null";
+            Logger.WriteInfo($"{name.ToString().Replace("Name", "")} contract address: {addString}");
+            
             return address;
         }
 

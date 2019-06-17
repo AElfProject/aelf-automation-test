@@ -66,6 +66,12 @@ namespace AElf.Automation.QueryTransaction
                 "http://192.168.197.13:8100",
                 "http://192.168.197.28:8100",
                 "http://192.168.197.33:8100",
+                "http://192.168.197.13:8200",
+                "http://192.168.197.28:8200",
+                "http://192.168.197.33:8200",
+                "http://192.168.197.13:8300",
+                "http://192.168.197.28:8300",
+                "http://192.168.197.33:8300"
             };
             var status = new NodesStatus(urlCollection);
             AsyncHelper.RunSync(()=>status.CheckAllNodes());

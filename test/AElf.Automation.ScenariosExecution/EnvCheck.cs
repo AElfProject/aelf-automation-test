@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Nito.AsyncEx;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -74,17 +76,17 @@ namespace AElf.Automation.ScenariosExecution
             return Services;
         }
  
-        private static List<string> GenerateTestUsers(IApiHelper helper, int count)
+        private List<string> GenerateTestUsers(IApiHelper helper, int count)
         {
             
             var accounts = new List<string>();
-            for (var i = 0; i < count; i++)
+            Parallel.For(0, count, i =>
             {
                 var command = new CommandInfo(ApiMethods.AccountNew, "123");
                 command = helper.NewAccount(command);
                 var account = command.InfoMsg.ToString();
                 accounts.Add(account);
-            }
+            });
 
             return accounts;
         }
@@ -96,7 +98,7 @@ namespace AElf.Automation.ScenariosExecution
                 var result = CheckAccountExist(bp.Account);
                 if (result)
                     continue;
-                Logger.WriteError($"Node {bp.Name} account not found.");
+                Logger.WriteError($"Node {bp.Name} account key not found.");
                 return false;
             }
 
@@ -105,21 +107,21 @@ namespace AElf.Automation.ScenariosExecution
                 var result = CheckAccountExist(full.Account);
                 if (result)
                     continue;
-                Logger.WriteError($"Node {full.Name} account not found.");
+                Logger.WriteError($"Node {full.Name} account key not found.");
                 return false;
             }
 
             return true;
         }
 
-        private static void CheckAllNodesConnection()
+        private void CheckAllNodesConnection()
         {
             Logger.WriteInfo("Check all node connection status.");
             _config.BpNodes.ForEach(CheckNodeConnection);
             _config.FullNodes.ForEach(CheckNodeConnection);
         }
 
-        private static void CheckNodeConnection(Node node)
+        private void CheckNodeConnection(Node node)
         {
             var service = new WebApiService(node.ServiceUrl);
             try
@@ -130,6 +132,7 @@ namespace AElf.Automation.ScenariosExecution
                 {
                     node.Status = true;
                 }
+                Logger.WriteInfo($"Node {node.Name} connection success.");
             }
             catch (Exception ex)
             {
@@ -145,15 +148,14 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void GetConfigNodesPublicKey(IApiHelper helper)
         {
-            foreach (var node in _config.BpNodes)
+            _config.BpNodes.ForEach(node =>
             {
                 node.PublicKey = helper.GetPublicKeyFromAddress(node.Account);
-            }
-
-            foreach (var node in _config.FullNodes)
+            });
+            _config.FullNodes.ForEach(node =>
             {
                 node.PublicKey = helper.GetPublicKeyFromAddress(node.Account);
-            }
+            });
         }
     }
 }

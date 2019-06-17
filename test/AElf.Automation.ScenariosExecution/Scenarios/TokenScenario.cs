@@ -8,6 +8,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using Nito.AsyncEx;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -150,8 +151,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Token.SetAccount(otherBp.Account, otherBp.Password);
             var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
             Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
-            //foreach (var user in AllTesters)
-            foreach(var user in AllTesters)
+
+            Parallel.ForEach(AllTesters, user =>
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
@@ -164,7 +165,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
-            }
+            });
 
             token1.CheckTransactionResultList();
         }
