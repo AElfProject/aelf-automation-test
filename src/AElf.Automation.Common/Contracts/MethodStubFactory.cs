@@ -24,19 +24,19 @@ namespace AElf.Automation.Common.Contracts
         public Address Sender { get; set; }
         public WebApiHelper ApiHelper { get; }
         public WebApiService ApiService { get; }
-        
+
         private readonly string _baseUrl;
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            
+
             ApiHelper = new WebApiHelper(baseUrl, keyPath);
             ApiService = ApiHelper.ApiService;
-            
+
             ApiHelper.GetChainInformation(new CommandInfo(ApiMethods.GetChainInformation));
         }
-        
+
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -52,9 +52,9 @@ namespace AElf.Automation.Common.Contracts
                 };
                 transaction.AddBlockReference(_baseUrl);
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
-                
-                var transactionOutput =  await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
-                
+
+                var transactionOutput = await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
+
                 var checkTimes = 0;
                 TransactionResultDto transactionResult;
                 while (true)
@@ -65,21 +65,23 @@ namespace AElf.Automation.Common.Contracts
                         (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status);
                     if (status != TransactionResultStatus.Pending)
                         break;
-                    
-                    if(checkTimes == 120)
-                        Assert.IsTrue(false, $"Transaction {transactionResult.TransactionId} in pending status more than one minutes.");
+
+                    if (checkTimes == 120)
+                        Assert.IsTrue(false,
+                            $"Transaction {transactionResult.TransactionId} in pending status more than one minutes.");
                     Thread.Sleep(500);
                 }
 
                 return new ExecutionResult<TOutput>()
                 {
-                    Transaction = transaction, 
+                    Transaction = transaction,
                     TransactionResult = new TransactionResult
                     {
                         TransactionId = Hash.LoadHex(transactionResult.TransactionId),
                         BlockHash = Hash.FromString(transactionResult.BlockHash),
                         BlockNumber = transactionResult.BlockNumber,
-                        Logs = { 
+                        Logs =
+                        {
                             transactionResult.Logs.Select(o => new LogEvent
                             {
                                 Address = Address.Parse(o.Address),
@@ -89,12 +91,13 @@ namespace AElf.Automation.Common.Contracts
                         },
                         Bloom = ByteString.CopyFromUtf8(transactionResult.Bloom),
                         Error = transactionResult.Error ?? "",
-                        Status = (TransactionResultStatus)Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status),
+                        Status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                            transactionResult.Status),
                         ReadableReturnValue = transactionResult.ReadableReturnValue
                     }
                 };
             }
-            
+
             async Task<TOutput> CallAsync(TInput input)
             {
                 var transaction = new Transaction()
@@ -105,7 +108,7 @@ namespace AElf.Automation.Common.Contracts
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
-                
+
                 var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(returnValue));
             }

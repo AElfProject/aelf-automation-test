@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
@@ -132,6 +133,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var bp = BpNodes.First();
             var token = Token.GetNewTester(bp.Account, bp.Password);
+            
+            //prepare full node token
+            Logger.WriteInfo("Prepare token for all full nodes.");
             if (!isAnnounced && tokenBalance == 0)
             {
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))
@@ -149,19 +153,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             //prepare other user token
+            Logger.WriteInfo("Prepare token for all testers.");
             foreach(var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
-                if (balance < 500_000)
+                if (balance >= 500_000) continue;
+                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 500_000 - balance,
-                        To = Address.Parse(user),
-                        Memo = $"Transfer for testing - {Guid.NewGuid()}"
-                    });
-                }
+                    Symbol = "ELF",
+                    Amount = 500_000 - balance,
+                    To = Address.Parse(user),
+                    Memo = $"Transfer for testing - {Guid.NewGuid()}"
+                });
+                Thread.Sleep(10);
             }
 
             token.CheckTransactionResultList();
