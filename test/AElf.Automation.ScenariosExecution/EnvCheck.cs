@@ -153,8 +153,8 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void GetConfigNodesPublicKey(IApiHelper helper)
         {
-            _config.BpNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account); });
-            _config.FullNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account); });
+            _config.BpNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password); });
+            _config.FullNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password); });
         }
     }
 }
