@@ -5,7 +5,7 @@ namespace AElf.Automation.Common.WebApi.Dto
         public string Version { get; set; }
 
         public int ProtocolVersion { get; set; }
-        
+
         public int Connections { get; set; }
     }
 }

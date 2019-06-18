@@ -83,6 +83,7 @@ namespace AElf.Automation.Common.Helpers
                 byte[] val = resp[i * 2 + 2];
                 kvs[i] = new KeyValuePair<string, byte[]>(key, val);
             }
+
             return kvs;
         }
 
@@ -96,11 +97,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             return (_string(resp[1]) == "1" ? true : false);
         }
 
@@ -136,11 +139,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             val = resp[1];
             return true;
         }
@@ -158,6 +163,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             val = _string(bs);
             return true;
         }
@@ -221,11 +227,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             val = resp[1];
             return true;
         }
@@ -243,6 +251,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             val = _string(bs);
             return true;
         }
@@ -267,11 +276,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             return (_string(resp[1]) == "1" ? true : false);
         }
 
@@ -289,6 +300,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 throw new Exception("Bad response!");
             }
+
             return Int64.Parse(_string(resp[1]));
         }
 
@@ -317,8 +329,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[(2 * i) + 1] = kvs[i].Key;
                 req[(2 * i) + 2] = kvs[i].Value;
-
             }
+
             List<byte[]> resp = Request("multi_hset", req);
             _respCode = _string(resp[0]);
             this.Assert_ok();
@@ -331,6 +343,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = new KeyValuePair<byte[], byte[]>(_bytes(kvs[i].Key), _bytes(kvs[i].Value));
             }
+
             this.multi_hset(_bytes(name), req);
         }
 
@@ -342,6 +355,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
+
             List<byte[]> resp = Request("multi_hdel", req);
             _respCode = _string(resp[0]);
             this.Assert_ok();
@@ -354,6 +368,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = _bytes(keys[i]);
             }
+
             this.multi_hdel(_bytes(name), req);
         }
 
@@ -365,6 +380,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
+
             List<byte[]> resp = Request("multi_hget", req);
             KeyValuePair<string, byte[]>[] ret = Parse_scan_resp(resp);
 
@@ -378,6 +394,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = _bytes(keys[i]);
             }
+
             return this.multi_hget(_bytes(name), req);
         }
 
@@ -404,6 +421,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 throw new Exception("Bad response!");
             }
+
             return Int64.Parse(_string(resp[1]));
         }
 
@@ -428,11 +446,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             score = Int64.Parse(_string(resp[1]));
             return true;
         }
@@ -463,6 +483,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 throw new Exception("Bad response!");
             }
+
             return Int64.Parse(_string(resp[1]));
         }
 
@@ -479,11 +500,13 @@ namespace AElf.Automation.Common.Helpers
             {
                 return false;
             }
+
             this.Assert_ok();
             if (resp.Count != 2)
             {
                 throw new Exception("Bad response!");
             }
+
             return (_string(resp[1]) == "1" ? true : false);
         }
 
@@ -503,6 +526,7 @@ namespace AElf.Automation.Common.Helpers
                 Int64 score = Int64.Parse(_string(kvs[i].Value));
                 ret[i] = new KeyValuePair<string, Int64>(key, score);
             }
+
             return ret;
         }
 
@@ -517,10 +541,12 @@ namespace AElf.Automation.Common.Helpers
                 Int64 score = Int64.Parse(_string(kvs[i].Value));
                 ret[i] = new KeyValuePair<string, Int64>(key, score);
             }
+
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] Zscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
+        public KeyValuePair<string, Int64>[] Zscan(string name, string key_start, Int64 score_start, Int64 score_end,
+            Int64 limit)
         {
             string score_s = "";
             string score_e = "";
@@ -528,10 +554,12 @@ namespace AElf.Automation.Common.Helpers
             {
                 score_s = score_start.ToString();
             }
+
             if (score_end != Int64.MaxValue)
             {
                 score_e = score_end.ToString();
             }
+
             List<byte[]> resp = Request("zscan", name, key_start, score_s, score_e, limit.ToString());
             KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
@@ -541,10 +569,12 @@ namespace AElf.Automation.Common.Helpers
                 Int64 score = Int64.Parse(_string(kvs[i].Value));
                 ret[i] = new KeyValuePair<string, Int64>(key, score);
             }
+
             return ret;
         }
 
-        public KeyValuePair<string, Int64>[] Zrscan(string name, string key_start, Int64 score_start, Int64 score_end, Int64 limit)
+        public KeyValuePair<string, Int64>[] Zrscan(string name, string key_start, Int64 score_start, Int64 score_end,
+            Int64 limit)
         {
             string score_s = "";
             string score_e = "";
@@ -552,10 +582,12 @@ namespace AElf.Automation.Common.Helpers
             {
                 score_s = score_start.ToString();
             }
+
             if (score_end != Int64.MinValue)
             {
                 score_e = score_end.ToString();
             }
+
             List<byte[]> resp = Request("zrscan", name, key_start, score_s, score_e, limit.ToString());
             KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
@@ -565,6 +597,7 @@ namespace AElf.Automation.Common.Helpers
                 Int64 score = Int64.Parse(_string(kvs[i].Value));
                 ret[i] = new KeyValuePair<string, Int64>(key, score);
             }
+
             return ret;
         }
 
@@ -576,8 +609,8 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[(2 * i) + 1] = kvs[i].Key;
                 req[(2 * i) + 2] = _bytes(kvs[i].Value.ToString());
-
             }
+
             List<byte[]> resp = Request("multi_zset", req);
             _respCode = _string(resp[0]);
             this.Assert_ok();
@@ -590,6 +623,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = new KeyValuePair<byte[], Int64>(_bytes(kvs[i].Key), kvs[i].Value);
             }
+
             this.Multi_zset(_bytes(name), req);
         }
 
@@ -601,6 +635,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
+
             List<byte[]> resp = Request("multi_zdel", req);
             _respCode = _string(resp[0]);
             this.Assert_ok();
@@ -613,6 +648,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = _bytes(keys[i]);
             }
+
             this.Multi_zdel(_bytes(name), req);
         }
 
@@ -624,6 +660,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i + 1] = keys[i];
             }
+
             List<byte[]> resp = Request("multi_zget", req);
             KeyValuePair<string, byte[]>[] kvs = Parse_scan_resp(resp);
             KeyValuePair<string, Int64>[] ret = new KeyValuePair<string, Int64>[kvs.Length];
@@ -633,6 +670,7 @@ namespace AElf.Automation.Common.Helpers
                 Int64 score = Int64.Parse(_string(kvs[i].Value));
                 ret[i] = new KeyValuePair<string, Int64>(key, score);
             }
+
             return ret;
         }
 
@@ -643,9 +681,9 @@ namespace AElf.Automation.Common.Helpers
             {
                 req[i] = _bytes(keys[i]);
             }
+
             return this.Multi_zget(_bytes(name), req);
         }
-
     }
 
     public class Link
@@ -671,6 +709,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 sock.Close();
             }
+
             sock = null;
         }
 
@@ -682,6 +721,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 req.Add(Encoding.Default.GetBytes(s));
             }
+
             return this.Request(req);
         }
 
@@ -700,14 +740,15 @@ namespace AElf.Automation.Common.Helpers
             {
                 byte[] len = Encoding.Default.GetBytes(p.Length.ToString());
                 buf.Write(len, 0, len.Length);
-                buf.WriteByte((byte)'\n');
+                buf.WriteByte((byte) '\n');
                 buf.Write(p, 0, p.Length);
-                buf.WriteByte((byte)'\n');
+                buf.WriteByte((byte) '\n');
             }
-            buf.WriteByte((byte)'\n');
+
+            buf.WriteByte((byte) '\n');
 
             byte[] bs = buf.GetBuffer();
-            sock.GetStream().Write(bs, 0, (int)buf.Length);
+            sock.GetStream().Write(bs, 0, (int) buf.Length);
             //Console.Write(Encoding.Default.GetString(bs, 0, (int)buf.Length));
             return Recv();
         }
@@ -721,6 +762,7 @@ namespace AElf.Automation.Common.Helpers
                 {
                     return ret;
                 }
+
                 byte[] bs = new byte[8192];
                 int len = sock.GetStream().Read(bs, 0, bs.Length);
                 //Console.WriteLine("<< " + Encoding.Default.GetString(bs));
@@ -737,6 +779,7 @@ namespace AElf.Automation.Common.Helpers
                     return i;
                 }
             }
+
             return -1;
         }
 
@@ -748,31 +791,34 @@ namespace AElf.Automation.Common.Helpers
             int idx = 0;
             while (true)
             {
-                int pos = Memchr(buf, (byte)'\n', idx);
+                int pos = Memchr(buf, (byte) '\n', idx);
                 //System.out.println("pos: " + pos + " idx: " + idx);
                 if (pos == -1)
                 {
                     break;
                 }
+
                 if (pos == idx || (pos == idx + 1 && buf[idx] == '\r'))
                 {
                     idx += 1; // if '\r', next time will skip '\n'
-                              // ignore empty leading lines
+                    // ignore empty leading lines
                     if (list.Count == 0)
                     {
                         continue;
                     }
                     else
                     {
-                        int left = (int)recv_buf.Length - idx;
+                        int left = (int) recv_buf.Length - idx;
                         recv_buf = new MemoryStream(8192);
                         if (left > 0)
                         {
                             recv_buf.Write(buf, idx, left);
                         }
+
                         return list;
                     }
                 }
+
                 byte[] lens = new byte[pos - idx];
                 Array.Copy(buf, idx, lens, 0, lens.Length);
                 int len = Int32.Parse(Encoding.Default.GetString(lens));
@@ -782,13 +828,15 @@ namespace AElf.Automation.Common.Helpers
                 {
                     break;
                 }
+
                 byte[] data = new byte[len];
-                Array.Copy(buf, idx, data, 0, (int)data.Length);
+                Array.Copy(buf, idx, data, 0, (int) data.Length);
 
                 //Console.WriteLine("len: " + len + " data: " + Encoding.Default.GetString(data));
                 idx += len + 1; // skip '\n'
                 list.Add(data);
             }
+
             return null;
         }
     }

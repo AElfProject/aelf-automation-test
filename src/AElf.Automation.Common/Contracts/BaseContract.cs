@@ -18,7 +18,7 @@ namespace AElf.Automation.Common.Contracts
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         public string ContractAddress { get; set; }
-        
+
         public static int Timeout { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
         protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
@@ -67,15 +67,15 @@ namespace AElf.Automation.Common.Contracts
         public BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
         {
             UnlockAccount(account);
-            
+
             var contract = new BaseContract<T>
             {
                 ApiHelper = apiHelper,
                 ContractAddress = ContractAddress,
-                
+
                 CallAccount = Address.Parse(account),
                 CallAddress = account,
-                
+
                 TxResultList = new ConcurrentQueue<string>()
             };
 
@@ -126,7 +126,7 @@ namespace AElf.Automation.Common.Contracts
             //Check result
             return CheckTransactionResult(txId);
         }
-        
+
         /// <summary>
         /// 执行交易，等待执行结果后返回
         /// </summary>
@@ -173,7 +173,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 maxTimes = Timeout == 0 ? 600 : Timeout;
             }
-            
+
             CommandInfo ci = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
@@ -186,13 +186,16 @@ namespace AElf.Automation.Common.Contracts
                     switch (transactionResult?.Status)
                     {
                         case "Mined":
-                        case "NotExisted":
                             Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                            return ci;
+                        case "NotExisted":
+                            Logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
                             return ci;
                         case "Failed":
                         {
                             var message = $"Transaction {txId} status: {transactionResult.Status}";
-                            message += $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                            message +=
+                                $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                             message += $"\r\nError Message: {transactionResult.Error}";
                             Logger.WriteError(message);
                             return ci;
@@ -377,7 +380,6 @@ namespace AElf.Automation.Common.Contracts
 
             if (!ci.Result) return false;
             var transactionResult = ci.InfoMsg as TransactionResultDto;
-            Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
             if (transactionResult?.Status != "Mined") return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;

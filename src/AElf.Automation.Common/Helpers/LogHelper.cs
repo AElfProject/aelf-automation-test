@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Helpers
         void WriteError(string logText, params object[] arg);
 
         void Write(LogType logType, string logText, params object[] arg);
-        
+
         void WriteException(Exception exception);
 
         void Dispose();
@@ -28,7 +28,7 @@ namespace AElf.Automation.Common.Helpers
         Error
     }
 
-    public class LogHelper:ILogHelper, IDisposable
+    public class LogHelper : ILogHelper, IDisposable
     {
         private static LogHelper _logger;
         private static readonly object InitObject = new object();
@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Helpers
         private LogHelper()
         {
         }
-        
+
         public static ILogHelper GetLogHelper()
         {
             if (_logger != null) return _logger;
@@ -55,6 +55,7 @@ namespace AElf.Automation.Common.Helpers
                     _logger = new LogHelper();
                 }
             }
+
             return _logger;
         }
 
@@ -69,6 +70,7 @@ namespace AElf.Automation.Common.Helpers
                     {
                         _streamWriter.Dispose();
                     }
+
                     _streamWriter = null;
                 }
 
@@ -82,6 +84,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 throw new ArgumentNullException(nameof(logFileSavePath));
             }
+
             try
             {
                 var logDirPath = Path.GetDirectoryName(logFileSavePath);
@@ -89,10 +92,12 @@ namespace AElf.Automation.Common.Helpers
                 {
                     throw new ArgumentNullException(logFileSavePath);
                 }
+
                 if (!Directory.Exists(logDirPath))
                 {
                     Directory.CreateDirectory(logDirPath);
                 }
+
                 lock (InitObject)
                 {
                     _logFilePath = logFileSavePath;
@@ -101,11 +106,13 @@ namespace AElf.Automation.Common.Helpers
                         File.Create(_logFilePath).Close();
                     }
                 }
+
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
                 lock (WriteObject)
                 {
                     _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
                 }
+
                 WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
@@ -141,10 +148,11 @@ namespace AElf.Automation.Common.Helpers
                 {
                     throw new Exception("Please initial log helper first.");
                 }
+
                 try
                 {
                     string text;
-                    var content = arg?.Length>0 ? string.Format(logText, arg) : logText;
+                    var content = arg?.Length > 0 ? string.Format(logText, arg) : logText;
                     switch (logType)
                     {
                         case LogType.Info:
@@ -163,9 +171,11 @@ namespace AElf.Automation.Common.Helpers
                             break;
 
                         default:
-                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) + "\t" + content;
+                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) +
+                                   "\t" + content;
                             break;
                     }
+
                     _streamWriter.WriteLine(text);
                     _streamWriter.Flush();
 
@@ -187,6 +197,7 @@ namespace AElf.Automation.Common.Helpers
                 {
                     throw new Exception("Please initial log helper first.");
                 }
+
                 try
                 {
                     //显示调用关闭

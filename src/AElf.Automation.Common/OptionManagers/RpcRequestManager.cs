@@ -12,14 +12,13 @@ namespace AElf.Automation.Common.OptionManagers
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
         private readonly ILogHelper _log = LogHelper.GetLogHelper();
-        
-        public RpcRequestManager(string url, string path="chain")
+
+        public RpcRequestManager(string url, string path = "chain")
         {
             if (url.Contains("/chain") || url.Contains("/net") || url.Contains("/wallet"))
                 RpcUrl = url;
             else
                 RpcUrl = $"{url}/{path}";
-
         }
 
         public string PostRequest(string body, out string returnCode, out long timeSpan)
@@ -57,7 +56,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             return new JObject();
         }
-        
+
         public JObject PostRequest(ApiMethods api)
         {
             var method = api.ToString();
@@ -73,16 +72,18 @@ namespace AElf.Automation.Common.OptionManagers
         public string PostRequest(List<string> rpcBody, out string returnCode)
         {
             RpcMethod = "SendTransactions";
-            foreach(var rpc in rpcBody)
+            foreach (var rpc in rpcBody)
             {
                 RpcParameter += "," + rpc;
             }
+
             RpcParameter = RpcParameter.Substring(1);
-            RpcBody = "{\"jsonrpc\":\"2.0\",\"method\":\"" + RpcMethod + "\",\"params\":{\"rawtxs\":\"" + RpcParameter + "\"},\"id\":0}";
+            RpcBody = "{\"jsonrpc\":\"2.0\",\"method\":\"" + RpcMethod + "\",\"params\":{\"rawtxs\":\"" + RpcParameter +
+                      "\"},\"id\":0}";
 
             return HttpHelper.PostResponse(RpcUrl, RpcBody, out returnCode);
         }
-        
+
         public static JObject CreateRequest(JObject requestData, string method, int id)
         {
             JObject jObj = new JObject

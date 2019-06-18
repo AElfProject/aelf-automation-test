@@ -12,31 +12,32 @@ namespace AElf.Automation.Common.WebApi
         public string BaseUrl { get; }
         private Dictionary<ApiMethods, string> _apiRoute;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        
+
         public WebApiService(string baseUrl)
         {
             BaseUrl = baseUrl;
 
             InitializeWebApiRoute();
         }
-        
+
         #region Chain Api
-        
+
         public async Task<string> ExecuteTransaction(string rawTransaction)
         {
             var url = GetRequestUrl(ApiMethods.ExecuteTransaction);
             var parameters = new Dictionary<string, string>
             {
-                { "rawTransaction", rawTransaction }
+                {"rawTransaction", rawTransaction}
             };
             return await HttpHelper.PostResponseAsync<string>(url, parameters);
         }
 
-        public async Task<TResult> ExecuteTransaction<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new()
+        public async Task<TResult> ExecuteTransaction<TResult>(string rawTransaction)
+            where TResult : IMessage<TResult>, new()
         {
             var hexString = await ExecuteTransaction(rawTransaction);
-            
-            if(hexString.IsNullOrEmpty())
+
+            if (hexString.IsNullOrEmpty())
             {
                 _logger.WriteError("ExecuteTransaction response is null or empty.");
                 return default(TResult);
@@ -53,7 +54,7 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.GetContractFileDescriptorSet);
             var parameters = new Dictionary<string, string>
             {
-                { "Address", address }
+                {"Address", address}
             };
             return await HttpHelper.PostResponseAsync<byte[]>(url, parameters);
         }
@@ -61,14 +62,14 @@ namespace AElf.Automation.Common.WebApi
         public async Task<CreateRawTransactionOutput> CreateRawTransaction(CreateRawTransactionInput input)
         {
             var url = GetRequestUrl(ApiMethods.CreateRawTransaction);
-            var parameters = new Dictionary<string,string>
+            var parameters = new Dictionary<string, string>
             {
-                { "From",input.From },
-                { "To",input.To },
-                { "RefBlockNumber", input.RefBlockNumber.ToString() },
-                { "RefBlockHash", input.RefBlockHash },
-                { "MethodName", input.MethodName },
-                { "Params", input.Params }
+                {"From", input.From},
+                {"To", input.To},
+                {"RefBlockNumber", input.RefBlockNumber.ToString()},
+                {"RefBlockHash", input.RefBlockHash},
+                {"MethodName", input.MethodName},
+                {"Params", input.Params}
             };
             return await HttpHelper.PostResponseAsync<CreateRawTransactionOutput>(url, parameters);
         }
@@ -78,9 +79,9 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.SendRawTransaction);
             var parameters = new Dictionary<string, string>
             {
-                { "Transaction", input.Transaction },
-                { "Signature", input.Signature },
-                { "ReturnTransaction", input.ReturnTransaction ? "true" : "false" }
+                {"Transaction", input.Transaction},
+                {"Signature", input.Signature},
+                {"ReturnTransaction", input.ReturnTransaction ? "true" : "false"}
             };
             return await HttpHelper.PostResponseAsync<SendRawTransactionOutput>(url, parameters);
         }
@@ -88,9 +89,9 @@ namespace AElf.Automation.Common.WebApi
         public async Task<SendTransactionOutput> SendTransaction(string rawTransaction)
         {
             var url = GetRequestUrl(ApiMethods.SendTransaction);
-            var parameters = new Dictionary<string,string>
+            var parameters = new Dictionary<string, string>
             {
-                {"rawTransaction",rawTransaction}
+                {"rawTransaction", rawTransaction}
             };
             return await HttpHelper.PostResponseAsync<SendTransactionOutput>(url, parameters);
         }
@@ -98,9 +99,9 @@ namespace AElf.Automation.Common.WebApi
         public async Task<string[]> SendTransactions(string rawTransactions)
         {
             var url = GetRequestUrl(ApiMethods.SendTransactions);
-            var parameters = new Dictionary<string,string>
+            var parameters = new Dictionary<string, string>
             {
-                {"rawTransactions",rawTransactions}
+                {"rawTransactions", rawTransactions}
             };
             return await HttpHelper.PostResponseAsync<string[]>(url, parameters);
         }
@@ -111,7 +112,8 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.GetResponseAsync<TransactionResultDto>(url);
         }
 
-        public async Task<List<TransactionResultDto>> GetTransactionResults(string blockHash, int offset = 0, int limit = 10)
+        public async Task<List<TransactionResultDto>> GetTransactionResults(string blockHash, int offset = 0,
+            int limit = 10)
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionResults, blockHash, offset, limit);
             return await HttpHelper.GetResponseAsync<List<TransactionResultDto>>(url);
@@ -152,9 +154,9 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.GetBlockState, blockHash);
             return await HttpHelper.GetResponseAsync<BlockStateDto>(url);
         }
-        
+
         #endregion
-        
+
         #region Net api
 
         public async Task<bool> AddPeer(string address)
@@ -162,7 +164,7 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.AddPeer);
             var parameters = new Dictionary<string, string>
             {
-                { "address", address }
+                {"address", address}
             };
 
             return await HttpHelper.PostResponseAsync<bool>(url, parameters);
@@ -179,17 +181,18 @@ namespace AElf.Automation.Common.WebApi
             var url = GetRequestUrl(ApiMethods.GetPeers);
             return await HttpHelper.GetResponseAsync<List<PeerDto>>(url);
         }
-        
+
         #endregion
 
         #region Private methods
-        
+
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {
             var subUrl = string.Format(_apiRoute[api], parameters);
 
             return $"{BaseUrl}{subUrl}";
         }
+
         private void InitializeWebApiRoute()
         {
             _apiRoute = new Dictionary<ApiMethods, string>
@@ -210,14 +213,18 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.ExecuteTransaction, "/api/blockChain/executeTransaction"},
                 {ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}"},
                 {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
-                {ApiMethods.GetTransactionResults, "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"},
-                
+                {
+                    ApiMethods.GetTransactionResults,
+                    "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"
+                },
+
                 //net route
                 {ApiMethods.GetPeers, "/api/net/peers"},
                 {ApiMethods.AddPeer, "/api/net/peer"},
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };
-        }        
+        }
+
         #endregion
     }
 }

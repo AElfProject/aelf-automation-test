@@ -9,21 +9,21 @@ namespace AElf.Automation.Common.OptionManagers
     {
         private string BaseUrl { get; set; }
         private readonly ILogHelper _log = LogHelper.GetLogHelper();
-        
+
         public WebRequestManager(string baseUrl)
         {
             BaseUrl = baseUrl.Replace("/chain", "");
         }
 
-        public T GetResponse<T>(string url,out string returnCode, out long timeSpan)
+        public T GetResponse<T>(string url, out string returnCode, out long timeSpan)
         {
-            timeSpan =0L;
+            timeSpan = 0L;
             Stopwatch watch = new Stopwatch();
             try
             {
                 watch.Start();
                 returnCode = "OK";
-                
+
                 return HttpHelper.GetResponseAsync<T>($"{BaseUrl}{url}").Result;
             }
             catch (Exception)
@@ -38,15 +38,16 @@ namespace AElf.Automation.Common.OptionManagers
             }
         }
 
-        public T PostResponse<T>(string url, Dictionary<string, string> parameters,out string returnCode, out long timeSpan)
+        public T PostResponse<T>(string url, Dictionary<string, string> parameters, out string returnCode,
+            out long timeSpan)
         {
-            timeSpan =0L;
+            timeSpan = 0L;
             Stopwatch watch = new Stopwatch();
             try
             {
                 watch.Start();
                 returnCode = "OK";
-                
+
                 return HttpHelper.PostResponseAsync<T>($"{BaseUrl}{url}", parameters).Result;
             }
             catch (Exception)
@@ -60,16 +61,16 @@ namespace AElf.Automation.Common.OptionManagers
                 timeSpan = watch.ElapsedMilliseconds;
             }
         }
-        
+
         public T DeleteResponse<T>(string url, out string returnCode, out long timeSpan)
         {
-            timeSpan =0L;
+            timeSpan = 0L;
             Stopwatch watch = new Stopwatch();
             try
             {
                 watch.Start();
                 returnCode = "OK";
-                
+
                 return HttpHelper.DeleteResponseAsObjectAsync<T>($"{BaseUrl}{url}").Result;
             }
             catch (Exception)
@@ -81,7 +82,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 watch.Stop();
                 timeSpan = watch.ElapsedMilliseconds;
-            } 
+            }
         }
     }
 }

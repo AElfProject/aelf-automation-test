@@ -12,7 +12,7 @@ namespace AElf.Automation.Common.Contracts
         UpdateEpochNumber,
         AddOption,
         RemoveOption,
-        
+
         //view
         GetVotingResult,
         GetVotingHistories,
@@ -20,6 +20,7 @@ namespace AElf.Automation.Common.Contracts
         GetVotingItem,
         GetVotingHistory
     }
+
     public class VoteContract : BaseContract<VoteMethod>
     {
         public VoteContract(IApiHelper apiHelper, string callAddress) :
@@ -27,7 +28,7 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public VoteContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+        public VoteContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
             base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;

@@ -14,7 +14,7 @@ namespace AElf.Automation.Common.Contracts
         DeploySmartContract,
         UpdateSmartContract,
         ChangeContractOwner,
-        
+
         //view
         CurrentContractSerialNumber,
         GetContractInfo,
@@ -31,16 +31,17 @@ namespace AElf.Automation.Common.Contracts
         VoteSystemName,
         TokenName,
         TokenConverterName,
-        FeeReceiverName,        
+        FeeReceiverName,
         ConsensusName,
         ParliamentName,
         CrossChainName,
         AssciationName
-        
     }
+
     public class GenesisContract : BaseContract<GenesisMethod>
     {
         private readonly Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
+
         private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
             base(apiHelper, genesisAddress)
         {
@@ -55,7 +56,7 @@ namespace AElf.Automation.Common.Contracts
             ch.GetChainInformation(chainInfo);
             var genesisContract = ch.GetGenesisContractAddress();
             Logger.WriteInfo($"Genesis contract Address: {genesisContract}");
-            
+
             return new GenesisContract(ch, callAddress, genesisContract);
         }
 
@@ -63,11 +64,11 @@ namespace AElf.Automation.Common.Contracts
         {
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(contractFileName);
-            
+
             var contractOwner = GetContractOwner(contractAddress);
-            if(contractOwner.GetFormatted() != account)
+            if (contractOwner.GetFormatted() != account)
                 Logger.WriteError("Account have no permission to update.");
-            
+
             SetAccount(account);
             var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
             {
@@ -77,7 +78,7 @@ namespace AElf.Automation.Common.Contracts
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
             return txDto.Status == "Mined";
         }
-        
+
         public Address GetContractAddressByName(NameProvider name)
         {
             var hash = _nameProviders[name];
@@ -85,7 +86,7 @@ namespace AElf.Automation.Common.Contracts
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             var addString = address != new Address() ? address.GetFormatted() : "null";
             Logger.WriteInfo($"{name.ToString().Replace("Name", "")} contract address: {addString}");
-            
+
             return address;
         }
 
@@ -95,7 +96,7 @@ namespace AElf.Automation.Common.Contracts
 
             return address;
         }
-        
+
         public Address GetContractOwner(string contractAddress)
         {
             return GetContractOwner(Address.Parse(contractAddress));

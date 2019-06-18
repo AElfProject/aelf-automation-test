@@ -11,9 +11,10 @@ namespace AElf.Automation.Common.Contracts
 {
     public interface IContractTesterFactory
     {
-        T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true) where T : ContractStubBase, new();
+        T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+            where T : ContractStubBase, new();
     }
-    
+
     public class ContractTesterFactory : IContractTesterFactory
     {
         private readonly string _baseUrl;
@@ -25,7 +26,8 @@ namespace AElf.Automation.Common.Contracts
             _keyPath = keyPath;
         }
 
-        public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true) where T : ContractStubBase, new()
+        public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+            where T : ContractStubBase, new()
         {
             var factory = new MethodStubFactory(_baseUrl, _keyPath)
             {
@@ -38,8 +40,8 @@ namespace AElf.Automation.Common.Contracts
             {
                 Parameter = $"{account} {password} {timeout}"
             });
-            
-            return new T(){ __factory = factory };
+
+            return new T() {__factory = factory};
         }
     }
 }

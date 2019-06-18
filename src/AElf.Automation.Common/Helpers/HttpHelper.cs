@@ -8,7 +8,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
-using Shouldly;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -223,8 +222,11 @@ namespace AElf.Automation.Common.Helpers
         private static HttpClient GetDefaultClient(string version = null)
         {
             if (Client != null) return Client;
-            Client = new HttpClient();
-            Client.Timeout = TimeSpan.FromSeconds(60);
+
+            Client = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(60)
+            };
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));

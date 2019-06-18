@@ -7,17 +7,16 @@ namespace AElf.Automation.Common.Contracts
         //Action
         Approve,
         CreateProposal,
-        
-        
     }
 
-    public class ParliamentAuthContract:BaseContract<ParliamentMethod>
+    public class ParliamentAuthContract : BaseContract<ParliamentMethod>
     {
         public ParliamentAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.Parliament", account)
         {
         }
 
-        public ParliamentAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch, contractAddress)
+        public ParliamentAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
+            contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
