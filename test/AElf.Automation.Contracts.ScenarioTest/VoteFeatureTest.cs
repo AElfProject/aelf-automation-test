@@ -27,13 +27,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class VoteFeatureTest
     {
         #region Priority
+
         public ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenContract { get; set; }
         public string ConsensusContract { get; set; }
         public string DividendsContract { get; set; }
-        
+
         public string ElectionContract { get; set; }
-        
+
         public string VoteContract { get; set; }
 
         public List<string> UserList { get; set; }
@@ -70,7 +71,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
             CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            
+
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             CH.GetChainInformation(ci);
@@ -93,21 +94,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CandidateInfos = new List<CandidateInfo>();
             for (int i = 0; i < BpNodeAccounts.Count; i++)
             {
-                string name = $"Bp-{i+1}";
+                string name = $"Bp-{i + 1}";
                 string account = BpNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
                 Logger.WriteInfo($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
+                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
+
             for (int i = 0; i < FullNodeAccounts.Count; i++)
             {
-                string name = $"Full-{i+1}";
+                string name = $"Full-{i + 1}";
                 string account = FullNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
                 Logger.WriteInfo($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
+                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
             //Init service
@@ -129,7 +131,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 File.Delete(file);
             }
         }
-        
+
         /*
         private void QueryContractsBalance()
         {

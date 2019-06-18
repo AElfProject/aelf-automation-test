@@ -105,6 +105,5 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
             }
         }
-
     }
 }

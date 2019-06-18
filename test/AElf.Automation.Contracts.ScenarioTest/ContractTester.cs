@@ -7,7 +7,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         public readonly IApiHelper ApiHelper;
         public readonly ContractServices ContractServices;
-        
+
         public readonly ElectionContract ElectionService;
         public readonly VoteContract VoteService;
         public readonly ProfitContract ProfitService;
@@ -28,7 +28,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             TokenService = ContractServices.TokenService;
             ConsensusService = ContractServices.ConsensusService;
             AssociationService = ContractServices.AssociationAuthService;
-
         }
     }
 }

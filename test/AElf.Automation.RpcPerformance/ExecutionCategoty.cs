@@ -63,20 +63,20 @@ namespace AElf.Automation.RpcPerformance
         {
             _logger.WriteInfo("Host Url: {0}", BaseUrl);
             _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
-            
+
             ApiHelper = new WebApiHelper(BaseUrl, KeyStorePath);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-            
+
             //New
             NewAccounts(userCount);
 
             //Unlock Account
             UnlockAllAccounts(userCount);
-            
+
             //Init other services
             Summary = new ExecutionSummary(ApiHelper);
             Monitor = new NodeStatusMonitor(ApiHelper);
@@ -187,6 +187,7 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
@@ -213,11 +214,12 @@ namespace AElf.Automation.RpcPerformance
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
-            
+
             //prepare conflict environment
             var conflict = ConfigInfoHelper.Config.Conflict;
-            if(!conflict)
+            if (!conflict)
                 InitializeTransactionGroup();
         }
 
@@ -226,7 +228,7 @@ namespace AElf.Automation.RpcPerformance
             var apiHelper = ApiHelper;
             var users = AccountList.Skip(ThreadCount).ToList();
             var contracts = ContractList;
-            
+
             Group = new TransactionGroup(apiHelper, users, contracts);
             Group.InitializeAllUsersToken();
             Task.Run(() => Group.GenerateAllContractTransactions());
@@ -355,7 +357,7 @@ namespace AElf.Automation.RpcPerformance
 
             Task.WaitAll(taskList.ToArray<Task>());
         }
-        
+
         public void PrintContractInfo()
         {
             _logger.WriteInfo("Execution account and contract address information:");
@@ -465,7 +467,7 @@ namespace AElf.Automation.RpcPerformance
         {
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
             var rawTransactions = Group.GetRawTransactions();
-            
+
             //Send batch transaction requests
             var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
@@ -479,14 +481,14 @@ namespace AElf.Automation.RpcPerformance
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
-        
+
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractPath;
 
             Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            
+
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
@@ -553,6 +555,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     AccountList.Add(new AccountInfo(acc));
                 }
+
                 for (var i = 0; i < count - accounts.Count; i++)
                 {
                     var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};

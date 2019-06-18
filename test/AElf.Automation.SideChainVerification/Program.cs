@@ -52,6 +52,7 @@ namespace AElf.Automation.SideChainVerification
                                 s2Sc.PostVeriyTransaction(index);
                             }));
                         }
+
                         Logger.WriteInfo(indexInfo);
                         Task.WaitAll(tasks.ToArray());
                     }
@@ -72,6 +73,7 @@ namespace AElf.Automation.SideChainVerification
                     s2Sc.StopCheckVerifyResultTasks();
                 }
             }
+
             Logger.WriteInfo("Completed SideChain verification.");
         }
     }

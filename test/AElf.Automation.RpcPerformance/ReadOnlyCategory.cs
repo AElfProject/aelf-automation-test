@@ -90,7 +90,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var callAddress = AccountList[0].Account;
             var genesisService = GenesisContract.GetGenesisContract(ApiHelper, AccountList[0].Account);
-            
+
             //TokenService contract
             var tokenAddress = genesisService.GetContractAddressByName(NameProvider.TokenName);
             Token = new TokenContract(ApiHelper, callAddress, tokenAddress.GetFormatted());
@@ -254,7 +254,8 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
+                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -292,7 +293,8 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
+                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {
@@ -317,7 +319,7 @@ namespace AElf.Automation.RpcPerformance
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
-        
+
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             Monitor.CheckTransactionPoolStatus(LimitTransaction);
@@ -330,7 +332,8 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account, Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
+                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
                 {
                     ParameterInput = new GetBalanceInput
                     {

@@ -14,19 +14,19 @@ namespace AElf.Automation.EconomicSystem.Tests
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
-        
+
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-        
+
         public ContractServices(IApiHelper apiHelper, string callAddress)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
             CallAccount = Address.Parse(callAddress);
-            
+
             //connect chain
             ConnectionChain();
-            
+
             //get all contract services
             GetAllContractServices();
         }
@@ -34,7 +34,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetAllContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
-            
+
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
@@ -59,6 +59,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
         }
+
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

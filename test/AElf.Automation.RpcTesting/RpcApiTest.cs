@@ -27,7 +27,7 @@ namespace AElf.Automation.RpcTesting
         {
             var command = new CommandInfo(ApiMethods.GetChainInformation);
             _rh.GetChainInformation(command);
-            
+
             command.InfoMsg.ShouldBeNull();
         }
     }

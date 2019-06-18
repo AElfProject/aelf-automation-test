@@ -19,7 +19,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ElectionService.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
             return result;
         }
-        
+
         //view
     }
 }

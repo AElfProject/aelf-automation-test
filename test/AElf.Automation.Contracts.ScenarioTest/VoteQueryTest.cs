@@ -13,6 +13,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class VoteQueryTest
     {
         #region Priority
+
         public static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }

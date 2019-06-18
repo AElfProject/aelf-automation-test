@@ -13,7 +13,9 @@ namespace AElf.Automation.ContractsTesting
     class Program
     {
         #region Private Properties
+
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+
         #endregion
 
         #region Parameter Option
@@ -46,13 +48,14 @@ namespace AElf.Automation.ContractsTesting
         private void OnExecute()
         {
             #region Basic Preparation
+
             //Init Logger
             string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
             var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
-            
+
             /*
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -80,10 +83,11 @@ namespace AElf.Automation.ContractsTesting
                 ch.UnlockAccount(uc);
             }
             */
-            
+
             #endregion
 
             #region Node status check
+
             NodesState.GetAllBlockTimes("bp1", "http://192.168.197.13:8100");
             Console.ReadLine();
             NodesState.GetAllBlockTimes("bp2", "http://192.168.197.29:8100");
@@ -107,9 +111,10 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region Block verify testing
+
             var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
             ch.GetBlockHeight(heightCi);
-            var height = (long)heightCi.InfoMsg;
+            var height = (long) heightCi.InfoMsg;
             for (var i = 1; i <= height; i++)
             {
                 var blockCi = new CommandInfo(ApiMethods.GetBlockByHeight)
@@ -118,7 +123,7 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.GetBlockByHeight(blockCi);
                 var blockInfo = blockCi.InfoMsg as BlockDto;
-                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
+                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}",
                     i,
                     blockInfo?.BlockHash,
                     blockInfo?.Body.TransactionsCount);

@@ -14,9 +14,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        
+
         private const int Phase = 120;
-        
+
         public ChainSummary(string baseUrl)
         {
             _apiHelper = new WebApiService(baseUrl);
@@ -29,9 +29,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var checkTimes = 0;
             while (true)
             {
-                if(checkTimes == 60)
+                if (checkTimes == 60)
                     break;
-                    
+
                 var height = GetBlockHeight();
                 if (height == _blockHeight)
                 {
@@ -41,18 +41,18 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
 
                 checkTimes = 0;
-                if(height < _blockHeight)
+                if (height < _blockHeight)
                     continue;
                 for (var i = _blockHeight; i < height; i++)
                 {
                     var j = i;
                     var block = GetBlockByHeight(j);
                     _blockMap.Add(j, block);
-                    
+
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
                 }
-                
+
                 _blockHeight = height;
                 Thread.Sleep(100);
             }
@@ -60,7 +60,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void SummaryBlockTransactionInPhase(BlockDto startBlock, BlockDto endBlockDto)
         {
-            var totalTransactions = _blockMap.Values.Sum(o=>o.Body.TransactionsCount);
+            var totalTransactions = _blockMap.Values.Sum(o => o.Body.TransactionsCount);
             var averageTx = totalTransactions / Phase;
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
@@ -87,8 +87,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var minutes = timeSpan.Minutes;
             var seconds = timeSpan.Seconds;
             var milliseconds = timeSpan.Milliseconds;
-            
-            return (hours*60*60*1000 + minutes*60*1000 + seconds*1000 + milliseconds) / Phase;
+
+            return (hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000 + milliseconds) / Phase;
         }
     }
 }

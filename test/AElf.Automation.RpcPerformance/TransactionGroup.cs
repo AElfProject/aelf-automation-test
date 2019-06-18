@@ -102,7 +102,7 @@ namespace AElf.Automation.RpcPerformance
                 var tasks = new List<Task>();
                 foreach (var contract in Contracts)
                 {
-                    tasks.Add(Task.Run(()=>GenerateRawTransactions(contract.ContractPath, contract.Symbol)));
+                    tasks.Add(Task.Run(() => GenerateRawTransactions(contract.ContractPath, contract.Symbol)));
                 }
 
                 Task.WaitAll(tasks.ToArray());
@@ -132,7 +132,7 @@ namespace AElf.Automation.RpcPerformance
 
                     from.Balance -= amount;
                     to.Balance += amount;
-     
+
                     var bt = new CommandInfo(ApiMethods.SendTransaction, from.Account, contractAddress, "Transfer")
                     {
                         ParameterInput = new TransferInput
@@ -148,7 +148,7 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 TransactionsQueue.Enqueue(rawTransactions);
-             }
+            }
         }
     }
 }

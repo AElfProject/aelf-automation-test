@@ -17,25 +17,27 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _config;
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private static ContractServices Services { get; set; }
+
         public static EnvCheck GetDefaultEnvCheck()
         {
             return Instance;
         }
 
         private static readonly EnvCheck Instance = new EnvCheck();
-        
+
         private EnvCheck()
         {
             AccountDir = AccountManager.GetDefaultDataDir();
             _config = ConfigInfoHelper.Config;
-            
+
             CheckInitialEnvironment();
         }
 
         private void CheckInitialEnvironment()
         {
             var allAccountsExist = CheckAllAccountsExist();
-            Assert.IsTrue(allAccountsExist, $"Node account file not found, should copy configured accounts to path: {AccountDir}");
+            Assert.IsTrue(allAccountsExist,
+                $"Node account file not found, should copy configured accounts to path: {AccountDir}");
 
             CheckAllNodesConnection();
         }
@@ -43,7 +45,9 @@ namespace AElf.Automation.ScenariosExecution
         public List<string> GenerateOrGetTestUsers()
         {
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
-            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var url = specifyEndpoint.Enable
+                ? specifyEndpoint.ServiceUrl
+                : _config.BpNodes.First(o => o.Status).ServiceUrl;
             var webHelper = new WebApiHelper(url, AccountDir);
 
             var accountCommand = webHelper.ListAccounts();
@@ -53,7 +57,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 var testUsers = accounts.FindAll(o => !ConfigInfoHelper.GetAccounts().Contains(o));
                 if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
-                
+
                 var newAccounts = GenerateTestUsers(webHelper, _config.UserCount - testUsers.Count);
                 testUsers.AddRange(newAccounts);
                 return testUsers;
@@ -64,22 +68,23 @@ namespace AElf.Automation.ScenariosExecution
         {
             if (Services != null)
                 return Services;
-            
+
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
-            var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            var url = specifyEndpoint.Enable
+                ? specifyEndpoint.ServiceUrl
+                : _config.BpNodes.First(o => o.Status).ServiceUrl;
             Logger.WriteInfo($"All request sent to endpoint: {url}");
             var apiHelper = new WebApiHelper(url, AccountDir);
-            
+
             GetConfigNodesPublicKey(apiHelper);
-            
+
             Services = new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
-            
+
             return Services;
         }
- 
+
         private List<string> GenerateTestUsers(IApiHelper helper, int count)
         {
-            
             var accounts = new List<string>();
             Parallel.For(0, count, i =>
             {
@@ -91,7 +96,7 @@ namespace AElf.Automation.ScenariosExecution
 
             return accounts;
         }
-        
+
         private bool CheckAllAccountsExist()
         {
             foreach (var bp in _config.BpNodes)
@@ -139,7 +144,7 @@ namespace AElf.Automation.ScenariosExecution
                 Logger.WriteError($"Node {node.Name} connection failed due to {ex.Message}");
             }
         }
-            
+
         private bool CheckAccountExist(string account)
         {
             var path = Path.Combine(AccountDir, "keys", $"{account}.ak");
@@ -148,14 +153,8 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void GetConfigNodesPublicKey(IApiHelper helper)
         {
-            _config.BpNodes.ForEach(node =>
-            {
-                node.PublicKey = helper.GetPublicKeyFromAddress(node.Account);
-            });
-            _config.FullNodes.ForEach(node =>
-            {
-                node.PublicKey = helper.GetPublicKeyFromAddress(node.Account);
-            });
+            _config.BpNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account); });
+            _config.FullNodes.ForEach(node => { node.PublicKey = helper.GetPublicKeyFromAddress(node.Account); });
         }
     }
 }

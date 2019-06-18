@@ -9,7 +9,7 @@ namespace AElf.Automation.RpcTesting
         private const string BaseUrl = "http://192.168.199.221:8000";
         private WebApiHelper _ch;
         private CommandInfo _ci;
-        
+
         [TestInitialize]
         public void Initialize()
         {
@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcTesting
             _ch.GetChainInformation(_ci);
             Assert.IsTrue(_ci.Result);
         }
-        
+
         [DataTestMethod]
         [DataRow("123")]
         [DataRow("12345")]

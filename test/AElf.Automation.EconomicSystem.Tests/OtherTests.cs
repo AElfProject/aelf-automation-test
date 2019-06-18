@@ -27,7 +27,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             _logger.InitLogHelper(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test.log"));
         }
-        
+
         [TestMethod]
         public void DictionaryTest()
         {
@@ -48,32 +48,32 @@ namespace AElf.Automation.EconomicSystem.Tests
             var round = Round.Parser.ParseFrom(byteArray);
             _logger.WriteInfo(JsonConvert.SerializeObject(round));
         }
-        
+
         [TestMethod]
         public async Task SelectTransactionTest1()
         {
             var tasks = new List<Task>
             {
-                Task.Run(UpdateTransactionHub), 
+                Task.Run(UpdateTransactionHub),
                 Task.Run(GetTransactionFromHub)
             };
 
             Task.WaitAll(tasks.ToArray<Task>());
         }
-        
+
         [TestMethod]
         public async Task SelectTransactionTest2()
         {
             TestCount = 200;
             var tasks = new List<Task>
             {
-                Task.Run(UpdateTransactionHub), 
+                Task.Run(UpdateTransactionHub),
                 Task.Run(GetSelectedTransactionFromHub)
             };
 
             Task.WaitAll(tasks.ToArray());
         }
-        
+
         private async Task GetTransactionFromHub()
         {
             var count = 0;
@@ -103,11 +103,11 @@ namespace AElf.Automation.EconomicSystem.Tests
                 count += txs.Count();
             }
         }
-        
+
         private async Task UpdateTransactionHub()
         {
             TransactionHub = new ConcurrentDictionary<Hash, TransactionReceipt>();
-            
+
             for (var i = 0; i < 1000_000; i++)
             {
                 if (TransactionHub.Count > 10000) return;
@@ -125,7 +125,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                         Signature = ByteString.CopyFromUtf8("sig")
                     }
                 });
-                if(i%10==0)
+                if (i % 10 == 0)
                     Thread.Sleep(1);
             }
         }

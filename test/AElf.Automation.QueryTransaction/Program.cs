@@ -11,10 +11,10 @@ namespace AElf.Automation.QueryTransaction
     class Program
     {
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
-        
+
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.13:8100";
-        
+
         public static int Main(string[] args)
         {
             try
@@ -35,7 +35,7 @@ namespace AElf.Automation.QueryTransaction
             var logName = "TransactionQuery" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
-            
+
             Logger.WriteInfo("Select execution type:");
             "1. RunQueryTransaction".WriteSuccessLine();
             "2. RunNodeStatusCheck".WriteSuccessLine();
@@ -74,7 +74,7 @@ namespace AElf.Automation.QueryTransaction
                 "http://192.168.197.33:8300"
             };
             var status = new NodesStatus(urlCollection);
-            AsyncHelper.RunSync(()=>status.CheckAllNodes());
+            AsyncHelper.RunSync(() => status.CheckAllNodes());
         }
 
         private void RunQueryTransaction()

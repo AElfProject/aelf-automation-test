@@ -59,7 +59,7 @@ namespace AElf.Automation.SideChainVerification
 
         public SideChain(string rpcUrl, string chainName)
         {
-            var rpcUrl1 = rpcUrl.Contains("chain")? rpcUrl : $"{rpcUrl}/chain";
+            var rpcUrl1 = rpcUrl.Contains("chain") ? rpcUrl : $"{rpcUrl}/chain";
             var keyStorePath = GetDefaultDataDir();
             _chainName = chainName;
             _ch = new WebApiHelper(rpcUrl1, keyStorePath);
@@ -111,7 +111,7 @@ namespace AElf.Automation.SideChainVerification
                 {
                     string chainId = item.Path.Replace("result.result.Body.IndexedSideChainBlcokInfo.", "");
                     int indexHeight = indexSideInfo[chainId].Value<Int32>("Height");
-                    IndexItem index = new IndexItem(){ChainId = chainId, Height = indexHeight };
+                    IndexItem index = new IndexItem() {ChainId = chainId, Height = indexHeight};
                     reList.Add(index);
                 }
             }
@@ -167,7 +167,7 @@ namespace AElf.Automation.SideChainVerification
             foreach (var tran in trans)
             {
                 var merkle = GetMerkelPath(tran);
-                if(merkle.MPath != null)
+                if (merkle.MPath != null)
                     merkleList.Add(merkle);
             }
 
@@ -188,12 +188,14 @@ namespace AElf.Automation.SideChainVerification
             ci.Parameter = ci.Parameter.Substring(1);
             _ch.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Execute transactions got exception.");
-            var result = ci.InfoMsg.ToString().Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "").Split(",");
+            var result = ci.InfoMsg.ToString().Replace("[", "").Replace("]", "").Replace("\"", "").Replace("\n", "")
+                .Split(",");
             ConcurrentQueue<string> txResList = new ConcurrentQueue<string>();
             foreach (var txHash in result)
             {
                 txResList.Enqueue(txHash.Trim());
             }
+
             //Add verify Result
             VerifyResult vr = new VerifyResult(_chainName, item.Height);
             vr.TxList = trans.ToList();
@@ -209,10 +211,11 @@ namespace AElf.Automation.SideChainVerification
                 var i1 = i;
                 cts.Token.Register(() => Logger.WriteInfo("Cancle check transaction result task: {0}", i1));
                 CancellationList.Add(cts);
-                ThreadPool.QueueUserWorkItem( o => CheckVerifyTransactionResult(cts.Token, null));
+                ThreadPool.QueueUserWorkItem(o => CheckVerifyTransactionResult(cts.Token, null));
             }
 
-            CtsLinkSource = CancellationTokenSource.CreateLinkedTokenSource(CancellationList.Select(o=>o.Token).ToArray());
+            CtsLinkSource =
+                CancellationTokenSource.CreateLinkedTokenSource(CancellationList.Select(o => o.Token).ToArray());
         }
 
         public void StopCheckVerifyResultTasks()
@@ -232,7 +235,8 @@ namespace AElf.Automation.SideChainVerification
             {
                 if (verifyItem.Result == "Passed" || verifyItem.Result == "Not Verify")
                     continue;
-                Logger.WriteError($"Chain:{verifyItem.NodeName}, Height:{verifyItem.Height}, TxCount:{verifyItem.TxList.Count}, Result: {verifyItem.Result}");
+                Logger.WriteError(
+                    $"Chain:{verifyItem.NodeName}, Height:{verifyItem.Height}, TxCount:{verifyItem.TxList.Count}, Result: {verifyItem.Result}");
             }
         }
 

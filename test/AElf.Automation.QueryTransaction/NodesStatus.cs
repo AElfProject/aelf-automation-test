@@ -14,7 +14,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private readonly List<WebApiService> _apiServices;
         private long _height = 1;
-        
+
         public NodesStatus(IEnumerable<string> urls)
         {
             _apiServices = new List<WebApiService>();
@@ -34,6 +34,7 @@ namespace AElf.Automation.QueryTransaction
                 {
                     Thread.Sleep(1000);
                 }
+
                 for (var i = _height; i < currentHeight; i++)
                 {
                     await CheckNodeHeight(i);
@@ -55,18 +56,20 @@ namespace AElf.Automation.QueryTransaction
 
             var (webApiService, blockDto) = collection.First();
             Logger.WriteInfo($"Check height: {height}");
-            Logger.WriteInfo($"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
+            Logger.WriteInfo(
+                $"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
             var forked = false;
-            
+
             Parallel.ForEach(collection.Skip(0), item =>
             {
                 var (item1, item2) = item;
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
-                Logger.WriteInfo($"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
+                Logger.WriteInfo(
+                    $"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
             });
-            
-            if(forked)
+
+            if (forked)
                 Logger.WriteError($"Node forked at height: {height}");
         }
     }

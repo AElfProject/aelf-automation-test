@@ -11,26 +11,26 @@ using AElf.Kernel;
 using AElf.Types;
 
 namespace AElf.Automation.SideChainTests
-{    
+{
     public class SideChainTestBase
     {
         public ContractTester Tester;
         public readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        
-        public static string RpcUrl { get; } = "http://192.168.197.56:8001";       
- 
+
+        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
+
         public IApiHelper CH { get; set; }
         public IApiService IS { get; set; }
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        
-        public List<string> BpNodeAddress { get; set; }        
+
+        public List<string> BpNodeAddress { get; set; }
         public List<string> UserList { get; set; }
 
         protected void Initialize()
         {
             CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
             IS = new WebApiService(RpcUrl);
-            var contractServices = new ContractServices(CH,InitAccount,"Main");
+            var contractServices = new ContractServices(CH, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             //Init Logger
             string logName = "CrossChainTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
@@ -46,7 +46,7 @@ namespace AElf.Automation.SideChainTests
 
         protected ContractTester ChangeToSideChain(IApiHelper rpcApiHelper, string SideAChainAccount)
         {
-            var contractServices = new ContractServices(rpcApiHelper,SideAChainAccount,"Side");
+            var contractServices = new ContractServices(rpcApiHelper, SideAChainAccount, "Side");
             var tester = new ContractTester(contractServices);
             return tester;
         }
@@ -57,12 +57,12 @@ namespace AElf.Automation.SideChainTests
             return rpcApiHelper;
         }
 
-        protected MerklePath GetMerklePath(string blockNumber,int index,IApiService apiService)
+        protected MerklePath GetMerklePath(string blockNumber, int index, IApiService apiService)
         {
-            var blockInfoResult = apiService.GetBlockByHeight(long.Parse(blockNumber),true).Result;
+            var blockInfoResult = apiService.GetBlockByHeight(long.Parse(blockNumber), true).Result;
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
-            
+
             foreach (var transactionId in transactionIds)
             {
                 var txResult = apiService.GetTransactionResult(transactionId).Result;
@@ -71,7 +71,7 @@ namespace AElf.Automation.SideChainTests
             }
 
             var txIdsWithStatus = new List<Hash>();
-            for(int num =0; num<transactionIds.Count;num++)
+            for (int num = 0; num < transactionIds.Count; num++)
             {
                 var txId = Hash.LoadHex(transactionIds[num].ToString());
                 string txRes = transactionStatus[num];
@@ -80,7 +80,7 @@ namespace AElf.Automation.SideChainTests
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
             }
-            
+
             var bmt = new BinaryMerkleTree();
             bmt.AddNodes(txIdsWithStatus);
             var root = bmt.ComputeRootHash();
@@ -100,7 +100,5 @@ namespace AElf.Automation.SideChainTests
                 File.Delete(file);
             }
         }
-
-     
     }
 }

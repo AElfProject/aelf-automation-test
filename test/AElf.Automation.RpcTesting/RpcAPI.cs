@@ -86,7 +86,8 @@ namespace AElf.Automation.RpcTesting
             PreviousBlockHash = resultInfo["Header"]["PreviousBlockHash"].ToString();
             MerkleTreeRootOfTransactions = resultInfo["Header"]["MerkleTreeRootOfTransactions"].ToString();
             MerkleTreeRootOfWorldState = resultInfo["Header"]["MerkleTreeRootOfWorldState"].ToString();
-            Transactions = resultInfo["Body"]["Transactions"].ToString().Replace("[", "").Replace("]", "").Replace("\n", "").Replace("\"", "").Trim().Split(",").ToList();
+            Transactions = resultInfo["Body"]["Transactions"].ToString().Replace("[", "").Replace("]", "")
+                .Replace("\n", "").Replace("\"", "").Trim().Split(",").ToList();
         }
     }
 }

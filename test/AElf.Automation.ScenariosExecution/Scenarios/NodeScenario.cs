@@ -32,7 +32,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Get Profit items
             Profit.GetProfitItemIds(Election.ContractAddress);
             ProfitItemIds = Profit.ProfitItemIds;
-            
+
             //Announcement
             NodeAnnounceElectionAction();
         }
@@ -58,7 +58,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 NodeQueryInformationAction
             });
         }
-        
+
         private void NodeAnnounceElectionAction()
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
@@ -79,10 +79,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         UserScenario.GetCandidates(Election); //更新candidates列表
                     }
                 }
-                if(count==3)
+
+                if (count == 3)
                     break;
             }
         }
+
         private void NodeQuitElectionAction()
         {
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
@@ -108,6 +110,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 break;
             }
         }
+
         private void NodeTakeProfitAction()
         {
             var termNumber = Consensus.GetCurrentTermInformation();
@@ -152,19 +155,21 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Logger.WriteInfo(string.Empty);
         }
+
         private void NodeQueryInformationAction()
         {
             var termNumber = Consensus.GetCurrentTermInformation();
             if (_termNumber == termNumber)
                 return;
-            
+
             Logger.WriteInfo($"Current term number is: {termNumber}");
             _termNumber = termNumber;
 
-            GetLastTermBalanceInformation(termNumber); 
+            GetLastTermBalanceInformation(termNumber);
             GetCurrentMinersInformation(termNumber);
             GetCandidateHistoryInformation();
         }
+
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
@@ -174,30 +179,33 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                                  $"\r\nTreasury balance is {treasuryBalance}";
             foreach (var (key, value) in ProfitItemIds)
             {
-                if(key == ProfitType.Treasury) continue;
-                var address = Profit.GetProfitItemVirtualAddress(value, termNumber-1);
+                if (key == ProfitType.Treasury) continue;
+                var address = Profit.GetProfitItemVirtualAddress(value, termNumber - 1);
                 var balance = Token.GetUserBalance(address.GetFormatted());
                 balanceMessage += $"\r\n{key} balance is {balance}";
             }
+
             Logger.WriteInfo(balanceMessage);
         }
+
         private void GetCandidateHistoryInformation()
         {
             foreach (var fullNode in FullNodes)
             {
                 var candidateResult = Election.GetCandidateInformation(fullNode.Account);
-                if(candidateResult.AnnouncementTransactionId == Hash.Empty) continue;
-                
+                if (candidateResult.AnnouncementTransactionId == Hash.Empty) continue;
+
                 var historyMessage = $"\r\nCandidate: {fullNode.Account}\r\n" +
-                    $"PublicKey: {candidateResult.PublicKey}\r\n" + 
-                    $"Term: {candidateResult.Terms}\r\n" +
-                    $"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}\r\n" + 
-                    $"ProducedBlocks: {candidateResult.ProducedBlocks}\r\n" +
-                    $"MissedTimeSlots: {candidateResult.MissedTimeSlots}\r\n" +
-                    $"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}";
+                                     $"PublicKey: {candidateResult.PublicKey}\r\n" +
+                                     $"Term: {candidateResult.Terms}\r\n" +
+                                     $"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}\r\n" +
+                                     $"ProducedBlocks: {candidateResult.ProducedBlocks}\r\n" +
+                                     $"MissedTimeSlots: {candidateResult.MissedTimeSlots}\r\n" +
+                                     $"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}";
                 Logger.WriteInfo(historyMessage);
             }
         }
+
         private void GetCurrentMinersInformation(long termNumber)
         {
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
@@ -205,17 +213,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var minerArray = new List<string>();
             foreach (var bp in BpNodes)
             {
-                if(minersPublicKeys.Contains(bp.PublicKey))
+                if (minersPublicKeys.Contains(bp.PublicKey))
                     minerArray.Add(bp.Name);
             }
 
             foreach (var full in FullNodes)
             {
-                if(minersPublicKeys.Contains(full.PublicKey))
+                if (minersPublicKeys.Contains(full.PublicKey))
                     minerArray.Add(full.Name);
             }
+
             Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
         }
+
         private void TakeProfit(string account, Hash profitId)
         {
             var beforeBalance = Token.GetUserBalance(account);
@@ -235,7 +245,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var afterBalance = Token.GetUserBalance(account);
             if (beforeBalance != afterBalance)
-                Logger.WriteInfo($"Profit success - node {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
+                Logger.WriteInfo(
+                    $"Profit success - node {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
         }
     }
 }

@@ -5,14 +5,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AElf.Automation.SideChainTests
 {
     [TestClass]
-    public class SideChainCreate: SideChainTestBase
+    public class SideChainCreate : SideChainTestBase
     {
         [TestInitialize]
         public void InitializeNodeTests()
         {
             base.Initialize();
         }
-               
+
 
         [TestMethod]
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
@@ -20,8 +20,8 @@ namespace AElf.Automation.SideChainTests
         {
             Tester.TransferToken(InitAccount, account, 200000, "ELF");
             Tester.TokenApprove(account, 200000);
-            
-            var result = Tester.RequestSideChain(account,100000);
+
+            var result = Tester.RequestSideChain(account, 100000);
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var message = transactionResult.ReadableReturnValue;
             _logger.WriteInfo($"proposal message is {message}");
@@ -49,41 +49,42 @@ namespace AElf.Automation.SideChainTests
         [DataRow(2947586)]
         public void CheckStatus(int chainId)
         {
-            var status =Tester.GetChainStatus(chainId);
+            var status = Tester.GetChainStatus(chainId);
             _logger.WriteInfo($"side chain is {status}");
         }
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2750978,1000)]
-        public void Recharge(string account,int chainId,long amount)
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2750978, 1000)]
+        public void Recharge(string account, int chainId, long amount)
         {
-            if (Tester.GetBalance(account,"ELF").Balance < amount)
+            if (Tester.GetBalance(account, "ELF").Balance < amount)
             {
                 Tester.TransferToken(InitAccount, account, amount, "ELF");
             }
+
             Tester.TokenApprove(account, amount);
-            var reCharge = Tester.Recharge(account,chainId, amount);
+            var reCharge = Tester.Recharge(account, chainId, amount);
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
             _logger.WriteInfo($"side chain lock balance is {balance}");
         }
-        
+
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2882050)]
-        public void WithdrawRequest(string account,int chainId)
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2882050)]
+        public void WithdrawRequest(string account, int chainId)
         {
-            Tester.WithdrawRequest(account,chainId);
+            Tester.WithdrawRequest(account, chainId);
             var chainStatus = Tester.GetChainStatus(chainId);
             _logger.WriteInfo($"side chain is {chainStatus}");
         }
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2882050)]
-        public void RequestChainDisposal(string account,int chainId)
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2882050)]
+        public void RequestChainDisposal(string account, int chainId)
         {
             var result = Tester.RequestChainDisposal(account, chainId);
             var transactionReturn = result.InfoMsg as TransactionResultDto;
             var proposalId = transactionReturn.ReadableReturnValue;
-            
+
             _logger.WriteInfo($"Disposal chain proposal id is {proposalId}");
         }
 

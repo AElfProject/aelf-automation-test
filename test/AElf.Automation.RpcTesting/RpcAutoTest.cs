@@ -83,7 +83,8 @@ namespace AElf.Automation.RpcTesting
             string response0 = _request.PostRequest(method0, parameter0, out var code0);
             Console.WriteLine(response0);
             Assert.AreEqual("OK", code0);
-            var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result", "GenesisContractAddress");
+            var result = DataHelper.TryGetValueFromJson(out var genesisAbi, response0, "result", "result",
+                "GenesisContractAddress");
             Assert.IsTrue(result, "Genesis token abi is not exist.");
 
             var method = "GetContractAbi";
@@ -131,14 +132,17 @@ namespace AElf.Automation.RpcTesting
                 ci.GetJsonInfo();
                 result = ci.JsonInfo;
                 string txcount = result["result"]["Body"]["TransactionsCount"].ToString();
-                string[] transactions = result["result"]["Body"]["Transactions"].ToString().Replace("[\n", "").Replace("\n]", "").Replace("\"", "").Split(",");
+                string[] transactions = result["result"]["Body"]["Transactions"].ToString().Replace("[\n", "")
+                    .Replace("\n]", "").Replace("\"", "").Split(",");
                 foreach (var tx in transactions)
                 {
-                    if(tx.Trim() != "")
+                    if (tx.Trim() != "")
                         transactionIds.Add(tx.Trim());
                 }
+
                 string txPoolSize = result["result"]["CurrentTransactionPoolSize"].ToString();
-                _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
+                _logger.WriteInfo("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", i, txcount, txPoolSize,
+                    DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(50);
             }
 
@@ -190,7 +194,8 @@ namespace AElf.Automation.RpcTesting
                 result = JObject.Parse(response);
                 string txcount = result["result"]["Body"]["TransactionsCount"].ToString();
                 string txPoolSize = result["result"]["CurrentTransactionPoolSize"].ToString();
-                System.Diagnostics.Debug.WriteLine("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", count, txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
+                System.Diagnostics.Debug.WriteLine("Height: {0},  TxCount: {1}, TxPoolSize: {2}, Time: {3}", count,
+                    txcount, txPoolSize, DateTime.Now.ToString(CultureInfo.CurrentCulture));
                 Thread.Sleep(1000);
             }
         }
@@ -203,7 +208,7 @@ namespace AElf.Automation.RpcTesting
             string url = "http://192.168.199.221:8000/chain";
             var ch = new WebApiHelper(url);
             var ci = new CommandInfo(ApiMethods.GetBlockInfo);
-            for(int i= begin; i<=end; i++)
+            for (int i = begin; i <= end; i++)
             {
                 dynamic blockInfo = new System.Dynamic.ExpandoObject();
                 int height = i;
@@ -220,12 +225,15 @@ namespace AElf.Automation.RpcTesting
                 blockInfo.PoolSize = txpoolSize;
                 blockInfos.Add(blockInfo);
             }
-            foreach(dynamic item in blockInfos)
+
+            foreach (dynamic item in blockInfos)
             {
-                string message = $"Height: {item.Height}, TxCount: {item.TxCount}, CurrentTransactionPoolSize: {item.PoolSize}";
+                string message =
+                    $"Height: {item.Height}, TxCount: {item.TxCount}, CurrentTransactionPoolSize: {item.PoolSize}";
                 Console.WriteLine(message);
                 System.Diagnostics.Debug.WriteLine(message);
             }
+
             Console.ReadLine();
         }
 
@@ -246,11 +254,11 @@ namespace AElf.Automation.RpcTesting
             Assert.AreEqual("OK", code);
             Console.WriteLine(result["result"]);
             int height = Int32.Parse(result["result"].ToString());
-            for(int i=0; i<height; i++)
+            for (int i = 0; i < height; i++)
             {
                 method = "GetBlockInfo";
                 parameter = "{\"block_height\":\"" + i + "\"}";
-                var request1= new RpcRequestManager(url1);
+                var request1 = new RpcRequestManager(url1);
                 var request2 = new RpcRequestManager(url2);
 
                 string response1 = request1.PostRequest(method, parameter, out var code1);

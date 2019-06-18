@@ -11,19 +11,20 @@ namespace AElf.Automation.RpcPerformance
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private IApiHelper ApiHelper { get; }
-        
+
         private long BlockHeight { get; set; } = 1;
-        
+
         public static int MaxLimit { get; set; }
-        
+
         public NodeStatusMonitor(IApiHelper apiHelper)
         {
             ApiHelper = apiHelper;
             MaxLimit = ConfigInfoHelper.Config.TransactionLimit;
         }
-        
+
         private static int _checkCount;
         private readonly object _checkObj = new object();
+
         public void CheckTransactionPoolStatus(bool enable)
         {
             if (!enable) return;
@@ -36,6 +37,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         _checkCount = 0;
                     }
+
                     break;
                 }
 
@@ -43,6 +45,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     _checkCount++;
                 }
+
                 Thread.Sleep(100);
                 if (_checkCount % 10 == 0)
                     _logger.WriteWarn(
@@ -53,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
         public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1)
         {
             if (checkTimes == -1)
-                checkTimes = ConfigInfoHelper.Config.Timeout*10;
+                checkTimes = ConfigInfoHelper.Config.Timeout * 10;
             if (checkTimes < 0)
                 Assert.IsTrue(false, "Transaction status check is timeout.");
             checkTimes--;
@@ -105,7 +108,7 @@ namespace AElf.Automation.RpcPerformance
 
             Thread.Sleep(100);
         }
-        
+
         public void CheckNodeHeightStatus()
         {
             var checkTimes = 0;
@@ -131,6 +134,7 @@ namespace AElf.Automation.RpcPerformance
                     Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
         }
+
         private int GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =

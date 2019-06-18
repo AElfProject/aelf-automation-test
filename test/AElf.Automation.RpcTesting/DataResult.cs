@@ -9,6 +9,7 @@ namespace AElf.Automation.RpcTesting
         public string Key { get; set; }
         public string TypeInfo { get; }
         public string ValueInfo { get; }
+
         public DataResult(string key, string type, string value)
         {
             Key = key;

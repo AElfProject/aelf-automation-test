@@ -102,7 +102,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 users.Add(user);
                 count++;
-                if(count == number)
+                if (count == number)
                     break;
             }
 
@@ -120,7 +120,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 users.Add(user);
                 count++;
-                if(count == number)
+                if (count == number)
                     break;
             }
 
@@ -190,7 +190,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void SetAllowanceForResourceTest()
         {
-            foreach(var user in Testers.GetRange(1, Testers.Count - 1))
+            foreach (var user in Testers.GetRange(1, Testers.Count - 1))
             {
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
@@ -217,7 +217,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NetConnector.Symbol,
                     Amount = 1000_0000
                 });
-            }    
+            }
 
             Token.CheckTransactionResultList();
         }
