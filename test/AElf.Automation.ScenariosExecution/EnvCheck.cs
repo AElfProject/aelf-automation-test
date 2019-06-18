@@ -67,6 +67,7 @@ namespace AElf.Automation.ScenariosExecution
             
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             var url = specifyEndpoint.Enable ? specifyEndpoint.ServiceUrl : _config.BpNodes.First(o => o.Status).ServiceUrl;
+            Logger.WriteInfo($"All request sent to endpoint: {url}");
             var apiHelper = new WebApiHelper(url, AccountDir);
             
             GetConfigNodesPublicKey(apiHelper);
@@ -128,11 +129,10 @@ namespace AElf.Automation.ScenariosExecution
             {
                 node.ApiService = service;
                 var chainStatus = service.GetChainStatus().Result;
-                if (chainStatus != null)
-                {
-                    node.Status = true;
-                }
-                Logger.WriteInfo($"Node {node.Name} connection success.");
+                if (chainStatus == null) return;
+                node.Status = true;
+                var height = service.GetBlockHeight().Result;
+                Logger.WriteInfo($"Node {node.Name} connection success, block height: {height}");
             }
             catch (Exception ex)
             {

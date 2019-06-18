@@ -122,16 +122,18 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void PrepareAccountBalance()
         {
             //prepare bp account token
+            CollectAllBpTokensToBp0();
+            Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            
             var publicKeys = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var isAnnounced = publicKeys.Value.Select(o => o.ToByteArray().ToHex())
                 .Contains(FullNodes.First().PublicKey);
             var tokenBalance = Token.GetUserBalance(FullNodes.First().Account);
 
+            var bp = BpNodes.First();
+            var token = Token.GetNewTester(bp.Account, bp.Password);
             if (!isAnnounced && tokenBalance == 0)
             {
-                var bp = ContractServices.CurrentBpNodes.First();
-                //Token.SetAccount(bp.Account, bp.Password);
-                var token = Token.GetNewTester(bp.Account, bp.Password);
                 foreach (var fullAccount in FullNodes.Select(o => o.Account))
                 {
                     token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
@@ -147,17 +149,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             //prepare other user token
-            var otherBp = BpNodes.Last();
-            //Token.SetAccount(otherBp.Account, otherBp.Password);
-            var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
-            Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
-
-            Parallel.ForEach(AllTesters, user =>
+            foreach(var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance < 500_000)
                 {
-                    token1.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = "ELF",
                         Amount = 500_000 - balance,
@@ -165,9 +162,33 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Memo = $"Transfer for testing - {Guid.NewGuid()}"
                     });
                 }
-            });
+            }
 
-            token1.CheckTransactionResultList();
+            token.CheckTransactionResultList();
+            Logger.WriteInfo($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+        }
+
+        private void CollectAllBpTokensToBp0()
+        {
+            Logger.WriteInfo("Transfer all bps token to first bp for testing.");
+            var bp0 = BpNodes.First();
+            foreach (var bp in BpNodes.Skip(1))
+            {
+                var balance = Token.GetUserBalance(bp.Account);
+                if(balance<1000)
+                    continue;
+                
+                //transfer
+                Token.SetAccount(bp.Account, bp.Password);
+                Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Amount = balance,
+                    Symbol = "ELF",
+                    To = Address.Parse(bp0.Account),
+                    Memo = "Collect all token from other bps."
+                });
+            }
+            Token.CheckTransactionResultList();
         }
 
         private void GetTransferPair(out string accountFrom, out string accountTo, out long amount)

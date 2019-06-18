@@ -218,13 +218,13 @@ namespace AElf.Automation.Common.Helpers
             var message = await response.Content.ReadAsStringAsync();
             message.WriteErrorLine();
             throw new Exception(response.StatusCode.ToString());
-
         }
 
         private static HttpClient GetDefaultClient(string version = null)
         {
             if (Client != null) return Client;
             Client = new HttpClient();
+            Client.Timeout = TimeSpan.FromSeconds(60);
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));

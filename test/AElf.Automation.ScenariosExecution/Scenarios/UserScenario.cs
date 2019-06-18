@@ -127,7 +127,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var beforeBalance = Token.GetUserBalance(account);
             if (beforeBalance < amount) // balance not enough, bp transfer again
             {
-                var token = Token.GetNewTester(BpNodes[1].Account);
+                var token = Token.GetNewTester(BpNodes.First().Account);
                 token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
