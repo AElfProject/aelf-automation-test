@@ -115,6 +115,18 @@
             "service_url": "http://18.191.36.156:8000",
             "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
             "password": "123"
+        },
+        {
+            "name": "full11-伦敦aliyun",
+            "service_url": "http://8.208.23.245:8000",
+            "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
+            "password": "123"
+        },
+        {
+            "name": "full12-吉隆坡aliyun",
+            "service_url": "http://47.254.233.45:8000",
+            "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
+            "password": "123"
         }
     ],
     "TestCases": [
