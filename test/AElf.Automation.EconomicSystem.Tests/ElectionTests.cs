@@ -14,7 +14,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class ElectionTests
     {
         protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        protected static string RpcUrl { get; } = "http://192.168.197.13:8000";
+        protected static string RpcUrl { get; } = "http://3.1.220.141:8000";
 
         protected Behaviors Behaviors;
 

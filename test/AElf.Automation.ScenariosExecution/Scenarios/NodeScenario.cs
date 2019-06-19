@@ -54,7 +54,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 NodeAnnounceElectionAction,
                 NodeTakeProfitAction,
-                NodeQuitElectionAction,
+                //NodeQuitElectionAction,
                 NodeQueryInformationAction
             });
         }
@@ -169,7 +169,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetCurrentMinersInformation(termNumber);
             GetCandidateHistoryInformation();
         }
-
+        
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);

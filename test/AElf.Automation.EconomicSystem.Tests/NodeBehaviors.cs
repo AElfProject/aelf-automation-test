@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Election;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -21,5 +22,14 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         //view
+        public CandidateVote GetCandidateVote(string publicKey)
+        {
+            var candidateVote = ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote, new StringInput
+            {
+                Value = publicKey
+            });
+
+            return candidateVote;
+        }
     }
 }
