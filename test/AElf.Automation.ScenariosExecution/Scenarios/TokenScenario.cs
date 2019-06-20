@@ -125,8 +125,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             CollectAllBpTokensToBp0();
             Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
-            var publicKeys = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
-            var candidatePublicKeys = publicKeys.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+            var publicKeysList = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             var bp = BpNodes.First();
             var token = Token.GetNewTester(bp.Account, bp.Password);
@@ -135,10 +135,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo("Prepare token for all full nodes.");
             foreach (var fullNode in FullNodes)
             {
-                if (candidatePublicKeys.Contains(fullNode.PublicKey)) return;
+                if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
                 
                 var tokenBalance = Token.GetUserBalance(fullNode.Account);
-                if (tokenBalance > 100_000) return;
+                if (tokenBalance > 100_000) continue;
                 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
@@ -156,6 +156,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance >= 500_000) continue;
+                
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
