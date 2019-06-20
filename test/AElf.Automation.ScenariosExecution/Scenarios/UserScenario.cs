@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
@@ -23,6 +24,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
 
         private static List<string> _candidates;
+        private static List<string> _candidatesExcludeMiners;
 
         public UserScenario()
         {
@@ -60,6 +62,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void UserVotesAction()
         {
             GetCandidates(Election);
+            GetCandidatesExcludeCurrentMiners();
+            
             if (_candidates.Count < 2)
                 return;
 
@@ -75,8 +79,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void TakeVotesProfitAction()
         {
-            GetCandidates(Election);
-
             var times = GenerateRandomNumber(3, 5);
             for (var i = 0; i < times; i++)
             {
@@ -93,7 +95,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var voteProfit =
                 Profit.GetProfitDetails(account, profitId);
             if (voteProfit.Equals(new ProfitDetails())) return;
-            Logger.WriteInfo($"20% user vote profit details: {voteProfit}");
+            $"20% user vote profit details number: {voteProfit.Details}".WriteSuccessLine();
 
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, profitId);
@@ -116,11 +118,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void UserVote(string account)
         {
-            var id = GenerateRandomNumber(0, _candidates.Count - 1);
+            var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
             var lockTime = GenerateRandomNumber(3, 36) * 30;
             var amount = GenerateRandomNumber(1, 5) * 10;
 
-            UserVote(account, _candidates[id], lockTime, amount);
+            UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
         }
 
         private void UserVote(string account, string candidatePublicKey, int lockTime, long amount)
@@ -137,8 +139,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"
                 });
             }
-
-            ;
 
             //Election.SetAccount(account);
             var election = Election.GetNewTester(account);
@@ -161,6 +161,23 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var candidatePublicKeys = election.CallViewMethod<Candidates>(ElectionMethod.GetCandidates, new Empty());
             _candidates = candidatePublicKeys.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+        }
+
+        private void GetCandidatesExcludeCurrentMiners()
+        {
+            //query current miners
+            var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            
+            //query current candidates
+            _candidatesExcludeMiners = new List<string>();
+            _candidates.ForEach(o=>
+            {
+                if(!minersPublicKeys.Contains(o))
+                {
+                    _candidatesExcludeMiners.Add(o);
+                }
+            });
         }
     }
 }
