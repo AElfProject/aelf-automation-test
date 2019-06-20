@@ -238,7 +238,10 @@ namespace AElf.Automation.Common.Helpers
         {
             if (Client != null) return Client;
 
-            Client = new HttpClient();
+            Client = new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(3)
+            };
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
