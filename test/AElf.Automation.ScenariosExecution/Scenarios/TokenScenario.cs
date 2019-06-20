@@ -126,30 +126,29 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
             var publicKeys = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
-            var isAnnounced = publicKeys.Value.Select(o => o.ToByteArray().ToHex())
-                .Contains(FullNodes.First().PublicKey);
-            var tokenBalance = Token.GetUserBalance(FullNodes.First().Account);
+            var candidatePublicKeys = publicKeys.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             var bp = BpNodes.First();
             var token = Token.GetNewTester(bp.Account, bp.Password);
 
             //prepare full node token
             Logger.WriteInfo("Prepare token for all full nodes.");
-            if (!isAnnounced && tokenBalance == 0)
+            foreach (var fullNode in FullNodes)
             {
-                foreach (var fullAccount in FullNodes.Select(o => o.Account))
+                if (candidatePublicKeys.Contains(fullNode.PublicKey)) return;
+                
+                var tokenBalance = Token.GetUserBalance(fullNode.Account);
+                if (tokenBalance > 100_000) return;
+                
+                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 200_000,
-                        To = Address.Parse(fullAccount),
-                        Memo = "Transfer for announcement event"
-                    });
-                }
-
-                token.CheckTransactionResultList();
+                    Symbol = "ELF",
+                    Amount = 200_000,
+                    To = Address.Parse(fullNode.Account),
+                    Memo = "Transfer for announcement event"
+                });
             }
+            token.CheckTransactionResultList();
 
             //prepare other user token
             Logger.WriteInfo("Prepare token for all testers.");
