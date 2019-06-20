@@ -137,7 +137,7 @@ namespace AElf.Automation.ScenariosExecution
                 if (chainStatus == null) return;
                 node.Status = true;
                 var height = service.GetBlockHeight().Result;
-                Logger.WriteInfo($"Node {node.Name} connection success, block height: {height}");
+                Logger.WriteInfo($"Node {node.Name} [{node.ServiceUrl}] connection success, block height: {height}");
             }
             catch (Exception ex)
             {
