@@ -55,8 +55,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var tokenUsers = GetAvailableBuyUser(testTimes);
             foreach (var user in tokenUsers)
             {
-                var amount = GenerateRandomNumber(100, 500);
-                //TokenConverter.SetAccount(user);
+                var amount = GenerateRandomNumber(100, 200);
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var buyResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Buy, new BuyInput
                 {

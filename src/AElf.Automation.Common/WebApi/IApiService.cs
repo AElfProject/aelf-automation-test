@@ -36,5 +36,9 @@ namespace AElf.Automation.Common.WebApi
         Task<ChainStatusDto> GetChainStatus();
 
         Task<BlockStateDto> GetBlockState(string blockHash);
+        
+        Task<List<TaskQueueInfoDto>> GetTaskQueueStatus();
+
+        Task<RoundDto> GetCurrentRoundInformationAsync();
     }
 }

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 
@@ -149,8 +150,12 @@ namespace AElf.Automation.Common.Helpers
             var response = await client.GetAsync(url);
             if (response.StatusCode == expectedStatusCode) return response;
             var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
+            Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+            while (true)
+            {
+                Thread.Sleep(5000);
+                return await GetResponseAsync(url, version, expectedStatusCode);
+            }
         }
 
         private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> parameters,
@@ -184,14 +189,17 @@ namespace AElf.Automation.Common.Helpers
             var response = await client.PostAsync(url, content);
             if (response.StatusCode == expectedStatusCode) return response;
             var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
+            Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+            while (true)
+            {
+                Thread.Sleep(5000);
+                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
+            }
         }
 
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            //$"Delete request to: {url}".WriteSuccessLine();
             var strResponse = await DeleteResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -215,18 +223,19 @@ namespace AElf.Automation.Common.Helpers
             var response = await client.DeleteAsync(url);
             if (response.StatusCode == expectedStatusCode) return response;
             var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
+            Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+            while (true)
+            {
+                Thread.Sleep(5000);
+                return await DeleteResponseAsync(url, version, expectedStatusCode);
+            }
         }
 
         private static HttpClient GetDefaultClient(string version = null)
         {
             if (Client != null) return Client;
 
-            Client = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(60)
-            };
+            Client = new HttpClient();
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
@@ -236,5 +245,6 @@ namespace AElf.Automation.Common.Helpers
         }
 
         private static HttpClient Client { get; set; }
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
     }
 }

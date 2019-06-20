@@ -13,7 +13,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.13:8100";
+        public string Endpoint { get; set; } = "http://192.168.197.35:8000";
 
         public static int Main(string[] args)
         {
@@ -39,6 +39,7 @@ namespace AElf.Automation.QueryTransaction
             Logger.WriteInfo("Select execution type:");
             "1. RunQueryTransaction".WriteSuccessLine();
             "2. RunNodeStatusCheck".WriteSuccessLine();
+            "3. RunStressTest".WriteSuccessLine();
             var runType = Console.ReadLine();
             var check = int.TryParse(runType, out var selection);
 
@@ -56,7 +57,12 @@ namespace AElf.Automation.QueryTransaction
                 case 2:
                     RunNodeStatusCheck();
                     break;
+                case 3:
+                    RunStressTest();
+                    break;  
             }
+            Console.WriteLine("Complete testing.");
+            Console.ReadLine();
         }
 
         private void RunNodeStatusCheck()
@@ -82,6 +88,12 @@ namespace AElf.Automation.QueryTransaction
             var query = new TransactionQuery(Endpoint);
             query.ExecuteMultipleTasks(1);
             Logger.WriteInfo("Complete transaction query result.");
+        }
+
+        private void RunStressTest()
+        {
+            var stress = new StressQuery(Endpoint);
+            stress.RunStressTest(300);
         }
     }
 }

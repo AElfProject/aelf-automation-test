@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -39,6 +40,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             UpdateTestContractOwner();
 
             ExecuteTestContractMethod();
+        }
+
+        public void RunContractScenarioJob()
+        {
+            ExecuteStandaloneTask(new Action[]
+            {
+                DeployTestContract,
+                ExecuteTestContractMethod,
+                UpdateTestContractCode,
+                ExecuteTestContractNewMethod,
+                UpdateTestContractOwner,
+                ExecuteTestContractMethod,
+            });
         }
 
         private void DeployTestContract()

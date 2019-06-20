@@ -50,7 +50,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             catch (Exception e)
             {
                 Logger.WriteError($"ExecuteStandaloneTask got exception: {e.Message}");
-                throw;
             }
         }
 

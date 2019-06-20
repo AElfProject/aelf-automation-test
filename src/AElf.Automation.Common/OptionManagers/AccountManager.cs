@@ -14,7 +14,7 @@ namespace AElf.Automation.Common.OptionManagers
     {
         private readonly AElfKeyStore _keyStore;
         private readonly string _chainId;
-        private readonly List<string> _accounts;
+        private List<string> _accounts;
 
         public AccountManager(AElfKeyStore keyStore, string chainId)
         {
@@ -48,8 +48,9 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 InfoMsg = _keyStore.ListAccountsAsync().Result
             };
-            if (result.InfoMsg != null)
-                result.Result = true;
+            if (result.InfoMsg == null) return result;
+            result.Result = true;
+            _accounts = (List<string>) result.InfoMsg;
 
             return result;
         }

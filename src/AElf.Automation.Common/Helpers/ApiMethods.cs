@@ -28,6 +28,8 @@
         GetContractFileDescriptorSet,
         QueryView,
         ExecuteTransaction,
+        CurrentRoundInformation,
+        TaskQueueStatus,
 
         //Net
         GetPeers,

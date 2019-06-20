@@ -51,12 +51,9 @@ namespace AElf.Automation.Common.WebApi
 
         public async Task<byte[]> GetContractFileDescriptorSet(string address)
         {
-            var url = GetRequestUrl(ApiMethods.GetContractFileDescriptorSet);
-            var parameters = new Dictionary<string, string>
-            {
-                {"Address", address}
-            };
-            return await HttpHelper.PostResponseAsync<byte[]>(url, parameters);
+            var url = GetRequestUrl(ApiMethods.GetContractFileDescriptorSet, address);
+            
+            return await HttpHelper.GetResponseAsync<byte[]>(url);
         }
 
         public async Task<CreateRawTransactionOutput> CreateRawTransaction(CreateRawTransactionInput input)
@@ -155,6 +152,18 @@ namespace AElf.Automation.Common.WebApi
             return await HttpHelper.GetResponseAsync<BlockStateDto>(url);
         }
 
+        public async Task<List<TaskQueueInfoDto>> GetTaskQueueStatus()
+        {
+            var url = GetRequestUrl(ApiMethods.TaskQueueStatus);
+            return await HttpHelper.GetResponseAsync<List<TaskQueueInfoDto>>(url);
+        }
+
+        public async Task<RoundDto> GetCurrentRoundInformationAsync()
+        {
+            var url = GetRequestUrl(ApiMethods.CurrentRoundInformation);
+            return await HttpHelper.GetResponseAsync<RoundDto>(url);
+        }
+
         #endregion
 
         #region Net api
@@ -217,6 +226,10 @@ namespace AElf.Automation.Common.WebApi
                     ApiMethods.GetTransactionResults,
                     "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"
                 },
+                {
+                    ApiMethods.CurrentRoundInformation, "/api/blockChain/currentRoundInformation"
+                },
+                {ApiMethods.TaskQueueStatus, "/api/blockChain/taskQueueStatus"},
 
                 //net route
                 {ApiMethods.GetPeers, "/api/net/peers"},
