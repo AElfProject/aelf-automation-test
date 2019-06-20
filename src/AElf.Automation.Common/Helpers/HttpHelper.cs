@@ -153,6 +153,7 @@ namespace AElf.Automation.Common.Helpers
             Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
             while (true)
             {
+                Logger.WriteWarn("Retry GetResponseAsync request.");
                 Thread.Sleep(5000);
                 return await GetResponseAsync(url, version, expectedStatusCode);
             }
@@ -192,6 +193,7 @@ namespace AElf.Automation.Common.Helpers
             Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
             while (true)
             {
+                Logger.WriteWarn("Retry PostResponseAsync request.");
                 Thread.Sleep(5000);
                 return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
             }
@@ -226,6 +228,7 @@ namespace AElf.Automation.Common.Helpers
             Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
             while (true)
             {
+                Logger.WriteWarn("Retry DeleteResponseAsync request.");
                 Thread.Sleep(5000);
                 return await DeleteResponseAsync(url, version, expectedStatusCode);
             }
