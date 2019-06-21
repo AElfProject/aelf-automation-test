@@ -376,6 +376,12 @@ namespace AElf.Automation.Common.Helpers
             return AccountManager.GetPublicKey(account);
         }
 
+        public void GetChainStatus(CommandInfo ci)
+        {
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetChainStatus());
+            ci.Result = true;
+        }
+
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {

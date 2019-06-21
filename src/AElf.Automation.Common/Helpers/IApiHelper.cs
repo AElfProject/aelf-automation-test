@@ -36,6 +36,7 @@ namespace AElf.Automation.Common.Helpers
             where TResult : IMessage<TResult>, new();
         void QueryViewInfo(CommandInfo ci);
         string GetPublicKeyFromAddress(string account, string password = "123");
+        void GetChainStatus(CommandInfo ci);
         
         //net
         void NetGetPeers(CommandInfo ci);

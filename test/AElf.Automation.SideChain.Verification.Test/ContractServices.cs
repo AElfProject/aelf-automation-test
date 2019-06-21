@@ -17,10 +17,10 @@ namespace AElf.Automation.SideChain.VerificationTest
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         
-        public ContractServices(string url, string callAddress,string type)
+        public ContractServices(string url, string callAddress,string type,string keyStore)
         {
             Url = url;
-            ApiHelper = new WebApiHelper(url);
+            ApiHelper = new WebApiHelper(url,keyStore);
             CallAddress = callAddress;
             UnlockInitAccount(callAddress);
             CallAccount = Address.Parse(callAddress);
@@ -58,11 +58,11 @@ namespace AElf.Automation.SideChain.VerificationTest
             ApiHelper.GetChainInformation(ci);
         }
         
-        private void UnlockInitAccount(string InitAccount)
+        private void UnlockInitAccount(string initAccount)
         {
             var ci = new CommandInfo(ApiMethods.AccountUnlock)
             {
-                Parameter = $"{InitAccount} 123 notimeout"
+                Parameter = $"{initAccount} 123 notimeout"
             };
             ApiHelper.ExecuteCommand(ci);
         }

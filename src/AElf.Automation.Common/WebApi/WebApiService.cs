@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.WebApi
 
         public async Task<TResult> Call<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new()
         {
-            var hexString = await Call(rawTransaction);
+            var hexString = await Call(rawTransaction).ConfigureAwait(false);
             
             if(hexString.IsNullOrEmpty())
             {
