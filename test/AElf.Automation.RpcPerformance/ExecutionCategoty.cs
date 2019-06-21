@@ -542,7 +542,7 @@ namespace AElf.Automation.RpcPerformance
         private void NewAccounts(int count)
         {
             var accounts = GetExistAccounts();
-            if (accounts.Count > count)
+            if (accounts.Count >= count)
             {
                 foreach (var acc in accounts.Take(count))
                 {

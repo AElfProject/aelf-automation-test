@@ -41,7 +41,7 @@ namespace AElf.Automation.ScenariosExecution
             //scenario tasks
             if (enableCases.Contains("TokenScenario"))
                 registry.Schedule(() => token.TokenScenarioJob()).WithName("TokenScenario")
-                    .ToRunEvery(3).Seconds();
+                    .ToRunEvery(5).Seconds();
 
             if (enableCases.Contains("ResourceScenario"))
                 registry.Schedule(() => resource.ResourceScenarioJob()).WithName("ResourceScenario")
