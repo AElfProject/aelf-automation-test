@@ -398,29 +398,43 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 _logger.WriteInfo($"side chain {chainIdList[i]} received token");
                 _logger.WriteInfo($"Receive CrossTransfer Transaction id is : {initRawTxInfos[i].TxId}");
+                CommandInfo result = null;
+                var transferTimes = 5;
+                while (result ==null && transferTimes >0)
+                {
+                    transferTimes--;
+                    result = ReceiveFromMainChain(SideChains[i], initRawTxInfos[i]);
+                }
+                if (result == null)
+                {
+                    _logger.WriteInfo($"{chainIdList[i]} receive transaction is failed.");
+                    Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                }
                 
-                var result = ReceiveFromMainChain(SideChains[i], initRawTxInfos[i]);
-                if (result == null) continue;
                 var resultReturn = result.InfoMsg as TransactionResultDto;
-
                 if (resultReturn.Status.Equals("NotExisted")|| resultReturn.Status.Equals("Failed"))
                 {
                     Thread.Sleep(1000);
                     var checkTime = 5;
-                    _logger.WriteInfo($"Receive {6 - checkTime} time");
                     while (checkTime > 0)
                     {
+                        _logger.WriteInfo($"Receive {6 - checkTime} time");
                         checkTime--;
                         var reResult = ReceiveFromMainChain(SideChains[i], initRawTxInfos[i]);
+                        if(reResult == null) continue;
                         var reResultReturn = reResult.InfoMsg as TransactionResultDto;
                         if (reResultReturn.Status.Equals("Mined"))
-                            return;
+                            goto GetBalance;
+                        if (reResultReturn.Error.Contains("Token already claimed"))
+                            goto GetBalance;
                         Thread.Sleep(2000);
                     }
-                    _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                    
+                    _logger.WriteInfo($"{chainIdList[i]} receive transaction is failed.");
                     Assert.IsTrue(false, "The first receive transfer failed, please start over.");
                 }
-
+                
+                GetBalance:
                 _logger.WriteInfo($"check the balance on the side chain {chainIdList[i]}");
                 var accountBalance = SideChains[i].GetBalance(InitAccount, "ELF").Balance;
 
@@ -516,7 +530,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
 
                 _logger.WriteInfo("Waiting for the index");
-                Thread.Sleep(60000);
+                Thread.Sleep(100000);
                 _logger.WriteInfo("Side chain receive the token");
                 //Side Chain Receive 
                 for (int i = 0; i < SideChains.Count; i++)
@@ -545,6 +559,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     return;
                                 Thread.Sleep(2000);
                             }
+                            
                             _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
                         }
 
@@ -625,7 +640,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
             
             _logger.WriteInfo("Waiting for the index");
-            Thread.Sleep(60000);
+            Thread.Sleep(100000);
                   
             //Side Chain Receive 
             var fromChainId = ChainHelpers.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
@@ -773,25 +788,33 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         private void Transfer(Operation chain, string initAccount, string toAddress, long amount)
         {
-            var result = chain.TransferToken(initAccount, toAddress, amount, "ELF");
+            var transferTimes = 5;
+            CommandInfo result = null; 
+            while (result == null && transferTimes >0)
+            {
+                transferTimes--;
+                result = chain.TransferToken(initAccount, toAddress, amount, "ELF");
+            }
 
             if (result == null)
             {
-                _logger.WriteInfo("Transfer token again.");
-                var reResult = chain.TransferToken(initAccount, toAddress, amount, "ELF");
-                if (reResult == null)
-                    _logger.WriteError("The first transfer failed.");
+                _logger.WriteInfo("Transfer transaction is failed.");
+                Assert.IsTrue(false, "Initial fund transfer failed.");
             }
-            else
+            var resultReturn = result.InfoMsg as TransactionResultDto;
+            if (!resultReturn.Status.Equals("NotExisted") && !resultReturn.Status.Equals("Failed")) return;
+            Thread.Sleep(1000);
+            var checkTime = 5;
+            while (checkTime > 0)
             {
-                var resultReturn = result.InfoMsg as TransactionResultDto;
-                if (resultReturn.Status.Equals("NotExisted")||resultReturn.Status.Equals("Failed"))
-                {
-                    _logger.WriteInfo("Transfer token again.");
-                    var reResult = chain.TransferToken(initAccount, toAddress, amount, "ELF");
-                    if (reResult == null)
-                        _logger.WriteError("The first transfer failed.");
-                }
+                _logger.WriteInfo($"Transfer {6 - checkTime} time");
+                checkTime--;
+                var reResult = chain.TransferToken(initAccount, toAddress, amount, "ELF");
+                if(reResult == null) continue;
+                var reResultReturn = reResult.InfoMsg as TransactionResultDto;
+                if (reResultReturn.Status.Equals("Mined"))
+                    return;
+                Thread.Sleep(2000);
             }
         }
 
