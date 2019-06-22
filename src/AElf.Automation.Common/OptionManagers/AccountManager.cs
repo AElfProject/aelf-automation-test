@@ -25,7 +25,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         public CommandInfo NewAccount(string password = "")
         {
-            var result = new CommandInfo(ApiMethods.AccountList);
+            var result = new CommandInfo(ApiMethods.AccountNew);
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = password;
@@ -33,7 +33,10 @@ namespace AElf.Automation.Common.OptionManagers
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
-            if (addr == null) return result;
+            if (addr == null)
+            {
+                return result;
+            }
             result.Result = true;
             var account = addr.GetFormatted();
             result.InfoMsg = account;

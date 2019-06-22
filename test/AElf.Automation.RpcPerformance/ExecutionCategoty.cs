@@ -556,7 +556,8 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(acc));
                 }
 
-                for (var i = 0; i < count - accounts.Count; i++)
+                var generateCount = count - accounts.Count;
+                for (var i = 0; i < generateCount; i++)
                 {
                     var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                     ci = ApiHelper.ExecuteCommand(ci);

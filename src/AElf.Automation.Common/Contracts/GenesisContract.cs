@@ -35,12 +35,13 @@ namespace AElf.Automation.Common.Contracts
         ConsensusName,
         ParliamentName,
         CrossChainName,
-        AssciationName
+        AssciationName,
+        Configuration
     }
-
+    
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        private readonly Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
+        public static readonly Dictionary<NameProvider, Hash> NameProviderInfos = new Dictionary<NameProvider, Hash>();
 
         private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
             base(apiHelper, genesisAddress)
@@ -81,7 +82,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractAddressByName(NameProvider name)
         {
-            var hash = _nameProviders[name];
+            var hash = NameProviderInfos[name];
 
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             var addString = address != new Address() ? address.GetFormatted() : "null";
@@ -104,16 +105,17 @@ namespace AElf.Automation.Common.Contracts
 
         private void InitializeSystemContractName()
         {
-            _nameProviders.Add(NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election"));
-            _nameProviders.Add(NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit"));
-            _nameProviders.Add(NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote"));
-            _nameProviders.Add(NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token"));
-            _nameProviders.Add(NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter"));
-            _nameProviders.Add(NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver"));
-            _nameProviders.Add(NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus"));
-            _nameProviders.Add(NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament"));
-            _nameProviders.Add(NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain"));
-            _nameProviders.Add(NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association"));
+            NameProviderInfos.Add(NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election"));
+            NameProviderInfos.Add(NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit"));
+            NameProviderInfos.Add(NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote"));
+            NameProviderInfos.Add(NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token"));
+            NameProviderInfos.Add(NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter"));
+            NameProviderInfos.Add(NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver"));
+            NameProviderInfos.Add(NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus"));
+            NameProviderInfos.Add(NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament"));
+            NameProviderInfos.Add(NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain"));
+            NameProviderInfos.Add(NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association"));
+            NameProviderInfos.Add(NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration"));
         }
     }
 }
