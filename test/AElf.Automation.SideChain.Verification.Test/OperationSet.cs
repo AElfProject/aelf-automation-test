@@ -380,7 +380,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 TxInfo rawTxInfo = null;
                 var transferTimes = 5;
-                while (rawTxInfo == null|| transferTimes >0)
+                while (rawTxInfo == null && transferTimes >0)
                 {
                     transferTimes--;
                     rawTxInfo = CrossChainTransfer(MainChain, InitAccount, InitAccount, chainId, 100000);
@@ -905,6 +905,16 @@ namespace AElf.Automation.SideChain.Verification.Test
                 return null;
             // get transaction info            
             var txResult = result.InfoMsg as TransactionResultDto;
+            
+            if (txResult.Status.Equals("NotExisted"))
+            {
+                Thread.Sleep(2000);
+                _logger.WriteInfo("Check the transaction again.");
+                result = CheckTransactionResult(chain, txId);
+                txResult = result.InfoMsg as TransactionResultDto;
+                if (txResult.Equals("NotExisted"))
+                    return null;
+            }
             var blockNumber = txResult.BlockNumber;
             var receiveAccount = toAccount;
             var rawTxInfo = new TxInfo(blockNumber, txId, rawTx, fromAccount, receiveAccount);
@@ -1081,7 +1091,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                             return ci;
                         case "NotExisted":
                             _logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
-                            return null;
+                            return ci;
                         case "Failed":
                             var message = $"Transaction {txId} status: {transactionResult.Status}";
                             message += $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
