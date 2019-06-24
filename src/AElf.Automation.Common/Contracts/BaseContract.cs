@@ -90,7 +90,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public string ExecuteMethodWithTxId(string method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
@@ -124,6 +124,7 @@ namespace AElf.Automation.Common.Contracts
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
+            Thread.Sleep(100); //in case of 'NotExisted' issue
             return CheckTransactionResult(txId);
         }
 

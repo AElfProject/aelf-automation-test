@@ -30,13 +30,9 @@ namespace AElf.Automation.ScenariosExecution
 
             var token = new TokenScenario();
             token.PrepareAccountBalance();
-            var contract = new ContractScenario();
-            var resource = new ResourceScenario();
             var node = new NodeScenario();
-            var user = new UserScenario();
 
             JobManager.UseUtcTime();
-
             var registry = new Registry();
             //scenario tasks
             if (enableCases.Contains("TokenScenario"))
@@ -44,19 +40,29 @@ namespace AElf.Automation.ScenariosExecution
                     .ToRunEvery(5).Seconds();
 
             if (enableCases.Contains("ResourceScenario"))
+            {
+                var resource = new ResourceScenario();
                 registry.Schedule(() => resource.ResourceScenarioJob()).WithName("ResourceScenario")
                     .ToRunEvery(3).Seconds();
+            }
 
             if (enableCases.Contains("UserScenario"))
+            {
+                var user = new UserScenario();
                 registry.Schedule(() => user.UserScenarioJob()).WithName("UserScenario")
                     .ToRunEvery(6).Seconds();
+            }
 
             if (enableCases.Contains("NodeScenario"))
                 registry.Schedule(() => node.NodeScenarioJob()).WithName("NodeScenario")
                     .ToRunEvery(1).Minutes();
+            
             if (enableCases.Contains("ContractScenario"))
+            {
+                var contract = new ContractScenario();
                 registry.Schedule(() => contract.RunContractScenarioJob()).WithName("ContractScenario")
                     .ToRunEvery(3).Minutes();
+            }
 
             JobManager.Initialize(registry);
             JobManager.JobException += info =>

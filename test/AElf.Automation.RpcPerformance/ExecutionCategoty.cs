@@ -27,7 +27,6 @@ namespace AElf.Automation.RpcPerformance
         public string BaseUrl { get; }
         private List<AccountInfo> AccountList { get; }
         private string KeyStorePath { get; }
-        private long BlockHeight { get; set; }
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }
@@ -52,7 +51,6 @@ namespace AElf.Automation.RpcPerformance
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
-            BlockHeight = 1;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl;

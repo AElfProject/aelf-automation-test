@@ -67,7 +67,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (_candidates.Count < 2)
                 return;
 
-            var times = GenerateRandomNumber(5, 10);
+            var times = GenerateRandomNumber(3, 5);
             for (var i = 0; i < times; i++)
             {
                 var id = GenerateRandomNumber(0, Testers.Count - 1);
@@ -120,7 +120,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
             var lockTime = GenerateRandomNumber(3, 36) * 30;
-            var amount = GenerateRandomNumber(1, 5) * 10;
+            var amount = GenerateRandomNumber(1, 5) * 5;
 
             UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
         }
