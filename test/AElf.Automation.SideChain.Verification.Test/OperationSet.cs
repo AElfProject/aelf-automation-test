@@ -181,7 +181,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     checkTime--;
                                     result = VerifyMainChainTransaction(sideChain, txInfo, InitAccount);
                                     if (result.Equals("true"))
-                                        return;
+                                        goto case "true";
                                     Thread.Sleep(4000);
                                 }
 
@@ -389,7 +389,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 
                 initRawTxInfos.Add(rawTxInfo);
                 _logger.WriteInfo(
-                    $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is{rawTxInfo.TxId}");
+                    $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
             }
             _logger.WriteInfo("Waiting for the index");
             Thread.Sleep(60000);
@@ -831,25 +831,34 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             verificationInput.Path.AddRange(merklePath.Path);
 
-            // change to side chain a to verify            
-            var result = chain.VerifyTransaction(verificationInput, sideChainAccount);
+            // change to side chain a to verify   
+            var verifyTimes = 5;
+            CommandInfo result = null; 
+            while (result == null && verifyTimes >0)
+            {
+                verifyTimes--;
+                result = chain.VerifyTransaction(verificationInput, sideChainAccount);
+            }
             if (result == null)
-            {
-                var reResult = chain.VerifyTransaction(verificationInput, sideChainAccount);
-                if (reResult == null) return null;
-            }
+                return null;
+            
             var verifyResult = result.InfoMsg as TransactionResultDto;
-            if (verifyResult.Status.Equals("Failed")||verifyResult.Status.Equals("NotExisted"))
+            if (!verifyResult.Status.Equals("NotExisted") && !verifyResult.Status.Equals("Failed")) 
+                return verifyResult.ReadableReturnValue;
+            Thread.Sleep(1000);
+            var checkTime = 3;
+            while (checkTime > 0)
             {
-                var reResult = chain.VerifyTransaction(verificationInput, sideChainAccount);
-                if (reResult == null)
-                    return null;
-                var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                if (reResultReturn.Status.Equals("Failed") || reResultReturn.Status.Equals("NotExisted"))
-                    return null;
+                _logger.WriteInfo($"Send verify transaction  {6 - checkTime} time");
+                checkTime--; 
+                result = chain.VerifyTransaction(verificationInput, sideChainAccount);
+                if (result == null) continue;
+                verifyResult = result.InfoMsg as TransactionResultDto;
+                if (verifyResult.Status.Equals("Mined"))
+                    break;
+                Thread.Sleep(2000);
             }
-            var returnResult = verifyResult.ReadableReturnValue;
-            return returnResult;
+            return verifyResult.ReadableReturnValue;
         }
 
         private string VerifySideChainTransaction(Operation chain, TxInfo txinfo, int sideChainNumber)
