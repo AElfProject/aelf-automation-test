@@ -392,7 +392,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                     $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
             }
             _logger.WriteInfo("Waiting for the index");
-            Thread.Sleep(60000);
+            Thread.Sleep(120000);
             
             for (var i = 0; i < chainIdList.Count; i++)
             {
@@ -530,7 +530,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
 
                 _logger.WriteInfo("Waiting for the index");
-                Thread.Sleep(100000);
+                Thread.Sleep(120000);
                 _logger.WriteInfo("Side chain receive the token");
                 //Side Chain Receive 
                 for (int i = 0; i < SideChains.Count; i++)
@@ -640,7 +640,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
             
             _logger.WriteInfo("Waiting for the index");
-            Thread.Sleep(100000);
+            Thread.Sleep(150000);
                   
             //Side Chain Receive 
             var fromChainId = ChainHelpers.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
