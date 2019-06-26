@@ -63,6 +63,12 @@ namespace AElf.Automation.QueryTransaction
             Parallel.ForEach(collection.Skip(0), item =>
             {
                 var (item1, item2) = item;
+                if (item1 == null || item2 == null)
+                {
+                    Logger.WriteError($"Node height {height} request return null response.");
+                    return;
+                }
+                
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
                 Logger.WriteInfo(

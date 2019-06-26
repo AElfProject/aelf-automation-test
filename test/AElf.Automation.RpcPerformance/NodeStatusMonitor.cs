@@ -64,18 +64,14 @@ namespace AElf.Automation.RpcPerformance
             var length = transactionIds.Count;
             for (var i = length - 1; i >= 0; i--)
             {
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionIds[i]};
-                ApiHelper.GetTransactionResult(ci);
-
-                if (ci.Result)
+                var i1 = i;
+                var transactionResult =
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
+                var deployResult = transactionResult.Status;
+                if (deployResult == "Mined")
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var deployResult = transactionResult?.Status;
-                    if (deployResult == "Mined")
-                    {
-                        _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
-                        transactionIds.Remove(transactionIds[i]);
-                    }
+                    _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
+                    transactionIds.Remove(transactionIds[i]);
                 }
 
                 Thread.Sleep(15);
@@ -91,18 +87,13 @@ namespace AElf.Automation.RpcPerformance
             if (transactionIds.Count == 1)
             {
                 _logger.WriteInfo("Last one: {0}", transactionIds[0]);
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionIds[0]};
-                ApiHelper.ExecuteCommand(ci);
-
-                if (ci.Result)
+                var transactionResult =
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
+                var txResult = transactionResult.Status;
+                if (txResult != "Mined")
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var txResult = transactionResult?.Status;
-                    if (txResult != "Mined")
-                    {
-                        Thread.Sleep(50);
-                        CheckTransactionsStatus(transactionIds, checkTimes);
-                    }
+                    Thread.Sleep(50);
+                    CheckTransactionsStatus(transactionIds, checkTimes);
                 }
             }
 
@@ -114,10 +105,7 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                var ci = new CommandInfo(ApiMethods.GetBlockHeight);
-                ApiHelper.GetBlockHeight(ci);
-                var currentHeight = (long) ci.InfoMsg;
-
+                var currentHeight = AsyncHelper.RunSync(() => ApiHelper.ApiService.GetBlockHeight());
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;

@@ -70,6 +70,7 @@ namespace AElf.Automation.QueryTransaction
         {
             var urlCollection = new List<string>
             {
+                
                 "http://192.168.197.13:8100",
                 "http://192.168.197.28:8100",
                 "http://192.168.197.33:8100"
