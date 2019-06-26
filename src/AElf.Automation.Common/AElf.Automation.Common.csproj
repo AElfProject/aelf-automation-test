@@ -70,6 +70,9 @@
     <ProtoMessage Include="..\AElf\protobuf\cross_chain_contract.proto">
       <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
     </ProtoMessage>
+    <ProtoContract Include="..\AElf\protobuf\configuration.proto">
+      <Link>Protobuf\Proto\stub\configuration.proto</Link>
+    </ProtoContract>
   </ItemGroup>
 
   <ItemGroup>

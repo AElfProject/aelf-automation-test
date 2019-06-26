@@ -50,39 +50,17 @@ namespace AElf.Automation.ContractsTesting
             #region Basic Preparation
 
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
             var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
 
-            /*
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ch.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Account preparation
-            Users = new List<string>();
-
-            for (var i = 0; i < 5; i++)
-            {
-                ci = new CommandInfo(ApiMethods.AccountNew)
-                {
-                    Parameter = "123"
-                };
-                ci = ch.NewAccount(ci);
-                if(ci.Result)
-                    Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
-
-                //unlock
-                var uc = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{Users[i]} 123 notimeout"
-                };
-                ch.UnlockAccount(uc);
-            }
-            */
+            var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
+            configTransaction.GetTransactionLimit();
+            configTransaction.SetTransactionLimit(50);
+            configTransaction.GetTransactionLimit();
+            Console.ReadLine();
 
             #endregion
 
