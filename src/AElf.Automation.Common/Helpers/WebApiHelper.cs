@@ -154,7 +154,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void GetChainInformation(CommandInfo ci)
         {
-            var statusDto = ApiService.GetChainStatus().Result;
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
 
             _genesisAddress = statusDto.GenesisContractAddress;
 

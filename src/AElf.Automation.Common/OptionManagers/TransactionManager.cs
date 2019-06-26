@@ -8,6 +8,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -135,7 +136,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 requestTimes--;
                 var webApi = new WebApiService(baseUrl);
-                var height = webApi.GetBlockHeight().Result;
+                var height = AsyncHelper.RunSync(webApi.GetBlockHeight);
                 if (height != 0) return height;
 
                 if (requestTimes < 0) throw new Exception("Get Block height failed exception.");
@@ -149,7 +150,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 requestTimes--;
                 var webApi = new WebApiService(baseUrl);
-                var blockInfo = webApi.GetBlockByHeight(height).Result;
+                var blockInfo = AsyncHelper.RunSync(()=>webApi.GetBlockByHeight(height));
                 if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
 
                 if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");

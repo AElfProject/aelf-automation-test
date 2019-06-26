@@ -17,7 +17,7 @@ namespace AElf.Automation.RpcPerformance
 
         private const int Phase = 120;
 
-        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.TransactionLimit;
+        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.SentTxLimit;
 
         /// <summary>
         /// 统计出块信息

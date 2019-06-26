@@ -19,7 +19,7 @@ namespace AElf.Automation.RpcPerformance
         public NodeStatusMonitor(IApiHelper apiHelper)
         {
             ApiHelper = apiHelper;
-            MaxLimit = ConfigInfoHelper.Config.TransactionLimit;
+            MaxLimit = ConfigInfoHelper.Config.SentTxLimit;
         }
 
         private static int _checkCount;

@@ -68,12 +68,16 @@ namespace AElf.Automation.RpcPerformance
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
+            
             //New
             NewAccounts(userCount);
 
             //Unlock Account
             UnlockAllAccounts(userCount);
+            
+            //Set select limit transaction
+            var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
+            transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
             //Init other services
             Summary = new ExecutionSummary(ApiHelper);

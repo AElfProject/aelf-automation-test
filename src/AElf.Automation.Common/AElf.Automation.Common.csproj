@@ -43,9 +43,9 @@
     <ProtoContract Include="..\AElf\protobuf\fee_receiver_contract.proto">
       <Link>Protobuf\Proto\stub\fee_receiver_contract.proto</Link>
     </ProtoContract>
-    <ProtoMessage Include="..\AElf\protobuf\basic_contract_zero.proto">
+    <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
-    </ProtoMessage>
+    </ProtoContract>
     <ProtoMessage Include="..\AElf\protobuf\election_contract.proto">
       <Link>Protobuf\Proto\stub\election_contract.proto</Link>
     </ProtoMessage>
