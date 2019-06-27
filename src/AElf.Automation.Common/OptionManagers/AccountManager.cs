@@ -7,6 +7,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -20,7 +21,7 @@ namespace AElf.Automation.Common.OptionManagers
         {
             _keyStore = keyStore;
             _chainId = chainId;
-            _accounts = _keyStore.ListAccountsAsync().Result;
+            _accounts = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync());
         }
 
         public CommandInfo NewAccount(string password = "")
@@ -29,7 +30,7 @@ namespace AElf.Automation.Common.OptionManagers
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = password;
-            var keypair = _keyStore.CreateAsync(password, _chainId).Result;
+            var keypair = AsyncHelper.RunSync(()=>_keyStore.CreateAsync(password, _chainId));
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
@@ -49,7 +50,7 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var result = new CommandInfo(ApiMethods.AccountList)
             {
-                InfoMsg = _keyStore.ListAccountsAsync().Result
+                InfoMsg = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync())
             };
             if (result.InfoMsg == null) return result;
             result.Result = true;
@@ -77,7 +78,7 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             var timeout = notimeout == "";
-            var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
+            var tryOpen = AsyncHelper.RunSync(()=>_keyStore.OpenAsync(address, password, timeout));
 
             switch (tryOpen)
             {

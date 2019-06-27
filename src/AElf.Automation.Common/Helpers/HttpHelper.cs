@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -33,12 +34,12 @@ namespace AElf.Automation.Common.Helpers
             var httpClient = GetDefaultClient();
             try
             {
-                var response = httpClient.PostAsync(url, httpContent).Result;
+                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
 
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = response.Content.ReadAsStringAsync().Result;
+                    var result = AsyncHelper.RunSync(response.Content.ReadAsStringAsync);
                     return result;
                 }
             }
@@ -74,11 +75,11 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 exec.Start();
-                var response = httpClient.PostAsync(url, httpContent).Result;
+                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = response.Content.ReadAsStringAsync().Result;
+                    var result = AsyncHelper.RunSync(response.Content.ReadAsStringAsync);
                     return result;
                 }
             }
