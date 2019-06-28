@@ -915,19 +915,21 @@ namespace AElf.Automation.SideChain.Verification.Test
             // get transaction info            
             var txResult = result.InfoMsg as TransactionResultDto;
             
-            if (txResult.Status.Equals("NotExisted"))
+            if (txResult.Status.Equals("NotExisted")||txResult.Status.Equals("Failed"))
             {
                 Thread.Sleep(2000);
                 _logger.WriteInfo("Check the transaction again.");
                 result = CheckTransactionResult(chain, txId);
                 txResult = result.InfoMsg as TransactionResultDto;
-                if (txResult.Equals("NotExisted"))
-                    return null;
+                if (txResult.Status.Equals("NotExisted") || txResult.Status.Equals("Failed"))
+                    goto Nullable;
             }
             var blockNumber = txResult.BlockNumber;
             var receiveAccount = toAccount;
             var rawTxInfo = new TxInfo(blockNumber, txId, rawTx, fromAccount, receiveAccount);
             return rawTxInfo;
+            Nullable:
+            return null;
         }
 
         private CommandInfo ReceiveFromMainChain(Operation chain, TxInfo rawTxInfo)
