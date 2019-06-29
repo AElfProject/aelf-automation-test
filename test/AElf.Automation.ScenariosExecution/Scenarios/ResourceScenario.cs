@@ -14,7 +14,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class ResourceScenario : BaseScenario
     {
         public TokenContract Token { get; set; }
-
         public FeeReceiverContract FeeReceiver { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
@@ -154,7 +153,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     IsBurnable = true,
                     Issuer = token.CallAccount,
                     TokenName = $"{connector.Symbol} Resource",
-                    TotalSupply = 100_0000
+                    TotalSupply = 100_000_000
                 });
                 if (!(createResult.InfoMsg is TransactionResultDto createDto)) continue;
                 if (createDto.Status == "Mined")
@@ -163,7 +162,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var issueResult = token.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
                 {
                     Symbol = connector.Symbol,
-                    Amount = 100_0000,
+                    Amount = 100_000_000,
                     Memo = $"Issue {connector.Symbol} token",
                     To = Address.Parse(TokenConverter.ContractAddress)
                 });
@@ -196,25 +195,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = "ELF",
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = RamConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = CpuConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = NetConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
             }
 
@@ -233,7 +232,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private Connector ElfConnector = new Connector
         {
             Symbol = "ELF",
-            VirtualBalance = 1000_0000,
+            VirtualBalance = 100_000_000,
             Weight = "0.5",
             IsPurchaseEnabled = true,
             IsVirtualBalanceEnabled = true

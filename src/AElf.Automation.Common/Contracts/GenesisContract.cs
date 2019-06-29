@@ -36,7 +36,9 @@ namespace AElf.Automation.Common.Contracts
         ParliamentName,
         CrossChainName,
         AssciationName,
-        Configuration
+        Configuration,
+        
+        BasicFunction
     }
     
     public class GenesisContract : BaseContract<GenesisMethod>
@@ -116,7 +118,8 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
-                {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")}
+                {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},
+                {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };
 
             return dic;

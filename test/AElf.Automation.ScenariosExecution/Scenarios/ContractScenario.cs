@@ -16,7 +16,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public BasicFunctionContract FunctionContract { get; set; }
         public BasicUpdateContract UpdateContract { get; set; }
         public GenesisContract Genesis { get; }
-        public bool IsUpdateContract { get; set; }
+        public string ContractAddress { get; set; }
+        public static bool IsUpdateContract { get; set; }
+        public static string ContractManager { get; set; }
+        public static string ContractOwner { get; set; }
         public List<string> Testers { get; }
 
         public ContractScenario()
@@ -24,12 +27,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             InitializeScenario();
 
             Genesis = Services.GenesisService;
+            FunctionContract = Services.FunctionContractService;
+            UpdateContract = Services.UpdateContractService;
+            ContractAddress = FunctionContract == null
+                ? UpdateContract.ContractAddress
+                : FunctionContract.ContractAddress;
             Testers = AllTesters.GetRange(0, 5);
         }
 
         public void RunContractScenario()
         {
-            DeployTestContract();
+            InitializeTestContract();
 
             ExecuteTestContractMethod();
 
@@ -46,22 +54,20 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             ExecuteStandaloneTask(new Action[]
             {
-                DeployTestContract,
+                //InitializeTestContract,
                 ExecuteTestContractMethod,
-                UpdateTestContractCode,
                 ExecuteTestContractNewMethod,
-                UpdateTestContractOwner,
-                ExecuteTestContractMethod,
+                UpdateTestContractCode,
+                UpdateTestContractOwner
             });
         }
 
-        private void DeployTestContract()
+        private void InitializeTestContract()
         {
-            if (FunctionContract != null)
+            if (UpdateContract != null)
                 return;
 
             Logger.WriteInfo("Test deploy customer contract.");
-            FunctionContract = new BasicFunctionContract(Services.ApiHelper, Services.CallAddress);
             FunctionContract.ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
                 new InitialBasicContractInput
                 {
@@ -86,15 +92,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             if (IsUpdateContract)
                 return;
-
+            
             foreach (var account in Testers.GetRange(1, Testers.Count - 1))
             {
                 FunctionContract.SetAccount(account);
+                var winMoney = FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney, Address.Parse(account));
                 FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
-                    Int64Value = GenerateRandomNumber(50, 100)
+                    Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
                 });
-                Thread.Sleep(10 * 1000);
+                Thread.Sleep(3 * 1000);
             }
 
             Logger.WriteInfo("Test contract old methods executed successful.");
@@ -102,7 +109,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void UpdateTestContractOwner()
         {
-            var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
+            var owner = Genesis.GetContractOwner(ContractAddress);
             var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
             var id = GenerateRandomNumber(0, Testers.Count - 2);
 
@@ -127,7 +134,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void UpdateTestContractCode()
         {
-            var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
+            var owner = Genesis.GetContractOwner(ContractAddress);
 
             Genesis.SetAccount(owner.GetFormatted());
             if (!IsUpdateContract)
@@ -159,8 +166,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (!IsUpdateContract)
                 return;
 
-            var manager = Testers[0];
-            UpdateContract.SetAccount(manager);
+            UpdateContract.SetAccount(Services.CallAddress); //set manager account
 
             //execute new method
             var txResult = UpdateContract.ExecuteMethodWithResult(UpdateMethod.UpdateMortgage, new BetInput
