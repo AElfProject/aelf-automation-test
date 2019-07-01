@@ -7,6 +7,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -55,7 +56,15 @@ namespace AElf.Automation.ContractsTesting
             Logger.InitLogHelper(dir);
 
             var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
-
+            
+            //deploy contract
+            var contractExecution = new ContractExecution(Endpoint);
+            contractExecution.DeployTestContract();
+            AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+            AsyncHelper.RunSync(contractExecution.UpdateContract);
+            AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+            
+            //configuration set
             var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
             configTransaction.GetTransactionLimit();
             configTransaction.SetTransactionLimit(50);
