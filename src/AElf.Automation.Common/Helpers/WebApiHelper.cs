@@ -19,11 +19,16 @@ namespace AElf.Automation.Common.Helpers
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        private string _genesisAddress;
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
+        
+        private string _genesisAddress;
+        public string GenesisAddress => GetGenesisContractAddress();
 
-        public AccountManager AccountManager { get; set; }
-        public TransactionManager TransactionManager { get; set; }
+        private AccountManager _accountManager;
+        public AccountManager AccountManager => GetAccountManager();
+        
+        private TransactionManager _transactionManager;
+        public TransactionManager TransactionManager => GetTransactionManager();
 
         #endregion
 
@@ -55,14 +60,10 @@ namespace AElf.Automation.Common.Helpers
 
         public string GetGenesisContractAddress()
         {
-            if (string.IsNullOrEmpty(_genesisAddress))
-            {
-                GetChainInformation(new CommandInfo
-                {
-                    Method = ApiMethods.GetChainInformation
-                });
-            }
-
+            if (_genesisAddress != null) return _genesisAddress;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _genesisAddress = statusDto.GenesisContractAddress;
             return _genesisAddress;
         }
 
@@ -124,24 +125,18 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo NewAccount(CommandInfo ci)
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             ci = AccountManager.NewAccount(ci.Parameter);
             return ci;
         }
 
         public CommandInfo ListAccounts()
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             var ci = AccountManager.ListAccount();
             return ci;
         }
 
         public CommandInfo UnlockAccount(CommandInfo ci)
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             var parameters = ci.Parameter.Split(" ");
             ci = AccountManager.UnlockAccount(parameters[0], parameters[1],
                 parameters[2]);
@@ -155,12 +150,8 @@ namespace AElf.Automation.Common.Helpers
         public void GetChainInformation(CommandInfo ci)
         {
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
-
             _genesisAddress = statusDto.GenesisContractAddress;
-
             _chainId = statusDto.ChainId;
-            TransactionManager = new TransactionManager(_keyStore, _chainId);
-            AccountManager = new AccountManager(_keyStore, _chainId);
 
             ci.InfoMsg = statusDto;
             ci.Result = true;
@@ -184,7 +175,7 @@ namespace AElf.Automation.Common.Helpers
             };
 
             TransactionManager.SetCmdInfo(ci);
-            var tx = TransactionManager.CreateTransaction(from, _genesisAddress,
+            var tx = TransactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl, _chainId);
 
@@ -370,8 +361,6 @@ namespace AElf.Automation.Common.Helpers
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             AccountManager.UnlockAccount(account, password, "notimeout");
             return AccountManager.GetPublicKey(account);
         }
@@ -431,6 +420,26 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetPeers, "/api/net/peers");
             ApiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
             ApiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
+        }
+
+        private TransactionManager GetTransactionManager()
+        {
+            if (_transactionManager != null) return _transactionManager;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _chainId = statusDto.ChainId;
+            _transactionManager = new TransactionManager(_keyStore, _chainId);
+            return _transactionManager;
+        }
+
+        private AccountManager GetAccountManager()
+        {
+            if (_accountManager != null) return _accountManager;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _chainId = statusDto.ChainId;
+            _accountManager = new AccountManager(_keyStore, _chainId);
+            return _accountManager;
         }
     }
 }

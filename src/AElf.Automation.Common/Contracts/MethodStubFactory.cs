@@ -7,8 +7,6 @@ using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Cryptography;
-using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf;
@@ -26,6 +24,7 @@ namespace AElf.Automation.Common.Contracts
         public WebApiService ApiService { get; }
 
         private readonly string _baseUrl;
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {
@@ -56,45 +55,70 @@ namespace AElf.Automation.Common.Contracts
                 var transactionOutput = await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
 
                 var checkTimes = 0;
-                TransactionResultDto transactionResult;
+                TransactionResultDto resultDto;
+                TransactionResultStatus status;
                 while (true)
                 {
                     checkTimes++;
-                    transactionResult = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
-                    var status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status);
+                    resultDto = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
+                    status =
+                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), resultDto.Status);
                     if (status != TransactionResultStatus.Pending)
+                    {
+                        if (status == TransactionResultStatus.Mined)
+                            Logger.WriteInfo($"TransactionId: {resultDto.TransactionId}, Status: {status}");
+                        else
+                            Logger.WriteError(
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nError Message: {resultDto.Error}");
+
                         break;
+                    }
 
                     if (checkTimes == 120)
                         Assert.IsTrue(false,
-                            $"Transaction {transactionResult.TransactionId} in pending status more than one minutes.");
+                            $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
                     Thread.Sleep(500);
                 }
 
-                return new ExecutionResult<TOutput>()
-                {
-                    Transaction = transaction,
-                    TransactionResult = new TransactionResult
+                var transactionResult = resultDto.Logs == null
+                    ? new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(transactionResult.TransactionId),
-                        BlockHash = Hash.FromString(transactionResult.BlockHash),
-                        BlockNumber = transactionResult.BlockNumber,
+                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        BlockHash = resultDto.BlockHash == null
+                            ? null
+                            : Hash.FromString(resultDto.BlockHash),
+                        BlockNumber = resultDto.BlockNumber,
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Error = resultDto.Error ?? "",
+                        Status = status,
+                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
+                    }
+                    : new TransactionResult
+                    {
+                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        BlockHash = resultDto.BlockHash == null
+                            ? null
+                            : Hash.FromString(resultDto.BlockHash),
+                        BlockNumber = resultDto.BlockNumber,
                         Logs =
                         {
-                            transactionResult.Logs.Select(o => new LogEvent
+                            resultDto.Logs.Select(o => new LogEvent
                             {
                                 Address = Address.Parse(o.Address),
                                 Name = o.Name,
                                 NonIndexed = ByteString.CopyFromUtf8(o.NonIndexed)
-                            }).ToList()
+                            }).ToArray()
                         },
-                        Bloom = ByteString.CopyFromUtf8(transactionResult.Bloom),
-                        Error = transactionResult.Error ?? "",
-                        Status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                            transactionResult.Status),
-                        ReadableReturnValue = transactionResult.ReadableReturnValue
-                    }
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Error = resultDto.Error ?? "",
+                        Status = status,
+                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
+                    };
+                
+                return new ExecutionResult<TOutput>()
+                {
+                    Transaction = transaction,
+                    TransactionResult = transactionResult
                 };
             }
 
