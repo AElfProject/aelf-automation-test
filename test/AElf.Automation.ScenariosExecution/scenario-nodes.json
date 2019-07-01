@@ -127,60 +127,6 @@
       "service_url": "http://47.254.233.45:8000",
       "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
       "password": "123"
-    },
-    {
-      "name": "full13-美国西部(俄勒冈)",
-      "service_url": "http://34.221.114.160:8000",
-      "account": "eCU8ih8w7Hozja3K61JZuVMCnc2kzHJMViadHCokwXgiwrgFS",
-      "password": "123"
-    },
-    {
-      "name": "full14-美国西部(俄勒冈)",
-      "service_url": "http://34.222.242.234:8000",
-      "account": "UCVoVd4rGFqHii7nvUvC5Ax3UE9jVVonP8gRmLu6PTpRrX8BW",
-      "password": "123"
-    },
-    {
-      "name": "full15-新加坡",
-      "service_url": "http://3.1.220.141:8000",
-      "account": "3T4QXdkPR3fApgeKFwfMv9sQNLyrFHrKAWny52FWLfNN98RH8",
-      "password": "123"
-    },
-    {
-      "name": "full16-爱尔兰",
-      "service_url": "http://18.202.227.136:8000",
-      "account": "2PsWSkDeLSwVFVqkWMLhz77NdYTuX48m63HotGFWJVfjafrgKa",
-      "password": "123"
-    },
-    {
-      "name": "full17-美国东部(弗吉尼亚北部)",
-      "service_url": "http://54.234.13.11:8000",
-      "account": "2in91Ck9tPW44nVjfnySwBLLYDGjVAqacTXqVTNZ1ByKPEH4PB",
-      "password": "123"
-    },
-    {
-      "name": "full18-亚太区域(悉尼)",
-      "service_url": "http://54.252.210.175:8000",
-      "account": "fbKqguGTCnAs9UKLcwFai1mgfF32gqk337wu37v3fAAa9h7hx",
-      "password": "123"
-    },
-    {
-      "name": "full19-亚太区域(东京)",
-      "service_url": "http://54.238.196.57:8000",
-      "account": "2DGHgUiC1iKd6sM8SBBh78CsJjYqNqYrYw2BeKRfuRLFR3b4Xf",
-      "password": "123"
-    },
-    {
-      "name": "full20-加拿大(中部)",
-      "service_url": "http://35.183.236.26:8000",
-      "account": "tWvaAQNpdXPRvFXtZzP7dmxd9NFXM1w4SsxB2GR4cx373NSrW",
-      "password": "123"
-    },
-    {
-      "name": "full21-南美洲(圣保罗)",
-      "service_url": "http://54.233.160.136:8000",
-      "account": "2fsTYQgkjZSVa8zxzg9L3w7nX4iZ68iZihpSygeiZeDkjjBSNJ",
-      "password": "123"
     }
   ],
   "TestCases": [
@@ -232,6 +178,6 @@
   "Timeout": 300,
   "SpecifyEndpoint": {
     "enable": true,
-    "service_url": "http://13.57.57.68:8000"
+    "service_url": "http://3.94.106.10:8000"
   }
 }
