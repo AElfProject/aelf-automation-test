@@ -19,11 +19,16 @@ namespace AElf.Automation.Common.Helpers
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        private string _genesisAddress;
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
+        
+        private string _genesisAddress;
+        public string GenesisAddress => GetGenesisContractAddress();
 
-        public AccountManager AccountManager { get; set; }
-        public TransactionManager TransactionManager { get; set; }
+        private AccountManager _accountManager;
+        public AccountManager AccountManager => GetAccountManager();
+        
+        private TransactionManager _transactionManager;
+        public TransactionManager TransactionManager => GetTransactionManager();
 
         #endregion
 
@@ -55,14 +60,10 @@ namespace AElf.Automation.Common.Helpers
 
         public string GetGenesisContractAddress()
         {
-            if (string.IsNullOrEmpty(_genesisAddress))
-            {
-                GetChainInformation(new CommandInfo
-                {
-                    Method = ApiMethods.GetChainInformation
-                });
-            }
-
+            if (_genesisAddress != null) return _genesisAddress;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _genesisAddress = statusDto.GenesisContractAddress;
             return _genesisAddress;
         }
 
@@ -86,10 +87,10 @@ namespace AElf.Automation.Common.Helpers
                 case ApiMethods.DeploySmartContract:
                     DeployContract(ci);
                     break;
-                case ApiMethods.BroadcastTransaction:
+                case ApiMethods.SendTransaction:
                     BroadcastTx(ci);
                     break;
-                case ApiMethods.BroadcastTransactions:
+                case ApiMethods.SendTransactions:
                     BroadcastTxs(ci);
                     break;
                 case ApiMethods.GetTransactionResult:
@@ -124,24 +125,18 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo NewAccount(CommandInfo ci)
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             ci = AccountManager.NewAccount(ci.Parameter);
             return ci;
         }
 
         public CommandInfo ListAccounts()
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             var ci = AccountManager.ListAccount();
             return ci;
         }
 
         public CommandInfo UnlockAccount(CommandInfo ci)
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             var parameters = ci.Parameter.Split(" ");
             ci = AccountManager.UnlockAccount(parameters[0], parameters[1],
                 parameters[2]);
@@ -154,13 +149,9 @@ namespace AElf.Automation.Common.Helpers
 
         public void GetChainInformation(CommandInfo ci)
         {
-            var statusDto = ApiService.GetChainStatus().Result;
-
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
             _genesisAddress = statusDto.GenesisContractAddress;
-
             _chainId = statusDto.ChainId;
-            TransactionManager = new TransactionManager(_keyStore, _chainId);
-            AccountManager = new AccountManager(_keyStore, _chainId);
 
             ci.InfoMsg = statusDto;
             ci.Result = true;
@@ -184,7 +175,7 @@ namespace AElf.Automation.Common.Helpers
             };
 
             TransactionManager.SetCmdInfo(ci);
-            var tx = TransactionManager.CreateTransaction(from, _genesisAddress,
+            var tx = TransactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl, _chainId);
 
@@ -195,7 +186,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
 
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(rawTxString));
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
 
             ci.InfoMsg = transactionOutput;
             ci.Result = true;
@@ -212,7 +203,7 @@ namespace AElf.Automation.Common.Helpers
 
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tr);
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(rawTxString));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
             ci.Result = true;
         }
 
@@ -220,7 +211,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(1))
                 return;
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransaction(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(ci.Parameter));
             ci.Result = true;
         }
 
@@ -271,7 +262,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.BroadcastTransactions(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactions(ci.Parameter));
             ci.Result = true;
         }
 
@@ -352,7 +343,7 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             if (resp == null)
             {
-                _logger.WriteError($"Call response is null or empty.");
+                _logger.WriteError($"ExecuteTransaction response is null or empty.");
                 return default(T);
             }
 
@@ -364,14 +355,12 @@ namespace AElf.Automation.Common.Helpers
 
         public void QueryViewInfo(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.Call(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(ci.Parameter));
             ci.Result = true;
         }
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
         {
-            if (AccountManager == null)
-                AccountManager = new AccountManager(_keyStore, "AELF");
             AccountManager.UnlockAccount(account, password, "notimeout");
             return AccountManager.GetPublicKey(account);
         }
@@ -406,7 +395,7 @@ namespace AElf.Automation.Common.Helpers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.Call(rawTxString));
+            return AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(rawTxString));
         }
 
         private void InitializeWebApiRoute()
@@ -419,10 +408,10 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetBlockByHeight,
                 "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
             ApiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
-            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/broadcastTransaction");
-            ApiRoute.Add(ApiMethods.BroadcastTransaction, "/api/blockChain/broadcastTransaction");
-            ApiRoute.Add(ApiMethods.BroadcastTransactions, "/api/blockChain/broadcastTransactions");
-            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/call");
+            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction");
+            ApiRoute.Add(ApiMethods.SendTransaction, "/api/blockChain/sendTransaction");
+            ApiRoute.Add(ApiMethods.SendTransactions, "/api/blockChain/sendTransactions");
+            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/executeTransaction");
             ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
             ApiRoute.Add(ApiMethods.GetTransactionResults,
                 "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
@@ -431,6 +420,26 @@ namespace AElf.Automation.Common.Helpers
             ApiRoute.Add(ApiMethods.GetPeers, "/api/net/peers");
             ApiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
             ApiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
+        }
+
+        private TransactionManager GetTransactionManager()
+        {
+            if (_transactionManager != null) return _transactionManager;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _chainId = statusDto.ChainId;
+            _transactionManager = new TransactionManager(_keyStore, _chainId);
+            return _transactionManager;
+        }
+
+        private AccountManager GetAccountManager()
+        {
+            if (_accountManager != null) return _accountManager;
+            
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            _chainId = statusDto.ChainId;
+            _accountManager = new AccountManager(_keyStore, _chainId);
+            return _accountManager;
         }
     }
 }

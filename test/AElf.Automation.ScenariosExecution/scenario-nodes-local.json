@@ -1,0 +1,129 @@
+{
+  "BpNodes": [
+    {
+      "name": "bp1",
+      "service_url": "http://192.168.197.13:8100",
+      "account": "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+      "password": "123"
+    },
+    {
+      "name": "bp2",
+      "service_url": "http://192.168.197.28:8100",
+      "account": "jdJz9LkXkePfTHmHfYPaksnUueymUpHVRSsA7mRWCvkZpA2gL",
+      "password": "123"
+    },
+    {
+      "name": "bp3",
+      "service_url": "http://192.168.197.33:8100",
+      "account": "3PezHjVGutQefW54XjRNvXGN8SfNqz4v2pzuQZ7as5HwaVDeT",
+      "password": "123"
+    }
+  ],
+  "FullNodes": [
+    {
+      "name": "full1",
+      "service_url": "http://192.168.197.13:8200",
+      "account": "2hFhzBxTUURppc2jSGWqk2S87F6A3K6m2ZeLpfWW1NbEgJPGZ6",
+      "password": "123"
+    },
+    {
+      "name": "full2",
+      "service_url": "http://192.168.197.28:8200",
+      "account": "2RztK5m36HhQkSfMWYARmFiFLbBii7vvfryKkeAPLvboRARwVo",
+      "password": "123"
+    },
+    {
+      "name": "full3",
+      "service_url": "http://192.168.197.33:8200",
+      "account": "2eLNfXd3VTGy3S7ovPtq8nBHWaUhkYajKC9zVi9THZM4h53Z7E",
+      "password": "123"
+    },
+    {
+      "name": "full4",
+      "service_url": "http://192.168.197.13:8300",
+      "account": "uwf9dm1XLzVxTppyddm8n7GFaiowCfwbPprbMMvV4tGsNgrJo",
+      "password": "123"
+    },
+    {
+      "name": "full5",
+      "service_url": "http://192.168.197.28:8300",
+      "account": "2ppRtwS9LuRC8yDAgwgaYE9o732e7d46TSVPPCZXFQsTE8HZ15",
+      "password": "123"
+    },
+    {
+      "name": "full6",
+      "service_url": "http://192.168.197.33:8300",
+      "account": "vRdBe23WMCYFHUx2oiXbe7711M7sTzZbEa8ej2MeijotY5aC4",
+      "password": "123"
+    },
+    {
+      "name": "full7",
+      "service_url": "http://192.168.197.13:8400",
+      "account": "8AddcgFHmG1UAt2227uKE7QperwrqfTnGAGe3c7w7NsrDmTAc",
+      "password": "123"
+    },
+    {
+      "name": "full8",
+      "service_url": "http://192.168.197.28:8400",
+      "account": "2BWNCHS8foGEyvMtsYJ8AGzLUvJkP4zJ67bMFH59gUFozoCTev",
+      "password": "123"
+    },
+    {
+      "name": "full9",
+      "service_url": "http://192.168.197.33:8400",
+      "account": "2TDdgvDiY1zASihaB6wKsEpEd6o12TWrdPgTvpGgrmSn61NVyG",
+      "password": "123"
+    }
+  ],
+  "TestCases": [
+    {
+      "case_name": "TokenScenario",
+      "enable": false
+    },
+    {
+      "case_name": "ContractScenario",
+      "enable": true
+    },
+    {
+      "case_name": "ResourceScenario",
+      "enable": false
+    },
+    {
+      "case_name": "NodeScenario",
+      "enable": false
+    },
+    {
+      "case_name": "UserScenario",
+      "enable": false
+    }
+  ],
+  "UserCount": 100,
+  "Timeout": 300,
+  "SpecifyEndpoint": {
+    "enable": true,
+    "service_url": "http://192.168.197.13:8100"
+  },
+  "ContractsInfo": {
+    "AutoUpdate": true,
+    "Contracts": [
+      {
+        "name": "FeeReceiver",
+        "address": "RnQLF2SnJL9HLzBPtpzuPkDeLK34b9su7gtZ5TzVFvKP26DHw",
+        "code_hash": "5fdcf01450817cf58dbc3885eb1f33405c99c1c8fa07c4d39fab42f8d46b8e95",
+        "owner": "eCU8ih8w7Hozja3K61JZuVMCnc2kzHJMViadHCokwXgiwrgFS"
+      },
+      {
+        "name": "TokenConverter",
+        "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
+        "code_hash": "f32216e083efaa5a583ca814940ae6a6a629387d07089a7335f17f16d53e52aa",
+        "owner": "eCU8ih8w7Hozja3K61JZuVMCnc2kzHJMViadHCokwXgiwrgFS"
+      },
+      {
+        "name": "BasicFunction",
+        "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
+        "code_hash": "38122a009d4d1c83432a322da39b9d55d2f0d60a537e6dadcbb160679829264b",
+        "owner": "2s8F51BTnYzbNwPyEbJ3WAzjxDGMA8NwfkYNygFEqJt2JmYn1J"
+      }
+    ]
+  }
+}

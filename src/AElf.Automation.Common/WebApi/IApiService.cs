@@ -7,19 +7,19 @@ namespace AElf.Automation.Common.WebApi
 {
     public interface IApiService
     {
-        Task<string> Call(string rawTransaction);
-        
-        Task<TResult> Call<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new();
+        Task<string> ExecuteTransaction(string rawTransaction);
+
+        Task<TResult> ExecuteTransaction<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new();
 
         Task<byte[]> GetContractFileDescriptorSet(string address);
 
         Task<CreateRawTransactionOutput> CreateRawTransaction(CreateRawTransactionInput input);
-        
+
         Task<SendRawTransactionOutput> SendRawTransaction(SendRawTransactionInput input);
 
-        Task<BroadcastTransactionOutput> BroadcastTransaction(string rawTransaction);
+        Task<SendTransactionOutput> SendTransaction(string rawTransaction);
 
-        Task<string[]> BroadcastTransactions(string rawTransactions);
+        Task<string[]> SendTransactions(string rawTransactions);
 
         Task<TransactionResultDto> GetTransactionResult(string transactionId);
 
@@ -30,11 +30,15 @@ namespace AElf.Automation.Common.WebApi
         Task<BlockDto> GetBlock(string blockHash, bool includeTransactions = false);
 
         Task<BlockDto> GetBlockByHeight(long blockHeight, bool includeTransactions = false);
-        
+
         Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatus();
 
         Task<ChainStatusDto> GetChainStatus();
 
         Task<BlockStateDto> GetBlockState(string blockHash);
+        
+        Task<List<TaskQueueInfoDto>> GetTaskQueueStatus();
+
+        Task<RoundDto> GetCurrentRoundInformationAsync();
     }
 }

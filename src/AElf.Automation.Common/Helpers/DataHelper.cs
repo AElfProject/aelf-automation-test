@@ -55,7 +55,7 @@ namespace AElf.Automation.Common.Helpers
             valueList = new List<string>();
 
             JToken info = JObject.Parse(jsonInfo);
-            for (int i=0; i<pathArray.Length; i++)
+            for (int i = 0; i < pathArray.Length; i++)
             {
                 if (info[pathArray[i]] != null)
                 {
@@ -72,7 +72,6 @@ namespace AElf.Automation.Common.Helpers
                             var value = item.ToString();
                             //valueList.Add(item.Value<string>());
                             valueList.Add(value);
-
                         }
                     }
 
@@ -93,7 +92,7 @@ namespace AElf.Automation.Common.Helpers
             valueList = new List<string>();
 
             JToken info = jsonInfo;
-            for (int i=0; i<pathArray.Length; i++)
+            for (int i = 0; i < pathArray.Length; i++)
             {
                 if (info[pathArray[i]] != null)
                 {
@@ -150,7 +149,7 @@ namespace AElf.Automation.Common.Helpers
             }
             catch (Exception)
             {
-               Logger.WriteError($"Convert hex string got exception. Hex string value: {hexString}");
+                Logger.WriteError($"Convert hex string got exception. Hex string value: {hexString}");
             }
 
 

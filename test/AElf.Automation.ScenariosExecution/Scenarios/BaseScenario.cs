@@ -15,7 +15,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected List<Node> FullNodes { get; set; }
         protected static ContractServices Services { get; set; }
 
-        protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true, int sleepSeconds = 0)
+        protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true,
+            int sleepSeconds = 0)
         {
             while (true)
             {
@@ -28,7 +29,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 catch (Exception e)
                 {
                     Logger.WriteError($"ExecuteContinuousTasks got exception: {e.Message}");
-                    if(interrupted)
+                    if (interrupted)
                         break;
                 }
             }
@@ -43,16 +44,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     action.Invoke();
                 }
 
-                if(sleepSeconds != 0)
-                    Thread.Sleep(1000*sleepSeconds);
+                if (sleepSeconds != 0)
+                    Thread.Sleep(1000 * sleepSeconds);
             }
             catch (Exception e)
             {
                 Logger.WriteError($"ExecuteStandaloneTask got exception: {e.Message}");
-                throw;
             }
         }
-        
+
         public void CheckNodeTransactionAction()
         {
             var chain = new ChainSummary(Services.ApiHelper.GetApiUrl());
@@ -74,15 +74,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var checkTimes = 0;
             while (true)
             {
-                if(checkTimes == 120)
+                if (checkTimes == 120)
                     break;
-                
+
                 var newHeight = Services.ApiHelper.ApiService.GetBlockHeight().Result;
                 if (newHeight == height)
                 {
                     checkTimes++;
-                    if(checkTimes % 10 == 0)
-                        Logger.WriteWarn($"Node height not changed {checkTimes/2} seconds.");
+                    if (checkTimes % 10 == 0)
+                        Logger.WriteWarn($"Node height not changed {checkTimes / 2} seconds.");
                     Thread.Sleep(500);
                 }
                 else
@@ -91,14 +91,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     checkTimes = 0;
                 }
             }
-            Assert.IsTrue(false,$"Node height not changed 1 minutes later.");
+
+            Assert.IsTrue(false, $"Node height not changed 1 minutes later.");
         }
 
         protected void InitializeScenario()
         {
             var envCheck = EnvCheck.GetDefaultEnvCheck();
             AllTesters = envCheck.GenerateOrGetTestUsers();
-            if(Services == null)
+            if (Services == null)
                 Services = envCheck.GetContractServices();
 
             var configInfo = ConfigInfoHelper.Config;

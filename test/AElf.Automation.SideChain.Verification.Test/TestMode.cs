@@ -7,5 +7,4 @@ namespace AElf.Automation.SideChain.Verification.Test
         VerifySideTx = 2,
         CrossChainTransfer = 3
     }
-
 }

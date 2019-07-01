@@ -21,10 +21,11 @@ namespace AElf.Automation.Common.Contracts
         LockResource,
         WithdrawResource
     }
+
     public class ResourceContract : BaseContract<ResourceMethod>
     {
         public ResourceContract(IApiHelper apiHelper, string callAddress)
-            :base(apiHelper, "AElf.Contracts.Resource", callAddress)
+            : base(apiHelper, "AElf.Contracts.Resource", callAddress)
         {
         }
 

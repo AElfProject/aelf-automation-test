@@ -7,21 +7,22 @@ namespace AElf.Automation.Common.Contracts
         //View
         GetOrganization,
         GetProposal,
+
         //Action
         CreateOrganization,
         Approve,
         CreateProposal,
-        
-        
     }
 
-    public class AssociationAuthContract:BaseContract<AssociationAuthMethod>
+    public class AssociationAuthContract : BaseContract<AssociationAuthMethod>
     {
-        public AssociationAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.AssociationAuth", account)
+        public AssociationAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.AssociationAuth",
+            account)
         {
         }
 
-        public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch, contractAddress)
+        public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
+            contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

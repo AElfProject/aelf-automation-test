@@ -10,8 +10,8 @@
         //Chain
         GetChainInformation,
         DeploySmartContract,
-        BroadcastTransaction,
-        BroadcastTransactions,
+        SendTransaction,
+        SendTransactions,
         GetCommands,
         GetTransactionResult,
         GetTransactionResults,
@@ -27,7 +27,9 @@
         CreateRawTransaction,
         GetContractFileDescriptorSet,
         QueryView,
-        Call,
+        ExecuteTransaction,
+        CurrentRoundInformation,
+        TaskQueueStatus,
 
         //Net
         GetPeers,

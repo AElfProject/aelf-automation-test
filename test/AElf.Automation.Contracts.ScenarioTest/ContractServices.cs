@@ -18,16 +18,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-        
+
         public ContractServices(IApiHelper apiHelper, string callAddress)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
             CallAccount = Address.Parse(callAddress);
-            
+
             //connect chain
             ConnectionChain();
-            
+
             //get all contract services
             GetAllContractServices();
         }
@@ -35,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetAllContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
-            
+
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
@@ -59,12 +59,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
-            
+
             //Association contract
 //            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssciationName);
             var associationAuthAddress = "x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ";
             AssociationAuthService = new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress);
         }
+
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

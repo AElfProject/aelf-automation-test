@@ -7,21 +7,22 @@ namespace AElf.Automation.Common.Contracts
         InitialBasicFunctionContract,
         UpdateBetLimit,
         UserPlayBet,
-        
+
         QueryWinMoney,
         QueryRewardMoney,
         QueryUserWinMoney,
         QueryUserLoseMoney
     }
+
     public class BasicFunctionContract : BaseContract<FunctionMethod>
     {
         public BasicFunctionContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
-        :base(apiHelper, dividendsAddress)
+            : base(apiHelper, dividendsAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
-        
+
         public BasicFunctionContract(IApiHelper apiHelper, string callAddress)
             : base(apiHelper, "AElf.Contracts.TestContract.BasicFunction", callAddress)
         {

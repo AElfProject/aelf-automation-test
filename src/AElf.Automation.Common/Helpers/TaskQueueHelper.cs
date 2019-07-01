@@ -29,7 +29,7 @@ namespace AElf.Automation.Common.Helpers
 
     public interface ITaskQueue<T> : IDisposable
     {
-        void Start(int customerCount=1, bool enableTimeout = false);
+        void Start(int customerCount = 1, bool enableTimeout = false);
         void Stop();
         void Enqueue(T task);
         void SetTimeout(int seconds);

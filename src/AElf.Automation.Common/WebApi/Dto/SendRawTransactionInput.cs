@@ -6,12 +6,12 @@ namespace AElf.Automation.Common.WebApi.Dto
         /// raw transaction
         /// </summary>
         public string Transaction { get; set; }
-        
+
         /// <summary>
         /// signature
         /// </summary>
         public string Signature { get; set; }
-        
+
         /// <summary>
         /// return transaction detail or not
         /// </summary>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,38 +16,58 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public BasicFunctionContract FunctionContract { get; set; }
         public BasicUpdateContract UpdateContract { get; set; }
         public GenesisContract Genesis { get; }
-        public bool IsUpdateContract { get; set; }
+        public string ContractAddress { get; set; }
+        public static bool IsUpdateContract { get; set; }
+        public static string ContractManager { get; set; }
+        public static string ContractOwner { get; set; }
         public List<string> Testers { get; }
+
         public ContractScenario()
         {
             InitializeScenario();
 
             Genesis = Services.GenesisService;
+            FunctionContract = Services.FunctionContractService;
+            UpdateContract = Services.UpdateContractService;
+            ContractAddress = FunctionContract == null
+                ? UpdateContract.ContractAddress
+                : FunctionContract.ContractAddress;
             Testers = AllTesters.GetRange(0, 5);
         }
 
         public void RunContractScenario()
         {
-            DeployTestContract();
-            
+            InitializeTestContract();
+
             ExecuteTestContractMethod();
-            
+
             UpdateTestContractCode();
-            
+
             ExecuteTestContractNewMethod();
-            
+
             UpdateTestContractOwner();
-            
+
             ExecuteTestContractMethod();
         }
 
-        private void DeployTestContract()
+        public void RunContractScenarioJob()
         {
-            if (FunctionContract != null)
+            ExecuteStandaloneTask(new Action[]
+            {
+                //InitializeTestContract,
+                ExecuteTestContractMethod,
+                ExecuteTestContractNewMethod,
+                UpdateTestContractCode,
+                UpdateTestContractOwner
+            });
+        }
+
+        private void InitializeTestContract()
+        {
+            if (UpdateContract != null)
                 return;
-            
+
             Logger.WriteInfo("Test deploy customer contract.");
-            FunctionContract = new BasicFunctionContract(Services.ApiHelper, Services.CallAddress);
             FunctionContract.ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
                 new InitialBasicContractInput
                 {
@@ -63,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 MinValue = 50,
                 MaxValue = 100
             });
-            
+
             IsUpdateContract = false;
         }
 
@@ -75,60 +96,67 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var account in Testers.GetRange(1, Testers.Count - 1))
             {
                 FunctionContract.SetAccount(account);
+                var winMoney = FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney, Address.Parse(account));
                 FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
-                    Int64Value = GenerateRandomNumber(50, 100)
+                    Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
                 });
-                Thread.Sleep(10 * 1000);
+                Thread.Sleep(3 * 1000);
             }
+
             Logger.WriteInfo("Test contract old methods executed successful.");
         }
 
         private void UpdateTestContractOwner()
         {
-            var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
+            var owner = Genesis.GetContractOwner(ContractAddress);
             var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
             var id = GenerateRandomNumber(0, Testers.Count - 2);
 
             Genesis.SetAccount(owner.GetFormatted());
-            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractOwner, new ChangeContractOwnerInput
-            {
-                ContractAddress = Address.Parse(FunctionContract.ContractAddress),
-                NewOwner = Address.Parse(ownerCandidates[id])
-            });
+            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractOwner,
+                new ChangeContractOwnerInput
+                {
+                    ContractAddress = Address.Parse(FunctionContract.ContractAddress),
+                    NewOwner = Address.Parse(ownerCandidates[id])
+                });
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)
             {
-                if(txDto.Status != "Mined")
+                if (txDto.Status != "Mined")
                     Logger.WriteError(txDto.Error);
             }
-            
+
             var newOwner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
-            if(newOwner.GetFormatted() == ownerCandidates[id])
+            if (newOwner.GetFormatted() == ownerCandidates[id])
                 Logger.WriteInfo($"TestContract owner updated from {owner} to {newOwner}");
         }
 
         private void UpdateTestContractCode()
         {
-            var owner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
-            
+            var owner = Genesis.GetContractOwner(ContractAddress);
+
             Genesis.SetAccount(owner.GetFormatted());
             if (!IsUpdateContract)
             {
                 //update to update contract
-                var result = Genesis.UpdateContract(owner.GetFormatted(), FunctionContract.ContractAddress, BasicUpdateContract.ContractFileName);
+                var result = Genesis.UpdateContract(owner.GetFormatted(), FunctionContract.ContractAddress,
+                    BasicUpdateContract.ContractFileName);
                 if (!result) return;
                 IsUpdateContract = true;
-                UpdateContract = new BasicUpdateContract(Services.ApiHelper, owner.GetFormatted(), FunctionContract.ContractAddress);
+                UpdateContract = new BasicUpdateContract(Services.ApiHelper, owner.GetFormatted(),
+                    FunctionContract.ContractAddress);
                 Logger.WriteInfo("Update contract to UpdateContract successful.");
             }
             else
             {
                 //update to basic contract
-                var result = Genesis.UpdateContract(owner.GetFormatted(), UpdateContract.ContractAddress, BasicFunctionContract.ContractFileName);
+                var result = Genesis.UpdateContract(owner.GetFormatted(), UpdateContract.ContractAddress,
+                    BasicFunctionContract.ContractFileName);
                 if (!result) return;
                 IsUpdateContract = false;
-                FunctionContract = new BasicFunctionContract(Services.ApiHelper, owner.GetFormatted(), UpdateContract.ContractAddress);
+                FunctionContract = new BasicFunctionContract(Services.ApiHelper, owner.GetFormatted(),
+                    UpdateContract.ContractAddress);
                 Logger.WriteInfo("Update contract to BasicContract successful.");
             }
         }
@@ -137,10 +165,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             if (!IsUpdateContract)
                 return;
-            
-            var manager = Testers[0];
-            UpdateContract.SetAccount(manager);
-            
+
+            UpdateContract.SetAccount(Services.CallAddress); //set manager account
+
             //execute new method
             var txResult = UpdateContract.ExecuteMethodWithResult(UpdateMethod.UpdateMortgage, new BetInput
             {
@@ -152,11 +179,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Logger.WriteError(txDto.Error);
                 return;
             }
+
             Logger.WriteInfo("New contract action method executed successful.");
-            
+
             //call New method
             var result = UpdateContract.CallViewMethod<BetStatus>(UpdateMethod.QueryBetStatus, new Empty());
-            if(!result.BoolValue)
+            if (!result.BoolValue)
                 Logger.WriteInfo("New contract view method called successful.");
         }
     }

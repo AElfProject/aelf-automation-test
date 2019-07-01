@@ -30,10 +30,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initialize()
         {
             #region Basic Preparation
+
             //Init Logger
             var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
+
             #endregion
         }
 
@@ -66,7 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Memo = "Test transfer with new sdk"
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //query balance
             var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
@@ -75,7 +77,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             result.Balance.ShouldBeGreaterThanOrEqualTo(100);
         }
-        
+
         /*
         [TestMethod]
         public void QueryTokenFeeAddress()

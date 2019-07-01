@@ -13,13 +13,13 @@ namespace AElf.Automation.Common.Contracts
         Withdraw,
         WithdrawAll,
         Burn,
-        
+
         //view
         GetElfTokenAddress,
         GetFoundationAddress,
         GetOwedToFoundation
     }
-    
+
     public class FeeReceiverContract : BaseContract<FeeReceiverMethod>
     {
         public FeeReceiverContract(IApiHelper apiHelper, string callAddress, string feeReceiverAddress) :
@@ -30,7 +30,7 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public FeeReceiverContract(IApiHelper apiHelper, string callAddress)
-            :base(apiHelper, "AElf.Contracts.Resource.FeeReceiver", callAddress)
+            : base(apiHelper, "AElf.Contracts.Resource.FeeReceiver", callAddress)
         {
         }
 

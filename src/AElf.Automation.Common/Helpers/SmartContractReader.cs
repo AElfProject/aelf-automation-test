@@ -7,7 +7,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private const string ContractExtension = ".dll";
         private const string ContractFolderName = "contracts";
-        
+
         private readonly string _dataDirectory;
 
         public SmartContractReader()
@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.Helpers
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Return the full path of the files 
         /// </summary>

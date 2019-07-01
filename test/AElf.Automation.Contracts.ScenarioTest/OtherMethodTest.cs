@@ -21,7 +21,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ConvertTest()
         {
-            string rpcMessage = "{\"result\":\"Mined\", \"message\":\"Test successful.\", \"return_code\":\"90000\", \"detail\":{\"info\":\"successful\"}}";
+            string rpcMessage =
+                "{\"result\":\"Mined\", \"message\":\"Test successful.\", \"return_code\":\"90000\", \"detail\":{\"info\":\"successful\"}}";
             var result1 = DataHelper.TryGetValueFromJson(out var message1, rpcMessage, "return_code");
             var result2 = DataHelper.TryGetValueFromJson(out var message2, rpcMessage, "detail", "info");
         }

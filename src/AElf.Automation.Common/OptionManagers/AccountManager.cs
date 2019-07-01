@@ -7,6 +7,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -14,26 +15,29 @@ namespace AElf.Automation.Common.OptionManagers
     {
         private readonly AElfKeyStore _keyStore;
         private readonly string _chainId;
-        private readonly List<string> _accounts;
+        private List<string> _accounts;
 
         public AccountManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
             _chainId = chainId;
-            _accounts = _keyStore.ListAccountsAsync().Result;
+            _accounts = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync());
         }
 
         public CommandInfo NewAccount(string password = "")
         {
-            var result = new CommandInfo(ApiMethods.AccountList);
+            var result = new CommandInfo(ApiMethods.AccountNew);
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = password;
-            var keypair = _keyStore.CreateAsync(password, _chainId).Result;
+            var keypair = AsyncHelper.RunSync(()=>_keyStore.CreateAsync(password, _chainId));
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
-            if (addr == null) return result;
+            if (addr == null)
+            {
+                return result;
+            }
             result.Result = true;
             var account = addr.GetFormatted();
             result.InfoMsg = account;
@@ -46,10 +50,11 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var result = new CommandInfo(ApiMethods.AccountList)
             {
-                InfoMsg = _keyStore.ListAccountsAsync().Result
+                InfoMsg = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync())
             };
-            if (result.InfoMsg != null)
-                result.Result = true;
+            if (result.InfoMsg == null) return result;
+            result.Result = true;
+            _accounts = (List<string>) result.InfoMsg;
 
             return result;
         }
@@ -73,7 +78,7 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             var timeout = notimeout == "";
-            var tryOpen = _keyStore.OpenAsync(address, password, timeout).Result;
+            var tryOpen = AsyncHelper.RunSync(()=>_keyStore.OpenAsync(address, password, timeout));
 
             switch (tryOpen)
             {

@@ -14,7 +14,7 @@ namespace AElf.Automation.Common.Contracts
         DeploySmartContract,
         UpdateSmartContract,
         ChangeContractOwner,
-        
+
         //view
         CurrentContractSerialNumber,
         GetContractInfo,
@@ -31,22 +31,25 @@ namespace AElf.Automation.Common.Contracts
         VoteSystemName,
         TokenName,
         TokenConverterName,
-        FeeReceiverName,        
+        FeeReceiverName,
         ConsensusName,
         ParliamentName,
         CrossChainName,
-        AssciationName
+        AssciationName,
+        Configuration,
         
+        BasicFunction
     }
+    
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        private readonly Dictionary<NameProvider, Hash> _nameProviders = new Dictionary<NameProvider, Hash>();
+        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+
         private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
             base(apiHelper, genesisAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
-            InitializeSystemContractName();
         }
 
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
@@ -54,7 +57,8 @@ namespace AElf.Automation.Common.Contracts
             var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
             ch.GetChainInformation(chainInfo);
             var genesisContract = ch.GetGenesisContractAddress();
-            
+            Logger.WriteInfo($"Genesis contract Address: {genesisContract}");
+
             return new GenesisContract(ch, callAddress, genesisContract);
         }
 
@@ -62,11 +66,11 @@ namespace AElf.Automation.Common.Contracts
         {
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(contractFileName);
-            
+
             var contractOwner = GetContractOwner(contractAddress);
-            if(contractOwner.GetFormatted() != account)
+            if (contractOwner.GetFormatted() != account)
                 Logger.WriteError("Account have no permission to update.");
-            
+
             SetAccount(account);
             var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
             {
@@ -76,12 +80,14 @@ namespace AElf.Automation.Common.Contracts
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
             return txDto.Status == "Mined";
         }
-        
+
         public Address GetContractAddressByName(NameProvider name)
         {
-            var hash = _nameProviders[name];
+            var hash = NameProviderInfos[name];
 
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
+            var addString = address != new Address() ? address.GetFormatted() : "null";
+            Logger.WriteInfo($"{name.ToString().Replace("Name", "")} contract address: {addString}");
 
             return address;
         }
@@ -92,24 +98,31 @@ namespace AElf.Automation.Common.Contracts
 
             return address;
         }
-        
+
         public Address GetContractOwner(string contractAddress)
         {
             return GetContractOwner(Address.Parse(contractAddress));
         }
 
-        private void InitializeSystemContractName()
+        private static Dictionary<NameProvider, Hash> InitializeSystemContractsName()
         {
-            _nameProviders.Add(NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election"));
-            _nameProviders.Add(NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit"));
-            _nameProviders.Add(NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote"));
-            _nameProviders.Add(NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token"));
-            _nameProviders.Add(NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter"));
-            _nameProviders.Add(NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver"));
-            _nameProviders.Add(NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus"));
-            _nameProviders.Add(NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament"));
-            _nameProviders.Add(NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain"));
-            _nameProviders.Add(NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association"));
+            var dic = new Dictionary<NameProvider, Hash>
+            {
+                {NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election")},
+                {NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit")},
+                {NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote")},
+                {NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token")},
+                {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},
+                {NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver")},
+                {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
+                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
+                {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
+                {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
+                {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},
+                {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
+            };
+
+            return dic;
         }
     }
 }

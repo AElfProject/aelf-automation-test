@@ -18,7 +18,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string Full2Url = "http://192.168.199.205:8200";
         public string Full3Url = "http://192.168.199.205:8300";
         public string Full4Url = "http://192.168.199.205:8400";
-        
+
         protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
         protected IApiHelper CH { get; set; }
 
@@ -45,7 +45,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow("http://192.168.197.13:8000","192.168.197.205:6810")]
+        [DataRow("http://192.168.197.13:8000", "192.168.197.205:6810")]
         public void AddPeers(string url, params string[] addressArray)
         {
             var service = new WebApiService(url);
@@ -56,9 +56,9 @@ namespace AElf.Automation.EconomicSystem.Tests
                 _logger.WriteInfo($"Add peer {address} result: {result}");
             }
         }
-        
+
         [TestMethod]
-        [DataRow("http://192.168.197.13:8000","192.168.197.28:6800")]
+        [DataRow("http://192.168.197.13:8000", "192.168.197.28:6800")]
         public void RemovePeers(string url, params string[] addressArray)
         {
             var service = new WebApiService(url);
@@ -68,9 +68,8 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var result = service.RemovePeer(address).Result;
                 _logger.WriteInfo($"Remove peer {address} result: {result}");
             }
-            
+
             GetPeers(url);
         }
-        
     }
 }

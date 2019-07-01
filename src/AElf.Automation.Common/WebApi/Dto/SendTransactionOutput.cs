@@ -1,6 +1,6 @@
 namespace AElf.Automation.Common.WebApi.Dto
 {
-    public class BroadcastTransactionOutput
+    public class SendTransactionOutput
     {
         public string TransactionId { get; set; }
     }

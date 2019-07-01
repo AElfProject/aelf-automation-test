@@ -6,9 +6,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
-using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -33,12 +34,12 @@ namespace AElf.Automation.Common.Helpers
             var httpClient = GetDefaultClient();
             try
             {
-                var response = httpClient.PostAsync(url, httpContent).Result;
+                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
 
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = response.Content.ReadAsStringAsync().Result;
+                    var result = AsyncHelper.RunSync(response.Content.ReadAsStringAsync);
                     return result;
                 }
             }
@@ -74,11 +75,11 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 exec.Start();
-                var response = httpClient.PostAsync(url, httpContent).Result;
+                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = response.Content.ReadAsStringAsync().Result;
+                    var result = AsyncHelper.RunSync(response.Content.ReadAsStringAsync);
                     return result;
                 }
             }
@@ -106,7 +107,7 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> GetResponseAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            $"Get request to: {url}".WriteSuccessLine();
+            //$"Get request to: {url}".WriteSuccessLine();
             var strResponse = await GetResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -126,7 +127,7 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            $"Post request to: {url}".WriteSuccessLine();
+            //$"Post request to: {url}".WriteSuccessLine();
             var strResponse = await PostResponseAsStringAsync(url, parameters, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -142,16 +143,28 @@ namespace AElf.Automation.Common.Helpers
         }
 
         private static async Task<HttpResponseMessage> GetResponseAsync(string url, string version = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK, int retryTimes = 0)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             var client = GetDefaultClient(version);
 
-            var response = await client.GetAsync(url);
-            if (response.StatusCode == expectedStatusCode) return response;
-            var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
+            try
+            {
+                var response = await client.GetAsync(url);
+                if (response.StatusCode == expectedStatusCode) return response;
+                var message = await response.Content.ReadAsStringAsync();
+                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                throw new HttpRequestException();
+            }
+            catch (Exception)
+            {
+                retryTimes++;
+                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                
+                Logger.WriteWarn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
+                Thread.Sleep(5000);
+                return await GetResponseAsync(url, version, expectedStatusCode, retryTimes);
+            }
         }
 
         private static async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> parameters,
@@ -164,7 +177,7 @@ namespace AElf.Automation.Common.Helpers
         private static async Task<HttpResponseMessage> PostResponseAsync(string url,
             Dictionary<string, string> parameters,
             string version = null, bool useApplicationJson = false,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK, int retryTimes = 0)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             var client = GetDefaultClient(version);
@@ -182,17 +195,28 @@ namespace AElf.Automation.Common.Helpers
                     MediaTypeHeaderValue.Parse($"application/x-www-form-urlencoded{version}");
             }
 
-            var response = await client.PostAsync(url, content);
-            if (response.StatusCode == expectedStatusCode) return response;
-            var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
+            try
+            {
+                var response = await client.PostAsync(url, content);
+                if (response.StatusCode == expectedStatusCode) return response;
+                var message = await response.Content.ReadAsStringAsync();
+                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                throw new HttpRequestException();
+            }
+            catch (Exception)
+            {
+                retryTimes++;
+                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                
+                Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
+                Thread.Sleep(5000);
+                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
+            }
         }
 
         public static async Task<T> DeleteResponseAsObjectAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            $"Delete request to: {url}".WriteSuccessLine();
             var strResponse = await DeleteResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -208,23 +232,38 @@ namespace AElf.Automation.Common.Helpers
         }
 
         private static async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK, int retryTimes = 0)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             var client = GetDefaultClient(version);
 
-            var response = await client.DeleteAsync(url);
-            if (response.StatusCode == expectedStatusCode) return response;
-            var message = await response.Content.ReadAsStringAsync();
-            message.WriteErrorLine();
-            throw new Exception(response.StatusCode.ToString());
-
+            try
+            {
+                var response = await client.DeleteAsync(url);
+                if (response.StatusCode == expectedStatusCode) return response;
+                var message = await response.Content.ReadAsStringAsync();
+                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                throw new HttpRequestException();
+            }
+            catch (Exception e)
+            {
+                retryTimes++;
+                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                
+                Logger.WriteWarn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
+                Thread.Sleep(5000);
+                return await DeleteResponseAsync(url, version, expectedStatusCode);
+            }
         }
 
         private static HttpClient GetDefaultClient(string version = null)
         {
             if (Client != null) return Client;
-            Client = new HttpClient();
+
+            Client = new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(3)
+            };
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
@@ -233,6 +272,8 @@ namespace AElf.Automation.Common.Helpers
             return Client;
         }
 
+        private static int MaxRetryTimes { get; set; } = 5;
         private static HttpClient Client { get; set; }
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
     }
 }

@@ -7,13 +7,16 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ContractsTesting
 {
     class Program
     {
         #region Private Properties
+
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+
         #endregion
 
         #region Parameter Option
@@ -46,44 +49,32 @@ namespace AElf.Automation.ContractsTesting
         private void OnExecute()
         {
             #region Basic Preparation
+
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
             var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
             
-            /*
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ch.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Account preparation
-            Users = new List<string>();
-
-            for (var i = 0; i < 5; i++)
-            {
-                ci = new CommandInfo(ApiMethods.AccountNew)
-                {
-                    Parameter = "123"
-                };
-                ci = ch.NewAccount(ci);
-                if(ci.Result)
-                    Users.Add(ci.InfoMsg.ToString().Replace("Account address:", "").Trim());
-
-                //unlock
-                var uc = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{Users[i]} 123 notimeout"
-                };
-                ch.UnlockAccount(uc);
-            }
-            */
+            //deploy contract
+            var contractExecution = new ContractExecution(Endpoint);
+            contractExecution.DeployTestContract();
+            AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+            AsyncHelper.RunSync(contractExecution.UpdateContract);
+            AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
             
+            //configuration set
+            var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
+            configTransaction.GetTransactionLimit();
+            configTransaction.SetTransactionLimit(50);
+            configTransaction.GetTransactionLimit();
+            Console.ReadLine();
+
             #endregion
 
             #region Node status check
+
             NodesState.GetAllBlockTimes("bp1", "http://192.168.197.13:8100");
             Console.ReadLine();
             NodesState.GetAllBlockTimes("bp2", "http://192.168.197.29:8100");
@@ -107,9 +98,10 @@ namespace AElf.Automation.ContractsTesting
             #endregion
 
             #region Block verify testing
+
             var heightCi = new CommandInfo(ApiMethods.GetBlockHeight);
             ch.GetBlockHeight(heightCi);
-            var height = (long)heightCi.InfoMsg;
+            var height = (long) heightCi.InfoMsg;
             for (var i = 1; i <= height; i++)
             {
                 var blockCi = new CommandInfo(ApiMethods.GetBlockByHeight)
@@ -118,7 +110,7 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.GetBlockByHeight(blockCi);
                 var blockInfo = blockCi.InfoMsg as BlockDto;
-                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}", 
+                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}",
                     i,
                     blockInfo?.BlockHash,
                     blockInfo?.Body.TransactionsCount);

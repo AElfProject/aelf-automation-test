@@ -31,6 +31,7 @@ namespace AElf.Automation.Common.Contracts
         GetAllowance,
         IsInWhiteList
     }
+
     public class TokenContract : BaseContract<TokenMethod>
     {
         public TokenContract(IApiHelper apiHelper, string callAddress) :
@@ -38,7 +39,7 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
             base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;

@@ -20,7 +20,7 @@
   
   <ItemGroup>
     <ProtoMessage Include="..\AElf\protobuf\acs0.proto">
-      <Link>Protobuf/Proto/stub/acs0.proto</Link>
+      <Link>Protobuf\Proto\stub\acs0.proto</Link>
     </ProtoMessage>
     <ProtoMessage Include="..\AElf\protobuf\acs1.proto">
       <Link>Protobuf\Proto\stub\acs1.proto</Link>
@@ -31,21 +31,21 @@
     <ProtoMessage Include="..\AElf\protobuf\acs7.proto">
       <Link>Protobuf\Proto\stub\acs7.proto</Link>
     </ProtoMessage>
-    <ProtoMessage Include="..\AElf\protobuf\test_basic_function_contract.proto">
-      <Link>Protobuf/Proto/stub/test_basic_function_contract.proto</Link>
-    </ProtoMessage>
-    <ProtoMessage Include="..\AElf\protobuf\test_basic_update_contract.proto">
-      <Link>Protobuf/Proto/stub/test_basic_update_contract.proto</Link>
-    </ProtoMessage>
+    <ProtoContract Include="..\AElf\protobuf\test_basic_function_contract.proto">
+      <Link>Protobuf\Proto\stub\test_basic_function_contract.proto</Link>
+    </ProtoContract>
+    <ProtoContract Include="..\AElf\protobuf\test_basic_update_contract.proto">
+      <Link>Protobuf\Proto\stub\test_basic_update_contract.proto</Link>
+    </ProtoContract>
     <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
       <Link>Protobuf\Proto\stub\token_contract.proto</Link>
     </ProtoContract>
     <ProtoContract Include="..\AElf\protobuf\fee_receiver_contract.proto">
       <Link>Protobuf\Proto\stub\fee_receiver_contract.proto</Link>
     </ProtoContract>
-    <ProtoMessage Include="..\AElf\protobuf\basic_contract_zero.proto">
+    <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
       <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
-    </ProtoMessage>
+    </ProtoContract>
     <ProtoMessage Include="..\AElf\protobuf\election_contract.proto">
       <Link>Protobuf\Proto\stub\election_contract.proto</Link>
     </ProtoMessage>
@@ -70,6 +70,9 @@
     <ProtoMessage Include="..\AElf\protobuf\cross_chain_contract.proto">
       <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
     </ProtoMessage>
+    <ProtoContract Include="..\AElf\protobuf\configuration.proto">
+      <Link>Protobuf\Proto\stub\configuration.proto</Link>
+    </ProtoContract>
   </ItemGroup>
 
   <ItemGroup>

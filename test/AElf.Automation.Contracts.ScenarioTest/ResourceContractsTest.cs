@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
         public string FeeReceiverAccount { get; } = "";
         public string ManagerAccount { get; } = "";
-        
+
         //Contract service List
         public TokenContract tokenService { get; set; }
         public FeeReceiverContract feeReceiverService { get; set; }
@@ -33,6 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initialize()
         {
             #region Basic Preparation
+
             //Init Logger
             string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
@@ -46,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //Get MultiToken and TokenConverter contract address 
-           
+
 
             //Account preparation
             AccList = new List<string>();
@@ -65,6 +66,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 };
                 ApiHelper.UnlockAccount(ic);
             }
+
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{InitAccount} 123 notimeout"
@@ -73,11 +75,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init services
             PrepareUserTokens();
-            
+
             PrepareFeeReceiverContract();
-            
+
             tokenConverterService = new TokenConverterContract(ApiHelper, InitAccount);
-            
+
             #endregion
         }
 
@@ -124,13 +126,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 TotalSupply = 1000_000L
             });
             tokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
-            {  
+            {
                 Symbol = TokenSymbol,
                 Amount = 1000_000L,
                 To = Address.Parse(InitAccount),
                 Memo = "Issue token to init account"
             });
-            
+
             foreach (var acc in AccList)
             {
                 tokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
@@ -141,15 +143,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     To = Address.Parse(acc)
                 });
             }
+
             tokenService.CheckTransactionResultList();
-            
+
             foreach (var acc in AccList)
             {
-                var queryResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
-                {
-                    Symbol = TokenSymbol,
-                    Owner = Address.Parse(acc)
-                });
+                var queryResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                    new GetBalanceInput
+                    {
+                        Symbol = TokenSymbol,
+                        Owner = Address.Parse(acc)
+                    });
                 Logger.WriteInfo($"Account: {acc}, Balance: {queryResult.Balance}");
             }
         }
@@ -166,7 +170,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ManagerAddress = Address.Parse(ManagerAccount)
             });
         }
-        
+
         private void PrepareResourceToken()
         {
             //Init
@@ -178,25 +182,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 IsPurchaseEnabled = true,
                 IsVirtualBalanceEnabled = false
             };
-            
+
             var netConnector = new Connector
             {
                 Symbol = "NET",
                 VirtualBalance = 0,
                 Weight = "0.5",
                 IsPurchaseEnabled = true,
-                IsVirtualBalanceEnabled = false 
+                IsVirtualBalanceEnabled = false
             };
-            
+
             var cpuConnector = new Connector
             {
                 Symbol = "CPU",
                 VirtualBalance = 0,
                 Weight = "0.5",
                 IsPurchaseEnabled = true,
-                IsVirtualBalanceEnabled = false 
+                IsVirtualBalanceEnabled = false
             };
-            
+
             tokenConverterService.ExecuteMethodWithResult(TokenConverterMethod.Initialize, new InitializeInput
             {
                 BaseTokenSymbol = TokenSymbol,
@@ -204,7 +208,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ManagerAddress = Address.Parse(ManagerAccount),
                 TokenContractAddress = Address.Parse(TokenContract),
                 FeeReceiverAddress = Address.Parse(FeeReceiverAccount),
-                Connectors = {ramConnector, netConnector, cpuConnector }
+                Connectors = {ramConnector, netConnector, cpuConnector}
             });
 
             //Issue

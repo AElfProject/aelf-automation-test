@@ -32,7 +32,8 @@ namespace AElf.Automation.ContractsTesting
                     var chainStatus = nodeStatus.GetChainInformation();
                     Log.WriteInfo($"Chain Status: {JsonConvert.SerializeObject(chainStatus)}");
                     var blockInfo = nodeStatus.GetBlockInfo(height);
-                    var blockMessage = $"Node: {name}, Height: {blockInfo.Header.Height}, BlockHash: {blockInfo.BlockHash}, Transaction Count: {blockInfo.Body.TransactionsCount}";
+                    var blockMessage =
+                        $"Node: {name}, Height: {blockInfo.Header.Height}, BlockHash: {blockInfo.BlockHash}, Transaction Count: {blockInfo.Body.TransactionsCount}";
                     Log.WriteInfo(blockMessage);
                     Thread.Sleep(500);
                 }
@@ -49,7 +50,8 @@ namespace AElf.Automation.ContractsTesting
             {
                 var height = i;
                 var blockInfo = nodeStatus.GetBlockInfo(height);
-                Log.WriteInfo($"Node: {name}, Height={blockInfo.Header.Height}, TxCount={blockInfo.Body.TransactionsCount}, Time={blockInfo.Header.Time:hh:mm:ss.fff}");
+                Log.WriteInfo(
+                    $"Node: {name}, Height={blockInfo.Header.Height}, TxCount={blockInfo.Body.TransactionsCount}, Time={blockInfo.Header.Time:hh:mm:ss.fff}");
             }
         }
     }
