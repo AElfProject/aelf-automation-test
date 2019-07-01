@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.WebApi;
-using AElf.Cryptography;
 using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;

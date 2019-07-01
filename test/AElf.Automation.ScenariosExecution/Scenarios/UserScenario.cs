@@ -160,14 +160,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public static void GetCandidates(ElectionContract election)
         {
             var candidatePublicKeys = election.CallViewMethod<Candidates>(ElectionMethod.GetCandidates, new Empty());
-            _candidates = candidatePublicKeys.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            _candidates = candidatePublicKeys.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
         }
 
         private void GetCandidatesExcludeCurrentMiners()
         {
             //query current miners
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             
             //query current candidates
             _candidatesExcludeMiners = new List<string>();

@@ -96,7 +96,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             var currentMiners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minerKeysList = currentMiners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minerKeysList = currentMiners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             foreach (var fullNode in FullNodes)
             {
                 if (!candidatesKeysList.Contains(fullNode.PublicKey) || minerKeysList.Contains(fullNode.PublicKey))
@@ -210,7 +210,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void GetCurrentMinersInformation(long termNumber)
         {
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var minerArray = new List<string>();
             foreach (var bp in BpNodes)
             {

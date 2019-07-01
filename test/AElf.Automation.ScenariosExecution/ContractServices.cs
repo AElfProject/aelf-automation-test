@@ -281,7 +281,7 @@ namespace AElf.Automation.ScenariosExecution
             var fullNodes = configInfo.FullNodes;
 
             var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
             Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
