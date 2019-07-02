@@ -11,7 +11,7 @@ namespace AElf.Automation.Common.Contracts
         Recharge,
         RequestChainDisposal,
         DisposeSideChain,
-                
+
         //View
         GetChainStatus,
         GetSideChainHeight,

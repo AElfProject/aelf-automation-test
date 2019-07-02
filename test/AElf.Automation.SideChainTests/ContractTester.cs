@@ -1,11 +1,17 @@
+using System;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Kernel;
+using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
 
@@ -48,21 +54,45 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
+
+        public Address GetOrganizationAddress(string account)
+        {
+            ParliamentService.SetAccount(account);
+            var address =
+                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
+
+            return address;
+        }
+
+        public CommandInfo CreateSideChainProposal(Address organizationAddress,string account,int indexingPrice,long lockedTokenAmount)
+        {
+            ByteString code = ByteString.FromBase64("4d5a90000300");
+            var createProposalInput = new SideChainCreationRequest
+            {
+                ContractCode = code,
+                IndexingPrice = indexingPrice,
+                LockedTokenAmount = lockedTokenAmount
+            };
+            ParliamentService.SetAccount(account);
+            var result =
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                    new CreateProposalInput
+                    {
+                        ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                        Params = createProposalInput.ToByteString(),
+                        ToAddress = Address.Parse(CrossChainService.ContractAddress),
+                        OrganizationAddress = organizationAddress
+                    });
+            
+            return result;
+        }
+        
+
         public CommandInfo RequestChainDisposal(string account,int chainId)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal, new SInt32Value
-            {
-                Value = chainId
-            });
-
-            return result;
-        }
-
-        public CommandInfo WithdrawRequest(string account,int chainId)
-        {
-            CrossChainService.SetAccount(account);
-            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.WithdrawRequest, new SInt32Value
             {
                 Value = chainId
             });
@@ -81,8 +111,7 @@ namespace AElf.Automation.SideChainTests
                 });
             return result;
         }
-
-
+        
         public SInt32Value GetChainStatus(int chainId)
         {
             var result =
@@ -135,6 +164,13 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
+        public CommandInfo Release(string account,string proposalId)
+        {
+            ParliamentService.SetAccount(account);
+            var transactionResult = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadHex(proposalId));
+            return transactionResult;
+        }
+        
         #endregion
 
         #region Token Method
