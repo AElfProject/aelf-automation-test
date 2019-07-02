@@ -144,7 +144,7 @@ namespace AElf.Automation.RpcPerformance
                             _logger.WriteError(message);
                             break;
                         case TransactionResultStatus.Pending:
-                            _logger.WriteInfo($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
+                            _logger.WriteWarn($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
                             continue;
                         default:
                             throw new ArgumentOutOfRangeException();

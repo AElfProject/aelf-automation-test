@@ -155,9 +155,12 @@ namespace AElf.Automation.Common.Contracts
             {
                 var transactionResult = ci.InfoMsg as TransactionResultDto;
                 Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
-                var status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                    transactionResult.Status, true);
-                return status == TransactionResultStatus.Mined;
+                if (transactionResult != null)
+                {
+                    var status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        transactionResult.Status, true);
+                    return status == TransactionResultStatus.Mined;
+                }
             }
 
             Logger.WriteError(ci.GetErrorMessage());
