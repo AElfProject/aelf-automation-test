@@ -1,6 +1,6 @@
 namespace AElf.Automation.Common.WebApi.Dto
 {
-    public class CallInput
+    public class ExecuteTransactionDto
     {
         /// <summary>
         /// raw transaction

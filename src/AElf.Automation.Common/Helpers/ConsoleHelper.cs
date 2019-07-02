@@ -14,7 +14,7 @@ namespace AElf.Automation.Common.Helpers
             Console.WriteLine(str);
             Console.ForegroundColor = currentForeColor;
         }
- 
+
         /// <summary>
         /// 打印错误信息
         /// </summary>
@@ -24,7 +24,7 @@ namespace AElf.Automation.Common.Helpers
         {
             WriteColorLine(str, color);
         }
- 
+
         /// <summary>
         /// 打印警告信息
         /// </summary>
@@ -34,6 +34,7 @@ namespace AElf.Automation.Common.Helpers
         {
             WriteColorLine(str, color);
         }
+
         /// <summary>
         /// 打印正常信息
         /// </summary>
@@ -43,6 +44,7 @@ namespace AElf.Automation.Common.Helpers
         {
             WriteColorLine(str, color);
         }
+
         /// <summary>
         /// 打印成功的信息
         /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
@@ -21,8 +22,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public TokenContract Token { get; }
         public List<string> Testers { get; }
         public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
-        
+
         private static List<string> _candidates;
+        private static List<string> _candidatesExcludeMiners;
 
         public UserScenario()
         {
@@ -60,29 +62,29 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void UserVotesAction()
         {
             GetCandidates(Election);
+            GetCandidatesExcludeCurrentMiners();
+            
             if (_candidates.Count < 2)
                 return;
-            
-            var times = GenerateRandomNumber(5, 10);
+
+            var times = GenerateRandomNumber(3, 5);
             for (var i = 0; i < times; i++)
             {
-                var id = GenerateRandomNumber(0, Testers.Count-1);
+                var id = GenerateRandomNumber(0, Testers.Count - 1);
                 UserVote(Testers[id]);
-                
+
                 Thread.Sleep(10);
             }
         }
 
         private void TakeVotesProfitAction()
         {
-            GetCandidates(Election);
-            
             var times = GenerateRandomNumber(3, 5);
             for (var i = 0; i < times; i++)
             {
                 var id = GenerateRandomNumber(0, Testers.Count - 1);
                 TakeUserProfit(Testers[id]);
-                
+
                 Thread.Sleep(10);
             }
         }
@@ -93,13 +95,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var voteProfit =
                 Profit.GetProfitDetails(account, profitId);
             if (voteProfit.Equals(new ProfitDetails())) return;
-            Logger.WriteInfo($"20% user vote profit details: {voteProfit}");
-            
+            $"20% user vote profit details number: {voteProfit.Details}".WriteSuccessLine();
+
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, profitId);
             if (profitAmount == 0)
                 return;
-            
+
             Logger.WriteInfo($"Profit amount: user {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
@@ -109,25 +111,26 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
-            if(profitDto.Status == "Mined")
-                Logger.WriteInfo($"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
+            if (profitDto.Status.ToLower() == "mined")
+                Logger.WriteInfo(
+                    $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
         }
 
         private void UserVote(string account)
         {
-            var id = GenerateRandomNumber(0, _candidates.Count - 1);
+            var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
             var lockTime = GenerateRandomNumber(3, 36) * 30;
-            var amount = GenerateRandomNumber(1, 5) * 10;
+            var amount = GenerateRandomNumber(1, 5) * 5;
 
-            UserVote(account, _candidates[id], lockTime, amount);
+            UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
         }
-        
+
         private void UserVote(string account, string candidatePublicKey, int lockTime, long amount)
         {
             var beforeBalance = Token.GetUserBalance(account);
             if (beforeBalance < amount) // balance not enough, bp transfer again
             {
-                var token = Token.GetNewTester(BpNodes[1].Account);
+                var token = Token.GetNewTester(BpNodes.First().Account);
                 token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
@@ -135,29 +138,46 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     To = Address.Parse(account),
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"
                 });
-            };
-            
+            }
+
             //Election.SetAccount(account);
             var election = Election.GetNewTester(account);
             election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
                 CandidatePublicKey = candidatePublicKey,
                 Amount = amount,
-                EndTimestamp = DateTime.UtcNow.
-                    Add(TimeSpan.FromDays(lockTime))
+                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime))
                     .Add(TimeSpan.FromHours(1))
                     .ToTimestamp()
             });
 
             var afterBalance = Token.GetUserBalance(account);
-            if(beforeBalance == afterBalance + amount)
-                Logger.WriteInfo($"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days.");
+            if (beforeBalance == afterBalance + amount)
+                Logger.WriteInfo(
+                    $"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days.");
         }
 
         public static void GetCandidates(ElectionContract election)
         {
             var candidatePublicKeys = election.CallViewMethod<Candidates>(ElectionMethod.GetCandidates, new Empty());
-            _candidates = candidatePublicKeys.PublicKeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            _candidates = candidatePublicKeys.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+        }
+
+        private void GetCandidatesExcludeCurrentMiners()
+        {
+            //query current miners
+            var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            
+            //query current candidates
+            _candidatesExcludeMiners = new List<string>();
+            _candidates.ForEach(o=>
+            {
+                if(!minersPublicKeys.Contains(o))
+                {
+                    _candidatesExcludeMiners.Add(o);
+                }
+            });
         }
     }
 }

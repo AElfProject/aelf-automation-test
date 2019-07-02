@@ -13,10 +13,11 @@ namespace AElf.Automation.Common.Contracts
         CheckDividends,
         CheckDividendsOfPreviousTerm
     }
-    public class DividendsContract :BaseContract<DividendsMethod>
+
+    public class DividendsContract : BaseContract<DividendsMethod>
     {
         public DividendsContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
-            :base(apiHelper, dividendsAddress)
+            : base(apiHelper, dividendsAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

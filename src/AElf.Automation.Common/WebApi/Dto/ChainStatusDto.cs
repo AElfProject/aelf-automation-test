@@ -8,7 +8,7 @@ namespace AElf.Automation.Common.WebApi.Dto
         
         public Dictionary<string,long> Branches { get; set; }
         
-        public List<NotLinkedBlockDto> NotLinkedBlocks { get; set; }
+        public Dictionary<string,string>  NotLinkedBlocks { get; set; }
         
         public long LongestChainHeight { get; set; }
         
@@ -25,5 +25,6 @@ namespace AElf.Automation.Common.WebApi.Dto
         public string BestChainHash { get; set; }
         
         public long BestChainHeight { get; set; }
+
     }
 }

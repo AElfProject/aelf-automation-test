@@ -18,14 +18,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var transactionList = GenerateTransactions(txCount);
             var stopwatch = new Stopwatch();
-            
+
             stopwatch.Start();
             foreach (var tx in transactionList)
             {
                 tx.VerifySignature();
             }
+
             stopwatch.Stop();
-            
+
             var timeSpan = stopwatch.ElapsedMilliseconds;
             Debug.WriteLine($"TimeSpan: {timeSpan}");
         }
@@ -53,7 +54,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Params = ByteString.CopyFrom(Hash.Generate().ToByteArray()),
                 RefBlockNumber = 10
             };
-            
+
             var signature = CryptoHelpers.SignWithPrivateKey(newUserKeyPair.PrivateKey,
                 transaction.GetHash().DumpByteArray());
             transaction.Signature = ByteString.CopyFrom(signature);

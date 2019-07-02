@@ -11,14 +11,14 @@ using Org.BouncyCastle.Utilities.Encoders;
 namespace AElf.Automation.SideChainTests
 {
     [TestClass]
-    public class SideChainCreate: SideChainTestBase
+    public class SideChainCreate : SideChainTestBase
     {
         [TestInitialize]
         public void InitializeNodeTests()
         {
             base.Initialize();
         }
-               
+
 
         [TestMethod]
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainTests
 //        [DataRow(2947586)]
         public void CheckStatus(int chainId)
         {
-            var status =Tester.GetChainStatus(chainId);
+            var status = Tester.GetChainStatus(chainId);
             _logger.WriteInfo($"side chain is {status}");
         }
 
@@ -111,8 +111,9 @@ namespace AElf.Automation.SideChainTests
             {
                 Tester.TransferToken(InitAccount, account, amount, "ELF");
             }
+
             Tester.TokenApprove(account, amount);
-            var reCharge = Tester.Recharge(account,chainId, amount);
+            var reCharge = Tester.Recharge(account, chainId, amount);
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
             _logger.WriteInfo($"side chain lock balance is {balance}");
         }
@@ -124,7 +125,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.RequestChainDisposal(account, chainId);
             var transactionReturn = result.InfoMsg as TransactionResultDto;
             var proposalId = transactionReturn.ReadableReturnValue;
-            
+
             _logger.WriteInfo($"Disposal chain proposal id is {proposalId}");
         }
 

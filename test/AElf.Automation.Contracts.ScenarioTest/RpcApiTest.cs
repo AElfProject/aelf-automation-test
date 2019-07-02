@@ -33,7 +33,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Ch.GetBlockByHeight(ci);
             Assert.IsTrue(ci.Result, "Request block info failed.");
 
-            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg.ToString(), "result", "result", "Body", "Transactions");
+            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg.ToString(), "result", "result", "Body",
+                "Transactions");
 
             foreach (var txId in txArray)
             {
@@ -42,9 +43,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Ch.GetTransactionResult(txCi);
                 Assert.IsTrue(txCi.Result, "Request transaction result failed.");
 
-                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result", "tx_status");
-                if(status == "Mined")
-                    _logger.WriteInfo($"{txId}: Mined");
+                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result",
+                    "tx_status");
+                if (status.ToLower() == "mined")
+                    _logger.WriteInfo($"{txId}: mined");
                 else
                     _logger.WriteError(txCi.InfoMsg.ToString());
             }

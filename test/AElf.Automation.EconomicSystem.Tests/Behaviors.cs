@@ -7,7 +7,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         public readonly IApiHelper ApiHelper;
         public readonly ContractServices ContractServices;
-        
+
         public readonly ElectionContract ElectionService;
         public readonly VoteContract VoteService;
         public readonly ProfitContract ProfitService;
@@ -27,7 +27,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             TokenService = ContractServices.TokenService;
             ConsensusService = ContractServices.ConsensusService;
         }
-        
+
         public enum ProfitType
         {
             Treasury,

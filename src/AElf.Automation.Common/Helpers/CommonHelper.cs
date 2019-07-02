@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Helpers
                 return null;
             }
         }
-        
+
         public static string GetCurrentDataDir()
         {
             try
@@ -39,7 +39,7 @@ namespace AElf.Automation.Common.Helpers
                 return null;
             }
         }
-        
+
         public static string RandomString(int size, bool lowerCase)
         {
             var random = new Random(DateTime.Now.Millisecond);
@@ -48,6 +48,6 @@ namespace AElf.Automation.Common.Helpers
             for (var i = 0; i < size; i++)
                 builder.Append((char) (26 * random.NextDouble() + startChar));
             return builder.ToString();
-        } 
+        }
     }
 }

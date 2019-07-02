@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
@@ -8,6 +9,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using Nito.AsyncEx;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -78,11 +80,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         Spender = Address.Parse(to),
                         Symbol = "ELF"
                     }).Allowance;
-                
+
                 var token = Token.GetNewTester(from);
                 if (allowance - amount < 0)
                 {
-                    
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
                         Amount = 1000,
@@ -91,13 +92,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     });
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
                     {
-                        if (txDto1.Status == "Mined")
+                        if (txDto1.Status.ToLower() == "mined")
                             Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
                         else
                             return;
                     }
                 }
-                
+
                 //Token.SetAccount(to);
                 token = Token.GetNewTester(to);
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
@@ -121,52 +122,77 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void PrepareAccountBalance()
         {
             //prepare bp account token
-            var publicKeys = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
-            var isAnnounced = publicKeys.Value.Select(o => o.ToByteArray().ToHex())
-                .Contains(FullNodes.First().PublicKey);
-            var tokenBalance = Token.GetUserBalance(FullNodes.First().Account);
+            CollectAllBpTokensToBp0();
+            Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
-            if (!isAnnounced && tokenBalance == 0)
+            var publicKeysList = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+
+            var bp = BpNodes.First();
+            var token = Token.GetNewTester(bp.Account, bp.Password);
+
+            //prepare full node token
+            Logger.WriteInfo("Prepare token for all full nodes.");
+            foreach (var fullNode in FullNodes)
             {
-                var bp = ContractServices.CurrentBpNodes.First();
-                //Token.SetAccount(bp.Account, bp.Password);
-                var token = Token.GetNewTester(bp.Account, bp.Password);
-                foreach (var fullAccount in FullNodes.Select(o => o.Account))
+                if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
+                
+                var tokenBalance = Token.GetUserBalance(fullNode.Account);
+                if (tokenBalance > 100_000) continue;
+                
+                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 200_000,
-                        To = Address.Parse(fullAccount),
-                        Memo = "Transfer for announcement event"
-                    });
-                }
-
-                token.CheckTransactionResultList();
+                    Symbol = "ELF",
+                    Amount = 200_000,
+                    To = Address.Parse(fullNode.Account),
+                    Memo = "Transfer for announcement event"
+                });
             }
+            token.CheckTransactionResultList();
 
             //prepare other user token
-            var otherBp = BpNodes.Last();
-            //Token.SetAccount(otherBp.Account, otherBp.Password);
-            var token1 = Token.GetNewTester(otherBp.Account, otherBp.Password);
-            Logger.WriteInfo($"Last bp token balance is : {Token.GetUserBalance(otherBp.Account)}");
-            //foreach (var user in AllTesters)
-            foreach(var user in AllTesters)
+            Logger.WriteInfo("Prepare token for all testers.");
+            foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
-                if (balance < 500_000)
+                if (balance >= 500_000) continue;
+                
+                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    token1.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 500_000 - balance,
-                        To = Address.Parse(user),
-                        Memo = $"Transfer for testing - {Guid.NewGuid()}"
-                    });
-                }
+                    Symbol = "ELF",
+                    Amount = 500_000 - balance,
+                    To = Address.Parse(user),
+                    Memo = $"Transfer for testing - {Guid.NewGuid()}"
+                });
+                Thread.Sleep(10);
             }
 
-            token1.CheckTransactionResultList();
+            token.CheckTransactionResultList();
+            Logger.WriteInfo($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+        }
+
+        private void CollectAllBpTokensToBp0()
+        {
+            Logger.WriteInfo("Transfer all bps token to first bp for testing.");
+            var bp0 = BpNodes.First();
+            foreach (var bp in BpNodes.Skip(1))
+            {
+                var balance = Token.GetUserBalance(bp.Account);
+                if (balance < 1000)
+                    continue;
+
+                //transfer
+                Token.SetAccount(bp.Account, bp.Password);
+                Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Amount = balance,
+                    Symbol = "ELF",
+                    To = Address.Parse(bp0.Account),
+                    Memo = "Collect all token from other bps."
+                });
+            }
+
+            Token.CheckTransactionResultList();
         }
 
         private void GetTransferPair(out string accountFrom, out string accountTo, out long amount)

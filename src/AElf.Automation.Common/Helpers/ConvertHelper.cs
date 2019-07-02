@@ -15,6 +15,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return string.Empty;
             }
+
             return JsonConvert.SerializeObject(obj);
         }
 
@@ -30,6 +31,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return string.Empty;
             }
+
             return JsonConvert.SerializeObject(obj, serializerSettings);
         }
 
@@ -75,6 +77,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return default(T);
             }
+
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 
@@ -90,6 +93,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 return default(T);
             }
+
             return JsonConvert.DeserializeObject<T>(jsonString, settings);
         }
     }

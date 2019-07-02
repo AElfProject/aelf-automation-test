@@ -7,8 +7,6 @@ using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Cryptography;
-using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf;
@@ -24,19 +22,20 @@ namespace AElf.Automation.Common.Contracts
         public Address Sender { get; set; }
         public WebApiHelper ApiHelper { get; }
         public WebApiService ApiService { get; }
-        
+
         private readonly string _baseUrl;
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            
+
             ApiHelper = new WebApiHelper(baseUrl, keyPath);
             ApiService = ApiHelper.ApiService;
-            
+
             ApiHelper.GetChainInformation(new CommandInfo(ApiMethods.GetChainInformation));
         }
-        
+
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -52,49 +51,77 @@ namespace AElf.Automation.Common.Contracts
                 };
                 transaction.AddBlockReference(_baseUrl);
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
-                
-                var transactionOutput =  await ApiService.BroadcastTransaction(transaction.ToByteArray().ToHex());
-                
+
+                var transactionOutput = await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
+
                 var checkTimes = 0;
-                TransactionResultDto transactionResult;
+                TransactionResultDto resultDto;
+                TransactionResultStatus status;
                 while (true)
                 {
                     checkTimes++;
-                    transactionResult = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
-                    var status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status);
+                    resultDto = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
+                    status =
+                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), resultDto.Status, true);
                     if (status != TransactionResultStatus.Pending)
+                    {
+                        if (status == TransactionResultStatus.Mined)
+                            Logger.WriteInfo($"TransactionId: {resultDto.TransactionId}, Status: {status}");
+                        else
+                            Logger.WriteError(
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nError Message: {resultDto.Error}");
+
                         break;
-                    
-                    if(checkTimes == 120)
-                        Assert.IsTrue(false, $"Transaction {transactionResult.TransactionId} in pending status more than one minutes.");
+                    }
+
+                    if (checkTimes == 120)
+                        Assert.IsTrue(false,
+                            $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
                     Thread.Sleep(500);
                 }
 
-                return new ExecutionResult<TOutput>()
-                {
-                    Transaction = transaction, 
-                    TransactionResult = new TransactionResult
+                var transactionResult = resultDto.Logs == null
+                    ? new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(transactionResult.TransactionId),
-                        BlockHash = Hash.FromString(transactionResult.BlockHash),
-                        BlockNumber = transactionResult.BlockNumber,
-                        Logs = { 
-                            transactionResult.Logs.Select(o => new LogEvent
+                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        BlockHash = resultDto.BlockHash == null
+                            ? null
+                            : Hash.FromString(resultDto.BlockHash),
+                        BlockNumber = resultDto.BlockNumber,
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Error = resultDto.Error ?? "",
+                        Status = status,
+                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
+                    }
+                    : new TransactionResult
+                    {
+                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        BlockHash = resultDto.BlockHash == null
+                            ? null
+                            : Hash.FromString(resultDto.BlockHash),
+                        BlockNumber = resultDto.BlockNumber,
+                        Logs =
+                        {
+                            resultDto.Logs.Select(o => new LogEvent
                             {
                                 Address = Address.Parse(o.Address),
                                 Name = o.Name,
                                 NonIndexed = ByteString.CopyFromUtf8(o.NonIndexed)
-                            }).ToList()
+                            }).ToArray()
                         },
-                        Bloom = ByteString.CopyFromUtf8(transactionResult.Bloom),
-                        Error = transactionResult.Error ?? "",
-                        Status = (TransactionResultStatus)Enum.Parse(typeof(TransactionResultStatus), transactionResult.Status),
-                        ReadableReturnValue = transactionResult.ReadableReturnValue
-                    }
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Error = resultDto.Error ?? "",
+                        Status = status,
+                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
+                    };
+                
+                return new ExecutionResult<TOutput>()
+                {
+                    Transaction = transaction,
+                    TransactionResult = transactionResult
                 };
             }
-            
+
             async Task<TOutput> CallAsync(TInput input)
             {
                 var transaction = new Transaction()
@@ -105,8 +132,8 @@ namespace AElf.Automation.Common.Contracts
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
-                
-                var returnValue = await ApiService.Call(transaction.ToByteArray().ToHex());
+
+                var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(returnValue));
             }
 

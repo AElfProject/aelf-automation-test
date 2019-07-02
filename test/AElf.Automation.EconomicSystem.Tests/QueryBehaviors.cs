@@ -24,10 +24,10 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public int GetMinersCount()
         {
-            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount, 
+            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount,
                 new Empty()).Value;
         }
-        
+
         public CandidateInformation GetCandidateInformation(string account)
         {
             var result =
@@ -44,8 +44,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result =
                 ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates,
                     new Empty());
-            
-            return result; 
+
+            return result;
         }
 
         public ElectorVote GetVotesInformation(string voteAccount)
@@ -87,8 +87,8 @@ namespace AElf.Automation.EconomicSystem.Tests
                     TermNumber = termNumber
                 });
             return result;
-        } 
-        
+        }
+
         #endregion
 
         #region VoteService Method
@@ -96,6 +96,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         #endregion
 
         #region ProfitService View Method
+
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
         public CreatedProfitItems GetCreatedProfitItems()
         {
@@ -106,6 +107,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 });
             return result;
         }
+
         public ProfitItem GetProfitItem(string hex)
         {
             var result = ProfitService.CallViewMethod<ProfitItem>(ProfitMethod.GetProfitItem,
@@ -116,7 +118,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public Address GetProfitItemVirtualAddress(Hash profitId,long period)
+        public Address GetProfitItemVirtualAddress(Hash profitId, long period)
         {
             var result = ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
                 new GetProfitItemVirtualAddressInput
@@ -127,7 +129,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             return result;
         }
-        
+
         public Address GetTreasuryAddress(Hash profitId, long period = 0)
         {
             return ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
@@ -138,7 +140,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 });
         }
 
-        public ProfitDetails GetProfitDetails(string voteAddress,Hash profitId)
+        public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)
         {
             var result =
                 ProfitService.CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
@@ -152,7 +154,8 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
         {
-            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(ProfitMethod.GetReleasedProfitsInformation,
+            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(
+                ProfitMethod.GetReleasedProfitsInformation,
                 new GetReleasedProfitsInformationInput
                 {
                     ProfitId = profitId,
@@ -162,9 +165,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         #endregion
-        
+
         #region TokenService Method
-        public GetBalanceOutput GetBalance(string account,string symbol = "ELF")
+
+        public GetBalanceOutput GetBalance(string account, string symbol = "ELF")
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
@@ -175,8 +179,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         #endregion
-        
+
         #region Consensus view Method
+
         public MinerList GetCurrentMiners()
         {
             var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
@@ -189,6 +194,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             return round.TermNumber;
         }
+
         #endregion
     }
 }

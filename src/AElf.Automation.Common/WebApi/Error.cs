@@ -27,7 +27,7 @@ namespace AElf.Automation.Common.WebApi
             {InvalidOffset, "Offset must greater than or equal to 0"},
             {InvalidLimit, "Limit must between 0 and 100"},
             {InvalidTransaction, "Invalid transaction information"},
-            {CannotBroadcastTransaction, "Sync still in progress, cannot broadcast transactions"},
+            {CannotBroadcastTransaction, "Sync still in progress, cannot send transactions"},
             {InvalidContractAddress, "Invalid contract address"},
             {NoMatchMethodInContractAddress, "No match method in contract address"},
             {InvalidParams, "Invalid params"}

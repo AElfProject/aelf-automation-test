@@ -34,6 +34,7 @@ namespace AElf.Automation.Common.Contracts
         WithdrawAll,
         InitialBalance
     }
+
     public class ConsensusContract : BaseContract<ConsensusMethod>
     {
         public ConsensusContract(IApiHelper apiHelper, string callAddress, string consensusAddress) :
@@ -44,10 +45,10 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public ConsensusContract(IApiHelper apiHelper, string callAddress)
-            :base(apiHelper, "AElf.Contracts.Consensus", callAddress)
+            : base(apiHelper, "AElf.Contracts.Consensus", callAddress)
         {
         }
-        
+
         public long GetCurrentTermInformation()
         {
             var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());

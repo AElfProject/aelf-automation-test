@@ -29,7 +29,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 100, amount);
             var transactionResult = voteResult.InfoMsg as TransactionResultDto;
-            
+
             transactionResult.ShouldNotBeNull();
             transactionResult.Status.ShouldBe("Mined");
         }
@@ -41,7 +41,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var victories = Behaviors.GetVictories();
             victories.Value.Count.ShouldBe(3);
 
-            var publicKeys = victories.Value.Select(o=>o.ToByteArray().ToHex()).ToList();
+            var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             publicKeys.Contains(
                 Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
@@ -55,7 +55,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void Get_Current_Miners()
         {
             var miners = Behaviors.GetCurrentMiners();
-            foreach (var publicKey in miners.PublicKeys)
+            foreach (var publicKey in miners.Pubkeys)
             {
                 _logger.WriteInfo($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
             }

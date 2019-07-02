@@ -635,10 +635,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                     
                     Thread.Sleep(100);
                     mainRawTxInfos.Add(rawTxInfo);
-                    _logger.WriteInfo($"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
+                    _logger.WriteInfo(
+                        $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                 }
             }
-            
+
             _logger.WriteInfo("Waiting for the index");
             Thread.Sleep(150000);
                   
@@ -688,7 +689,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                     }
                 }
             }
-            
+
             //Main chain receive
             _logger.WriteInfo("Main chain receive the token");
             for (int i = 0; i < mainRawTxInfos.Count(); i++)
@@ -963,7 +964,8 @@ namespace AElf.Automation.SideChain.Verification.Test
 
             // verify side chain transaction
             var crossChainMerkleProofContext =
-                SideChains[fromSideChainNum].GetBoundParentChainHeightAndMerklePathByHeight(rawTxInfo.FromAccount, rawTxInfo.BlockNumber);
+                SideChains[fromSideChainNum]
+                    .GetBoundParentChainHeightAndMerklePathByHeight(rawTxInfo.FromAccount, rawTxInfo.BlockNumber);
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
@@ -1073,7 +1075,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             chain.ApiHelper.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
-                var transactionOutput = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
 
                 return transactionOutput?.TransactionId;
             }

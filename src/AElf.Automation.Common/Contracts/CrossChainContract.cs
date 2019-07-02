@@ -21,14 +21,15 @@ namespace AElf.Automation.Common.Contracts
         VerifyTransaction,
         GetBoundParentChainHeightAndMerklePathByHeight
     }
+
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
     {
         public CrossChainContract(IApiHelper ch, string account) :
             base(ch, "AElf.Contracts.CrossChain", account)
         {
         }
-    
-        public CrossChainContract(IApiHelper ch, string callAddress, string contractAbi):
+
+        public CrossChainContract(IApiHelper ch, string callAddress, string contractAbi) :
             base(ch, contractAbi)
         {
             CallAddress = callAddress;

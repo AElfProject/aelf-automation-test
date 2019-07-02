@@ -14,7 +14,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class ResourceScenario : BaseScenario
     {
         public TokenContract Token { get; set; }
-
         public FeeReceiverContract FeeReceiver { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
@@ -55,8 +54,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var tokenUsers = GetAvailableBuyUser(testTimes);
             foreach (var user in tokenUsers)
             {
-                var amount = GenerateRandomNumber(100, 500);
-                //TokenConverter.SetAccount(user);
+                var amount = GenerateRandomNumber(100, 200);
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var buyResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Buy, new BuyInput
                 {
@@ -64,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = connector.Symbol
                 });
                 if (!(buyResult.InfoMsg is TransactionResultDto txDto)) continue;
-                if (txDto.Status == "Mined")
+                if (txDto.Status.ToLower() == "mined")
                     Logger.WriteInfo(
                         $"Buy resource - {user} buy resource {connector.Symbol} cost token {amount}");
             }
@@ -85,7 +83,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = connector.Symbol,
                 });
                 if (!(sellResult.InfoMsg is TransactionResultDto txDto)) continue;
-                if (txDto.Status == "Mined")
+                if (txDto.Status.ToLower() == "mined")
                     Logger.WriteInfo(
                         $"Sell resource - {user} sell resource {connector.Symbol} with amount {amount}");
             }
@@ -102,7 +100,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 users.Add(user);
                 count++;
-                if(count == number)
+                if (count == number)
                     break;
             }
 
@@ -120,7 +118,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 users.Add(user);
                 count++;
-                if(count == number)
+                if (count == number)
                     break;
             }
 
@@ -155,21 +153,21 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     IsBurnable = true,
                     Issuer = token.CallAccount,
                     TokenName = $"{connector.Symbol} Resource",
-                    TotalSupply = 100_0000
+                    TotalSupply = 100_000_000
                 });
                 if (!(createResult.InfoMsg is TransactionResultDto createDto)) continue;
-                if (createDto.Status == "Mined")
+                if (createDto.Status.ToLower() == "mined")
                     Logger.WriteInfo($"Create resource {connector.Symbol} successful.");
 
                 var issueResult = token.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
                 {
                     Symbol = connector.Symbol,
-                    Amount = 100_0000,
+                    Amount = 100_000_000,
                     Memo = $"Issue {connector.Symbol} token",
                     To = Address.Parse(TokenConverter.ContractAddress)
                 });
                 if (!(issueResult.InfoMsg is TransactionResultDto issueDto)) continue;
-                if (issueDto.Status == "Mined")
+                if (issueDto.Status.ToLower() == "mined")
                     Logger.WriteInfo($"Issue total amount 100_0000 resource {connector.Symbol} successful.");
             }
 
@@ -190,34 +188,34 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void SetAllowanceForResourceTest()
         {
-            foreach(var user in Testers.GetRange(1, Testers.Count - 1))
+            foreach (var user in Testers.GetRange(1, Testers.Count - 1))
             {
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = "ELF",
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = RamConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = CpuConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = Address.Parse(TokenConverter.ContractAddress),
                     Symbol = NetConnector.Symbol,
-                    Amount = 1000_0000
+                    Amount = 100_000_000
                 });
-            }    
+            }
 
             Token.CheckTransactionResultList();
         }
@@ -234,7 +232,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private Connector ElfConnector = new Connector
         {
             Symbol = "ELF",
-            VirtualBalance = 1000_0000,
+            VirtualBalance = 100_000_000,
             Weight = "0.5",
             IsPurchaseEnabled = true,
             IsVirtualBalanceEnabled = true

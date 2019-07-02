@@ -8,6 +8,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -23,7 +24,7 @@ namespace AElf.Automation.Common.OptionManagers
             _keyStore = keyStore;
             _accountManager = new AccountManager(keyStore, chainId);
         }
-        
+
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
         {
             _keyStore = keyStore;
@@ -47,7 +48,7 @@ namespace AElf.Automation.Common.OptionManagers
                     MethodName = methodName,
                     Params = input ?? ByteString.Empty
                 };
-               
+
                 _cmdInfo.Result = true;
 
                 return transaction;
@@ -107,7 +108,8 @@ namespace AElf.Automation.Common.OptionManagers
         private static string _cachedHash;
         private static string _chainId = string.Empty;
 
-        public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress, string chainId = "AELF")
+        public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
+            string chainId = "AELF")
         {
             var height = GetBlkHeight(rpcAddress);
             var hash = GetBlkHash(rpcAddress, height);
@@ -118,11 +120,12 @@ namespace AElf.Automation.Common.OptionManagers
                 hash = GetBlkHash(rpcAddress, height);
                 _cachedHeight = height;
                 _cachedHash = hash;
-                _refBlockTime = DateTime.Now;         
+                _refBlockTime = DateTime.Now;
             }
 
             transaction.RefBlockNumber = height;
-            transaction.RefBlockPrefix = ByteString.CopyFrom(ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray());
+            transaction.RefBlockPrefix =
+                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 
@@ -132,9 +135,9 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 requestTimes--;
                 var webApi = new WebApiService(baseUrl);
-                var height = webApi.GetBlockHeight().Result;
+                var height = AsyncHelper.RunSync(webApi.GetBlockHeight);
                 if (height != 0) return height;
-                
+
                 if (requestTimes < 0) throw new Exception("Get Block height failed exception.");
                 Thread.Sleep(500);
             }
@@ -146,9 +149,9 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 requestTimes--;
                 var webApi = new WebApiService(baseUrl);
-                var blockInfo = webApi.GetBlockByHeight(height).Result;
+                var blockInfo = AsyncHelper.RunSync(()=>webApi.GetBlockByHeight(height));
                 if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
-                
+
                 if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");
                 Thread.Sleep(500);
             }

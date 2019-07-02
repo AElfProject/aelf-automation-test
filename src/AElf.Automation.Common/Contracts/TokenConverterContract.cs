@@ -11,7 +11,7 @@ namespace AElf.Automation.Common.Contracts
         Sell,
         SetFeeRate,
         SetManagerAddress,
-        
+
         //view
         GetTokenContractAddress,
         GetFeeReceiverAddress,
@@ -20,6 +20,7 @@ namespace AElf.Automation.Common.Contracts
         GetBaseTokenSymbol,
         GetConnector
     }
+
     public class TokenConverterContract : BaseContract<TokenConverterMethod>
     {
         public TokenConverterContract(IApiHelper apiHelper, string callAddress) :
@@ -27,7 +28,7 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
-        public TokenConverterContract(IApiHelper apiHelper, string callAddress, string contractAddress):
+        public TokenConverterContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
             base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;

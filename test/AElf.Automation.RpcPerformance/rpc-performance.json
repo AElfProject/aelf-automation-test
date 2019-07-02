@@ -1,10 +1,11 @@
 {
     "GroupCount": 4,
-    "TransactionCount": 20, 
+    "TransactionCount": 10,
     "ServiceUrl": "http://192.168.197.13:8100",
-    "TransactionLimit": 1000,
+    "SelectTxLimit": 100,
+    "SentTxLimit": 1000,
     "ExecuteMode": 4,
-    "Timeout":300,
+    "Timeout": 300,
     "Conflict": true,
     "ReadOnlyTransaction": false
 }

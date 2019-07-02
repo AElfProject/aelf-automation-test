@@ -27,7 +27,6 @@ namespace AElf.Automation.RpcPerformance
         public string BaseUrl { get; }
         private List<AccountInfo> AccountList { get; }
         private string KeyStorePath { get; }
-        private long BlockHeight { get; set; }
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }
@@ -52,7 +51,6 @@ namespace AElf.Automation.RpcPerformance
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
             ThreadCount = threadCount;
-            BlockHeight = 1;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl;
@@ -63,7 +61,7 @@ namespace AElf.Automation.RpcPerformance
         {
             _logger.WriteInfo("Host Url: {0}", BaseUrl);
             _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
-            
+
             ApiHelper = new WebApiHelper(BaseUrl, KeyStorePath);
 
             //Connect Chain
@@ -77,6 +75,10 @@ namespace AElf.Automation.RpcPerformance
             //Unlock Account
             UnlockAllAccounts(userCount);
             
+            //Set select limit transaction
+            var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
+            transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+
             //Init other services
             Summary = new ExecutionSummary(ApiHelper);
             Monitor = new NodeStatusMonitor(ApiHelper);
@@ -97,7 +99,7 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var txId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(txId), "Transaction Id is null or empty");
                 info.TxId = txId;
@@ -122,7 +124,7 @@ namespace AElf.Automation.RpcPerformance
                     if (!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
                     var status =
                         (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                            transactionResult.Status);
+                            transactionResult.Status, true);
                     switch (status)
                     {
                         case TransactionResultStatus.Mined:
@@ -182,11 +184,12 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var transactionId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
@@ -208,16 +211,17 @@ namespace AElf.Automation.RpcPerformance
                 };
                 ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                var transactionResult = ci.InfoMsg as SendTransactionOutput;
                 var transactionId = transactionResult?.TransactionId;
                 Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
-            
+
             //prepare conflict environment
             var conflict = ConfigInfoHelper.Config.Conflict;
-            if(!conflict)
+            if (!conflict)
                 InitializeTransactionGroup();
         }
 
@@ -226,7 +230,7 @@ namespace AElf.Automation.RpcPerformance
             var apiHelper = ApiHelper;
             var users = AccountList.Skip(ThreadCount).ToList();
             var contracts = ContractList;
-            
+
             Group = new TransactionGroup(apiHelper, users, contracts);
             Group.InitializeAllUsersToken();
             Task.Run(() => Group.GenerateAllContractTransactions());
@@ -299,7 +303,7 @@ namespace AElf.Automation.RpcPerformance
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
-                                //multi task for BroadcastTransactions query
+                                //multi task for SendTransactions query
                                 var txsTasks = new List<Task>();
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
@@ -313,7 +317,7 @@ namespace AElf.Automation.RpcPerformance
                             }
                             else
                             {
-                                //multi task for BroadcastTransaction query
+                                //multi task for SendTransaction query
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
@@ -355,7 +359,7 @@ namespace AElf.Automation.RpcPerformance
 
             Task.WaitAll(taskList.ToArray<Task>());
         }
-        
+
         public void PrintContractInfo()
         {
             _logger.WriteInfo("Execution account and contract address information:");
@@ -403,7 +407,7 @@ namespace AElf.Automation.RpcPerformance
 
                 if (ci.Result)
                 {
-                    var transactionResult = ci.InfoMsg as BroadcastTransactionOutput;
+                    var transactionResult = ci.InfoMsg as SendTransactionOutput;
                     txIdList.Add(transactionResult?.TransactionId);
                     passCount++;
                 }
@@ -448,7 +452,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Send batch transaction requests
-            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
+            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
@@ -465,9 +469,9 @@ namespace AElf.Automation.RpcPerformance
         {
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
             var rawTransactions = Group.GetRawTransactions();
-            
+
             //Send batch transaction requests
-            var commandInfo = new CommandInfo(ApiMethods.BroadcastTransactions)
+            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
@@ -479,14 +483,14 @@ namespace AElf.Automation.RpcPerformance
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
-        
+
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractPath;
 
             Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            
+
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
@@ -540,7 +544,7 @@ namespace AElf.Automation.RpcPerformance
         private void NewAccounts(int count)
         {
             var accounts = GetExistAccounts();
-            if (accounts.Count > count)
+            if (accounts.Count >= count)
             {
                 foreach (var acc in accounts.Take(count))
                 {
@@ -553,7 +557,9 @@ namespace AElf.Automation.RpcPerformance
                 {
                     AccountList.Add(new AccountInfo(acc));
                 }
-                for (var i = 0; i < count - accounts.Count; i++)
+
+                var generateCount = count - accounts.Count;
+                for (var i = 0; i < generateCount; i++)
                 {
                     var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                     ci = ApiHelper.ExecuteCommand(ci);

@@ -13,6 +13,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class StandaloneVoteFeatureTest
     {
         #region Priority
+
         public ILogHelper Logger = LogHelper.GetLogHelper();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
@@ -62,10 +63,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CandidateInfos = new List<CandidateInfo>();
             for (int i = 0; i < BpNodeAccounts.Count; i++)
             {
-                string name = $"Bp-{i+1}";
+                string name = $"Bp-{i + 1}";
                 string account = BpNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
-                CandidateInfos.Add(new CandidateInfo(){Name = name, Account = account, PublicKey = pubKey});
+                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
             //Init service
@@ -88,6 +89,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 File.Delete(file);
             }
         }
+
         /*
         private void SetTokenFeeAddress()
         {

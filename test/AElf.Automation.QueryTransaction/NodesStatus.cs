@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using Nito.AsyncEx;
 
 namespace AElf.Automation.QueryTransaction
 {
@@ -13,7 +14,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private readonly List<WebApiService> _apiServices;
         private long _height = 1;
-        
+
         public NodesStatus(IEnumerable<string> urls)
         {
             _apiServices = new List<WebApiService>();
@@ -33,6 +34,7 @@ namespace AElf.Automation.QueryTransaction
                 {
                     Thread.Sleep(1000);
                 }
+
                 for (var i = _height; i < currentHeight; i++)
                 {
                     await CheckNodeHeight(i);
@@ -45,23 +47,35 @@ namespace AElf.Automation.QueryTransaction
         private async Task CheckNodeHeight(long height)
         {
             var collection = new List<(WebApiService, BlockDto)>();
-            foreach (var api in _apiServices)
+            await _apiServices.AsParallel().Select(async api =>
             {
                 var block = await api.GetBlockByHeight(height);
                 collection.Add((api, block));
-            }
+                return collection;
+            }).WhenAll();
 
             var (webApiService, blockDto) = collection.First();
             Logger.WriteInfo($"Check height: {height}");
-            Logger.WriteInfo($"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
+            Logger.WriteInfo(
+                $"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
             var forked = false;
-            for(var i=1; i<collection.Count-1; i++)
+
+            Parallel.ForEach(collection.Skip(0), item =>
             {
-                if (collection[i].Item2.BlockHash == blockDto.BlockHash) continue;
+                var (item1, item2) = item;
+                if (item1 == null || item2 == null)
+                {
+                    Logger.WriteError($"Node height {height} request return null response.");
+                    return;
+                }
+                
+                if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
-                Logger.WriteInfo($"Node: {collection[i].Item1.BaseUrl}, Block hash: {collection[i].Item2.BlockHash}, Transaction count:{collection[i].Item2.Body.TransactionsCount}");
-            }
-            if(forked)
+                Logger.WriteInfo(
+                    $"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
+            });
+
+            if (forked)
                 Logger.WriteError($"Node forked at height: {height}");
         }
     }

@@ -11,7 +11,7 @@
         GetChainInformation,
         DeploySmartContract,
         SendTransaction,
-        BroadcastTransactions,
+        SendTransactions,
         GetCommands,
         GetTransactionResult,
         GetTransactionResults,
@@ -28,6 +28,8 @@
         GetContractFileDescriptorSet,
         QueryView,
         ExecuteTransaction,
+        CurrentRoundInformation,
+        TaskQueueStatus,
 
         //Net
         GetPeers,

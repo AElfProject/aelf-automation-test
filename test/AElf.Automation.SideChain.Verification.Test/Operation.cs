@@ -16,13 +16,13 @@ namespace AElf.Automation.SideChain.Verification.Test
         public readonly IApiHelper ApiHelper;
         public readonly string chainId;
         public readonly ContractServices ContractServices;
-     
+
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
         public readonly ParliamentAuthContract ParliamentService;
 
-        public Operation(ContractServices contractServices,string type)
+        public Operation(ContractServices contractServices, string type)
         {
             ApiHelper = contractServices.ApiHelper;
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -40,7 +40,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         #region Token Method
 
-        public GetBalanceOutput GetBalance(string account,string symbol)
+        public GetBalanceOutput GetBalance(string account, string symbol)
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
@@ -49,7 +49,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             });
             return balance;
         }
-        
+
         public TokenInfo GetTokenInfo(string symbol)
         {
             var tokenInfo = TokenService.CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
@@ -60,7 +60,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             return tokenInfo;
         }
 
-        public CommandInfo TransferToken(string owner,string spender,long amount,string symbol)
+        public CommandInfo TransferToken(string owner, string spender, long amount, string symbol)
         {
             TokenService.SetAccount(owner);
             var transfer = TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -77,30 +77,31 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         #region Cross Chain Method
 
-        public CommandInfo CrossChainTransfer(string fromAccount,CrossChainTransferInput input)
+        public CommandInfo CrossChainTransfer(string fromAccount, CrossChainTransferInput input)
         {
             TokenService.SetAccount(fromAccount);
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainTransfer, input);
 
             return result;
         }
-       
 
-        public CommandInfo CrossChainReceive(string account,CrossChainReceiveTokenInput input)
+
+        public CommandInfo CrossChainReceive(string account, CrossChainReceiveTokenInput input)
         {
             TokenService.SetAccount(account);
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
             return result;
         }
 
-        public CommandInfo VerifyTransaction(VerifyTransactionInput input,string account)
+        public CommandInfo VerifyTransaction(VerifyTransactionInput input, string account)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.VerifyTransaction, input);
             return result;
         }
 
-        public CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(string account,long blockNumber)
+        public CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(string account,
+            long blockNumber)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
@@ -112,11 +113,11 @@ namespace AElf.Automation.SideChain.Verification.Test
         }
 
         #endregion
-        
-        public string GenerateBroadcastRawTx(string method, IMessage inputParameter,string CallAddress,string ContractAddress)
-        {
-            return ApiHelper.GenerateTransactionRawTx(CallAddress,ContractAddress, method, inputParameter);
-        }
 
+        public string GenerateBroadcastRawTx(string method, IMessage inputParameter, string CallAddress,
+            string ContractAddress)
+        {
+            return ApiHelper.GenerateTransactionRawTx(CallAddress, ContractAddress, method, inputParameter);
+        }
     }
 }

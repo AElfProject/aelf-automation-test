@@ -11,19 +11,20 @@ namespace AElf.Automation.RpcPerformance
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private IApiHelper ApiHelper { get; }
-        
+
         private long BlockHeight { get; set; } = 1;
-        
+
         public static int MaxLimit { get; set; }
-        
+
         public NodeStatusMonitor(IApiHelper apiHelper)
         {
             ApiHelper = apiHelper;
-            MaxLimit = ConfigInfoHelper.Config.TransactionLimit;
+            MaxLimit = ConfigInfoHelper.Config.SentTxLimit;
         }
-        
+
         private static int _checkCount;
         private readonly object _checkObj = new object();
+
         public void CheckTransactionPoolStatus(bool enable)
         {
             if (!enable) return;
@@ -36,6 +37,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         _checkCount = 0;
                     }
+
                     break;
                 }
 
@@ -43,6 +45,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     _checkCount++;
                 }
+
                 Thread.Sleep(100);
                 if (_checkCount % 10 == 0)
                     _logger.WriteWarn(
@@ -53,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
         public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1)
         {
             if (checkTimes == -1)
-                checkTimes = ConfigInfoHelper.Config.Timeout*10;
+                checkTimes = ConfigInfoHelper.Config.Timeout * 10;
             if (checkTimes < 0)
                 Assert.IsTrue(false, "Transaction status check is timeout.");
             checkTimes--;
@@ -61,18 +64,14 @@ namespace AElf.Automation.RpcPerformance
             var length = transactionIds.Count;
             for (var i = length - 1; i >= 0; i--)
             {
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionIds[i]};
-                ApiHelper.GetTransactionResult(ci);
-
-                if (ci.Result)
+                var i1 = i;
+                var transactionResult =
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
+                var deployResult = transactionResult.Status;
+                if (deployResult.ToLower() == "mined")
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var deployResult = transactionResult?.Status;
-                    if (deployResult == "Mined")
-                    {
-                        _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
-                        transactionIds.Remove(transactionIds[i]);
-                    }
+                    _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
+                    transactionIds.Remove(transactionIds[i]);
                 }
 
                 Thread.Sleep(15);
@@ -88,33 +87,25 @@ namespace AElf.Automation.RpcPerformance
             if (transactionIds.Count == 1)
             {
                 _logger.WriteInfo("Last one: {0}", transactionIds[0]);
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionIds[0]};
-                ApiHelper.ExecuteCommand(ci);
-
-                if (ci.Result)
+                var transactionResult =
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
+                var txResult = transactionResult.Status;
+                if (txResult.ToLower() != "mined")
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    var txResult = transactionResult?.Status;
-                    if (txResult != "Mined")
-                    {
-                        Thread.Sleep(50);
-                        CheckTransactionsStatus(transactionIds, checkTimes);
-                    }
+                    Thread.Sleep(50);
+                    CheckTransactionsStatus(transactionIds, checkTimes);
                 }
             }
 
             Thread.Sleep(100);
         }
-        
+
         public void CheckNodeHeightStatus()
         {
             var checkTimes = 0;
             while (true)
             {
-                var ci = new CommandInfo(ApiMethods.GetBlockHeight);
-                ApiHelper.GetBlockHeight(ci);
-                var currentHeight = (long) ci.InfoMsg;
-
+                var currentHeight = AsyncHelper.RunSync(() => ApiHelper.ApiService.GetBlockHeight());
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
@@ -131,6 +122,7 @@ namespace AElf.Automation.RpcPerformance
                     Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
         }
+
         private int GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =

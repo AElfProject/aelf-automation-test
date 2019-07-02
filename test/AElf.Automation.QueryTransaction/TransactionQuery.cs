@@ -25,11 +25,11 @@ namespace AElf.Automation.QueryTransaction
         {
             var tasks = new List<Task>()
             {
-                Task.Run(()=>AsyncHelper.RunSync(QueryBlockWithHeight)),
+                Task.Run(() => AsyncHelper.RunSync(QueryBlockWithHeight)),
             };
             for (var i = 0; i < threadCount; i++)
             {
-                tasks.Add(Task.Run(()=>AsyncHelper.RunSync(QueryTransactionWithTxId)));
+                tasks.Add(Task.Run(() => AsyncHelper.RunSync(QueryTransactionWithTxId)));
             }
 
             Task.WaitAll(tasks.ToArray());
@@ -46,10 +46,12 @@ namespace AElf.Automation.QueryTransaction
                     _completeQuery = true;
                     return;
                 }
+
                 for (var i = _blockHeight; i <= height; i++)
                 {
                     var block = await _apiService.GetBlockByHeight(i, true);
-                    Logger.WriteInfo($"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
+                    Logger.WriteInfo(
+                        $"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
                     block.Body.Transactions.ForEach(item => _transactionQueue.Enqueue(item));
                 }
 
@@ -59,14 +61,14 @@ namespace AElf.Automation.QueryTransaction
 
         private async Task QueryTransactionWithTxId()
         {
-            while(!_completeQuery || _transactionQueue.Count != 0)
+            while (!_completeQuery || _transactionQueue.Count != 0)
             {
                 if (!_transactionQueue.TryDequeue(out var txId))
                 {
                     Thread.Sleep(50);
                     continue;
                 }
-                
+
                 var transaction = await _apiService.GetTransactionResult(txId);
                 Logger.WriteInfo($"Transaction: {txId},{transaction.Status}");
             }

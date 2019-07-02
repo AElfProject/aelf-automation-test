@@ -10,37 +10,37 @@ namespace AElf.Automation.Common.WebApi.Dto
         /// <summary>
         /// from address
         /// </summary>
-        [Required] 
+        [Required]
         public string From { get; set; }
 
         /// <summary>
         /// to address
         /// </summary>
-        [Required] 
+        [Required]
         public string To { get; set; }
 
         /// <summary>
         /// refer block height
         /// </summary>
-        [Required] 
+        [Required]
         public long RefBlockNumber { get; set; }
 
         /// <summary>
         /// refer block hash
         /// </summary>
-        [Required] 
+        [Required]
         public string RefBlockHash { get; set; }
 
         /// <summary>
         /// contract method name
         /// </summary>
-        [Required] 
+        [Required]
         public string MethodName { get; set; }
 
         /// <summary>
         /// contract method parameters
         /// </summary>
-        [Required] 
+        [Required]
         public string Params { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -75,8 +75,8 @@ namespace AElf.Automation.Common.WebApi.Dto
                 validationResults.Add(
                     new ValidationResult(Error.Message[Error.InvalidBlockHash], new[] {nameof(RefBlockHash)}));
             }
+
             return validationResults;
         }
     }
-
 }
