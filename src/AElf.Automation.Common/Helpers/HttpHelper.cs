@@ -199,7 +199,7 @@ namespace AElf.Automation.Common.Helpers
 
             try
             {
-                var response = await client.PostAsync(url, content);
+                response = await client.PostAsync(url, content);
                 if (response.StatusCode == expectedStatusCode) return response;
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");

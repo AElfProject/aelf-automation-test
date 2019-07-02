@@ -166,8 +166,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                 To = Address.Parse(to),
                 Memo = $"transfer {from}=>{to} with amount {amount}."
             });
-
-            return transfer;
         }
 
         public CommandInfo CreateToken(string issuer, string symbol, string tokenName)
