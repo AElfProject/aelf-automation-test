@@ -124,7 +124,7 @@ namespace AElf.Automation.RpcPerformance
                     if (!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
                     var status =
                         (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                            transactionResult.Status);
+                            transactionResult.Status, true);
                     switch (status)
                     {
                         case TransactionResultStatus.Mined:
