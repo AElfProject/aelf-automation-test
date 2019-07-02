@@ -30,14 +30,16 @@ namespace AElf.Automation.SideChainTests
 
         protected void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            IS = new WebApiService(RpcUrl);
-            var contractServices = new ContractServices(CH, InitAccount, "Main");
-            Tester = new ContractTester(contractServices);
             //Init Logger
             string logName = "CrossChainTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
+            
+            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            IS = new WebApiService(RpcUrl);
+            var contractServices = new ContractServices(CH, InitAccount, "Main");
+            Tester = new ContractTester(contractServices);
+
             //Get BpNode Info
             BpNodeAddress = new List<string>();
 //            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
