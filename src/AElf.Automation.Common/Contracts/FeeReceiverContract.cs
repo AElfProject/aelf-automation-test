@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Contracts
             });
             if (initializeResult.InfoMsg is TransactionResultDto txDto)
             {
-                txDto.Status.ShouldBe("Mined");
+                txDto.Status.ToLower().ShouldBe("mined");
             }
         }
     }

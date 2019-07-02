@@ -68,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
                 var deployResult = transactionResult.Status;
-                if (deployResult == "Mined")
+                if (deployResult.ToLower() == "mined")
                 {
                     _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
                     transactionIds.Remove(transactionIds[i]);
@@ -90,7 +90,7 @@ namespace AElf.Automation.RpcPerformance
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
                 var txResult = transactionResult.Status;
-                if (txResult != "Mined")
+                if (txResult.ToLower() != "mined")
                 {
                     Thread.Sleep(50);
                     CheckTransactionsStatus(transactionIds, checkTimes);

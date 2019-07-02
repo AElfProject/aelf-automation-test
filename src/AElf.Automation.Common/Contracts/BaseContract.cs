@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
@@ -154,8 +155,9 @@ namespace AElf.Automation.Common.Contracts
             {
                 var transactionResult = ci.InfoMsg as TransactionResultDto;
                 Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
-
-                return transactionResult?.Status == "Mined";
+                var status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                    transactionResult.Status, true);
+                return status == TransactionResultStatus.Mined;
             }
 
             Logger.WriteError(ci.GetErrorMessage());
@@ -183,23 +185,28 @@ namespace AElf.Automation.Common.Contracts
                 ApiHelper.GetTransactionResult(ci);
                 if (ci.Result)
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    switch (transactionResult?.Status)
+                    if (ci.InfoMsg is TransactionResultDto transactionResult)
                     {
-                        case "Mined":
-                            Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
-                            return ci;
-                        case "NotExisted":
-                            Logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
-                            return ci;
-                        case "Failed":
+                        var status =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                transactionResult.Status, true);
+                        switch (status)
                         {
-                            var message = $"Transaction {txId} status: {transactionResult.Status}";
-                            message +=
-                                $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                            message += $"\r\nError Message: {transactionResult.Error}";
-                            Logger.WriteError(message);
-                            return ci;
+                            case TransactionResultStatus.Mined:
+                                Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                                return ci;
+                            case TransactionResultStatus.NotExisted:
+                                Logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
+                                return ci;
+                            case TransactionResultStatus.Failed:
+                            {
+                                var message = $"Transaction {txId} status: {transactionResult.Status}";
+                                message +=
+                                    $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                                message += $"\r\nError Message: {transactionResult.Error}";
+                                Logger.WriteError(message);
+                                return ci;
+                            }
                         }
                     }
                 }
@@ -257,22 +264,27 @@ namespace AElf.Automation.Common.Contracts
                 ApiHelper.GetTransactionResult(ci);
                 if (ci.Result)
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    switch (transactionResult?.Status)
+                    if (ci.InfoMsg is TransactionResultDto transactionResult)
                     {
-                        case "Mined":
-                            continue;
-                        case "Failed":
-                        case "NotExisted":
+                        var status =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                transactionResult.Status, true);
+                        switch (status)
                         {
-                            var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
-                            message += $"{transactionResult.Error}";
-                            Logger.WriteError(message);
-                            continue;
+                            case TransactionResultStatus.Mined:
+                                continue;
+                            case TransactionResultStatus.Failed:
+                            case TransactionResultStatus.NotExisted:
+                            {
+                                var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
+                                message += $"{transactionResult.Error}";
+                                Logger.WriteError(message);
+                                continue;
+                            }
+                            default:
+                                TxResultList.Enqueue(txId);
+                                break;
                         }
-                        default:
-                            TxResultList.Enqueue(txId);
-                            break;
                     }
                 }
 
@@ -381,7 +393,7 @@ namespace AElf.Automation.Common.Contracts
 
             if (!ci.Result) return false;
             var transactionResult = ci.InfoMsg as TransactionResultDto;
-            if (transactionResult?.Status != "Mined") return false;
+            if (transactionResult?.Status.ToLower() != "mined") return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
             Logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");

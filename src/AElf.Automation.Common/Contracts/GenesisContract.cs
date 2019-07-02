@@ -78,7 +78,7 @@ namespace AElf.Automation.Common.Contracts
                 Code = ByteString.CopyFrom(codeArray)
             });
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
-            return txDto.Status == "Mined";
+            return txDto.Status.ToLower() == "mined";
         }
 
         public Address GetContractAddressByName(NameProvider name)

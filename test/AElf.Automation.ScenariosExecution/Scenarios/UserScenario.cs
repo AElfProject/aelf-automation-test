@@ -111,7 +111,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
-            if (profitDto.Status == "Mined")
+            if (profitDto.Status.ToLower() == "mined")
                 Logger.WriteInfo(
                     $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
         }

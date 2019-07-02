@@ -92,7 +92,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     });
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
                     {
-                        if (txDto1.Status == "Mined")
+                        if (txDto1.Status.ToLower() == "mined")
                             Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
                         else
                             return;
