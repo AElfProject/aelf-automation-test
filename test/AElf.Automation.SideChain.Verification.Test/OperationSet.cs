@@ -412,7 +412,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
                 
                 var resultReturn = result.InfoMsg as TransactionResultDto;
-                if (resultReturn.Status.Equals("NotExisted")|| resultReturn.Status.Equals("Failed"))
+                var status =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        resultReturn.Status, true);
+                if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                 {
                     Thread.Sleep(1000);
                     var checkTime = 5;
@@ -423,7 +426,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                         var reResult = ReceiveFromMainChain(SideChains[i], initRawTxInfos[i]);
                         if(reResult == null) continue;
                         var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                        if (reResultReturn.Status.Equals("Mined"))
+                        var reStatus =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                reResultReturn.Status, true);
+                        if (reStatus == TransactionResultStatus.Mined)
                             goto GetBalance;
                         if (reResultReturn.Error.Contains("Token already claimed"))
                             goto GetBalance;
@@ -542,9 +548,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                         var result = ReceiveFromMainChain(SideChains[i],sideRawTxInfos[i][j]);
                         if (result == null) continue;
                         var resultReturn = result.InfoMsg as TransactionResultDto;
-                        if (resultReturn.Status.Equals("NotExisted")) continue;
- 
-                        if (resultReturn.Status.Equals("Failed"))
+                        var status =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                resultReturn.Status, true);
+
+                        if (status == TransactionResultStatus.Failed || status == TransactionResultStatus.NotExisted)
                         {
                             Thread.Sleep(1000);
                             var checkTime = 5;
@@ -555,14 +563,17 @@ namespace AElf.Automation.SideChain.Verification.Test
                                 checkTime--;
                                 var reResult = ReceiveFromMainChain(SideChains[i],sideRawTxInfos[i][j]);
                                 var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                                if (reResultReturn.Status.Equals("Mined"))
-                                    return;
+                                var reStatus =
+                                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                        reResultReturn.Status, true);
+                                if (reStatus == TransactionResultStatus.Mined)
+                                    goto GetBalance;
                                 Thread.Sleep(2000);
                             }
                             
                             _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
                         }
-
+                        GetBalance:
                         _logger.WriteInfo($"check the balance on the side chain");
                         var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[i][j].ReceiveAccount, "ELF").Balance;
                 
@@ -662,9 +673,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                         if (result == null) continue;
                         
                         var resultReturn = result.InfoMsg as TransactionResultDto;
-                        if (resultReturn.Status.Equals("NotExisted")) continue;
-                        
-                        if (resultReturn.Status.Equals("Failed"))
+                        var status =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                resultReturn.Status, true);
+
+                        if (status == TransactionResultStatus.Failed || status == TransactionResultStatus.NotExisted)
                         {
                             Thread.Sleep(1000);
                             var checkTime = 5;
@@ -674,13 +687,17 @@ namespace AElf.Automation.SideChain.Verification.Test
                                 checkTime--;
                                 var reResult = SideChains[i].CrossChainReceive(sideRawTxInfos[j][k].FromAccount, crossChainReceiveToken);
                                 var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                                if (reResultReturn.Status.Equals("Mined"))
-                                    return;
+                                var reStatus =
+                                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                        reResultReturn.Status, true);
+                                if (reStatus == TransactionResultStatus.Mined)
+                                    goto GetBalance;
                                 Thread.Sleep(2000);
                             }
                             _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
                         }
                 
+                        GetBalance:
                         _logger.WriteInfo($"check the balance on the side chain");
                         var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[j][k].ReceiveAccount, "ELF").Balance;
                 
@@ -702,9 +719,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                 if (result == null) continue;
                 
                 var resultReturn = result.InfoMsg as TransactionResultDto;
-                if (resultReturn.Status.Equals("NotExisted")) continue;
-                
-                if (resultReturn.Status.Equals("Failed"))
+                var status =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        resultReturn.Status, true);
+
+                if (status == TransactionResultStatus.Failed || status == TransactionResultStatus.NotExisted)
                 {
                     Thread.Sleep(1000);
                     var checkTime = 5;
@@ -714,13 +733,17 @@ namespace AElf.Automation.SideChain.Verification.Test
                         checkTime--;
                         var reResult = MainChain.CrossChainReceive(mainRawTxInfos[i].FromAccount, crossChainReceiveToken);
                         var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                        if (reResultReturn.Status.Equals("Mined"))
-                            return;
+                        var reStatus =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                reResultReturn.Status, true);
+                        if (reStatus == TransactionResultStatus.Mined)
+                            goto GetBalance;
                         Thread.Sleep(2000);
                     }
                     _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
                 }
 
+                GetBalance:
                 _logger.WriteInfo($"check the balance on the main chain");
                 var accountBalance = MainChain.GetBalance(mainRawTxInfos[i].ReceiveAccount, "ELF").Balance;
                 
@@ -803,7 +826,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                 Assert.IsTrue(false, "Initial fund transfer failed.");
             }
             var resultReturn = result.InfoMsg as TransactionResultDto;
-            if (!resultReturn.Status.Equals("NotExisted") && !resultReturn.Status.Equals("Failed")) return;
+            var status =
+                (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                    resultReturn.Status, true);
+            if (status == TransactionResultStatus.Mined) return;
             Thread.Sleep(1000);
             var checkTime = 5;
             while (checkTime > 0)
@@ -813,7 +839,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                 var reResult = chain.TransferToken(initAccount, toAddress, amount, "ELF");
                 if(reResult == null) continue;
                 var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                if (reResultReturn.Status.Equals("Mined"))
+                var resSatus =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        reResultReturn.Status, true);
+                if (resSatus == TransactionResultStatus.Mined)
                     return;
                 Thread.Sleep(2000);
             }
@@ -844,7 +873,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                 return null;
             
             var verifyResult = result.InfoMsg as TransactionResultDto;
-            if (!verifyResult.Status.Equals("NotExisted") && !verifyResult.Status.Equals("Failed")) 
+            var status =
+                (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                    verifyResult.Status, true);
+            if (status == TransactionResultStatus.Mined) 
                 return verifyResult.ReadableReturnValue;
             Thread.Sleep(1000);
             var checkTime = 3;
@@ -855,7 +887,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                 result = chain.VerifyTransaction(verificationInput, sideChainAccount);
                 if (result == null) continue;
                 verifyResult = result.InfoMsg as TransactionResultDto;
-                if (verifyResult.Status.Equals("Mined"))
+                status =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        verifyResult.Status, true);
+                if (status == TransactionResultStatus.Mined)
                     break;
                 Thread.Sleep(2000);
             }
@@ -915,14 +950,19 @@ namespace AElf.Automation.SideChain.Verification.Test
                 return null;
             // get transaction info            
             var txResult = result.InfoMsg as TransactionResultDto;
-            
-            if (txResult.Status.Equals("NotExisted")||txResult.Status.Equals("Failed"))
+            var status =
+                (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                    txResult.Status, true);
+            if (status == TransactionResultStatus.NotExisted||status == TransactionResultStatus.Failed)
             {
                 Thread.Sleep(2000);
                 _logger.WriteInfo("Check the transaction again.");
                 result = CheckTransactionResult(chain, txId);
                 txResult = result.InfoMsg as TransactionResultDto;
-                if (txResult.Status.Equals("NotExisted") || txResult.Status.Equals("Failed"))
+                status =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        txResult.Status, true);
+                if (status == TransactionResultStatus.NotExisted||status == TransactionResultStatus.Failed)
                     goto Nullable;
             }
             var blockNumber = txResult.BlockNumber;
@@ -988,8 +1028,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                 var CI = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionId};
                 var result = chain.ApiHelper.ExecuteCommand(CI);
                 var txResult = result.InfoMsg as TransactionResultDto;
-                var resultStatus = txResult.Status;
-                transactionStatus.Add(resultStatus);
+                
+                var resultStatus =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        txResult.Status, true);
+                transactionStatus.Add(resultStatus.ToString());
             }
 
             var txIdsWithStatus = new List<Hash>();

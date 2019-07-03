@@ -212,7 +212,7 @@ namespace AElf.Automation.Common.Contracts
                 }
 
                 checkTimes++;
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
             
             var result = ci.InfoMsg as TransactionResultDto;
