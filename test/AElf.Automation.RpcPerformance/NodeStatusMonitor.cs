@@ -12,9 +12,7 @@ namespace AElf.Automation.RpcPerformance
     {
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private IApiHelper ApiHelper { get; }
-
         private long BlockHeight { get; set; } = 1;
-
         public static int MaxLimit { get; set; }
 
         public NodeStatusMonitor(IApiHelper apiHelper)
@@ -58,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
         {
             if (checkTimes == -1)
                 checkTimes = ConfigInfoHelper.Config.Timeout * 10;
-            if (checkTimes < 0)
+            if (checkTimes == 0)
                 Assert.IsTrue(false, "Transaction status check is timeout.");
             checkTimes--;
             var listCount = transactionIds.Count;
@@ -68,20 +66,29 @@ namespace AElf.Automation.RpcPerformance
                 var i1 = i;
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
-                var deployResult = transactionResult.Status;
-                if (deployResult.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                var resultStatus = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (resultStatus)
                 {
-                    _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
-                    transactionIds.Remove(transactionIds[i]);
+                    case TransactionResultStatus.Mined:
+                        _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
+                        transactionIds.Remove(transactionIds[i]);
+                        break;
+                    case TransactionResultStatus.Pending:
+                        $"Transaction: {transactionIds[i]}, Status: {resultStatus}".WriteWarningLine();
+                        break;
+                    case TransactionResultStatus.Failed:
+                    case TransactionResultStatus.Unexecutable:
+                        _logger.WriteError($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
+                        _logger.WriteError($"Error message: {transactionResult.Error}");
+                        transactionIds.Remove(transactionIds[i]);
+                        break;
                 }
-
-                Thread.Sleep(15);
             }
 
             if (transactionIds.Count > 0 && transactionIds.Count != 1)
             {
                 if (listCount == transactionIds.Count && checkTimes == 0)
-                    Assert.IsTrue(false, "Transaction not executed successfully.");
+                    Assert.IsTrue(false, "Transaction status always keep pending or not existed.");
                 CheckTransactionsStatus(transactionIds, checkTimes);
             }
 
@@ -90,11 +97,20 @@ namespace AElf.Automation.RpcPerformance
                 _logger.WriteInfo("Last one: {0}", transactionIds[0]);
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
-                var txResult = transactionResult.Status;
-                if (txResult.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                var txResult = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (txResult)
                 {
-                    Thread.Sleep(50);
-                    CheckTransactionsStatus(transactionIds, checkTimes);
+                    case TransactionResultStatus.Pending:
+                        CheckTransactionsStatus(transactionIds, checkTimes);
+                        break;
+                    case TransactionResultStatus.Mined:
+                        _logger.WriteInfo($"Transaction: {transactionIds[0]}, Status: {txResult}");
+                        transactionIds.RemoveAt(0);
+                        return;
+                    default:
+                        _logger.WriteError($"Transaction: {transactionIds[0]}, Status: {txResult}");
+                        _logger.WriteError($"Error message: {transactionResult.Error}");
+                        break;
                 }
             }
 
