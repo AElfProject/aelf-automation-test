@@ -1,9 +1,9 @@
 {
-    "GroupCount": 4,
+    "GroupCount": 3,
     "TransactionCount": 10,
-    "ServiceUrl": "http://192.168.197.13:8100",
-    "SelectTxLimit": 100,
-    "SentTxLimit": 1000,
+    "ServiceUrl": "http://3.94.106.10:8000",
+    "SelectTxLimit": 30,
+    "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
