@@ -1093,31 +1093,36 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
                 chain.ApiHelper.GetTransactionResult(ci);
-
                 if (ci.Result)
                 {
-                    var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    switch (transactionResult?.Status)
+                    if (ci.InfoMsg is TransactionResultDto transactionResult)
                     {
-                        case "Mined":
-                            _logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
-                            return ci;
-                        case "NotExisted":
-                            _logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
-                            return ci;
-                        case "Failed":
-                            var message = $"Transaction {txId} status: {transactionResult.Status}";
-                            message += $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                            message += $"\r\nError Message: {transactionResult.Error}";
-                            _logger.WriteError(message);
-                            return null;
-                        default:
-                            continue;
+                        var status =
+                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                                transactionResult.Status, true);
+                        switch (status)
+                        {
+                            case TransactionResultStatus.Mined:
+                                _logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                                return ci;
+                            case TransactionResultStatus.NotExisted:
+                                _logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
+                                return ci;
+                            case TransactionResultStatus.Failed:
+                            {
+                                var message = $"Transaction {txId} status: {transactionResult.Status}";
+                                message +=
+                                    $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                                message += $"\r\nError Message: {transactionResult.Error}";
+                                _logger.WriteError(message);
+                                return ci;
+                            }
+                        }
                     }
                 }
 
                 checkTimes++;
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
 
             var result = ci.InfoMsg as TransactionResultDto;
