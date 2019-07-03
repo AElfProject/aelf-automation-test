@@ -123,7 +123,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)
             {
-                if (txDto.Status.ToLower() != "mined")
+                if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                     Logger.WriteError(txDto.Error);
             }
 
@@ -174,7 +174,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Int64Value = 10_000
             });
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return;
-            if (txDto.Status.ToLower() != "mined")
+            if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
             {
                 Logger.WriteError(txDto.Error);
                 return;

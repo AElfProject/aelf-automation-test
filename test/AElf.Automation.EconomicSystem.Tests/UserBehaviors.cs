@@ -34,7 +34,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
             var transactionResult = vote.InfoMsg as TransactionResultDto;
-            transactionResult?.Status.ShouldBe("Mined");
+            transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {

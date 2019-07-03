@@ -2,6 +2,8 @@
 using System.IO;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
+using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -45,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result",
                     "tx_status");
-                if (status.ToLower() == "mined")
+                if (status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     _logger.WriteInfo($"{txId}: mined");
                 else
                     _logger.WriteError(txCi.InfoMsg.ToString());

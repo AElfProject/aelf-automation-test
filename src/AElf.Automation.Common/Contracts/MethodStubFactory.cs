@@ -61,8 +61,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
-                    status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), resultDto.Status, true);
+                    status = resultDto.Status.ConvertTransactionResultStatus();
                     if (status != TransactionResultStatus.Pending)
                     {
                         if (status == TransactionResultStatus.Mined)

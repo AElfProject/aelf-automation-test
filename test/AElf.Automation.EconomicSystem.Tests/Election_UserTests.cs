@@ -2,6 +2,7 @@ using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Profit;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -31,7 +32,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var transactionResult = voteResult.InfoMsg as TransactionResultDto;
 
             transactionResult.ShouldNotBeNull();
-            transactionResult.Status.ShouldBe("Mined");
+            transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]

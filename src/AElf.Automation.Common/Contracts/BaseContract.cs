@@ -156,11 +156,7 @@ namespace AElf.Automation.Common.Contracts
                 var transactionResult = ci.InfoMsg as TransactionResultDto;
                 Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
                 if (transactionResult != null)
-                {
-                    var status = (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                        transactionResult.Status, true);
-                    return status == TransactionResultStatus.Mined;
-                }
+                    return transactionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
             }
 
             Logger.WriteError(ci.GetErrorMessage());
@@ -190,9 +186,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     if (ci.InfoMsg is TransactionResultDto transactionResult)
                     {
-                        var status =
-                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                                transactionResult.Status, true);
+                        var status = transactionResult.Status.ConvertTransactionResultStatus();
                         switch (status)
                         {
                             case TransactionResultStatus.Mined:
@@ -269,9 +263,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     if (ci.InfoMsg is TransactionResultDto transactionResult)
                     {
-                        var status =
-                            (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                                transactionResult.Status, true);
+                        var status = transactionResult.Status.ConvertTransactionResultStatus();
                         switch (status)
                         {
                             case TransactionResultStatus.Mined:
@@ -396,7 +388,7 @@ namespace AElf.Automation.Common.Contracts
 
             if (!ci.Result) return false;
             var transactionResult = ci.InfoMsg as TransactionResultDto;
-            if (transactionResult?.Status.ToLower() != "mined") return false;
+            if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
             Logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");

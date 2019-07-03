@@ -122,9 +122,7 @@ namespace AElf.Automation.RpcPerformance
                     ApiHelper.GetTransactionResult(ci);
                     Assert.IsTrue(ci.Result);
                     if (!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
-                    var status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                            transactionResult.Status, true);
+                    var status = transactionResult.Status.ConvertTransactionResultStatus();
                     switch (status)
                     {
                         case TransactionResultStatus.Mined:

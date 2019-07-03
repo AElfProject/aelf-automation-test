@@ -1016,13 +1016,13 @@ namespace AElf.Automation.SideChain.Verification.Test
                 if (ci.Result)
                 {
                     var transactionResult = ci.InfoMsg as TransactionResultDto;
-                    if (transactionResult?.Status == "Mined")
+                    if (transactionResult?.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     {
                         _logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
                         return ci;
                     }
 
-                    if (transactionResult?.Status == "Failed")
+                    if (transactionResult?.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     {
                         _logger.WriteInfo($"Transaction {txId} status: {transactionResult?.Status}");
                         _logger.WriteError(transactionResult?.Error);

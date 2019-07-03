@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
@@ -68,7 +69,7 @@ namespace AElf.Automation.RpcPerformance
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
                 var deployResult = transactionResult.Status;
-                if (deployResult.ToLower() == "mined")
+                if (deployResult.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
                     _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: Mined");
                     transactionIds.Remove(transactionIds[i]);
@@ -90,7 +91,7 @@ namespace AElf.Automation.RpcPerformance
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
                 var txResult = transactionResult.Status;
-                if (txResult.ToLower() != "mined")
+                if (txResult.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 {
                     Thread.Sleep(50);
                     CheckTransactionsStatus(transactionIds, checkTimes);

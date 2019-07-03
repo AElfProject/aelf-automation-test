@@ -5,6 +5,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Profit;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -34,7 +35,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var result = Behaviors.AnnouncementElection(nodeAddress);
                 var transactionResult = result.InfoMsg as TransactionResultDto;
-                transactionResult?.Status.ShouldBe("Mined");
+                transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 
@@ -72,7 +73,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
 
             var transactionResult = result.InfoMsg as TransactionResultDto;
-            transactionResult?.Status.ShouldBe("Mined");
+            transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             beforeBalance.ShouldBe(afterBalance - 100_000L);

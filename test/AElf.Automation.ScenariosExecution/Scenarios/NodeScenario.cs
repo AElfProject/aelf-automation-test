@@ -72,7 +72,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
                 if (electionResult.InfoMsg is TransactionResultDto electionDto)
                 {
-                    if (electionDto.Status.ToLower() == "mined")
+                    if (electionDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     {
                         count++;
                         Logger.WriteInfo($"User {fullNode.Account} announcement election success.");
@@ -104,7 +104,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 if (!(quitResult.InfoMsg is TransactionResultDto electionDto)) continue;
-                if (electionDto.Status.ToLower() != "mined") continue;
+                if (electionDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.WriteInfo($"User {fullNode.Account} quit election success.");
                 UserScenario.GetCandidates(Election); //更新candidates列表
                 break;
