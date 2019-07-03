@@ -57,12 +57,6 @@
   ],
   "FullNodes": [
     {
-      "name": "full1-青云亚太2区",
-      "service_url": "http://103.61.37.19:8000",
-      "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
-      "password": "123"
-    },
-    {
       "name": "full2-亚太区域(东京)",
       "service_url": "http://13.231.68.213:8000",
       "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
@@ -102,12 +96,6 @@
       "name": "full8-欧洲(斯德哥尔摩)",
       "service_url": "http://13.53.124.106:8000",
       "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
-      "password": "123"
-    },
-    {
-      "name": "full9-青云亚太1区",
-      "service_url": "http://45.120.217.124:8000",
-      "account": "2jaRj5K8c1wWCBZav74t6nrB3TyA68JTmyinkpLHSF4Nxd9tU8",
       "password": "123"
     },
     {
