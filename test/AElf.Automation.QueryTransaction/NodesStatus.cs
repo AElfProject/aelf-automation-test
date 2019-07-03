@@ -68,7 +68,7 @@ namespace AElf.Automation.QueryTransaction
                     Logger.WriteError($"Node height {height} request return null response.");
                     return;
                 }
-                
+
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
                 Logger.WriteInfo(

@@ -388,7 +388,8 @@ namespace AElf.Automation.Common.Contracts
 
             if (!ci.Result) return false;
             var transactionResult = ci.InfoMsg as TransactionResultDto;
-            if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return false;
+            if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
             Logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");

@@ -1,4 +1,3 @@
-
 using System;
 using AElf.Types;
 
@@ -29,7 +28,7 @@ namespace AElf.Automation.Common.WebApi.Dto
     {
         public static TransactionResultStatus ConvertTransactionResultStatus(this string status)
         {
-            return (TransactionResultStatus)Enum.Parse(typeof(TransactionResultStatus), status, true);
+            return (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), status, true);
         }
     }
 }

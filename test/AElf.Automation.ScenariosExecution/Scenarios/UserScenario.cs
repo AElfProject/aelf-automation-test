@@ -63,7 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             GetCandidates(Election);
             GetCandidatesExcludeCurrentMiners();
-            
+
             if (_candidates.Count < 2)
                 return;
 
@@ -168,12 +168,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //query current miners
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
-            
+
             //query current candidates
             _candidatesExcludeMiners = new List<string>();
-            _candidates.ForEach(o=>
+            _candidates.ForEach(o =>
             {
-                if(!minersPublicKeys.Contains(o))
+                if (!minersPublicKeys.Contains(o))
                 {
                     _candidatesExcludeMiners.Add(o);
                 }

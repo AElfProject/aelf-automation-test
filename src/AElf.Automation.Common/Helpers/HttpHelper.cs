@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.Helpers
             var httpClient = GetDefaultClient();
             try
             {
-                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
+                var response = AsyncHelper.RunSync(() => httpClient.PostAsync(url, httpContent));
 
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 exec.Start();
-                var response = AsyncHelper.RunSync(()=>httpClient.PostAsync(url, httpContent));
+                var response = AsyncHelper.RunSync(() => httpClient.PostAsync(url, httpContent));
                 statusCode = response.StatusCode.ToString();
                 if (response.IsSuccessStatusCode)
                 {
@@ -160,7 +160,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
-                
+
                 Logger.WriteWarn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await GetResponseAsync(url, version, expectedStatusCode, retryTimes);
@@ -207,7 +207,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
-                
+
                 Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
@@ -249,7 +249,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
-                
+
                 Logger.WriteWarn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await DeleteResponseAsync(url, version, expectedStatusCode);

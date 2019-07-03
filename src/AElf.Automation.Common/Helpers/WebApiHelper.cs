@@ -19,13 +19,13 @@ namespace AElf.Automation.Common.Helpers
         private readonly AElfKeyStore _keyStore;
         private readonly ILogHelper _logger = LogHelper.GetLogHelper();
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
-        
+
         private string _genesisAddress;
         public string GenesisAddress => GetGenesisContractAddress();
 
         private AccountManager _accountManager;
         public AccountManager AccountManager => GetAccountManager();
-        
+
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
 
@@ -60,7 +60,7 @@ namespace AElf.Automation.Common.Helpers
         public string GetGenesisContractAddress()
         {
             if (_genesisAddress != null) return _genesisAddress;
-            
+
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
             _genesisAddress = statusDto.GenesisContractAddress;
             return _genesisAddress;
@@ -342,7 +342,7 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             if (resp == null)
             {
-                _logger.WriteError($"ExecuteTransaction response is null or empty.");
+                _logger.WriteError("ExecuteTransaction response is null.");
                 return default(T);
             }
 
@@ -399,32 +399,37 @@ namespace AElf.Automation.Common.Helpers
 
         private void InitializeWebApiRoute()
         {
-            ApiRoute = new Dictionary<ApiMethods, string>();
+            ApiRoute = new Dictionary<ApiMethods, string>
+            {
+                //chain route
+                {ApiMethods.GetChainInformation, "/api/blockChain/chainStatus"},
+                {ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight"},
+                {
+                    ApiMethods.GetBlockByHeight,
+                    "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}"
+                },
+                {ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}"},
+                {ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction"},
+                {ApiMethods.SendTransaction, "/api/blockChain/sendTransaction"},
+                {ApiMethods.SendTransactions, "/api/blockChain/sendTransactions"},
+                {ApiMethods.QueryView, "/api/blockChain/executeTransaction"},
+                {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
+                {
+                    ApiMethods.GetTransactionResults,
+                    "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"
+                },
 
-            //chain route
-            ApiRoute.Add(ApiMethods.GetChainInformation, "/api/blockChain/chainStatus");
-            ApiRoute.Add(ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight");
-            ApiRoute.Add(ApiMethods.GetBlockByHeight,
-                "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}");
-            ApiRoute.Add(ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}");
-            ApiRoute.Add(ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction");
-            ApiRoute.Add(ApiMethods.SendTransaction, "/api/blockChain/sendTransaction");
-            ApiRoute.Add(ApiMethods.SendTransactions, "/api/blockChain/sendTransactions");
-            ApiRoute.Add(ApiMethods.QueryView, "/api/blockChain/executeTransaction");
-            ApiRoute.Add(ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}");
-            ApiRoute.Add(ApiMethods.GetTransactionResults,
-                "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}");
-
-            //net route
-            ApiRoute.Add(ApiMethods.GetPeers, "/api/net/peers");
-            ApiRoute.Add(ApiMethods.AddPeer, "/api/net/peer");
-            ApiRoute.Add(ApiMethods.RemovePeer, "/api/net/peer?address={0}");
+                //net route
+                {ApiMethods.GetPeers, "/api/net/peers"},
+                {ApiMethods.AddPeer, "/api/net/peer"},
+                {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
+            };
         }
 
         private TransactionManager GetTransactionManager()
         {
             if (_transactionManager != null) return _transactionManager;
-            
+
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
             _chainId = statusDto.ChainId;
             _transactionManager = new TransactionManager(_keyStore, _chainId);
@@ -434,7 +439,7 @@ namespace AElf.Automation.Common.Helpers
         private AccountManager GetAccountManager()
         {
             if (_accountManager != null) return _accountManager;
-            
+
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
             _chainId = statusDto.ChainId;
             _accountManager = new AccountManager(_keyStore, _chainId);

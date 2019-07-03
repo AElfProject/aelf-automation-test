@@ -25,7 +25,7 @@ namespace AElf.Automation.ContractsTesting
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
             _stub = new ContractTesterFactory(serviceUrl, keyStorePath);
-            
+
             GetOrCreateTestAccount();
             GetGenesisContract();
             GetConfigurationStub();
@@ -52,16 +52,19 @@ namespace AElf.Automation.ContractsTesting
             _configurationStub = _stub.Create<ConfigurationContainer.ConfigurationStub>(
                 Address.Parse(address), _account);
         }
+
         private string DeployConfigurationContract()
         {
-            var code = File.ReadAllBytes($"/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
+            var code = File.ReadAllBytes(
+                $"/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
             var commonInfo = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
                 new SystemContractDeploymentInput
                 {
                     Category = 30,
                     Code = ByteString.CopyFrom(code),
                     Name = GenesisContract.NameProviderInfos[NameProvider.Configuration],
-                    TransactionMethodCallList = new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
+                    TransactionMethodCallList =
+                        new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
             var transactionResultDto = commonInfo.InfoMsg as TransactionResultDto;
 

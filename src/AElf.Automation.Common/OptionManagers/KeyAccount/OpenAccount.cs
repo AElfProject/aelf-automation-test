@@ -7,7 +7,7 @@ namespace AElf.Automation.Common.OptionManagers
     {
         // Close account when time out 
         public Timer CloseTimer { private get; set; }
-        
+
         public ECKeyPair KeyPair { get; set; }
         public string AccountName { get; }
 

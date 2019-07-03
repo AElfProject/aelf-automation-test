@@ -161,8 +161,10 @@ namespace AElf.Automation.Common.OptionManagers
                 return false;
             }
 
-            var privateKeyParam = new ECPrivateKeyParameters(new BigInteger(1, keyPair.PrivateKey), ECParameters.DomainParams);
-            var publicKeyParam = new ECPublicKeyParameters("EC", ECParameters.Curve.Curve.DecodePoint(keyPair.PublicKey), ECParameters.DomainParams);
+            var privateKeyParam =
+                new ECPrivateKeyParameters(new BigInteger(1, keyPair.PrivateKey), ECParameters.DomainParams);
+            var publicKeyParam = new ECPublicKeyParameters("EC",
+                ECParameters.Curve.Curve.DecodePoint(keyPair.PublicKey), ECParameters.DomainParams);
 
             var asymmetricCipherKeyPair = new AsymmetricCipherKeyPair(publicKeyParam, privateKeyParam);
 

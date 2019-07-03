@@ -24,10 +24,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         //view
         public CandidateVote GetCandidateVote(string publicKey)
         {
-            var candidateVote = ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote, new StringInput
-            {
-                Value = publicKey
-            });
+            var candidateVote = ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
+                new StringInput
+                {
+                    Value = publicKey
+                });
 
             return candidateVote;
         }

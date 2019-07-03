@@ -189,14 +189,14 @@ namespace AElf.Automation.ScenariosExecution
                     ContractScenario.IsUpdateContract = false;
                     ContractScenario.ContractOwner = CallAddress;
                     ContractScenario.ContractManager = CallAddress;
-                    
+
                     //update configInfo
                     contractItem.Address = FunctionContractService.ContractAddress;
                     contractItem.Owner = CallAddress;
 
                     QueryContractItem(ref contractItem, out _);
                     contractItem.CodeHash = contractItem.CodeHash;
-                    
+
                     //Initialize contract
                     FunctionContractService.ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
                         new InitialBasicContractInput
@@ -225,7 +225,7 @@ namespace AElf.Automation.ScenariosExecution
                 ContractScenario.IsUpdateContract = false;
                 ContractScenario.ContractOwner = CallAddress;
                 ContractScenario.ContractManager = CallAddress;
-                
+
                 //Initialize contract
                 FunctionContractService.ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
                     new InitialBasicContractInput

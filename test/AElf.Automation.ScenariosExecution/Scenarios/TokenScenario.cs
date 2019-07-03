@@ -136,10 +136,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var fullNode in FullNodes)
             {
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
-                
+
                 var tokenBalance = Token.GetUserBalance(fullNode.Account);
                 if (tokenBalance > 100_000) continue;
-                
+
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
@@ -148,6 +148,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = "Transfer for announcement event"
                 });
             }
+
             token.CheckTransactionResultList();
 
             //prepare other user token
@@ -156,7 +157,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance >= 500_000) continue;
-                
+
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",

@@ -170,7 +170,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetVoteStatus(termNumber);
             GetCandidateHistoryInformation();
         }
-        
+
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
@@ -225,15 +225,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
-            
+
             var candidateArray = new List<string>();
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             foreach (var full in FullNodes)
             {
-                if(candidatesKeysList.Contains(full.PublicKey))
+                if (candidatesKeysList.Contains(full.PublicKey))
                     candidateArray.Add(full.Name);
             }
+
             Logger.WriteInfo($"TermNumber = {termNumber}, candidates are: [{string.Join(",", candidateArray)}]");
         }
 
@@ -247,10 +248,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Value = fullNode.PublicKey
                     });
-                if(candidateVote.Equals(new CandidateVote()))
+                if (candidateVote.Equals(new CandidateVote()))
                     continue;
-                voteMessage += $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
+                voteMessage +=
+                    $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
             }
+
             Logger.WriteInfo(voteMessage);
         }
 

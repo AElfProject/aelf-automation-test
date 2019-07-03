@@ -37,10 +37,10 @@ namespace AElf.Automation.Common.Contracts
         CrossChainName,
         AssciationName,
         Configuration,
-        
+
         BasicFunction
     }
-    
+
     public class GenesisContract : BaseContract<GenesisMethod>
     {
         public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
