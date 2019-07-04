@@ -34,7 +34,10 @@ Performance testing, you can run huge transactions to test node stability and tr
 Following are details about running step and how to configuration.
 
 1. Prepare test contract MultiToken to default directory
+```
+mkdir -p ~/.local/share/aelf/contracts
 cp AElf.Contracts.MultiToken.dll ~/.local/share/aelf/contracts
+```
 
 2. Run test to send transaction with configuration rpc-performance.json
 ```
