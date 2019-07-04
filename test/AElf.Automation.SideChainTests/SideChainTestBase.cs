@@ -28,7 +28,7 @@ namespace AElf.Automation.SideChainTests
 
         protected void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
             IS = new WebApiService(RpcUrl);
             var contractServices = new ContractServices(CH, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
@@ -53,7 +53,7 @@ namespace AElf.Automation.SideChainTests
 
         protected WebApiHelper ChangeRpc(string url)
         {
-            var rpcApiHelper = new WebApiHelper(url, AccountManager.GetDefaultDataDir());
+            var rpcApiHelper = new WebApiHelper(url, CommonHelper.GetCurrentDataDir());
             return rpcApiHelper;
         }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainTests
             _logger.WriteInfo("Delete all account files created.");
             foreach (var item in UserList)
             {
-                var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
                 File.Delete(file);
             }
         }

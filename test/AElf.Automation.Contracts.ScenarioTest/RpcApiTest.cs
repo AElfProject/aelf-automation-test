@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            Ch = new WebApiHelper(ServiceUrl, AccountManager.GetDefaultDataDir());
+            Ch = new WebApiHelper(ServiceUrl, CommonHelper.GetCurrentDataDir());
         }
 
         [TestMethod]

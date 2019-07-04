@@ -52,20 +52,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            _ch1 = new WebApiHelper("http://192.168.197.56:8001", AccountManager.GetDefaultDataDir());
-            _ch2 = new WebApiHelper("http://192.168.197.56:8002", AccountManager.GetDefaultDataDir());
-            _ch3 = new WebApiHelper("http://192.168.197.56:8003", AccountManager.GetDefaultDataDir());
-            _ch4 = new WebApiHelper("http://192.168.197.56:8004", AccountManager.GetDefaultDataDir());
+            _ch1 = new WebApiHelper("http://192.168.197.56:8001", CommonHelper.GetCurrentDataDir());
+            _ch2 = new WebApiHelper("http://192.168.197.56:8002", CommonHelper.GetCurrentDataDir());
+            _ch3 = new WebApiHelper("http://192.168.197.56:8003", CommonHelper.GetCurrentDataDir());
+            _ch4 = new WebApiHelper("http://192.168.197.56:8004", CommonHelper.GetCurrentDataDir());
 
-            _s1ch1 = new WebApiHelper("http://192.168.197.56:8011", AccountManager.GetDefaultDataDir());
-            _s1ch2 = new WebApiHelper("http://192.168.197.56:8012", AccountManager.GetDefaultDataDir());
-            _s1ch3 = new WebApiHelper("http://192.168.197.56:8013", AccountManager.GetDefaultDataDir());
-            _s1ch4 = new WebApiHelper("http://192.168.197.56:8014", AccountManager.GetDefaultDataDir());
+            _s1ch1 = new WebApiHelper("http://192.168.197.56:8011", CommonHelper.GetCurrentDataDir());
+            _s1ch2 = new WebApiHelper("http://192.168.197.56:8012", CommonHelper.GetCurrentDataDir());
+            _s1ch3 = new WebApiHelper("http://192.168.197.56:8013", CommonHelper.GetCurrentDataDir());
+            _s1ch4 = new WebApiHelper("http://192.168.197.56:8014", CommonHelper.GetCurrentDataDir());
 
-            _s2ch1 = new WebApiHelper("http://192.168.197.70:8011", AccountManager.GetDefaultDataDir());
-            _s2ch2 = new WebApiHelper("http://192.168.197.70:8012", AccountManager.GetDefaultDataDir());
-            _s2ch3 = new WebApiHelper("http://192.168.197.70:8013", AccountManager.GetDefaultDataDir());
-            _s2ch4 = new WebApiHelper("http://192.168.197.70:8014", AccountManager.GetDefaultDataDir());
+            _s2ch1 = new WebApiHelper("http://192.168.197.70:8011", CommonHelper.GetCurrentDataDir());
+            _s2ch2 = new WebApiHelper("http://192.168.197.70:8012", CommonHelper.GetCurrentDataDir());
+            _s2ch3 = new WebApiHelper("http://192.168.197.70:8013", CommonHelper.GetCurrentDataDir());
+            _s2ch4 = new WebApiHelper("http://192.168.197.70:8014", CommonHelper.GetCurrentDataDir());
         }
 
         [TestMethod]

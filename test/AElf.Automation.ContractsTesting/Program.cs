@@ -55,7 +55,7 @@ namespace AElf.Automation.ContractsTesting
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
+            var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
 
             //deploy contract
             var contractExecution = new ContractExecution(Endpoint);

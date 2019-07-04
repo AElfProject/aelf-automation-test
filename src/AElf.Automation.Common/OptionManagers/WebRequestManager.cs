@@ -18,7 +18,7 @@ namespace AElf.Automation.Common.OptionManagers
         public T GetResponse<T>(string url, out string returnCode, out long timeSpan)
         {
             timeSpan = 0L;
-            Stopwatch watch = new Stopwatch();
+            var watch = new Stopwatch();
             try
             {
                 watch.Start();
@@ -42,7 +42,7 @@ namespace AElf.Automation.Common.OptionManagers
             out long timeSpan)
         {
             timeSpan = 0L;
-            Stopwatch watch = new Stopwatch();
+            var watch = new Stopwatch();
             try
             {
                 watch.Start();
@@ -65,7 +65,7 @@ namespace AElf.Automation.Common.OptionManagers
         public T DeleteResponse<T>(string url, out string returnCode, out long timeSpan)
         {
             timeSpan = 0L;
-            Stopwatch watch = new Stopwatch();
+            var watch = new Stopwatch();
             try
             {
                 watch.Start();

@@ -360,8 +360,7 @@ namespace AElf.Automation.Common.Helpers
 
         public string GetPublicKeyFromAddress(string account, string password = "123")
         {
-            AccountManager.UnlockAccount(account, password, "notimeout");
-            return AccountManager.GetPublicKey(account);
+            return AccountManager.GetPublicKey(account, password);
         }
 
         //Net Api

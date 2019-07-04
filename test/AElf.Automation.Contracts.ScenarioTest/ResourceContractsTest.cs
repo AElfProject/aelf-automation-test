@@ -39,7 +39,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            ApiHelper = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            ApiHelper = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);

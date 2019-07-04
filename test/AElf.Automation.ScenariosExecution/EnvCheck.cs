@@ -27,7 +27,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private EnvCheck()
         {
-            AccountDir = AccountManager.GetDefaultDataDir();
+            AccountDir = CommonHelper.GetCurrentDataDir();
             _config = ConfigInfoHelper.Config;
 
             CheckInitialEnvironment();

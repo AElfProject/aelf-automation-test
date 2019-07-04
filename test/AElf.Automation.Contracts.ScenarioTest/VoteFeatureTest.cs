@@ -70,7 +70,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper(dir);
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -127,7 +127,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.WriteInfo("Delete all account files created.");
             foreach (var item in UserList)
             {
-                string file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
+                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
                 File.Delete(file);
             }
         }

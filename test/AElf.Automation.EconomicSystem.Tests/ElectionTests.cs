@@ -39,7 +39,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             #region Get services
 
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
@@ -131,7 +131,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             _logger.WriteInfo("Delete all account files created.");
             foreach (var item in UserList)
             {
-                var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
                 File.Delete(file);
             }
             */

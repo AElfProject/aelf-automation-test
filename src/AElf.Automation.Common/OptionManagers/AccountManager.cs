@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
-using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
 using Volo.Abp.Threading;
@@ -107,28 +105,9 @@ namespace AElf.Automation.Common.OptionManagers
 
         public string GetPublicKey(string address, string password = "123")
         {
+            UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
-        }
-
-        public static string GetDefaultDataDir()
-        {
-            try
-            {
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                var keyPath = Path.Combine(path, "keys");
-                if (!Directory.Exists(keyPath))
-                    Directory.CreateDirectory(keyPath);
-
-                return path;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         private ECKeyPair GetKeyPair(string addr)
