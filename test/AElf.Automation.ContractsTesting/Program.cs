@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
@@ -58,11 +59,16 @@ namespace AElf.Automation.ContractsTesting
             var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
 
             //deploy contract
-            var contractExecution = new ContractExecution(Endpoint);
-            contractExecution.DeployTestContract();
-            AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
-            AsyncHelper.RunSync(contractExecution.UpdateContract);
-            AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+            
+            while (true)
+            {
+                var contractExecution = new ContractExecution(Endpoint);
+                contractExecution.DeployTestContract();
+                AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+                AsyncHelper.RunSync(contractExecution.UpdateContract);
+                AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+                Thread.Sleep(100);
+            }
 
             //configuration set
             var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");

@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
-using Nito.AsyncEx;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -125,7 +123,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             CollectAllBpTokensToBp0();
             Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
-            var publicKeysList = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var publicKeysList = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             var bp = BpNodes.First();
@@ -138,12 +136,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
 
                 var tokenBalance = Token.GetUserBalance(fullNode.Account);
-                if (tokenBalance > 100_000) continue;
+                if (tokenBalance > 100_000_00000000) continue;
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
-                    Amount = 200_000,
+                    Amount = 200_000_00000000,
                     To = Address.Parse(fullNode.Account),
                     Memo = "Transfer for announcement event"
                 });
@@ -156,12 +154,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
-                if (balance >= 500_000) continue;
+                if (balance >= 500_000_00000000) continue;
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
-                    Amount = 500_000 - balance,
+                    Amount = 500_000_00000000 - balance,
                     To = Address.Parse(user),
                     Memo = $"Transfer for testing - {Guid.NewGuid()}"
                 });

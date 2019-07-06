@@ -14,9 +14,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         #region Election View Methods
 
-        public PublicKeysList GetVictories()
+        public PubkeyList GetVictories()
         {
-            var result = ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories,
+            var result = ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetVictories,
                 new Empty());
 
             return result;
@@ -39,10 +39,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public PublicKeysList GetCandidates()
+        public PubkeyList GetCandidates()
         {
             var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates,
+                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
                     new Empty());
 
             return result;
@@ -98,10 +98,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         #region ProfitService View Method
 
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
-        public CreatedProfitItems GetCreatedProfitItems()
+        public CreatedProfitIds GetCreatedProfitItems()
         {
-            var result = ProfitService.CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,
-                new GetCreatedProfitItemsInput
+            var result = ProfitService.CallViewMethod<CreatedProfitIds>(ProfitMethod.GetCreatedProfitIds,
+                new GetCreatedProfitIdsInput
                 {
                     Creator = ContractServices.GenesisService.GetContractAddressByName(NameProvider.ElectionName)
                 });

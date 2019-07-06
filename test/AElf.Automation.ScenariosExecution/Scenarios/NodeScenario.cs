@@ -13,6 +13,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class NodeScenario : BaseScenario
     {
+        public TreasuryContract Treasury;
         public ElectionContract Election { get; }
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
@@ -24,13 +25,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public NodeScenario()
         {
             InitializeScenario();
+            Treasury = Services.TreasuryService;
             Election = Services.ElectionService;
             Consensus = Services.ConsensusService;
             Profit = Services.ProfitService;
             Token = Services.TokenService;
 
             //Get Profit items
-            Profit.GetProfitItemIds(Election.ContractAddress);
+            Profit.GetProfitItemIds(Treasury.ContractAddress);
             ProfitItemIds = Profit.ProfitItemIds;
 
             //Announcement
@@ -61,7 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void NodeAnnounceElectionAction()
         {
-            var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             var count = 0;
             foreach (var fullNode in FullNodes)
@@ -87,7 +89,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void NodeQuitElectionAction()
         {
-            var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             if (candidatesKeysList.Count < 2)
             {
@@ -197,7 +199,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (candidateResult.AnnouncementTransactionId == Hash.Empty) continue;
 
                 var historyMessage = $"\r\nCandidate: {fullNode.Account}\r\n" +
-                                     $"PublicKey: {candidateResult.PublicKey}\r\n" +
+                                     $"PublicKey: {candidateResult.Pubkey}\r\n" +
                                      $"Term: {candidateResult.Terms}\r\n" +
                                      $"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}\r\n" +
                                      $"ProducedBlocks: {candidateResult.ProducedBlocks}\r\n" +
@@ -223,11 +225,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (minersPublicKeys.Contains(full.PublicKey))
                     minerArray.Add(full.Name);
             }
+            
+            //get voted candidates
+            var votedCandidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetVotedCandidates, new Empty());
+            Logger.WriteInfo($"TermNumber = {termNumber}, voted candidates count: {miners.Pubkeys.Count}, miners count: {votedCandidates.Value.Count}");
 
             Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
 
             var candidateArray = new List<string>();
-            var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             foreach (var full in FullNodes)
             {
@@ -267,11 +273,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 return;
 
             Logger.WriteInfo($"ProfitAmount: node {account} profit amount is {profitAmount}");
-            //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
             profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
             {
-                ProfitId = profitId
+                ProfitId = profitId,
+                Symbol = "ELF"
             });
 
             var afterBalance = Token.GetUserBalance(account);

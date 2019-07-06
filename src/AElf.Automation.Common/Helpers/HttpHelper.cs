@@ -210,7 +210,7 @@ namespace AElf.Automation.Common.Helpers
 
                 Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
-                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
+                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode, retryTimes);
             }
         }
 

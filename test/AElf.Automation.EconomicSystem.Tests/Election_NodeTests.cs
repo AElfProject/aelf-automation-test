@@ -27,7 +27,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             TestCleanUp();
         }
 
-
         [TestMethod]
         public void Announcement_AllNodes_Scenario()
         {
@@ -90,7 +89,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
-
         [TestMethod]
         public void GetCandidateHistory()
         {
@@ -98,7 +96,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var candidateResult = Behaviors.GetCandidateInformation(candidate);
                 _logger.WriteInfo("Candidate: ");
-                _logger.WriteInfo($"PublicKey: {candidateResult.PublicKey}");
+                _logger.WriteInfo($"PublicKey: {candidateResult.Pubkey}");
                 _logger.WriteInfo($"Terms: {candidateResult.Terms}");
                 _logger.WriteInfo($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
                 _logger.WriteInfo($"ProducedBlocks: {candidateResult.ProducedBlocks}");

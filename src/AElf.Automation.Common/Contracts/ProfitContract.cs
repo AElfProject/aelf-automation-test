@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Contracts
         Profit,
 
         //view
-        GetCreatedProfitItems,
+        GetCreatedProfitIds,
         GetProfitItemVirtualAddress,
         GetReleasedProfitsInformation,
         GetProfitDetails,
@@ -54,18 +54,18 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public void GetProfitItemIds(string electionContractAddress)
+        public void GetProfitItemIds(string treasuryContractAddress)
         {
-            var profitItems = GetCreatedProfitItems(electionContractAddress);
+            var profitIds = GetCreatedProfitItems(treasuryContractAddress).ProfitIds;
             ProfitItemIds = new Dictionary<ProfitType, Hash>
             {
-                {ProfitType.Treasury, profitItems.ProfitIds[0]},
-                {ProfitType.MinerReward, profitItems.ProfitIds[1]},
-                {ProfitType.BackSubsidy, profitItems.ProfitIds[2]},
-                {ProfitType.CitizenWelfare, profitItems.ProfitIds[3]},
-                {ProfitType.BasicMinerReward, profitItems.ProfitIds[4]},
-                {ProfitType.VotesWeightReward, profitItems.ProfitIds[5]},
-                {ProfitType.ReElectionReward, profitItems.ProfitIds[6]}
+                {ProfitType.Treasury, profitIds[0]},
+                {ProfitType.MinerReward, profitIds[1]},
+                {ProfitType.BackSubsidy, profitIds[2]},
+                {ProfitType.CitizenWelfare, profitIds[3]},
+                {ProfitType.BasicMinerReward, profitIds[4]},
+                {ProfitType.VotesWeightReward, profitIds[5]},
+                {ProfitType.ReElectionReward, profitIds[6]}
             };
         }
 
@@ -86,7 +86,8 @@ namespace AElf.Automation.Common.Contracts
             SetAccount(account);
             return CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ProfitInput
             {
-                ProfitId = profitId
+                ProfitId = profitId,
+                Symbol = "ELF"
             }).Value;
         }
 
@@ -112,12 +113,12 @@ namespace AElf.Automation.Common.Contracts
             return result;
         }
 
-        private CreatedProfitItems GetCreatedProfitItems(string electionContractAddress)
+        private CreatedProfitIds GetCreatedProfitItems(string treasuryContractAddress)
         {
-            var result = CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,
-                new GetCreatedProfitItemsInput
+            var result = CallViewMethod<CreatedProfitIds>(ProfitMethod.GetCreatedProfitIds,
+                new GetCreatedProfitIdsInput
                 {
-                    Creator = Address.Parse(electionContractAddress)
+                    Creator = Address.Parse(treasuryContractAddress)
                 });
             return result;
         }

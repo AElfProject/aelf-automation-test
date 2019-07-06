@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
@@ -119,7 +118,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public CommandInfo ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
