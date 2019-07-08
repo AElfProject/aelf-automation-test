@@ -1,4 +1,9 @@
+using System;
+using Acs3;
 using AElf.Automation.Common.Helpers;
+using AElf.Types;
+using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -7,6 +12,10 @@ namespace AElf.Automation.Common.Contracts
         //Action
         Approve,
         CreateProposal,
+        
+        //View
+        GetGenesisOwnerAddress
+        
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
@@ -20,6 +29,26 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+        }
+
+        public Hash CreateProposal(GenesisMethod method, IMessage input, Address organizationAddress)
+        {
+            var proposal = ExecuteMethodWithResult(ParliamentMethod.CreateProposal, new CreateProposalInput
+                {
+                    ContractMethodName = nameof(method),
+                    ExpiredTime = DateTime.UtcNow.AddHours(1).ToTimestamp(),
+                    Params = input.ToByteString(),
+                    //ToAddress = IApiHelper
+                     
+                }
+            );
+            
+            return Hash.Empty;
+        }
+
+        public Address GetGenesisOwnerAddress()
+        {
+            return CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
         }
     }
 }
