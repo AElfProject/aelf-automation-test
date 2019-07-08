@@ -79,7 +79,7 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             // Sign the hash
-            var signature = CryptoHelpers.SignWithPrivateKey(kp.PrivateKey, txData);
+            var signature = CryptoHelper.SignWithPrivateKey(kp.PrivateKey, txData);
             return ByteString.CopyFrom(signature);
         }
 
@@ -125,7 +125,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             transaction.RefBlockNumber = height;
             transaction.RefBlockPrefix =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray());
+                ByteString.CopyFrom(ByteArrayHelper.FromHexString(hash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 

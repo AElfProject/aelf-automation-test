@@ -38,7 +38,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initialize()
         {
             CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            var contractServices = new ContractServices(CH, InitAccount);
+            var contractServices = new ContractServices(CH, InitAccount,"Main");
             Tester = new ContractTester(contractServices);
 
             #region Basic Preparation

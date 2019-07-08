@@ -13,12 +13,13 @@ namespace AElf.Automation.Common.Contracts
         DeploySystemSmartContract,
         DeploySmartContract,
         UpdateSmartContract,
-        ChangeContractOwner,
+        ChangeContractAuthor,
+        ChangeGenesisOwner,
 
         //view
         CurrentContractSerialNumber,
         GetContractInfo,
-        GetContractOwner,
+        GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
         GetSmartContractRegistrationByAddress
@@ -35,7 +36,7 @@ namespace AElf.Automation.Common.Contracts
         ConsensusName,
         ParliamentName,
         CrossChainName,
-        AssciationName,
+        AssociationName,
         Configuration,
         
         BasicFunction
@@ -94,7 +95,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractOwner(Address contractAddress)
         {
-            var address = CallViewMethod<Address>(GenesisMethod.GetContractOwner, contractAddress);
+            var address = CallViewMethod<Address>(GenesisMethod.GetContractAuthor, contractAddress);
 
             return address;
         }
@@ -117,7 +118,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
+                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };

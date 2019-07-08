@@ -64,14 +64,15 @@ namespace AElf.Automation.SideChainTests
             return address;
         }
 
-        public CommandInfo CreateSideChainProposal(Address organizationAddress,string account,int indexingPrice,long lockedTokenAmount)
+        public CommandInfo CreateSideChainProposal(Address organizationAddress,string account,int indexingPrice,long lockedTokenAmount, bool isPrivilegePreserved)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
             var createProposalInput = new SideChainCreationRequest
             {
                 ContractCode = code,
                 IndexingPrice = indexingPrice,
-                LockedTokenAmount = lockedTokenAmount
+                LockedTokenAmount = lockedTokenAmount,
+//                IsPrivilegePreserved = isPrivilegePreserved
             };
             ParliamentService.SetAccount(account);
             var result =

@@ -17,8 +17,9 @@ namespace AElf.Automation.SideChainTests
         public ContractTester Tester;
         public readonly ILogHelper _logger = LogHelper.GetLogHelper();
         
-//        public static string RpcUrl { get; } = "http://192.168.197.56:8001";    
-        public static string RpcUrl { get; } = "http://192.168.197.12:8001";
+//        public static string RpcUrl { get; } = "http://127.0.0.1:9000";    
+        public static string RpcUrl { get; } = "http://192.168.197.14:8001";
+//        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
  
         public IApiHelper CH { get; set; }
         public IApiService IS { get; set; }
@@ -42,12 +43,14 @@ namespace AElf.Automation.SideChainTests
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
+            //线下 - 4bp 
+            BpNodeAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
+            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
+            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
+            
 //            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
 //            BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
 //            BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
-//            BpNodeAddress.Add("QmsbxArByariFrB2TwpPA7F51xyQySsjurtSR57Dibpohk8qH");
-//            BpNodeAddress.Add("7ZYaVinJ5mi7k64YTQZxaYtbKFb5GzcgeX37cJ5b3bNa6W3G8");
-//            BpNodeAddress.Add("KJoGS8hwpgqYaNX6EMA38tqjytuT5RCjaX4gMwfjYXihMRThi");
 //            BpNodeAddress.Add("XSYSQ2kf4MCcSu1uWnZ9mTtgM9pq6yu85HUtV2j743mk8b4WF");
 //            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
         }

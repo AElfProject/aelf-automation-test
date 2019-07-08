@@ -154,7 +154,7 @@ namespace AElf.Automation.SideChainTests
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTx));
 
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA,sideChainAccount);
@@ -206,7 +206,7 @@ namespace AElf.Automation.SideChainTests
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTx));
 
             //receive in side chain B
             SideChainB = ChangeRpc(SideBRpcUrl);
@@ -259,7 +259,7 @@ namespace AElf.Automation.SideChainTests
                 TesterB.GetBoundParentChainHeightAndMerklePathByHeight(sideChainAccount, long.Parse(blockNumber));
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
-            crossChainReceiveToken.TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+            crossChainReceiveToken.TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTx));
             
             Tester.UnlockAllAccounts(Tester.ContractServices,accountM);
             //receive in main chain

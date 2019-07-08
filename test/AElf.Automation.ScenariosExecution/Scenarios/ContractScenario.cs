@@ -114,11 +114,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var id = GenerateRandomNumber(0, Testers.Count - 2);
 
             Genesis.SetAccount(owner.GetFormatted());
-            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractOwner,
-                new ChangeContractOwnerInput
+            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                new ChangeContractAuthorInput()
                 {
                     ContractAddress = Address.Parse(FunctionContract.ContractAddress),
-                    NewOwner = Address.Parse(ownerCandidates[id])
+                    NewAuthor = Address.Parse(ownerCandidates[id])
                 });
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)

@@ -9,6 +9,7 @@ namespace AElf.Automation.Common.Contracts
         CreateProposal,
         GetProposal,
         Release,
+        CreateOrganization,
         
         //View
         GetGenesisOwnerAddress
