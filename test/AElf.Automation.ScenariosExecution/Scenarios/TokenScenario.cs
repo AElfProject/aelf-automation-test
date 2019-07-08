@@ -84,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
-                        Amount = 1000,
+                        Amount = 1000_00000000,
                         Spender = Address.Parse(to),
                         Symbol = "ELF"
                     });
@@ -177,7 +177,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var bp in BpNodes.Skip(1))
             {
                 var balance = Token.GetUserBalance(bp.Account);
-                if (balance < 1000)
+                if (balance < 1000_00000000)
                     continue;
 
                 //transfer
