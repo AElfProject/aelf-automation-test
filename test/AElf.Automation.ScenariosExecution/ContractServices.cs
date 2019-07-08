@@ -255,7 +255,7 @@ namespace AElf.Automation.ScenariosExecution
                         Address.Parse(contractItem.Address));
 
                 if (contractInfo.Equals(new ContractInfo())) return false;
-                contractItem.Owner = contractInfo.Owner.GetFormatted();
+                contractItem.Owner = contractInfo.Author.GetFormatted();
                 if (contractItem.CodeHash != "" && contractItem.CodeHash != contractInfo.CodeHash.ToHex())
                     updated = true;
 

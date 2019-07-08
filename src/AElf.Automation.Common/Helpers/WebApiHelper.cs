@@ -346,7 +346,7 @@ namespace AElf.Automation.Common.Helpers
                 return default(T);
             }
 
-            var byteArray = ByteArrayHelpers.FromHexString(resp);
+            var byteArray = ByteArrayHelper.FromHexString(resp);
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);
