@@ -45,7 +45,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             ExecuteTestContractNewMethod();
 
-            UpdateTestContractOwner();
+            UpdateTestContractAuthor();
 
             ExecuteTestContractMethod();
         }
@@ -58,7 +58,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 ExecuteTestContractMethod,
                 ExecuteTestContractNewMethod,
                 UpdateTestContractCode,
-                UpdateTestContractOwner
+                UpdateTestContractAuthor
             });
         }
 
@@ -109,18 +109,18 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo("Test contract old methods executed successful.");
         }
 
-        private void UpdateTestContractOwner()
+        private void UpdateTestContractAuthor()
         {
-            var owner = Genesis.GetContractOwner(ContractAddress);
+            var owner = Genesis.GetContractAuthor(ContractAddress);
             var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
             var id = GenerateRandomNumber(0, Testers.Count - 2);
 
             Genesis.SetAccount(owner.GetFormatted());
-            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractOwner,
-                new ChangeContractOwnerInput
+            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                new ChangeContractAuthorInput
                 {
                     ContractAddress = Address.Parse(FunctionContract.ContractAddress),
-                    NewOwner = Address.Parse(ownerCandidates[id])
+                    NewAuthor = Address.Parse(ownerCandidates[id])
                 });
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)
@@ -129,14 +129,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Logger.WriteError(txDto.Error);
             }
 
-            var newOwner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
+            var newOwner = Genesis.GetContractAuthor(FunctionContract.ContractAddress);
             if (newOwner.GetFormatted() == ownerCandidates[id])
                 Logger.WriteInfo($"TestContract owner updated from {owner} to {newOwner}");
         }
 
         private void UpdateTestContractCode()
         {
-            var owner = Genesis.GetContractOwner(ContractAddress);
+            var owner = Genesis.GetContractAuthor(ContractAddress);
 
             Genesis.SetAccount(owner.GetFormatted());
             if (!IsUpdateContract)

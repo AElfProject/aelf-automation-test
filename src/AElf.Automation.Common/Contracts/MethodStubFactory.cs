@@ -131,7 +131,7 @@ namespace AElf.Automation.Common.Contracts
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
-                return method.ResponseMarshaller.Deserializer(ByteArrayHelpers.FromHexString(returnValue));
+                return method.ResponseMarshaller.Deserializer(ByteArrayHelper.FromHexString(returnValue));
             }
 
             return new MethodStub<TInput, TOutput>(method, SendAsync, CallAsync);

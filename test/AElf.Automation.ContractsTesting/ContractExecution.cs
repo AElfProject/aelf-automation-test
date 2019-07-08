@@ -45,7 +45,7 @@ namespace AElf.Automation.ContractsTesting
 
         public async Task UpdateContract()
         {
-            var owner = _genesisContract.GetContractOwner(_contractAddress);
+            var owner = _genesisContract.GetContractAuthor(_contractAddress);
 
             _genesisContract.SetAccount(owner.GetFormatted());
             var result = _genesisContract.UpdateContract(owner.GetFormatted(), _contractAddress,

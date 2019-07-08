@@ -13,12 +13,12 @@ namespace AElf.Automation.Common.Contracts
         DeploySystemSmartContract,
         DeploySmartContract,
         UpdateSmartContract,
-        ChangeContractOwner,
+        ChangeContractAuthor,
 
         //view
         CurrentContractSerialNumber,
         GetContractInfo,
-        GetContractOwner,
+        GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
         GetSmartContractRegistrationByAddress
@@ -68,7 +68,7 @@ namespace AElf.Automation.Common.Contracts
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(contractFileName);
 
-            var contractOwner = GetContractOwner(contractAddress);
+            var contractOwner = GetContractAuthor(contractAddress);
             if (contractOwner.GetFormatted() != account)
                 Logger.WriteError("Account have no permission to update.");
 
@@ -93,16 +93,16 @@ namespace AElf.Automation.Common.Contracts
             return address;
         }
 
-        public Address GetContractOwner(Address contractAddress)
+        public Address GetContractAuthor(Address contractAddress)
         {
-            var address = CallViewMethod<Address>(GenesisMethod.GetContractOwner, contractAddress);
+            var address = CallViewMethod<Address>(GenesisMethod.GetContractAuthor, contractAddress);
 
             return address;
         }
 
-        public Address GetContractOwner(string contractAddress)
+        public Address GetContractAuthor(string contractAddress)
         {
-            return GetContractOwner(Address.Parse(contractAddress));
+            return GetContractAuthor(Address.Parse(contractAddress));
         }
 
         private static Dictionary<NameProvider, Hash> InitializeSystemContractsName()

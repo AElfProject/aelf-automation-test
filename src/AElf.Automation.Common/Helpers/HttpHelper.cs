@@ -245,7 +245,7 @@ namespace AElf.Automation.Common.Helpers
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
