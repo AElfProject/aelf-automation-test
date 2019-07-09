@@ -14,6 +14,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("Conflict")] public bool Conflict { get; set; }
         [JsonProperty("ReadOnlyTransaction")] public bool ReadOnlyTransaction { get; set; }
+        [JsonProperty("RandomTransaction")] public bool RandomTransaction { get; set; }
     }
 
     public static class ConfigInfoHelper

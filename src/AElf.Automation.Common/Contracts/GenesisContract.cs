@@ -120,7 +120,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
-                {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},
+                {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };
 

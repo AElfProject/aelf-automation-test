@@ -294,10 +294,13 @@ namespace AElf.Automation.RpcPerformance
                     _logger.WriteInfo("Begin generate multi requests.");
                     try
                     {
+                        var isRandom = ConfigInfoHelper.Config.RandomTransaction;
                         var stopwatch = new Stopwatch();
                         stopwatch.Start();
                         for (var r = 1; r > 0; r++) //continuous running
                         {
+                            //set random tx sending each round
+                            var exeTimes = GetRandomTransactionTimes(isRandom, ExeTimes);
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
@@ -307,8 +310,8 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     txsTasks.Add(conflict
-                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes))
-                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, ExeTimes)));
+                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes))
+                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, exeTimes)));
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
@@ -320,7 +323,7 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     //Generate transaction requests
-                                    GenerateRawTransactionQueue(j, ExeTimes);
+                                    GenerateRawTransactionQueue(j, exeTimes);
                                     //Send  transaction requests
                                     _logger.WriteInfo(
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
@@ -339,7 +342,7 @@ namespace AElf.Automation.RpcPerformance
                             Monitor.CheckNodeHeightStatus();
 
                             stopwatch.Stop();
-                            TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+                            TransactionSentPerSecond(ThreadCount * exeTimes * 3, stopwatch.ElapsedMilliseconds);
 
                             stopwatch = new Stopwatch();
                             stopwatch.Start();
@@ -385,10 +388,9 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                var randNumber = rd.Next(ThreadCount, AccountList.Count);
-                var countNo = randNumber;
+                var countNo = rd.Next(ThreadCount, AccountList.Count);
                 set.Add(countNo);
-                var account1 = AccountList[countNo].Account;
+                var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.SendTransaction, account, abiPath, "Transfer")
@@ -398,7 +400,7 @@ namespace AElf.Automation.RpcPerformance
                         Symbol = ContractList[threadNo].Symbol,
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}",
-                        To = Address.Parse(account1)
+                        To = Address.Parse(toAccount)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -430,9 +432,8 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                var randNumber = rd.Next(ThreadCount, AccountList.Count);
-                var countNo = randNumber;
-                var account1 = AccountList[countNo].Account;
+                var countNo = rd.Next(ThreadCount, AccountList.Count);
+                var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
@@ -440,7 +441,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = Address.Parse(toAccount),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }
@@ -492,9 +493,8 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                var randNumber = rd.Next(ThreadCount, AccountList.Count);
-                var countNo = randNumber;
-                var account1 = AccountList[countNo].Account;
+                var countNo = rd.Next(ThreadCount, AccountList.Count);
+                var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
                 var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
@@ -502,7 +502,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = Address.Parse(toAccount),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }
@@ -584,6 +584,14 @@ namespace AElf.Automation.RpcPerformance
 
             _logger.WriteInfo(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
+        }
+
+        private int GetRandomTransactionTimes(bool isRandom, int max)
+        {
+            if (!isRandom) return max;
+            
+            var rand = new Random(Guid.NewGuid().GetHashCode());
+            return rand.Next(1, max);
         }
 
         #endregion
