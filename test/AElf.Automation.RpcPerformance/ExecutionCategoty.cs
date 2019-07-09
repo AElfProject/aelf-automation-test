@@ -285,6 +285,18 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
+            var urls = new[]
+            {
+                "http://52.56.72.102:8000",
+                "http://34.214.6.230:8000",
+                "http://54.255.147.240:8000",
+                "http://34.244.179.64:8000",
+                "http://54.209.199.97:8000",
+                "http://13.236.44.36:8000",
+                "http://13.230.96.97:8000",
+                "http://35.182.135.208:8000",
+                "http://18.228.197.75:8000"
+            };
             //add transaction performance check process
             var taskList = new List<Task>
             {
@@ -298,6 +310,7 @@ namespace AElf.Automation.RpcPerformance
                         stopwatch.Start();
                         for (var r = 1; r > 0; r++) //continuous running
                         {
+                            ApiHelper.UpdateApiUrl(urls[r % 9]);
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
