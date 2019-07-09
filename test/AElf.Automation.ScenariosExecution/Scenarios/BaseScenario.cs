@@ -109,8 +109,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected static int GenerateRandomNumber(int min, int max)
         {
-            var random = new Random(DateTime.UtcNow.Millisecond);
-            return random.Next(min, max);
+            var random = new Random(Guid.NewGuid().GetHashCode());
+            return random.Next(min, max + 1);
         }
     }
 }

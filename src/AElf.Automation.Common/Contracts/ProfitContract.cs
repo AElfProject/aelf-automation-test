@@ -83,8 +83,8 @@ namespace AElf.Automation.Common.Contracts
 
         public long GetProfitAmount(string account, Hash profitId)
         {
-            SetAccount(account);
-            return CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ProfitInput
+            var newTester = GetNewTester(account);
+            return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ProfitInput
             {
                 ProfitId = profitId,
                 Symbol = "ELF"

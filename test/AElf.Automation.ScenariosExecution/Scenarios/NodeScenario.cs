@@ -182,8 +182,20 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                                  $"\r\nTreasury balance is {treasuryBalance}";
             foreach (var (key, value) in ProfitItemIds)
             {
-                if (key == ProfitType.Treasury) continue;
-                var address = Profit.GetProfitItemVirtualAddress(value, termNumber - 1);
+                Address address;
+                switch (key)
+                {
+                    case ProfitType.Treasury:
+                    case ProfitType.CitizenWelfare when termNumber<=2:
+                        continue;
+                    case ProfitType.CitizenWelfare:
+                        address = Profit.GetProfitItemVirtualAddress(value, termNumber - 2);
+                        break;
+                    default:
+                        address = Profit.GetProfitItemVirtualAddress(value, termNumber - 1);
+                        break;
+                }
+
                 var balance = Token.GetUserBalance(address.GetFormatted());
                 balanceMessage += $"\r\n{key} balance is {balance}";
             }

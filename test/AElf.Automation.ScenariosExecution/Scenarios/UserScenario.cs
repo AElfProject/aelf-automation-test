@@ -97,7 +97,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var voteProfit =
                 Profit.GetProfitDetails(account, profitId);
             if (voteProfit.Equals(new ProfitDetails())) return;
-            $"20% user vote profit details number: {voteProfit.Details}".WriteSuccessLine();
+            $"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}".WriteSuccessLine();
 
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, profitId);
@@ -121,7 +121,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void UserVote(string account)
         {
-            var lockTime = GenerateRandomNumber(3, 36) * 30;
+            var lockTime = GenerateRandomNumber(3, 30) * 30;
             var amount = GenerateRandomNumber(1, 5) * 5;
             if (_candidatesExcludeMiners.Count != 0)
             {

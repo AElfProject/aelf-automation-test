@@ -50,7 +50,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 var user = new UserScenario();
                 registry.Schedule(() => user.UserScenarioJob()).WithName("UserScenario")
-                    .ToRunEvery(6).Seconds();
+                    .ToRunEvery(10).Seconds();
             }
 
             if (enableCases.Contains("NodeScenario"))
