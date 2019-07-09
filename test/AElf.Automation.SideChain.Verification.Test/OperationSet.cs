@@ -370,7 +370,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var chainIdList = new List<int>();
             for (var i = 0; i < SideUrls.Count; i++)
             {
-                var chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                var chainId = ChainHelper.ConvertBase58ToChainId(SideChains[i].chainId);
                 chainIdList.Add(chainId);
             }
 
@@ -517,7 +517,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 {
                     var rawTxInfos = new List<TxInfo>();
 
-                    var chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                    var chainId = ChainHelper.ConvertBase58ToChainId(SideChains[i].chainId);
                     for (var j = 0; j < MainChainAccountList.Count; j++)
                     {
                         for (var k = 0; k < AccountLists[i].Count; k++)
@@ -620,7 +620,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 var rawTxInfos = new List<TxInfo>();
                 for (var j = 0; j < AccountLists[fromSideChainNum].Count; j++) // from side chain
                 {
-                    var chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[i].chainId);
+                    var chainId = ChainHelper.ConvertBase58ToChainId(SideChains[i].chainId);
                     for (var k = 0; k < AccountLists[i].Count; k++) // to side chain account
                     {
                         var rawTxInfo = CrossChainTransfer(SideChains[fromSideChainNum],
@@ -638,7 +638,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             
             for (var j = 0; j < AccountLists[fromSideChainNum].Count; j++) // from side chain
             {
-                var mainChainId = ChainHelpers.ConvertBase58ToChainId(MainChain.chainId);
+                var mainChainId = ChainHelper.ConvertBase58ToChainId(MainChain.chainId);
                 for (var k = 0; k < MainChainAccountList.Count; k++)
                 {
                     var rawTxInfo = CrossChainTransfer(SideChains[fromSideChainNum], AccountLists[fromSideChainNum][j],MainChainAccountList[k],mainChainId,100);
@@ -655,7 +655,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             Thread.Sleep(150000);
                   
             //Side Chain Receive 
-            var fromChainId = ChainHelpers.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
+            var fromChainId = ChainHelper.ConvertBase58ToChainId(SideChains[fromSideChainNum].chainId);
             for (var i = 0; i < SideChains.Count; i++)
             {
                 if (i == fromSideChainNum) continue;
@@ -794,7 +794,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         private Operation InitMain(string initAccount)
         {
             var mainService = new ContractServices(BaseUrl, initAccount, "Main", KeyStorePath);
-            MainChain = new Operation(mainService, "Main");
+            MainChain = new Operation(mainService);
             return MainChain;
         }
 
@@ -803,7 +803,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             foreach (var t in SideUrls)
             {
                 var sideService = new ContractServices(t, initAccount, "Side", KeyStorePath);
-                var side = new Operation(sideService, "Side");
+                var side = new Operation(sideService);
                 SideChains.Add(side);
             }
 
@@ -901,7 +901,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         {
             var merklePath = GetMerklePath(SideChains[sideChainNumber], txinfo.BlockNumber, txinfo.TxId);
             if (merklePath == null) return null;
-            int chainId = ChainHelpers.ConvertBase58ToChainId(SideChains[sideChainNumber].chainId);
+            int chainId = ChainHelper.ConvertBase58ToChainId(SideChains[sideChainNumber].chainId);
             var verificationInput = new VerifyTransactionInput
             {
                 TransactionId = Hash.LoadHex(txinfo.TxId),
@@ -985,7 +985,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
             var result = chain.CrossChainReceive(rawTxInfo.FromAccount, crossChainReceiveToken);
             return result;
         }
@@ -1009,7 +1009,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
 
             return crossChainReceiveToken;
         }

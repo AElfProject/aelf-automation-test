@@ -22,7 +22,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         public readonly CrossChainContract CrossChainService;
         public readonly ParliamentAuthContract ParliamentService;
 
-        public Operation(ContractServices contractServices, string type)
+        public Operation(ContractServices contractServices)
         {
             ApiHelper = contractServices.ApiHelper;
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -32,10 +32,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             ContractServices = contractServices;
             TokenService = ContractServices.TokenService;
             CrossChainService = ContractServices.CrossChainService;
-            if (type.Equals("Main"))
-            {
-                ParliamentService = ContractServices.ParliamentService;
-            }
+            ParliamentService = ContractServices.ParliamentService;
         }
 
         #region Token Method
