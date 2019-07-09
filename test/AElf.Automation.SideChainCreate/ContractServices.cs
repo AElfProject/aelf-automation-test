@@ -1,6 +1,7 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Types;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainCreate
 {
@@ -18,14 +19,15 @@ namespace AElf.Automation.SideChainCreate
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress)
+        public ContractServices(string url, string callAddress,string password)
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             Url = url;
             ApiHelper = new WebApiHelper(url,keyStorePath);
             CallAddress = callAddress;
             CallAccount = Address.Parse(callAddress);
-
+            UnlockAccounts(ApiHelper,CallAddress,password);
+            
             //connect chain
             ConnectionChain();
 
@@ -59,6 +61,16 @@ namespace AElf.Automation.SideChainCreate
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
+        }
+        
+        private void UnlockAccounts(IApiHelper apiHelper,string account,string password)
+        {
+            var ci = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{account} {password} notimeout"
+            };
+            ci = apiHelper.ExecuteCommand(ci);
+            Assert.IsTrue(ci.Result);
         }
     }
 }

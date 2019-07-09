@@ -4,6 +4,7 @@ using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
@@ -27,6 +28,7 @@ namespace AElf.Automation.SideChainCreate
 
         public string Url;
         public string InitAccount;
+        public string Password;
 
         public Operation()
         {
@@ -112,7 +114,8 @@ namespace AElf.Automation.SideChainCreate
 
             InitAccount = environmentInfo.InitAccount;
             Url = environmentInfo.Url;
-            var contractService = new ContractServices(Url,InitAccount);
+            Password = environmentInfo.Password;
+            var contractService = new ContractServices(Url,InitAccount,Password);
             return contractService;
         }
 
@@ -136,19 +139,6 @@ namespace AElf.Automation.SideChainCreate
                 ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
 
             return address;
-        }
-        
-        private void UnlockAccounts(string url, string account)
-        {
-            var apiHelper = new WebApiHelper(url);
-            apiHelper.ListAccounts();
-            
-                var ci = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{account} 123 notimeout"
-                };
-                ci = apiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
         }
     }
 }
