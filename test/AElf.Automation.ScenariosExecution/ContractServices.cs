@@ -64,7 +64,7 @@ namespace AElf.Automation.ScenariosExecution
             //Treasury contract
             var treasuryAddress = GenesisService.GetContractAddressByName(NameProvider.TreasuryName);
             TreasuryService = new TreasuryContract(ApiHelper, CallAddress, treasuryAddress.GetFormatted());
-            
+
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());

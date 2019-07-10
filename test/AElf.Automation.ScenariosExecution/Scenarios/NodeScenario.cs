@@ -145,7 +145,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (!reElectionProfit.Equals(new ProfitDetails()))
             {
                 Logger.WriteInfo($"10% re election profit balance: {reElectionProfit}");
-
                 TakeProfit(node.Account, ProfitItemIds[ProfitType.ReElectionReward]);
             }
 
@@ -175,7 +174,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void GetLastTermBalanceInformation(long termNumber)
         {
-            var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
+            var treasuryAddress = Profit.GetSchemeAddress(ProfitItemIds[ProfitType.Treasury], termNumber);
             var treasuryBalance = Token.GetUserBalance(treasuryAddress.GetFormatted());
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
@@ -186,13 +185,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 switch (key)
                 {
                     case ProfitType.Treasury:
-                    case ProfitType.CitizenWelfare when termNumber<=2:
+                    case ProfitType.CitizenWelfare when termNumber <= 2:
                         continue;
                     case ProfitType.CitizenWelfare:
-                        address = Profit.GetProfitItemVirtualAddress(value, termNumber - 2);
+                        address = Profit.GetSchemeAddress(value, termNumber - 2);
                         break;
                     default:
-                        address = Profit.GetProfitItemVirtualAddress(value, termNumber - 1);
+                        address = Profit.GetSchemeAddress(value, termNumber - 1);
                         break;
                 }
 
@@ -237,10 +236,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (minersPublicKeys.Contains(full.PublicKey))
                     minerArray.Add(full.Name);
             }
-            
+
             //get voted candidates
             var votedCandidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetVotedCandidates, new Empty());
-            Logger.WriteInfo($"TermNumber = {termNumber}, voted candidates count: {miners.Pubkeys.Count}, miners count: {votedCandidates.Value.Count}");
+            Logger.WriteInfo(
+                $"TermNumber = {termNumber}, voted candidates count: {miners.Pubkeys.Count}, miners count: {votedCandidates.Value.Count}");
 
             Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
 
@@ -275,27 +275,27 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo(voteMessage);
         }
 
-        private void TakeProfit(string account, Hash profitId)
+        private void TakeProfit(string account, Hash schemeId)
         {
             var beforeBalance = Token.GetUserBalance(account);
 
             //Get user profit amount
-            var profitAmount = Profit.GetProfitAmount(account, profitId);
+            var profitAmount = Profit.GetProfitAmount(account, schemeId);
             if (profitAmount == 0)
                 return;
 
             Logger.WriteInfo($"ProfitAmount: node {account} profit amount is {profitAmount}");
             var profit = Profit.GetNewTester(account);
-            profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId,
+                SchemeId = schemeId,
                 Symbol = "ELF"
             });
 
             var afterBalance = Token.GetUserBalance(account);
             if (beforeBalance != afterBalance)
                 Logger.WriteInfo(
-                    $"Profit success - node {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
+                    $"Profit success - node {account} get profit from Id: {schemeId}, value is: {afterBalance - beforeBalance}");
         }
     }
 }

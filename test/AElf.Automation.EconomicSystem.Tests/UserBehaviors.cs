@@ -66,24 +66,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             return list;
         }
 
-        public CommandInfo ReleaseProfit(long period, int amount, string profitId)
-        {
-            var result =
-                ProfitService.ExecuteMethodWithResult(ProfitMethod.ReleaseProfit, new ReleaseProfitInput
-                {
-                    Period = period,
-                    Amount = amount,
-                    ProfitId = Hash.LoadHex(profitId)
-                });
-            return result;
-        }
-
         public CommandInfo Profit(string account, Hash profitId)
         {
             ProfitService.SetAccount(account);
-            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId
+                SchemeId = profitId
             });
 
             return result;

@@ -27,16 +27,16 @@ namespace AElf.Automation.EconomicSystem.Tests
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
-            var result = Behaviors.GetCreatedProfitItems();
+            var schemeIds = Behaviors.GetCreatedProfitItems().SchemeIds;
             ProfitItemsIds = new Dictionary<Behaviors.ProfitType, Hash>
             {
-                {Behaviors.ProfitType.Treasury, result.ProfitIds[0]},
-                {Behaviors.ProfitType.MinerReward, result.ProfitIds[1]},
-                {Behaviors.ProfitType.BackSubsidy, result.ProfitIds[2]},
-                {Behaviors.ProfitType.CitizenWelfare, result.ProfitIds[3]},
-                {Behaviors.ProfitType.BasicMinerReward, result.ProfitIds[4]},
-                {Behaviors.ProfitType.VotesWeightReward, result.ProfitIds[5]},
-                {Behaviors.ProfitType.ReElectionReward, result.ProfitIds[6]},
+                {Behaviors.ProfitType.Treasury, schemeIds[0]},
+                {Behaviors.ProfitType.MinerReward, schemeIds[1]},
+                {Behaviors.ProfitType.BackSubsidy, schemeIds[2]},
+                {Behaviors.ProfitType.CitizenWelfare, schemeIds[3]},
+                {Behaviors.ProfitType.BasicMinerReward, schemeIds[4]},
+                {Behaviors.ProfitType.VotesWeightReward, schemeIds[5]},
+                {Behaviors.ProfitType.ReElectionReward, schemeIds[6]},
             };
 
             #endregion

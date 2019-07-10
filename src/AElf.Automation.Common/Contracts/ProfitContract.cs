@@ -16,11 +16,11 @@ namespace AElf.Automation.Common.Contracts
         AddWeights,
         ReleaseProfit,
         AddProfits,
-        Profit,
+        ClaimProfits,
 
         //view
-        GetCreatedProfitIds,
-        GetProfitItemVirtualAddress,
+        GetCreatedSchemeIds,
+        GetSchemeAddress,
         GetReleasedProfitsInformation,
         GetProfitDetails,
         GetProfitItem,
@@ -56,7 +56,7 @@ namespace AElf.Automation.Common.Contracts
 
         public void GetProfitItemIds(string treasuryContractAddress)
         {
-            var profitIds = GetCreatedProfitItems(treasuryContractAddress).ProfitIds;
+            var profitIds = GetCreatedProfitItems(treasuryContractAddress).SchemeIds;
             ProfitItemIds = new Dictionary<ProfitType, Hash>
             {
                 {ProfitType.Treasury, profitIds[0]},
@@ -75,48 +75,38 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Receiver = Address.Parse(voteAddress),
-                        ProfitId = profitId
+                        Beneficiary = Address.Parse(voteAddress),
+                        SchemeId = profitId
                     });
             return result;
         }
 
-        public long GetProfitAmount(string account, Hash profitId)
+        public long GetProfitAmount(string account, Hash schemeId)
         {
             var newTester = GetNewTester(account);
-            return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ProfitInput
+            return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
-                ProfitId = profitId,
+                SchemeId = schemeId,
                 Symbol = "ELF"
             }).Value;
         }
 
-        public Address GetTreasuryAddress(Hash profitId, long period = 0)
+        public Address GetSchemeAddress(Hash schemeId, long period)
         {
-            return CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
+            var result = CallViewMethod<Address>(ProfitMethod.GetSchemeAddress,
+                new SchemePeriod
                 {
-                    ProfitId = profitId,
-                    Period = period
-                });
-        }
-
-        public Address GetProfitItemVirtualAddress(Hash profitId, long period)
-        {
-            var result = CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
+                    SchemeId = schemeId,
                     Period = period
                 });
 
             return result;
         }
 
-        private CreatedProfitIds GetCreatedProfitItems(string treasuryContractAddress)
+        private CreatedSchemeIds GetCreatedProfitItems(string treasuryContractAddress)
         {
-            var result = CallViewMethod<CreatedProfitIds>(ProfitMethod.GetCreatedProfitIds,
-                new GetCreatedProfitIdsInput
+            var result = CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetCreatedSchemeIds,
+                new GetCreatedSchemeIdsInput
                 {
                     Creator = Address.Parse(treasuryContractAddress)
                 });

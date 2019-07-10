@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -77,7 +78,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = Services.ApiHelper.ApiService.GetBlockHeight().Result;
+                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeight);
                 if (newHeight == height)
                 {
                     checkTimes++;

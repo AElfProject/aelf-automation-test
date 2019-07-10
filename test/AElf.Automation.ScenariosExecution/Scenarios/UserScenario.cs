@@ -107,9 +107,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.WriteInfo($"Profit amount: user {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
-            var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId,
+                SchemeId = profitId,
                 Symbol = "ELF"
             });
 

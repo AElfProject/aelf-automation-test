@@ -5,6 +5,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -72,12 +73,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private long GetBlockHeight()
         {
-            return _apiHelper.GetBlockHeight().Result;
+            return AsyncHelper.RunSync(_apiHelper.GetBlockHeight);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return _apiHelper.GetBlockByHeight(height).Result;
+            return AsyncHelper.RunSync(() => _apiHelper.GetBlockByHeight(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

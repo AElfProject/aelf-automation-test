@@ -98,72 +98,15 @@ namespace AElf.Automation.EconomicSystem.Tests
         #region ProfitService View Method
 
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
-        public CreatedProfitIds GetCreatedProfitItems()
+        public CreatedSchemeIds GetCreatedProfitItems()
         {
-            var result = ProfitService.CallViewMethod<CreatedProfitIds>(ProfitMethod.GetCreatedProfitIds,
-                new GetCreatedProfitIdsInput
+            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetCreatedSchemeIds,
+                new GetCreatedSchemeIdsInput
                 {
                     Creator = ContractServices.GenesisService.GetContractAddressByName(NameProvider.ElectionName)
                 });
             return result;
         }
-
-        public ProfitItem GetProfitItem(string hex)
-        {
-            var result = ProfitService.CallViewMethod<ProfitItem>(ProfitMethod.GetProfitItem,
-                new Hash()
-                {
-                    Value = Hash.LoadHex(hex).Value
-                });
-            return result;
-        }
-
-        public Address GetProfitItemVirtualAddress(Hash profitId, long period)
-        {
-            var result = ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
-                    Period = period
-                });
-
-            return result;
-        }
-
-        public Address GetTreasuryAddress(Hash profitId, long period = 0)
-        {
-            return ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
-                    Period = period
-                });
-        }
-
-        public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)
-        {
-            var result =
-                ProfitService.CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
-                    new GetProfitDetailsInput
-                    {
-                        Receiver = Address.Parse(voteAddress),
-                        ProfitId = profitId
-                    });
-            return result;
-        }
-
-        public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
-        {
-            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(
-                ProfitMethod.GetReleasedProfitsInformation,
-                new GetReleasedProfitsInformationInput
-                {
-                    ProfitId = profitId,
-                    Period = period
-                });
-            return result;
-        }
-
         #endregion
 
         #region TokenService Method
