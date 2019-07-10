@@ -178,8 +178,6 @@ namespace AElf.Automation.Common.Helpers
 
                     _streamWriter.WriteLine(text);
                     _streamWriter.Flush();
-
-                    //Console.WriteLine(text);
                 }
                 catch (Exception exception)
                 {

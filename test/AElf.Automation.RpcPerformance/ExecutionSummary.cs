@@ -5,6 +5,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -85,12 +86,12 @@ namespace AElf.Automation.RpcPerformance
 
         private long GetBlockHeight()
         {
-            return ApiService.GetBlockHeight().Result;
+            return AsyncHelper.RunSync(ApiService.GetBlockHeight);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return ApiService.GetBlockByHeight(height).Result;
+            return AsyncHelper.RunSync(() => ApiService.GetBlockByHeight(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

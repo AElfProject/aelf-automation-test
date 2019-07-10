@@ -121,7 +121,7 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                var currentHeight = AsyncHelper.RunSync(() => ApiHelper.ApiService.GetBlockHeight());
+                var currentHeight = AsyncHelper.RunSync(ApiHelper.ApiService.GetBlockHeight);
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
@@ -142,7 +142,7 @@ namespace AElf.Automation.RpcPerformance
         private int GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =
-                AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus());
+                AsyncHelper.RunSync(ApiHelper.ApiService.GetTransactionPoolStatus);
 
             return transactionPoolStatusOutput.Queued;
         }

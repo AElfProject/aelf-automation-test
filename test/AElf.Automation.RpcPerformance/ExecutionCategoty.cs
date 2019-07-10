@@ -589,9 +589,9 @@ namespace AElf.Automation.RpcPerformance
         private int GetRandomTransactionTimes(bool isRandom, int max)
         {
             if (!isRandom) return max;
-            
+
             var rand = new Random(Guid.NewGuid().GetHashCode());
-            return rand.Next(1, max);
+            return rand.Next(1, max + 1);
         }
 
         #endregion

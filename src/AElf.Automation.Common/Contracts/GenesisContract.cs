@@ -55,8 +55,6 @@ namespace AElf.Automation.Common.Contracts
 
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
         {
-            var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
-            ch.GetChainInformation(chainInfo);
             var genesisContract = ch.GetGenesisContractAddress();
             Logger.WriteInfo($"Genesis contract Address: {genesisContract}");
 
