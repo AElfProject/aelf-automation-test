@@ -115,7 +115,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver")},
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
+                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},

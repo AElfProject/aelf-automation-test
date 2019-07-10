@@ -45,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private Transaction GenerateTransaction()
         {
-            var newUserKeyPair = CryptoHelpers.GenerateKeyPair();
+            var newUserKeyPair = CryptoHelper.GenerateKeyPair();
             var transaction = new Transaction
             {
                 From = Address.FromPublicKey(newUserKeyPair.PublicKey),
@@ -55,7 +55,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 RefBlockNumber = 10
             };
 
-            var signature = CryptoHelpers.SignWithPrivateKey(newUserKeyPair.PrivateKey,
+            var signature = CryptoHelper.SignWithPrivateKey(newUserKeyPair.PrivateKey,
                 transaction.GetHash().DumpByteArray());
             transaction.Signature = ByteString.CopyFrom(signature);
 

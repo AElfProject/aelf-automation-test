@@ -1,0 +1,36 @@
+{
+  "TestEnvironment":"Other",
+  "EnvironmentInfo": [
+    {
+      "Environment": "Online",
+      "Url": "http://3.94.106.10:8000",
+      "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+      "Password": "123"
+    },
+    {
+      "Environment": "Offline",
+      "Url": "http://192.168.197.14:8001",
+      "InitAccount": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
+      "Password": "123"
+    },
+    {
+      "Environment": "Other",
+      "Url": "http://127.0.0.1:9000",
+      "InitAccount": "22NonevCYzkon4w7JjP4tCZgM5PVBfAUCjYgZqG9DiSi2NbTd6",
+      "Password": "123456"
+    }
+  ],
+  "ApproveTokenAmount": "800000",
+  "SideChainInfo": [
+    {
+      "IndexingPrice": "1",
+      "LockedTokenAmount": "400000",
+      "IsPrivilegePreserved": true
+    },
+    {
+      "IndexingPrice": "1",
+      "LockedTokenAmount": "400000",
+      "IsPrivilegePreserved": true
+    }
+  ]
+}

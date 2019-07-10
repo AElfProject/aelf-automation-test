@@ -4,9 +4,13 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum ParliamentMethod
     {
+        //View,
+        GetGenesisOwnerAddress,
         //Action
         Approve,
         CreateProposal,
+        CreateOrganization,
+        Release
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
