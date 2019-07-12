@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Contracts
         ClaimProfits,
 
         //view
-        GetCreatedSchemeIds,
+        GetManagingSchemeIds,
         GetSchemeAddress,
         GetReleasedProfitsInformation,
         GetProfitDetails,
@@ -56,16 +56,14 @@ namespace AElf.Automation.Common.Contracts
 
         public void GetProfitItemIds(string treasuryContractAddress)
         {
-            var profitIds = GetCreatedProfitItems(treasuryContractAddress).SchemeIds;
+            var profitIds = GetManagingSchemeIds(treasuryContractAddress).SchemeIds;
             ProfitItemIds = new Dictionary<ProfitType, Hash>
             {
                 {ProfitType.Treasury, profitIds[0]},
-                {ProfitType.MinerReward, profitIds[1]},
-                {ProfitType.BackSubsidy, profitIds[2]},
-                {ProfitType.CitizenWelfare, profitIds[3]},
-                {ProfitType.BasicMinerReward, profitIds[4]},
-                {ProfitType.VotesWeightReward, profitIds[5]},
-                {ProfitType.ReElectionReward, profitIds[6]}
+                {ProfitType.VotesWeightReward, profitIds[1]},
+                {ProfitType.ReElectionReward, profitIds[2]},
+                {ProfitType.BackSubsidy, profitIds[3]},
+                {ProfitType.CitizenWelfare, profitIds[4]}
             };
         }
 
@@ -103,12 +101,12 @@ namespace AElf.Automation.Common.Contracts
             return result;
         }
 
-        private CreatedSchemeIds GetCreatedProfitItems(string treasuryContractAddress)
+        private CreatedSchemeIds GetManagingSchemeIds(string treasuryContractAddress)
         {
-            var result = CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetCreatedSchemeIds,
-                new GetCreatedSchemeIdsInput
+            var result = CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
+                new GetManagingSchemeIdsInput
                 {
-                    Creator = Address.Parse(treasuryContractAddress)
+                    Manager = Address.Parse(treasuryContractAddress)
                 });
             return result;
         }

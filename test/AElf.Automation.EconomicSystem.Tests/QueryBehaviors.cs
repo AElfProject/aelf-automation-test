@@ -100,10 +100,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
         public CreatedSchemeIds GetCreatedProfitItems()
         {
-            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetCreatedSchemeIds,
-                new GetCreatedSchemeIdsInput
+            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
+                new GetManagingSchemeIdsInput
                 {
-                    Creator = ContractServices.GenesisService.GetContractAddressByName(NameProvider.ElectionName)
+                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.TreasuryName)
                 });
             return result;
         }
