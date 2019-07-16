@@ -1,8 +1,8 @@
 using AElf.Automation.Common.Contracts;
+using AElf.Contracts.ClaimProfits;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using TermSnapshot = AElf.Contracts.Election.TermSnapshot;
