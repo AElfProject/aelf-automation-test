@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
-using AElf.Contracts.Profit;
+using AElf.Contracts.ClaimProfits;
 using AElf.Types;
 
 namespace AElf.Automation.Common.Contracts
