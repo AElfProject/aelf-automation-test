@@ -151,7 +151,8 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.GetAsync(url);
-                if (response.StatusCode == expectedStatusCode) return response;
+                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                    return response;
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
@@ -198,7 +199,8 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.PostAsync(url, content);
-                if (response.StatusCode == expectedStatusCode) return response;
+                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                    return response;
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
@@ -240,7 +242,8 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.DeleteAsync(url);
-                if (response.StatusCode == expectedStatusCode) return response;
+                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                    return response;
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
@@ -272,7 +275,7 @@ namespace AElf.Automation.Common.Helpers
             return Client;
         }
 
-        private static int MaxRetryTimes { get; set; } = 5;
+        private static int MaxRetryTimes { get; set; } = 3;
         private static HttpClient Client { get; set; }
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
     }
