@@ -1,5 +1,5 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.ClaimProfits;
+using AElf.Contracts.Profit;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
