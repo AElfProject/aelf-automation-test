@@ -51,20 +51,20 @@ cp AElf.Contracts.MultiToken.dll ~/.local/share/aelf/contracts
 
 dotnet AElf.Automation.RpcPerformance.dll
 ```
-Note:   
-Adpot GroupCount and TransactionCount number can control transaction sent frequency.      
-GroupCount: how many thread to sent transaction.   
-TransactionCount: how many transactions sent each time in one thread. 
-SelectTxLimit: set node select transaction number in each round.     
-SentTxLimit: if txhub have more than specified txs, test will wait and not send txs.   
-Conflict: default is true, at most have ThreadCount group txs. If set false, all txs with no conflict.   
-ReadOnlyTransaction: only sent transactions with query data and not change state db.
+**Note**:   
+Adpot GroupCount and TransactionCount number can control transaction sent number frequency.      
+*GroupCount*: how many thread to sent transaction.   
+*TransactionCount*: how many transactions sent each time in one thread. 
+*SelectTxLimit*: set node select transaction number in each round.     
+*SentTxLimit*: if txhub have more than specified txs, test will wait and not send txs.   
+*Conflict*: default is true, at most have ThreadCount group txs. If set false, all txs with no conflict.   
+*ReadOnlyTransaction*: only sent transactions with query data and not change state db.
 
 3. Or run test with command line
 ```
 dotnet AElf.Automation.RpcPerformance.dll -tc 4 -tg 50 -ru http://127.0.0.1:8000 -em 4
 ```
-Note:    
+**Note**:    
 Both command line and configure set, command line parameter will be works.    
 tc - test thread count/group      
 tg - each group transaction count     
