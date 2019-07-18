@@ -7,7 +7,7 @@ aelf-automation-test is based on AElf project, so please clone code with *--recu
 git clone https://github.com/AElfProject/aelf-automation-test --recursive
 cd ./aelf-automation-test
 git pull
-cd ./aelf-automation-test/src/AElf
+cd ./src/AElf
 git checkout dev
 git pull
 cd ./aelf-automation-test
