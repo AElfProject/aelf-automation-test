@@ -7,5 +7,10 @@
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
-    "ReadOnlyTransaction": false
+    "ReadOnlyTransaction": false,
+    
+    "RandomSentTransaction": {
+        "enable_random": false,
+        "endpoint_list": ["192.168.197.13:8100", "192.168.197.28:8100", "192.168.197.33:8100"]
+    }
 }

@@ -13,6 +13,7 @@ using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -343,6 +344,8 @@ namespace AElf.Automation.RpcPerformance
 
                             stopwatch = new Stopwatch();
                             stopwatch.Start();
+                            
+                            UpdateRandomEndpoint(); //update sent transaction to random endpoint
                         }
                     }
                     catch (Exception e)
@@ -584,6 +587,32 @@ namespace AElf.Automation.RpcPerformance
 
             _logger.WriteInfo(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
+        }
+
+        private void UpdateRandomEndpoint()
+        {
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
+            if (!randomTransactionOption.EnableRandom) return;
+            while (true)
+            {
+                var serviceUrl = randomTransactionOption.GetRandomEndpoint();
+                if (serviceUrl == ApiHelper.GetApiUrl())
+                    continue;
+                ApiHelper.UpdateApiUrl(serviceUrl);
+                
+                var transactionPoolCount =
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
+                if (transactionPoolCount > maxLimit)
+                {
+                    Thread.Sleep(1000);
+                    _logger.WriteWarn(
+                        $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
+                    continue;
+                }
+                
+                break;
+            }
         }
 
         #endregion
