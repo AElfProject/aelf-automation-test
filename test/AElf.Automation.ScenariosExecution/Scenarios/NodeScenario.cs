@@ -296,6 +296,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (beforeBalance != afterBalance)
                 Logger.WriteInfo(
                     $"Profit success - node {account} get profit from Id: {schemeId}, value is: {afterBalance - beforeBalance}");
+            else
+            {
+                Logger.WriteError($"Profit failed - node {account} get profit from Id: {schemeId} failed.");
+            }
         }
     }
 }
