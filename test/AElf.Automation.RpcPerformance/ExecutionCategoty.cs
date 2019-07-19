@@ -287,6 +287,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
             //add transaction performance check process
             var taskList = new List<Task>
             {
@@ -337,9 +338,9 @@ namespace AElf.Automation.RpcPerformance
                                 }
                             }
                         }
-                        catch (WebException we)
+                        catch (AggregateException exception)
                         {
-                            _logger.WriteError($"{we.Message} to {ApiHelper.GetApiUrl()}");
+                            _logger.WriteError($"Request to {ApiHelper.GetApiUrl()} got exception, {exception.Message}");
                         }
                         catch (Exception e)
                         {
@@ -351,7 +352,7 @@ namespace AElf.Automation.RpcPerformance
 
                         if (r % 3 != 0) continue;
 
-                        Monitor.CheckNodeHeightStatus();
+                        Monitor.CheckNodeHeightStatus(!randomTransactionOption.EnableRandom); //random mode, don't check node height
 
                         stopwatch.Stop();
                         TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);

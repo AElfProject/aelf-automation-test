@@ -117,8 +117,10 @@ namespace AElf.Automation.RpcPerformance
             Thread.Sleep(100);
         }
 
-        public void CheckNodeHeightStatus()
+        public void CheckNodeHeightStatus(bool enable = true)
         {
+            if (!enable) return;
+            
             var checkTimes = 0;
             while (true)
             {

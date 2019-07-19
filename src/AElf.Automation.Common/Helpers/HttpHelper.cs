@@ -260,7 +260,7 @@ namespace AElf.Automation.Common.Helpers
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException)
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
