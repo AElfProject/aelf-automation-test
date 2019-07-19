@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.QueryTransa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainCreate", "test\AElf.Automation.SideChainCreate\AElf.Automation.SideChainCreate.csproj", "{3D4C433C-0655-4B09-BE91-94C96A9ED4B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.GenerateNodesConfiguration", "test\AElf.Automation.GenerateNodesConfiguration\AElf.Automation.GenerateNodesConfiguration.csproj", "{A4B7562E-7FE9-4E04-9A63-E68823CC36F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{3D4C433C-0655-4B09-BE91-94C96A9ED4B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D4C433C-0655-4B09-BE91-94C96A9ED4B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D4C433C-0655-4B09-BE91-94C96A9ED4B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4B7562E-7FE9-4E04-9A63-E68823CC36F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4B7562E-7FE9-4E04-9A63-E68823CC36F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4B7562E-7FE9-4E04-9A63-E68823CC36F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4B7562E-7FE9-4E04-9A63-E68823CC36F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,6 +181,7 @@ Global
 		{EE722826-ABAC-4F9A-922E-81C838915708} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{3D4C433C-0655-4B09-BE91-94C96A9ED4B1} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{4F187890-48EB-42E8-A382-220A6F320868} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
+		{A4B7562E-7FE9-4E04-9A63-E68823CC36F2} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}
