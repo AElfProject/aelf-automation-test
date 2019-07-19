@@ -467,7 +467,7 @@ namespace AElf.Automation.RpcPerformance
 
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
+            _logger.WriteInfo("Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
@@ -486,7 +486,7 @@ namespace AElf.Automation.RpcPerformance
             ApiHelper.ExecuteCommand(commandInfo);
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
+            _logger.WriteInfo(" Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
