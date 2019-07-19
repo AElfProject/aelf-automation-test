@@ -161,10 +161,10 @@ namespace AElf.Automation.Common.Helpers
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
-            catch (Exception)
+            catch (HttpRequestException)
             {
                 retryTimes++;
-                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
                 Logger.WriteWarn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
@@ -216,7 +216,7 @@ namespace AElf.Automation.Common.Helpers
             catch (HttpRequestException)
             {
                 retryTimes++;
-                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
                 Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
@@ -260,10 +260,10 @@ namespace AElf.Automation.Common.Helpers
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
-            catch (Exception e)
+            catch (HttpRequestException e)
             {
                 retryTimes++;
-                if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
+                if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
                 Logger.WriteWarn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);

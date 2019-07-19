@@ -339,7 +339,7 @@ namespace AElf.Automation.RpcPerformance
                         }
                         catch (WebException we)
                         {
-                            _logger.WriteInfo($"{we.Message} to {ApiHelper.GetApiUrl()}");
+                            _logger.WriteError($"{we.Message} to {ApiHelper.GetApiUrl()}");
                         }
                         catch (Exception e)
                         {
