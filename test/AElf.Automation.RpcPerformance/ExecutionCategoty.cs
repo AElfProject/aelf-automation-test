@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
@@ -293,11 +294,12 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() =>
                 {
                     _logger.WriteInfo("Begin generate multi requests.");
-                    try
+
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    for (var r = 1; r > 0; r++) //continuous running
                     {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        for (var r = 1; r > 0; r++) //continuous running
+                        try
                         {
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
@@ -334,26 +336,30 @@ namespace AElf.Automation.RpcPerformance
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
                             }
-
-                            if (r % 3 != 0) continue;
-
-                            Monitor.CheckNodeHeightStatus();
-
-                            stopwatch.Stop();
-                            TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
-
-                            stopwatch = new Stopwatch();
-                            stopwatch.Start();
-                            
-                            UpdateRandomEndpoint(); //update sent transaction to random endpoint
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        var message = "Execute continuous transaction got exception." +
-                                      $"\r\nMessage: {e.Message}" +
-                                      $"\r\nStackTrace: {e.StackTrace}";
-                        _logger.WriteError(message);
+                        catch (WebException we)
+                        {
+                            _logger.WriteInfo($"{we.Message} to {ApiHelper.GetApiUrl()}");
+                        }
+                        catch (Exception e)
+                        {
+                            var message = "Execute continuous transaction got exception." +
+                                          $"\r\nMessage: {e.Message}" +
+                                          $"\r\nStackTrace: {e.StackTrace}";
+                            _logger.WriteError(message);
+                        }
+
+                        if (r % 3 != 0) continue;
+
+                        Monitor.CheckNodeHeightStatus();
+
+                        stopwatch.Stop();
+                        TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+
+                        stopwatch = new Stopwatch();
+                        stopwatch.Start();
+
+                        UpdateRandomEndpoint(); //update sent transaction to random endpoint
                     }
                 })
             };
@@ -458,6 +464,7 @@ namespace AElf.Automation.RpcPerformance
                 Parameter = string.Join(",", rawTransactions)
             };
             ApiHelper.ExecuteCommand(commandInfo);
+
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
             _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
@@ -600,7 +607,7 @@ namespace AElf.Automation.RpcPerformance
                 if (serviceUrl == ApiHelper.GetApiUrl())
                     continue;
                 ApiHelper.UpdateApiUrl(serviceUrl);
-                
+
                 var transactionPoolCount =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
                 if (transactionPoolCount > maxLimit)
@@ -610,7 +617,7 @@ namespace AElf.Automation.RpcPerformance
                         $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
                     continue;
                 }
-                
+
                 break;
             }
         }

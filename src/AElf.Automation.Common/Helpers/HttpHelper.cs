@@ -153,8 +153,12 @@ namespace AElf.Automation.Common.Helpers
                 var response = await client.GetAsync(url);
                 if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
                     return response;
+                
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                
+                if(response.StatusCode == HttpStatusCode.Forbidden)
+                    throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
             catch (Exception)
@@ -199,13 +203,17 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.PostAsync(url, content);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                if (response.StatusCode == expectedStatusCode) 
                     return response;
+                
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                    throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
-            catch (Exception)
+            catch (HttpRequestException)
             {
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
@@ -242,10 +250,14 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.DeleteAsync(url);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                if (response.StatusCode == expectedStatusCode) 
                     return response;
+                
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                
+                if(response.StatusCode == HttpStatusCode.Forbidden)
+                    throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
             catch (Exception e)
