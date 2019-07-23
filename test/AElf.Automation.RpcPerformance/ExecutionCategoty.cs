@@ -357,10 +357,10 @@ namespace AElf.Automation.RpcPerformance
                         stopwatch.Stop();
                         TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
 
+                        UpdateRandomEndpoint(); //update sent transaction to random endpoint
+                        
                         stopwatch = new Stopwatch();
                         stopwatch.Start();
-
-                        UpdateRandomEndpoint(); //update sent transaction to random endpoint
                     }
                 })
             };
