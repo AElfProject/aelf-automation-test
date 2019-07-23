@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
@@ -79,7 +78,8 @@ namespace AElf.Automation.RpcPerformance
 
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
-            transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+            if(transactionExecuteLimit.WhetherEnableTransactionLimit())
+                transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
             //Init other services
             Summary = new ExecutionSummary(ApiHelper);
@@ -608,18 +608,24 @@ namespace AElf.Automation.RpcPerformance
                 if (serviceUrl == ApiHelper.GetApiUrl())
                     continue;
                 ApiHelper.UpdateApiUrl(serviceUrl);
-
-                var transactionPoolCount =
-                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
-                if (transactionPoolCount > maxLimit)
+                try
                 {
-                    Thread.Sleep(1000);
-                    _logger.WriteWarn(
-                        $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
-                    continue;
+                    var transactionPoolCount =
+                        AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
+                    if (transactionPoolCount > maxLimit)
+                    {
+                        Thread.Sleep(1000);
+                        _logger.WriteWarn(
+                            $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
+                        continue;
+                    }
+                    
+                    break;
                 }
-
-                break;
+                catch (Exception ex)
+                {
+                    _logger.WriteError($"Query transaction pool status got exception : {ex.Message}");
+                }
             }
         }
 

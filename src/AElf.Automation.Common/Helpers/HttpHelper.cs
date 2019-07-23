@@ -151,7 +151,7 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.GetAsync(url);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) 
+                if (response.StatusCode == expectedStatusCode) 
                     return response;
                 
                 var message = await response.Content.ReadAsStringAsync();
