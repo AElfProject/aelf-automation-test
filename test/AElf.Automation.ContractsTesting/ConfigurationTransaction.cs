@@ -7,6 +7,7 @@ using AElf.Types;
 using Configuration;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Shouldly;
 
 namespace AElf.Automation.ContractsTesting

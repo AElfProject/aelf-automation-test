@@ -5,6 +5,7 @@ using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Shouldly;
 using BetInput = AElf.Contracts.TestContract.BasicFunction.BetInput;
 using BetLimitInput = AElf.Contracts.TestContract.BasicUpdate.BetLimitInput;

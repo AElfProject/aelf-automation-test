@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
@@ -52,9 +53,7 @@ namespace AElf.Automation.ContractsTesting
             #region Basic Preparation
 
             //Init Logger
-            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("ContractTest");
 
             var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
 
