@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -29,7 +28,6 @@ namespace AElf.Automation.Common.Contracts
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-
             ApiHelper = new WebApiHelper(baseUrl, keyPath);
             ApiService = ApiHelper.ApiService;
 
@@ -61,8 +59,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
-                    status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), resultDto.Status, true);
+                    status = resultDto.Status.ConvertTransactionResultStatus();
                     if (status != TransactionResultStatus.Pending)
                     {
                         if (status == TransactionResultStatus.Mined)
@@ -114,7 +111,7 @@ namespace AElf.Automation.Common.Contracts
                         Status = status,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
-                
+
                 return new ExecutionResult<TOutput>()
                 {
                     Transaction = transaction,

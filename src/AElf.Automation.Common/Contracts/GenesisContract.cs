@@ -38,10 +38,10 @@ namespace AElf.Automation.Common.Contracts
         CrossChainName,
         AssociationName,
         Configuration,
-        
+
         BasicFunction
     }
-    
+
     public class GenesisContract : BaseContract<GenesisMethod>
     {
         public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
@@ -79,7 +79,7 @@ namespace AElf.Automation.Common.Contracts
                 Code = ByteString.CopyFrom(codeArray)
             });
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
-            return txDto.Status.ToLower() == "mined";
+            return txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
         public Address GetContractAddressByName(NameProvider name)
@@ -118,8 +118,8 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
-                {NameProvider.Configuration, Hash.FromString("AElf.Contracts.Configuration")},
+                {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
+                {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };
 

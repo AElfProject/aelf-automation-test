@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Profit;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -35,7 +35,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
             var transactionResult = vote.InfoMsg as TransactionResultDto;
-            transactionResult?.Status.ShouldBe("Mined");
+            transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {

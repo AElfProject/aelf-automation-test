@@ -37,7 +37,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("code_hash")] public string CodeHash { get; set; }
         [JsonProperty("owner")] public string Owner { get; set; }
     }
-    
+
     public class ContractsInfo
     {
         [JsonProperty("AutoUpdate")] public bool AutoUpdate { get; set; }
@@ -72,7 +72,7 @@ namespace AElf.Automation.ScenariosExecution
 
             return accounts;
         }
-        
+
         public static bool UpdateConfig(ContractsInfo info)
         {
             var configFile = Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Shouldly;
 
 namespace AElf.Automation.Common.Helpers
 {
     public static class CommonHelper
     {
+        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public static string GetDefaultDataDir()
         {
             try
@@ -38,6 +40,41 @@ namespace AElf.Automation.Common.Helpers
             {
                 return null;
             }
+        }
+
+        public static void CopyFiles(string originPath, string desPath)
+        {
+            if (!File.Exists(originPath))
+            {
+                Logger.WriteError($"File {originPath} not exist.");
+                throw new FileNotFoundException();
+            }
+
+            if (!Directory.Exists(desPath))
+            {
+                Directory.CreateDirectory(desPath);
+                if (!Directory.Exists(desPath))
+                {
+                    Logger.WriteError($"Directory {desPath} not exist.");
+                    throw new DirectoryNotFoundException(); 
+                }
+            }
+            
+            File.Copy(originPath, desPath, true);
+        }
+
+        public static bool DeleteDirectoryFiles(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Logger.WriteError($"Directory {path} not exist.");
+                return false;
+            }
+            
+            Directory.Delete(path, true);
+            Directory.CreateDirectory(path);
+
+            return true;
         }
 
         public static string RandomString(int size, bool lowerCase)

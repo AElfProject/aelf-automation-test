@@ -55,7 +55,7 @@ namespace AElf.Automation.Common.Helpers
             valueList = new List<string>();
 
             JToken info = JObject.Parse(jsonInfo);
-            for (int i = 0; i < pathArray.Length; i++)
+            for (var i = 0; i < pathArray.Length; i++)
             {
                 if (info[pathArray[i]] != null)
                 {
@@ -66,11 +66,10 @@ namespace AElf.Automation.Common.Helpers
                     }
                     else
                     {
-                        JArray array = (JArray) info[pathArray[i]];
+                        var array = (JArray) info[pathArray[i]];
                         foreach (var item in array)
                         {
                             var value = item.ToString();
-                            //valueList.Add(item.Value<string>());
                             valueList.Add(value);
                         }
                     }
@@ -92,7 +91,7 @@ namespace AElf.Automation.Common.Helpers
             valueList = new List<string>();
 
             JToken info = jsonInfo;
-            for (int i = 0; i < pathArray.Length; i++)
+            for (var i = 0; i < pathArray.Length; i++)
             {
                 if (info[pathArray[i]] != null)
                 {
@@ -103,7 +102,7 @@ namespace AElf.Automation.Common.Helpers
                     }
                     else
                     {
-                        JArray array = (JArray) info[pathArray[i]];
+                        var array = (JArray) info[pathArray[i]];
                         foreach (var item in array)
                         {
                             valueList.Add(item.Value<string>());
@@ -130,15 +129,12 @@ namespace AElf.Automation.Common.Helpers
         /// <returns></returns>
         public static string ConvertHexInfo(string hexString, bool isHex = false)
         {
-            if (isHex)
-                return ConvertHexToValue(hexString).ToString();
-
-            return ConvertHexToString(hexString);
+            return isHex ? ConvertHexToValue(hexString).ToString() : ConvertHexToString(hexString);
         }
 
         public static string ConvertHexToString(string hexString)
         {
-            string strValue = "";
+            var strValue = "";
             try
             {
                 while (hexString.Length > 0)

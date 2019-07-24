@@ -55,15 +55,15 @@ namespace AElf.Automation.ContractsTesting
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            var ch = new WebApiHelper(Endpoint, AccountManager.GetDefaultDataDir());
-            
+            var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
+
             //deploy contract
             var contractExecution = new ContractExecution(Endpoint);
             contractExecution.DeployTestContract();
             AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
             AsyncHelper.RunSync(contractExecution.UpdateContract);
             AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
-            
+
             //configuration set
             var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
             configTransaction.GetTransactionLimit();

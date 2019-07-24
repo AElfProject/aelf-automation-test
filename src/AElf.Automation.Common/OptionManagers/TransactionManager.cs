@@ -149,7 +149,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 requestTimes--;
                 var webApi = new WebApiService(baseUrl);
-                var blockInfo = AsyncHelper.RunSync(()=>webApi.GetBlockByHeight(height));
+                var blockInfo = AsyncHelper.RunSync(() => webApi.GetBlockByHeight(height));
                 if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
 
                 if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");

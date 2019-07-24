@@ -92,7 +92,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     });
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
                     {
-                        if (txDto1.Status.ToLower() == "mined")
+                        if (txDto1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                             Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
                         else
                             return;
@@ -110,7 +110,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 });
                 if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
-                if (txDto2.Status == "Mined")
+                if (txDto2.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.WriteInfo($"TransferFrom success - from {@from} to {to} with amount {amount}.");
             }
             catch (Exception e)
@@ -136,10 +136,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var fullNode in FullNodes)
             {
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
-                
+
                 var tokenBalance = Token.GetUserBalance(fullNode.Account);
                 if (tokenBalance > 100_000) continue;
-                
+
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
@@ -148,6 +148,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = "Transfer for announcement event"
                 });
             }
+
             token.CheckTransactionResultList();
 
             //prepare other user token
@@ -156,7 +157,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 var balance = Token.GetUserBalance(user);
                 if (balance >= 500_000) continue;
-                
+
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",

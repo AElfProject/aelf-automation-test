@@ -92,11 +92,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             if (IsUpdateContract)
                 return;
-            
+
             foreach (var account in Testers.GetRange(1, Testers.Count - 1))
             {
                 FunctionContract.SetAccount(account);
-                var winMoney = FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney, Address.Parse(account));
+                var winMoney =
+                    FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney,
+                        Address.Parse(account));
                 FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
                     Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
@@ -123,7 +125,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)
             {
-                if (txDto.Status.ToLower() != "mined")
+                if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                     Logger.WriteError(txDto.Error);
             }
 
@@ -174,7 +176,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Int64Value = 10_000
             });
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return;
-            if (txDto.Status.ToLower() != "mined")
+            if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
             {
                 Logger.WriteError(txDto.Error);
                 return;

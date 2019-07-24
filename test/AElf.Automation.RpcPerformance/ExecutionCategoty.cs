@@ -13,6 +13,7 @@ using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -39,7 +40,7 @@ namespace AElf.Automation.RpcPerformance
 
         public ExecutionCategory(int threadCount,
             int exeTimes,
-            string baseUrl = "http://127.0.0.1:8000",
+            string baseUrl,
             string keyStorePath = "",
             bool limitTransaction = true)
         {
@@ -53,7 +54,7 @@ namespace AElf.Automation.RpcPerformance
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             LimitTransaction = limitTransaction;
         }
 
@@ -68,16 +69,17 @@ namespace AElf.Automation.RpcPerformance
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
-            
+
             //New
             NewAccounts(userCount);
 
             //Unlock Account
             UnlockAllAccounts(userCount);
-            
+
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
-            transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+            if(transactionExecuteLimit.WhetherEnableTransactionLimit())
+                transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
             //Init other services
             Summary = new ExecutionSummary(ApiHelper);
@@ -122,9 +124,7 @@ namespace AElf.Automation.RpcPerformance
                     ApiHelper.GetTransactionResult(ci);
                     Assert.IsTrue(ci.Result);
                     if (!(ci.InfoMsg is TransactionResultDto transactionResult)) continue;
-                    var status =
-                        (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                            transactionResult.Status, true);
+                    var status = transactionResult.Status.ConvertTransactionResultStatus();
                     switch (status)
                     {
                         case TransactionResultStatus.Mined:
@@ -144,7 +144,7 @@ namespace AElf.Automation.RpcPerformance
                             _logger.WriteError(message);
                             break;
                         case TransactionResultStatus.Pending:
-                            _logger.WriteInfo($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
+                            _logger.WriteWarn($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
                             continue;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -225,7 +225,7 @@ namespace AElf.Automation.RpcPerformance
                 InitializeTransactionGroup();
         }
 
-        public void InitializeTransactionGroup()
+        private void InitializeTransactionGroup()
         {
             var apiHelper = ApiHelper;
             var users = AccountList.Skip(ThreadCount).ToList();
@@ -287,6 +287,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
             //add transaction performance check process
             var taskList = new List<Task>
             {
@@ -294,11 +295,12 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() =>
                 {
                     _logger.WriteInfo("Begin generate multi requests.");
-                    try
+
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    for (var r = 1; r > 0; r++) //continuous running
                     {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        for (var r = 1; r > 0; r++) //continuous running
+                        try
                         {
                             _logger.WriteInfo("Execution transaction request round: {0}", r);
                             if (useTxs)
@@ -335,24 +337,30 @@ namespace AElf.Automation.RpcPerformance
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
                             }
-
-                            if (r % 3 != 0) continue;
-
-                            Monitor.CheckNodeHeightStatus();
-
-                            stopwatch.Stop();
-                            TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
-
-                            stopwatch = new Stopwatch();
-                            stopwatch.Start();
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        var message = "Execute continuous transaction got exception." +
-                                      $"\r\nMessage: {e.Message}" +
-                                      $"\r\nStackTrace: {e.StackTrace}";
-                        _logger.WriteError(message);
+                        catch (AggregateException exception)
+                        {
+                            _logger.WriteError($"Request to {ApiHelper.GetApiUrl()} got exception, {exception.Message}");
+                        }
+                        catch (Exception e)
+                        {
+                            var message = "Execute continuous transaction got exception." +
+                                          $"\r\nMessage: {e.Message}" +
+                                          $"\r\nStackTrace: {e.StackTrace}";
+                            _logger.WriteError(message);
+                        }
+
+                        if (r % 3 != 0) continue;
+
+                        Monitor.CheckNodeHeightStatus(!randomTransactionOption.EnableRandom); //random mode, don't check node height
+
+                        stopwatch.Stop();
+                        TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+
+                        UpdateRandomEndpoint(); //update sent transaction to random endpoint
+                        
+                        stopwatch = new Stopwatch();
+                        stopwatch.Start();
                     }
                 })
             };
@@ -457,9 +465,10 @@ namespace AElf.Automation.RpcPerformance
                 Parameter = string.Join(",", rawTransactions)
             };
             ApiHelper.ExecuteCommand(commandInfo);
+
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
+            _logger.WriteInfo("Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
@@ -478,7 +487,7 @@ namespace AElf.Automation.RpcPerformance
             ApiHelper.ExecuteCommand(commandInfo);
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
+            _logger.WriteInfo(" Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
             _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
@@ -586,6 +595,38 @@ namespace AElf.Automation.RpcPerformance
 
             _logger.WriteInfo(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
+        }
+
+        private void UpdateRandomEndpoint()
+        {
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
+            if (!randomTransactionOption.EnableRandom) return;
+            while (true)
+            {
+                var serviceUrl = randomTransactionOption.GetRandomEndpoint();
+                if (serviceUrl == ApiHelper.GetApiUrl())
+                    continue;
+                ApiHelper.UpdateApiUrl(serviceUrl);
+                try
+                {
+                    var transactionPoolCount =
+                        AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
+                    if (transactionPoolCount > maxLimit)
+                    {
+                        Thread.Sleep(1000);
+                        _logger.WriteWarn(
+                            $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
+                        continue;
+                    }
+                    
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.WriteError($"Query transaction pool status got exception : {ex.Message}");
+                }
+            }
         }
 
         #endregion

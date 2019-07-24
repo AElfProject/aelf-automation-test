@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Profit;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
-using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
@@ -72,7 +72,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
                 if (electionResult.InfoMsg is TransactionResultDto electionDto)
                 {
-                    if (electionDto.Status.ToLower() == "mined")
+                    if (electionDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     {
                         count++;
                         Logger.WriteInfo($"User {fullNode.Account} announcement election success.");
@@ -104,7 +104,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 if (!(quitResult.InfoMsg is TransactionResultDto electionDto)) continue;
-                if (electionDto.Status.ToLower() != "mined") continue;
+                if (electionDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.WriteInfo($"User {fullNode.Account} quit election success.");
                 UserScenario.GetCandidates(Election); //更新candidates列表
                 break;
@@ -170,7 +170,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetVoteStatus(termNumber);
             GetCandidateHistoryInformation();
         }
-        
+
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetTreasuryAddress(ProfitItemIds[ProfitType.Treasury]);
@@ -225,15 +225,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
-            
+
             var candidateArray = new List<string>();
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             foreach (var full in FullNodes)
             {
-                if(candidatesKeysList.Contains(full.PublicKey))
+                if (candidatesKeysList.Contains(full.PublicKey))
                     candidateArray.Add(full.Name);
             }
+
             Logger.WriteInfo($"TermNumber = {termNumber}, candidates are: [{string.Join(",", candidateArray)}]");
         }
 
@@ -247,10 +248,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Value = fullNode.PublicKey
                     });
-                if(candidateVote.Equals(new CandidateVote()))
+                if (candidateVote.Equals(new CandidateVote()))
                     continue;
-                voteMessage += $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
+                voteMessage +=
+                    $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
             }
+
             Logger.WriteInfo(voteMessage);
         }
 

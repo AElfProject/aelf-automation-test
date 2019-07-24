@@ -23,7 +23,7 @@ namespace AElf.Automation.Common.Contracts
         public ContractTesterFactory(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _keyPath = keyPath;
+            _keyPath = keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath;
         }
 
         public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)

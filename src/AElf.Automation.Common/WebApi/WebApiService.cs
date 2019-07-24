@@ -52,7 +52,7 @@ namespace AElf.Automation.Common.WebApi
         public async Task<byte[]> GetContractFileDescriptorSet(string address)
         {
             var url = GetRequestUrl(ApiMethods.GetContractFileDescriptorSet, address);
-            
+
             return await HttpHelper.GetResponseAsync<byte[]>(url);
         }
 

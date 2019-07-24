@@ -23,7 +23,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             #region Get services
 
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 

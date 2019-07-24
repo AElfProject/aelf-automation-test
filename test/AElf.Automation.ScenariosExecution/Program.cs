@@ -56,7 +56,7 @@ namespace AElf.Automation.ScenariosExecution
             if (enableCases.Contains("NodeScenario"))
                 registry.Schedule(() => node.NodeScenarioJob()).WithName("NodeScenario")
                     .ToRunEvery(1).Minutes();
-            
+
             if (enableCases.Contains("ContractScenario"))
             {
                 var contract = new ContractScenario();

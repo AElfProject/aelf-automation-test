@@ -6,7 +6,6 @@ using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
-
 using BetInput = AElf.Contracts.TestContract.BasicFunction.BetInput;
 using BetLimitInput = AElf.Contracts.TestContract.BasicUpdate.BetLimitInput;
 using InitialBasicContractInput = AElf.Contracts.TestContract.BasicFunction.InitialBasicContractInput;
@@ -18,19 +17,19 @@ namespace AElf.Automation.ContractsTesting
         private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
-        
+
         private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
         private string _contractAddress;
         private BasicFunctionContractContainer.BasicFunctionContractStub _basicFunctionContractStub;
         private BasicUpdateContractContainer.BasicUpdateContractStub _basicUpdateContractStub;
-        
+
         public ContractExecution(string serviceUrl)
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
             _stub = new ContractTesterFactory(serviceUrl, keyStorePath);
-            
+
             var accountInfo = _apiHelper.NewAccount(
                 new CommandInfo(ApiMethods.AccountNew)
                     {Parameter = "123"});
@@ -43,7 +42,7 @@ namespace AElf.Automation.ContractsTesting
             var functionContract = new BasicFunctionContract(_apiHelper, _account);
             _contractAddress = functionContract.ContractAddress;
         }
-        
+
         public async Task UpdateContract()
         {
             var owner = _genesisContract.GetContractOwner(_contractAddress);
@@ -51,7 +50,7 @@ namespace AElf.Automation.ContractsTesting
             _genesisContract.SetAccount(owner.GetFormatted());
             var result = _genesisContract.UpdateContract(owner.GetFormatted(), _contractAddress,
                 BasicUpdateContract.ContractFileName);
-            if(result)
+            if (result)
                 Logger.WriteInfo("Contract update successfully.");
 
             await Task.CompletedTask;
@@ -74,14 +73,14 @@ namespace AElf.Automation.ContractsTesting
                         Manager = Address.Parse(_account)
                     });
             initResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //execute method
             var executionResult = await _basicFunctionContractStub.UserPlayBet.SendAsync(new BetInput
             {
                 Int64Value = 60
             });
             executionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //call method
             var queryResult = await _basicFunctionContractStub.QueryRewardMoney.CallAsync(new Empty());
             queryResult.Int64Value.ShouldBeGreaterThanOrEqualTo(0);
@@ -91,7 +90,7 @@ namespace AElf.Automation.ContractsTesting
         {
             _basicUpdateContractStub = _stub.Create<BasicUpdateContractContainer.BasicUpdateContractStub>(
                 Address.Parse(_contractAddress), _account);
-            
+
             //execute method
             var executeResult = await _basicUpdateContractStub.UpdateBetLimit.SendAsync(new BetLimitInput
             {
@@ -99,7 +98,7 @@ namespace AElf.Automation.ContractsTesting
                 MaxValue = 99
             });
             executeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //call method
             var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(Address.Parse(_account));
             queryResult.Int64Value.ShouldBeGreaterThanOrEqualTo(0);

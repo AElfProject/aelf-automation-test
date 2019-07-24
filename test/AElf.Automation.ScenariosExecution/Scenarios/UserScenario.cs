@@ -5,10 +5,10 @@ using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Profit;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
@@ -63,7 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             GetCandidates(Election);
             GetCandidatesExcludeCurrentMiners();
-            
+
             if (_candidates.Count < 2)
                 return;
 
@@ -111,7 +111,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
-            if (profitDto.Status.ToLower() == "mined")
+            if (profitDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 Logger.WriteInfo(
                     $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
         }
@@ -168,12 +168,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //query current miners
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
-            
+
             //query current candidates
             _candidatesExcludeMiners = new List<string>();
-            _candidates.ForEach(o=>
+            _candidates.ForEach(o =>
             {
-                if(!minersPublicKeys.Contains(o))
+                if (!minersPublicKeys.Contains(o))
                 {
                     _candidatesExcludeMiners.Add(o);
                 }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
-using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
 using Volo.Abp.Threading;
@@ -21,7 +19,7 @@ namespace AElf.Automation.Common.OptionManagers
         {
             _keyStore = keyStore;
             _chainId = chainId;
-            _accounts = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync());
+            _accounts = AsyncHelper.RunSync(() => _keyStore.ListAccountsAsync());
         }
 
         public CommandInfo NewAccount(string password = "")
@@ -30,7 +28,7 @@ namespace AElf.Automation.Common.OptionManagers
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = password;
-            var keypair = AsyncHelper.RunSync(()=>_keyStore.CreateAsync(password, _chainId));
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAsync(password, _chainId));
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
@@ -38,6 +36,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 return result;
             }
+
             result.Result = true;
             var account = addr.GetFormatted();
             result.InfoMsg = account;
@@ -50,7 +49,7 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var result = new CommandInfo(ApiMethods.AccountList)
             {
-                InfoMsg = AsyncHelper.RunSync(()=>_keyStore.ListAccountsAsync())
+                InfoMsg = AsyncHelper.RunSync(() => _keyStore.ListAccountsAsync())
             };
             if (result.InfoMsg == null) return result;
             result.Result = true;
@@ -78,7 +77,7 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             var timeout = notimeout == "";
-            var tryOpen = AsyncHelper.RunSync(()=>_keyStore.OpenAsync(address, password, timeout));
+            var tryOpen = AsyncHelper.RunSync(() => _keyStore.OpenAsync(address, password, timeout));
 
             switch (tryOpen)
             {
@@ -106,28 +105,9 @@ namespace AElf.Automation.Common.OptionManagers
 
         public string GetPublicKey(string address, string password = "123")
         {
+            UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
-        }
-
-        public static string GetDefaultDataDir()
-        {
-            try
-            {
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                var keyPath = Path.Combine(path, "keys");
-                if (!Directory.Exists(keyPath))
-                    Directory.CreateDirectory(keyPath);
-
-                return path;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         private ECKeyPair GetKeyPair(string addr)

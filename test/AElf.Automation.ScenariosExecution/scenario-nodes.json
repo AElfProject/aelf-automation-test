@@ -1,183 +1,171 @@
 {
-  "BpNodes": [
-    {
-      "name": "bp1-美国东部(弗吉尼亚北部)",
-      "service_url": "http://3.94.106.10:8000",
-      "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
-      "password": "123"
+    "BpNodes": [
+        {
+            "name": "bp1-美国东部(弗吉尼亚北部)",
+            "service_url": "http://3.94.106.10:8000",
+            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "password": "123"
+        },
+        {
+            "name": "bp2-美国东部(弗吉尼亚北部)",
+            "service_url": "http://13.58.239.190:8000",
+            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
+            "password": "123"
+        },
+        {
+            "name": "bp3-美国西部(加利福尼亚北部)",
+            "service_url": "http://52.53.166.137:8000",
+            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "password": "123"
+        },
+        {
+            "name": "bp4-美国西部(俄勒冈)",
+            "service_url": "http://34.220.238.41:8000",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "password": "123"
+        },
+        {
+            "name": "bp5-亚太区域(香港)",
+            "service_url": "http://18.162.147.32:8000",
+            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
+            "password": "123"
+        },
+        {
+            "name": "bp6-亚太区域(孟买)",
+            "service_url": "http://13.235.23.221:8000",
+            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+            "password": "123"
+        },
+        {
+            "name": "bp7-亚太区域(首尔)",
+            "service_url": "http://54.180.134.242:8000",
+            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+            "password": "123"
+        },
+        {
+            "name": "bp8-亚太区域(新加坡)",
+            "service_url": "http://18.136.101.221:8000",
+            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+            "password": "123"
+        },
+        {
+            "name": "bp9-亚太区域(悉尼)",
+            "service_url": "http://52.62.246.72:8000",
+            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+            "password": "123"
+        }
+    ],
+    "FullNodes": [
+        {
+            "name": "full2-亚太区域(东京)",
+            "service_url": "http://13.231.68.213:8000",
+            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "password": "123"
+        },
+        {
+            "name": "full3-加拿大(中部)",
+            "service_url": "http://35.183.243.107:8000",
+            "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
+            "password": "123"
+        },
+        {
+            "name": "full4-欧洲(法兰克福)",
+            "service_url": "http://3.122.94.153:8000",
+            "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
+            "password": "123"
+        },
+        {
+            "name": "full5-欧洲(爱尔兰)",
+            "service_url": "http://34.255.181.36:8000",
+            "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
+            "password": "123"
+        },
+        {
+            "name": "full6-欧洲(伦敦)",
+            "service_url": "http://3.8.119.238:8000",
+            "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
+            "password": "123"
+        },
+        {
+            "name": "full7-欧洲(巴黎)",
+            "service_url": "http://35.180.255.217:8000",
+            "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
+            "password": "123"
+        },
+        {
+            "name": "full8-欧洲(斯德哥尔摩)",
+            "service_url": "http://13.53.124.106:8000",
+            "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
+            "password": "123"
+        },
+        {
+            "name": "full10-南美洲(圣保罗)",
+            "service_url": "http://54.94.165.249:8000",
+            "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
+            "password": "123"
+        },
+        {
+            "name": "full11-阿里伦敦",
+            "service_url": "http://8.208.23.245:8000",
+            "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
+            "password": "123"
+        },
+        {
+            "name": "full12-阿里吉隆坡",
+            "service_url": "http://47.254.233.45:8000",
+            "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
+            "password": "123"
+        }
+    ],
+    "TestCases": [
+        {
+            "case_name": "TokenScenario",
+            "enable": true
+        },
+        {
+            "case_name": "ContractScenario",
+            "enable": true
+        },
+        {
+            "case_name": "ResourceScenario",
+            "enable": true
+        },
+        {
+            "case_name": "NodeScenario",
+            "enable": false
+        },
+        {
+            "case_name": "UserScenario",
+            "enable": true
+        }
+    ],
+    "ContractsInfo": {
+        "AutoUpdate": true,
+        "Contracts": [
+            {
+                "name": "FeeReceiver",
+                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
+                "code_hash": "",
+                "owner": ""
+            },
+            {
+                "name": "TokenConverter",
+                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
+                "code_hash": "",
+                "owner": ""
+            },
+            {
+                "name": "BasicFunction",
+                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
+                "code_hash": "",
+                "owner": ""
+            }
+        ]
     },
-    {
-      "name": "bp2-美国东部(弗吉尼亚北部)",
-      "service_url": "http://13.58.239.190:8000",
-      "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
-      "password": "123"
-    },
-    {
-      "name": "bp3-美国西部(加利福尼亚北部)",
-      "service_url": "http://52.53.166.137:8000",
-      "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
-      "password": "123"
-    },
-    {
-      "name": "bp4-美国西部(俄勒冈)",
-      "service_url": "http://34.220.238.41:8000",
-      "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
-      "password": "123"
-    },
-    {
-      "name": "bp5-亚太区域(香港)",
-      "service_url": "http://18.162.147.32:8000",
-      "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
-      "password": "123"
-    },
-    {
-      "name": "bp6-亚太区域(孟买)",
-      "service_url": "http://13.235.23.221:8000",
-      "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
-      "password": "123"
-    },
-    {
-      "name": "bp7-亚太区域(首尔)",
-      "service_url": "http://54.180.134.242:8000",
-      "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
-      "password": "123"
-    },
-    {
-      "name": "bp8-亚太区域(新加坡)",
-      "service_url": "http://18.136.101.221:8000",
-      "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
-      "password": "123"
-    },
-    {
-      "name": "bp9-亚太区域(悉尼)",
-      "service_url": "http://52.62.246.72:8000",
-      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
-      "password": "123"
+    "UserCount": 100,
+    "Timeout": 300,
+    "SpecifyEndpoint": {
+        "enable": true,
+        "service_url": "http://3.94.106.10:8000"
     }
-  ],
-  "FullNodes": [
-    {
-      "name": "full1-青云亚太2区",
-      "service_url": "http://103.61.37.19:8000",
-      "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
-      "password": "123"
-    },
-    {
-      "name": "full2-亚太区域(东京)",
-      "service_url": "http://13.231.68.213:8000",
-      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
-      "password": "123"
-    },
-    {
-      "name": "full3-加拿大(中部)",
-      "service_url": "http://35.183.243.107:8000",
-      "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
-      "password": "123"
-    },
-    {
-      "name": "full4-欧洲(法兰克福)",
-      "service_url": "http://3.122.94.153:8000",
-      "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
-      "password": "123"
-    },
-    {
-      "name": "full5-欧洲(爱尔兰)",
-      "service_url": "http://34.255.181.36:8000",
-      "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
-      "password": "123"
-    },
-    {
-      "name": "full6-欧洲(伦敦)",
-      "service_url": "http://3.8.119.238:8000",
-      "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
-      "password": "123"
-    },
-    {
-      "name": "full7-欧洲(巴黎)",
-      "service_url": "http://35.180.255.217:8000",
-      "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
-      "password": "123"
-    },
-    {
-      "name": "full8-欧洲(斯德哥尔摩)",
-      "service_url": "http://13.53.124.106:8000",
-      "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
-      "password": "123"
-    },
-    {
-      "name": "full9-青云亚太1区",
-      "service_url": "http://45.120.217.124:8000",
-      "account": "2jaRj5K8c1wWCBZav74t6nrB3TyA68JTmyinkpLHSF4Nxd9tU8",
-      "password": "123"
-    },
-    {
-      "name": "full10-南美洲(圣保罗)",
-      "service_url": "http://54.94.165.249:8000",
-      "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
-      "password": "123"
-    },
-    {
-      "name": "full11-阿里伦敦",
-      "service_url": "http://8.208.23.245:8000",
-      "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
-      "password": "123"
-    },
-    {
-      "name": "full12-阿里吉隆坡",
-      "service_url": "http://47.254.233.45:8000",
-      "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
-      "password": "123"
-    }
-  ],
-  "TestCases": [
-    {
-      "case_name": "TokenScenario",
-      "enable": true
-    },
-    {
-      "case_name": "ContractScenario",
-      "enable": true
-    },
-    {
-      "case_name": "ResourceScenario",
-      "enable": true
-    },
-    {
-      "case_name": "NodeScenario",
-      "enable": false
-    },
-    {
-      "case_name": "UserScenario",
-      "enable": true
-    }
-  ],
-  "ContractsInfo": {
-    "AutoUpdate": true,
-    "Contracts": [
-      {
-        "name": "FeeReceiver",
-        "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
-        "code_hash": "",
-        "owner": ""
-      },
-      {
-        "name": "TokenConverter",
-        "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
-        "code_hash": "",
-        "owner": ""
-      },
-      {
-        "name": "BasicFunction",
-        "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
-        "code_hash": "",
-        "owner": ""
-      }
-    ]
-  },
-  "UserCount": 100,
-  "Timeout": 300,
-  "SpecifyEndpoint": {
-    "enable": true,
-    "service_url": "http://3.94.106.10:8000"
-  }
 }

@@ -9,7 +9,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private static void WriteColorLine(string str, ConsoleColor color)
         {
-            ConsoleColor currentForeColor = Console.ForegroundColor;
+            var currentForeColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.WriteLine(str);
             Console.ForegroundColor = currentForeColor;
