@@ -42,30 +42,6 @@ namespace AElf.Automation.SideChainTests
             ParliamentService = ContractServices.ParliamentService;
         }
 
-        public class TxInfo
-        {
-            public string TxId { get; set; }
-            public long BlockNumber { get; set; }
-            public string RawTx { get; set; }
-            public string FromAccount { get; set; }
-            public string ReceiveAccount { get; set; }
-
-            public TxInfo(long blockNumber, string txid, string rawTx, string fromAccount, string receiveAccount)
-            {
-                TxId = txid;
-                BlockNumber = blockNumber;
-                RawTx = rawTx;
-                FromAccount = fromAccount;
-                ReceiveAccount = receiveAccount;
-            }
-
-            public TxInfo(long blockNumber, string txid)
-            {
-                TxId = txid;
-                BlockNumber = blockNumber;
-            }
-        }
-
         #region side chain create method
 
         public CommandInfo RequestSideChain(string account, long lockToken)
@@ -314,5 +290,15 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
+        
+        public void UnlockAllAccounts(ContractServices contractServices,string account)
+        {
+                var ci = new CommandInfo(ApiMethods.AccountUnlock)
+                {
+                    Parameter = $"{account} 123 notimeout"
+                };
+                ci = contractServices.ApiHelper.ExecuteCommand(ci);
+                Assert.IsTrue(ci.Result);
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace AElf.Automation.SideChainTests
     public class SideChainVerify : SideChainTestBase
     {
         public static string SideARpcUrl { get; } = "http://192.168.197.16:8011";
-        public static string SideBRpcUrl { get; } = "http://192.168.197.26:8011";
+        public static string SideBRpcUrl { get; } = "http://192.168.197.26:8021";
         public IApiHelper SideChainA { get; set; }
         public IApiHelper SideChainB { get; set; }
         public ContractTester TesterA;
@@ -26,7 +26,7 @@ namespace AElf.Automation.SideChainTests
         [TestInitialize]
         public void InitializeNodeTests()
         {
-            base.Initialize();
+            Initialize();
         }
 
         #region cross chain verify 
@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("ac50644b0fbd579f1458ec0c7347b9d5d66546a777bce3b10756e31dc57bfbeb","11490",1)]
+        [DataRow("bf1fab93f707f7d85dcbeeb11bfa40142bccef5118a579531e5e3339cf8d8488","138675")]
         public void VerifyMainChainTransaction(string txIdInString,string blockNumber,string txid)
         {
             var merklePath = GetMerklePath(blockNumber, txid, Tester);
@@ -90,7 +90,6 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, txid, TesterA);
             var verificationInput = new VerifyTransactionInput
@@ -140,7 +139,7 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","122783","724046442d42fddc391204a3fbb75da4206dc141060fa5771838de775d2db628","0a220a200e0859791a72bc512b4b91edfd12116daddf7c9f8915d608e2313f4772e761df12220a2043a0f4a61fd597aee85d15e13bfa96e70b82a7071ca25e62c3176a80b8231ae21897bf072204f6e454cc2a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f10441ee90268fda8a449de808141b2aa9d305522ea3f48764659761ec5356fc4b363032c28263d88e71a65867ec6457bf2effada1a1b715cd4c5a78eb57c520adcc2a00")]
+        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","138809","bc58078bdd74e9d2e76250a416a6e67858eb2522f6635018d86537e705fe3aeb","0a220a200e0859791a72bc512b4b91edfd12116daddf7c9f8915d608e2313f4772e761df12220a2043a0f4a61fd597aee85d15e13bfa96e70b82a7071ca25e62c3176a80b8231ae218a9bc082204e7db11582a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f1044106db22096561cfc70b0faaa57c5bd521d59d359db341e05754c9a65ff1ec0192050a11375c02076b3dc4e03f5ca8b8fa5c78ed9636af47c79b9c4556a922f03801")]
         public void SideChainAReceive(string accountA,string blockNumber, string txid,string rawTx)
         {
             var merklePath = GetMerklePath(blockNumber, txid, Tester);
@@ -167,12 +166,11 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("", "")]
+        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG", "2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG",2113)]
         public void SideChainATransferSideChainB(string accountA, string accountB, int toChainId)
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
             //get tokenInfo
             var tokenInfo = TesterA.GetTokenInfo("ELF");
             //Transfer
@@ -188,7 +186,6 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, txid, TesterA);
 
@@ -209,7 +206,6 @@ namespace AElf.Automation.SideChainTests
             //receive in side chain B
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
-            ISB = new WebApiService(SideBRpcUrl);
             TesterB.CrossChainReceive(accountB, crossChainReceiveToken);
 
             //verify
@@ -226,7 +222,6 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA,sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
             //get ELF token info
             var tokenInfo = TesterB.GetTokenInfo("ELF");
             //Transfer
@@ -242,7 +237,6 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
-            ISB = new WebApiService(SideBRpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, txid, TesterB);
 
