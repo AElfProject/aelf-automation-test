@@ -6,6 +6,7 @@ using Acs7;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Types;
@@ -22,7 +23,6 @@ namespace AElf.Automation.SideChainTests
 //        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
  
         public IApiHelper CH { get; set; }
-        public IApiService IS { get; set; }
 //        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string InitAccount { get; } = "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs";
         
@@ -36,9 +36,8 @@ namespace AElf.Automation.SideChainTests
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
             
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
-            IS = new WebApiService(RpcUrl);
-            var contractServices = new ContractServices(CH, InitAccount, "Main");
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            var contractServices = new ContractServices(CH, InitAccount, "123");
             Tester = new ContractTester(contractServices);
 
             //Get BpNode Info
@@ -57,7 +56,7 @@ namespace AElf.Automation.SideChainTests
 
         protected ContractTester ChangeToSideChain(IApiHelper rpcApiHelper, string SideAChainAccount)
         {
-            var contractServices = new ContractServices(rpcApiHelper, SideAChainAccount, "Side");
+            var contractServices = new ContractServices(rpcApiHelper, SideAChainAccount, "123");
             var tester = new ContractTester(contractServices);
             return tester;
         }
@@ -68,28 +67,40 @@ namespace AElf.Automation.SideChainTests
             return rpcApiHelper;
         }
 
-        protected MerklePath GetMerklePath(string blockNumber, int index, IApiService apiService)
+        protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractTester tester)
         {
-            var blockInfoResult = apiService.GetBlockByHeight(long.Parse(blockNumber), true).Result;
+            var index = 0;
+            var ci = new CommandInfo(ApiMethods.GetBlockByHeight) {Parameter = $"{blockNumber} true"};
+            ci = tester.ApiHelper.ExecuteCommand(ci);
+            var blockInfoResult = ci.InfoMsg as BlockDto;
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
-                var txResult = apiService.GetTransactionResult(transactionId).Result;
-                var resultStatus = txResult.Status;
-                transactionStatus.Add(resultStatus);
+                var CI = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionId};
+                var result = tester.ApiHelper.ExecuteCommand(CI);
+                var txResult = result.InfoMsg as TransactionResultDto;
+                
+                var resultStatus =
+                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
+                        txResult.Status, true);
+                transactionStatus.Add(resultStatus.ToString());
             }
 
             var txIdsWithStatus = new List<Hash>();
-            for (int num = 0; num < transactionIds.Count; num++)
+            for (var num = 0; num < transactionIds.Count; num++)
             {
-                var txId = Hash.LoadHex(transactionIds[num].ToString());
-                string txRes = transactionStatus[num];
+                var txId = Hash.LoadHex(transactionIds[num]);
+                var txRes = transactionStatus[num];
                 var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
+                if (transactionIds[num] == TxId)
+                {
+                    index = num;
+                }
             }
 
             var bmt = new BinaryMerkleTree();
@@ -97,9 +108,7 @@ namespace AElf.Automation.SideChainTests
             var root = bmt.ComputeRootHash();
             var merklePath = new MerklePath();
             merklePath.Path.AddRange(bmt.GenerateMerklePath(index));
-
-            //return merklePath;
-            return null;
+            return merklePath;
         }
 
         protected void TestCleanUp()

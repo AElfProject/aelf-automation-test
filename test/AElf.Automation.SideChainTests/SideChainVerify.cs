@@ -14,16 +14,14 @@ namespace AElf.Automation.SideChainTests
     [TestClass]
     public class SideChainVerify : SideChainTestBase
     {
-        public static string SideARpcUrl { get; } = "http://192.168.197.56:8011";
-        public static string SideBRpcUrl { get; } = "http://192.168.197.56:8011";
+        public static string SideARpcUrl { get; } = "http://192.168.197.16:8011";
+        public static string SideBRpcUrl { get; } = "http://192.168.197.26:8011";
         public IApiHelper SideChainA { get; set; }
         public IApiHelper SideChainB { get; set; }
-        public IApiService ISA { get; set; }
-        public IApiService ISB { get; set; }
         public ContractTester TesterA;
         public ContractTester TesterB;
-        public string sideChainAccount = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string sideChainBccount = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public string sideChainAccount = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string sideChainBccount = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         [TestInitialize]
         public void InitializeNodeTests()
@@ -47,9 +45,9 @@ namespace AElf.Automation.SideChainTests
 
         [TestMethod]
         [DataRow("ac50644b0fbd579f1458ec0c7347b9d5d66546a777bce3b10756e31dc57bfbeb","11490",1)]
-        public void VerifyMainChainTransaction(string txIdInString,string blockNumber,int index)
+        public void VerifyMainChainTransaction(string txIdInString,string blockNumber,string txid)
         {
-            var merklePath = GetMerklePath(blockNumber, index, IS);
+            var merklePath = GetMerklePath(blockNumber, txid, Tester);
 
             var verificationInput = new VerifyTransactionInput
             {
@@ -88,13 +86,13 @@ namespace AElf.Automation.SideChainTests
 
         [TestMethod]
         [DataRow("8e8c7176bf37ef1ce8f8414fdff54a68d67e9b9da9124c659f46910593c292d1","12793",1)]
-        public void VerifysideACHainTransaction(string txIdInString,string blockNumber,int index)
+        public void VerifysideACHainTransaction(string txIdInString,string blockNumber,string txid)
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
             ISA = new WebApiService(SideARpcUrl);
 
-            var merklePath = GetMerklePath(blockNumber, index, ISA);
+            var merklePath = GetMerklePath(blockNumber, txid, TesterA);
             var verificationInput = new VerifyTransactionInput
             {
                 TransactionId = Hash.LoadHex(txIdInString),
@@ -142,10 +140,10 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","7879",1,"0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a2043a0f4a61fd597aee85d15e13bfa96e70b82a7071ca25e62c3176a80b8231ae218c53d220423be59912a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f1044114a1930d91d3d31197c6f68e61b49be4805d7ffa9c06070d7066d76ce9d47aa71f6cce4eddf925da27fc8f5956b8145ec88253e96112e2bc8620887709adcf4601")]
-        public void SideChainAReceive(string accountA,string blockNumber,int index,string rawTx)
+        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG","122783","724046442d42fddc391204a3fbb75da4206dc141060fa5771838de775d2db628","0a220a200e0859791a72bc512b4b91edfd12116daddf7c9f8915d608e2313f4772e761df12220a2043a0f4a61fd597aee85d15e13bfa96e70b82a7071ca25e62c3176a80b8231ae21897bf072204f6e454cc2a1243726f7373436861696e5472616e73666572328a010a220a209825ea6ae8e17764b3d6561088d21134d8683419ef386257ae7e9404f47fd34212440a03454c461209656c6620746f6b656e1880a8d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118d00f22167472616e7366657220746f207369646520636861696e2882f4a70182f10441ee90268fda8a449de808141b2aa9d305522ea3f48764659761ec5356fc4b363032c28263d88e71a65867ec6457bf2effada1a1b715cd4c5a78eb57c520adcc2a00")]
+        public void SideChainAReceive(string accountA,string blockNumber, string txid,string rawTx)
         {
-            var merklePath = GetMerklePath(blockNumber, index, IS);
+            var merklePath = GetMerklePath(blockNumber, txid, Tester);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -186,13 +184,13 @@ namespace AElf.Automation.SideChainTests
 
         [TestMethod]
         [DataRow("", "", "")]
-        public void SideChainBReceive(string accountB, string blockNumber, int index, string rawTx)
+        public void SideChainBReceive(string accountB, string blockNumber, string txid, string rawTx)
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
             ISA = new WebApiService(SideARpcUrl);
 
-            var merklePath = GetMerklePath(blockNumber, index, ISA);
+            var merklePath = GetMerklePath(blockNumber, txid, TesterA);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -240,13 +238,13 @@ namespace AElf.Automation.SideChainTests
 
         [TestMethod]
         [DataRow("2iimYTf2mn134pAsRqRT2a1kEadNVGkBZdNgE8na9y4RnwiPRU","2460",1,"0a220a20e26d40e0021a6dd128cda7d682d8cd9dba10feda55d8c689d1563fb0b313c8e812220a2080ee395414cb759fc3a997f2b1a3db506aa9779bebbdef653aec7121fd681da61893132204dfcc9d022a1243726f7373436861696e5472616e736665723288010a220a200640bf6b4c86d22ebf32cd8f96135c421990326febdc94256d3b0f5f1ac89ff712440a03454c461209656c6620746f6b656e18fca7d6b9072080a8d6b907280432220a20dd8eea50c31966e06e4a2662bebef7ed81d09a47b2eb1eb3729f2f0cc78129ae380118c801221463726f737320636861696e207472616e73666572289bf4e10482f104412bd970d3de35175f33e74e0563a82b1e87792096ce5c72859f29d23a425f905512bc028dbd27ecc68995f2934405d66ee55a6bc06d47cfdc0a639aa620e4f93a01")]
-        public void MainChainReceive(string accountM,string blockNumber,int index,string rawTx)
+        public void MainChainReceive(string accountM,string blockNumber,string txid,string rawTx)
         {
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
             ISB = new WebApiService(SideBRpcUrl);
 
-            var merklePath = GetMerklePath(blockNumber, index, ISB);
+            var merklePath = GetMerklePath(blockNumber, txid, TesterB);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {

@@ -1,8 +1,7 @@
-using System;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Types;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -18,25 +17,18 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(IApiHelper apiHelper, string callAddress, string type)
-        {
+        public ContractServices(IApiHelper apiHelper, string callAddress, string password)
+        { 
             ApiHelper = apiHelper;
             CallAddress = callAddress;
             CallAccount = Address.Parse(callAddress);
-
+            UnlockAccounts(ApiHelper,CallAddress,password);
+            
             //connect chain
             ConnectionChain();
 
             //get services
             GetContractServices();
-
-            if (type.Equals("Main"))
-            {
-                //ParliamentAuth contract
-                var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
-                ParliamentService =
-                    new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
-            }
         }
 
         public void GetContractServices()
@@ -54,12 +46,27 @@ namespace AElf.Automation.SideChainTests
             //CrossChain contract
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChainName);
             CrossChainService = new CrossChainContract(ApiHelper, CallAddress, crossChainAddress.GetFormatted());
+            
+            //ParliamentAuth contract
+            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
+            ParliamentService =
+                new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
         }
 
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
+        }
+        
+        private void UnlockAccounts(IApiHelper apiHelper,string account,string password)
+        {
+            var ci = new CommandInfo(ApiMethods.AccountUnlock)
+            {
+                Parameter = $"{account} {password} notimeout"
+            };
+            ci = apiHelper.ExecuteCommand(ci);
+            Assert.IsTrue(ci.Result);
         }
     }
 }

@@ -49,10 +49,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             _logger.InitLogHelper(dir);
             #endregion
-            
-            MainCH = new WebApiHelper(MainRpcUrl, AccountManager.GetDefaultDataDir());
-            SideCH = new WebApiHelper(SideRpcUrl, AccountManager.GetDefaultDataDir());
-            SideCH2 = new WebApiHelper(SideRpcUrl2, AccountManager.GetDefaultDataDir());
+            MainCH = new WebApiHelper(MainRpcUrl,  CommonHelper.GetCurrentDataDir());
+            SideCH = new WebApiHelper(SideRpcUrl, CommonHelper.GetDefaultDataDir());
+            SideCH2 = new WebApiHelper(SideRpcUrl2, CommonHelper.GetCurrentDataDir());
             
             var mainContractServices = new ContractServices(MainCH,InitAccount,"Main");
             var sideContractServices = new ContractServices(SideCH,InitAccount,"Side");

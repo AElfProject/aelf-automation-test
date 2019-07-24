@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
@@ -6,6 +9,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -14,6 +18,7 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
+using Enum = System.Enum;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -35,6 +40,30 @@ namespace AElf.Automation.SideChainTests
             ConsensusService = ContractServices.ConsensusService;
             CrossChainService = ContractServices.CrossChainService;
             ParliamentService = ContractServices.ParliamentService;
+        }
+
+        public class TxInfo
+        {
+            public string TxId { get; set; }
+            public long BlockNumber { get; set; }
+            public string RawTx { get; set; }
+            public string FromAccount { get; set; }
+            public string ReceiveAccount { get; set; }
+
+            public TxInfo(long blockNumber, string txid, string rawTx, string fromAccount, string receiveAccount)
+            {
+                TxId = txid;
+                BlockNumber = blockNumber;
+                RawTx = rawTx;
+                FromAccount = fromAccount;
+                ReceiveAccount = receiveAccount;
+            }
+
+            public TxInfo(long blockNumber, string txid)
+            {
+                TxId = txid;
+                BlockNumber = blockNumber;
+            }
         }
 
         #region side chain create method
@@ -64,7 +93,8 @@ namespace AElf.Automation.SideChainTests
             return address;
         }
 
-        public CommandInfo CreateSideChainProposal(Address organizationAddress,string account,int indexingPrice,long lockedTokenAmount, bool isPrivilegePreserved)
+        public CommandInfo CreateSideChainProposal(Address organizationAddress, string account, int indexingPrice,
+            long lockedTokenAmount, bool isPrivilegePreserved)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
             var createProposalInput = new SideChainCreationRequest
@@ -85,18 +115,19 @@ namespace AElf.Automation.SideChainTests
                         ToAddress = Address.Parse(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
-            
+
             return result;
         }
-        
 
-        public CommandInfo RequestChainDisposal(string account,int chainId)
+
+        public CommandInfo RequestChainDisposal(string account, int chainId)
         {
             CrossChainService.SetAccount(account);
-            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal, new SInt32Value
-            {
-                Value = chainId
-            });
+            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal,
+                new SInt32Value
+                {
+                    Value = chainId
+                });
 
             return result;
         }
@@ -112,7 +143,7 @@ namespace AElf.Automation.SideChainTests
                 });
             return result;
         }
-        
+
         public SInt32Value GetChainStatus(int chainId)
         {
             var result =
@@ -124,7 +155,8 @@ namespace AElf.Automation.SideChainTests
         public ProposalOutput GetProposal(string proposalId)
         {
             var result =
-                ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal, Hash.LoadHex(proposalId));
+                ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
+                    Hash.LoadHex(proposalId));
             return result;
         }
 
@@ -152,7 +184,7 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-        
+
         #region Parliament Method
 
         public CommandInfo Approve(string account, string proposalId)
@@ -166,13 +198,14 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo Release(string account,string proposalId)
+        public CommandInfo Release(string account, string proposalId)
         {
             ParliamentService.SetAccount(account);
-            var transactionResult = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadHex(proposalId));
+            var transactionResult =
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadHex(proposalId));
             return transactionResult;
         }
-        
+
         #endregion
 
         #region Token Method
@@ -281,15 +314,5 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-        
-        public void UnlockAllAccounts(ContractServices contractServices,string account)
-        {
-                var ci = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{account} 123 notimeout"
-                };
-                ci = contractServices.ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-        }
     }
 }

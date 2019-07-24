@@ -39,7 +39,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected void Initialize()
         {
             #region Get services
-            CH = new WebApiHelper(RpcUrl, AccountManager.GetDefaultDataDir());
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetDefaultDataDir());
             var contractServices = new ContractServices(CH,InitAccount);
             Behaviors = new Behaviors(contractServices);
             
