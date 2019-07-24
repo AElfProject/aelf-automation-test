@@ -5,6 +5,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -14,7 +15,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private readonly IApiService _apiHelper;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private const int Phase = 120;
 
@@ -65,7 +66,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var averageTx = totalTransactions / Phase;
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
-            _logger.Info($"Summary Information: {Phase} blocks from height " +
+            Logger.Info($"Summary Information: {Phase} blocks from height " +
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
                               $"{totalTransactions} transactions, average per block is {averageTx} tx during " +
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. Block generated per {timePerBlock} milliseconds.");

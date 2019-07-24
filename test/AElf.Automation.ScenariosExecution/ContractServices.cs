@@ -9,12 +9,13 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
     public class ContractServices
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
@@ -289,7 +290,7 @@ namespace AElf.Automation.ScenariosExecution
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
-            Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
+            Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
 
             return currentBps;
         }

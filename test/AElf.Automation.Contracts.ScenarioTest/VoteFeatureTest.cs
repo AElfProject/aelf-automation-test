@@ -19,7 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public ILog Logger = Log4NetHelper.GetLogger();
         public string TokenContract { get; set; }
         public string ConsensusContract { get; set; }
         public string DividendsContract { get; set; }

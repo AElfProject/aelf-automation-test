@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
@@ -10,7 +11,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class BaseScenario
     {
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }

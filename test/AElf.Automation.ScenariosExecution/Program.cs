@@ -4,6 +4,7 @@ using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
 using FluentScheduler;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -11,20 +12,13 @@ namespace AElf.Automation.ScenariosExecution
     {
         #region Private Properties
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
 
         static void Main(string[] args)
         {
-            #region Basic Preparation
-
-            //Init Logger
-            var logName = "ScenarioTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
-
-            #endregion
+            Log4NetHelper.LogInit("ScenarioTest_");
 
             var enableCases = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).Select(o => o.CaseName).ToList();
 
