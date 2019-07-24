@@ -80,7 +80,7 @@ namespace AElf.Automation.Common.Contracts
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
                             : Hash.FromString(resultDto.BlockHash),
@@ -92,7 +92,7 @@ namespace AElf.Automation.Common.Contracts
                     }
                     : new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
                             : Hash.FromString(resultDto.BlockHash),

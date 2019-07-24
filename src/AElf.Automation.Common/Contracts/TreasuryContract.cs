@@ -4,12 +4,16 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum TreasuryMethod
     {
+        //Avtion
         InitialTreasuryContract,
         InitialMiningRewardProfitItem,
         ReleaseMiningReward,
         Release,
         Donate,
-        DonateAll
+        DonateAll,
+        
+        //View
+        GetTreasurySchemeId
     }
     public class TreasuryContract : BaseContract<TreasuryMethod>
     {

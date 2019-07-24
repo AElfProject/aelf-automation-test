@@ -140,7 +140,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result =
                 Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.GetProposal,
-                    Hash.LoadHex(proposalId));
+                    HashHelper.HexStringToHash(proposalId));
             var txResult = result.InfoMsg as TransactionResultDto;
 
             _logger.WriteInfo($"proposal message is {txResult.ReadableReturnValue}");
@@ -154,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.Approve, new ApproveInput
                 {
-                    ProposalId = Hash.LoadHex(proposalId)
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             var resultDto = result.InfoMsg as TransactionResultDto;
             _logger.WriteInfo($"Approve is {resultDto.ReadableReturnValue}");

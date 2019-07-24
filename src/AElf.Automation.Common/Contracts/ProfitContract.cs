@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -21,26 +22,29 @@ namespace AElf.Automation.Common.Contracts
         //view
         GetManagingSchemeIds,
         GetSchemeAddress,
+        GetScheme,
         GetReleasedProfitsInformation,
         GetProfitDetails,
         GetProfitItem,
         GetProfitAmount
     }
 
-    public enum ProfitType
+    public enum SchemeType
     {
         Treasury,
+        
         MinerReward,
-        BackSubsidy,
+        BackupSubsidy,
         CitizenWelfare,
-        BasicMinerReward,
+        
+        MinerBasicReward,
         VotesWeightReward,
         ReElectionReward
     }
 
     public class ProfitContract : BaseContract<ProfitMethod>
     {
-        public Dictionary<ProfitType, Hash> ProfitItemIds { get; set; }
+        public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
         public ProfitContract(IApiHelper apiHelper, string callAddress) :
             base(apiHelper, "AElf.Contracts.Profit", callAddress)
@@ -54,17 +58,33 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public void GetProfitItemIds(string treasuryContractAddress)
+        public void GetTreasurySchemes(string treasuryContractAddress)
         {
-            var profitIds = GetManagingSchemeIds(treasuryContractAddress).SchemeIds;
-            ProfitItemIds = new Dictionary<ProfitType, Hash>
+            if (Schemes != null && Schemes.Count == 7)
+                return;
+            Schemes = new Dictionary<SchemeType, Scheme>();
+            var treasuryContract = new TreasuryContract(ApiHelper, CallAddress, treasuryContractAddress);
+            var treasurySchemeId = treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
+            var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);
+            Schemes.Add(SchemeType.Treasury, treasuryScheme);
+            var minerRewardScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[0].SchemeId);
+            Schemes.Add(SchemeType.MinerReward, minerRewardScheme);
+            
+            Schemes.Add(SchemeType.BackupSubsidy,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[1].SchemeId));
+            Schemes.Add(SchemeType.CitizenWelfare,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[2].SchemeId));
+            Schemes.Add(SchemeType.MinerBasicReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[0].SchemeId));
+            Schemes.Add(SchemeType.VotesWeightReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[1].SchemeId));
+            Schemes.Add(SchemeType.ReElectionReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
+            Logger.WriteInfo("Scheme collection info:");
+            foreach (var (key, value) in Schemes)
             {
-                {ProfitType.Treasury, profitIds[0]},
-                {ProfitType.VotesWeightReward, profitIds[1]},
-                {ProfitType.ReElectionReward, profitIds[2]},
-                {ProfitType.BackSubsidy, profitIds[3]},
-                {ProfitType.CitizenWelfare, profitIds[4]}
-            };
+                Logger.WriteInfo($"Name: {key}, SchemeId: {value.SchemeId}");
+            }
         }
 
         public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)
@@ -98,16 +118,6 @@ namespace AElf.Automation.Common.Contracts
                     Period = period
                 });
 
-            return result;
-        }
-
-        private CreatedSchemeIds GetManagingSchemeIds(string treasuryContractAddress)
-        {
-            var result = CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
-                new GetManagingSchemeIdsInput
-                {
-                    Manager = Address.Parse(treasuryContractAddress)
-                });
             return result;
         }
     }

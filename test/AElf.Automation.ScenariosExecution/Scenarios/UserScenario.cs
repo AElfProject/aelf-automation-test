@@ -22,7 +22,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
         public List<string> Testers { get; }
-        public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         private static List<string> _candidates;
         private static List<string> _candidatesExcludeMiners;
@@ -37,8 +37,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Token = Services.TokenService;
 
             //Get Profit items
-            Profit.GetProfitItemIds(Treasury.ContractAddress);
-            ProfitItemIds = Profit.ProfitItemIds;
+            Profit.GetTreasurySchemes(Treasury.ContractAddress);
+            Schemes = ProfitContract.Schemes;
 
             Testers = AllTesters.GetRange(50, 30);
         }
@@ -93,14 +93,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void TakeUserProfit(string account)
         {
-            var profitId = ProfitItemIds[ProfitType.CitizenWelfare];
+            var schemeId = Schemes[SchemeType.CitizenWelfare].SchemeId;
             var voteProfit =
-                Profit.GetProfitDetails(account, profitId);
+                Profit.GetProfitDetails(account, schemeId);
             if (voteProfit.Equals(new ProfitDetails())) return;
             $"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}".WriteSuccessLine();
 
             //Get user profit amount
-            var profitAmount = Profit.GetProfitAmount(account, profitId);
+            var profitAmount = Profit.GetProfitAmount(account, schemeId);
             if (profitAmount == 0)
                 return;
 
@@ -109,14 +109,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                SchemeId = profitId,
+                SchemeId = schemeId,
                 Symbol = "ELF"
             });
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
             if (profitDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 Logger.WriteInfo(
-                    $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
+                    $"Profit success - user {account} get vote profit from Id: {schemeId}, value is: {profitAmount}");
         }
 
         private void UserVote(string account)

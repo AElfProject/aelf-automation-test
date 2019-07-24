@@ -736,7 +736,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var verificationInput = new VerifyTransactionInput
             {
                 ParentChainHeight = txinfo.BlockNumber,
-                TransactionId = Hash.LoadHex(txinfo.TxId),
+                TransactionId = HashHelper.HexStringToHash(txinfo.TxId),
                 VerifiedChainId = 9992731
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -755,7 +755,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             int chainId = ChainHelper.ConvertBase58ToChainId(SideChains[sideChainNumber].chainId);
             var verificationInput = new VerifyTransactionInput
             {
-                TransactionId = Hash.LoadHex(txinfo.TxId),
+                TransactionId = HashHelper.HexStringToHash(txinfo.TxId),
                 VerifiedChainId = chainId
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -870,9 +870,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var txId = Hash.LoadHex(transactionIds[num]);
+                var txId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);

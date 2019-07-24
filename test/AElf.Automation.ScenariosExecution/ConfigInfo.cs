@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi;
 using Newtonsoft.Json;
 

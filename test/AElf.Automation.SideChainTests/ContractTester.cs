@@ -131,7 +131,7 @@ namespace AElf.Automation.SideChainTests
             ParliamentService.SetAccount(account);
             var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
             {
-                ProposalId = Hash.LoadHex(proposalId)
+                ProposalId = HashHelper.HexStringToHash(proposalId)
             });
 
             return result;

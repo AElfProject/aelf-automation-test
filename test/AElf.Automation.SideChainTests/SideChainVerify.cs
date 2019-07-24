@@ -54,7 +54,7 @@ namespace AElf.Automation.SideChainTests
             var verificationInput = new VerifyTransactionInput
             {
                 ParentChainHeight = long.Parse(blockNumber),
-                TransactionId = Hash.LoadHex(txIdInString),
+                TransactionId = HashHelper.HexStringToHash(txIdInString),
                 VerifiedChainId = 9992731
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainTests
             var merklePath = GetMerklePath(blockNumber, index, ISA);
             var verificationInput = new VerifyTransactionInput
             {
-                TransactionId = Hash.LoadHex(txIdInString),
+                TransactionId = HashHelper.HexStringToHash(txIdInString),
                 VerifiedChainId = 2750978
             };
             verificationInput.Path.AddRange(merklePath.Path);

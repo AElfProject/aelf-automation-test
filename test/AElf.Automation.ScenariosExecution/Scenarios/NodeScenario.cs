@@ -1,13 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
 using AElf.Types;
-using Google.Protobuf.WellKnownTypes;
+
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -18,7 +19,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
-        public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         private long _termNumber = 1;
 
@@ -32,8 +33,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Token = Services.TokenService;
 
             //Get Profit items
-            Profit.GetProfitItemIds(Treasury.ContractAddress);
-            ProfitItemIds = Profit.ProfitItemIds;
+            Profit.GetTreasurySchemes(Treasury.ContractAddress);
+            Schemes = ProfitContract.Schemes;
 
             //Announcement
             NodeAnnounceElectionAction();
@@ -122,36 +123,36 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var node = FullNodes[id];
 
             var basicProfit =
-                Profit.GetProfitDetails(node.Account, ProfitItemIds[ProfitType.BasicMinerReward]);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.MinerBasicReward].SchemeId);
             var voteWeightProfit =
-                Profit.GetProfitDetails(node.Account, ProfitItemIds[ProfitType.VotesWeightReward]);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.VotesWeightReward].SchemeId);
             var reElectionProfit =
-                Profit.GetProfitDetails(node.Account, ProfitItemIds[ProfitType.ReElectionReward]);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.ReElectionReward].SchemeId);
             var backupProfit =
-                Profit.GetProfitDetails(node.Account, ProfitItemIds[ProfitType.BackSubsidy]);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.BackupSubsidy].SchemeId);
 
             if (!basicProfit.Equals(new ProfitDetails()))
             {
                 Logger.WriteInfo($"40% basic generate block profit balance: {basicProfit}");
-                TakeProfit(node.Account, ProfitItemIds[ProfitType.BasicMinerReward]);
+                TakeProfit(node.Account, Schemes[SchemeType.MinerBasicReward].SchemeId);
             }
 
             if (!voteWeightProfit.Equals(new ProfitDetails()))
             {
                 Logger.WriteInfo($"10% vote weight profit balance: {voteWeightProfit}");
-                TakeProfit(node.Account, ProfitItemIds[ProfitType.VotesWeightReward]);
+                TakeProfit(node.Account, Schemes[SchemeType.VotesWeightReward].SchemeId);
             }
 
             if (!reElectionProfit.Equals(new ProfitDetails()))
             {
                 Logger.WriteInfo($"10% re election profit balance: {reElectionProfit}");
-                TakeProfit(node.Account, ProfitItemIds[ProfitType.ReElectionReward]);
+                TakeProfit(node.Account, Schemes[SchemeType.ReElectionReward].SchemeId);
             }
 
             if (!backupProfit.Equals(new ProfitDetails()))
             {
                 Logger.WriteInfo($"20% backup node profit balance: {backupProfit}");
-                TakeProfit(node.Account, ProfitItemIds[ProfitType.BackSubsidy]);
+                TakeProfit(node.Account, Schemes[SchemeType.BackupSubsidy].SchemeId);
             }
 
             Logger.WriteInfo(string.Empty);
@@ -174,24 +175,24 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void GetLastTermBalanceInformation(long termNumber)
         {
-            var treasuryAddress = Profit.GetSchemeAddress(ProfitItemIds[ProfitType.Treasury], termNumber);
+            var treasuryAddress = Profit.GetSchemeAddress(Schemes[SchemeType.Treasury].SchemeId, termNumber);
             var treasuryBalance = Token.GetUserBalance(treasuryAddress.GetFormatted());
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
                                  $"\r\nTreasury balance is {treasuryBalance}";
-            foreach (var (key, value) in ProfitItemIds)
+            foreach (var (key, value) in Schemes)
             {
                 Address address;
                 switch (key)
                 {
-                    case ProfitType.Treasury:
-                    case ProfitType.CitizenWelfare when termNumber <= 2:
+                    case SchemeType.Treasury:
+                    case SchemeType.CitizenWelfare when termNumber <= 2:
                         continue;
-                    case ProfitType.CitizenWelfare:
-                        address = Profit.GetSchemeAddress(value, termNumber - 2);
+                    case SchemeType.CitizenWelfare:
+                        address = Profit.GetSchemeAddress(value.SchemeId, termNumber - 2);
                         break;
                     default:
-                        address = Profit.GetSchemeAddress(value, termNumber - 1);
+                        address = Profit.GetSchemeAddress(value.SchemeId, termNumber - 1);
                         break;
                 }
 
@@ -269,7 +270,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (candidateVote.Equals(new CandidateVote()))
                     continue;
                 voteMessage +=
-                    $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
+                    $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
             }
 
             Logger.WriteInfo(voteMessage);
