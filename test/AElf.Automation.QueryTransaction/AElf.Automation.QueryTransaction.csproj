@@ -13,4 +13,8 @@
       <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="logs" />
+    </ItemGroup>
+
 </Project>

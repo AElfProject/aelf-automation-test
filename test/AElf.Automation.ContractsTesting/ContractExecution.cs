@@ -51,7 +51,7 @@ namespace AElf.Automation.ContractsTesting
             var result = _genesisContract.UpdateContract(owner.GetFormatted(), _contractAddress,
                 BasicUpdateContract.ContractFileName);
             if (result)
-                Logger.WriteInfo("Contract update successfully.");
+                Logger.Info("Contract update successfully.");
 
             await Task.CompletedTask;
         }

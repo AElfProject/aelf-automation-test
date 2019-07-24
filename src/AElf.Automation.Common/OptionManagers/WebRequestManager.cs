@@ -2,13 +2,14 @@ using System;
 using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using log4net;
 
 namespace AElf.Automation.Common.OptionManagers
 {
     public class WebRequestManager
     {
         private string BaseUrl { get; set; }
-        private readonly ILogHelper _log = LogHelper.GetLogHelper();
+        private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public WebRequestManager(string baseUrl)
         {

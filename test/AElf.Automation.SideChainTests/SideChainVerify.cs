@@ -42,7 +42,7 @@ namespace AElf.Automation.SideChainTests
             var txIdInString = transferResult.TransactionId;
             var blockNumber = transferResult.BlockNumber;
 
-            _logger.WriteInfo($"{txIdInString},{blockNumber}");
+            _logger.Info($"{txIdInString},{blockNumber}");
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@ namespace AElf.Automation.SideChainTests
             var txIdInString = transferResult.TransactionId;
             var blockNumber = transferResult.BlockNumber;
 
-            _logger.WriteInfo($"{txIdInString},{blockNumber}");
+            _logger.Info($"{txIdInString},{blockNumber}");
         }
 
         [TestMethod]
@@ -137,7 +137,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.CrossChainTransfer(InitAccount, accountA, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -162,10 +162,10 @@ namespace AElf.Automation.SideChainTests
 
             //verify
             var balance = TesterA.GetBalance(accountA, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.CrossChainTransfer(accountA, accountB, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -216,10 +216,10 @@ namespace AElf.Automation.SideChainTests
 
             //verify
             var balance = TesterA.GetBalance(accountB, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         [TestMethod]
@@ -236,7 +236,7 @@ namespace AElf.Automation.SideChainTests
             var result = TesterB.CrossChainTransfer(accountB, accountM, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -268,10 +268,10 @@ namespace AElf.Automation.SideChainTests
 
             //verify
             var balance = TesterA.GetBalance(accountM, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         #endregion

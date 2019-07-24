@@ -56,7 +56,7 @@ namespace AElf.Automation.Common.Contracts
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
         {
             var genesisContract = ch.GetGenesisContractAddress();
-            Logger.WriteInfo($"Genesis contract Address: {genesisContract}");
+            Logger.Info($"Genesis contract Address: {genesisContract}");
 
             return new GenesisContract(ch, callAddress, genesisContract);
         }
@@ -68,7 +68,7 @@ namespace AElf.Automation.Common.Contracts
 
             var contractOwner = GetContractAuthor(contractAddress);
             if (contractOwner.GetFormatted() != account)
-                Logger.WriteError("Account have no permission to update.");
+                Logger.Error("Account have no permission to update.");
 
             SetAccount(account);
             var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
@@ -86,7 +86,7 @@ namespace AElf.Automation.Common.Contracts
 
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             var addString = address != new Address() ? address.GetFormatted() : "null";
-            Logger.WriteInfo($"{name.ToString().Replace("Name", "")} contract address: {addString}");
+            Logger.Info($"{name.ToString().Replace("Name", "")} contract address: {addString}");
 
             return address;
         }

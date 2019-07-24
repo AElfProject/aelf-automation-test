@@ -71,14 +71,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             var txResult = result.InfoMsg as TransactionResultDto;
             var organizationAddress = txResult.ReadableReturnValue.Replace("\"", "");
-            _logger.WriteInfo($"organization address is : {organizationAddress}");
+            _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
                     Address.Parse(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
-                _logger.WriteInfo($"organization review is : {reviewer}");
+                _logger.Info($"organization review is : {reviewer}");
             }
 
             Tester.TokenService.SetAccount(InitAccount);
@@ -100,7 +100,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Address.Parse(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
-                _logger.WriteInfo($"organization review is : {reviewer}");
+                _logger.Info($"organization review is : {reviewer}");
             }
         }
 
@@ -131,7 +131,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     _createProposalInput);
             var txResult = result.InfoMsg as TransactionResultDto;
             var proposal = txResult.ReadableReturnValue;
-            _logger.WriteInfo($"Proposal is : {proposal}");
+            _logger.Info($"Proposal is : {proposal}");
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     HashHelper.HexStringToHash(proposalId));
             var txResult = result.InfoMsg as TransactionResultDto;
 
-            _logger.WriteInfo($"proposal message is {txResult.ReadableReturnValue}");
+            _logger.Info($"proposal message is {txResult.ReadableReturnValue}");
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             var resultDto = result.InfoMsg as TransactionResultDto;
-            _logger.WriteInfo($"Approve is {resultDto.ReadableReturnValue}");
+            _logger.Info($"Approve is {resultDto.ReadableReturnValue}");
         }
     }
 }

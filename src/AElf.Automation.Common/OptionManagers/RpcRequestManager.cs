@@ -1,5 +1,6 @@
 ﻿using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +12,7 @@ namespace AElf.Automation.Common.OptionManagers
         private string RpcParameter { get; set; }
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
-        private readonly ILogHelper _log = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public RpcRequestManager(string url, string path = "chain")
         {
@@ -95,19 +96,19 @@ namespace AElf.Automation.Common.OptionManagers
         {
             if (response == null)
             {
-                _log.WriteError("Could not connect to server.");
+                Logger.Error("Could not connect to server.");
                 return false;
             }
 
             if (returnCode != "OK")
             {
-                _log.WriteError("Http request failed, status: " + returnCode);
+                Logger.Error("Http request failed, status: " + returnCode);
                 return false;
             }
 
             if (!string.IsNullOrEmpty(response)) return true;
             
-            _log.WriteError("Failed. Pleas check input.");
+            Logger.Error("Failed. Pleas check input.");
             return false;
 
         }

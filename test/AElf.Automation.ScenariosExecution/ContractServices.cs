@@ -268,7 +268,7 @@ namespace AElf.Automation.ScenariosExecution
             }
             catch (Exception)
             {
-                Logger.WriteWarn($"Query {contractItem.Name} contract info got exception.");
+                Logger.Warn($"Query {contractItem.Name} contract info got exception.");
                 return false;
             }
         }

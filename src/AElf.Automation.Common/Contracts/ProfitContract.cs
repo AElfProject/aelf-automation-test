@@ -80,10 +80,10 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[1].SchemeId));
             Schemes.Add(SchemeType.ReElectionReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
-            Logger.WriteInfo("Scheme collection info:");
+            Logger.Info("Scheme collection info:");
             foreach (var (key, value) in Schemes)
             {
-                Logger.WriteInfo($"Name: {key}, SchemeId: {value.SchemeId}");
+                Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
             }
         }
 

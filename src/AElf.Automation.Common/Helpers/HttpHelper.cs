@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using Newtonsoft.Json.Serialization;
 using Volo.Abp.Threading;
 
@@ -152,7 +153,7 @@ namespace AElf.Automation.Common.Helpers
                 var response = await client.GetAsync(url);
                 if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) return response;
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
             }
             catch (Exception)
@@ -160,7 +161,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
 
-                Logger.WriteWarn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await GetResponseAsync(url, version, expectedStatusCode, retryTimes);
             }
@@ -199,7 +200,7 @@ namespace AElf.Automation.Common.Helpers
                 var response = await client.PostAsync(url, content);
                 if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) return response;
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
             }
             catch (Exception)
@@ -207,7 +208,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
 
-                Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode, retryTimes);
             }
@@ -241,7 +242,7 @@ namespace AElf.Automation.Common.Helpers
                 var response = await client.DeleteAsync(url);
                 if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden) return response;
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 throw new HttpRequestException();
             }
             catch (Exception)
@@ -249,7 +250,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new HttpRequestException();
 
-                Logger.WriteWarn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await DeleteResponseAsync(url, version, expectedStatusCode);
             }
@@ -273,6 +274,6 @@ namespace AElf.Automation.Common.Helpers
 
         private static int MaxRetryTimes { get; } = 3;
         private static HttpClient Client { get; set; }
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

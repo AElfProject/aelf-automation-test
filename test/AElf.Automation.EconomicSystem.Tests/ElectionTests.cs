@@ -86,7 +86,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = BpNodeAddress[i];
                 var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.WriteInfo($"{account}: {pubKey}");
+                _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = FullNodeAddress[i];
                 var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.WriteInfo($"{account}: {pubKey}");
+                _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -128,7 +128,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             /*
             if (UserList.Count == 0) return;
-            _logger.WriteInfo("Delete all account files created.");
+            _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -175,7 +175,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
-            _logger.WriteInfo("All accounts prepared and unlocked.");
+            _logger.Info("All accounts prepared and unlocked.");
         }
     }
 }

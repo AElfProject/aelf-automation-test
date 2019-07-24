@@ -5,6 +5,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -14,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
         private readonly IApiService ApiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private const int Phase = 120;
 
@@ -76,7 +77,7 @@ namespace AElf.Automation.RpcPerformance
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             var timePerTx = totalTransactions / GetTotalBlockSeconds(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
-            _logger.WriteInfo($"Summary Information: {Phase} blocks from height " +
+            Logger.Info($"Summary Information: {Phase} blocks from height " +
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
                               $"{totalTransactions} transactions. Average per block are {averageTx} txs during " +
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +

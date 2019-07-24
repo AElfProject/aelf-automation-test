@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace AElf.Automation.Common.Helpers
@@ -49,5 +50,9 @@ namespace AElf.Automation.Common.Helpers
                 builder.Append((char) (26 * random.NextDouble() + startChar));
             return builder.ToString();
         }
+        
+        public static readonly string AppRoot = AppDomain.CurrentDomain.BaseDirectory;
+        public static string MapPath(string virtualPath) => AppRoot + virtualPath.TrimStart('~');
+        public static string ApplicationName => Assembly.GetEntryAssembly()?.GetName().Name ?? AppDomain.CurrentDomain.FriendlyName;
     }
 }

@@ -40,7 +40,7 @@ namespace AElf.Automation.QueryTransaction
             while (true)
             {
                 var height = await _apiService.GetBlockHeight();
-                Logger.WriteInfo($"Current height:{height}");
+                Logger.Info($"Current height:{height}");
                 if (_blockHeight == height)
                 {
                     _completeQuery = true;
@@ -50,7 +50,7 @@ namespace AElf.Automation.QueryTransaction
                 for (var i = _blockHeight; i <= height; i++)
                 {
                     var block = await _apiService.GetBlockByHeight(i, true);
-                    Logger.WriteInfo(
+                    Logger.Info(
                         $"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
                     block.Body.Transactions.ForEach(item => _transactionQueue.Enqueue(item));
                 }
@@ -70,7 +70,7 @@ namespace AElf.Automation.QueryTransaction
                 }
 
                 var transaction = await _apiService.GetTransactionResult(txId);
-                Logger.WriteInfo($"Transaction: {txId},{transaction.Status}");
+                Logger.Info($"Transaction: {txId},{transaction.Status}");
             }
         }
     }

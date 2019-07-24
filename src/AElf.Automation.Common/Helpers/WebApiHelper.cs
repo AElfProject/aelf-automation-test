@@ -5,6 +5,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Newtonsoft.Json.Linq;
 using Volo.Abp.Threading;
 
@@ -17,7 +18,7 @@ namespace AElf.Automation.Common.Helpers
         private string _baseUrl;
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
         private string _genesisAddress;
@@ -50,7 +51,7 @@ namespace AElf.Automation.Common.Helpers
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
-            _logger.WriteInfo($"Request url updated to: {url}");
+            Logger.Info($"Request url updated to: {url}");
         }
 
         public WebApiService ApiService { get; set; }
@@ -108,7 +109,7 @@ namespace AElf.Automation.Common.Helpers
                     QueryViewInfo(ci);
                     break;
                 default:
-                    _logger.WriteError("Invalid command.");
+                    Logger.Error("Invalid command.");
                     break;
             }
 
@@ -244,7 +245,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (tr.MethodName == null)
             {
-                _logger.WriteError("Method not found.");
+                Logger.Error("Method not found.");
                 return string.Empty;
             }
 
@@ -342,7 +343,7 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             if (resp == null)
             {
-                _logger.WriteError("ExecuteTransaction response is null.");
+                Logger.Error("ExecuteTransaction response is null.");
                 return default(T);
             }
 

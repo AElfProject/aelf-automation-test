@@ -93,7 +93,7 @@ namespace AElf.Automation.SideChainTests
         protected void TestCleanUp()
         {
             if (UserList.Count == 0) return;
-            _logger.WriteInfo("Delete all account files created.");
+            _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");

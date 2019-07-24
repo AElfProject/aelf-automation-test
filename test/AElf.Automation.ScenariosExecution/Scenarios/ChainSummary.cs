@@ -65,7 +65,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var averageTx = totalTransactions / Phase;
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
-            _logger.WriteInfo($"Summary Information: {Phase} blocks from height " +
+            _logger.Info($"Summary Information: {Phase} blocks from height " +
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
                               $"{totalTransactions} transactions, average per block is {averageTx} tx during " +
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. Block generated per {timePerBlock} milliseconds.");

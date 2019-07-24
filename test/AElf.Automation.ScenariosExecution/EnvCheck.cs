@@ -73,7 +73,7 @@ namespace AElf.Automation.ScenariosExecution
             var url = specifyEndpoint.Enable
                 ? specifyEndpoint.ServiceUrl
                 : _config.BpNodes.First(o => o.Status).ServiceUrl;
-            Logger.WriteInfo($"All request sent to endpoint: {url}");
+            Logger.Info($"All request sent to endpoint: {url}");
             var apiHelper = new WebApiHelper(url, AccountDir);
 
             GetConfigNodesPublicKey(apiHelper);
@@ -104,7 +104,7 @@ namespace AElf.Automation.ScenariosExecution
                 var result = CheckAccountExist(bp.Account);
                 if (result)
                     continue;
-                Logger.WriteError($"Node {bp.Name} account key not found.");
+                Logger.Error($"Node {bp.Name} account key not found.");
                 return false;
             }
 
@@ -113,7 +113,7 @@ namespace AElf.Automation.ScenariosExecution
                 var result = CheckAccountExist(full.Account);
                 if (result)
                     continue;
-                Logger.WriteError($"Node {full.Name} account key not found.");
+                Logger.Error($"Node {full.Name} account key not found.");
                 return false;
             }
 
@@ -122,7 +122,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private void CheckAllNodesConnection()
         {
-            Logger.WriteInfo("Check all node connection status.");
+            Logger.Info("Check all node connection status.");
             _config.BpNodes.ForEach(CheckNodeConnection);
             _config.FullNodes.ForEach(CheckNodeConnection);
         }
@@ -137,11 +137,11 @@ namespace AElf.Automation.ScenariosExecution
                 if (chainStatus == null) return;
                 node.Status = true;
                 var height = service.GetBlockHeight().Result;
-                Logger.WriteInfo($"Node {node.Name} [{node.ServiceUrl}] connection success, block height: {height}");
+                Logger.Info($"Node {node.Name} [{node.ServiceUrl}] connection success, block height: {height}");
             }
             catch (Exception ex)
             {
-                Logger.WriteError($"Node {node.Name} connection failed due to {ex.Message}");
+                Logger.Error($"Node {node.Name} connection failed due to {ex.Message}");
             }
         }
 
@@ -156,12 +156,12 @@ namespace AElf.Automation.ScenariosExecution
             _config.BpNodes.ForEach(node =>
             {
                 node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password);
-                Logger.WriteInfo($"Node: {node.Name}, PublicKey: {node.PublicKey}");
+                Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
             _config.FullNodes.ForEach(node =>
             {
                 node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password);
-                Logger.WriteInfo($"Node: {node.Name}, PublicKey: {node.PublicKey}");
+                Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
         }
     }

@@ -48,9 +48,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result",
                     "tx_status");
                 if (status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    _logger.WriteInfo($"{txId}: mined");
+                    _logger.Info($"{txId}: mined");
                 else
-                    _logger.WriteError(txCi.InfoMsg.ToString());
+                    _logger.Error(txCi.InfoMsg.ToString());
             }
         }
     }

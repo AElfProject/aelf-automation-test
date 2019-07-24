@@ -86,7 +86,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 string account = BpNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                Logger.WriteInfo($"{account}: {pubKey}");
+                Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 string account = FullNodeAccounts[i];
                 string pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                Logger.WriteInfo($"{account}: {pubKey}");
+                Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -112,7 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Cleanup()
         {
             if (UserList.Count == 0) return;
-            Logger.WriteInfo("Delete all account files created.");
+            Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -128,13 +128,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Owner = Address.Parse(ConsensusContract),
                 Symbol = TokenSymbol
             });
-            Logger.WriteInfo($"Consensus account balance : {consensusBalance.Balance}");
+            Logger.Info($"Consensus account balance : {consensusBalance.Balance}");
             var dividendsResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = Address.Parse(DividendsContract),
                 Symbol = TokenSymbol
             });
-            Logger.WriteInfo($"Dividends account balance : {dividendsResult.Balance}");
+            Logger.Info($"Dividends account balance : {dividendsResult.Balance}");
         }
 
         private void SetTokenFeeAddress()
@@ -149,7 +149,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Owner = Address.Parse(FeeAccount),
                 Symbol = TokenSymbol
             });
-            Logger.WriteInfo($"Fee account balance : {feeBalance.Balance}");
+            Logger.Info($"Fee account balance : {feeBalance.Balance}");
         }
 
         [TestMethod]
@@ -190,7 +190,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void QueryPublicKey(string account, string password="123")
         {
             var pubKey = CH.GetPublicKeyFromAddress(account, password);
-            Logger.WriteInfo($"PubKey: {pubKey}");
+            Logger.Info($"PubKey: {pubKey}");
         }
 
         [TestMethod]
@@ -199,10 +199,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             consensusService.SetAccount(BpNodeAccounts[0]);
 
             //分配资金给FullNode
-            Logger.WriteInfo("Allowance token to FullNode accounts");
+            Logger.Info("Allowance token to FullNode accounts");
             foreach (var fullAcc in FullNodeAccounts)
             {
-                Logger.WriteInfo($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
+                Logger.Info($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = Address.Parse(fullAcc),
@@ -219,10 +219,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             }
             //分配资金给BP
-            Logger.WriteInfo("Allowance token to BpNode accounts");
+            Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = Address.Parse(bpAcc),
@@ -244,7 +244,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //查询余额
             QueryCandidatesBalance();
 
-            Logger.WriteInfo("All accounts asset prepared completed.");
+            Logger.Info("All accounts asset prepared completed.");
         }
 
         //参加选举
@@ -273,7 +273,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetCandidateList();
 
-            Logger.WriteInfo("All Full Node joined election completed.");
+            Logger.Info("All Full Node joined election completed.");
         }
 
         [TestMethod]
@@ -290,7 +290,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var count = 1;
             foreach (var item in CandidatePublicKeys)
             {
-                Logger.WriteInfo($"Candidate {count++}: {item}");
+                Logger.Info($"Candidate {count++}: {item}");
             }
         }
 
@@ -338,7 +338,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
-            Logger.WriteInfo("All accounts created and unlocked.");
+            Logger.Info("All accounts created and unlocked.");
         }
 
 
@@ -389,7 +389,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //检查投票结果
             GetPageableElectionInfo();
             GetTicketsInfo();
-            Logger.WriteInfo("Vote completed.");
+            Logger.Info("Vote completed.");
         }
 
         [TestMethod]
@@ -413,19 +413,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = voteVolume,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(90)).ToTimestamp()
                 });
-                Logger.WriteInfo($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
+                Logger.Info($"Vote action: User: {UserList[i]}, Tickets: {voteVolume}");
             }
 
             consensusService.CheckTransactionResultList();
             //检查投票结果
             GetPageableElectionInfo();
-            Logger.WriteInfo("Vote completed.");
+            Logger.Info("Vote completed.");
         }
         
         [TestMethod]
         public void GetCandidateHistoryInfo()
         {
-            Logger.WriteInfo("GetCandidateHistoryInfo Test");
+            Logger.Info("GetCandidateHistoryInfo Test");
 
             GetCandidateList();
             foreach (var pubKey in CandidatePublicKeys)
@@ -434,27 +434,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Hex = pubKey
                 });
-                Logger.WriteInfo(historyResult.ToString());
+                Logger.Info(historyResult.ToString());
             }
         }
 
         [TestMethod]
         public void GetGetCurrentMinersInfo()
         {
-            Logger.WriteInfo("GetCurrentVictories Test");
+            Logger.Info("GetCurrentVictories Test");
             var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMiners, new Empty());
             CurrentMinersKeys = minersResult.MinerList.PublicKeys.Select(o=>o.ToByteArray().ToHex()).ToList();
             var count = 1;
             foreach (var miner in CurrentMinersKeys)
             {
-                Logger.WriteInfo($"Miner {count++}: {miner}");
+                Logger.Info($"Miner {count++}: {miner}");
             }
         }
 
         [TestMethod]
         public void GetTicketsInfo()
         {
-            Logger.WriteInfo("GetTicketsInfo Test");
+            Logger.Info("GetTicketsInfo Test");
             GetCandidateList();
             foreach (var candidate in CandidatePublicKeys)
             {
@@ -462,9 +462,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Hex = candidate
                 });
-                Logger.WriteInfo(ticketResult.ToString());
+                Logger.Info(ticketResult.ToString());
 
-                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {ticketResult.VotedTickets}");
+                Logger.Info($"Candidate: {candidate}, Tickets: {ticketResult.VotedTickets}");
             }
         }
 
@@ -472,32 +472,32 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("04d5a0ab908b1e6a99be1d4b1d5e4ab7c3bd3b234f714d674a1aad7dc462436b0345cb6384b589a5be0aa6bc9c8a78ebb10e5d0a865deade3fc48b446075b26cb3")]
         public void GetCandidateTicketsInfo(string candidatePublicKey)
         {
-            Logger.WriteInfo("GetCandidateTicketsInfo Test");
+            Logger.Info("GetCandidateTicketsInfo Test");
             var ticketResult = consensusService.CallViewMethod<Tickets>(ConsensusMethod.GetTicketsInfo, new PublicKey
             {
                 Hex = candidatePublicKey
             });
-            Logger.WriteInfo(ticketResult.ToString());
+            Logger.Info(ticketResult.ToString());
         }
 
         [TestMethod]
         public void GetPageableElectionInfo()
         {
-            Logger.WriteInfo("GetCurrentElectionInfo Test");
+            Logger.Info("GetCurrentElectionInfo Test");
             var currentElectionResult = consensusService.CallViewMethod<TicketsDictionary>(ConsensusMethod.GetPageableElectionInfo, new PageableElectionInfoInput
             {
                 Length = 10,
                 OrderBy = 0,
                 Start = 0
             });
-            Logger.WriteInfo(currentElectionResult.Maps.ToString());
+            Logger.Info(currentElectionResult.Maps.ToString());
         }
 
         [TestMethod]
         public void GetVotesCount()
         {
             var voteCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetVotesCount, new Empty());
-            Logger.WriteInfo($"Votes count: {voteCount.Value}");
+            Logger.Info($"Votes count: {voteCount.Value}");
         }
 
         [TestMethod]
@@ -505,15 +505,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             UserVoteAction(5, 1);
             var ticketsCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetTicketsCount, new Empty());
-            Logger.WriteInfo($"Tickets count: {ticketsCount.Value}");
+            Logger.Info($"Tickets count: {ticketsCount.Value}");
         }
 
         [TestMethod]
         public void GetCurrentVictories()
         {
-            Logger.WriteInfo("GetCurrentVictories Test");
+            Logger.Info("GetCurrentVictories Test");
             var victoriesResult = consensusService.CallViewMethod<StringList>(ConsensusMethod.GetCurrentVictories, new Empty());
-            Logger.WriteInfo(victoriesResult.Values.ToString());
+            Logger.Info(victoriesResult.Values.ToString());
         }
 
         [TestMethod]
@@ -523,13 +523,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Thread.Sleep(30000);
             foreach (var userAcc in UserList)
             {
-                Logger.WriteInfo($"Account check: {userAcc}");
+                Logger.Info($"Account check: {userAcc}");
                 var balanceBefore = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
                     Owner = Address.Parse(userAcc)
                 });
-                Logger.WriteInfo($"Init balance: {balanceBefore.Balance}");
+                Logger.Info($"Init balance: {balanceBefore.Balance}");
 
                 consensusService.SetAccount(userAcc);
                 //consensusService.CallContractMethod(ConsensusMethod.ReceiveAllDividends);
@@ -539,7 +539,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = TokenSymbol,
                     Owner = Address.Parse(userAcc)
                 });
-                Logger.WriteInfo($"Received dividends balance: {balanceAfter1.Balance}");
+                Logger.Info($"Received dividends balance: {balanceAfter1.Balance}");
 
                 //consensusService.CallContractMethod(ConsensusMethod.WithdrawAll, "true");
 
@@ -548,7 +548,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = TokenSymbol,
                     Owner = Address.Parse(userAcc)
                 });
-                Logger.WriteInfo($"Revert back vote balance: {balanceAfter2.Balance}");
+                Logger.Info($"Revert back vote balance: {balanceAfter2.Balance}");
             }
         }
 
@@ -562,7 +562,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Hex = miner
                 });
-                Logger.WriteInfo($"Generate blocks count: {blockResult.Value}");
+                Logger.Info($"Generate blocks count: {blockResult.Value}");
             }
         }
 

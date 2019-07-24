@@ -7,6 +7,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
@@ -16,7 +17,7 @@ namespace AElf.Automation.Common.OptionManagers
         private readonly AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
