@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
             var rd = new Random(Guid.NewGuid().GetHashCode());
             var rdNo = rd.Next(0, EndpointList.Count);
             var serviceUrl = EndpointList[rdNo];
-            
+
             return serviceUrl.Contains("http://") ? serviceUrl : $"http://{serviceUrl}";
         }
     }
@@ -23,14 +23,19 @@ namespace AElf.Automation.RpcPerformance
     public class NodeTransactionOption
     {
         [JsonProperty("enable_limit")] public bool EnableLimit { get; set; }
-        [JsonProperty("max_transactions_select")] public int MaxTransactionSelect { get; set; }
+
+        [JsonProperty("max_transactions_select")]
+        public int MaxTransactionSelect { get; set; }
     }
-    
+
     public class ConfigInfo
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
-        [JsonProperty("EnableRandomTransaction")] public bool EnableRandomTransaction { get; set; }
+
+        [JsonProperty("EnableRandomTransaction")]
+        public bool EnableRandomTransaction { get; set; }
+
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; }
         [JsonProperty("SentTxLimit")] public int SentTxLimit { get; set; }
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }
@@ -38,7 +43,9 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("Conflict")] public bool Conflict { get; set; }
         [JsonProperty("ReadOnlyTransaction")] public bool ReadOnlyTransaction { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
-        [JsonProperty("RequestRandomEndpoint")] public RandomTransactionOption RandomEndpointOption { get; set; }
+
+        [JsonProperty("RequestRandomEndpoint")]
+        public RandomTransactionOption RandomEndpointOption { get; set; }
     }
 
     public static class ConfigInfoHelper

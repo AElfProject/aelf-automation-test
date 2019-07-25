@@ -107,6 +107,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 });
             return result;
         }
+
         #endregion
 
         #region TokenService Method

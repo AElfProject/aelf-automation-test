@@ -56,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
                 app.ShowHelp();
                 return;
             }
-            
+
             //Init Logger
             var fileName = $"RpcPerformance_GC_{GroupCount}_TC_{TransactionCount}";
             Log4NetHelper.LogInit(fileName);
@@ -67,7 +67,7 @@ namespace AElf.Automation.RpcPerformance
                 ? (IPerformanceCategory) new ReadOnlyCategory(GroupCount, TransactionCount, RpcUrl,
                     limitTransaction: LimitTransaction)
                 : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
-            
+
             //Execute transaction command
             try
             {

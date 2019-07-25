@@ -151,13 +151,13 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.GetAsync(url);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
-                if(response.StatusCode == HttpStatusCode.Forbidden)
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
@@ -203,12 +203,12 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.PostAsync(url, content);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
+
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
@@ -220,7 +220,8 @@ namespace AElf.Automation.Common.Helpers
 
                 Logger.Warn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
-                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode, retryTimes);
+                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode,
+                    retryTimes);
             }
         }
 
@@ -250,13 +251,13 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.DeleteAsync(url);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
-                if(response.StatusCode == HttpStatusCode.Forbidden)
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }

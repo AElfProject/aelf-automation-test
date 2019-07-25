@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using log4net;
 using log4net.Config;
 
@@ -12,13 +10,14 @@ namespace AElf.Automation.Common.Helpers
     public static class Log4NetHelper
     {
         public static int LogInit() => LogInit(configFilePath: CommonHelper.MapPath("log4net.config"));
-        
+
         public static int LogInit(string fileName) => LogInit(CommonHelper.MapPath("log4net.config"), fileName);
 
         /// <summary>
         /// log4net init
         /// </summary>
         /// <param name="configFilePath">log4net config file path</param>
+        /// <param name="fileName"></param>
         /// <returns>1 config success,0 config has existed</returns>
         public static int LogInit(string configFilePath, string fileName = "")
         {
@@ -29,7 +28,7 @@ namespace AElf.Automation.Common.Helpers
                 new FileInfo(configFilePath));
             return 1;
         }
-        
+
         /// <summary>
         /// Get a log4net logger
         /// </summary>
@@ -45,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         {
             return LogManager.GetLogger(CommonHelper.ApplicationName, type);
         }
-        
+
         /// <summary>
         /// Get a log4net logger
         /// </summary>
@@ -55,7 +54,7 @@ namespace AElf.Automation.Common.Helpers
             var frame = trace.GetFrame(1);
             var method = frame.GetMethod();
             var classType = method.ReflectedType;
-          
+
             return LogManager.GetLogger(CommonHelper.ApplicationName, classType);
         }
 
@@ -78,7 +77,7 @@ namespace AElf.Automation.Common.Helpers
             var message = string.Format(format, parameters);
             logger.Info(message);
         }
-        
+
         /// <summary>
         /// Warn extension method
         /// </summary>
@@ -90,7 +89,7 @@ namespace AElf.Automation.Common.Helpers
             var message = string.Format(format, parameters);
             logger.Warn(message);
         }
-        
+
         /// <summary>
         /// Error extension method
         /// </summary>

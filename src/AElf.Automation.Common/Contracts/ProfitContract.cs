@@ -32,11 +32,11 @@ namespace AElf.Automation.Common.Contracts
     public enum SchemeType
     {
         Treasury,
-        
+
         MinerReward,
         BackupSubsidy,
         CitizenWelfare,
-        
+
         MinerBasicReward,
         VotesWeightReward,
         ReElectionReward
@@ -64,12 +64,14 @@ namespace AElf.Automation.Common.Contracts
                 return;
             Schemes = new Dictionary<SchemeType, Scheme>();
             var treasuryContract = new TreasuryContract(ApiHelper, CallAddress, treasuryContractAddress);
-            var treasurySchemeId = treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
+            var treasurySchemeId =
+                treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
             var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);
             Schemes.Add(SchemeType.Treasury, treasuryScheme);
-            var minerRewardScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[0].SchemeId);
+            var minerRewardScheme =
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[0].SchemeId);
             Schemes.Add(SchemeType.MinerReward, minerRewardScheme);
-            
+
             Schemes.Add(SchemeType.BackupSubsidy,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[1].SchemeId));
             Schemes.Add(SchemeType.CitizenWelfare,

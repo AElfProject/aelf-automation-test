@@ -107,10 +107,9 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             if (!string.IsNullOrEmpty(response)) return true;
-            
+
             Logger.Error("Failed. Pleas check input.");
             return false;
-
         }
     }
 }

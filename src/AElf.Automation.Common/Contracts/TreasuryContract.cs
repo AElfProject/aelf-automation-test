@@ -11,10 +11,11 @@ namespace AElf.Automation.Common.Contracts
         Release,
         Donate,
         DonateAll,
-        
+
         //View
         GetTreasurySchemeId
     }
+
     public class TreasuryContract : BaseContract<TreasuryMethod>
     {
         public TreasuryContract(IApiHelper apiHelper, string callAddress, string contractAddress) :

@@ -79,7 +79,7 @@ namespace AElf.Automation.RpcPerformance
 
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
-            if(transactionExecuteLimit.WhetherEnableTransactionLimit())
+            if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
             //Init other services
@@ -354,13 +354,14 @@ namespace AElf.Automation.RpcPerformance
                             Logger.Error(message);
                         }
 
-                        Monitor.CheckNodeHeightStatus(!randomTransactionOption.EnableRandom); //random mode, don't check node height
+                        Monitor.CheckNodeHeightStatus(!randomTransactionOption
+                            .EnableRandom); //random mode, don't check node height
 
                         stopwatch.Stop();
                         TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
 
                         UpdateRandomEndpoint(); //update sent transaction to random endpoint
-                        
+
                         stopwatch = new Stopwatch();
                         stopwatch.Start();
                     }
@@ -626,7 +627,7 @@ namespace AElf.Automation.RpcPerformance
                             $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
                         continue;
                     }
-                    
+
                     break;
                 }
                 catch (Exception ex)

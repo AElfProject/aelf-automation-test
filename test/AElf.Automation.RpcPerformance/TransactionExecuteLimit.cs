@@ -27,12 +27,12 @@ namespace AElf.Automation.RpcPerformance
             _stub = new ContractTesterFactory(url, keyStorePath);
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
-        
+
         public bool WhetherEnableTransactionLimit()
         {
             return _nodeTransactionOption.EnableLimit;
         }
-        
+
         public void SetExecutionSelectTransactionLimit()
         {
             var configurationStub = AsyncHelper.RunSync(GetConfigurationContractStub);

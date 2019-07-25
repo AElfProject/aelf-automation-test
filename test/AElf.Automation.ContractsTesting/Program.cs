@@ -58,7 +58,7 @@ namespace AElf.Automation.ContractsTesting
             var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
 
             //deploy contract
-            
+
             while (true)
             {
                 var contractExecution = new ContractExecution(Endpoint);
