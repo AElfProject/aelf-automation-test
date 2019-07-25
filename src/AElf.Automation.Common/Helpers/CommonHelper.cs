@@ -46,7 +46,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!File.Exists(originPath))
             {
-                Logger.WriteError($"File {originPath} not exist.");
+                Logger.Error($"File {originPath} not exist.");
                 throw new FileNotFoundException();
             }
 
@@ -55,7 +55,7 @@ namespace AElf.Automation.Common.Helpers
                 Directory.CreateDirectory(desPath);
                 if (!Directory.Exists(desPath))
                 {
-                    Logger.WriteError($"Directory {desPath} not exist.");
+                    Logger.Error($"Directory {desPath} not exist.");
                     throw new DirectoryNotFoundException(); 
                 }
             }
@@ -67,7 +67,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!Directory.Exists(path))
             {
-                Logger.WriteError($"Directory {path} not exist.");
+                Logger.Error($"Directory {path} not exist.");
                 return false;
             }
             

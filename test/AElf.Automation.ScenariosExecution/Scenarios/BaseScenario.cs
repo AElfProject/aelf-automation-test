@@ -28,7 +28,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
                 catch (Exception e)
                 {
-                    Logger.WriteError($"ExecuteContinuousTasks got exception: {e.Message}");
+                    Logger.Error($"ExecuteContinuousTasks got exception: {e.Message}");
                     if (interrupted)
                         break;
                 }
@@ -49,7 +49,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
             catch (Exception e)
             {
-                Logger.WriteError($"ExecuteStandaloneTask got exception: {e.Message}");
+                Logger.Error($"ExecuteStandaloneTask got exception: {e.Message}");
             }
         }
 
@@ -82,7 +82,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     checkTimes++;
                     if (checkTimes % 10 == 0)
-                        Logger.WriteWarn($"Node height not changed {checkTimes / 2} seconds.");
+                        Logger.Warn($"Node height not changed {checkTimes / 2} seconds.");
                     Thread.Sleep(500);
                 }
                 else

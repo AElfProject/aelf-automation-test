@@ -102,7 +102,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (profitAmount == 0)
                 return;
 
-            Logger.WriteInfo($"Profit amount: user {account} profit amount is {profitAmount}");
+            Logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
@@ -112,7 +112,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
             if (profitDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                Logger.WriteInfo(
+                Logger.Info(
                     $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
         }
 
@@ -153,7 +153,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var afterBalance = Token.GetUserBalance(account);
             if (beforeBalance == afterBalance + amount)
-                Logger.WriteInfo(
+                Logger.Info(
                     $"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days.");
         }
 

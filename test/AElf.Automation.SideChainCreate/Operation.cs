@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChainCreate
                 ParliamentService.SetAccount(miner.GetFormatted());
                 var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                 {
-                    ProposalId = Hash.LoadHex(proposalId)
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             }
         }
@@ -97,7 +97,7 @@ namespace AElf.Automation.SideChainCreate
         {
             ParliamentService.SetAccount(InitAccount);
             var result
-                = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadHex(proposalId));
+                = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var creationRequested = transactionResult.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);

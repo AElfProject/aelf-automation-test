@@ -46,7 +46,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 "08c40312a4030a820130343530343766366562623032336334333766313233386630313232636561386632313834343735376132313164386535336336633433326563346333633563393930643733373533346334306632373336656536613034626631336336336131666136623465396237386535383463326164363534353162383337663439306234129c020802100122220a205ea9a20a983ffa37978bdbef5a0457d6aa7a42f1c69a2a43796f0a785bad8e492a220a2062f1aaaac52d77e574729f80a936a3528268f9e6ba7da3ff450c171749c77648320c08a7f9aee705109ccae6f101382e4a820130343530343766366562623032336334333766313233386630313232636561386632313834343735376132313164386535336336633433326563346333633563393930643733373533346334306632373336656536613034626631336336336131666136623465396237386535383463326164363534353162383337663439306234500262220a20d6ef93b5124f05fcf68039db742bf1c6f857b8cb6637f45644855d4889b1de3f680270027a0c08a9f9aee70510f0fab3f40190011a2088343a8201303435303437663665626230323363343337663132333866303132326365613866323138343437353761323131643865353363366334333265633463336335633939306437333735333463343066323733366565366130346266313363363361316661366234653962373865353834633261643635343531623833376634393062344018";
             var byteArray = ByteArrayHelper.FromHexString(stringMsg);
             var round = Round.Parser.ParseFrom(byteArray);
-            _logger.WriteInfo(JsonConvert.SerializeObject(round));
+            _logger.Info(JsonConvert.SerializeObject(round));
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 sw.Start();
                 var txs = TransactionHub.Values.Select(x => x.Transaction);
                 sw.Stop();
-                _logger.WriteInfo($"TestCost: {sw.ElapsedMilliseconds} milliseconds");
+                _logger.Info($"TestCost: {sw.ElapsedMilliseconds} milliseconds");
                 count += txs.Count();
             }
         }
@@ -99,7 +99,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 sw.Start();
                 var txs = TransactionHub.Values.Take(TestCount).Select(x => x.Transaction);
                 sw.Stop();
-                _logger.WriteInfo($"TestCost: {sw.ElapsedMilliseconds} milliseconds");
+                _logger.Info($"TestCost: {sw.ElapsedMilliseconds} milliseconds");
                 count += txs.Count();
             }
         }
@@ -111,9 +111,9 @@ namespace AElf.Automation.EconomicSystem.Tests
             for (var i = 0; i < 1000_000; i++)
             {
                 if (TransactionHub.Count > 10000) return;
-                TransactionHub.TryAdd(Hash.Generate(), new TransactionReceipt
+                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new TransactionReceipt
                 {
-                    TransactionId = Hash.Generate(),
+                    TransactionId = Hash.FromString(Guid.NewGuid().ToString()),
                     Transaction = new Transaction
                     {
                         From = Address.Generate(),

@@ -101,19 +101,19 @@ namespace AElf.Automation.Common.OptionManagers
         {
             if (response == null)
             {
-                _log.WriteError("Could not connect to server.");
+                _log.Error("Could not connect to server.");
                 return false;
             }
 
             if (returnCode != "OK")
             {
-                _log.WriteError("Http request failed, status: " + returnCode);
+                _log.Error("Http request failed, status: " + returnCode);
                 return false;
             }
 
             if (string.IsNullOrEmpty(response))
             {
-                _log.WriteError("Failed. Pleas check input.");
+                _log.Error("Failed. Pleas check input.");
                 return false;
             }
 

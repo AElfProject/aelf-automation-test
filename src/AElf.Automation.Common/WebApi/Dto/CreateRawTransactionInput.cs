@@ -68,7 +68,7 @@ namespace AElf.Automation.Common.WebApi.Dto
 
             try
             {
-                Hash.LoadHex(RefBlockHash);
+                HashHelper.HexStringToHash(RefBlockHash);
             }
             catch
             {

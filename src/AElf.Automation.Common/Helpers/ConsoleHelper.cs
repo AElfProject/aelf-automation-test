@@ -40,7 +40,7 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteInfoLine(this string str, ConsoleColor color = ConsoleColor.White)
+        public static void InfoLine(this string str, ConsoleColor color = ConsoleColor.White)
         {
             WriteColorLine(str, color);
         }

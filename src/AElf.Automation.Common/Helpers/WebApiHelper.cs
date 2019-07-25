@@ -51,7 +51,7 @@ namespace AElf.Automation.Common.Helpers
         {
             _baseUrl = url;
             ApiService = new WebApiService(_baseUrl);
-            _logger.WriteInfo($"Request url updated to: {url}");
+            _logger.Info($"Request url updated to: {url}");
         }
 
         public WebApiService ApiService { get; set; }
@@ -109,7 +109,7 @@ namespace AElf.Automation.Common.Helpers
                     QueryViewInfo(ci);
                     break;
                 default:
-                    _logger.WriteError("Invalid command.");
+                    _logger.Error("Invalid command.");
                     break;
             }
 
@@ -245,7 +245,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (tr.MethodName == null)
             {
-                _logger.WriteError("Method not found.");
+                _logger.Error("Method not found.");
                 return string.Empty;
             }
 
@@ -343,7 +343,7 @@ namespace AElf.Automation.Common.Helpers
             //deserialize response
             if (resp == null)
             {
-                _logger.WriteError("ExecuteTransaction response is null.");
+                _logger.Error("ExecuteTransaction response is null.");
                 return default(T);
             }
 

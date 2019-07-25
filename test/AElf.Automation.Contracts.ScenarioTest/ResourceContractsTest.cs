@@ -154,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         Symbol = TokenSymbol,
                         Owner = Address.Parse(acc)
                     });
-                Logger.WriteInfo($"Account: {acc}, Balance: {queryResult.Balance}");
+                Logger.Info($"Account: {acc}, Balance: {queryResult.Balance}");
             }
         }
 
@@ -219,13 +219,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Query address
 //            var tokenAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfTokenAddress);
-//            Logger.WriteInfo(String.Format("Token address: {0}", tokenConverterService.ConvertViewResult(tokenAddress, true)));
+//            Logger.Info(String.Format("Token address: {0}", tokenConverterService.ConvertViewResult(tokenAddress, true)));
 //
 //            var feeAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetFeeAddress);
-//            Logger.WriteInfo(String.Format("Fee address: {0}", tokenConverterService.ConvertViewResult(feeAddress, true)));
+//            Logger.Info(String.Format("Fee address: {0}", tokenConverterService.ConvertViewResult(feeAddress, true)));
 //
 //            var controllerAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
-//            Logger.WriteInfo(String.Format("Controller address: {0}", tokenConverterService.ConvertViewResult(controllerAddress, true)));
+//            Logger.Info(String.Format("Controller address: {0}", tokenConverterService.ConvertViewResult(controllerAddress, true)));
         }
 
         private void QueryResourceInfo()
@@ -234,7 +234,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Cpu");
 //            var ramConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Ram");
 //            var netConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Net");
-//            Logger.WriteInfo(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuConverter),
 //                tokenConverterService.ConvertViewResult(ramConverter),
 //                tokenConverterService.ConvertViewResult(netConverter)));
@@ -243,7 +243,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Cpu");
 //            var ramBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Ram");
 //            var netBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Net");
-//            Logger.WriteInfo(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuBalance, true),
 //                tokenConverterService.ConvertViewResult(ramBalance, true),
 //                tokenConverterService.ConvertViewResult(netBalance, true)));
@@ -252,7 +252,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Cpu");
 //            var ramExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Ram");
 //            var netExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Net");
-//            Logger.WriteInfo(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuExchange, true),
 //                tokenConverterService.ConvertViewResult(ramExchange, true),
 //                tokenConverterService.ConvertViewResult(netExchange, true)));
@@ -261,7 +261,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Cpu");
 //            var ramElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Ram");
 //            var netElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Net");
-//            Logger.WriteInfo(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuElf, true),
 //                tokenConverterService.ConvertViewResult(ramElf, true),
 //                tokenConverterService.ConvertViewResult(netElf, true)));

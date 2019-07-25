@@ -43,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var chainStatus = await _apiHelper.ApiService.GetChainStatus();
             var genesisContractAddress = chainStatus.GenesisContractAddress;
-            _logger.WriteInfo($"Genesis contract address: {genesisContractAddress}");
+            _logger.Info($"Genesis contract address: {genesisContractAddress}");
 
             var basicZeroStub =
                 _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(Address.Parse(genesisContractAddress),
@@ -51,7 +51,7 @@ namespace AElf.Automation.RpcPerformance
             var configurationAddress =
                 await basicZeroStub.GetContractAddressByName.CallAsync(
                     GenesisContract.NameProviderInfos[NameProvider.Configuration]);
-            _logger.WriteInfo($"Configuration contract address: {configurationAddress.GetFormatted()}");
+            _logger.Info($"Configuration contract address: {configurationAddress.GetFormatted()}");
 
             var configurationStub =
                 _stub.Create<ConfigurationContainer.ConfigurationStub>(configurationAddress, _account);
@@ -63,7 +63,7 @@ namespace AElf.Automation.RpcPerformance
             int limitCount)
         {
             var beforeResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            _logger.WriteInfo($"Old transaction limit number: {beforeResult.Value}");
+            _logger.Info($"Old transaction limit number: {beforeResult.Value}");
 
             if (beforeResult.Value == limitCount)
                 return;
@@ -73,9 +73,9 @@ namespace AElf.Automation.RpcPerformance
                 Value = limitCount
             });
             var afterResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            _logger.WriteInfo($"New transaction limit number: {afterResult.Value}");
+            _logger.Info($"New transaction limit number: {afterResult.Value}");
             if (afterResult.Value == limitCount)
-                _logger.WriteInfo("Transaction limit set successful.");
+                _logger.Info("Transaction limit set successful.");
         }
     }
 }

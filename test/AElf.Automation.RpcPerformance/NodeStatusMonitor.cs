@@ -47,7 +47,7 @@ namespace AElf.Automation.RpcPerformance
 
                 Thread.Sleep(200);
                 if (_checkCount % 10 == 0)
-                    _logger.WriteWarn(
+                    _logger.Warn(
                         $"TxHub current transaction count:{txCount}, current test limit number: {MaxLimit}");
             }
         }
@@ -70,7 +70,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        _logger.WriteInfo($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
+                        _logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
@@ -78,8 +78,8 @@ namespace AElf.Automation.RpcPerformance
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                        _logger.WriteError($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
-                        _logger.WriteError($"Error message: {transactionResult.Error}");
+                        _logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
+                        _logger.Error($"Error message: {transactionResult.Error}");
                         transactionIds.Remove(transactionIds[i]);
                         break;
                 }
@@ -94,7 +94,7 @@ namespace AElf.Automation.RpcPerformance
 
             if (transactionIds.Count == 1)
             {
-                _logger.WriteInfo("Last one: {0}", transactionIds[0]);
+                _logger.Info("Last one: {0}", transactionIds[0]);
                 var transactionResult =
                     AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
                 var txResult = transactionResult.Status.ConvertTransactionResultStatus();
@@ -104,12 +104,12 @@ namespace AElf.Automation.RpcPerformance
                         CheckTransactionsStatus(transactionIds, checkTimes);
                         break;
                     case TransactionResultStatus.Mined:
-                        _logger.WriteInfo($"Transaction: {transactionIds[0]}, Status: {txResult}");
+                        _logger.Info($"Transaction: {transactionIds[0]}, Status: {txResult}");
                         transactionIds.RemoveAt(0);
                         return;
                     default:
-                        _logger.WriteError($"Transaction: {transactionIds[0]}, Status: {txResult}");
-                        _logger.WriteError($"Error message: {transactionResult.Error}");
+                        _logger.Error($"Transaction: {transactionIds[0]}, Status: {txResult}");
+                        _logger.Error($"Error message: {transactionResult.Error}");
                         break;
                 }
             }
@@ -134,7 +134,7 @@ namespace AElf.Automation.RpcPerformance
                 checkTimes++;
                 Thread.Sleep(100);
                 if (checkTimes % 100 == 0)
-                    _logger.WriteWarn(
+                    _logger.Warn(
                         $"Current block height {currentHeight}, not changed in {checkTimes / 10} seconds.");
 
                 if (checkTimes == 3000)

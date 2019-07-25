@@ -263,7 +263,7 @@ namespace AElf.Automation.ScenariosExecution
             }
             catch (Exception)
             {
-                Logger.WriteWarn($"Query {contractItem.Name} contract info got exception.");
+                Logger.Warn($"Query {contractItem.Name} contract info got exception.");
                 return false;
             }
         }
@@ -284,7 +284,7 @@ namespace AElf.Automation.ScenariosExecution
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
-            Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
+            Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
 
             return currentBps;
         }

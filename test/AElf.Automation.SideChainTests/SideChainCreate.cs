@@ -24,7 +24,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.RequestSideChain(account, 100000);
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var message = transactionResult.ReadableReturnValue;
-            _logger.WriteInfo($"proposal message is {message}");
+            _logger.Info($"proposal message is {message}");
         }
 
         //382395c5c1ab8144a522c07bd7dbbb3a1e02b1a345e1cdecb3bdd610fb2f1d20 2882050
@@ -50,7 +50,7 @@ namespace AElf.Automation.SideChainTests
         public void CheckStatus(int chainId)
         {
             var status = Tester.GetChainStatus(chainId);
-            _logger.WriteInfo($"side chain is {status}");
+            _logger.Info($"side chain is {status}");
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace AElf.Automation.SideChainTests
             Tester.TokenApprove(account, amount);
             var reCharge = Tester.Recharge(account, chainId, amount);
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
-            _logger.WriteInfo($"side chain lock balance is {balance}");
+            _logger.Info($"side chain lock balance is {balance}");
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace AElf.Automation.SideChainTests
         {
             Tester.WithdrawRequest(account, chainId);
             var chainStatus = Tester.GetChainStatus(chainId);
-            _logger.WriteInfo($"side chain is {chainStatus}");
+            _logger.Info($"side chain is {chainStatus}");
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace AElf.Automation.SideChainTests
             var transactionReturn = result.InfoMsg as TransactionResultDto;
             var proposalId = transactionReturn.ReadableReturnValue;
 
-            _logger.WriteInfo($"Disposal chain proposal id is {proposalId}");
+            _logger.Info($"Disposal chain proposal id is {proposalId}");
         }
 
 
@@ -94,10 +94,10 @@ namespace AElf.Automation.SideChainTests
         public void CheckBalance(string account)
         {
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
-            _logger.WriteInfo($"side chain balance is {balance}");
+            _logger.Info($"side chain balance is {balance}");
 
             var userBalance = Tester.GetBalance(account, "ELF");
-            _logger.WriteInfo($"user balance is {userBalance}");
+            _logger.Info($"user balance is {userBalance}");
         }
     }
 }

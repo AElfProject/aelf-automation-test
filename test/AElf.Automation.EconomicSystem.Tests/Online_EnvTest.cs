@@ -51,10 +51,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             Behaviors.AnnouncementElection(Full2);
 
             var candidates = Behaviors.GetCandidates();
-            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
+            _logger.Info($"Candidate count: {candidates.Value.Count}");
             foreach (var candidate in candidates.Value)
             {
-                _logger.WriteInfo($"Candidate: {candidate.ToByteArray().ToHex()}");
+                _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
             }
 
             //Vote
@@ -77,7 +77,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var publicKey = candidate.ToByteArray().ToHex();
                 var voteInfo = Behaviors.GetCandidateVote(publicKey);
-                _logger.WriteInfo(voteInfo.ToString());
+                _logger.Info(voteInfo.ToString());
             }
         }
 
@@ -85,10 +85,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCurrentMiners()
         {
             var minerList = Behaviors.GetCurrentMiners();
-            _logger.WriteInfo("Current miners:");
+            _logger.Info("Current miners:");
             foreach (var pubkey in minerList.Pubkeys)
             {
-                _logger.WriteInfo(pubkey.ToHex());
+                _logger.Info(pubkey.ToHex());
             }
         }
 
@@ -96,10 +96,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            _logger.WriteInfo("Current candidates:");
+            _logger.Info("Current candidates:");
             foreach (var pubkey in candidates.Value)
             {
-                _logger.WriteInfo(pubkey.ToHex());
+                _logger.Info(pubkey.ToHex());
             }
         }
     }

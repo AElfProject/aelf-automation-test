@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Helpers
                     info = info[path];
                 else
                 {
-                    Logger.WriteError($"Child path '{path}' not exist.");
+                    Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
             }
@@ -40,7 +40,7 @@ namespace AElf.Automation.Common.Helpers
                     info = info[path];
                 else
                 {
-                    Logger.WriteError($"Child path '{path}' not exist.");
+                    Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
             }
@@ -78,7 +78,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 else
                 {
-                    Logger.WriteError($"Child path '{pathArray[i]}' not exist.");
+                    Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
             }
@@ -113,7 +113,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 else
                 {
-                    Logger.WriteError($"Child path '{pathArray[i]}' not exist.");
+                    Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
             }
@@ -145,7 +145,7 @@ namespace AElf.Automation.Common.Helpers
             }
             catch (Exception)
             {
-                Logger.WriteError($"Convert hex string got exception. Hex string value: {hexString}");
+                Logger.Error($"Convert hex string got exception. Hex string value: {hexString}");
             }
 
 
@@ -161,7 +161,7 @@ namespace AElf.Automation.Common.Helpers
             }
             catch (Exception)
             {
-                Logger.WriteError($"Convert hex value got exception. Hex value: {hexValue}");
+                Logger.Error($"Convert hex value got exception. Hex value: {hexValue}");
             }
 
             return value;

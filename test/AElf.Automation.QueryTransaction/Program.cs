@@ -23,7 +23,7 @@ namespace AElf.Automation.QueryTransaction
             }
             catch (AssertFailedException ex)
             {
-                Logger.WriteError($"Execute failed: {ex.Message}");
+                Logger.Error($"Execute failed: {ex.Message}");
             }
 
             return 0;
@@ -36,7 +36,7 @@ namespace AElf.Automation.QueryTransaction
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
             Logger.InitLogHelper(dir);
 
-            Logger.WriteInfo("Select execution type:");
+            Logger.Info("Select execution type:");
             "1. RunQueryTransaction".WriteSuccessLine();
             "2. RunNodeStatusCheck".WriteSuccessLine();
             "3. RunStressTest".WriteSuccessLine();
@@ -45,7 +45,7 @@ namespace AElf.Automation.QueryTransaction
 
             if (!check)
             {
-                Logger.WriteError("Wrong selection input.");
+                Logger.Error("Wrong selection input.");
                 return;
             }
 
@@ -103,7 +103,7 @@ namespace AElf.Automation.QueryTransaction
         {
             var query = new TransactionQuery(Endpoint);
             query.ExecuteMultipleTasks(1);
-            Logger.WriteInfo("Complete transaction query result.");
+            Logger.Info("Complete transaction query result.");
         }
 
         private void RunStressTest()

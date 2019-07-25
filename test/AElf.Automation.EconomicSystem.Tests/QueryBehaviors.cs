@@ -113,7 +113,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ProfitService.CallViewMethod<ProfitItem>(ProfitMethod.GetProfitItem,
                 new Hash()
                 {
-                    Value = Hash.LoadHex(hex).Value
+                    Value = HashHelper.HexStringToHash(hex).Value
                 });
             return result;
         }

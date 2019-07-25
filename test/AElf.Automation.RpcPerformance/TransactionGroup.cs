@@ -67,7 +67,7 @@ namespace AElf.Automation.RpcPerformance
                         Assert.IsTrue(ci.Result);
                         var transactions = (string[]) ci.InfoMsg;
                         NodeMonitor.CheckTransactionsStatus(transactions.ToList());
-                        _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}",
+                        _logger.Info("Batch request count: {0}, passed transaction count: {1}",
                             rawTransactions.Count,
                             transactions.Length);
                         rawTransactions = new List<string>();

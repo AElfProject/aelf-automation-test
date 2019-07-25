@@ -79,7 +79,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Cleanup()
         {
             if (UserList.Count == 0) return;
-            Logger.WriteInfo("Delete all account files created.");
+            Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -96,7 +96,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void GetTermDividends(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.GetTermDividends, termNo.ToString());
-//            Logger.WriteInfo($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -106,7 +106,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void GetTermTotalWeights(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.GetTermTotalWeights, termNo.ToString());
-//            Logger.WriteInfo($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -116,7 +116,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckDividendsOfPreviousTerm(int ticketsAmount, int lockTime)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckDividendsOfPreviousTerm, ticketsAmount.ToString(), lockTime.ToString());
-//            Logger.WriteInfo($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -126,7 +126,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());
-//            Logger.WriteInfo(
+//            Logger.Info(
 //                $"Ticket: {ticketsAmount}, LockTime: {lockTime}, TermNo: {termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
@@ -134,7 +134,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckStandardDividendsOfPreviousTerm()
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckStandardDividendsOfPreviousTerm);
-//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -144,7 +144,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckStandardDividends(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckStandardDividendsOfPreviousTerm, termNo.ToString());
-//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        #endregion

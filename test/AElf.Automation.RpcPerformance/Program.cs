@@ -73,7 +73,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (ExecuteMode == 0) //检测链交易和出块结果
                 {
-                    Logger.WriteInfo("Check node transaction status information");
+                    Logger.Info("Check node transaction status information");
                     var apiHelper = new WebApiHelper(performance.BaseUrl);
                     var nodeSummary = new ExecutionSummary(apiHelper, true);
                     nodeSummary.ContinuousCheckTransactionPerformance();
@@ -89,7 +89,7 @@ namespace AElf.Automation.RpcPerformance
             catch (Exception e)
             {
                 var message = $"Message: {e.Message}\r\nSource: {e.Source}\r\nStackTrace: {e.StackTrace}";
-                Logger.WriteError(message);
+                Logger.Error(message);
             }
 
             //Result summary
@@ -97,16 +97,16 @@ namespace AElf.Automation.RpcPerformance
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-            Logger.WriteInfo("Log file: {0}", dir);
-            Logger.WriteInfo("Xml file: {0}", xmlFile);
-            Logger.WriteInfo("Complete performance testing.");
+            Logger.Info("Log file: {0}", dir);
+            Logger.Info("Xml file: {0}", xmlFile);
+            Logger.Info("Complete performance testing.");
         }
 
         private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)
         {
             if (execMode == -1)
             {
-                Logger.WriteInfo("Select execution type:");
+                Logger.Info("Select execution type:");
                 "1. Normal mode".WriteSuccessLine();
                 "2. Continue Tx mode".WriteSuccessLine();
                 "3. Batch mode".WriteSuccessLine();
@@ -117,7 +117,7 @@ namespace AElf.Automation.RpcPerformance
                 var check = int.TryParse(runType, out execMode);
                 if (!check)
                 {
-                    Logger.WriteInfo("Wrong input, please input again.");
+                    Logger.Info("Wrong input, please input again.");
                     ExecuteTransactionPerformanceTask(performance);
                 }
             }
@@ -127,25 +127,25 @@ namespace AElf.Automation.RpcPerformance
             switch (tm)
             {
                 case TestMode.CommonTx:
-                    Logger.WriteInfo($"Run with tx mode: {tm.ToString()}.");
+                    Logger.Info($"Run with tx mode: {tm.ToString()}.");
                     performance.ExecuteOneRoundTransactionTask();
                     break;
                 case TestMode.ContinuousTx:
-                    Logger.WriteInfo($"Run with continuous tx mode: {tm.ToString()}.");
+                    Logger.Info($"Run with continuous tx mode: {tm.ToString()}.");
                     performance.ExecuteContinuousRoundsTransactionsTask();
                     break;
                 case TestMode.BatchTxs:
-                    Logger.WriteInfo($"Run with txs mode: {tm.ToString()}.");
+                    Logger.Info($"Run with txs mode: {tm.ToString()}.");
                     performance.ExecuteOneRoundTransactionsTask();
                     break;
                 case TestMode.ContinuousTxs:
-                    Logger.WriteInfo($"Run with continuous txs mode: {tm.ToString()}.");
+                    Logger.Info($"Run with continuous txs mode: {tm.ToString()}.");
                     performance.ExecuteContinuousRoundsTransactionsTask(true, conflict);
                     break;
                 case TestMode.NotSet:
                     break;
                 default:
-                    Logger.WriteInfo("Wrong input, please input again.");
+                    Logger.Info("Wrong input, please input again.");
                     ExecuteTransactionPerformanceTask(performance);
                     break;
             }

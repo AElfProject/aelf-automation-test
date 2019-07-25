@@ -73,7 +73,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {
                     Period = period,
                     Amount = amount,
-                    ProfitId = Hash.LoadHex(profitId)
+                    ProfitId = HashHelper.HexStringToHash(profitId)
                 });
             return result;
         }

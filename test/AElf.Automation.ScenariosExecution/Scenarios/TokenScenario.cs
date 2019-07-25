@@ -60,11 +60,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     To = Address.Parse(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
-                Logger.WriteInfo($"Transfer success - from {from} to {to} with amount {amount}.");
+                Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
             }
             catch (Exception e)
             {
-                Logger.WriteError($"TransferAction: {e.Message}");
+                Logger.Error($"TransferAction: {e.Message}");
             }
         }
 
@@ -93,7 +93,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
                     {
                         if (txDto1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                            Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
+                            Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
                         else
                             return;
                     }
@@ -111,11 +111,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
                 if (txDto2.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo($"TransferFrom success - from {@from} to {to} with amount {amount}.");
+                    Logger.Info($"TransferFrom success - from {@from} to {to} with amount {amount}.");
             }
             catch (Exception e)
             {
-                Logger.WriteError($"ApproveTransferAction: {e.Message}");
+                Logger.Error($"ApproveTransferAction: {e.Message}");
             }
         }
 
@@ -123,7 +123,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             //prepare bp account token
             CollectAllBpTokensToBp0();
-            Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
             var publicKeysList = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
             var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
@@ -132,7 +132,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var token = Token.GetNewTester(bp.Account, bp.Password);
 
             //prepare full node token
-            Logger.WriteInfo("Prepare token for all full nodes.");
+            Logger.Info("Prepare token for all full nodes.");
             foreach (var fullNode in FullNodes)
             {
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
@@ -152,7 +152,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             token.CheckTransactionResultList();
 
             //prepare other user token
-            Logger.WriteInfo("Prepare token for all testers.");
+            Logger.Info("Prepare token for all testers.");
             foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
@@ -169,12 +169,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             token.CheckTransactionResultList();
-            Logger.WriteInfo($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
         }
 
         private void CollectAllBpTokensToBp0()
         {
-            Logger.WriteInfo("Transfer all bps token to first bp for testing.");
+            Logger.Info("Transfer all bps token to first bp for testing.");
             var bp0 = BpNodes.First();
             foreach (var bp in BpNodes.Skip(1))
             {

@@ -63,7 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (!(buyResult.InfoMsg is TransactionResultDto txDto)) continue;
                 if (txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo(
+                    Logger.Info(
                         $"Buy resource - {user} buy resource {connector.Symbol} cost token {amount}");
             }
         }
@@ -84,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (!(sellResult.InfoMsg is TransactionResultDto txDto)) continue;
                 if (txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo(
+                    Logger.Info(
                         $"Sell resource - {user} sell resource {connector.Symbol} with amount {amount}");
             }
         }
@@ -157,7 +157,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (!(createResult.InfoMsg is TransactionResultDto createDto)) continue;
                 if (createDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo($"Create resource {connector.Symbol} successful.");
+                    Logger.Info($"Create resource {connector.Symbol} successful.");
 
                 var issueResult = token.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
                 {
@@ -168,7 +168,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 if (!(issueResult.InfoMsg is TransactionResultDto issueDto)) continue;
                 if (issueDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo($"Issue total amount 100_0000 resource {connector.Symbol} successful.");
+                    Logger.Info($"Issue total amount 100_0000 resource {connector.Symbol} successful.");
             }
 
             //initialize resources

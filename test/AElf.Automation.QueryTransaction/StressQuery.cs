@@ -45,58 +45,58 @@ namespace AElf.Automation.QueryTransaction
         {
             //chain status
             var chainStatus = await _apiService.GetChainStatus();
-            Logger.WriteInfo($"ChainStatus: {chainStatus}");
+            Logger.Info($"ChainStatus: {chainStatus}");
 
             //query contract descriptor
             var contract = chainStatus.GenesisContractAddress;
             var descriptor = await _apiService.GetContractFileDescriptorSet(contract);
-            Logger.WriteInfo($"GetContractFileDescriptorSet: {descriptor}");
+            Logger.Info($"GetContractFileDescriptorSet: {descriptor}");
         }
 
         private async Task GetCurrentRoundInformationAsync()
         {
             var roundInfo = await _apiService.GetCurrentRoundInformationAsync();
-            Logger.WriteInfo(JsonConvert.SerializeObject(roundInfo));
+            Logger.Info(JsonConvert.SerializeObject(roundInfo));
         }
 
         private async Task GetTaskQueueStatusAsync()
         {
             var queueCollection = await _apiService.GetTaskQueueStatus();
-            Logger.WriteInfo($"TaskQueue: {queueCollection}");
+            Logger.Info($"TaskQueue: {queueCollection}");
         }
 
         private async Task GetTransactionPoolStatus()
         {
             var queueInfo = await _apiService.GetTransactionPoolStatus();
-            Logger.WriteInfo($"Queue info: {queueInfo.Queued}");
+            Logger.Info($"Queue info: {queueInfo.Queued}");
         }
 
         private async Task GetBlockStateAsync()
         {
             //block height
             var height = await _apiService.GetBlockHeight();
-            Logger.WriteInfo($"Block height: {height}");
+            Logger.Info($"Block height: {height}");
 
             //block by height
             var block = await _apiService.GetBlockByHeight(height, true);
-            Logger.WriteInfo($"BlockHash: {block.BlockHash}");
+            Logger.Info($"BlockHash: {block.BlockHash}");
 
             //block by hash
             var block1 = await _apiService.GetBlock(block.BlockHash, true);
-            Logger.WriteInfo($"Block info: {JsonConvert.SerializeObject(block1)}");
+            Logger.Info($"Block info: {JsonConvert.SerializeObject(block1)}");
 
             //query transaction
             var transactionId = block.Body.Transactions.First();
             var transaction = await _apiService.GetTransactionResult(transactionId);
-            Logger.WriteInfo($"Transaction: {JsonConvert.SerializeObject(transaction)}");
+            Logger.Info($"Transaction: {JsonConvert.SerializeObject(transaction)}");
 
             //query transactions
             var transactions = await _apiService.GetTransactionResults(block.BlockHash);
-            Logger.WriteInfo($"Transactions: {transactions}");
+            Logger.Info($"Transactions: {transactions}");
 
             //get blockState
             var blockState = await _apiService.GetBlockState(block.BlockHash);
-            Logger.WriteInfo($"BlockState: {blockState}");
+            Logger.Info($"BlockState: {blockState}");
         }
     }
 }
