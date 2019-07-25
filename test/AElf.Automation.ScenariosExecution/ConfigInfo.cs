@@ -61,7 +61,7 @@ namespace AElf.Automation.ScenariosExecution
         private static readonly object LockObj = new object();
 
         private static readonly string ConfigFile =
-            Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes-local.json");
+            Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
 
         public static ConfigInfo Config => GetConfigInfo();
 
