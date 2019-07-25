@@ -51,6 +51,7 @@ namespace AElf.Automation.Common.Helpers
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
+            ApiService = new WebApiService(_baseUrl);
             Logger.Info($"Request url updated to: {url}");
         }
 

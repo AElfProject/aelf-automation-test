@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using log4net;
 using System.Reflection;
 using System.Text;
 
@@ -39,6 +40,38 @@ namespace AElf.Automation.Common.Helpers
             {
                 return null;
             }
+        }
+
+        public static void CopyFiles(string originPath, string desPath)
+        {
+            if (!File.Exists(originPath))
+            {
+                throw new FileNotFoundException();
+            }
+
+            if (!Directory.Exists(desPath))
+            {
+                Directory.CreateDirectory(desPath);
+                if (!Directory.Exists(desPath))
+                {
+                    throw new DirectoryNotFoundException(); 
+                }
+            }
+            
+            File.Copy(originPath, desPath, true);
+        }
+
+        public static bool DeleteDirectoryFiles(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return false;
+            }
+            
+            Directory.Delete(path, true);
+            Directory.CreateDirectory(path);
+
+            return true;
         }
 
         public static string RandomString(int size, bool lowerCase)

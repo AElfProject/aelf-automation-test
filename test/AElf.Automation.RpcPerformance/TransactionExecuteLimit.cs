@@ -15,6 +15,7 @@ namespace AElf.Automation.RpcPerformance
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
         private readonly ContractTesterFactory _stub;
+        private readonly NodeTransactionOption _nodeTransactionOption;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TransactionExecuteLimit(string url, string account)
@@ -24,12 +25,18 @@ namespace AElf.Automation.RpcPerformance
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(url, keyStorePath);
             _stub = new ContractTesterFactory(url, keyStorePath);
+            _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
-
+        
+        public bool WhetherEnableTransactionLimit()
+        {
+            return _nodeTransactionOption.EnableLimit;
+        }
+        
         public void SetExecutionSelectTransactionLimit()
         {
             var configurationStub = AsyncHelper.RunSync(GetConfigurationContractStub);
-            var limitCount = ConfigInfoHelper.Config.SelectTxLimit;
+            var limitCount = _nodeTransactionOption.MaxTransactionSelect;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
         }
 

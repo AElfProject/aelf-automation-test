@@ -43,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
 
         public ReadOnlyCategory(int threadCount,
             int exeTimes,
-            string baseUrl = "http://127.0.0.1:8000",
+            string baseUrl,
             string keyStorePath = "",
             bool limitTransaction = true)
         {
@@ -56,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             LimitTransaction = limitTransaction;
         }
 

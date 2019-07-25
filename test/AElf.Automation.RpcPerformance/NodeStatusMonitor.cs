@@ -46,7 +46,7 @@ namespace AElf.Automation.RpcPerformance
                     _checkCount++;
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(200);
                 if (_checkCount % 10 == 0)
                     $"TxHub transaction count:{txCount}, transaction limit number: {MaxLimit}".WriteWarningLine();
             }
@@ -117,12 +117,14 @@ namespace AElf.Automation.RpcPerformance
             Thread.Sleep(100);
         }
 
-        public void CheckNodeHeightStatus()
+        public void CheckNodeHeightStatus(bool enable = true)
         {
+            if (!enable) return;
+            
             var checkTimes = 0;
             while (true)
             {
-                var currentHeight = AsyncHelper.RunSync(ApiHelper.ApiService.GetBlockHeight);
+                var currentHeight = AsyncHelper.RunSync(() => ApiHelper.ApiService.GetBlockHeight());
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
