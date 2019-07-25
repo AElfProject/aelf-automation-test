@@ -15,7 +15,7 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         public ContractTester Tester;
-        public readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        public readonly ILogHelper _logger = LogHelper.GetLogger();
 
         public static string RpcUrl { get; } = "http://192.168.197.56:8001";
 

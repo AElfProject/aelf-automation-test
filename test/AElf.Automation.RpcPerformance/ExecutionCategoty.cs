@@ -288,7 +288,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
-            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
             var taskList = new List<Task>
             {
@@ -297,10 +297,13 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Logger.Info("Begin generate multi requests.");
 
+                    var enableRandom = ConfigInfoHelper.Config.EnableRandomTransaction;
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     for (var r = 1; r > 0; r++) //continuous running
                     {
+                        //set random tx sending each round
+                        var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
                         try
                         {
                             Logger.Info("Execution transaction request round: {0}", r);
@@ -312,8 +315,8 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     txsTasks.Add(conflict
-                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes))
-                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, ExeTimes)));
+                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes))
+                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, exeTimes)));
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
@@ -325,7 +328,7 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     //Generate transaction requests
-                                    GenerateRawTransactionQueue(j, ExeTimes);
+                                    GenerateRawTransactionQueue(j, exeTimes);
                                     //Send  transaction requests
                                     Logger.Info(
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
@@ -351,12 +354,10 @@ namespace AElf.Automation.RpcPerformance
                             Logger.Error(message);
                         }
 
-                        if (r % 3 != 0) continue;
-
                         Monitor.CheckNodeHeightStatus(!randomTransactionOption.EnableRandom); //random mode, don't check node height
 
                         stopwatch.Stop();
-                        TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+                        TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
 
                         UpdateRandomEndpoint(); //update sent transaction to random endpoint
                         
@@ -595,9 +596,17 @@ namespace AElf.Automation.RpcPerformance
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
 
+        private int GetRandomTransactionTimes(bool isRandom, int max)
+        {
+            if (!isRandom) return max;
+
+            var rand = new Random(Guid.NewGuid().GetHashCode());
+            return rand.Next(1, max + 1);
+        }
+
         private void UpdateRandomEndpoint()
         {
-            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
             if (!randomTransactionOption.EnableRandom) return;
             while (true)

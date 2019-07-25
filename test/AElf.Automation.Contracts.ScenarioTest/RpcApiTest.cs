@@ -11,7 +11,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class RpcApiTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         private WebApiHelper Ch { get; set; }
         private const string ServiceUrl = "http://192.168.197.15:8020";
 

@@ -17,7 +17,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TokenContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         public string TokenAbi { get; set; }
         public WebApiHelper CH { get; set; }
         public List<string> UserList { get; set; }

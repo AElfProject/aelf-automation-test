@@ -44,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         {
         }
 
-        public static ILogHelper GetLogHelper()
+        public static ILogHelper GetLogger()
         {
             if (_logger != null) return _logger;
             lock (InitObject)

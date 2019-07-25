@@ -11,7 +11,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     [TestClass]
     public class QueryTests
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         private static string RpcUrl { get; } = "http://34.212.171.27:8000";
         private Behaviors Behaviors;
         private string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
