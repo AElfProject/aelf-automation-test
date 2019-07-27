@@ -95,7 +95,7 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Beneficiary = Address.Parse(voteAddress),
+                        Beneficiary = AddressHelper.Base58StringToAddress(voteAddress),
                         SchemeId = profitId
                     });
             return result;

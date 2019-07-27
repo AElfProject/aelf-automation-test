@@ -102,7 +102,7 @@ namespace AElf.Automation.Common.Contracts
                         {
                             resultDto.Logs.Select(o => new LogEvent
                             {
-                                Address = Address.Parse(o.Address),
+                                Address = AddressHelper.Base58StringToAddress(o.Address),
                                 Name = o.Name,
                                 NonIndexed = ByteString.CopyFromUtf8(o.NonIndexed)
                             }).ToArray()
@@ -132,7 +132,7 @@ namespace AElf.Automation.Common.Contracts
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
-                return method.ResponseMarshaller.Deserializer(ByteArrayHelper.FromHexString(returnValue));
+                return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 
             return new MethodStub<TInput, TOutput>(method, SendAsync, CallAsync);

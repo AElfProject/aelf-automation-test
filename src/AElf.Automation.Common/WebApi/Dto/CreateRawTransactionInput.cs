@@ -48,7 +48,7 @@ namespace AElf.Automation.Common.WebApi.Dto
             var validationResults = new List<ValidationResult>();
             try
             {
-                Address.Parse(From);
+                AddressHelper.Base58StringToAddress(From);
             }
             catch
             {
@@ -58,7 +58,7 @@ namespace AElf.Automation.Common.WebApi.Dto
 
             try
             {
-                Address.Parse(To);
+                AddressHelper.Base58StringToAddress(To);
             }
             catch
             {

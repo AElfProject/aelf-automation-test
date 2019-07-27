@@ -51,7 +51,7 @@ namespace AElf.Automation.ContractsTesting
             var address = addressInfo == new Address() ? DeployConfigurationContract() : addressInfo.GetFormatted();
 
             _configurationStub = _stub.Create<ConfigurationContainer.ConfigurationStub>(
-                Address.Parse(address), _account);
+                AddressHelper.Base58StringToAddress(address), _account);
         }
 
         private string DeployConfigurationContract()

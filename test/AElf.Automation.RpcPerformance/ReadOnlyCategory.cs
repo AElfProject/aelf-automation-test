@@ -261,7 +261,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new GetBalanceInput
                     {
                         Symbol = "ELF",
-                        Owner = Address.Parse(account1)
+                        Owner = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -300,7 +300,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new GetBalanceInput
                     {
                         Symbol = "ELF",
-                        Owner = Address.Parse(account1),
+                        Owner = AddressHelper.Base58StringToAddress(account1),
                     }
                 };
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
@@ -339,7 +339,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new GetBalanceInput
                     {
                         Symbol = "ELF",
-                        Owner = Address.Parse(account1)
+                        Owner = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);

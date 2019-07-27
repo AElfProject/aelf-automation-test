@@ -786,7 +786,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 Amount = amount,
                 Memo = "cross chain transfer",
-                To = Address.Parse(toAccount),
+                To = AddressHelper.Base58StringToAddress(toAccount),
                 ToChainId = toChainId,
                 TokenInfo = tokenInfo
             };
@@ -816,7 +816,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
             chain.CrossChainReceive(rawTxInfo.ReceiveAccount, crossChainReceiveToken);
 
             //Get Balance
@@ -841,7 +841,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
 
             chain.CrossChainReceive(rawTxInfo.ReceiveAccount, crossChainReceiveToken);
             //Get Balance

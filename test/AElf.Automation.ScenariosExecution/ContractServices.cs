@@ -37,7 +37,7 @@ namespace AElf.Automation.ScenariosExecution
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();
@@ -103,7 +103,7 @@ namespace AElf.Automation.ScenariosExecution
                 else
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(Address.Parse(TokenService.ContractAddress),
+                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                         CallAccount);
 
                     //update configInfo
@@ -122,7 +122,7 @@ namespace AElf.Automation.ScenariosExecution
                 if (feeReceiverAddress == new Address())
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(Address.Parse(TokenService.ContractAddress), CallAccount);
+                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
                 }
                 else
                 {
@@ -211,7 +211,7 @@ namespace AElf.Automation.ScenariosExecution
                             MinValue = 10L,
                             MaxValue = 1000L,
                             MortgageValue = 1000_000_000L,
-                            Manager = Address.Parse(CallAddress)
+                            Manager = AddressHelper.Base58StringToAddress(CallAddress)
                         });
 
                     FunctionContractService.ExecuteMethodWithResult(FunctionMethod.UpdateBetLimit, new BetLimitInput
@@ -240,7 +240,7 @@ namespace AElf.Automation.ScenariosExecution
                         MinValue = 10L,
                         MaxValue = 1000L,
                         MortgageValue = 1000_000_000L,
-                        Manager = Address.Parse(CallAddress)
+                        Manager = AddressHelper.Base58StringToAddress(CallAddress)
                     });
 
                 FunctionContractService.ExecuteMethodWithResult(FunctionMethod.UpdateBetLimit, new BetLimitInput
@@ -258,7 +258,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 var contractInfo =
                     GenesisService.CallViewMethod<ContractInfo>(GenesisMethod.GetContractInfo,
-                        Address.Parse(contractItem.Address));
+                        AddressHelper.Base58StringToAddress(contractItem.Address));
 
                 if (contractInfo.Equals(new ContractInfo())) return false;
                 contractItem.Owner = contractInfo.Author.GetFormatted();

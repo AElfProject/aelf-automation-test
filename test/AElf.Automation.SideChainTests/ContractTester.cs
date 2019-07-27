@@ -148,7 +148,7 @@ namespace AElf.Automation.SideChainTests
             var transfer = TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = symbol,
-                To = Address.Parse(spender),
+                To = AddressHelper.Base58StringToAddress(spender),
                 Amount = amount,
                 Memo = "Transfer Token"
             });
@@ -163,7 +163,7 @@ namespace AElf.Automation.SideChainTests
                 Symbol = symbol,
                 Decimals = 2,
                 IsBurnable = true,
-                Issuer = Address.Parse(issuer),
+                Issuer = AddressHelper.Base58StringToAddress(issuer),
                 TokenName = tokenName,
                 TotalSupply = 100_0000
             });
@@ -178,7 +178,7 @@ namespace AElf.Automation.SideChainTests
                 Symbol = symbol,
                 Amount = 100_0000,
                 Memo = "Issue",
-                To = Address.Parse(toAddress)
+                To = AddressHelper.Base58StringToAddress(toAddress)
             });
 
             return issue;
@@ -192,7 +192,7 @@ namespace AElf.Automation.SideChainTests
                 new Contracts.MultiToken.Messages.ApproveInput
                 {
                     Symbol = "ELF",
-                    Spender = Address.Parse(CrossChainService.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                     Amount = amount,
                 });
 
@@ -208,7 +208,7 @@ namespace AElf.Automation.SideChainTests
                 {
                     Amount = amount,
                     Memo = "transfer to side chain",
-                    To = Address.Parse(toAccount),
+                    To = AddressHelper.Base58StringToAddress(toAccount),
                     ToChainId = toChainId,
                     TokenInfo = tokenInfo
                 });
@@ -228,7 +228,7 @@ namespace AElf.Automation.SideChainTests
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             });
             return balance;

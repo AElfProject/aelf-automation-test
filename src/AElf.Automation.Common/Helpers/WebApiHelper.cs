@@ -239,8 +239,8 @@ namespace AElf.Automation.Common.Helpers
         {
             var tr = new Transaction()
             {
-                From = Address.Parse(from),
-                To = Address.Parse(to),
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
                 MethodName = methodName
             };
 
@@ -315,8 +315,8 @@ namespace AElf.Automation.Common.Helpers
         {
             var transaction = new Transaction()
             {
-                From = Address.Parse(from),
-                To = Address.Parse(to),
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
@@ -332,8 +332,8 @@ namespace AElf.Automation.Common.Helpers
         {
             var transaction = new Transaction()
             {
-                From = Address.Parse(from),
-                To = Address.Parse(to),
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
@@ -348,7 +348,7 @@ namespace AElf.Automation.Common.Helpers
                 return default(T);
             }
 
-            var byteArray = ByteArrayHelper.FromHexString(resp);
+            var byteArray = ByteArrayHelper.HexStringToByteArray(resp);
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);

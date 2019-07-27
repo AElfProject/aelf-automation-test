@@ -75,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     MinValue = 10L,
                     MaxValue = 1000L,
                     MortgageValue = 1000_000_000L,
-                    Manager = Address.Parse(Testers[0])
+                    Manager = AddressHelper.Base58StringToAddress(Testers[0])
                 });
 
             FunctionContract.SetAccount(Testers[0]);
@@ -98,7 +98,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 FunctionContract.SetAccount(account);
                 var winMoney =
                     FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney,
-                        Address.Parse(account));
+                        AddressHelper.Base58StringToAddress(account));
                 FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
                     Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
@@ -119,8 +119,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
                 new ChangeContractAuthorInput
                 {
-                    ContractAddress = Address.Parse(FunctionContract.ContractAddress),
-                    NewAuthor = Address.Parse(ownerCandidates[id])
+                    ContractAddress = AddressHelper.Base58StringToAddress(FunctionContract.ContractAddress),
+                    NewAuthor = AddressHelper.Base58StringToAddress(ownerCandidates[id])
                 });
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)

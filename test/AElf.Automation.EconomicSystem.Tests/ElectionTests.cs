@@ -110,7 +110,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     {
                         Symbol = "ELF",
                         Amount = 200_000L,
-                        To = Address.Parse(account),
+                        To = AddressHelper.Base58StringToAddress(account),
                         Memo = "Transfer token for announcement."
                     });
                 }
@@ -158,7 +158,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Amount = 1000,
                     Memo = "transfer for balance test",
                     Symbol = "ELF",
-                    To = Address.Parse(acc)
+                    To = AddressHelper.Base58StringToAddress(acc)
                 });
             }
 
@@ -170,7 +170,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     new GetBalanceInput
                     {
                         Symbol = "ELF",
-                        Owner = Address.Parse(userAcc)
+                        Owner = AddressHelper.Base58StringToAddress(userAcc)
                     });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }

@@ -164,7 +164,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = connector.Symbol,
                     Amount = 100_000_000,
                     Memo = $"Issue {connector.Symbol} token",
-                    To = Address.Parse(TokenConverter.ContractAddress)
+                    To = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress)
                 });
                 if (!(issueResult.InfoMsg is TransactionResultDto issueDto)) continue;
                 if (issueDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
@@ -176,9 +176,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 BaseTokenSymbol = "ELF",
                 FeeRate = "0.01",
-                ManagerAddress = Address.Parse(Testers[0]),
-                TokenContractAddress = Address.Parse(Token.ContractAddress),
-                FeeReceiverAddress = Address.Parse(FeeReceiver.ContractAddress),
+                ManagerAddress = AddressHelper.Base58StringToAddress(Testers[0]),
+                TokenContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
+                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiver.ContractAddress),
                 Connectors = {ElfConnector, RamConnector, CpuConnector, NetConnector}
             });
 
@@ -193,25 +193,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = Address.Parse(TokenConverter.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
                     Symbol = "ELF",
                     Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = Address.Parse(TokenConverter.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
                     Symbol = RamConnector.Symbol,
                     Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = Address.Parse(TokenConverter.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
                     Symbol = CpuConnector.Symbol,
                     Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = Address.Parse(TokenConverter.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
                     Symbol = NetConnector.Symbol,
                     Amount = 100_000_000
                 });

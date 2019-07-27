@@ -37,7 +37,7 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper = apiHelper;
             FileName = fileName;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             TxResultList = new ConcurrentQueue<string>();
 
             UnlockAccount(callAddress);
@@ -74,7 +74,7 @@ namespace AElf.Automation.Common.Contracts
                 ApiHelper = apiHelper,
                 ContractAddress = ContractAddress,
 
-                CallAccount = Address.Parse(account),
+                CallAccount = AddressHelper.Base58StringToAddress(account),
                 CallAddress = account,
 
                 TxResultList = new ConcurrentQueue<string>()
@@ -232,7 +232,7 @@ namespace AElf.Automation.Common.Contracts
         public bool SetAccount(string account, string password = "123")
         {
             CallAddress = account;
-            CallAccount = Address.Parse(account);
+            CallAccount = AddressHelper.Base58StringToAddress(account);
 
             //Unlock
             var uc = new CommandInfo(ApiMethods.AccountUnlock)

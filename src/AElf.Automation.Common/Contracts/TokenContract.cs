@@ -50,7 +50,7 @@ namespace AElf.Automation.Common.Contracts
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             }).Balance;
         }
@@ -59,7 +59,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
             var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(Address.Parse(ContractAddress), CallAddress);
+                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
             return tokenStub;
         }
     }

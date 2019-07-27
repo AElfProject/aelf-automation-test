@@ -42,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Call()
         {
-            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
@@ -56,7 +56,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Execution()
         {
-            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
@@ -64,7 +64,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Amount = 100,
                 Symbol = "ELF",
-                To = Address.Parse(TestAccount),
+                To = AddressHelper.Base58StringToAddress(TestAccount),
                 Memo = "Test transfer with new sdk"
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -72,7 +72,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //query balance
             var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = Address.Parse(TestAccount),
+                Owner = AddressHelper.Base58StringToAddress(TestAccount),
                 Symbol = "ELF"
             });
             result.Balance.ShouldBeGreaterThanOrEqualTo(100);

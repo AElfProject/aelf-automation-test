@@ -52,7 +52,7 @@ namespace AElf.Automation.RpcPerformance
                             new TransferInput
                             {
                                 Symbol = contract.Symbol,
-                                To = Address.Parse(user.Account),
+                                To = AddressHelper.Base58StringToAddress(user.Account),
                                 Amount = 10000,
                                 Memo = $"transfer test - {Guid.NewGuid()}"
                             });
@@ -139,7 +139,7 @@ namespace AElf.Automation.RpcPerformance
                         ParameterInput = new TransferInput
                         {
                             Symbol = symbol,
-                            To = Address.Parse(to.Account),
+                            To = AddressHelper.Base58StringToAddress(to.Account),
                             Amount = (i + 1) % 4 + 1,
                             Memo = $"transfer test - {Guid.NewGuid()}"
                         }

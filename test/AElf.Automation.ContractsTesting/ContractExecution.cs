@@ -60,7 +60,7 @@ namespace AElf.Automation.ContractsTesting
         public async Task ExecuteBasicContractMethods()
         {
             _basicFunctionContractStub = _stub.Create<BasicFunctionContractContainer.BasicFunctionContractStub>(
-                Address.Parse(_contractAddress), _account);
+                AddressHelper.Base58StringToAddress(_contractAddress), _account);
 
             //init contract
             var initResult =
@@ -71,7 +71,7 @@ namespace AElf.Automation.ContractsTesting
                         MinValue = 10L,
                         MaxValue = 1000L,
                         MortgageValue = 1000_000_000L,
-                        Manager = Address.Parse(_account)
+                        Manager = AddressHelper.Base58StringToAddress(_account)
                     });
             initResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -90,7 +90,7 @@ namespace AElf.Automation.ContractsTesting
         public async Task ExecuteUpdateContractMethods()
         {
             _basicUpdateContractStub = _stub.Create<BasicUpdateContractContainer.BasicUpdateContractStub>(
-                Address.Parse(_contractAddress), _account);
+                AddressHelper.Base58StringToAddress(_contractAddress), _account);
 
             //execute method
             var executeResult = await _basicUpdateContractStub.UpdateBetLimit.SendAsync(new BetLimitInput
@@ -101,7 +101,7 @@ namespace AElf.Automation.ContractsTesting
             executeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //call method
-            var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(Address.Parse(_account));
+            var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(AddressHelper.Base58StringToAddress(_account));
             queryResult.Int64Value.ShouldBeGreaterThanOrEqualTo(0);
         }
     }
