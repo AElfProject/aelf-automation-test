@@ -16,7 +16,7 @@ namespace AElf.Automation.Common.WebApi
 
         public WebApiService(string baseUrl)
         {
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
 
             InitializeWebApiRoute();
         }
