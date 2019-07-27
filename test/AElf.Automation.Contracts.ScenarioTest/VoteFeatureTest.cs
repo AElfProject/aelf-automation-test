@@ -137,13 +137,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var consensusBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(ConsensusContract),
+                Owner = AddressHelper.Base58StringToAddress(ConsensusContract),
                 Symbol = TokenSymbol
             });
             Logger.Info($"Consensus account balance : {consensusBalance.Balance}");
             var dividendsResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(DividendsContract),
+                Owner = AddressHelper.Base58StringToAddress(DividendsContract),
                 Symbol = TokenSymbol
             });
             Logger.Info($"Dividends account balance : {dividendsResult.Balance}");
@@ -151,14 +151,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void SetTokenFeeAddress()
         {
-            tokenService.ExecuteMethodWithResult(TokenMethod.SetFeePoolAddress, Address.Parse(FeeAccount));
+            tokenService.ExecuteMethodWithResult(TokenMethod.SetFeePoolAddress, AddressHelper.Base58StringToAddress(FeeAccount));
         }
 
         private void QueryTokenFeeBalance()
         {
             var feeBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(FeeAccount),
+                Owner = AddressHelper.Base58StringToAddress(FeeAccount),
                 Symbol = TokenSymbol
             });
             Logger.Info($"Fee account balance : {feeBalance.Balance}");
@@ -179,7 +179,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Owner = Address.Parse(bpAcc),
+                    Owner = AddressHelper.Base58StringToAddress(bpAcc),
                     Symbol = TokenSymbol
                 });
                 Console.WriteLine($"BpNode-[{bpAcc}] balance: " + callResult.Balance);
@@ -190,7 +190,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                     new GetBalanceInput
                     {
-                        Owner = Address.Parse(fullAcc),
+                        Owner = AddressHelper.Base58StringToAddress(fullAcc),
                         Symbol = TokenSymbol
                     });
                 Console.WriteLine($"FullNode-[{fullAcc}] balance: " + callResult.Balance);
@@ -217,7 +217,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Owner = Address.Parse(fullAcc),
+                    Owner = AddressHelper.Base58StringToAddress(fullAcc),
                     Symbol = TokenSymbol
                 });
                 if (balanceResult.Balance >= 100000)
@@ -227,7 +227,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "transfer balance for announcement election.",
                     Amount = 100_000,
                     Symbol = TokenSymbol,
-                    To = Address.Parse(fullAcc)
+                    To = AddressHelper.Base58StringToAddress(fullAcc)
                 });
             }
             //分配资金给BP
@@ -237,7 +237,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Owner = Address.Parse(bpAcc),
+                    Owner = AddressHelper.Base58StringToAddress(bpAcc),
                     Symbol = TokenSymbol
                 });
                 if (balanceResult.Balance >= 100000)
@@ -247,7 +247,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "transfer balance for announcement election.",
                     Amount = 100_000,
                     Symbol = TokenSymbol,
-                    To = Address.Parse(bpAcc)
+                    To = AddressHelper.Base58StringToAddress(bpAcc)
                 });
             }
 
@@ -335,7 +335,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 100_000,
                     Memo = "",
                     Symbol = TokenSymbol,
-                    To = Address.Parse(acc) 
+                    To = AddressHelper.Base58StringToAddress(acc) 
                 });
             }
             tokenService.CheckTransactionResultList();
@@ -345,7 +345,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
-                    Owner = Address.Parse(userAcc)
+                    Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
@@ -539,7 +539,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balanceBefore = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
-                    Owner = Address.Parse(userAcc)
+                    Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Init balance: {balanceBefore.Balance}");
 
@@ -549,7 +549,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balanceAfter1 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
-                    Owner = Address.Parse(userAcc)
+                    Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Received dividends balance: {balanceAfter1.Balance}");
 
@@ -558,7 +558,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balanceAfter2 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
-                    Owner = Address.Parse(userAcc)
+                    Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Revert back vote balance: {balanceAfter2.Balance}");
             }
@@ -600,7 +600,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Symbol = TokenSymbol,
-                    Owner = Address.Parse(fullAcc)
+                    Owner = AddressHelper.Base58StringToAddress(fullAcc)
                 });
                 Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);
             }
@@ -628,7 +628,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Owner = Address.Parse(fullAcc),
+                    Owner = AddressHelper.Base58StringToAddress(fullAcc),
                     Symbol = TokenSymbol
                 });
                 Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);

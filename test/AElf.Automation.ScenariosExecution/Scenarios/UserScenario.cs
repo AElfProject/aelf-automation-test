@@ -135,7 +135,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = "ELF",
                     Amount = 10_0000,
-                    To = Address.Parse(account),
+                    To = AddressHelper.Base58StringToAddress(account),
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"
                 });
             }

@@ -21,7 +21,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             TestCleanUp();
         }
 
-
         [TestMethod]
         public void Announcement_AllNodes_Scenario()
         {

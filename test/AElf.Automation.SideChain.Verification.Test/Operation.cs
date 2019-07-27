@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             });
             return balance;
@@ -66,7 +66,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var transfer = TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = symbol,
-                To = Address.Parse(spender),
+                To = AddressHelper.Base58StringToAddress(spender),
                 Amount = amount,
                 Memo = "Transfer Token"
             });

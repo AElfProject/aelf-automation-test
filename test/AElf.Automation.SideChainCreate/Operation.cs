@@ -48,7 +48,7 @@ namespace AElf.Automation.SideChainCreate
                 new Contracts.MultiToken.Messages.ApproveInput
                 {
                     Symbol = "ELF",
-                    Spender = Address.Parse(CrossChainService.ContractAddress),
+                    Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                     Amount = amount,
                 });
         }
@@ -72,7 +72,7 @@ namespace AElf.Automation.SideChainCreate
                         ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
                         ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
                         Params = createProposalInput.ToByteString(),
-                        ToAddress = Address.Parse(CrossChainService.ContractAddress),
+                        ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
             var transactionResult = result.InfoMsg as TransactionResultDto;

@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.WebApi
                 return default(TResult);
             }
 
-            var byteArray = ByteArrayHelper.FromHexString(hexString);
+            var byteArray = ByteArrayHelper.HexStringToByteArray(hexString);
             var messageParser = new MessageParser<TResult>(() => new TResult());
 
             return messageParser.ParseFrom(byteArray);

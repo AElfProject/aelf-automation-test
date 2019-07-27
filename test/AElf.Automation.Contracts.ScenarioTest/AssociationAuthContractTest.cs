@@ -51,9 +51,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             #endregion
 
             ReviewerList = new List<Reviewer>();
-            var review1 = new Reviewer {Address = Address.Parse(ReviewAccount1), Weight = 1};
-            var review2 = new Reviewer {Address = Address.Parse(ReviewAccount2), Weight = 2};
-            var review3 = new Reviewer {Address = Address.Parse(ReviewAccount3), Weight = 3};
+            var review1 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 1};
+            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount2), Weight = 2};
+            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount3), Weight = 3};
             ReviewerList.Add(review1);
             ReviewerList.Add(review2);
             ReviewerList.Add(review3);
@@ -75,7 +75,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
-                    Address.Parse(organizationAddress));
+                    AddressHelper.Base58StringToAddress(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
                 _logger.Info($"organization review is : {reviewer}");
@@ -87,7 +87,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = "ELF",
                 Amount = 1000,
                 Memo = "transfer to Organization",
-                To = Address.Parse(organizationAddress)
+                To = AddressHelper.Base58StringToAddress(organizationAddress)
             });
         }
 
@@ -97,7 +97,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
-                    Address.Parse(organizationAddress));
+                    AddressHelper.Base58StringToAddress(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
                 _logger.Info($"organization review is : {reviewer}");
@@ -113,16 +113,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Symbol = "ELF",
                 Amount = 100,
-                To = Address.Parse(account),
+                To = AddressHelper.Base58StringToAddress(account),
                 Memo = "Transfer"
             };
             var _createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
-                ToAddress = Address.Parse(Tester.TokenService.ContractAddress),
+                ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
                 Params = _transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                OrganizationAddress = Address.Parse(organizationAddress)
+                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
             };
 
 

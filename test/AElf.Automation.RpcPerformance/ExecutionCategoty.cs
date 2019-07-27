@@ -178,7 +178,7 @@ namespace AElf.Automation.RpcPerformance
                         TokenName = $"elf token {symbol}",
                         TotalSupply = long.MaxValue,
                         Decimals = 2,
-                        Issuer = Address.Parse(account),
+                        Issuer = AddressHelper.Base58StringToAddress(account),
                         IsBurnable = true
                     }
                 };
@@ -206,7 +206,7 @@ namespace AElf.Automation.RpcPerformance
                         Amount = long.MaxValue,
                         Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
                         Symbol = symbol,
-                        To = Address.Parse(account)
+                        To = AddressHelper.Base58StringToAddress(account)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -408,7 +408,7 @@ namespace AElf.Automation.RpcPerformance
                         Symbol = ContractList[threadNo].Symbol,
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}",
-                        To = Address.Parse(account1)
+                        To = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -450,7 +450,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = AddressHelper.Base58StringToAddress(account1),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }
@@ -513,7 +513,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = AddressHelper.Base58StringToAddress(account1),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }

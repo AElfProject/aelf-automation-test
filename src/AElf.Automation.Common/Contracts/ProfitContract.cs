@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Receiver = Address.Parse(voteAddress),
+                        Receiver = AddressHelper.Base58StringToAddress(voteAddress),
                         ProfitId = profitId
                     });
             return result;
@@ -117,7 +117,7 @@ namespace AElf.Automation.Common.Contracts
             var result = CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,
                 new GetCreatedProfitItemsInput
                 {
-                    Creator = Address.Parse(electionContractAddress)
+                    Creator = AddressHelper.Base58StringToAddress(electionContractAddress)
                 });
             return result;
         }

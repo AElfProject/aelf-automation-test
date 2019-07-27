@@ -57,7 +57,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = amount,
                     Symbol = "ELF",
-                    To = Address.Parse(to),
+                    To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
                 Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
@@ -76,8 +76,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var allowance = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
                     new GetAllowanceInput
                     {
-                        Owner = Address.Parse(from),
-                        Spender = Address.Parse(to),
+                        Owner = AddressHelper.Base58StringToAddress(from),
+                        Spender = AddressHelper.Base58StringToAddress(to),
                         Symbol = "ELF"
                     }).Allowance;
 
@@ -87,7 +87,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
                         Amount = 1000,
-                        Spender = Address.Parse(to),
+                        Spender = AddressHelper.Base58StringToAddress(to),
                         Symbol = "ELF"
                     });
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
@@ -104,8 +104,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {
                     Amount = amount,
-                    From = Address.Parse(from),
-                    To = Address.Parse(to),
+                    From = AddressHelper.Base58StringToAddress(from),
+                    To = AddressHelper.Base58StringToAddress(to),
                     Symbol = "ELF",
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 });
@@ -144,7 +144,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = "ELF",
                     Amount = 200_000,
-                    To = Address.Parse(fullNode.Account),
+                    To = AddressHelper.Base58StringToAddress(fullNode.Account),
                     Memo = "Transfer for announcement event"
                 });
             }
@@ -162,7 +162,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = "ELF",
                     Amount = 500_000 - balance,
-                    To = Address.Parse(user),
+                    To = AddressHelper.Base58StringToAddress(user),
                     Memo = $"Transfer for testing - {Guid.NewGuid()}"
                 });
                 Thread.Sleep(10);
@@ -188,7 +188,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = balance,
                     Symbol = "ELF",
-                    To = Address.Parse(bp0.Account),
+                    To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect all token from other bps."
                 });
             }

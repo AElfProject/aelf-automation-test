@@ -74,7 +74,7 @@ namespace AElf.Automation.Common.Contracts
             SetAccount(account);
             var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
             {
-                Address = Address.Parse(contractAddress),
+                Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
@@ -101,7 +101,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractOwner(string contractAddress)
         {
-            return GetContractOwner(Address.Parse(contractAddress));
+            return GetContractOwner(AddressHelper.Base58StringToAddress(contractAddress));
         }
 
         private static Dictionary<NameProvider, Hash> InitializeSystemContractsName()
