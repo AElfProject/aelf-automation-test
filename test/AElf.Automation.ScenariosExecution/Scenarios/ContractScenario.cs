@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -21,6 +23,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public static string ContractManager { get; set; }
         public static string ContractOwner { get; set; }
         public List<string> Testers { get; }
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ContractScenario()
         {
@@ -45,7 +49,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             ExecuteTestContractNewMethod();
 
-            UpdateTestContractOwner();
+            UpdateTestContractAuthor();
 
             ExecuteTestContractMethod();
         }
@@ -58,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 ExecuteTestContractMethod,
                 ExecuteTestContractNewMethod,
                 UpdateTestContractCode,
-                UpdateTestContractOwner
+                UpdateTestContractAuthor
             });
         }
 
@@ -67,7 +71,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (UpdateContract != null)
                 return;
 
-            Logger.WriteInfo("Test deploy customer contract.");
+            Logger.Info("Test deploy customer contract.");
             FunctionContract.ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
                 new InitialBasicContractInput
                 {
@@ -75,7 +79,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     MinValue = 10L,
                     MaxValue = 1000L,
                     MortgageValue = 1000_000_000L,
-                    Manager = Address.Parse(Testers[0])
+                    Manager = AddressHelper.Base58StringToAddress(Testers[0])
                 });
 
             FunctionContract.SetAccount(Testers[0]);
@@ -98,7 +102,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 FunctionContract.SetAccount(account);
                 var winMoney =
                     FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney,
-                        Address.Parse(account));
+                        AddressHelper.Base58StringToAddress(account));
                 FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
                     Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
@@ -106,37 +110,37 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Thread.Sleep(3 * 1000);
             }
 
-            Logger.WriteInfo("Test contract old methods executed successful.");
+            Logger.Info("Test contract old methods executed successful.");
         }
 
-        private void UpdateTestContractOwner()
+        private void UpdateTestContractAuthor()
         {
-            var owner = Genesis.GetContractOwner(ContractAddress);
+            var owner = Genesis.GetContractAuthor(ContractAddress);
             var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
             var id = GenerateRandomNumber(0, Testers.Count - 2);
 
             Genesis.SetAccount(owner.GetFormatted());
-            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractOwner,
-                new ChangeContractOwnerInput
+            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                new ChangeContractAuthorInput
                 {
-                    ContractAddress = Address.Parse(FunctionContract.ContractAddress),
-                    NewOwner = Address.Parse(ownerCandidates[id])
+                    ContractAddress = AddressHelper.Base58StringToAddress(FunctionContract.ContractAddress),
+                    NewAuthor = AddressHelper.Base58StringToAddress(ownerCandidates[id])
                 });
 
             if (updateResult.InfoMsg is TransactionResultDto txDto)
             {
                 if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                    Logger.WriteError(txDto.Error);
+                    Logger.Error(txDto.Error);
             }
 
-            var newOwner = Genesis.GetContractOwner(FunctionContract.ContractAddress);
+            var newOwner = Genesis.GetContractAuthor(FunctionContract.ContractAddress);
             if (newOwner.GetFormatted() == ownerCandidates[id])
-                Logger.WriteInfo($"TestContract owner updated from {owner} to {newOwner}");
+                Logger.Info($"TestContract owner updated from {owner} to {newOwner}");
         }
 
         private void UpdateTestContractCode()
         {
-            var owner = Genesis.GetContractOwner(ContractAddress);
+            var owner = Genesis.GetContractAuthor(ContractAddress);
 
             Genesis.SetAccount(owner.GetFormatted());
             if (!IsUpdateContract)
@@ -148,7 +152,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 IsUpdateContract = true;
                 UpdateContract = new BasicUpdateContract(Services.ApiHelper, owner.GetFormatted(),
                     FunctionContract.ContractAddress);
-                Logger.WriteInfo("Update contract to UpdateContract successful.");
+                Logger.Info("Update contract to UpdateContract successful.");
             }
             else
             {
@@ -159,7 +163,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 IsUpdateContract = false;
                 FunctionContract = new BasicFunctionContract(Services.ApiHelper, owner.GetFormatted(),
                     UpdateContract.ContractAddress);
-                Logger.WriteInfo("Update contract to BasicContract successful.");
+                Logger.Info("Update contract to BasicContract successful.");
             }
         }
 
@@ -178,16 +182,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (!(txResult.InfoMsg is TransactionResultDto txDto)) return;
             if (txDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
             {
-                Logger.WriteError(txDto.Error);
+                Logger.Error(txDto.Error);
                 return;
             }
 
-            Logger.WriteInfo("New contract action method executed successful.");
+            Logger.Info("New contract action method executed successful.");
 
             //call New method
             var result = UpdateContract.CallViewMethod<BetStatus>(UpdateMethod.QueryBetStatus, new Empty());
             if (!result.BoolValue)
-                Logger.WriteInfo("New contract view method called successful.");
+                Logger.Info("New contract view method called successful.");
         }
     }
 }

@@ -8,13 +8,14 @@ using System.IO;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class ResourceContractsTest
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public string TokenContract { get; set; }
         public WebApiHelper ApiHelper { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
@@ -35,9 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             #region Basic Preparation
 
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("ContractTest");
 
             ApiHelper = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
 
@@ -120,7 +119,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Decimals = 2,
                 IsBurnable = true,
-                Issuer = Address.Parse(InitAccount),
+                Issuer = AddressHelper.Base58StringToAddress(InitAccount),
                 Symbol = TokenSymbol,
                 TokenName = "AElf token",
                 TotalSupply = 1000_000L
@@ -129,7 +128,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Symbol = TokenSymbol,
                 Amount = 1000_000L,
-                To = Address.Parse(InitAccount),
+                To = AddressHelper.Base58StringToAddress(InitAccount),
                 Memo = "Issue token to init account"
             });
 
@@ -140,7 +139,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = TokenSymbol,
                     Amount = 10_000,
                     Memo = "transfer for resource trade.",
-                    To = Address.Parse(acc)
+                    To = AddressHelper.Base58StringToAddress(acc)
                 });
             }
 
@@ -152,9 +151,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new GetBalanceInput
                     {
                         Symbol = TokenSymbol,
-                        Owner = Address.Parse(acc)
+                        Owner = AddressHelper.Base58StringToAddress(acc)
                     });
-                Logger.WriteInfo($"Account: {acc}, Balance: {queryResult.Balance}");
+                Logger.Info($"Account: {acc}, Balance: {queryResult.Balance}");
             }
         }
 
@@ -163,11 +162,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             feeReceiverService = new FeeReceiverContract(ApiHelper, InitAccount);
             feeReceiverService.ExecuteMethodWithResult(FeeReceiverMethod.Initialize, new InitializeInput
             {
-                TokenContractAddress = Address.Parse(TokenContract),
+                TokenContractAddress = AddressHelper.Base58StringToAddress(TokenContract),
                 BaseTokenSymbol = TokenSymbol,
                 FeeRate = "0.05",
-                FeeReceiverAddress = Address.Parse(FeeReceiverAccount),
-                ManagerAddress = Address.Parse(ManagerAccount)
+                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverAccount),
+                ManagerAddress = AddressHelper.Base58StringToAddress(ManagerAccount)
             });
         }
 
@@ -205,9 +204,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 BaseTokenSymbol = TokenSymbol,
                 FeeRate = "0.005",
-                ManagerAddress = Address.Parse(ManagerAccount),
-                TokenContractAddress = Address.Parse(TokenContract),
-                FeeReceiverAddress = Address.Parse(FeeReceiverAccount),
+                ManagerAddress = AddressHelper.Base58StringToAddress(ManagerAccount),
+                TokenContractAddress = AddressHelper.Base58StringToAddress(TokenContract),
+                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverAccount),
                 Connectors = {ramConnector, netConnector, cpuConnector}
             });
 
@@ -219,13 +218,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Query address
 //            var tokenAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfTokenAddress);
-//            Logger.WriteInfo(String.Format("Token address: {0}", tokenConverterService.ConvertViewResult(tokenAddress, true)));
+//            Logger.Info(String.Format("Token address: {0}", tokenConverterService.ConvertViewResult(tokenAddress, true)));
 //
 //            var feeAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetFeeAddress);
-//            Logger.WriteInfo(String.Format("Fee address: {0}", tokenConverterService.ConvertViewResult(feeAddress, true)));
+//            Logger.Info(String.Format("Fee address: {0}", tokenConverterService.ConvertViewResult(feeAddress, true)));
 //
 //            var controllerAddress = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetResourceControllerAddress);
-//            Logger.WriteInfo(String.Format("Controller address: {0}", tokenConverterService.ConvertViewResult(controllerAddress, true)));
+//            Logger.Info(String.Format("Controller address: {0}", tokenConverterService.ConvertViewResult(controllerAddress, true)));
         }
 
         private void QueryResourceInfo()
@@ -234,7 +233,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Cpu");
 //            var ramConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Ram");
 //            var netConverter = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetConverter, "Net");
-//            Logger.WriteInfo(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetConverter info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuConverter),
 //                tokenConverterService.ConvertViewResult(ramConverter),
 //                tokenConverterService.ConvertViewResult(netConverter)));
@@ -243,7 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Cpu");
 //            var ramBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Ram");
 //            var netBalance = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetUserBalance, AccList[2], "Net");
-//            Logger.WriteInfo(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetUserBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuBalance, true),
 //                tokenConverterService.ConvertViewResult(ramBalance, true),
 //                tokenConverterService.ConvertViewResult(netBalance, true)));
@@ -252,7 +251,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Cpu");
 //            var ramExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Ram");
 //            var netExchange = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetExchangeBalance, "Net");
-//            Logger.WriteInfo(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetExchangeBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuExchange, true),
 //                tokenConverterService.ConvertViewResult(ramExchange, true),
 //                tokenConverterService.ConvertViewResult(netExchange, true)));
@@ -261,7 +260,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //            var cpuElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Cpu");
 //            var ramElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Ram");
 //            var netElf = tokenConverterService.CallReadOnlyMethod(ResourceMethod.GetElfBalance, "Net");
-//            Logger.WriteInfo(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
+//            Logger.Info(String.Format("GetElfBalance info: Cpu-{0}, Ram-{1}, Net-{2}",
 //                tokenConverterService.ConvertViewResult(cpuElf, true),
 //                tokenConverterService.ConvertViewResult(ramElf, true),
 //                tokenConverterService.ConvertViewResult(netElf, true)));

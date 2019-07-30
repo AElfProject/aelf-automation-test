@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -14,7 +15,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public ILog Logger = Log4NetHelper.GetLogger();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
         public string DividendsAbi { get; set; }
@@ -43,9 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initlize()
         {
             //Init log
-            string logName = "VoteBP_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
@@ -82,7 +81,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Cleanup()
         {
             if (UserList.Count == 0) return;
-            Logger.WriteInfo("Delete all account files created.");
+            Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -96,13 +95,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
             var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.FeePoolAddress);
             DataHelper.TryGetValueFromJson(out var feeAddress, feeResult, "result", "return");
-            Logger.WriteInfo($"Fee account address : {feeAddress}");
+            Logger.Info($"Fee account address : {feeAddress}");
         }
 
         private void QueryTokenFeeBalance()
         {
             var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
-            Logger.WriteInfo($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
+            Logger.Info($"Fee account balance : {tokenService.ConvertViewResult(feeResult, true)}");
         }
 
         [TestMethod]
@@ -119,10 +118,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             consensusService.SetAccount(BpNodeAccounts[0]);
 
             //分配资金给BP
-            Logger.WriteInfo("Allowance token to BpNode accounts");
+            Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.WriteInfo($"Account: {bpAcc}\nPubKey:{ApiHelper.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{ApiHelper.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
@@ -133,7 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             consensusService.CheckTransactionResultList();
 
-            Logger.WriteInfo("All accounts asset prepared completed.");
+            Logger.Info("All accounts asset prepared completed.");
         }
 
         [TestMethod]
@@ -170,27 +169,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Console.WriteLine($"User-{userAcc} balance: " + tokenService.ConvertViewResult(callResult, true));
             }
 
-            Logger.WriteInfo("All accounts created and unlocked.");
+            Logger.Info("All accounts created and unlocked.");
         }
 
         [TestMethod]
         public void GetPageableElectionInfo()
         {
-            Logger.WriteInfo("GetCurrentElectionInfo Test");
+            Logger.Info("GetCurrentElectionInfo Test");
             var currentElectionResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetPageableElectionInfoToFriendlyString, "0", "0", "0");
-            Logger.WriteInfo(consensusService.ConvertViewResult(currentElectionResult));
+            Logger.Info(consensusService.ConvertViewResult(currentElectionResult));
         }
 
         [TestMethod]
         public void GetTicketsInfo()
         {
-            Logger.WriteInfo("GetTicketsInfo Test");
+            Logger.Info("GetTicketsInfo Test");
             GetCandidateList();
             foreach (var candidate in CandidatePublicKeys)
             {
                 var ticketResult = consensusService.CallReadOnlyMethod(ConsensusMethod.GetTicketsInfoToFriendlyString, candidate);
                 var ticketsJson = consensusService.ConvertViewResult(ticketResult);
-                Logger.WriteInfo(ticketsJson);
+                Logger.Info(ticketsJson);
 
                 DataHelper.TryGetArrayFromJson(out var recordArray, ticketsJson, "VotingRecords");
                 var sumCount = 0;
@@ -199,7 +198,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     DataHelper.TryGetValueFromJson(out var countStr, record, "Count");
                     sumCount += int.Parse(countStr);
                 }
-                Logger.WriteInfo($"Candidate: {candidate}, Tickets: {sumCount}");
+                Logger.Info($"Candidate: {candidate}, Tickets: {sumCount}");
             }
         }
 
@@ -219,7 +218,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             GetCandidateList();
 
-            Logger.WriteInfo("All Full Node joined election completed.");
+            Logger.Info("All Full Node joined election completed.");
         }
 
         //参加选举
@@ -245,7 +244,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //检查投票结果
             GetPageableElectionInfo();
             GetTicketsInfo();
-            Logger.WriteInfo("Vote completed.");
+            Logger.Info("Vote completed.");
         }
 
         [TestMethod]
@@ -259,7 +258,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var count = 1;
             foreach (var item in CandidatePublicKeys)
             {
-                Logger.WriteInfo($"Candidate {count++}: {item}");
+                Logger.Info($"Candidate {count++}: {item}");
             }
         }
         */

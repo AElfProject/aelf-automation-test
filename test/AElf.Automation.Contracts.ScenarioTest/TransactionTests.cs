@@ -45,18 +45,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private Transaction GenerateTransaction()
         {
-            var newUserKeyPair = CryptoHelpers.GenerateKeyPair();
+            var newUserKeyPair = CryptoHelper.GenerateKeyPair();
             var transaction = new Transaction
             {
                 From = Address.FromPublicKey(newUserKeyPair.PublicKey),
-                To = Address.Generate(),
+                To = Address.FromBytes(Guid.NewGuid().ToByteArray()),
                 MethodName = $"Method-{Guid.NewGuid()}",
-                Params = ByteString.CopyFrom(Hash.Generate().ToByteArray()),
+                Params = ByteString.CopyFrom(Hash.FromString(Guid.NewGuid().ToString()).ToByteArray()),
                 RefBlockNumber = 10
             };
 
-            var signature = CryptoHelpers.SignWithPrivateKey(newUserKeyPair.PrivateKey,
-                transaction.GetHash().DumpByteArray());
+            var signature = CryptoHelper.SignWithPrivateKey(newUserKeyPair.PrivateKey,
+                transaction.GetHash().ToByteArray());
             transaction.Signature = ByteString.CopyFrom(signature);
 
             return transaction;

@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class BaseScenario
     {
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
@@ -28,7 +29,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
                 catch (Exception e)
                 {
-                    Logger.WriteError($"ExecuteContinuousTasks got exception: {e.Message}");
+                    Logger.Error($"ExecuteContinuousTasks got exception: {e.Message}");
                     if (interrupted)
                         break;
                 }
@@ -49,7 +50,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
             catch (Exception e)
             {
-                Logger.WriteError($"ExecuteStandaloneTask got exception: {e.Message}");
+                Logger.Error($"ExecuteStandaloneTask got exception: {e.Message}");
             }
         }
 
@@ -77,12 +78,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = Services.ApiHelper.ApiService.GetBlockHeight().Result;
+                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeight);
                 if (newHeight == height)
                 {
                     checkTimes++;
                     if (checkTimes % 10 == 0)
-                        Logger.WriteWarn($"Node height not changed {checkTimes / 2} seconds.");
+                        Logger.Warn($"Node height not changed {checkTimes / 2} seconds.");
                     Thread.Sleep(500);
                 }
                 else
@@ -109,8 +110,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected static int GenerateRandomNumber(int min, int max)
         {
-            var random = new Random(DateTime.UtcNow.Millisecond);
-            return random.Next(min, max);
+            var random = new Random(Guid.NewGuid().GetHashCode());
+            return random.Next(min, max + 1);
         }
     }
 }

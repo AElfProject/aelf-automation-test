@@ -5,6 +5,7 @@ using AElf.Contracts.Genesis;
 using AElf.Types;
 using Configuration;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -14,7 +15,8 @@ namespace AElf.Automation.RpcPerformance
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
         private readonly ContractTesterFactory _stub;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly NodeTransactionOption _nodeTransactionOption;
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TransactionExecuteLimit(string url, string account)
         {
@@ -23,12 +25,18 @@ namespace AElf.Automation.RpcPerformance
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(url, keyStorePath);
             _stub = new ContractTesterFactory(url, keyStorePath);
+            _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
+        }
+
+        public bool WhetherEnableTransactionLimit()
+        {
+            return _nodeTransactionOption.EnableLimit;
         }
 
         public void SetExecutionSelectTransactionLimit()
         {
             var configurationStub = AsyncHelper.RunSync(GetConfigurationContractStub);
-            var limitCount = ConfigInfoHelper.Config.SelectTxLimit;
+            var limitCount = _nodeTransactionOption.MaxTransactionSelect;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
         }
 
@@ -36,15 +44,15 @@ namespace AElf.Automation.RpcPerformance
         {
             var chainStatus = await _apiHelper.ApiService.GetChainStatus();
             var genesisContractAddress = chainStatus.GenesisContractAddress;
-            _logger.WriteInfo($"Genesis contract address: {genesisContractAddress}");
+            Logger.Info($"Genesis contract address: {genesisContractAddress}");
 
             var basicZeroStub =
-                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(Address.Parse(genesisContractAddress),
+                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(AddressHelper.Base58StringToAddress(genesisContractAddress),
                     _account);
             var configurationAddress =
                 await basicZeroStub.GetContractAddressByName.CallAsync(
                     GenesisContract.NameProviderInfos[NameProvider.Configuration]);
-            _logger.WriteInfo($"Configuration contract address: {configurationAddress.GetFormatted()}");
+            Logger.Info($"Configuration contract address: {configurationAddress.GetFormatted()}");
 
             var configurationStub =
                 _stub.Create<ConfigurationContainer.ConfigurationStub>(configurationAddress, _account);
@@ -56,7 +64,7 @@ namespace AElf.Automation.RpcPerformance
             int limitCount)
         {
             var beforeResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            _logger.WriteInfo($"Old transaction limit number: {beforeResult.Value}");
+            Logger.Info($"Old transaction limit number: {beforeResult.Value}");
 
             if (beforeResult.Value == limitCount)
                 return;
@@ -66,9 +74,9 @@ namespace AElf.Automation.RpcPerformance
                 Value = limitCount
             });
             var afterResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            _logger.WriteInfo($"New transaction limit number: {afterResult.Value}");
+            Logger.Info($"New transaction limit number: {afterResult.Value}");
             if (afterResult.Value == limitCount)
-                _logger.WriteInfo("Transaction limit set successful.");
+                Logger.Info("Transaction limit set successful.");
         }
     }
 }

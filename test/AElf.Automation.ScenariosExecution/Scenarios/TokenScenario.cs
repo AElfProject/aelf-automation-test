@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
-using Nito.AsyncEx;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -18,6 +18,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
         public List<string> Testers { get; }
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TokenScenario()
         {
@@ -57,14 +59,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = amount,
                     Symbol = "ELF",
-                    To = Address.Parse(to),
+                    To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
-                Logger.WriteInfo($"Transfer success - from {from} to {to} with amount {amount}.");
+                Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
             }
             catch (Exception e)
             {
-                Logger.WriteError($"TransferAction: {e.Message}");
+                Logger.Error($"TransferAction: {e.Message}");
             }
         }
 
@@ -76,8 +78,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var allowance = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
                     new GetAllowanceInput
                     {
-                        Owner = Address.Parse(from),
-                        Spender = Address.Parse(to),
+                        Owner = AddressHelper.Base58StringToAddress(from),
+                        Spender = AddressHelper.Base58StringToAddress(to),
                         Symbol = "ELF"
                     }).Allowance;
 
@@ -86,14 +88,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
-                        Amount = 1000,
-                        Spender = Address.Parse(to),
+                        Amount = 1000_00000000,
+                        Spender = AddressHelper.Base58StringToAddress(to),
                         Symbol = "ELF"
                     });
                     if (txResult1.InfoMsg is TransactionResultDto txDto1)
                     {
                         if (txDto1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                            Logger.WriteInfo($"Approve success - from {from} to {to} with amount {amount}.");
+                            Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
                         else
                             return;
                     }
@@ -104,18 +106,18 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {
                     Amount = amount,
-                    From = Address.Parse(from),
-                    To = Address.Parse(to),
+                    From = AddressHelper.Base58StringToAddress(from),
+                    To = AddressHelper.Base58StringToAddress(to),
                     Symbol = "ELF",
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 });
                 if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
                 if (txDto2.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.WriteInfo($"TransferFrom success - from {@from} to {to} with amount {amount}.");
+                    Logger.Info($"TransferFrom success - from {@from} to {to} with amount {amount}.");
             }
             catch (Exception e)
             {
-                Logger.WriteError($"ApproveTransferAction: {e.Message}");
+                Logger.Error($"ApproveTransferAction: {e.Message}");
             }
         }
 
@@ -123,28 +125,28 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             //prepare bp account token
             CollectAllBpTokensToBp0();
-            Logger.WriteInfo($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
-            var publicKeysList = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
+            var publicKeysList = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             var bp = BpNodes.First();
             var token = Token.GetNewTester(bp.Account, bp.Password);
 
             //prepare full node token
-            Logger.WriteInfo("Prepare token for all full nodes.");
+            Logger.Info("Prepare token for all full nodes.");
             foreach (var fullNode in FullNodes)
             {
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
 
                 var tokenBalance = Token.GetUserBalance(fullNode.Account);
-                if (tokenBalance > 100_000) continue;
+                if (tokenBalance > 100_000_00000000) continue;
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
-                    Amount = 200_000,
-                    To = Address.Parse(fullNode.Account),
+                    Amount = 200_000_00000000,
+                    To = AddressHelper.Base58StringToAddress(fullNode.Account),
                     Memo = "Transfer for announcement event"
                 });
             }
@@ -152,34 +154,34 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             token.CheckTransactionResultList();
 
             //prepare other user token
-            Logger.WriteInfo("Prepare token for all testers.");
+            Logger.Info("Prepare token for all testers.");
             foreach (var user in AllTesters)
             {
                 var balance = Token.GetUserBalance(user);
-                if (balance >= 500_000) continue;
+                if (balance >= 500_000_00000000) continue;
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
-                    Amount = 500_000 - balance,
-                    To = Address.Parse(user),
+                    Amount = 500_000_00000000 - balance,
+                    To = AddressHelper.Base58StringToAddress(user),
                     Memo = $"Transfer for testing - {Guid.NewGuid()}"
                 });
                 Thread.Sleep(10);
             }
 
             token.CheckTransactionResultList();
-            Logger.WriteInfo($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
         }
 
         private void CollectAllBpTokensToBp0()
         {
-            Logger.WriteInfo("Transfer all bps token to first bp for testing.");
+            Logger.Info("Transfer all bps token to first bp for testing.");
             var bp0 = BpNodes.First();
             foreach (var bp in BpNodes.Skip(1))
             {
                 var balance = Token.GetUserBalance(bp.Account);
-                if (balance < 1000)
+                if (balance < 1000_00000000)
                     continue;
 
                 //transfer
@@ -188,7 +190,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = balance,
                     Symbol = "ELF",
-                    To = Address.Parse(bp0.Account),
+                    To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect all token from other bps."
                 });
             }

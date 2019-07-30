@@ -22,14 +22,14 @@ namespace AElf.Automation.EconomicSystem.Tests
             var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                 new GetBalanceInput
                 {
-                    Owner = Address.Parse(account),
+                    Owner = AddressHelper.Base58StringToAddress(account),
                     Symbol = "ELF"
                 }).Balance;
 
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
@@ -38,7 +38,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = "ELF"
             }).Balance;
 
@@ -51,11 +51,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             ElectionService.SetAccount(account);
             var list = new List<string>();
-            for (int i = 1; i <= times; i++)
+            for (var i = 1; i <= times; i++)
             {
                 var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
                 {
-                    CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                    CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
                     Amount = i,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
                 });
@@ -66,24 +66,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             return list;
         }
 
-        public CommandInfo ReleaseProfit(long period, int amount, string profitId)
-        {
-            var result =
-                ProfitService.ExecuteMethodWithResult(ProfitMethod.ReleaseProfit, new ReleaseProfitInput
-                {
-                    Period = period,
-                    Amount = amount,
-                    ProfitId = Hash.LoadHex(profitId)
-                });
-            return result;
-        }
-
         public CommandInfo Profit(string account, Hash profitId)
         {
             ProfitService.SetAccount(account);
-            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId
+                SchemeId = profitId
             });
 
             return result;
@@ -139,10 +127,10 @@ namespace AElf.Automation.EconomicSystem.Tests
                 new InitializeInput
                 {
                     BaseTokenSymbol = "ELF",
-                    ManagerAddress = Address.Parse(initAccount),
-                    FeeReceiverAddress = Address.Parse(FeeReceiverService.ContractAddress),
+                    ManagerAddress = AddressHelper.Base58StringToAddress(initAccount),
+                    FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverService.ContractAddress),
                     FeeRate = "0.05",
-                    TokenContractAddress = Address.Parse(TokenService.ContractAddress),
+                    TokenContractAddress = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                     Connectors = {ramConnector, cpuConnector, netConnector, stoConnector, elfConnector}
                 });
 
@@ -158,7 +146,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 Symbol = symbol,
                 Amount = amount,
-                To = Address.Parse(to),
+                To = AddressHelper.Base58StringToAddress(to),
                 Memo = $"transfer {from}=>{to} with amount {amount}."
             });
         }
@@ -171,7 +159,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Symbol = symbol,
                 Decimals = 2,
                 IsBurnable = true,
-                Issuer = Address.Parse(issuer),
+                Issuer = AddressHelper.Base58StringToAddress(issuer),
                 TokenName = tokenName,
                 TotalSupply = 100_0000
             });
@@ -186,7 +174,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Symbol = symbol,
                 Amount = 100_0000,
                 Memo = "Issue",
-                To = Address.Parse(toAddress)
+                To = AddressHelper.Base58StringToAddress(toAddress)
             });
 
             return issue;

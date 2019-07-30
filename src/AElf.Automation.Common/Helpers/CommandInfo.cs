@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using Google.Protobuf;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -24,7 +25,7 @@ namespace AElf.Automation.Common.Helpers
         public object InfoMsg { get; set; }
         public object ErrorMsg { get; set; }
 
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CommandInfo()
         {
@@ -72,13 +73,13 @@ namespace AElf.Automation.Common.Helpers
         {
             if (Result)
             {
-                _logger.WriteInfo("Request: {0}: Result: {1}", Category, "Pass");
-                _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
+                Logger.Info("Request: {0}: Result: {1}", Category, "Pass");
+                Logger.Info(JsonConvert.SerializeObject(InfoMsg));
             }
             else
             {
-                _logger.WriteError("Request: {0}: Result: {1}", Category, "Failed");
-                _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
+                Logger.Error("Request: {0}: Result: {1}", Category, "Failed");
+                Logger.Error(JsonConvert.SerializeObject(ErrorMsg));
             }
         }
 
@@ -96,7 +97,7 @@ namespace AElf.Automation.Common.Helpers
             if (paraArray.Length == count) return true;
 
             ErrorMsg = "Parameter error.";
-            _logger.WriteError("{0} command parameter is invalid.", Category);
+            Logger.Error("{0} command parameter is invalid.", Category);
             return false;
         }
     }
@@ -122,7 +123,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private List<CommandInfo> CommandList { get; set; }
         private List<CategoryRequest> CategoryList { get; set; }
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CategoryInfoSet(List<CommandInfo> commands)
         {
@@ -149,7 +150,7 @@ namespace AElf.Automation.Common.Helpers
         {
             foreach (var item in CategoryList)
             {
-                _logger.WriteInfo("Command Category: {0}", item.Category);
+                Logger.Info("Command Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;

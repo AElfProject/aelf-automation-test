@@ -6,7 +6,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class NodesState
     {
-        private static readonly ILogHelper Log = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Log = LogHelper.GetLogger();
 
         public static void NodeStateCheck(string name, string rpcUrl)
         {
@@ -21,20 +21,20 @@ namespace AElf.Automation.ContractsTesting
                 if (currentHeight == height)
                 {
                     //message = $"Node: {name}, TxPool Count: {txPoolCount}";
-                    //Log.WriteInfo(message);
+                    //Log.Info(message);
                     Thread.Sleep(250);
                 }
                 else
                 {
                     height = currentHeight;
                     //message = $"Node: {name}, Height: {currentHeight}, TxPool Count: {txPoolCount}";
-                    //Log.WriteInfo(message);
+                    //Log.Info(message);
                     var chainStatus = nodeStatus.GetChainInformation();
-                    Log.WriteInfo($"Chain Status: {JsonConvert.SerializeObject(chainStatus)}");
+                    Log.Info($"Chain Status: {JsonConvert.SerializeObject(chainStatus)}");
                     var blockInfo = nodeStatus.GetBlockInfo(height);
                     var blockMessage =
                         $"Node: {name}, Height: {blockInfo.Header.Height}, BlockHash: {blockInfo.BlockHash}, Transaction Count: {blockInfo.Body.TransactionsCount}";
-                    Log.WriteInfo(blockMessage);
+                    Log.Info(blockMessage);
                     Thread.Sleep(500);
                 }
             }
@@ -50,7 +50,7 @@ namespace AElf.Automation.ContractsTesting
             {
                 var height = i;
                 var blockInfo = nodeStatus.GetBlockInfo(height);
-                Log.WriteInfo(
+                Log.Info(
                     $"Node: {name}, Height={blockInfo.Header.Height}, TxCount={blockInfo.Body.TransactionsCount}, Time={blockInfo.Header.Time:hh:mm:ss.fff}");
             }
         }

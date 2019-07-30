@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();
@@ -49,7 +49,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteSystemName);
+            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
             VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
 
             //ElectionService contract

@@ -76,7 +76,9 @@ namespace AElf.Automation.Common.Helpers
         /// <returns>由字符串转换得到的T对象</returns>
         public static T JsonToObject<T>(string jsonString, JsonSerializerSettings settings)
         {
-            return string.IsNullOrWhiteSpace(jsonString) ? default(T) : JsonConvert.DeserializeObject<T>(jsonString, settings);
+            return string.IsNullOrWhiteSpace(jsonString)
+                ? default(T)
+                : JsonConvert.DeserializeObject<T>(jsonString, settings);
         }
     }
 }

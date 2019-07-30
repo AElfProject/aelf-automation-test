@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
@@ -15,7 +17,7 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
 
@@ -40,7 +42,7 @@ namespace AElf.Automation.ContractsTesting
             }
             catch (AssertFailedException ex)
             {
-                Logger.WriteError($"Execute failed: {ex.Message}");
+                Logger.Error($"Execute failed: {ex.Message}");
             }
 
             return 0;
@@ -51,18 +53,21 @@ namespace AElf.Automation.ContractsTesting
             #region Basic Preparation
 
             //Init Logger
-            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("ContractTest");
 
             var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
 
             //deploy contract
-            var contractExecution = new ContractExecution(Endpoint);
-            contractExecution.DeployTestContract();
-            AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
-            AsyncHelper.RunSync(contractExecution.UpdateContract);
-            AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+
+            while (true)
+            {
+                var contractExecution = new ContractExecution(Endpoint);
+                contractExecution.DeployTestContract();
+                AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+                AsyncHelper.RunSync(contractExecution.UpdateContract);
+                AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+                Thread.Sleep(100);
+            }
 
             //configuration set
             var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
@@ -110,7 +115,7 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.GetBlockByHeight(blockCi);
                 var blockInfo = blockCi.InfoMsg as BlockDto;
-                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}",
+                Logger.Info("Height={0}, Block Hash={1}, TxCount={2}",
                     i,
                     blockInfo?.BlockHash,
                     blockInfo?.Body.TransactionsCount);

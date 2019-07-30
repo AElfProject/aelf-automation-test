@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -14,7 +15,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
         public string DividendsAbi { get; set; }
@@ -41,9 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initlize()
         {
             //Init log
-            var logName = "VoteBP_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
@@ -79,7 +78,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Cleanup()
         {
             if (UserList.Count == 0) return;
-            Logger.WriteInfo("Delete all account files created.");
+            Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -96,7 +95,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void GetTermDividends(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.GetTermDividends, termNo.ToString());
-//            Logger.WriteInfo($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"GetTermDividends Terms:{termNo}, Dividends: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -106,7 +105,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void GetTermTotalWeights(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.GetTermTotalWeights, termNo.ToString());
-//            Logger.WriteInfo($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"GetTermTotalWeights Terms:{termNo}, Total weight: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -116,7 +115,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckDividendsOfPreviousTerm(int ticketsAmount, int lockTime)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckDividendsOfPreviousTerm, ticketsAmount.ToString(), lockTime.ToString());
-//            Logger.WriteInfo($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: {ticketsAmount}, LockTime: {lockTime}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -126,7 +125,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckDividends(int ticketsAmount, int lockTime, int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckDividends, ticketsAmount.ToString(), lockTime.ToString(), termNo.ToString());
-//            Logger.WriteInfo(
+//            Logger.Info(
 //                $"Ticket: {ticketsAmount}, LockTime: {lockTime}, TermNo: {termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
@@ -134,7 +133,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckStandardDividendsOfPreviousTerm()
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckStandardDividendsOfPreviousTerm);
-//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: 10000, LockTime: 90, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        [TestMethod]
@@ -144,7 +143,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //        public void CheckStandardDividends(int termNo)
 //        {
 //            var dividends = dividendsService.CallReadOnlyMethod(DividendsMethod.CheckStandardDividendsOfPreviousTerm, termNo.ToString());
-//            Logger.WriteInfo($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
+//            Logger.Info($"Ticket: 10000, LockTime: 90, Term:{termNo}, Dividens: {dividendsService.ConvertViewResult(dividends, true)}");
 //        }
 //
 //        #endregion

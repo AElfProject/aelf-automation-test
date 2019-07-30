@@ -42,7 +42,7 @@ namespace AElf.Automation.SideChainTests
             var txIdInString = transferResult.TransactionId;
             var blockNumber = transferResult.BlockNumber;
 
-            _logger.WriteInfo($"{txIdInString},{blockNumber}");
+            _logger.Info($"{txIdInString},{blockNumber}");
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace AElf.Automation.SideChainTests
             var verificationInput = new VerifyTransactionInput
             {
                 ParentChainHeight = long.Parse(blockNumber),
-                TransactionId = Hash.LoadHex(txIdInString),
+                TransactionId = HashHelper.HexStringToHash(txIdInString),
                 VerifiedChainId = 9992731
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -82,7 +82,7 @@ namespace AElf.Automation.SideChainTests
             var txIdInString = transferResult.TransactionId;
             var blockNumber = transferResult.BlockNumber;
 
-            _logger.WriteInfo($"{txIdInString},{blockNumber}");
+            _logger.Info($"{txIdInString},{blockNumber}");
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainTests
             var merklePath = GetMerklePath(blockNumber, index, ISA);
             var verificationInput = new VerifyTransactionInput
             {
-                TransactionId = Hash.LoadHex(txIdInString),
+                TransactionId = HashHelper.HexStringToHash(txIdInString),
                 VerifiedChainId = 2750978
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -137,7 +137,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.CrossChainTransfer(InitAccount, accountA, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@ namespace AElf.Automation.SideChainTests
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
 
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
@@ -162,10 +162,10 @@ namespace AElf.Automation.SideChainTests
 
             //verify
             var balance = TesterA.GetBalance(accountA, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.CrossChainTransfer(accountA, accountB, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -206,7 +206,7 @@ namespace AElf.Automation.SideChainTests
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
 
             //receive in side chain B
             SideChainB = ChangeRpc(SideBRpcUrl);
@@ -216,10 +216,10 @@ namespace AElf.Automation.SideChainTests
 
             //verify
             var balance = TesterA.GetBalance(accountB, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         [TestMethod]
@@ -236,7 +236,7 @@ namespace AElf.Automation.SideChainTests
             var result = TesterB.CrossChainTransfer(accountB, accountM, tokenInfo, toChainId, 1000);
             var resultReturn = result.InfoMsg as TransactionResultDto;
             var blockNumber = resultReturn.BlockNumber;
-            _logger.WriteInfo($"Block Number: {blockNumber}");
+            _logger.Info($"Block Number: {blockNumber}");
         }
 
         [TestMethod]
@@ -261,17 +261,17 @@ namespace AElf.Automation.SideChainTests
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(rawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
 
             //receive in main chain
             Tester.CrossChainReceive(accountM, crossChainReceiveToken);
 
             //verify
             var balance = TesterA.GetBalance(accountM, "ELF");
-            _logger.WriteInfo($"balance: {balance}");
+            _logger.Info($"balance: {balance}");
 
             var tokenInfo = TesterA.GetTokenInfo("ELF");
-            _logger.WriteInfo($"Token: {tokenInfo}");
+            _logger.Info($"Token: {tokenInfo}");
         }
 
         #endregion

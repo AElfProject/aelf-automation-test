@@ -15,7 +15,7 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         public ContractTester Tester;
-        public readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        public readonly ILogHelper _logger = LogHelper.GetLogger();
 
         public static string RpcUrl { get; } = "http://192.168.197.56:8001";
 
@@ -73,9 +73,9 @@ namespace AElf.Automation.SideChainTests
             var txIdsWithStatus = new List<Hash>();
             for (int num = 0; num < transactionIds.Count; num++)
             {
-                var txId = Hash.LoadHex(transactionIds[num].ToString());
+                var txId = HashHelper.HexStringToHash(transactionIds[num].ToString());
                 string txRes = transactionStatus[num];
-                var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
@@ -93,7 +93,7 @@ namespace AElf.Automation.SideChainTests
         protected void TestCleanUp()
         {
             if (UserList.Count == 0) return;
-            _logger.WriteInfo("Delete all account files created.");
+            _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");

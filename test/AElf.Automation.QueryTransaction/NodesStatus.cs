@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using Nito.AsyncEx;
 
 namespace AElf.Automation.QueryTransaction
 {
     public class NodesStatus
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly List<WebApiService> _apiServices;
         private long _height = 1;
 
@@ -55,8 +56,8 @@ namespace AElf.Automation.QueryTransaction
             }).WhenAll();
 
             var (webApiService, blockDto) = collection.First();
-            Logger.WriteInfo($"Check height: {height}");
-            Logger.WriteInfo(
+            Logger.Info($"Check height: {height}");
+            Logger.Info(
                 $"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
             var forked = false;
 
@@ -65,18 +66,18 @@ namespace AElf.Automation.QueryTransaction
                 var (item1, item2) = item;
                 if (item1 == null || item2 == null)
                 {
-                    Logger.WriteError($"Node height {height} request return null response.");
+                    Logger.Error($"Node height {height} request return null response.");
                     return;
                 }
 
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
-                Logger.WriteInfo(
+                Logger.Info(
                     $"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
             });
 
             if (forked)
-                Logger.WriteError($"Node forked at height: {height}");
+                Logger.Error($"Node forked at height: {height}");
         }
     }
 }

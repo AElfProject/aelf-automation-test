@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using AElf.Cryptography;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
@@ -8,6 +7,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.OptionManagers
         private readonly AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
@@ -43,8 +43,8 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 var transaction = new Transaction
                 {
-                    From = Address.Parse(from),
-                    To = Address.Parse(to),
+                    From = AddressHelper.Base58StringToAddress(from),
+                    To = AddressHelper.Base58StringToAddress(to),
                     MethodName = methodName,
                     Params = input ?? ByteString.Empty
                 };
@@ -62,7 +62,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         public Transaction SignTransaction(Transaction tx)
         {
-            var txData = tx.GetHash().DumpByteArray();
+            var txData = tx.GetHash().ToByteArray();
             tx.Signature = Sign(tx.From.GetFormatted(), txData);
             return tx;
         }
@@ -79,7 +79,7 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             // Sign the hash
-            var signature = CryptoHelpers.SignWithPrivateKey(kp.PrivateKey, txData);
+            var signature = CryptoHelper.SignWithPrivateKey(kp.PrivateKey, txData);
             return ByteString.CopyFrom(signature);
         }
 
@@ -92,8 +92,8 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var tr = new Transaction
             {
-                From = Address.Parse(commandInfo.From),
-                To = Address.Parse(commandInfo.To),
+                From = AddressHelper.Base58StringToAddress(commandInfo.From),
+                To = AddressHelper.Base58StringToAddress(commandInfo.To),
                 MethodName = commandInfo.ContractMethod
             };
 
@@ -126,7 +126,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             transaction.RefBlockNumber = height;
             transaction.RefBlockPrefix =
-                ByteString.CopyFrom(ByteArrayHelpers.FromHexString(hash).Where((b, i) => i < 4).ToArray());
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(hash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 

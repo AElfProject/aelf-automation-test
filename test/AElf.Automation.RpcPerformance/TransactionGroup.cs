@@ -8,6 +8,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.RpcPerformance
@@ -20,7 +21,7 @@ namespace AElf.Automation.RpcPerformance
         private IApiHelper ApiHelper { get; }
         private ConcurrentQueue<List<string>> TransactionsQueue { get; }
 
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private NodeStatusMonitor NodeMonitor { get; }
 
@@ -51,7 +52,7 @@ namespace AElf.Automation.RpcPerformance
                             new TransferInput
                             {
                                 Symbol = contract.Symbol,
-                                To = Address.Parse(user.Account),
+                                To = AddressHelper.Base58StringToAddress(user.Account),
                                 Amount = 10000,
                                 Memo = $"transfer test - {Guid.NewGuid()}"
                             });
@@ -67,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
                         Assert.IsTrue(ci.Result);
                         var transactions = (string[]) ci.InfoMsg;
                         NodeMonitor.CheckTransactionsStatus(transactions.ToList());
-                        _logger.WriteInfo("Batch request count: {0}, passed transaction count: {1}",
+                        Logger.Info("Batch request count: {0}, passed transaction count: {1}",
                             rawTransactions.Count,
                             transactions.Length);
                         rawTransactions = new List<string>();
@@ -138,7 +139,7 @@ namespace AElf.Automation.RpcPerformance
                         ParameterInput = new TransferInput
                         {
                             Symbol = symbol,
-                            To = Address.Parse(to.Account),
+                            To = AddressHelper.Base58StringToAddress(to.Account),
                             Amount = (i + 1) % 4 + 1,
                             Memo = $"transfer test - {Guid.NewGuid()}"
                         }

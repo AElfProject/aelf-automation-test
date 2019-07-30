@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using Google.Protobuf;
+using log4net;
 
 namespace AElf.Automation.Common.WebApi
 {
@@ -11,11 +12,11 @@ namespace AElf.Automation.Common.WebApi
     {
         public string BaseUrl { get; }
         private Dictionary<ApiMethods, string> _apiRoute;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public WebApiService(string baseUrl)
         {
-            BaseUrl = baseUrl;
+            BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
 
             InitializeWebApiRoute();
         }
@@ -39,11 +40,11 @@ namespace AElf.Automation.Common.WebApi
 
             if (hexString.IsNullOrEmpty())
             {
-                _logger.WriteError("ExecuteTransaction response is null or empty.");
+                Logger.Error("ExecuteTransaction response is null or empty.");
                 return default(TResult);
             }
 
-            var byteArray = ByteArrayHelpers.FromHexString(hexString);
+            var byteArray = ByteArrayHelper.HexStringToByteArray(hexString);
             var messageParser = new MessageParser<TResult>(() => new TResult());
 
             return messageParser.ParseFrom(byteArray);

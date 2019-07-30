@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using log4net;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
 {
     public static class DataHelper
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public static bool TryGetValueFromJson(out string value, string jsonInfo, params string[] pathArray)
         {
@@ -19,7 +20,7 @@ namespace AElf.Automation.Common.Helpers
                     info = info[path];
                 else
                 {
-                    Logger.WriteError($"Child path '{path}' not exist.");
+                    Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
             }
@@ -40,7 +41,7 @@ namespace AElf.Automation.Common.Helpers
                     info = info[path];
                 else
                 {
-                    Logger.WriteError($"Child path '{path}' not exist.");
+                    Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
             }
@@ -78,7 +79,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 else
                 {
-                    Logger.WriteError($"Child path '{pathArray[i]}' not exist.");
+                    Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
             }
@@ -113,7 +114,7 @@ namespace AElf.Automation.Common.Helpers
                 }
                 else
                 {
-                    Logger.WriteError($"Child path '{pathArray[i]}' not exist.");
+                    Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
             }
@@ -145,7 +146,7 @@ namespace AElf.Automation.Common.Helpers
             }
             catch (Exception)
             {
-                Logger.WriteError($"Convert hex string got exception. Hex string value: {hexString}");
+                Logger.Error($"Convert hex string got exception. Hex string value: {hexString}");
             }
 
 
@@ -161,7 +162,7 @@ namespace AElf.Automation.Common.Helpers
             }
             catch (Exception)
             {
-                Logger.WriteError($"Convert hex value got exception. Hex value: {hexValue}");
+                Logger.Error($"Convert hex value got exception. Hex value: {hexValue}");
             }
 
             return value;

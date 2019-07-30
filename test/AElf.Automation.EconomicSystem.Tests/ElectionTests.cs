@@ -13,7 +13,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILogHelper _logger = LogHelper.GetLogger();
         protected static string RpcUrl { get; } = "http://3.1.220.141:8000";
 
         protected Behaviors Behaviors;
@@ -43,16 +43,16 @@ namespace AElf.Automation.EconomicSystem.Tests
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
-            var result = Behaviors.GetCreatedProfitItems();
+            var schemeIds = Behaviors.GetCreatedProfitItems().SchemeIds;
             ProfitItemsIds = new Dictionary<Behaviors.ProfitType, Hash>
             {
-                {Behaviors.ProfitType.Treasury, result.ProfitIds[0]},
-                {Behaviors.ProfitType.MinerReward, result.ProfitIds[1]},
-                {Behaviors.ProfitType.BackSubsidy, result.ProfitIds[2]},
-                {Behaviors.ProfitType.CitizenWelfare, result.ProfitIds[3]},
-                {Behaviors.ProfitType.BasicMinerReward, result.ProfitIds[4]},
-                {Behaviors.ProfitType.VotesWeightReward, result.ProfitIds[5]},
-                {Behaviors.ProfitType.ReElectionReward, result.ProfitIds[6]},
+                {Behaviors.ProfitType.Treasury, schemeIds[0]},
+                {Behaviors.ProfitType.MinerReward, schemeIds[1]},
+                {Behaviors.ProfitType.BackSubsidy, schemeIds[2]},
+                {Behaviors.ProfitType.CitizenWelfare, schemeIds[3]},
+                {Behaviors.ProfitType.BasicMinerReward, schemeIds[4]},
+                {Behaviors.ProfitType.VotesWeightReward, schemeIds[5]},
+                {Behaviors.ProfitType.ReElectionReward, schemeIds[6]},
             };
 
             #endregion
@@ -86,7 +86,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = BpNodeAddress[i];
                 var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.WriteInfo($"{account}: {pubKey}");
+                _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = FullNodeAddress[i];
                 var pubKey = CH.GetPublicKeyFromAddress(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.WriteInfo($"{account}: {pubKey}");
+                _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -110,7 +110,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     {
                         Symbol = "ELF",
                         Amount = 200_000L,
-                        To = Address.Parse(account),
+                        To = AddressHelper.Base58StringToAddress(account),
                         Memo = "Transfer token for announcement."
                     });
                 }
@@ -128,7 +128,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             /*
             if (UserList.Count == 0) return;
-            _logger.WriteInfo("Delete all account files created.");
+            _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
                 var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
@@ -158,7 +158,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Amount = 1000,
                     Memo = "transfer for balance test",
                     Symbol = "ELF",
-                    To = Address.Parse(acc)
+                    To = AddressHelper.Base58StringToAddress(acc)
                 });
             }
 
@@ -170,12 +170,12 @@ namespace AElf.Automation.EconomicSystem.Tests
                     new GetBalanceInput
                     {
                         Symbol = "ELF",
-                        Owner = Address.Parse(userAcc)
+                        Owner = AddressHelper.Base58StringToAddress(userAcc)
                     });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
-            _logger.WriteInfo("All accounts prepared and unlocked.");
+            _logger.Info("All accounts prepared and unlocked.");
         }
     }
 }

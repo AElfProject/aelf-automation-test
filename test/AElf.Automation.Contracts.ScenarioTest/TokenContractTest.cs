@@ -17,7 +17,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TokenContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         public string TokenAbi { get; set; }
         public WebApiHelper CH { get; set; }
         public List<string> UserList { get; set; }
@@ -42,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Call()
         {
-            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
@@ -56,7 +56,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Execution()
         {
-            var tokenContractAddress = Address.Parse("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
@@ -64,7 +64,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Amount = 100,
                 Symbol = "ELF",
-                To = Address.Parse(TestAccount),
+                To = AddressHelper.Base58StringToAddress(TestAccount),
                 Memo = "Test transfer with new sdk"
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -72,7 +72,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //query balance
             var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = Address.Parse(TestAccount),
+                Owner = AddressHelper.Base58StringToAddress(TestAccount),
                 Symbol = "ELF"
             });
             result.Balance.ShouldBeGreaterThanOrEqualTo(100);
@@ -86,7 +86,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = DataHelper.TryGetValueFromJson(out var message, addressResult, "result", "return");
             Assert.IsTrue(result, "Return value is not exist.");
             Assert.IsFalse(message==string.Empty, "Token fee address is not set.");
-            _logger.WriteInfo($"Token fee account is {message}");
+            _logger.Info($"Token fee account is {message}");
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             tokenService.CallContractMethod(TokenMethod.Initialize, "elfToken", "ELF", "500000", "2");
             var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, InitAccount);
-            _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(balanceResult, true)}");
+            _logger.Info($"IniitAccount balance: {tokenService.ConvertViewResult(balanceResult, true)}");
 
             tokenService.CallContractMethod(TokenMethod.SetFeePoolAddress, FeeAccount);
         }
@@ -128,17 +128,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init account balance
             var initResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, InitAccount);
-            _logger.WriteInfo($"IniitAccount balance: {tokenService.ConvertViewResult(initResult, true)}");
+            _logger.Info($"IniitAccount balance: {tokenService.ConvertViewResult(initResult, true)}");
 
             //Fee account balance
             var feeResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, FeeAccount);
-            _logger.WriteInfo($"FeeAccount balance: {tokenService.ConvertViewResult(feeResult, true)}");
+            _logger.Info($"FeeAccount balance: {tokenService.ConvertViewResult(feeResult, true)}");
 
             //User account balance
             foreach (var acc in UserList)
             {
                 var userResult = tokenService.CallReadOnlyMethod(TokenMethod.BalanceOf, acc);
-                _logger.WriteInfo($"user balance: {tokenService.ConvertViewResult(userResult, true)}");
+                _logger.Info($"user balance: {tokenService.ConvertViewResult(userResult, true)}");
             }
         }
 
@@ -147,7 +147,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             //Fee account balance
             var fee1Result = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
-            _logger.WriteInfo($"FeeAccount before balance: {tokenService.ConvertViewResult(fee1Result, true)}");
+            _logger.Info($"FeeAccount before balance: {tokenService.ConvertViewResult(fee1Result, true)}");
 
             tokenService.SetAccount(NoTokenAccount);
             tokenService.CallContractMethod(TokenMethod.GetBalance, FeeAccount);
@@ -158,7 +158,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Fee account balance
             var fee2Result = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, FeeAccount);
-            _logger.WriteInfo($"FeeAccount after balance: {tokenService.ConvertViewResult(fee2Result, true)}");
+            _logger.Info($"FeeAccount after balance: {tokenService.ConvertViewResult(fee2Result, true)}");
         }
 
         [TestMethod]

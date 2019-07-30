@@ -22,7 +22,7 @@ namespace AElf.Automation.SideChainTests
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();

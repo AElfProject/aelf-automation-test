@@ -27,7 +27,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             TestCleanUp();
         }
 
-
         [TestMethod]
         public void Announcement_AllNodes_Scenario()
         {
@@ -83,13 +82,12 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            _logger.WriteInfo($"Candidate count: {candidates.Value.Count}");
+            _logger.Info($"Candidate count: {candidates.Value.Count}");
             foreach (var candidate in candidates.Value)
             {
-                _logger.WriteInfo($"Candidate: {candidate.ToByteArray().ToHex()}");
+                _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
             }
         }
-
 
         [TestMethod]
         public void GetCandidateHistory()
@@ -97,13 +95,13 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var candidate in FullNodeAddress)
             {
                 var candidateResult = Behaviors.GetCandidateInformation(candidate);
-                _logger.WriteInfo("Candidate: ");
-                _logger.WriteInfo($"PublicKey: {candidateResult.PublicKey}");
-                _logger.WriteInfo($"Terms: {candidateResult.Terms}");
-                _logger.WriteInfo($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
-                _logger.WriteInfo($"ProducedBlocks: {candidateResult.ProducedBlocks}");
-                _logger.WriteInfo($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
-                _logger.WriteInfo($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
+                _logger.Info("Candidate: ");
+                _logger.Info($"PublicKey: {candidateResult.Pubkey}");
+                _logger.Info($"Terms: {candidateResult.Terms}");
+                _logger.Info($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
+                _logger.Info($"ProducedBlocks: {candidateResult.ProducedBlocks}");
+                _logger.Info($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
+                _logger.Info($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
             }
         }
     }

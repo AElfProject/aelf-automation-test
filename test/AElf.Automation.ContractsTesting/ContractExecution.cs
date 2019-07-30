@@ -5,6 +5,7 @@ using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Shouldly;
 using BetInput = AElf.Contracts.TestContract.BasicFunction.BetInput;
 using BetLimitInput = AElf.Contracts.TestContract.BasicUpdate.BetLimitInput;
@@ -14,7 +15,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class ContractExecution
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
 
@@ -45,13 +46,13 @@ namespace AElf.Automation.ContractsTesting
 
         public async Task UpdateContract()
         {
-            var owner = _genesisContract.GetContractOwner(_contractAddress);
+            var owner = _genesisContract.GetContractAuthor(_contractAddress);
 
             _genesisContract.SetAccount(owner.GetFormatted());
             var result = _genesisContract.UpdateContract(owner.GetFormatted(), _contractAddress,
                 BasicUpdateContract.ContractFileName);
             if (result)
-                Logger.WriteInfo("Contract update successfully.");
+                Logger.Info("Contract update successfully.");
 
             await Task.CompletedTask;
         }
@@ -59,7 +60,7 @@ namespace AElf.Automation.ContractsTesting
         public async Task ExecuteBasicContractMethods()
         {
             _basicFunctionContractStub = _stub.Create<BasicFunctionContractContainer.BasicFunctionContractStub>(
-                Address.Parse(_contractAddress), _account);
+                AddressHelper.Base58StringToAddress(_contractAddress), _account);
 
             //init contract
             var initResult =
@@ -70,7 +71,7 @@ namespace AElf.Automation.ContractsTesting
                         MinValue = 10L,
                         MaxValue = 1000L,
                         MortgageValue = 1000_000_000L,
-                        Manager = Address.Parse(_account)
+                        Manager = AddressHelper.Base58StringToAddress(_account)
                     });
             initResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -89,7 +90,7 @@ namespace AElf.Automation.ContractsTesting
         public async Task ExecuteUpdateContractMethods()
         {
             _basicUpdateContractStub = _stub.Create<BasicUpdateContractContainer.BasicUpdateContractStub>(
-                Address.Parse(_contractAddress), _account);
+                AddressHelper.Base58StringToAddress(_contractAddress), _account);
 
             //execute method
             var executeResult = await _basicUpdateContractStub.UpdateBetLimit.SendAsync(new BetLimitInput
@@ -100,7 +101,7 @@ namespace AElf.Automation.ContractsTesting
             executeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //call method
-            var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(Address.Parse(_account));
+            var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(AddressHelper.Base58StringToAddress(_account));
             queryResult.Int64Value.ShouldBeGreaterThanOrEqualTo(0);
         }
     }

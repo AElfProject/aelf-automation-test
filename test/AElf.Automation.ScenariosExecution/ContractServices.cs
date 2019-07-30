@@ -9,15 +9,17 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
     public class ContractServices
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
+        public TreasuryContract TreasuryService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
         public static FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
@@ -35,7 +37,7 @@ namespace AElf.Automation.ScenariosExecution
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();
@@ -60,6 +62,10 @@ namespace AElf.Automation.ScenariosExecution
                 ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].ServiceUrl);
             }
 
+            //Treasury contract
+            var treasuryAddress = GenesisService.GetContractAddressByName(NameProvider.TreasuryName);
+            TreasuryService = new TreasuryContract(ApiHelper, CallAddress, treasuryAddress.GetFormatted());
+
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
@@ -69,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution
             ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteSystemName);
+            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
             VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
 
             //ElectionService contract
@@ -97,7 +103,7 @@ namespace AElf.Automation.ScenariosExecution
                 else
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(Address.Parse(TokenService.ContractAddress),
+                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                         CallAccount);
 
                     //update configInfo
@@ -116,7 +122,7 @@ namespace AElf.Automation.ScenariosExecution
                 if (feeReceiverAddress == new Address())
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(Address.Parse(TokenService.ContractAddress), CallAccount);
+                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
                 }
                 else
                 {
@@ -205,7 +211,7 @@ namespace AElf.Automation.ScenariosExecution
                             MinValue = 10L,
                             MaxValue = 1000L,
                             MortgageValue = 1000_000_000L,
-                            Manager = Address.Parse(CallAddress)
+                            Manager = AddressHelper.Base58StringToAddress(CallAddress)
                         });
 
                     FunctionContractService.ExecuteMethodWithResult(FunctionMethod.UpdateBetLimit, new BetLimitInput
@@ -234,7 +240,7 @@ namespace AElf.Automation.ScenariosExecution
                         MinValue = 10L,
                         MaxValue = 1000L,
                         MortgageValue = 1000_000_000L,
-                        Manager = Address.Parse(CallAddress)
+                        Manager = AddressHelper.Base58StringToAddress(CallAddress)
                     });
 
                 FunctionContractService.ExecuteMethodWithResult(FunctionMethod.UpdateBetLimit, new BetLimitInput
@@ -252,10 +258,10 @@ namespace AElf.Automation.ScenariosExecution
             {
                 var contractInfo =
                     GenesisService.CallViewMethod<ContractInfo>(GenesisMethod.GetContractInfo,
-                        Address.Parse(contractItem.Address));
+                        AddressHelper.Base58StringToAddress(contractItem.Address));
 
                 if (contractInfo.Equals(new ContractInfo())) return false;
-                contractItem.Owner = contractInfo.Owner.GetFormatted();
+                contractItem.Owner = contractInfo.Author.GetFormatted();
                 if (contractItem.CodeHash != "" && contractItem.CodeHash != contractInfo.CodeHash.ToHex())
                     updated = true;
 
@@ -263,7 +269,7 @@ namespace AElf.Automation.ScenariosExecution
             }
             catch (Exception)
             {
-                Logger.WriteWarn($"Query {contractItem.Name} contract info got exception.");
+                Logger.Warn($"Query {contractItem.Name} contract info got exception.");
                 return false;
             }
         }
@@ -284,7 +290,7 @@ namespace AElf.Automation.ScenariosExecution
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
-            Logger.WriteInfo($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
+            Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
 
             return currentBps;
         }
