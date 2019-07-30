@@ -8,6 +8,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -17,6 +18,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public FeeReceiverContract FeeReceiver { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ResourceScenario()
         {
@@ -38,7 +41,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, true, 2);
         }
 
-        public void ResourceScenarioJob()
+        public void RunResourceScenarioJob()
         {
             ExecuteStandaloneTask(new Action[]
             {

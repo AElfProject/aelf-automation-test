@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -16,6 +18,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
         public List<string> Testers { get; }
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TokenScenario()
         {

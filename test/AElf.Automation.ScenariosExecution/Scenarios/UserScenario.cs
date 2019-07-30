@@ -11,6 +11,7 @@ using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -26,6 +27,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private static List<string> _candidates;
         private static List<string> _candidatesExcludeMiners;
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public UserScenario()
         {
@@ -52,7 +55,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, true, 30);
         }
 
-        public void UserScenarioJob()
+        public void RunUserScenarioJob()
         {
             ExecuteStandaloneTask(new Action[]
             {

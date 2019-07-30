@@ -3,11 +3,13 @@ using System.Linq;
 using System.Collections.Generic;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using log4net;
 
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -22,6 +24,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         private long _termNumber = 1;
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public NodeScenario()
         {
@@ -51,7 +55,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, true, 10);
         }
 
-        public void NodeScenarioJob()
+        public void RunNodeScenarioJob()
         {
             ExecuteStandaloneTask(new Action[]
             {

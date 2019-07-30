@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -21,6 +23,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public static string ContractManager { get; set; }
         public static string ContractOwner { get; set; }
         public List<string> Testers { get; }
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ContractScenario()
         {

@@ -18,55 +18,63 @@ namespace AElf.Automation.ScenariosExecution
 
         static void Main(string[] args)
         {
-            Log4NetHelper.LogInit("ScenarioTest_");
+            Log4NetHelper.LogInit("ScenarioTest");
 
-            var enableCases = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).Select(o => o.CaseName).ToList();
+            var scenarios = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).ToList();
 
-            var token = new TokenScenario();
-            token.PrepareAccountBalance();
-            var node = new NodeScenario();
+            var tokenScenario = new TokenScenario();
+            tokenScenario.PrepareAccountBalance();
+            var nodeScenario = new NodeScenario();
 
             JobManager.UseUtcTime();
             var registry = new Registry();
+            
             //scenario tasks
-            if (enableCases.Contains("TokenScenario"))
-                registry.Schedule(() => token.TokenScenarioJob()).WithName("TokenScenario")
-                    .ToRunEvery(5).Seconds();
-
-            if (enableCases.Contains("ResourceScenario"))
+            foreach (var scenario in scenarios)
             {
-                var resource = new ResourceScenario();
-                registry.Schedule(() => resource.ResourceScenarioJob()).WithName("ResourceScenario")
-                    .ToRunEvery(3).Seconds();
+                switch (scenario.CaseName)
+                {
+                    case "TokenScenario":
+                        RegisterAction(registry, scenario, tokenScenario.TokenScenarioJob);
+                        break;
+                    case "ResourceScenario":
+                        var resourceScenario = new ResourceScenario();
+                        RegisterAction(registry, scenario, resourceScenario.RunResourceScenarioJob);                        
+                        break;
+                    case "UserScenario":
+                        var userScenario = new UserScenario();
+                        RegisterAction(registry, scenario, userScenario.RunUserScenarioJob);
+                        break;
+                    case "NodeScenario":
+                        RegisterAction(registry, scenario, nodeScenario.RunNodeScenarioJob);
+                        break;
+                    case "ContractScenario":
+                        var contractScenario = new ContractScenario();
+                        RegisterAction(registry, scenario, contractScenario.RunContractScenarioJob);
+                        break;
+                    case "ExceptionScenario":
+                        var exceptionScenario = new ExceptionScenario();
+                        RegisterAction(registry, scenario, exceptionScenario.RunExceptionScenarioJob);
+                        break;
+                }
             }
-
-            if (enableCases.Contains("UserScenario"))
-            {
-                var user = new UserScenario();
-                registry.Schedule(() => user.UserScenarioJob()).WithName("UserScenario")
-                    .ToRunEvery(10).Seconds();
-            }
-
-            if (enableCases.Contains("NodeScenario"))
-                registry.Schedule(() => node.NodeScenarioJob()).WithName("NodeScenario")
-                    .ToRunEvery(1).Minutes();
-
-            if (enableCases.Contains("ContractScenario"))
-            {
-                var contract = new ContractScenario();
-                registry.Schedule(() => contract.RunContractScenarioJob()).WithName("ContractScenario")
-                    .ToRunEvery(3).Minutes();
-            }
-
+           
             JobManager.Initialize(registry);
             JobManager.JobException += info =>
                 Logger.Error($"Error job: {info.Name}, Error message: {info.Exception.Message}");
 
             //node status monitor
-            node.CheckNodeTransactionAction();
-            node.CheckNodeStatusAction();
+            nodeScenario.CheckNodeTransactionAction();
+            nodeScenario.CheckNodeStatusAction();
 
             Console.ReadLine();
+        }
+
+        private static void RegisterAction(Registry registry, TestCase scenario, Action action)
+        {
+            Logger.Info($"Register {scenario.CaseName} with time interval: {scenario.TimeInterval} seconds.");
+            registry.Schedule(() => action.Invoke()).WithName(scenario.CaseName)
+                .ToRunEvery(scenario.TimeInterval).Seconds();
         }
     }
 }

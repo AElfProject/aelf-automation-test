@@ -28,7 +28,7 @@ namespace AElf.Automation.Common.Contracts
     {
         ElectionName,
         ProfitName,
-        VoteSystemName,
+        VoteName,
         TreasuryName,
         TokenName,
         TokenConverterName,
@@ -109,7 +109,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 {NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election")},
                 {NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit")},
-                {NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote")},
+                {NameProvider.VoteName, Hash.FromString("AElf.ContractNames.Vote")},
                 {NameProvider.TreasuryName, Hash.FromString("AElf.ContractNames.Treasury")},
                 {NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token")},
                 {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},

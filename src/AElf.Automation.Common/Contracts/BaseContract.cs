@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
 
         public static int Timeout { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
-        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
 

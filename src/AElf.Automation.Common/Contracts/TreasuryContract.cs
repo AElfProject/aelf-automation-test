@@ -4,7 +4,7 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum TreasuryMethod
     {
-        //Avtion
+        //Action
         InitialTreasuryContract,
         InitialMiningRewardProfitItem,
         ReleaseMiningReward,
