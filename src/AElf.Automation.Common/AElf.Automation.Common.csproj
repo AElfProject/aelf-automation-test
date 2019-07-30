@@ -57,12 +57,12 @@
     <ProtoMessage Include="..\AElf\protobuf\aedpos_contract.proto">
       <Link>Protobuf\Proto\stub\aedpos_contract.proto</Link>
     </ProtoMessage>
-    <ProtoMessage Include="..\AElf\protobuf\parliament_auth_contract.proto">
+    <ProtoContract Include="..\AElf\protobuf\parliament_auth_contract.proto">
       <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
-    </ProtoMessage>
-    <ProtoMessage Include="..\AElf\protobuf\association_auth_contract.proto">
+    </ProtoContract>
+    <ProtoContract Include="..\AElf\protobuf\association_auth_contract.proto">
       <Link>Protobuf\Proto\stub\association_auth_contract.proto</Link>
-    </ProtoMessage>
+    </ProtoContract>
     <ProtoMessage Include="..\AElf\protobuf\vote_contract.proto">
       <Link>Protobuf\Proto\stub\vote_contract.proto</Link>
     </ProtoMessage>
@@ -94,6 +94,9 @@
 
   <ItemGroup>
     <None Update="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="nodes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
@@ -159,6 +160,17 @@ namespace AElf.Automation.RpcPerformance
             }
 
             Assert.IsFalse(true, "Deployed contract not executed successfully.");
+        }
+
+        public void DeployContractsWithAuthority()
+        {
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                var account = AccountList[i].Account;
+                var authority = new AuthorityHelper(BaseUrl, account);
+                var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
+                ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
+            }
         }
 
         public void InitializeContracts()

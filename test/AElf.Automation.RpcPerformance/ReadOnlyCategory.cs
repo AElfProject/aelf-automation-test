@@ -83,6 +83,10 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(ApiHelper);
         }
 
+        public void DeployContractsWithAuthority()
+        {
+        }
+
         public void DeployContracts()
         {
         }

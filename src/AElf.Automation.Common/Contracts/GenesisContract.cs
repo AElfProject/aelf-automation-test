@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Genesis;
 using AElf.Types;
 using Google.Protobuf;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -60,7 +63,7 @@ namespace AElf.Automation.Common.Contracts
 
             return new GenesisContract(ch, callAddress, genesisContract);
         }
-
+        
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {
             var contractReader = new SmartContractReader();
@@ -103,6 +106,15 @@ namespace AElf.Automation.Common.Contracts
             return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
         }
 
+        public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
+        {
+            var caller = callAddress ?? CallAddress;
+            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var contractStub =
+                stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(AddressHelper.Base58StringToAddress(ContractAddress), caller);
+            return contractStub;
+        }
+
         private static Dictionary<NameProvider, Hash> InitializeSystemContractsName()
         {
             var dic = new Dictionary<NameProvider, Hash>
@@ -115,7 +127,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver")},
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractsName.Parliament")},
+                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},

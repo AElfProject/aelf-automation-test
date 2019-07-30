@@ -17,6 +17,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
     
     public class NodesInfo
     {
+        [JsonProperty("Authority")] public bool Authority { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
 
         public void CheckNodesAccount()
@@ -39,7 +40,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             }
         }
 
-        public List<Node> GetMinersNode(ConsensusContract consensus)
+        public List<Node> GetMinerNodes(ConsensusContract consensus)
         {
             var miners = consensus.GetCurrentMiners();
             return Nodes.Where(o => miners.Contains(o.PublicKey)).ToList();
@@ -60,7 +61,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             {
                 if (_instance != null) return _instance;
 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "nodes.json");
+                var configFile = CommonHelper.MapPath("nodes.json");
                 _jsonContent = File.ReadAllText(configFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }

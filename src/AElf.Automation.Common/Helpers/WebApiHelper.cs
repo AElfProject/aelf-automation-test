@@ -35,7 +35,7 @@ namespace AElf.Automation.Common.Helpers
         public WebApiHelper(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetDefaultDataDir() : keyPath);
+            _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
 
             ApiService = new WebApiService(baseUrl);
             CommandList = new List<CommandInfo>();

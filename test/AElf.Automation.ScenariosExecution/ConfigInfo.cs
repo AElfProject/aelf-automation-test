@@ -21,6 +21,7 @@ namespace AElf.Automation.ScenariosExecution
     {
         [JsonProperty("case_name")] public string CaseName { get; set; }
         [JsonProperty("enable")] public bool Enable { get; set; }
+        [JsonProperty("time_interval")] public int TimeInterval { get; set; }
     }
 
     public class SpecifyEndpoint

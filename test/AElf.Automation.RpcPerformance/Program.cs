@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -81,7 +82,12 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 performance.InitExecCommand(1000 + GroupCount);
-                performance.DeployContracts();
+                var authority = NodeInfoHelper.Config.Authority;
+                if(authority)
+                    performance.DeployContractsWithAuthority();
+                else
+                    performance.DeployContracts();
+                
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
