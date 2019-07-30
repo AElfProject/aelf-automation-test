@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
     
     public class NodesInfo
     {
-        [JsonProperty("Authority")] public bool Authority { get; set; }
+        [JsonProperty("RequireAuthority")] public bool RequireAuthority { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
 
         public void CheckNodesAccount()

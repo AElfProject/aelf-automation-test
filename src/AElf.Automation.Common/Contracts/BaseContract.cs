@@ -2,6 +2,7 @@
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
@@ -356,6 +357,17 @@ namespace AElf.Automation.Common.Contracts
 
         private void DeployContract()
         {
+            var requireAuthority = NodeInfoHelper.Config.RequireAuthority;
+            if (requireAuthority)
+            {
+                Logger.Info("Deploy contract with authority mode.");
+                var authority = new AuthorityHelper(ApiHelper.GetApiUrl(), CallAddress);
+                var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
+                ContractAddress = contractAddress.GetFormatted();
+                return;
+            }
+            
+            Logger.Info("Deploy contract without authority mode.");
             var ci = new CommandInfo(ApiMethods.DeploySmartContract)
             {
                 Parameter = $"{FileName} {CallAddress}"

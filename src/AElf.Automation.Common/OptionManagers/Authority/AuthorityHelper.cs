@@ -40,10 +40,11 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 
         public Address DeployContractWithAuthority(string caller, string contractName)
         {
+            var fileName = contractName.Contains(".dll") ? contractName : $"{contractName}.dll";
             var contractPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "aelf", "contracts");
-            var code = File.ReadAllBytes(Path.Combine(contractPath, contractName));
+            var code = File.ReadAllBytes(Path.Combine(contractPath, fileName));
             
             return DeployContractWithAuthority(caller, code);
         }

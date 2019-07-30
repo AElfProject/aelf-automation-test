@@ -82,7 +82,7 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 performance.InitExecCommand(1000 + GroupCount);
-                var authority = NodeInfoHelper.Config.Authority;
+                var authority = NodeInfoHelper.Config.RequireAuthority;
                 if(authority)
                     performance.DeployContractsWithAuthority();
                 else
