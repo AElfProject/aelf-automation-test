@@ -167,7 +167,7 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
-                var authority = new AuthorityHelper(BaseUrl, account);
+                var authority = new AuthorityManager(BaseUrl, account);
                 var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
                 ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
             }

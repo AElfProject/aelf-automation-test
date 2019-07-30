@@ -13,19 +13,17 @@ using log4net;
 
 namespace AElf.Automation.Common.OptionManagers.Authority
 {
-    public class AuthorityHelper
+    public class AuthorityManager
     {
-        private readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private NodesInfo _info;
-        private IApiService _apiService;
         private GenesisContract _genesis;
         private ConsensusContract _consensus;
         private ParliamentAuthContract _parliament;
 
-        public AuthorityHelper(string serviceUrl, string caller)
+        public AuthorityManager(string serviceUrl, string caller)
         {
             var apiHelper = new WebApiHelper(serviceUrl);
-            _apiService = apiHelper.ApiService;
 
             GetConfigNodeInfo();
 
@@ -40,6 +38,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 
         public Address DeployContractWithAuthority(string caller, string contractName)
         {
+            Logger.Info($"Deploy contract: {contractName}");
             var fileName = contractName.Contains(".dll") ? contractName : $"{contractName}.dll";
             var contractPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

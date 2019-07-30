@@ -361,7 +361,7 @@ namespace AElf.Automation.Common.Contracts
             if (requireAuthority)
             {
                 Logger.Info("Deploy contract with authority mode.");
-                var authority = new AuthorityHelper(ApiHelper.GetApiUrl(), CallAddress);
+                var authority = new AuthorityManager(ApiHelper.GetApiUrl(), CallAddress);
                 var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
                 ContractAddress = contractAddress.GetFormatted();
                 return;
