@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using Newtonsoft.Json;
 
@@ -60,9 +61,7 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _instance;
         private static string _jsonContent;
         private static readonly object LockObj = new object();
-
-        private static readonly string ConfigFile =
-            Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-nodes-local.json");
 
         public static ConfigInfo Config => GetConfigInfo();
 

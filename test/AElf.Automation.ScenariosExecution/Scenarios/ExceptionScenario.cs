@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
@@ -45,7 +46,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var executeResult = Token.ExecuteMethodWithResult(methodName, new GetBalanceInput
             {
                 Symbol = "ELF",
-                Owner = Address.FromBytes(Guid.NewGuid().ToByteArray())
+                Owner = AddressUtils.Generate()
             });
             executeResult.Result.ShouldBe(false);
             var info = executeResult.InfoMsg as TransactionResultDto;
@@ -61,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 Symbol = "ELF",
                 Amount = 100_000_00000000L,
-                To = Address.FromBytes(Guid.NewGuid().ToByteArray()),
+                To = AddressUtils.Generate(),
                 Memo = "Transfer without enough token test"
             });
             executeResult.Result.ShouldBe(false);
@@ -78,8 +79,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 Symbol = "ELF",
                 Amount = 100_000_00000000L,
-                From = Address.FromBytes(Guid.NewGuid().ToByteArray()),
-                To = Address.FromBytes(Guid.NewGuid().ToByteArray()),
+                From = AddressUtils.Generate(),
+                To = AddressUtils.Generate(),
                 Memo = "Transfer from test"
             });
             executeResult.Result.ShouldBe(false);

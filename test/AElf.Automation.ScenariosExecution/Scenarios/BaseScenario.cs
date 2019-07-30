@@ -36,22 +36,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
         }
 
-        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0)
+        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
+            bool interrupted = false)
         {
-            try
+            foreach (var action in actions)
             {
-                foreach (var action in actions)
+                try
                 {
                     action.Invoke();
                 }
+                catch (Exception e)
+                {
+                    Logger.Error($"Execute action {action} got exception: {e.Message}");
+                    if (interrupted)
+                        break;
+                }
+            }
 
-                if (sleepSeconds != 0)
-                    Thread.Sleep(1000 * sleepSeconds);
-            }
-            catch (Exception e)
-            {
-                Logger.Error($"ExecuteStandaloneTask got exception: {e.Message}");
-            }
+            if (sleepSeconds != 0)
+                Thread.Sleep(1000 * sleepSeconds);
         }
 
         public void CheckNodeTransactionAction()

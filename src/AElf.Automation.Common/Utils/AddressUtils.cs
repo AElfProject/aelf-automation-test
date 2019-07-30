@@ -1,0 +1,19 @@
+using System;
+using System.ServiceModel.Channels;
+using AElf.Kernel.Blockchain.Application;
+using AElf.Types;
+
+namespace AElf.Automation.Common.Utils
+{
+    public class AddressUtils
+    {
+        public static Address Generate()
+        {
+            var rd = new Random(Guid.NewGuid().GetHashCode());
+            var randomBytes = new byte[32];
+            rd.NextBytes(randomBytes);
+
+            return Address.FromBytes(randomBytes);
+        }
+    }
+}
