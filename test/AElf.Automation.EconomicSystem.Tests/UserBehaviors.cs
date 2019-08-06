@@ -204,7 +204,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var approve = TokenService.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
             {
                 Symbol = symbol,
-                Spender = Address.Parse(to),
+                Spender = AddressHelper.Base58StringToAddress(to),
                 Amount = amount
             });
             return approve;
@@ -217,7 +217,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var unapprove =  TokenService.ExecuteMethodWithResult(TokenMethod.UnApprove, new UnApproveInput
             {
                 Symbol = symbol,
-                Spender = Address.Parse(to),
+                Spender = AddressHelper.Base58StringToAddress(to),
                 Amount = amount
             });
             return unapprove;
@@ -229,8 +229,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             var transferFrom =  TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
             {
                 Symbol = symbol,
-                From = Address.Parse(from),
-                To = Address.Parse(to),
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
                 Amount = amount,
                 Memo = $"transferfrom: from {from} to {to}"
             });

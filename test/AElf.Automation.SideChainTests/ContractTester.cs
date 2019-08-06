@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChainTests
                         ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
                         ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
                         Params = createProposalInput.ToByteString(),
-                        ToAddress = Address.Parse(CrossChainService.ContractAddress),
+                        ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
 
@@ -132,7 +132,7 @@ namespace AElf.Automation.SideChainTests
         {
             var result =
                 ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
-                    Hash.LoadHex(proposalId));
+                    HashHelper.HexStringToHash(proposalId));
             return result;
         }
 
@@ -178,7 +178,7 @@ namespace AElf.Automation.SideChainTests
         {
             ParliamentService.SetAccount(account);
             var transactionResult =
-                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadHex(proposalId));
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
             return transactionResult;
         }
 

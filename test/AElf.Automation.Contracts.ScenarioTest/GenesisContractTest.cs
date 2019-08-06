@@ -100,7 +100,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void SideChainAuthDeploySystemContract_MinerCreate_OtherOrganizationDeploy()
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
-            var organization = CreateOrganization(SideTester2, false, Address.Parse(InitAccount));
+            var organization = CreateOrganization(SideTester2, false, AddressHelper.Base58StringToAddress(InitAccount));
             var proposal = CreateProposal(SideTester2, InitAccount, GenesisMethod.DeploySmartContract, input, organization);
             Approve(SideTester2, InitAccount, proposal);
             var release = Release(SideTester2, proposal,InitAccount);
@@ -112,7 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void SideChainAuthUpdateContract_MinerCreate_OtherOrganizationUpdate()
         {
             var input = ContractUpdateInput("AElf.Contracts.MultiToken",SideTester2.TokenService.ContractAddress);
-            var organization = CreateOrganization(SideTester2, false, Address.Parse(InitAccount));
+            var organization = CreateOrganization(SideTester2, false, AddressHelper.Base58StringToAddress(InitAccount));
             var proposal = CreateProposal(SideTester2, InitAccount, GenesisMethod.UpdateSmartContract, input, organization);
             Approve(SideTester2, InitAccount, proposal);
             var release = Release(SideTester2,proposal,InitAccount);
@@ -132,7 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.UpdateSmartContract),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse(SideTester2.GenesisService.ContractAddress),
+                    ToAddress =AddressHelper.Base58StringToAddress(SideTester2.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -143,7 +143,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void OtherAccount_UseOtherOrganization_UseGenesisOwnerAddress_CreateProposal()
         {
             var input = ContractUpdateInput("AElf.Contracts.MultiToken",SideTester2.TokenService.ContractAddress);
-            var organization = CreateOrganization(SideTester2, false, Address.Parse(InitAccount));
+            var organization = CreateOrganization(SideTester2, false, AddressHelper.Base58StringToAddress(InitAccount));
             SideTester2.ParliamentService.SetAccount(OtherAccount);
             var proposal = SideTester2.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                 new CreateProposalInput
@@ -151,7 +151,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.UpdateSmartContract),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse(SideTester2.GenesisService.ContractAddress),
+                    ToAddress = AddressHelper.Base58StringToAddress(SideTester2.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -169,7 +169,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs[0].NonIndexed);
             var deployAddress =  ContractDeployed.Parser.ParseFrom(byteString).Address;
-            _logger.WriteInfo($"{deployAddress}");
+            _logger.Info($"{deployAddress}");
         }
         
         [TestMethod]
@@ -183,7 +183,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs[0].NonIndexed);
             var deployAddress =  ContractDeployed.Parser.ParseFrom(byteString).Address;
-            _logger.WriteInfo($"{deployAddress}");
+            _logger.Info($"{deployAddress}");
         }
         
         [TestMethod]
@@ -197,7 +197,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             
             var contractAddress = CodeUpdated.Parser.ParseFrom(ByteString.FromBase64(release.Logs[0].Indexed[0])).Address;
-            contractAddress.ShouldBe(Address.Parse(SideTester2.TokenService.ContractAddress));
+            contractAddress.ShouldBe(AddressHelper.Base58StringToAddress(SideTester2.TokenService.ContractAddress));
             var codeHash = Hash.FromRawBytes(input.Code.ToByteArray());
             var newHash = CodeUpdated.Parser.ParseFrom(ByteString.FromBase64(release.Logs[0].NonIndexed)).NewCodeHash;
             newHash.ShouldBe(codeHash);
@@ -214,7 +214,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             
             var contractAddress = CodeUpdated.Parser.ParseFrom(ByteString.FromBase64(release.Logs[0].Indexed[0])).Address;
-            contractAddress.ShouldBe(Address.Parse(SideTester2.TokenService.ContractAddress));
+            contractAddress.ShouldBe(AddressHelper.Base58StringToAddress(SideTester2.TokenService.ContractAddress));
             var codeHash = Hash.FromRawBytes(input.Code.ToByteArray());
             var newHash = CodeUpdated.Parser.ParseFrom(ByteString.FromBase64(release.Logs[0].NonIndexed)).NewCodeHash;
             newHash.ShouldBe(codeHash);
@@ -246,7 +246,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void MainDeploySmartContract_ThroughOtherOrganization()
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
-            var organization = CreateOrganization(MainTester, false, Address.Parse(InitAccount));
+            var organization = CreateOrganization(MainTester, false, AddressHelper.Base58StringToAddress(InitAccount));
             var proposal = CreateProposal(MainTester, InitAccount, GenesisMethod.DeploySmartContract, input, organization);
             Approve(MainTester, InitAccount, proposal);
             var release = Release(MainTester, proposal,InitAccount);
@@ -268,7 +268,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.UpdateSmartContract),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse(MainTester.GenesisService.ContractAddress),
+                    ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -286,7 +286,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs[0].NonIndexed);
             var deployAddress =  ContractDeployed.Parser.ParseFrom(byteString).Address;
-            _logger.WriteInfo($"{deployAddress}");
+            _logger.Info($"{deployAddress}");
         }
 
         
@@ -301,33 +301,33 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void SideChangeOwner()
         {
             var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                Address.Parse("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.WriteInfo($"contract owner is {address}");
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract owner is {address}");
 
             SideTester.GenesisService.SetAccount(InitAccount);
             var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
                 new ChangeContractAuthorInput()
                 {
-                    ContractAddress = Address.Parse("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
-                    NewAuthor = Address.Parse("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
+                    ContractAddress = AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
+                    NewAuthor = AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
                 });
             var address1 = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                Address.Parse("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.WriteInfo($"contract new owner is {address1}");
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract new owner is {address1}");
         }
         
         [TestMethod]
         public void SideChangeOwnerThroughProposal()
         {
             var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                Address.Parse("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.WriteInfo($"contract owner is {address}");
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract owner is {address}");
             var organizationAddress = CreateOrganization(SideTester, false,address);
             
             var changeContractAuthorInput = new ChangeContractAuthorInput()
             {
-                ContractAddress = Address.Parse("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
-                NewAuthor = Address.Parse("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
+                ContractAddress = AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
+                NewAuthor = AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
             };
 
             SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
@@ -337,7 +337,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.ChangeContractAuthor),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = changeContractAuthorInput.ToByteString(),
-                    ToAddress = Address.Parse(SideTester.GenesisService.ContractAddress),
+                    ToAddress = AddressHelper.Base58StringToAddress(SideTester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -346,7 +346,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var approve =
                 SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                 {
-                    ProposalId = Hash.LoadHex(proposalId)
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             var approveReturn = approve.InfoMsg as TransactionResultDto;
             var approveResult = approveReturn.ReadableReturnValue;
@@ -356,7 +356,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
             var result =
                 SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    Hash.LoadHex(proposalId));
+                    HashHelper.HexStringToHash(proposalId));
             var resultReturn = result.InfoMsg as TransactionResultDto;
             resultReturn.Status.ShouldBe("FAILED");
         }
@@ -366,28 +366,28 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void MainChangeContractOwner()
         {
             var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,Address.Parse("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.WriteInfo($"contract owner address is {contractOwnerAddress}");
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
             
             var organizationAddress =
                 MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {organizationAddress} ");
+            _logger.Info($"organization address is {organizationAddress} ");
             
             var result =
-                MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor, Address.Parse("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
+                MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor, AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
         }
 
         [TestMethod]
         public void MainChangeZeroOwner()
         {
-            var input = Address.Parse(InitAccount);
+            var input = AddressHelper.Base58StringToAddress(InitAccount);
             var organizationAddress =
                 MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {organizationAddress} ");
+            _logger.Info($"organization address is {organizationAddress} ");
 
             var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,Address.Parse("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.WriteInfo($"contract owner address is {contractOwnerAddress}");
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
             
             
             var proposal = MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
@@ -396,7 +396,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.ChangeGenesisOwner),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse(MainTester.GenesisService.ContractAddress),
+                    ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -406,7 +406,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var approve =
                 MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                 {
-                    ProposalId = Hash.LoadHex(proposalId)
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             var approveReturn = approve.InfoMsg as TransactionResultDto;
             var approveResult = approveReturn.ReadableReturnValue;
@@ -416,7 +416,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             MainTester.GenesisService.SetAccount(InitAccount);
             var result =
                 MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {result} ");
+            _logger.Info($"organization address is {result} ");
         }
         
         
@@ -427,32 +427,32 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ;
             var organizationAddress =
                 MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {organizationAddress} ");
+            _logger.Info($"organization address is {organizationAddress} ");
             var input = organizationAddress;
 
             var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,Address.Parse("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.WriteInfo($"contract owner address is {contractOwnerAddress}");
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
             
             
             var result = MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner,input);
             var account =
                 MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {account} ");
+            _logger.Info($"organization address is {account} ");
         }
         
         
         [TestMethod]
         public void SideChangeZeroOwner()
         {
-            var input = Address.Parse(InitAccount);
+            var input = AddressHelper.Base58StringToAddress(InitAccount);
             var organizationAddress =
                 SideTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,new Empty());
-            _logger.WriteInfo($"organization address is {organizationAddress} ");
+            _logger.Info($"organization address is {organizationAddress} ");
 
             var contractOwnerAddress =
-                SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,Address.Parse("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.WriteInfo($"contract owner address is {contractOwnerAddress}");
+                SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
             
             
             var proposal = SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
@@ -461,7 +461,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(TokenMethod.Transfer),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"),
+                    ToAddress = AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"),
                     OrganizationAddress = organizationAddress
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
@@ -471,7 +471,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var approve =
                 SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                 {
-                    ProposalId = Hash.LoadHex(proposalId)
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             var approveReturn = approve.InfoMsg as TransactionResultDto;
             var approveResult = approveReturn.ReadableReturnValue;
@@ -480,7 +480,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             SideTester.GenesisService.SetAccount(InitAccount);
             var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner,
-                Address.Parse("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
+                AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
             var returnResult = result.InfoMsg as TransactionResultDto;
             returnResult.Status.ShouldBe("MINED");
         }
@@ -497,7 +497,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             var addressReturn = address.InfoMsg as TransactionResultDto;
             var organization = addressReturn.ReadableReturnValue.Replace("\"","");
-            return Address.Parse(organization);
+            return AddressHelper.Base58StringToAddress(organization);
         }
 
         private Address GetGenesisOwnerAddress(ContractTester tester)
@@ -514,12 +514,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(method),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = Address.Parse(tester.GenesisService.ContractAddress),
+                    ToAddress = AddressHelper.Base58StringToAddress(tester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
             var proposalReturn = proposal.InfoMsg as TransactionResultDto;
             var proposalId = proposalReturn.ReadableReturnValue.Replace("\"","");
-            return Hash.LoadHex(proposalId);
+            return HashHelper.HexStringToHash(proposalId);
         }
 
         private void Approve(ContractTester tester,string account, Hash proposalId)
@@ -566,7 +566,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             
             var input = new ContractUpdateInput()
             {
-                Address = Address.Parse(contractAddress),
+                Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             };
 
