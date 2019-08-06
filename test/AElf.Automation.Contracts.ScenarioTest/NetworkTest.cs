@@ -109,7 +109,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             foreach (var res in result)
             {
-                _logger.WriteInfo(res.IpAddress);
+                _logger.Info(res.IpAddress);
             }
         }
 
@@ -140,7 +140,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _ch1.NetAddPeer(ci);
             Assert.IsTrue(ci.Result, "Add peer request failed.");
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer();
         }
@@ -156,7 +156,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsTrue(ci.Result, "Remove peer request failed.");
 
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer();
         }
@@ -168,7 +168,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _ch2.NetGetPeers(ci);
             Assert.IsTrue(ci.Result, "Get peers request failed.");
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _ch2.NetAddPeer(ci);
             Assert.IsTrue(ci.Result, "Add peer request failed.");
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer2();
         }
@@ -197,7 +197,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsTrue(ci.Result, "Remove peer request failed.");
 
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer();
         }
@@ -209,7 +209,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _ch3.NetGetPeers(ci);
             Assert.IsTrue(ci.Result, "Get peers request failed.");
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
         }
 
         [TestMethod]
@@ -222,7 +222,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _ch3.NetAddPeer(ci);
             Assert.IsTrue(ci.Result, "Add peer request failed.");
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer3();
         }
@@ -238,7 +238,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsTrue(ci.Result, "Remove peer request failed.");
 
             ci.GetJsonInfo();
-            _logger.WriteInfo(ci.JsonInfo.ToString());
+            _logger.Info(ci.JsonInfo.ToString());
 
             TestGetPeer3();
         }

@@ -39,11 +39,11 @@ namespace AElf.Automation.Common.WebApi
 
             if (hexString.IsNullOrEmpty())
             {
-                _logger.WriteError("ExecuteTransaction response is null or empty.");
+                _logger.Error("ExecuteTransaction response is null or empty.");
                 return default(TResult);
             }
 
-            var byteArray = ByteArrayHelper.FromHexString(hexString);
+            var byteArray = ByteArrayHelper.HexStringToByteArray(hexString);
             var messageParser = new MessageParser<TResult>(() => new TResult());
 
             return messageParser.ParseFrom(byteArray);

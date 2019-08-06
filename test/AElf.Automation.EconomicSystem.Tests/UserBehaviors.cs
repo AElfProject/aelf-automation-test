@@ -23,7 +23,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                 new GetBalanceInput
                 {
-                    Owner = Address.Parse(account),
+                    Owner = AddressHelper.Base58StringToAddress(account),
                     Symbol = "ELF"
                 }).Balance;
 
@@ -39,7 +39,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = "ELF"
             }).Balance;
 
@@ -74,7 +74,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {
                     Period = period,
                     Amount = amount,
-                    ProfitId = Hash.LoadHex(profitId)
+                    ProfitId = HashHelper.HexStringToHash(profitId)
                 });
             return result;
         }
@@ -140,10 +140,10 @@ namespace AElf.Automation.EconomicSystem.Tests
                 new InitializeInput
                 {
                     BaseTokenSymbol = "ELF",
-                    ManagerAddress = Address.Parse(initAccount),
-                    FeeReceiverAddress = Address.Parse(FeeReceiverService.ContractAddress),
+                    ManagerAddress = AddressHelper.Base58StringToAddress(initAccount),
+                    FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverService.ContractAddress),
                     FeeRate = "0.05",
-                    TokenContractAddress = Address.Parse(TokenService.ContractAddress),
+                    TokenContractAddress = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                     Connectors = {ramConnector, cpuConnector, netConnector, stoConnector, elfConnector}
                 });
 
@@ -163,7 +163,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 Symbol = symbol,
                 Amount = amount,
-                To = Address.Parse(to),
+                To = AddressHelper.Base58StringToAddress(to),
                 Memo = $"transfer {from}=>{to} with amount {amount}."
             });
         }
@@ -176,7 +176,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Symbol = symbol,
                 Decimals = 2,
                 IsBurnable = true,
-                Issuer = Address.Parse(issuer),
+                Issuer = AddressHelper.Base58StringToAddress(issuer),
                 TokenName = tokenName,
                 TotalSupply = 100_0000
             });
@@ -191,7 +191,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Symbol = symbol,
                 Amount = 100,
                 Memo = "Issue",
-                To = Address.Parse(toAddress)
+                To = AddressHelper.Base58StringToAddress(toAddress)
             });
 
             return issue;

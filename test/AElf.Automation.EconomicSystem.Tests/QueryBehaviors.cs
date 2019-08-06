@@ -113,7 +113,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ProfitService.CallViewMethod<ProfitItem>(ProfitMethod.GetProfitItem,
                 new Hash()
                 {
-                    Value = Hash.LoadHex(hex).Value
+                    Value = HashHelper.HexStringToHash(hex).Value
                 });
             return result;
         }
@@ -146,7 +146,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 ProfitService.CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Receiver = Address.Parse(voteAddress),
+                        Receiver = AddressHelper.Base58StringToAddress(voteAddress),
                         ProfitId = profitId
                     });
             return result;
@@ -172,7 +172,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = Address.Parse(account),
+                Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             });
             return balance;

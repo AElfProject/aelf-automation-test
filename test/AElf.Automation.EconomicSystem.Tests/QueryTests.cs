@@ -57,7 +57,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var miners = Behaviors.GetCurrentMiners();
             foreach (var publicKey in miners.Pubkeys)
             {
-                _logger.WriteInfo($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
+                _logger.Info($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
             }
         }
 
@@ -90,7 +90,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var key in keyList)
             {
                 var publicKey = CH.GetPublicKeyFromAddress(key);
-                _logger.WriteInfo($"{count:00} {key} {publicKey}");
+                _logger.Info($"{count:00} {key} {publicKey}");
                 count++;
             }
         }

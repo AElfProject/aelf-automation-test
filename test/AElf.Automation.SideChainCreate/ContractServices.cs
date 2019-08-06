@@ -25,7 +25,7 @@ namespace AElf.Automation.SideChainCreate
             Url = url;
             ApiHelper = new WebApiHelper(url,keyStorePath);
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             UnlockAccounts(ApiHelper,CallAddress,password);
             
             //connect chain

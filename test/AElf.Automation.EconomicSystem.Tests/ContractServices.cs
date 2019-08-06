@@ -22,7 +22,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();

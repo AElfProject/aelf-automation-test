@@ -60,8 +60,8 @@ namespace AElf.Automation.RpcPerformance
 
         public void InitExecCommand(int userCount = 200)
         {
-            _logger.WriteInfo("Host Url: {0}", BaseUrl);
-            _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
+            _logger.Info("Host Url: {0}", BaseUrl);
+            _logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
 
             ApiHelper = new WebApiHelper(BaseUrl, KeyStorePath);
 
@@ -141,10 +141,10 @@ namespace AElf.Automation.RpcPerformance
                             var message =
                                 $"Transaction {item.TxId} execution status: {transactionResult.Status}." +
                                 $"\r\nDetail Message: {JsonConvert.SerializeObject(transactionResult)}";
-                            _logger.WriteError(message);
+                            _logger.Error(message);
                             break;
                         case TransactionResultStatus.Pending:
-                            _logger.WriteWarn($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
+                            _logger.Warn($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
                             continue;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -178,7 +178,7 @@ namespace AElf.Automation.RpcPerformance
                         TokenName = $"elf token {symbol}",
                         TotalSupply = long.MaxValue,
                         Decimals = 2,
-                        Issuer = Address.Parse(account),
+                        Issuer = AddressHelper.Base58StringToAddress(account),
                         IsBurnable = true
                     }
                 };
@@ -206,7 +206,7 @@ namespace AElf.Automation.RpcPerformance
                         Amount = long.MaxValue,
                         Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
                         Symbol = symbol,
-                        To = Address.Parse(account)
+                        To = AddressHelper.Base58StringToAddress(account)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -238,7 +238,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteOneRoundTransactionTask()
         {
-            _logger.WriteInfo("Start transaction execution at: {0}",
+            _logger.Info("Start transaction execution at: {0}",
                 DateTime.Now.ToString(CultureInfo.InvariantCulture));
             var exec = new Stopwatch();
             exec.Start();
@@ -252,13 +252,13 @@ namespace AElf.Automation.RpcPerformance
             Task.WaitAll(contractTasks.ToArray<Task>());
 
             exec.Stop();
-            _logger.WriteInfo("End transaction execution at: {0}, execution time span is {1}",
+            _logger.Info("End transaction execution at: {0}, execution time span is {1}",
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
         public void ExecuteOneRoundTransactionsTask()
         {
-            _logger.WriteInfo("Start generate all requests at: {0}",
+            _logger.Info("Start generate all requests at: {0}",
                 DateTime.Now.ToString(CultureInfo.InvariantCulture));
             var exec = new Stopwatch();
             exec.Start();
@@ -274,14 +274,14 @@ namespace AElf.Automation.RpcPerformance
                     }
                     catch (Exception e)
                     {
-                        _logger.WriteInfo($"Execute batch transaction got exception, message details are: {e.Message}");
+                        _logger.Info($"Execute batch transaction got exception, message details are: {e.Message}");
                     }
                 }));
             }
 
             Task.WaitAll(contractTasks.ToArray<Task>());
             exec.Stop();
-            _logger.WriteInfo("All requests execution completed at: {0}, execution time span: {1}",
+            _logger.Info("All requests execution completed at: {0}, execution time span: {1}",
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
@@ -294,7 +294,7 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => { Summary.ContinuousCheckTransactionPerformance(); }),
                 Task.Run(() =>
                 {
-                    _logger.WriteInfo("Begin generate multi requests.");
+                    _logger.Info("Begin generate multi requests.");
 
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
@@ -302,7 +302,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         try
                         {
-                            _logger.WriteInfo("Execution transaction request round: {0}", r);
+                            _logger.Info("Execution transaction request round: {0}", r);
                             if (useTxs)
                             {
                                 //multi task for SendTransactions query
@@ -326,7 +326,7 @@ namespace AElf.Automation.RpcPerformance
                                     //Generate transaction requests
                                     GenerateRawTransactionQueue(j, ExeTimes);
                                     //Send  transaction requests
-                                    _logger.WriteInfo(
+                                    _logger.Info(
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                     var txTasks = new List<Task>();
                                     for (var k = 0; k < ThreadCount; k++)
@@ -340,14 +340,14 @@ namespace AElf.Automation.RpcPerformance
                         }
                         catch (AggregateException exception)
                         {
-                            _logger.WriteError($"Request to {ApiHelper.GetApiUrl()} got exception, {exception.Message}");
+                            _logger.Error($"Request to {ApiHelper.GetApiUrl()} got exception, {exception.Message}");
                         }
                         catch (Exception e)
                         {
                             var message = "Execute continuous transaction got exception." +
                                           $"\r\nMessage: {e.Message}" +
                                           $"\r\nStackTrace: {e.StackTrace}";
-                            _logger.WriteError(message);
+                            _logger.Error(message);
                         }
 
                         if (r % 3 != 0) continue;
@@ -370,12 +370,12 @@ namespace AElf.Automation.RpcPerformance
 
         public void PrintContractInfo()
         {
-            _logger.WriteInfo("Execution account and contract address information:");
+            _logger.Info("Execution account and contract address information:");
             var count = 0;
             foreach (var item in ContractList)
             {
                 count++;
-                _logger.WriteInfo("{0:00}. Account: {1}, ContractAddress:{2}", count,
+                _logger.Info("{0:00}. Account: {1}, ContractAddress:{2}", count,
                     item.Owner,
                     item.ContractPath);
             }
@@ -408,7 +408,7 @@ namespace AElf.Automation.RpcPerformance
                         Symbol = ContractList[threadNo].Symbol,
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}",
-                        To = Address.Parse(account1)
+                        To = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
                 ApiHelper.ExecuteCommand(ci);
@@ -423,10 +423,10 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(10);
             }
 
-            _logger.WriteInfo("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
+            _logger.Info("Total contract sent: {0}, passed number: {1}", 2 * times, passCount);
             txIdList.Reverse();
             Monitor.CheckTransactionsStatus(txIdList);
-            _logger.WriteInfo("{0} Transfer from Address {1}", set.Count, account);
+            _logger.Info("{0} Transfer from Address {1}", set.Count, account);
         }
 
         private void ExecuteBatchTransactionTask(int threadNo, int times)
@@ -450,7 +450,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = AddressHelper.Base58StringToAddress(account1),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }
@@ -468,9 +468,9 @@ namespace AElf.Automation.RpcPerformance
 
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo("Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
+            _logger.Info("Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
-            _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
+            _logger.Info("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
 
@@ -487,9 +487,9 @@ namespace AElf.Automation.RpcPerformance
             ApiHelper.ExecuteCommand(commandInfo);
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
-            _logger.WriteInfo(" Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
+            _logger.Info(" Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
                 transactions.Length);
-            _logger.WriteInfo("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
+            _logger.Info("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
 
@@ -513,7 +513,7 @@ namespace AElf.Automation.RpcPerformance
                     ParameterInput = new TransferInput
                     {
                         Symbol = ContractList[threadNo].Symbol,
-                        To = Address.Parse(account1),
+                        To = AddressHelper.Base58StringToAddress(account1),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     }
@@ -529,7 +529,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
                     break;
-                _logger.WriteInfo("Transaction group: {0}, execution left: {1}", group + 1,
+                _logger.Info("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
                 var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.ExecuteCommand(ci);
@@ -593,7 +593,7 @@ namespace AElf.Automation.RpcPerformance
 
             var result = tx * 1000 / time;
 
-            _logger.WriteInfo(
+            _logger.Info(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
 
@@ -615,7 +615,7 @@ namespace AElf.Automation.RpcPerformance
                     if (transactionPoolCount > maxLimit)
                     {
                         Thread.Sleep(1000);
-                        _logger.WriteWarn(
+                        _logger.Warn(
                             $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
                         continue;
                     }
@@ -624,7 +624,7 @@ namespace AElf.Automation.RpcPerformance
                 }
                 catch (Exception ex)
                 {
-                    _logger.WriteError($"Query transaction pool status got exception : {ex.Message}");
+                    _logger.Error($"Query transaction pool status got exception : {ex.Message}");
                 }
             }
         }

@@ -1,7 +1,7 @@
 {
     "GroupCount": 2,
     "TransactionCount": 20,
-    "ServiceUrl": "192.168.197.13:8100",
+    "ServiceUrl": "192.168.197.13:8000",
     "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
@@ -13,6 +13,6 @@
     },
     "RandomSentTransaction": {
         "enable_random": false,
-        "endpoint_list": ["192.168.197.13:8100", "192.168.197.28:8100", "192.168.197.33:8100"]
+        "endpoint_list": ["192.168.197.13:8000", "192.168.197.28:8000", "192.168.197.33:8000"]
     }
 }

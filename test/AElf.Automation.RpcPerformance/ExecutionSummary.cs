@@ -75,7 +75,7 @@ namespace AElf.Automation.RpcPerformance
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             var timePerTx = totalTransactions / GetTotalBlockSeconds(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
-            _logger.WriteInfo($"Summary Information: {Phase} blocks from height " +
+            _logger.Info($"Summary Information: {Phase} blocks from height " +
                               $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
                               $"{totalTransactions} transactions. Average per block are {averageTx} txs during " +
                               $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +

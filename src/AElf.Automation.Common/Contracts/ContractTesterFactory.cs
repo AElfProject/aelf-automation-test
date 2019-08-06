@@ -32,7 +32,7 @@ namespace AElf.Automation.Common.Contracts
             var factory = new MethodStubFactory(_baseUrl, _keyPath)
             {
                 SenderAddress = account,
-                Sender = Address.Parse(account),
+                Sender = AddressHelper.Base58StringToAddress(account),
                 ContractAddress = contractAddress
             };
             var timeout = notimeout ? "notimeout" : "";

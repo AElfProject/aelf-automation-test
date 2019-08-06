@@ -98,9 +98,9 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         public void InitMainExecCommand()
         {
-            _logger.WriteInfo("Rpc Url: {0}", BaseUrl);
-            _logger.WriteInfo("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
-            _logger.WriteInfo("Prepare new and unlock accounts.");
+            _logger.Info("Rpc Url: {0}", BaseUrl);
+            _logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
+            _logger.Info("Prepare new and unlock accounts.");
 
             MainChain = InitMain(InitAccount);
             SideChains = InitSideNodes(InitAccount);
@@ -127,7 +127,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
 
             var blockHeight = blockNumberList.Max();
-            _logger.WriteInfo($"Verify from block {blockHeight}");
+            _logger.Info($"Verify from block {blockHeight}");
 
             for (var r = 1; r > 0; r++) //continuous running
             {
@@ -152,20 +152,20 @@ namespace AElf.Automation.SideChain.Verification.Test
                     {
                         var txInfo = new TxInfo(i, txId);
                         txInfos.Add(txInfo);
-                        _logger.WriteInfo(
+                        _logger.Info(
                             $"the transactions block is:{txInfo.BlockNumber},transaction id is: {txInfo.TxId}");
                     }
                 }
-                _logger.WriteInfo("Waiting for the index");
+                _logger.Info("Waiting for the index");
                 Thread.Sleep(20000);
                 
-                _logger.WriteInfo("Verify on the side chain");
+                _logger.Info("Verify on the side chain");
 
                 foreach (var sideChain in SideChains)
                 {
                     foreach (var txInfo in txInfos)
                     {
-                        _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                        _logger.Info($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
                         var result = VerifyMainChainTransaction(sideChain, txInfo, InitAccount);
                         switch (result)
                         {
@@ -175,7 +175,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                             {
                                 Thread.Sleep(4000);
                                 var checkTime = 5;
-                                _logger.WriteInfo($"the verify result is {result}, revalidate the results");
+                                _logger.Info($"the verify result is {result}, revalidate the results");
                                 while (checkTime > 0)
                                 {
                                     checkTime--;
@@ -185,7 +185,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     Thread.Sleep(4000);
                                 }
 
-                                _logger.WriteInfo($"result is {result},verify failed");
+                                _logger.Info($"result is {result},verify failed");
                                 break;
                             }
                             case "true":
@@ -207,11 +207,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                     switch (item.Result)
                     {
                         case "true":
-                            _logger.WriteInfo("On Side Chain {0}, transaction={1} Verify successfully.", item.ChaindId,
+                            _logger.Info("On Side Chain {0}, transaction={1} Verify successfully.", item.ChaindId,
                                 item.TxInfo.TxId);
                             break;
                         case "false":
-                            _logger.WriteInfo("On Side Chain {0}, transaction={1} Verify failed.", item.ChaindId,
+                            _logger.Info("On Side Chain {0}, transaction={1} Verify failed.", item.ChaindId,
                                 item.TxInfo.TxId);
                             break;
                         default:
@@ -251,23 +251,23 @@ namespace AElf.Automation.SideChain.Verification.Test
                     {
                         var txInfo = new TxInfo(i, t);
                         sideTxInfos.Add(txInfo);
-                        _logger.WriteInfo(
+                        _logger.Info(
                             $"the transactions block is:{txInfo.BlockNumber},transaction id is: {txInfo.TxId}");
                     }
                 }
 
-                _logger.WriteInfo("Waiting for the index");
+                _logger.Info("Waiting for the index");
                 Thread.Sleep(10000);
 
-                _logger.WriteInfo("Verify on the other chain");
+                _logger.Info("Verify on the other chain");
                 foreach (var txInfo in sideTxInfos)
                 {
                     //verify on other side chain
                     for (int k = 0; k < SideChains.Count; k++)
                     {
                         if (k == sideChainNum) continue;
-                        _logger.WriteInfo($"Verify on the side chain {k}");
-                        _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                        _logger.Info($"Verify on the side chain {k}");
+                        _logger.Info($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
                         var result = VerifySideChainTransaction(SideChains[k], txInfo, sideChainNum);
                         switch (result)
                         {
@@ -277,7 +277,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                             {
                                 Thread.Sleep(4000);
                                 var checkTime = 5;
-                                _logger.WriteInfo($"the verify result is {result}, revalidate the results");
+                                _logger.Info($"the verify result is {result}, revalidate the results");
                                 while (checkTime > 0)
                                 {
                                     checkTime--;
@@ -287,7 +287,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     Thread.Sleep(4000);
                                 }
 
-                                _logger.WriteInfo($"result is {result},verify failed");
+                                _logger.Info($"result is {result},verify failed");
                                 break;
                             }
                             case "true":
@@ -304,8 +304,8 @@ namespace AElf.Automation.SideChain.Verification.Test
                     Thread.Sleep(100);
 
                     //verify on main chain 
-                    _logger.WriteInfo($"Verify on the Main chain");
-                    _logger.WriteInfo($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
+                    _logger.Info($"Verify on the Main chain");
+                    _logger.Info($"Verify block:{txInfo.BlockNumber},transaction:{txInfo.TxId}");
                     var resultOnMain = VerifySideChainTransaction(MainChain, txInfo, sideChainNum);
                     switch (resultOnMain)
                     {
@@ -315,7 +315,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                         {
                             Thread.Sleep(4000);
                             var checkTime = 5;
-                            _logger.WriteInfo($"the verify result is {resultOnMain}, revalidate the results");
+                            _logger.Info($"the verify result is {resultOnMain}, revalidate the results");
                             while (checkTime > 0)
                             {
                                 checkTime--;
@@ -324,7 +324,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     return;
                                 Thread.Sleep(4000);
                             }
-                            _logger.WriteInfo($"result is {resultOnMain},verify failed");
+                            _logger.Info($"result is {resultOnMain},verify failed");
                             break;
                         }
                         case "true":
@@ -343,11 +343,11 @@ namespace AElf.Automation.SideChain.Verification.Test
                     switch (item.Result)
                     {
                         case "true":
-                            _logger.WriteInfo("On chain {0} , transaction={1} Verify successfully.", item.ChaindId,
+                            _logger.Info("On chain {0} , transaction={1} Verify successfully.", item.ChaindId,
                                 item.TxInfo.TxId);
                             break;
                         case "false":
-                            _logger.WriteInfo("On chain {0}, transaction={1} Verify failed.", item.ChaindId,
+                            _logger.Info("On chain {0}, transaction={1} Verify failed.", item.ChaindId,
                                 item.TxInfo.TxId);
                             break;
                         default:
@@ -366,7 +366,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         {
             //Main Chain Transfer to SideChain
             //Get all side chain id;
-            _logger.WriteInfo("Get all side chain ids");
+            _logger.Info("Get all side chain ids");
             var chainIdList = new List<int>();
             for (var i = 0; i < SideUrls.Count; i++)
             {
@@ -374,7 +374,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 chainIdList.Add(chainId);
             }
 
-            _logger.WriteInfo("Main chan transfer to side chain InitAccount ");
+            _logger.Info("Main chan transfer to side chain InitAccount ");
             var initRawTxInfos = new List<TxInfo>();
             foreach (var chainId in chainIdList)
             {
@@ -388,16 +388,16 @@ namespace AElf.Automation.SideChain.Verification.Test
                 Assert.IsTrue(transferTimes>0||rawTxInfo!=null, "The first cross chain transfer failed, please start over.");
                 
                 initRawTxInfos.Add(rawTxInfo);
-                _logger.WriteInfo(
+                _logger.Info(
                     $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
             }
-            _logger.WriteInfo("Waiting for the index");
+            _logger.Info("Waiting for the index");
             Thread.Sleep(120000);
             
             for (var i = 0; i < chainIdList.Count; i++)
             {
-                _logger.WriteInfo($"side chain {chainIdList[i]} received token");
-                _logger.WriteInfo($"Receive CrossTransfer Transaction id is : {initRawTxInfos[i].TxId}");
+                _logger.Info($"side chain {chainIdList[i]} received token");
+                _logger.Info($"Receive CrossTransfer Transaction id is : {initRawTxInfos[i].TxId}");
                 CommandInfo result = null;
                 var transferTimes = 5;
                 while (result ==null && transferTimes >0)
@@ -407,7 +407,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
                 if (result == null)
                 {
-                    _logger.WriteInfo($"{chainIdList[i]} receive transaction is failed.");
+                    _logger.Info($"{chainIdList[i]} receive transaction is failed.");
                     Assert.IsTrue(false, "The first receive transfer failed, please start over.");
                 }
                 
@@ -421,7 +421,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                     var checkTime = 5;
                     while (checkTime > 0)
                     {
-                        _logger.WriteInfo($"Receive {6 - checkTime} time");
+                        _logger.Info($"Receive {6 - checkTime} time");
                         checkTime--;
                         var reResult = ReceiveFromMainChain(SideChains[i], initRawTxInfos[i]);
                         if(reResult == null) continue;
@@ -436,15 +436,15 @@ namespace AElf.Automation.SideChain.Verification.Test
                         Thread.Sleep(2000);
                     }
                     
-                    _logger.WriteInfo($"{chainIdList[i]} receive transaction is failed.");
+                    _logger.Info($"{chainIdList[i]} receive transaction is failed.");
                     Assert.IsTrue(false, "The first receive transfer failed, please start over.");
                 }
                 
                 GetBalance:
-                _logger.WriteInfo($"check the balance on the side chain {chainIdList[i]}");
+                _logger.Info($"check the balance on the side chain {chainIdList[i]}");
                 var accountBalance = SideChains[i].GetBalance(InitAccount, "ELF").Balance;
 
-                _logger.WriteInfo(
+                _logger.Info(
                     $"On side chain {chainIdList[i]}, InitAccount:{InitAccount} balance is {accountBalance}");
             }
         }
@@ -453,10 +453,10 @@ namespace AElf.Automation.SideChain.Verification.Test
         {
             AccountLists = new List<List<string>>();
 
-            _logger.WriteInfo("Create account on each side chain:");
+            _logger.Info("Create account on each side chain:");
             for (var i = 0; i < SideUrls.Count; i++)
             {
-                _logger.WriteInfo($"On chain {SideChains[i].chainId}: ");
+                _logger.Info($"On chain {SideChains[i].chainId}: ");
                 var accountList = NewAccount(SideChains[i], 5);
                 UnlockAccounts(SideChains[i], 5, accountList);
                 AccountLists.Add(accountList);
@@ -476,7 +476,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 UnlockAccounts(MainChain,accountList.Count,accountList);
             }
 
-            _logger.WriteInfo("Transfer token to each account :");
+            _logger.Info("Transfer token to each account :");
             foreach (var mainChainAccount in MainChainAccountList)
             {
                 Transfer(MainChain, InitAccount, mainChainAccount, 10000);
@@ -490,28 +490,28 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
             }
 
-            _logger.WriteInfo("show the main chain account balance: ");
+            _logger.Info("show the main chain account balance: ");
 
             foreach (var mainAccount in MainChainAccountList)
             {
                 var accountBalance = MainChain.GetBalance(mainAccount, "ELF");
-                _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
+                _logger.Info($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
             }
 
-            _logger.WriteInfo("show the side chain account balance: ");
+            _logger.Info("show the side chain account balance: ");
             for (var i = 0; i < SideChains.Count; i++)
             {
                 for (var j = 0; j < AccountLists[i].Count; j++)
                 {
                     var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
-                    _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
+                    _logger.Info($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
                 }
             }
 
             for (var r = 1; r > 0; r++) //continuous running
             {
-                _logger.WriteInfo($"{r} Round");
-                _logger.WriteInfo("Main chain transfer to each account");
+                _logger.Info($"{r} Round");
+                _logger.Info("Main chain transfer to each account");
                 var sideRawTxInfos = new List<List<TxInfo>>();
                 for (var i = 0; i < SideChains.Count; i++)
                 {
@@ -528,22 +528,22 @@ namespace AElf.Automation.SideChain.Verification.Test
                             
                             Thread.Sleep(100);
                             rawTxInfos.Add(rawTxInfo);
-                            _logger.WriteInfo(
+                            _logger.Info(
                                 $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                         }
                     }
                     sideRawTxInfos.Add(rawTxInfos);
                 }
 
-                _logger.WriteInfo("Waiting for the index");
+                _logger.Info("Waiting for the index");
                 Thread.Sleep(120000);
-                _logger.WriteInfo("Side chain receive the token");
+                _logger.Info("Side chain receive the token");
                 //Side Chain Receive 
                 for (int i = 0; i < SideChains.Count; i++)
                 {
                     for (int j = 0; j < sideRawTxInfos[i].Count; j++)
                     {
-                        _logger.WriteInfo($"Receive CrossTransfer Transaction id is : {sideRawTxInfos[i][j].TxId}");
+                        _logger.Info($"Receive CrossTransfer Transaction id is : {sideRawTxInfos[i][j].TxId}");
                         
                         var result = ReceiveFromMainChain(SideChains[i],sideRawTxInfos[i][j]);
                         if (result == null) continue;
@@ -559,7 +559,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                            
                             while (checkTime > 0)
                             {
-                                _logger.WriteInfo($"Receive {6 - checkTime} time");
+                                _logger.Info($"Receive {6 - checkTime} time");
                                 checkTime--;
                                 var reResult = ReceiveFromMainChain(SideChains[i],sideRawTxInfos[i][j]);
                                 var reResultReturn = reResult.InfoMsg as TransactionResultDto;
@@ -571,33 +571,33 @@ namespace AElf.Automation.SideChain.Verification.Test
                                 Thread.Sleep(2000);
                             }
                             
-                            _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                            _logger.Info($"the receive transaction {resultReturn.TransactionId} is failed.");
                         }
                         GetBalance:
-                        _logger.WriteInfo($"check the balance on the side chain");
+                        _logger.Info($"check the balance on the side chain");
                         var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[i][j].ReceiveAccount, "ELF").Balance;
                 
-                        _logger.WriteInfo($"On side chain {i+1}, Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance}");
+                        _logger.Info($"On side chain {i+1}, Account:{sideRawTxInfos[i][j].ReceiveAccount} balance is {accountBalance}");
                         
                         Thread.Sleep(1000);
                     }
                 }
 
-                _logger.WriteInfo("show the main chain account balance: ");
+                _logger.Info("show the main chain account balance: ");
 
                 for (int i = 0; i < MainChainAccountList.Count; i++)
                 {
                     var accountBalance = MainChain.GetBalance(MainChainAccountList[i], "ELF");
-                    _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
+                    _logger.Info($"Account:{accountBalance.Owner}, balance is:{accountBalance.Balance}");
                 }
 
-                _logger.WriteInfo("show the side chain account balance: ");
+                _logger.Info("show the side chain account balance: ");
                 for (var i = 0; i < SideChains.Count; i++)
                 {
                     for (var j = 0; j < AccountLists[i].Count; j++)
                     {
                         var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
-                        _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
+                        _logger.Info($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
                     }
                 }
 
@@ -611,7 +611,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
         private void MultiCrossChainTransferFromSideChain(int fromSideChainNum)
         {
-            _logger.WriteInfo($"Side chain {fromSideChainNum + 1} transfer to each account");
+            _logger.Info($"Side chain {fromSideChainNum + 1} transfer to each account");
             var sideRawTxInfos = new List<List<TxInfo>>();
             var mainRawTxInfos = new List<TxInfo>();
             for (var i = 0; i < SideChains.Count; i++) //to side chain
@@ -629,7 +629,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                         
                         Thread.Sleep(100);
                         rawTxInfos.Add(rawTxInfo);
-                        _logger.WriteInfo(
+                        _logger.Info(
                             $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                     }
                 }
@@ -646,12 +646,12 @@ namespace AElf.Automation.SideChain.Verification.Test
                     
                     Thread.Sleep(100);
                     mainRawTxInfos.Add(rawTxInfo);
-                    _logger.WriteInfo(
+                    _logger.Info(
                         $"the transactions block is:{rawTxInfo.BlockNumber},transaction id is: {rawTxInfo.TxId}");
                 }
             }
 
-            _logger.WriteInfo("Waiting for the index");
+            _logger.Info("Waiting for the index");
             Thread.Sleep(150000);
                   
             //Side Chain Receive 
@@ -659,12 +659,12 @@ namespace AElf.Automation.SideChain.Verification.Test
             for (var i = 0; i < SideChains.Count; i++)
             {
                 if (i == fromSideChainNum) continue;
-                _logger.WriteInfo("side chain receive the token");
+                _logger.Info("side chain receive the token");
                 for (var j = 0; j < sideRawTxInfos.Count; j++)
                 {
                     for (var k = 0; k < sideRawTxInfos[j].Count; k++)
                     {
-                        _logger.WriteInfo($"Receive CrossTransfer Transaction id is :{sideRawTxInfos[j][k].TxId}");
+                        _logger.Info($"Receive CrossTransfer Transaction id is :{sideRawTxInfos[j][k].TxId}");
                         
                         var crossChainReceiveToken = GetCrossChainReceiveTokenInput(fromSideChainNum,sideRawTxInfos[j][k],fromChainId);
                         if (crossChainReceiveToken == null) continue;
@@ -681,7 +681,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                         {
                             Thread.Sleep(1000);
                             var checkTime = 5;
-                            _logger.WriteInfo($"Receive {6 - checkTime} time");
+                            _logger.Info($"Receive {6 - checkTime} time");
                             while (checkTime > 0)
                             {
                                 checkTime--;
@@ -694,24 +694,24 @@ namespace AElf.Automation.SideChain.Verification.Test
                                     goto GetBalance;
                                 Thread.Sleep(2000);
                             }
-                            _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                            _logger.Info($"the receive transaction {resultReturn.TransactionId} is failed.");
                         }
                 
                         GetBalance:
-                        _logger.WriteInfo($"check the balance on the side chain");
+                        _logger.Info($"check the balance on the side chain");
                         var accountBalance = SideChains[i].GetBalance(sideRawTxInfos[j][k].ReceiveAccount, "ELF").Balance;
                 
-                        _logger.WriteInfo($"On side chain {i+1}, Account:{sideRawTxInfos[j][k].ReceiveAccount} balance is {accountBalance}");
+                        _logger.Info($"On side chain {i+1}, Account:{sideRawTxInfos[j][k].ReceiveAccount} balance is {accountBalance}");
                         Thread.Sleep(1000);
                     }
                 }
             }
 
             //Main chain receive
-            _logger.WriteInfo("Main chain receive the token");
+            _logger.Info("Main chain receive the token");
             for (int i = 0; i < mainRawTxInfos.Count(); i++)
             {   
-                _logger.WriteInfo($"Receive CrossTransfer Transaction id is :{mainRawTxInfos[i].TxId}");
+                _logger.Info($"Receive CrossTransfer Transaction id is :{mainRawTxInfos[i].TxId}");
                 
                 var crossChainReceiveToken = GetCrossChainReceiveTokenInput(fromSideChainNum,mainRawTxInfos[i],fromChainId);
                 if(crossChainReceiveToken == null) continue;
@@ -727,7 +727,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 {
                     Thread.Sleep(1000);
                     var checkTime = 5;
-                    _logger.WriteInfo($"Receive {6 - checkTime} time");
+                    _logger.Info($"Receive {6 - checkTime} time");
                     while (checkTime > 0)
                     {
                         checkTime--;
@@ -740,33 +740,33 @@ namespace AElf.Automation.SideChain.Verification.Test
                             goto GetBalance;
                         Thread.Sleep(2000);
                     }
-                    _logger.WriteInfo($"the receive transaction {resultReturn.TransactionId} is failed.");
+                    _logger.Info($"the receive transaction {resultReturn.TransactionId} is failed.");
                 }
 
                 GetBalance:
-                _logger.WriteInfo($"check the balance on the main chain");
+                _logger.Info($"check the balance on the main chain");
                 var accountBalance = MainChain.GetBalance(mainRawTxInfos[i].ReceiveAccount, "ELF").Balance;
                 
-                _logger.WriteInfo($"On main chain , Account:{mainRawTxInfos[i].ReceiveAccount} balance is {accountBalance}");
+                _logger.Info($"On main chain , Account:{mainRawTxInfos[i].ReceiveAccount} balance is {accountBalance}");
                 Thread.Sleep(1000);
             }
             
             
-            _logger.WriteInfo("show the main chain account balance: ");
+            _logger.Info("show the main chain account balance: ");
 
             for (int i = 0; i < MainChainAccountList.Count; i++)
             {
                 var accountBalacnce = MainChain.GetBalance(MainChainAccountList[i], "ELF");
-                _logger.WriteInfo($"Account:{accountBalacnce.Owner}, balance is:{accountBalacnce.Balance}");
+                _logger.Info($"Account:{accountBalacnce.Owner}, balance is:{accountBalacnce.Balance}");
             }
             
-            _logger.WriteInfo("show the side chain account balance: ");
+            _logger.Info("show the side chain account balance: ");
             for (var i = 0; i < SideChains.Count; i++)
             {
                 for (var j = 0; j < AccountLists[i].Count; j++)
                 {
                     var accountBalance = SideChains[i].GetBalance(AccountLists[i][j], "ELF");
-                    _logger.WriteInfo($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
+                    _logger.Info($"Account:{accountBalance.Owner}, balance is: {accountBalance.Balance}");
                 }
             }
         }
@@ -822,7 +822,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
             if (result == null)
             {
-                _logger.WriteInfo("Transfer transaction is failed.");
+                _logger.Info("Transfer transaction is failed.");
                 Assert.IsTrue(false, "Initial fund transfer failed.");
             }
             var resultReturn = result.InfoMsg as TransactionResultDto;
@@ -834,7 +834,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var checkTime = 5;
             while (checkTime > 0)
             {
-                _logger.WriteInfo($"Transfer {6 - checkTime} time");
+                _logger.Info($"Transfer {6 - checkTime} time");
                 checkTime--;
                 var reResult = chain.TransferToken(initAccount, toAddress, amount, "ELF");
                 if(reResult == null) continue;
@@ -856,7 +856,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var verificationInput = new VerifyTransactionInput
             {
                 ParentChainHeight = txinfo.BlockNumber,
-                TransactionId = Hash.LoadHex(txinfo.TxId),
+                TransactionId = HashHelper.HexStringToHash(txinfo.TxId),
                 VerifiedChainId = 9992731
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -882,7 +882,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             var checkTime = 3;
             while (checkTime > 0)
             {
-                _logger.WriteInfo($"Send verify transaction  {6 - checkTime} time");
+                _logger.Info($"Send verify transaction  {6 - checkTime} time");
                 checkTime--; 
                 result = chain.VerifyTransaction(verificationInput, sideChainAccount);
                 if (result == null) continue;
@@ -904,7 +904,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             int chainId = ChainHelper.ConvertBase58ToChainId(SideChains[sideChainNumber].chainId);
             var verificationInput = new VerifyTransactionInput
             {
-                TransactionId = Hash.LoadHex(txinfo.TxId),
+                TransactionId = HashHelper.HexStringToHash(txinfo.TxId),
                 VerifiedChainId = chainId
             };
             verificationInput.Path.AddRange(merklePath.Path);
@@ -935,7 +935,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 Amount = amount,
                 Memo = "cross chain transfer",
-                To = Address.Parse(toAccount),
+                To = AddressHelper.Base58StringToAddress(toAccount),
                 ToChainId = toChainId,
                 TokenInfo = tokenInfo
             };
@@ -943,7 +943,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             // execute cross chain transfer
             var rawTx = chain.ApiHelper.GenerateTransactionRawTx(fromAccount,
                 chain.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(), crossChainTransferInput);
-            _logger.WriteInfo($"Transaction rawTx is: {rawTx}");
+            _logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = ExecuteMethodWithTxId(chain, rawTx);
             var result = CheckTransactionResult(chain, txId);
             if (result == null)
@@ -956,7 +956,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             if (status == TransactionResultStatus.NotExisted||status == TransactionResultStatus.Failed)
             {
                 Thread.Sleep(2000);
-                _logger.WriteInfo("Check the transaction again.");
+                _logger.Info("Check the transaction again.");
                 result = CheckTransactionResult(chain, txId);
                 txResult = result.InfoMsg as TransactionResultDto;
                 status =
@@ -985,7 +985,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             };
             crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
             var result = chain.CrossChainReceive(rawTxInfo.FromAccount, crossChainReceiveToken);
             return result;
         }
@@ -1009,7 +1009,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.FromHexString(rawTxInfo.RawTx));
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
 
             return crossChainReceiveToken;
         }
@@ -1038,9 +1038,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var txId = Hash.LoadHex(transactionIds[num]);
+                var txId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = txId.DumpByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
@@ -1095,7 +1095,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 chain.ApiHelper.GetBlockHeight(ci);
                 var currentHeight = (long) ci.InfoMsg;
 
-                _logger.WriteInfo("Current block height: {0}", currentHeight);
+                _logger.Info("Current block height: {0}", currentHeight);
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
@@ -1103,7 +1103,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                 }
 
                 Thread.Sleep(4000);
-                _logger.WriteWarn("Block height not changed round: {0}", i + 1);
+                _logger.Warn("Block height not changed round: {0}", i + 1);
             }
 
             Assert.IsTrue(false, "Node block exception, block height not increased anymore.");
@@ -1146,10 +1146,10 @@ namespace AElf.Automation.SideChain.Verification.Test
                         switch (status)
                         {
                             case TransactionResultStatus.Mined:
-                                _logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                                _logger.Info($"Transaction {txId} status: {transactionResult.Status}");
                                 return ci;
                             case TransactionResultStatus.NotExisted:
-                                _logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
+                                _logger.Error($"Transaction {txId} status: {transactionResult.Status}");
                                 return ci;
                             case TransactionResultStatus.Failed:
                             {
@@ -1157,7 +1157,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                                 message +=
                                     $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                                 message += $"\r\nError Message: {transactionResult.Error}";
-                                _logger.WriteError(message);
+                                _logger.Error(message);
                                 return ci;
                             }
                         }
@@ -1169,8 +1169,8 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
 
             var result = ci.InfoMsg as TransactionResultDto;
-            _logger.WriteError(result?.Error);
-            _logger.WriteError("Transaction execute status cannot be 'Mined' after one minutes.");
+            _logger.Error(result?.Error);
+            _logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
 //            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
             return null;
         }

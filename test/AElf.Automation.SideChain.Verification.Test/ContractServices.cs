@@ -22,8 +22,7 @@ namespace AElf.Automation.SideChain.VerificationTest
             Url = url;
             ApiHelper = new WebApiHelper(url,keyStore);
             CallAddress = callAddress;
-            UnlockInitAccount(callAddress);
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             //connect chain
             ConnectionChain();

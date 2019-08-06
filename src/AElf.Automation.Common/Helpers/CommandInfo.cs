@@ -72,13 +72,13 @@ namespace AElf.Automation.Common.Helpers
         {
             if (Result)
             {
-                _logger.WriteInfo("Request: {0}: Result: {1}", Category, "Pass");
-                _logger.WriteInfo(JsonConvert.SerializeObject(InfoMsg));
+                _logger.Info("Request: {0}: Result: {1}", Category, "Pass");
+                _logger.Info(JsonConvert.SerializeObject(InfoMsg));
             }
             else
             {
-                _logger.WriteError("Request: {0}: Result: {1}", Category, "Failed");
-                _logger.WriteError(JsonConvert.SerializeObject(ErrorMsg));
+                _logger.Error("Request: {0}: Result: {1}", Category, "Failed");
+                _logger.Error(JsonConvert.SerializeObject(ErrorMsg));
             }
         }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.Common.Helpers
             if (paraArray.Length == count) return true;
 
             ErrorMsg = "Parameter error.";
-            _logger.WriteError("{0} command parameter is invalid.", Category);
+            _logger.Error("{0} command parameter is invalid.", Category);
             return false;
         }
     }
@@ -149,7 +149,7 @@ namespace AElf.Automation.Common.Helpers
         {
             foreach (var item in CategoryList)
             {
-                _logger.WriteInfo("Command Category: {0}", item.Category);
+                _logger.Info("Command Category: {0}", item.Category);
                 item.Count = item.Commands.Count;
                 item.PassCount = item.Commands.FindAll(x => x.Result).Count;
                 item.FailCount = item.Commands.FindAll(x => x.Result == false).Count;

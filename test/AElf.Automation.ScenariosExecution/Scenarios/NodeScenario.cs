@@ -75,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (electionDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     {
                         count++;
-                        Logger.WriteInfo($"User {fullNode.Account} announcement election success.");
+                        Logger.Info($"User {fullNode.Account} announcement election success.");
                         UserScenario.GetCandidates(Election); //更新candidates列表
                     }
                 }
@@ -91,7 +91,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             if (candidatesKeysList.Count < 2)
             {
-                Logger.WriteInfo("Only one candidate, don't quit election.");
+                Logger.Info("Only one candidate, don't quit election.");
                 return;
             }
 
@@ -105,7 +105,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 if (!(quitResult.InfoMsg is TransactionResultDto electionDto)) continue;
                 if (electionDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
-                Logger.WriteInfo($"User {fullNode.Account} quit election success.");
+                Logger.Info($"User {fullNode.Account} quit election success.");
                 UserScenario.GetCandidates(Election); //更新candidates列表
                 break;
             }
@@ -130,30 +130,30 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             if (!basicProfit.Equals(new ProfitDetails()))
             {
-                Logger.WriteInfo($"40% basic generate block profit balance: {basicProfit}");
+                Logger.Info($"40% basic generate block profit balance: {basicProfit}");
                 TakeProfit(node.Account, ProfitItemIds[ProfitType.BasicMinerReward]);
             }
 
             if (!voteWeightProfit.Equals(new ProfitDetails()))
             {
-                Logger.WriteInfo($"10% vote weight profit balance: {voteWeightProfit}");
+                Logger.Info($"10% vote weight profit balance: {voteWeightProfit}");
                 TakeProfit(node.Account, ProfitItemIds[ProfitType.VotesWeightReward]);
             }
 
             if (!reElectionProfit.Equals(new ProfitDetails()))
             {
-                Logger.WriteInfo($"10% re election profit balance: {reElectionProfit}");
+                Logger.Info($"10% re election profit balance: {reElectionProfit}");
 
                 TakeProfit(node.Account, ProfitItemIds[ProfitType.ReElectionReward]);
             }
 
             if (!backupProfit.Equals(new ProfitDetails()))
             {
-                Logger.WriteInfo($"20% backup node profit balance: {backupProfit}");
+                Logger.Info($"20% backup node profit balance: {backupProfit}");
                 TakeProfit(node.Account, ProfitItemIds[ProfitType.BackSubsidy]);
             }
 
-            Logger.WriteInfo(string.Empty);
+            Logger.Info(string.Empty);
         }
 
         private void NodeQueryInformationAction()
@@ -162,7 +162,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (_termNumber == termNumber)
                 return;
 
-            Logger.WriteInfo($"Current term number is: {termNumber}");
+            Logger.Info($"Current term number is: {termNumber}");
             _termNumber = termNumber;
 
             GetLastTermBalanceInformation(termNumber);
@@ -186,7 +186,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 balanceMessage += $"\r\n{key} balance is {balance}";
             }
 
-            Logger.WriteInfo(balanceMessage);
+            Logger.Info(balanceMessage);
         }
 
         private void GetCandidateHistoryInformation()
@@ -203,7 +203,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                                      $"ProducedBlocks: {candidateResult.ProducedBlocks}\r\n" +
                                      $"MissedTimeSlots: {candidateResult.MissedTimeSlots}\r\n" +
                                      $"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}";
-                Logger.WriteInfo(historyMessage);
+                Logger.Info(historyMessage);
             }
         }
 
@@ -224,7 +224,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     minerArray.Add(full.Name);
             }
 
-            Logger.WriteInfo($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
+            Logger.Info($"TermNumber = {termNumber}, miners are: [{string.Join(",", minerArray)}]");
 
             var candidateArray = new List<string>();
             var candidates = Election.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates, new Empty());
@@ -235,7 +235,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     candidateArray.Add(full.Name);
             }
 
-            Logger.WriteInfo($"TermNumber = {termNumber}, candidates are: [{string.Join(",", candidateArray)}]");
+            Logger.Info($"TermNumber = {termNumber}, candidates are: [{string.Join(",", candidateArray)}]");
         }
 
         private void GetVoteStatus(long termNumber)
@@ -254,7 +254,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     $"Name: {fullNode.Name}, All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount} +\r\n";
             }
 
-            Logger.WriteInfo(voteMessage);
+            Logger.Info(voteMessage);
         }
 
         private void TakeProfit(string account, Hash profitId)
@@ -266,7 +266,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (profitAmount == 0)
                 return;
 
-            Logger.WriteInfo($"ProfitAmount: node {account} profit amount is {profitAmount}");
+            Logger.Info($"ProfitAmount: node {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
             profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
@@ -276,7 +276,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var afterBalance = Token.GetUserBalance(account);
             if (beforeBalance != afterBalance)
-                Logger.WriteInfo(
+                Logger.Info(
                     $"Profit success - node {account} get profit from Id: {profitId}, value is: {afterBalance - beforeBalance}");
         }
     }

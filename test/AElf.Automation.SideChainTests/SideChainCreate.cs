@@ -31,7 +31,7 @@ namespace AElf.Automation.SideChainTests
             var result = Tester.RequestSideChain(account,400000);
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var message = transactionResult.ReadableReturnValue;
-            _logger.WriteInfo($"proposal message is {message}");
+            _logger.Info($"proposal message is {message}");
         }
 
         //708d7c62cb33df097c68686796fa4cba9b418ef3b73cd83ab85086037b5a0a9f 2882050
@@ -47,7 +47,7 @@ namespace AElf.Automation.SideChainTests
             {
                 var result = Tester.Approve(bp, proposalId);
                 var resultDto = result.InfoMsg as TransactionResultDto;
-                _logger.WriteInfo($"Approve is {resultDto.ReadableReturnValue}");
+                _logger.Info($"Approve is {resultDto.ReadableReturnValue}");
             }
         }
 
@@ -61,7 +61,7 @@ namespace AElf.Automation.SideChainTests
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             var creator = CreationRequested.Parser.ParseFrom(byteString).Creator;
-            _logger.WriteInfo($"Side chain id is {chainId}, creator is {creator}");
+            _logger.Info($"Side chain id is {chainId}, creator is {creator}");
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace AElf.Automation.SideChainTests
             
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var message = transactionResult.ReadableReturnValue;
-            _logger.WriteInfo($"proposal message is {message}");
+            _logger.Info($"proposal message is {message}");
         }
         
 
@@ -84,7 +84,7 @@ namespace AElf.Automation.SideChainTests
         public void GetProposal(string proposalId)
         {
             var result = Tester.GetProposal(proposalId);
-            _logger.WriteInfo($"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
+            _logger.Info($"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
             
         }
 
@@ -98,7 +98,7 @@ namespace AElf.Automation.SideChainTests
         public void CheckStatus(int chainId)
         {
             var status = Tester.GetChainStatus(chainId);
-            _logger.WriteInfo($"side chain is {status}");
+            _logger.Info($"side chain is {status}");
         }
 
         [TestMethod]
@@ -116,7 +116,7 @@ namespace AElf.Automation.SideChainTests
             Tester.TokenApprove(account, amount);
             var reCharge = Tester.Recharge(account, chainId, amount);
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
-            _logger.WriteInfo($"side chain lock balance is {balance}");
+            _logger.Info($"side chain lock balance is {balance}");
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@ namespace AElf.Automation.SideChainTests
             var transactionReturn = result.InfoMsg as TransactionResultDto;
             var proposalId = transactionReturn.ReadableReturnValue;
 
-            _logger.WriteInfo($"Disposal chain proposal id is {proposalId}");
+            _logger.Info($"Disposal chain proposal id is {proposalId}");
         }
 
 
@@ -136,10 +136,10 @@ namespace AElf.Automation.SideChainTests
         public void CheckBalance(string account)
         {
             var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
-            _logger.WriteInfo($"side chain balance is {balance}");
+            _logger.Info($"side chain balance is {balance}");
 
             var userBalance = Tester.GetBalance(account, "ELF");
-            _logger.WriteInfo($"user balance is {userBalance}");
+            _logger.Info($"user balance is {userBalance}");
         }
     }
 }

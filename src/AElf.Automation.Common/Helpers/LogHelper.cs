@@ -8,11 +8,11 @@ namespace AElf.Automation.Common.Helpers
     {
         void InitLogHelper(string logFilePath);
 
-        void WriteInfo(string logText, params object[] arg);
+        void Info(string logText, params object[] arg);
 
-        void WriteWarn(string logText, params object[] arg);
+        void Warn(string logText, params object[] arg);
 
-        void WriteError(string logText, params object[] arg);
+        void Error(string logText, params object[] arg);
 
         void Write(LogType logType, string logText, params object[] arg);
 
@@ -113,7 +113,7 @@ namespace AElf.Automation.Common.Helpers
                     _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
                 }
 
-                WriteInfo("Initial log helper successful. Log path is: {0}", logFileSavePath);
+                Info("Initial log helper successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
             {
@@ -121,17 +121,17 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        public void WriteInfo(string logText, params object[] arg)
+        public void Info(string logText, params object[] arg)
         {
             Write(LogType.Info, logText, arg);
         }
 
-        public void WriteWarn(string logText, params object[] arg)
+        public void Warn(string logText, params object[] arg)
         {
             Write(LogType.Warning, logText, arg);
         }
 
-        public void WriteError(string logText, params object[] arg)
+        public void Error(string logText, params object[] arg)
         {
             Write(LogType.Error, logText, arg);
         }

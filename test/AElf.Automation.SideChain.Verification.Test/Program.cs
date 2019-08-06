@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading;
 using AElf.Automation.Common.Helpers;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -77,9 +74,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             }
             catch (Exception e)
             {
-                Logger.WriteError("Message: " + e.Message);
-                Logger.WriteError("Source: " + e.Source);
-                Logger.WriteError("StackTrace: " + e.StackTrace);
+                Logger.Error("Message: " + e.Message);
+                Logger.Error("Source: " + e.Source);
+                Logger.Error("StackTrace: " + e.StackTrace);
             }
             finally
             {
@@ -92,9 +89,9 @@ namespace AElf.Automation.SideChain.Verification.Test
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(operationSet.ThreadCount, operationSet.ExeTimes);
-            Logger.WriteInfo("Log file: {0}", dir);
-            Logger.WriteInfo("Xml file: {0}", xmlFile);
-            Logger.WriteInfo("Complete performance testing.");
+            Logger.Info("Log file: {0}", dir);
+            Logger.Info("Xml file: {0}", xmlFile);
+            Logger.Info("Complete performance testing.");
         }
 
         private static void ExecuteOperation(OperationSet operationSet, int execMode = 0)
@@ -103,7 +100,7 @@ namespace AElf.Automation.SideChain.Verification.Test
             {
                 if (execMode == 0)
                 {
-                    Logger.WriteInfo("Select execution type:");
+                    Logger.Info("Select execution type:");
                     Console.WriteLine("1. Verify main chain transaction");
                     Console.WriteLine("2. Verify side chain transaction");
                     Console.WriteLine("3. Cross Chain Transfer");
@@ -113,7 +110,7 @@ namespace AElf.Automation.SideChain.Verification.Test
                     var check = int.TryParse(runType, out execMode);
                     if (!check)
                     {
-                        Logger.WriteInfo("Wrong input, please input again.");
+                        Logger.Info("Wrong input, please input again.");
                         ExecuteOperation(operationSet);
                     }
                 }
@@ -122,19 +119,19 @@ namespace AElf.Automation.SideChain.Verification.Test
                 switch (tm)
                 {
                     case TestMode.VerifyMainTx:
-                        Logger.WriteInfo($"Run with verify main chain transaction: {tm.ToString()}.");
+                        Logger.Info($"Run with verify main chain transaction: {tm.ToString()}.");
                         Console.Write("Input the txids: ");
                         var txids = Console.ReadLine();
                         operationSet.MainChainTransactionVerifyOnSideChains(txids);
                         break;
                     case TestMode.VerifySideTx:
-                        Logger.WriteInfo($"Run with verify side chain transaction: {tm.ToString()}.");
+                        Logger.Info($"Run with verify side chain transaction: {tm.ToString()}.");
                         Console.Write("Input the side number: ");
                         var sideChainNum = Console.ReadLine();
                         var num = int.Parse(sideChainNum);
                         if (num > SideUrls.Count + 1)
                         {
-                            Logger.WriteInfo("Wrong input, please input again.");
+                            Logger.Info("Wrong input, please input again.");
                             ExecuteOperation(operationSet);
                         }
 
@@ -144,14 +141,14 @@ namespace AElf.Automation.SideChain.Verification.Test
                         operationSet.SideChainTransactionVerifyOnMainChain(num - 1, bn);
                         break;
                     case TestMode.CrossChainTransfer:
-                        Logger.WriteInfo($"Run with cross chain transfer: {tm.ToString()}.");
+                        Logger.Info($"Run with cross chain transfer: {tm.ToString()}.");
                         operationSet.CrossChainTransferToInitAccount();
                         operationSet.MultiCrossChainTransfer();
                         break;
                     case TestMode.NotSet:
                         break;
                     default:
-                        Logger.WriteInfo("Wrong input, please input again.");
+                        Logger.Info("Wrong input, please input again.");
                         execMode = 0;
                         continue;
                 }

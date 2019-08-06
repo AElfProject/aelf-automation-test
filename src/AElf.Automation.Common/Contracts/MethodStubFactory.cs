@@ -63,9 +63,9 @@ namespace AElf.Automation.Common.Contracts
                     if (status != TransactionResultStatus.Pending)
                     {
                         if (status == TransactionResultStatus.Mined)
-                            Logger.WriteInfo($"TransactionId: {resultDto.TransactionId}, Status: {status}");
+                            Logger.Info($"TransactionId: {resultDto.TransactionId}, Status: {status}");
                         else
-                            Logger.WriteError(
+                            Logger.Error(
                                 $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nError Message: {resultDto.Error}");
 
                         break;
@@ -80,7 +80,7 @@ namespace AElf.Automation.Common.Contracts
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
                             : Hash.FromString(resultDto.BlockHash),
@@ -92,7 +92,7 @@ namespace AElf.Automation.Common.Contracts
                     }
                     : new TransactionResult
                     {
-                        TransactionId = Hash.LoadHex(resultDto.TransactionId),
+                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
                             : Hash.FromString(resultDto.BlockHash),
@@ -101,7 +101,7 @@ namespace AElf.Automation.Common.Contracts
                         {
                             resultDto.Logs.Select(o => new LogEvent
                             {
-                                Address = Address.Parse(o.Address),
+                                Address = AddressHelper.Base58StringToAddress(o.Address),
                                 Name = o.Name,
                                 NonIndexed = ByteString.CopyFromUtf8(o.NonIndexed)
                             }).ToArray()
@@ -131,7 +131,7 @@ namespace AElf.Automation.Common.Contracts
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
-                return method.ResponseMarshaller.Deserializer(ByteArrayHelper.FromHexString(returnValue));
+                return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 
             return new MethodStub<TInput, TOutput>(method, SendAsync, CallAsync);

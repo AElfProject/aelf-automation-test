@@ -37,7 +37,7 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper = apiHelper;
             FileName = fileName;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             TxResultList = new ConcurrentQueue<string>();
 
             UnlockAccount(callAddress);
@@ -74,7 +74,7 @@ namespace AElf.Automation.Common.Contracts
                 ApiHelper = apiHelper,
                 ContractAddress = ContractAddress,
 
-                CallAccount = Address.Parse(account),
+                CallAccount = AddressHelper.Base58StringToAddress(account),
                 CallAddress = account,
 
                 TxResultList = new ConcurrentQueue<string>()
@@ -94,7 +94,7 @@ namespace AElf.Automation.Common.Contracts
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
-            Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
+            Logger.Info($"Transaction method: {method}, TxId: {txId}");
             TxResultList.Enqueue(txId);
 
             return txId;
@@ -122,8 +122,9 @@ namespace AElf.Automation.Common.Contracts
             string rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
-            Logger.WriteInfo($"Transaction method: {method}, TxId: {txId}");
-            Logger.WriteInfo($"Transaction rawTx: {rawTx}");
+            Logger.Info($"Transaction method: {method}, TxId: {txId}");
+            Logger.Info($"Transaction rawTx: {rawTx}");
+            
             //Check result
             Thread.Sleep(100); //in case of 'NotExisted' issue
             return CheckTransactionResult(txId);
@@ -154,12 +155,12 @@ namespace AElf.Automation.Common.Contracts
             if (ci.Result)
             {
                 var transactionResult = ci.InfoMsg as TransactionResultDto;
-                Logger.WriteInfo($"Transaction: {txId}, Status: {transactionResult?.Status}");
+                Logger.Info($"Transaction: {txId}, Status: {transactionResult?.Status}");
                 if (transactionResult != null)
                     return transactionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
             }
 
-            Logger.WriteError(ci.GetErrorMessage());
+            Logger.Error(ci.GetErrorMessage());
             return false;
         }
 
@@ -190,10 +191,10 @@ namespace AElf.Automation.Common.Contracts
                         switch (status)
                         {
                             case TransactionResultStatus.Mined:
-                                Logger.WriteInfo($"Transaction {txId} status: {transactionResult.Status}");
+                                Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
                                 return ci;
                             case TransactionResultStatus.NotExisted:
-                                Logger.WriteError($"Transaction {txId} status: {transactionResult.Status}");
+                                Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
                                 return ci;
                             case TransactionResultStatus.Failed:
                             {
@@ -201,7 +202,7 @@ namespace AElf.Automation.Common.Contracts
                                 message +=
                                     $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                                 message += $"\r\nError Message: {transactionResult.Error}";
-                                Logger.WriteError(message);
+                                Logger.Error(message);
                                 return ci;
                             }
                         }
@@ -209,13 +210,18 @@ namespace AElf.Automation.Common.Contracts
                 }
 
                 checkTimes++;
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
+            }
+
+            if (ci != null)
+            {
+                Logger.Error((ci.InfoMsg as TransactionResultDto)?.Error);
             }
             
             var result = ci.InfoMsg as TransactionResultDto;
-            Logger.WriteError(result?.Error);
+            Logger.Error(result?.Error);
 //            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
-            Logger.WriteError("Transaction execute status cannot be 'Mined' after one minutes.");
+            Logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
             return null;
         }
 
@@ -228,7 +234,7 @@ namespace AElf.Automation.Common.Contracts
         public bool SetAccount(string account, string password = "123")
         {
             CallAddress = account;
-            CallAccount = Address.Parse(account);
+            CallAccount = AddressHelper.Base58StringToAddress(account);
 
             //Unlock
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
@@ -269,7 +275,7 @@ namespace AElf.Automation.Common.Contracts
                             {
                                 var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
                                 message += $"{transactionResult.Error}";
-                                Logger.WriteError(message);
+                                Logger.Error(message);
                                 continue;
                             }
                             default:
@@ -362,7 +368,7 @@ namespace AElf.Automation.Common.Contracts
                 if (ci.InfoMsg is SendTransactionOutput transactionOutput)
                 {
                     var txId = transactionOutput.TransactionId;
-                    Logger.WriteInfo($"Transaction: DeploySmartContract, TxId: {txId}");
+                    Logger.Info($"Transaction: DeploySmartContract, TxId: {txId}");
 
                     var result = GetContractAddress(txId, out _);
                     Assert.IsTrue(result, "Get contract address failed.");
@@ -388,7 +394,7 @@ namespace AElf.Automation.Common.Contracts
                 return false;
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
-            Logger.WriteInfo($"Get contract address: TxId: {txId}, Address: {contractAddress}");
+            Logger.Info($"Get contract address: TxId: {txId}, Address: {contractAddress}");
             return true;
         }
 

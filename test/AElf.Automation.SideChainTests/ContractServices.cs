@@ -21,7 +21,7 @@ namespace AElf.Automation.SideChainTests
         { 
             ApiHelper = apiHelper;
             CallAddress = callAddress;
-            CallAccount = Address.Parse(callAddress);
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             UnlockAccounts(ApiHelper,CallAddress,password);
             
             //connect chain

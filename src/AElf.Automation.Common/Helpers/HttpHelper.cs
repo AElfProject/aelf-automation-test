@@ -155,7 +155,7 @@ namespace AElf.Automation.Common.Helpers
                     return response;
                 
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 
                 if(response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
@@ -166,7 +166,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
-                Logger.WriteWarn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry GetResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await GetResponseAsync(url, version, expectedStatusCode, retryTimes);
             }
@@ -209,7 +209,7 @@ namespace AElf.Automation.Common.Helpers
                     return response;
                 
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
@@ -220,7 +220,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
-                Logger.WriteWarn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
             }
@@ -256,7 +256,7 @@ namespace AElf.Automation.Common.Helpers
                     return response;
                 
                 var message = await response.Content.ReadAsStringAsync();
-                Logger.WriteError($"StatusCode: {response.StatusCode}, Message:{message}");
+                Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 
                 if(response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
@@ -267,7 +267,7 @@ namespace AElf.Automation.Common.Helpers
                 retryTimes++;
                 if (retryTimes > MaxRetryTimes) throw new TimeoutException("Retry over times");
 
-                Logger.WriteWarn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
+                Logger.Warn($"Retry DeleteResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
                 return await DeleteResponseAsync(url, version, expectedStatusCode);
             }

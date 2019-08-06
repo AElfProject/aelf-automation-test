@@ -40,7 +40,7 @@ namespace AElf.Automation.ContractsTesting
             }
             catch (AssertFailedException ex)
             {
-                Logger.WriteError($"Execute failed: {ex.Message}");
+                Logger.Error($"Execute failed: {ex.Message}");
             }
 
             return 0;
@@ -110,7 +110,7 @@ namespace AElf.Automation.ContractsTesting
                 };
                 ch.GetBlockByHeight(blockCi);
                 var blockInfo = blockCi.InfoMsg as BlockDto;
-                Logger.WriteInfo("Height={0}, Block Hash={1}, TxCount={2}",
+                Logger.Info("Height={0}, Block Hash={1}, TxCount={2}",
                     i,
                     blockInfo?.BlockHash,
                     blockInfo?.Body.TransactionsCount);

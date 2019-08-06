@@ -50,7 +50,7 @@ namespace AElf.Automation.ContractsTesting
             var address = addressInfo == new Address() ? DeployConfigurationContract() : addressInfo.GetFormatted();
 
             _configurationStub = _stub.Create<ConfigurationContainer.ConfigurationStub>(
-                Address.Parse(address), _account);
+                AddressHelper.Base58StringToAddress(address), _account);
         }
 
         private string DeployConfigurationContract()
@@ -78,13 +78,13 @@ namespace AElf.Automation.ContractsTesting
                 Value = transactionCount
             }).Result;
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            Logger.WriteInfo($"TransactionResult: {result.TransactionResult}");
+            Logger.Info($"TransactionResult: {result.TransactionResult}");
         }
 
         public int GetTransactionLimit()
         {
             var queryResult = _configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()).Result;
-            Logger.WriteInfo($"TransactionLimit: {queryResult.Value}");
+            Logger.Info($"TransactionLimit: {queryResult.Value}");
 
             return queryResult.Value;
         }

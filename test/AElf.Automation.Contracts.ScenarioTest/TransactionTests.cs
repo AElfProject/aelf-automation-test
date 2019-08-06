@@ -49,14 +49,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var transaction = new Transaction
             {
                 From = Address.FromPublicKey(newUserKeyPair.PublicKey),
-                To = Address.Generate(),
+                To = new Address(),
                 MethodName = $"Method-{Guid.NewGuid()}",
-                Params = ByteString.CopyFrom(Hash.Generate().ToByteArray()),
+                Params = ByteString.CopyFrom(Hash.FromString(Guid.NewGuid().ToString()).ToByteArray()),
                 RefBlockNumber = 10
             };
 
             var signature = CryptoHelper.SignWithPrivateKey(newUserKeyPair.PrivateKey,
-                transaction.GetHash().DumpByteArray());
+                transaction.GetHash().ToByteArray());
             transaction.Signature = ByteString.CopyFrom(signature);
 
             return transaction;

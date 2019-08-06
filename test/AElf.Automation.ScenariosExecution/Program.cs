@@ -66,7 +66,7 @@ namespace AElf.Automation.ScenariosExecution
 
             JobManager.Initialize(registry);
             JobManager.JobException += info =>
-                Logger.WriteError($"Error job: {info.Name}, Error message: {info.Exception.Message}");
+                Logger.Error($"Error job: {info.Name}, Error message: {info.Exception.Message}");
 
             //node status monitor
             node.CheckNodeTransactionAction();

@@ -43,8 +43,8 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 var transaction = new Transaction
                 {
-                    From = Address.Parse(from),
-                    To = Address.Parse(to),
+                    From = AddressHelper.Base58StringToAddress(from),
+                    To = AddressHelper.Base58StringToAddress(to),
                     MethodName = methodName,
                     Params = input ?? ByteString.Empty
                 };
@@ -62,7 +62,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         public Transaction SignTransaction(Transaction tx)
         {
-            var txData = tx.GetHash().DumpByteArray();
+            var txData = tx.GetHash().ToByteArray();
             tx.Signature = Sign(tx.From.GetFormatted(), txData);
             return tx;
         }
@@ -92,8 +92,8 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var tr = new Transaction
             {
-                From = Address.Parse(commandInfo.From),
-                To = Address.Parse(commandInfo.To),
+                From = AddressHelper.Base58StringToAddress(commandInfo.From),
+                To = AddressHelper.Base58StringToAddress(commandInfo.To),
                 MethodName = commandInfo.ContractMethod
             };
 
@@ -125,7 +125,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             transaction.RefBlockNumber = height;
             transaction.RefBlockPrefix =
-                ByteString.CopyFrom(ByteArrayHelper.FromHexString(hash).Where((b, i) => i < 4).ToArray());
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(hash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 

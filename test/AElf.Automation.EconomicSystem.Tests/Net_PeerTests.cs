@@ -37,10 +37,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var service = new WebApiService(url);
             var list = service.GetPeers().Result;
-            _logger.WriteInfo($"Peer {url} information");
+            _logger.Info($"Peer {url} information");
             foreach (var peer in list)
             {
-                _logger.WriteInfo(JsonConvert.SerializeObject(peer));
+                _logger.Info(JsonConvert.SerializeObject(peer));
             }
         }
 
@@ -53,7 +53,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var address in addressArray)
             {
                 var result = service.AddPeer(address).Result;
-                _logger.WriteInfo($"Add peer {address} result: {result}");
+                _logger.Info($"Add peer {address} result: {result}");
             }
         }
 
@@ -66,7 +66,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var address in addressArray)
             {
                 var result = service.RemovePeer(address).Result;
-                _logger.WriteInfo($"Remove peer {address} result: {result}");
+                _logger.Info($"Remove peer {address} result: {result}");
             }
 
             GetPeers(url);
