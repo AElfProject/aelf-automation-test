@@ -1,5 +1,5 @@
 {
-  "TestEnvironment":"Other",
+  "TestEnvironment":"Offline",
   "EnvironmentInfo": [
     {
       "Environment": "Online",
@@ -20,16 +20,16 @@
       "Password": "123456"
     }
   ],
-  "ApproveTokenAmount": "800000",
+  "ApproveTokenAmount": "8000000",
   "SideChainInfo": [
     {
       "IndexingPrice": "1",
-      "LockedTokenAmount": "400000",
+      "LockedTokenAmount": "4000000",
       "IsPrivilegePreserved": true
     },
     {
       "IndexingPrice": "1",
-      "LockedTokenAmount": "400000",
+      "LockedTokenAmount": "4000000",
       "IsPrivilegePreserved": true
     }
   ]
