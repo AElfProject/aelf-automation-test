@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
         private readonly string _account;
         private readonly ContractTesterFactory _stub;
         private readonly NodeTransactionOption _nodeTransactionOption;
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         public TransactionExecuteLimit(string url, string account)
         {

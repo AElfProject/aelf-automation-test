@@ -15,7 +15,7 @@ namespace AElf.Automation.ContractsTesting
     {
         #region Private Properties
 
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         #endregion
 

@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.OptionManagers
         private readonly AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {

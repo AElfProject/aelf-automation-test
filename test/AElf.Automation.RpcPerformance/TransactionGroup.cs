@@ -20,7 +20,7 @@ namespace AElf.Automation.RpcPerformance
         private IApiHelper ApiHelper { get; }
         private ConcurrentQueue<List<string>> TransactionsQueue { get; }
 
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         private NodeStatusMonitor NodeMonitor { get; }
 

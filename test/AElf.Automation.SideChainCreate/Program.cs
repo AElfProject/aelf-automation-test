@@ -9,7 +9,7 @@ namespace AElf.Automation.SideChainCreate
     {
         #region Private Properties
 
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         #endregion
         

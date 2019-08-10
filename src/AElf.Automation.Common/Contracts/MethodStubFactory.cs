@@ -23,7 +23,7 @@ namespace AElf.Automation.Common.Contracts
         public WebApiService ApiService { get; }
 
         private readonly string _baseUrl;
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {

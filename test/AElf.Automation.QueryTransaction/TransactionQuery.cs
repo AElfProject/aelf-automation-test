@@ -10,7 +10,7 @@ namespace AElf.Automation.QueryTransaction
 {
     public class TransactionQuery
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private readonly WebApiService _apiService;
         private long _blockHeight = 1;

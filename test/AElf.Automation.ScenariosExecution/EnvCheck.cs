@@ -15,7 +15,7 @@ namespace AElf.Automation.ScenariosExecution
     {
         private string AccountDir { get; }
         private static ConfigInfo _config;
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         private static ContractServices Services { get; set; }
 
         public static EnvCheck GetDefaultEnvCheck()

@@ -6,7 +6,7 @@ namespace AElf.Automation.Common.Helpers
 {
     public static class DataHelper
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         public static bool TryGetValueFromJson(out string value, string jsonInfo, params string[] pathArray)
         {

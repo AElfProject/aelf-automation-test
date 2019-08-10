@@ -14,7 +14,7 @@ namespace AElf.Automation.ScenariosExecution
 {
     public class ContractServices
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }

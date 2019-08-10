@@ -289,6 +289,6 @@ namespace AElf.Automation.Common.Helpers
 
         private static int MaxRetryTimes { get; set; } = 3;
         private static HttpClient Client { get; set; }
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
     }
 }

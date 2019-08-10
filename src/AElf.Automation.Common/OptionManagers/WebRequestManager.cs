@@ -8,7 +8,7 @@ namespace AElf.Automation.Common.OptionManagers
     public class WebRequestManager
     {
         private string BaseUrl { get; set; }
-        private readonly ILog _log = Log.GetLogHelper();
+        private readonly ILog _log = LogHelper.GetLogHelper();
 
         public WebRequestManager(string baseUrl)
         {

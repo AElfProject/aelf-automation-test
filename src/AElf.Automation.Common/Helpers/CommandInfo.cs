@@ -24,7 +24,7 @@ namespace AElf.Automation.Common.Helpers
         public object InfoMsg { get; set; }
         public object ErrorMsg { get; set; }
 
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         public CommandInfo()
         {
@@ -122,7 +122,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private List<CommandInfo> CommandList { get; set; }
         private List<CategoryRequest> CategoryList { get; set; }
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         public CategoryInfoSet(List<CommandInfo> commands)
         {

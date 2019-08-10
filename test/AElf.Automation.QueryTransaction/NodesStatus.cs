@@ -11,7 +11,7 @@ namespace AElf.Automation.QueryTransaction
 {
     public class NodesStatus
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         private readonly List<WebApiService> _apiServices;
         private long _height = 1;
 

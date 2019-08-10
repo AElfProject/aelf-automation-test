@@ -11,7 +11,7 @@ namespace AElf.Automation.ScenariosExecution
     {
         #region Private Properties
 
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         #endregion
 

@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChain.Verification.Test
         public List<VerifyResult> VerifyResultsList { get; set; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         #endregion
 

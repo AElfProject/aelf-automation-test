@@ -20,7 +20,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     [TestClass]
     public class OtherTests
     {
-        private readonly ILog _logger = Log.GetLogHelper();
+        private readonly ILog _logger = LogHelper.GetLogHelper();
 
         [TestInitialize]
         public void InitTest()

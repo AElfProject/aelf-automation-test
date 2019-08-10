@@ -14,7 +14,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class ContractExecution
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
 

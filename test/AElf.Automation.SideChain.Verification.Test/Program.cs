@@ -35,7 +35,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
 
         public static List<string> SideUrls { get; set; }
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
 
         public static int Main(string[] args)
         {

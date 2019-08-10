@@ -12,7 +12,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class NetworkTest
     {
-        private ILog _logger = Log.GetLogHelper();
+        private ILog _logger = LogHelper.GetLogHelper();
         private WebApiHelper _ch1 { get; set; }
         private WebApiHelper _ch2 { get; set; }
         private WebApiHelper _ch3 { get; set; }

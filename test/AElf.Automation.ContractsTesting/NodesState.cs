@@ -6,7 +6,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class NodesState
     {
-        private static readonly ILog Log = Common.Helpers.Log.GetLogHelper();
+        private static readonly ILog Log = LogHelper.GetLogHelper();
 
         public static void NodeStateCheck(string name, string rpcUrl)
         {

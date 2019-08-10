@@ -13,7 +13,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class ConfigurationTransaction
     {
-        private static readonly ILog Logger = Log.GetLogHelper();
+        private static readonly ILog Logger = LogHelper.GetLogHelper();
         private readonly IApiHelper _apiHelper;
         private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
