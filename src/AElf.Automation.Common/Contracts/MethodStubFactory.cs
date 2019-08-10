@@ -103,7 +103,7 @@ namespace AElf.Automation.Common.Contracts
                             {
                                 Address = AddressHelper.Base58StringToAddress(o.Address),
                                 Name = o.Name,
-                                NonIndexed = ByteString.CopyFromUtf8(o.NonIndexed)
+                                NonIndexed = ByteString.FromBase64(o.NonIndexed)
                             }).ToArray()
                         },
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),

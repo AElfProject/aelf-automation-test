@@ -9,6 +9,7 @@ namespace AElf.Automation.RpcPerformance
         int ExeTimes { get; }
         string BaseUrl { get; }
         void InitExecCommand(int userCount = 200);
+        void DeployContractsWithAuthority();
         void DeployContracts();
         void InitializeContracts();
         void PrintContractInfo();

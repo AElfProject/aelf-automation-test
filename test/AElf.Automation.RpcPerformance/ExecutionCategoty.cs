@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
@@ -159,6 +160,17 @@ namespace AElf.Automation.RpcPerformance
 
             Assert.IsFalse(true, "Deployed contract not executed successfully.");
         }
+        
+        public void DeployContractsWithAuthority()
+        {
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                var account = AccountList[i].Account;
+                var authority = new AuthorityManager(BaseUrl, account);
+                var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
+                ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
+            }
+        }
 
         public void InitializeContracts()
         {
@@ -287,7 +299,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
         {
-            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
             var taskList = new List<Task>
             {
@@ -296,10 +308,13 @@ namespace AElf.Automation.RpcPerformance
                 {
                     _logger.Info("Begin generate multi requests.");
 
+                    var enableRandom = ConfigInfoHelper.Config.EnableRandomTransaction;
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     for (var r = 1; r > 0; r++) //continuous running
                     {
+                        //set random tx sending each round
+                        var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
                         try
                         {
                             _logger.Info("Execution transaction request round: {0}", r);
@@ -311,8 +326,8 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     txsTasks.Add(conflict
-                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, ExeTimes))
-                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, ExeTimes)));
+                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes))
+                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, exeTimes)));
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
@@ -324,7 +339,7 @@ namespace AElf.Automation.RpcPerformance
                                 {
                                     var j = i;
                                     //Generate transaction requests
-                                    GenerateRawTransactionQueue(j, ExeTimes);
+                                    GenerateRawTransactionQueue(j, exeTimes);
                                     //Send  transaction requests
                                     _logger.Info(
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
@@ -350,12 +365,10 @@ namespace AElf.Automation.RpcPerformance
                             _logger.Error(message);
                         }
 
-                        if (r % 3 != 0) continue;
-
                         Monitor.CheckNodeHeightStatus(!randomTransactionOption.EnableRandom); //random mode, don't check node height
 
                         stopwatch.Stop();
-                        TransactionSentPerSecond(ThreadCount * ExeTimes * 3, stopwatch.ElapsedMilliseconds);
+                        TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
 
                         UpdateRandomEndpoint(); //update sent transaction to random endpoint
                         
@@ -596,10 +609,18 @@ namespace AElf.Automation.RpcPerformance
             _logger.Info(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
+        
+        private int GetRandomTransactionTimes(bool isRandom, int max)
+        {
+            if (!isRandom) return max;
+
+            var rand = new Random(Guid.NewGuid().GetHashCode());
+            return rand.Next(1, max + 1);
+        }
 
         private void UpdateRandomEndpoint()
         {
-            var randomTransactionOption = ConfigInfoHelper.Config.RandomTransactionOption;
+            var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
             if (!randomTransactionOption.EnableRandom) return;
             while (true)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace AElf.Automation.RpcPerformance
@@ -81,7 +82,11 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 performance.InitExecCommand(1000 + ThreadCount);
-                performance.DeployContracts();
+                var authority = NodeInfoHelper.Config.RequireAuthority;
+                if(authority)
+                    performance.DeployContractsWithAuthority();
+                else
+                    performance.DeployContracts();
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);

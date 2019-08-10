@@ -1,0 +1,10 @@
+{
+    "RequireAuthority": true,
+    "Nodes": [
+        {
+            "name": "bp",
+            "account": "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+            "password": "123"
+        }
+    ]
+}

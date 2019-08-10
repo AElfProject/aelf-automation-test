@@ -88,4 +88,10 @@
     <Folder Include="Protobuf\Generated" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="nodes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

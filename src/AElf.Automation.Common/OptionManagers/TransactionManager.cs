@@ -75,6 +75,7 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 _cmdInfo.ErrorMsg = $"The following account is locked: {addr}";
                 _cmdInfo.Result = false;
+                _logger.Error(_cmdInfo.ErrorMsg.ToString());
                 return null;
             }
 

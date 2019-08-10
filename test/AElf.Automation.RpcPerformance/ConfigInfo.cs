@@ -30,6 +30,7 @@ namespace AElf.Automation.RpcPerformance
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
+        [JsonProperty("EnableRandomTransaction")] public bool EnableRandomTransaction { get; set; }
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; }
         [JsonProperty("SentTxLimit")] public int SentTxLimit { get; set; }
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }
@@ -37,7 +38,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("Conflict")] public bool Conflict { get; set; }
         [JsonProperty("ReadOnlyTransaction")] public bool ReadOnlyTransaction { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
-        [JsonProperty("RandomSentTransaction")] public RandomTransactionOption RandomTransactionOption { get; set; }
+        [JsonProperty("RequestRandomEndpoint")] public RandomTransactionOption RandomEndpointOption { get; set; }
     }
 
     public static class ConfigInfoHelper

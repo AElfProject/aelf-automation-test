@@ -11,7 +11,6 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.RpcPerformance
@@ -82,6 +81,10 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(ApiHelper);
         }
 
+        public void DeployContractsWithAuthority()
+        {
+        }
+        
         public void DeployContracts()
         {
         }
