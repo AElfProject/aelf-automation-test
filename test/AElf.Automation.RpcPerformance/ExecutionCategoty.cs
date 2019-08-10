@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
@@ -35,6 +36,7 @@ namespace AElf.Automation.RpcPerformance
         public int ThreadCount { get; }
         public int ExeTimes { get; }
         public bool LimitTransaction { get; }
+        private TokenContract SystemToken { get; set; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -77,6 +79,9 @@ namespace AElf.Automation.RpcPerformance
 
             //Unlock Account
             UnlockAllAccounts(userCount);
+            
+            //Prepare basic token for test - Disable now
+            TransferTokenForTest(false);
 
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
@@ -88,6 +93,24 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(ApiHelper);
         }
 
+        private void TransferTokenForTest(bool enable)
+        {
+            if (!enable) return;
+            try
+            {
+                SystemToken = GetSystemToken(AccountList.First().Account);
+                var bpNode = NodeInfoHelper.Config.Nodes.First();
+                for (var i = 0; i < ThreadCount; i++)
+                {
+                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 9000_000_000);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Prepare basic ELF token got exception.");
+                Logger.Error(e);
+            }
+        }
         public void DeployContracts()
         {
             var contractList = new List<object>();
@@ -647,6 +670,14 @@ namespace AElf.Automation.RpcPerformance
                     Logger.Error($"Query transaction pool status got exception : {ex.Message}");
                 }
             }
+        }
+
+        private TokenContract GetSystemToken(string account)
+        {
+            var genesis = GenesisContract.GetGenesisContract(ApiHelper, account);
+            var tokenAddress = genesis.GetContractAddressByName(NameProvider.TokenName);
+            
+            return new TokenContract(ApiHelper, account, tokenAddress.GetFormatted());
         }
 
         #endregion

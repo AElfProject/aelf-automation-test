@@ -1,8 +1,8 @@
 {
     "GroupCount": 4,
-    "TransactionCount": 30,
+    "TransactionCount": 3000,
     "EnableRandomTransaction": true,
-    "ServiceUrl": "192.168.197.46:8000",
+    "ServiceUrl": "127.0.0.1:8000",
     "SentTxLimit": 200,
     "ExecuteMode": 4,
     "Timeout": 300,
@@ -11,9 +11,9 @@
     "NodeTransactionLimit": {
         "enable_limit": true,
         "max_transactions_select": 100
-    },
+    }, 
     "RequestRandomEndpoint": {
-        "enable_random": true,
+        "enable_random": false,
         "endpoint_list": [
             "192.168.197.46:8000",
             "192.168.197.47:8000",

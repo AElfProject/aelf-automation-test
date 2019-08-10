@@ -5,7 +5,6 @@ using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
 using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;

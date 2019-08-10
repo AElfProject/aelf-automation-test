@@ -119,14 +119,6 @@ namespace AElf.Automation.Common.OptionManagers
             return _accounts.Contains(address);
         }
 
-        public bool AccountIsExist(string address)
-        {
-            if(_accounts == null)
-                ListAccount();
-            
-            return _accounts.Contains(address);
-        }
-
         private ECKeyPair GetKeyPair(string addr)
         {
             var kp = _keyStore.GetAccountKeyPair(addr);
