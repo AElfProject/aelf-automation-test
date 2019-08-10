@@ -46,7 +46,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return Nodes.Where(o => miners.Contains(o.PublicKey)).ToList();
         }
     }
-    
+
     public static class NodeInfoHelper
     {
         private static NodesInfo _instance;

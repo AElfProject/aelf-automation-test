@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using log4net;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace AElf.Automation.SideChain.Verification.Test
@@ -35,7 +36,7 @@ namespace AElf.Automation.SideChain.Verification.Test
 
 
         public static List<string> SideUrls { get; set; }
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public static int Main(string[] args)
         {
@@ -63,10 +64,8 @@ namespace AElf.Automation.SideChain.Verification.Test
             var operationSet = new OperationSet(ThreadCount, TransactionGroup, InitAccount, SideUrls, MainUrl);
 
             //Init Logger
-            var logName = "CrossCHainTh_" + operationSet.ThreadCount + "_Tx_" + operationSet.ExeTimes + "_" +
-                          DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            var logName = "CrossChainTh_" + operationSet.ThreadCount + "_Tx_" + operationSet.ExeTimes;
+            Log4NetHelper.LogInit(logName);
 
             //Execute transaction command
             try
@@ -92,7 +91,6 @@ namespace AElf.Automation.SideChain.Verification.Test
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(operationSet.ThreadCount, operationSet.ExeTimes);
-            Logger.Info("Log file: {0}", dir);
             Logger.Info("Xml file: {0}", xmlFile);
             Logger.Info("Complete performance testing.");
         }

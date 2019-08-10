@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using log4net;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
 {
     public static class DataHelper
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public static bool TryGetValueFromJson(out string value, string jsonInfo, params string[] pathArray)
         {

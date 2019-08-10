@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nito.AsyncEx;
 
@@ -15,7 +16,7 @@ namespace AElf.Automation.ScenariosExecution
     {
         private string AccountDir { get; }
         private static ConfigInfo _config;
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private static ContractServices Services { get; set; }
 
         public static EnvCheck GetDefaultEnvCheck()

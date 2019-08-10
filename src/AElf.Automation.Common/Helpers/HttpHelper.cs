@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using Newtonsoft.Json.Serialization;
 using Volo.Abp.Threading;
 
@@ -107,7 +108,6 @@ namespace AElf.Automation.Common.Helpers
         public static async Task<T> GetResponseAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            //$"Get request to: {url}".WriteSuccessLine();
             var strResponse = await GetResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -151,13 +151,13 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.GetAsync(url);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
-                if(response.StatusCode == HttpStatusCode.Forbidden)
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
@@ -203,12 +203,12 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.PostAsync(url, content);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
+
                 if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
@@ -220,7 +220,8 @@ namespace AElf.Automation.Common.Helpers
 
                 Logger.Warn($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
                 Thread.Sleep(5000);
-                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode);
+                return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode,
+                    retryTimes);
             }
         }
 
@@ -250,13 +251,13 @@ namespace AElf.Automation.Common.Helpers
             try
             {
                 var response = await client.DeleteAsync(url);
-                if (response.StatusCode == expectedStatusCode) 
+                if (response.StatusCode == expectedStatusCode)
                     return response;
-                
+
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
-                if(response.StatusCode == HttpStatusCode.Forbidden)
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
                     throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
@@ -287,8 +288,8 @@ namespace AElf.Automation.Common.Helpers
             return Client;
         }
 
-        private static int MaxRetryTimes { get; set; } = 3;
+        private static int MaxRetryTimes { get; } = 3;
         private static HttpClient Client { get; set; }
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

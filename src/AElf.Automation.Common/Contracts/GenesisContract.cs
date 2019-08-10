@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Genesis;
 using AElf.Types;
 using Google.Protobuf;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -13,12 +16,12 @@ namespace AElf.Automation.Common.Contracts
         DeploySystemSmartContract,
         DeploySmartContract,
         UpdateSmartContract,
-        ChangeContractOwner,
+        ChangeContractAuthor,
 
         //view
         CurrentContractSerialNumber,
         GetContractInfo,
-        GetContractOwner,
+        GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
         GetSmartContractRegistrationByAddress
@@ -28,7 +31,8 @@ namespace AElf.Automation.Common.Contracts
     {
         ElectionName,
         ProfitName,
-        VoteSystemName,
+        VoteName,
+        TreasuryName,
         TokenName,
         TokenConverterName,
         FeeReceiverName,
@@ -54,20 +58,18 @@ namespace AElf.Automation.Common.Contracts
 
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
         {
-            var chainInfo = new CommandInfo(ApiMethods.GetChainInformation);
-            ch.GetChainInformation(chainInfo);
             var genesisContract = ch.GetGenesisContractAddress();
             Logger.Info($"Genesis contract Address: {genesisContract}");
 
             return new GenesisContract(ch, callAddress, genesisContract);
         }
-
+        
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(contractFileName);
 
-            var contractOwner = GetContractOwner(contractAddress);
+            var contractOwner = GetContractAuthor(contractAddress);
             if (contractOwner.GetFormatted() != account)
                 Logger.Error("Account have no permission to update.");
 
@@ -92,16 +94,25 @@ namespace AElf.Automation.Common.Contracts
             return address;
         }
 
-        public Address GetContractOwner(Address contractAddress)
+        public Address GetContractAuthor(Address contractAddress)
         {
-            var address = CallViewMethod<Address>(GenesisMethod.GetContractOwner, contractAddress);
+            var address = CallViewMethod<Address>(GenesisMethod.GetContractAuthor, contractAddress);
 
             return address;
         }
 
-        public Address GetContractOwner(string contractAddress)
+        public Address GetContractAuthor(string contractAddress)
         {
-            return GetContractOwner(AddressHelper.Base58StringToAddress(contractAddress));
+            return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
+        }
+
+        public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
+        {
+            var caller = callAddress ?? CallAddress;
+            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var contractStub =
+                stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(AddressHelper.Base58StringToAddress(ContractAddress), caller);
+            return contractStub;
         }
 
         private static Dictionary<NameProvider, Hash> InitializeSystemContractsName()
@@ -110,7 +121,8 @@ namespace AElf.Automation.Common.Contracts
             {
                 {NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election")},
                 {NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit")},
-                {NameProvider.VoteSystemName, Hash.FromString("AElf.ContractNames.Vote")},
+                {NameProvider.VoteName, Hash.FromString("AElf.ContractNames.Vote")},
+                {NameProvider.TreasuryName, Hash.FromString("AElf.ContractNames.Treasury")},
                 {NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token")},
                 {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver")},

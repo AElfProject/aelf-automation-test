@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Contracts.Profit;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -29,7 +29,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
@@ -51,11 +51,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             ElectionService.SetAccount(account);
             var list = new List<string>();
-            for (int i = 1; i <= times; i++)
+            for (var i = 1; i <= times; i++)
             {
                 var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
                 {
-                    CandidatePublicKey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                    CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
                     Amount = i,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
                 });
@@ -66,24 +66,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             return list;
         }
 
-        public CommandInfo ReleaseProfit(long period, int amount, string profitId)
-        {
-            var result =
-                ProfitService.ExecuteMethodWithResult(ProfitMethod.ReleaseProfit, new ReleaseProfitInput
-                {
-                    Period = period,
-                    Amount = amount,
-                    ProfitId = HashHelper.HexStringToHash(profitId)
-                });
-            return result;
-        }
-
         public CommandInfo Profit(string account, Hash profitId)
         {
             ProfitService.SetAccount(account);
-            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId
+                SchemeId = profitId
             });
 
             return result;

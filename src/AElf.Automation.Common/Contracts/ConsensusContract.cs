@@ -57,7 +57,7 @@ namespace AElf.Automation.Common.Contracts
 
             return round.TermNumber;
         }
-        
+
         public List<string> GetCurrentMiners()
         {
             var miners = CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());

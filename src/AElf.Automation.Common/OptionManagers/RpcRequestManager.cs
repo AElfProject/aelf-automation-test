@@ -1,5 +1,6 @@
 ﻿using AElf.Automation.Common.Helpers;
 using System.Collections.Generic;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +12,7 @@ namespace AElf.Automation.Common.OptionManagers
         private string RpcParameter { get; set; }
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
-        private readonly ILog _log = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public RpcRequestManager(string url, string path = "chain")
         {
@@ -49,24 +50,18 @@ namespace AElf.Automation.Common.OptionManagers
         public JObject PostRequest(string method)
         {
             var requestString = CreateRequest(new JObject(), method, 0).ToString();
-            string response = PostRequest(method, requestString, out var returnCode);
+            var response = PostRequest(method, requestString, out var returnCode);
             var result = CheckRpcRequestResult(returnCode, response);
-            if (result)
-                return JsonConvert.DeserializeObject<JObject>(response);
-
-            return new JObject();
+            return result ? JsonConvert.DeserializeObject<JObject>(response) : new JObject();
         }
 
         public JObject PostRequest(ApiMethods api)
         {
             var method = api.ToString();
             var requestString = CreateRequest(new JObject(), method, 0).ToString();
-            string response = PostRequest(method, requestString, out var returnCode);
+            var response = PostRequest(method, requestString, out var returnCode);
             var result = CheckRpcRequestResult(returnCode, response);
-            if (result)
-                return JsonConvert.DeserializeObject<JObject>(response);
-
-            return new JObject();
+            return result ? JsonConvert.DeserializeObject<JObject>(response) : new JObject();
         }
 
         public string PostRequest(List<string> rpcBody, out string returnCode)
@@ -86,7 +81,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         public static JObject CreateRequest(JObject requestData, string method, int id)
         {
-            JObject jObj = new JObject
+            var jObj = new JObject
             {
                 ["jsonrpc"] = "2.0",
                 ["id"] = id,
@@ -101,23 +96,20 @@ namespace AElf.Automation.Common.OptionManagers
         {
             if (response == null)
             {
-                _log.Error("Could not connect to server.");
+                Logger.Error("Could not connect to server.");
                 return false;
             }
 
             if (returnCode != "OK")
             {
-                _log.Error("Http request failed, status: " + returnCode);
+                Logger.Error("Http request failed, status: " + returnCode);
                 return false;
             }
 
-            if (string.IsNullOrEmpty(response))
-            {
-                _log.Error("Failed. Pleas check input.");
-                return false;
-            }
+            if (!string.IsNullOrEmpty(response)) return true;
 
-            return true;
+            Logger.Error("Failed. Pleas check input.");
+            return false;
         }
     }
 }

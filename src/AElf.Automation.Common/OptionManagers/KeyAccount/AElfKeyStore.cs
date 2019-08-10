@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -96,6 +98,9 @@ namespace AElf.Automation.Common.OptionManagers
 
         public ECKeyPair GetAccountKeyPair(string address)
         {
+            var kp = _openAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+            if (kp != null) return kp;
+            AsyncHelper.RunSync(() => OpenAsync(address, "123", null));
             return _openAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
         }
 

@@ -7,13 +7,14 @@ using AElf.Types;
 using Configuration;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Shouldly;
 
 namespace AElf.Automation.ContractsTesting
 {
     public class ConfigurationTransaction
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly IApiHelper _apiHelper;
         private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;

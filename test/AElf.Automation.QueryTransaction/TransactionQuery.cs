@@ -4,13 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.QueryTransaction
 {
     public class TransactionQuery
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private readonly WebApiService _apiService;
         private long _blockHeight = 1;

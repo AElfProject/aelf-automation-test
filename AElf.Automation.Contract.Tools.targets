@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProtoBaseDir>..\AElf\protobuf</ProtoBaseDir>
@@ -34,14 +35,14 @@
 
         <MakeDir Condition="@(ProtoMessage) != ''" Directories="$(LocalProtobufDir)/Generated" />
 
-        <Exec Condition="@(ProtoMessage) != ''" Command="$(GenerateProtoCommand) %(Identity)"/>
+        <Exec Condition="@(ProtoMessage) != ''" Command="$(GenerateProtoCommand) %(Identity)" />
         <Exec Condition="@(ProtoContract) != ''" Command="$(GenerateStubCommand) %(Identity)" />
     </Target>
 
     <Target Name="UpdateGeneratedFiles" DependsOnTargets="Gen_proto" BeforeTargets="BeforeBuild">
         <ItemGroup>
-            <Compile Remove="Protobuf/Generated/*.cs"/>
-            <Compile Include="Protobuf/Generated/*.cs"/>
+            <Compile Remove="Protobuf/Generated/*.cs" />
+            <Compile Include="Protobuf/Generated/*.cs" />
         </ItemGroup>
     </Target>
 </Project>

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AElf.Automation.Common.Helpers
 {
-    public interface ILog
+    public interface ILogHelper
     {
         void InitLogHelper(string logFilePath);
 
@@ -28,7 +28,7 @@ namespace AElf.Automation.Common.Helpers
         Error
     }
 
-    public class LogHelper : ILog, IDisposable
+    public class LogHelper : ILogHelper, IDisposable
     {
         private static LogHelper _logger;
         private static readonly object InitObject = new object();
@@ -44,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         {
         }
 
-        public static ILog GetLogHelper()
+        public static ILogHelper GetLogger()
         {
             if (_logger != null) return _logger;
             lock (InitObject)
@@ -178,8 +178,6 @@ namespace AElf.Automation.Common.Helpers
 
                     _streamWriter.WriteLine(text);
                     _streamWriter.Flush();
-
-                    //Console.WriteLine(text);
                 }
                 catch (Exception exception)
                 {

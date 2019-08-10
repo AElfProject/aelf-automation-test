@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using AElf.Cryptography;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
@@ -8,6 +7,7 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.OptionManagers
         private readonly AElfKeyStore _keyStore;
         private CommandInfo _cmdInfo;
         private AccountManager _accountManager;
-        private readonly ILog _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
@@ -75,7 +75,6 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 _cmdInfo.ErrorMsg = $"The following account is locked: {addr}";
                 _cmdInfo.Result = false;
-                _logger.Error(_cmdInfo.ErrorMsg.ToString());
                 return null;
             }
 

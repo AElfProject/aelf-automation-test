@@ -5,20 +5,22 @@ using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
 using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 
 namespace AElf.Automation.Common.OptionManagers.Authority
 {
     public class AuthorityManager
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private NodesInfo _info;
         private GenesisContract _genesis;
         private ConsensusContract _consensus;
         private ParliamentAuthContract _parliament;
-        
+
         public AuthorityManager(string serviceUrl, string caller)
         {
             var apiHelper = new WebApiHelper(serviceUrl);
@@ -33,7 +35,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             var parliamentAddress = _genesis.GetContractAddressByName(NameProvider.ParliamentName);
             _parliament = new ParliamentAuthContract(apiHelper, caller, parliamentAddress.GetFormatted());
         }
-        
+
         public Address DeployContractWithAuthority(string caller, string contractName)
         {
             Logger.Info($"Deploy contract: {contractName}");
@@ -60,7 +62,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
                 input, organizationAddress, currentMiners, caller);
             var byteString = transactionResult.Logs.First().NonIndexed;
             var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
-            Logger.Info($"Contract deploy passed authority, contract address: {address.GetFormatted()}");
+            Logger.Info($"Contract deploy passed authority, contract address: {address}");
 
             return address;
         }

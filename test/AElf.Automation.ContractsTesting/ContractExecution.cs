@@ -5,6 +5,7 @@ using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Shouldly;
 using BetInput = AElf.Contracts.TestContract.BasicFunction.BetInput;
 using BetLimitInput = AElf.Contracts.TestContract.BasicUpdate.BetLimitInput;
@@ -14,7 +15,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class ContractExecution
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly IApiHelper _apiHelper;
         private readonly string _account;
 
@@ -45,7 +46,7 @@ namespace AElf.Automation.ContractsTesting
 
         public async Task UpdateContract()
         {
-            var owner = _genesisContract.GetContractOwner(_contractAddress);
+            var owner = _genesisContract.GetContractAuthor(_contractAddress);
 
             _genesisContract.SetAccount(owner.GetFormatted());
             var result = _genesisContract.UpdateContract(owner.GetFormatted(), _contractAddress,

@@ -58,7 +58,8 @@ namespace AElf.Automation.Common.Contracts
         public TokenContractContainer.TokenContractStub GetTokenContractTester()
         {
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
-            var tokenStub = stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
+            var tokenStub =
+                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
             return tokenStub;
         }
     }

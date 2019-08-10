@@ -5,6 +5,8 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -13,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
         private readonly IApiService ApiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private readonly ILog _logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private const int Phase = 120;
 
@@ -75,22 +77,22 @@ namespace AElf.Automation.RpcPerformance
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
             var timePerTx = totalTransactions / GetTotalBlockSeconds(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
-            _logger.Info($"Summary Information: {Phase} blocks from height " +
-                              $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
-                              $"{totalTransactions} transactions. Average per block are {averageTx} txs during " +
-                              $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +
-                              $"Average each block generated in {timePerBlock} milliseconds. " +
-                              $"{timePerTx} txs executed per second.");
+            Logger.Info($"Summary Information: {Phase} blocks from height " +
+                        $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
+                        $"{totalTransactions} transactions. Average per block are {averageTx} txs during " +
+                        $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +
+                        $"Average each block generated in {timePerBlock} milliseconds. " +
+                        $"{timePerTx} txs executed per second.");
         }
 
         private long GetBlockHeight()
         {
-            return ApiService.GetBlockHeight().Result;
+            return AsyncHelper.RunSync(ApiService.GetBlockHeight);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return ApiService.GetBlockByHeight(height).Result;
+            return AsyncHelper.RunSync(() => ApiService.GetBlockByHeight(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

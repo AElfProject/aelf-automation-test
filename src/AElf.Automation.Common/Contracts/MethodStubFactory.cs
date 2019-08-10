@@ -9,6 +9,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.DependencyInjection;
 
@@ -23,7 +24,7 @@ namespace AElf.Automation.Common.Contracts
         public WebApiService ApiService { get; }
 
         private readonly string _baseUrl;
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public MethodStubFactory(string baseUrl, string keyPath = "")
         {

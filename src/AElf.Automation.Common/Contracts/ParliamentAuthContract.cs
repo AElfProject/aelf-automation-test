@@ -1,3 +1,4 @@
+using System;
 using Acs3;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.ParliamentAuth;
@@ -13,13 +14,12 @@ namespace AElf.Automation.Common.Contracts
 {
     public enum ParliamentMethod
     {
-        //View,
-        GetGenesisOwnerAddress,
         //Action
         Approve,
         CreateProposal,
-        CreateOrganization,
-        Release
+        
+        //View
+        GetGenesisOwnerAddress
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
@@ -30,7 +30,7 @@ namespace AElf.Automation.Common.Contracts
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
-        
+
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress, string caller = null)
         {
             var tester = GetParliamentAuthContractTester(caller);

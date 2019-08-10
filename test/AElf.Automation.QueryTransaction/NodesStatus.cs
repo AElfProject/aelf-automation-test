@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using log4net;
 using Nito.AsyncEx;
 
 namespace AElf.Automation.QueryTransaction
 {
     public class NodesStatus
     {
-        private static readonly ILog Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly List<WebApiService> _apiServices;
         private long _height = 1;
 

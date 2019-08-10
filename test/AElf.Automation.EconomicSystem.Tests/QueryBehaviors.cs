@@ -1,8 +1,8 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Profit;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using TermSnapshot = AElf.Contracts.Election.TermSnapshot;
@@ -14,9 +14,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         #region Election View Methods
 
-        public PublicKeysList GetVictories()
+        public PubkeyList GetVictories()
         {
-            var result = ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetVictories,
+            var result = ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetVictories,
                 new Empty());
 
             return result;
@@ -39,10 +39,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             return result;
         }
 
-        public PublicKeysList GetCandidates()
+        public PubkeyList GetCandidates()
         {
             var result =
-                ElectionService.CallViewMethod<PublicKeysList>(ElectionMethod.GetCandidates,
+                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
                     new Empty());
 
             return result;
@@ -98,68 +98,12 @@ namespace AElf.Automation.EconomicSystem.Tests
         #region ProfitService View Method
 
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
-        public CreatedProfitItems GetCreatedProfitItems()
+        public CreatedSchemeIds GetCreatedProfitItems()
         {
-            var result = ProfitService.CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,
-                new GetCreatedProfitItemsInput
+            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
+                new GetManagingSchemeIdsInput
                 {
-                    Creator = ContractServices.GenesisService.GetContractAddressByName(NameProvider.ElectionName)
-                });
-            return result;
-        }
-
-        public ProfitItem GetProfitItem(string hex)
-        {
-            var result = ProfitService.CallViewMethod<ProfitItem>(ProfitMethod.GetProfitItem,
-                new Hash()
-                {
-                    Value = HashHelper.HexStringToHash(hex).Value
-                });
-            return result;
-        }
-
-        public Address GetProfitItemVirtualAddress(Hash profitId, long period)
-        {
-            var result = ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
-                    Period = period
-                });
-
-            return result;
-        }
-
-        public Address GetTreasuryAddress(Hash profitId, long period = 0)
-        {
-            return ProfitService.CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
-                    Period = period
-                });
-        }
-
-        public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)
-        {
-            var result =
-                ProfitService.CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
-                    new GetProfitDetailsInput
-                    {
-                        Receiver = AddressHelper.Base58StringToAddress(voteAddress),
-                        ProfitId = profitId
-                    });
-            return result;
-        }
-
-        public ReleasedProfitsInformation GetReleasedProfitsInformation(Hash profitId, long period)
-        {
-            var result = ProfitService.CallViewMethod<ReleasedProfitsInformation>(
-                ProfitMethod.GetReleasedProfitsInformation,
-                new GetReleasedProfitsInformationInput
-                {
-                    ProfitId = profitId,
-                    Period = period
+                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.TreasuryName)
                 });
             return result;
         }
