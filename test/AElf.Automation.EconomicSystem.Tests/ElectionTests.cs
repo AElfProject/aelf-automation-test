@@ -13,7 +13,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILog _logger = Log.GetLogHelper();
         protected static string RpcUrl { get; } = "http://3.1.220.141:8000";
 
         protected Behaviors Behaviors;

@@ -17,7 +17,7 @@ namespace AElf.Automation.Common.Helpers
         private string _baseUrl;
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog _logger = Log.GetLogHelper();
         private Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
         private string _genesisAddress;

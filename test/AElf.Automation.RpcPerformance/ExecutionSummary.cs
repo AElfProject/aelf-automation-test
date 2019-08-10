@@ -13,7 +13,7 @@ namespace AElf.Automation.RpcPerformance
         private readonly IApiService ApiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog _logger = Log.GetLogHelper();
 
         private const int Phase = 120;
 

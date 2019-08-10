@@ -9,7 +9,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class BaseScenario
     {
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        protected static readonly ILog Logger = Log.GetLogHelper();
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }

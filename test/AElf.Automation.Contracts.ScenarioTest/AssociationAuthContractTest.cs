@@ -20,7 +20,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class AssociationAuthContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog _logger = Log.GetLogHelper();
         protected ContractTester Tester;
         public WebApiHelper CH { get; set; }
         public List<string> UserList { get; set; }

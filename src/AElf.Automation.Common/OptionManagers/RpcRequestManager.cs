@@ -11,7 +11,7 @@ namespace AElf.Automation.Common.OptionManagers
         private string RpcParameter { get; set; }
         private string RpcBody { get; set; }
         private string RpcUrl { get; set; }
-        private readonly ILogHelper _log = LogHelper.GetLogHelper();
+        private readonly ILog _log = Log.GetLogHelper();
 
         public RpcRequestManager(string url, string path = "chain")
         {

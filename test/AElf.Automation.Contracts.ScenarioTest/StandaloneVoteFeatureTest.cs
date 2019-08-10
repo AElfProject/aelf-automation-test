@@ -14,7 +14,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public ILog Logger = Log.GetLogHelper();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
         public string DividendsAbi { get; set; }

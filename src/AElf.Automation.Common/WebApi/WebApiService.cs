@@ -11,7 +11,7 @@ namespace AElf.Automation.Common.WebApi
     {
         public string BaseUrl { get; }
         private Dictionary<ApiMethods, string> _apiRoute;
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILog _logger = Log.GetLogHelper();
 
         public WebApiService(string baseUrl)
         {

@@ -1,4 +1,6 @@
-﻿using AElf.Automation.Common.Helpers;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
 using Google.Protobuf.WellKnownTypes;
 
@@ -54,6 +56,12 @@ namespace AElf.Automation.Common.Contracts
             var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
 
             return round.TermNumber;
+        }
+        
+        public List<string> GetCurrentMiners()
+        {
+            var miners = CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            return miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
         }
     }
 }

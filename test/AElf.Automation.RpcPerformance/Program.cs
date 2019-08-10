@@ -34,7 +34,7 @@ namespace AElf.Automation.RpcPerformance
 
         #endregion
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log.GetLogHelper();
 
         public static int Main(string[] args)
         {

@@ -9,7 +9,7 @@ namespace AElf.Automation.QueryTransaction
 {
     public class StressQuery
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log.GetLogHelper();
         private readonly WebApiService _apiService;
 
         public StressQuery(string url)

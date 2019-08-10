@@ -14,7 +14,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class ResourceContractsTest
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log.GetLogHelper();
         public string TokenContract { get; set; }
         public WebApiHelper ApiHelper { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";

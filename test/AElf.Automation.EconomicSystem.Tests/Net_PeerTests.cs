@@ -19,7 +19,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string Full3Url = "http://192.168.199.205:8300";
         public string Full4Url = "http://192.168.199.205:8400";
 
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILog _logger = Log.GetLogHelper();
         protected IApiHelper CH { get; set; }
 
         [TestInitialize]
