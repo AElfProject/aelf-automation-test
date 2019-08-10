@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
+using AElf.Types;
+using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ProtoBuf;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -25,6 +30,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 "{\"result\":\"Mined\", \"message\":\"Test successful.\", \"return_code\":\"90000\", \"detail\":{\"info\":\"successful\"}}";
             var result1 = DataHelper.TryGetValueFromJson(out var message1, rpcMessage, "return_code");
             var result2 = DataHelper.TryGetValueFromJson(out var message2, rpcMessage, "detail", "info");
+        }
+
+        [TestMethod]
+        public void ProtoMessageRead_Test()
+        {
+            var address = AddressUtils.Generate();
+            var stream = new MemoryStream();
+            address.WriteTo(stream);
+            
+            var info = new Address();
+            info.MergeFrom(stream);
+            var value = info.GetFormatted();
         }
     }
 }

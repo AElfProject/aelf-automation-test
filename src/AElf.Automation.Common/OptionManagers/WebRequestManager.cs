@@ -9,7 +9,7 @@ namespace AElf.Automation.Common.OptionManagers
     public class WebRequestManager
     {
         private string BaseUrl { get; set; }
-        private readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public WebRequestManager(string baseUrl)
         {

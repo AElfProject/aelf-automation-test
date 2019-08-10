@@ -47,7 +47,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Execute action {action} got exception: {e.Message}");
+                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}");
                     if (interrupted)
                         break;
                 }

@@ -61,7 +61,10 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress, nameof(GenesisMethod.DeploySmartContract),
                 input, organizationAddress, currentMiners, caller);
             var byteString = transactionResult.Logs.First().NonIndexed;
-            return ContractDeployed.Parser.ParseFrom(byteString).Address;
+            var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            Logger.Info($"Contract deploy passed authority, contract address: {address}");
+
+            return address;
         }
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,

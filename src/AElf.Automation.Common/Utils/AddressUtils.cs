@@ -5,7 +5,7 @@ using AElf.Types;
 
 namespace AElf.Automation.Common.Utils
 {
-    public class AddressUtils
+    public static class AddressUtils
     {
         public static Address Generate()
         {

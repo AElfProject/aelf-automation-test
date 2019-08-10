@@ -2,8 +2,83 @@
     "RequireAuthority": false,
     "Nodes": [
         {
-            "name": "bp",
-            "account": "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+            "name": "bp1",
+            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "password": "123"
+        },
+        {
+            "name": "bp2",
+            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
+            "password": "123"
+        },
+        {
+            "name": "bp3",
+            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "password": "123"
+        },
+        {
+            "name": "bp4",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "password": "123"
+        },
+        {
+            "name": "bp5",
+            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
+            "password": "123"
+        },
+        {
+            "name": "bp6",
+            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+            "password": "123"
+        },
+        {
+            "name": "full1",
+            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+            "password": "123"
+        },
+        {
+            "name": "full2",
+            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+            "password": "123"
+        },
+        {
+            "name": "full3",
+            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+            "password": "123"
+        },
+        {
+            "name": "full4",
+            "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
+            "password": "123"
+        },
+        {
+            "name": "full5",
+            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "password": "123"
+        },
+        {
+            "name": "full6",
+            "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
+            "password": "123"
+        },
+        {
+            "name": "full7",
+            "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
+            "password": "123"
+        },
+        {
+            "name": "full8",
+            "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
+            "password": "123"
+        },
+        {
+            "name": "full9",
+            "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
+            "password": "123"
+        },
+        {
+            "name": "full10",
+            "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
             "password": "123"
         }
     ]
