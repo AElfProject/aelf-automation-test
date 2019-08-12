@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Acs0;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
@@ -41,6 +42,22 @@ namespace AElf.Automation.SideChainTests
             CrossChainService = ContractServices.CrossChainService;
             ParliamentService = ContractServices.ParliamentService;
         }
+
+        #region cross chain transfer
+
+        public string ValidateTokenAddress()
+        {
+            var validateTransaction = ApiHelper.GenerateTransactionRawTx(
+                ContractServices.CallAddress, ContractServices.GenesisService.ContractAddress,
+                GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
+                {
+                    Address = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
+                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                });
+            return validateTransaction;
+        }
+
+        #endregion
 
         #region side chain create method
 
@@ -178,7 +195,8 @@ namespace AElf.Automation.SideChainTests
         {
             ParliamentService.SetAccount(account);
             var transactionResult =
-                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    HashHelper.HexStringToHash(proposalId));
             return transactionResult;
         }
 
@@ -244,7 +262,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount, TokenInfo tokenInfo, int toChainId,
+        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount,int toChainId,
             long amount)
         {
             TokenService.SetAccount(fromAccount);
@@ -255,7 +273,6 @@ namespace AElf.Automation.SideChainTests
                     Memo = "transfer to side chain",
                     To = AddressHelper.Base58StringToAddress(toAccount),
                     ToChainId = toChainId,
-                    TokenInfo = tokenInfo
                 });
 
             return result;
@@ -290,15 +307,28 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-        
-        public void UnlockAllAccounts(ContractServices contractServices,string account)
+
+        #region Other Method
+
+        public string ExecuteMethodWithTxId(string rawTx)
         {
-                var ci = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{account} 123 notimeout"
-                };
-                ci = contractServices.ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
+            var ci = new CommandInfo(ApiMethods.SendTransaction)
+            {
+                Parameter = rawTx
+            };
+            ApiHelper.BroadcastWithRawTx(ci);
+            if (ci.Result)
+            {
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+
+                return transactionOutput?.TransactionId;
+            }
+
+            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return string.Empty;
         }
+
+        #endregion
     }
 }

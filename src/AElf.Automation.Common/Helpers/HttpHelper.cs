@@ -187,8 +187,6 @@ namespace AElf.Automation.Common.Helpers
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             var client = GetDefaultClient(version);
             HttpContent content;
-            HttpResponseMessage response = null;
-
             if (useApplicationJson)
             {
                 var paramsStr = JsonConvert.SerializeObject(parameters);
@@ -204,15 +202,15 @@ namespace AElf.Automation.Common.Helpers
 
             try
             {
-                response = await client.PostAsync(url, content);
+                var response = await client.PostAsync(url, content);
                 if (response.StatusCode == expectedStatusCode) 
                     return response;
                 
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
                 
-                if (response.StatusCode == HttpStatusCode.Forbidden)
-                    throw new WebException("Request forbidden");
+//                if (response.StatusCode == HttpStatusCode.Forbidden)
+//                    throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
             catch (HttpRequestException)

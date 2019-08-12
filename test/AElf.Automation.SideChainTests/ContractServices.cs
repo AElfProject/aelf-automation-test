@@ -8,6 +8,7 @@ namespace AElf.Automation.SideChainTests
     public class ContractServices
     {
         public readonly IApiHelper ApiHelper;
+        public readonly int ChainId;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -17,9 +18,10 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(IApiHelper apiHelper, string callAddress, string password)
-        { 
-            ApiHelper = apiHelper;
+        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId)
+        {
+            ChainId = chainId;
+            ApiHelper = new WebApiHelper(url,keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             UnlockAccounts(ApiHelper,CallAddress,password);

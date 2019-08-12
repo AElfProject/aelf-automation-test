@@ -15,6 +15,7 @@ namespace AElf.Automation.Common.Contracts
         UpdateSmartContract,
         ChangeContractAuthor,
         ChangeGenesisOwner,
+        ValidateSystemContractAddress,
 
         //view
         CurrentContractSerialNumber,

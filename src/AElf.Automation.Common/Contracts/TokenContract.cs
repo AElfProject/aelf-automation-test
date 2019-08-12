@@ -24,7 +24,8 @@ namespace AElf.Automation.Common.Contracts
         ChargeTransactionFees,
         ClaimTransactionFees,
         SetFeePoolAddress,
-
+        RegisterCrossChainTokenContractAddress,
+        CrossChainCreateToken,
         //View
         GetTokenInfo,
         GetBalance,

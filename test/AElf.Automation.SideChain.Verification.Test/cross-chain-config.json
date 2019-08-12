@@ -1,0 +1,118 @@
+{
+  "TestEnvironment": "Offline2",
+  "EnvironmentInfo": [
+    {
+      "Environment": "Online",
+      "MainChainInfos": 
+        {
+          "MainChainUrl": "http://13.52.177.95:8000",
+          "MainChainId": "AELF",
+          "Account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+          "Password": "123"
+        },
+      "SideChainInfos":[
+        {
+          "SideChainUrl": "http://99.79.48.179:8000",
+          "SideChainId": "2112"
+        },
+        {
+          "SideChainUrl": "http://35.180.203.249:8000",
+          "SideChainId": "2113"
+        }
+      ]
+    },
+    {
+      "Environment": "Offline1",
+      "MainChainInfos": 
+        {
+          "MainChainUrl": "http://192.168.197.14:8000",
+          "MainChainId": "AELF",
+          "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+          "Password": "123"
+        },
+      "SideChainInfos":[
+        {
+          "SideChainUrl": "http://192.168.197.32:8001",
+          "SideChainId": "2112"
+        },
+        {
+          "SideChainUrl": "http://192.168.197.11:8002",
+          "SideChainId": "2113"
+        }
+      ]
+    },
+    {
+      "Environment": "Offline2",
+      "MainChainInfos":
+      {
+        "MainChainUrl": "http://192.168.197.41:8000",
+        "MainChainId": "AELF",
+        "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+        "Password": "123"
+      },
+      "SideChainInfos":[
+        {
+          "SideChainUrl": "http://192.168.197.22:8001",
+          "SideChainId": "2112"
+        },
+        {
+          "SideChainUrl": "http://192.168.197.37:8002",
+          "SideChainId": "2113"
+        }
+      ]
+    },
+    {
+      "Environment": "Other",
+      "MainChainInfos": 
+        {
+          "MainChainUrl": "http://192.168.197.56:8001",
+          "MainChainId": "AELF",
+          "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+          "Password": "123"
+        },
+      "SideChainInfos":[
+        {
+          "SideChainUrl": "http://192.168.197.56:8011",
+          "SideChainId": "2112"
+        },
+          {
+            "SideChainUrl": "http://192.168.197.56:8021",
+            "SideChainId": "2113"
+          }
+      ]
+    },
+    {
+      "Environment": "Local",
+      "MainChainInfos":
+      {
+        "MainChainUrl": "http://127.0.0.1:9000",
+        "MainChainId": "AELF",
+        "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+        "Password": "123"
+      },
+      "SideChainInfos":[
+        {
+          "SideChainUrl": "http://127.0.0.1:9001",
+          "SideChainId": "2112"
+        }
+      ]
+    }
+  ],
+  "CreateTokenNumber": 1,
+  "VerifySideChainNumber": 1,
+  "VerifyBlockNumber": 5,
+  "TestCases": [
+    {
+      "name": "CrossChainVerifyMainChain",
+      "enable": true
+    },
+    {
+      "name": "CrossChainVerifySideChain",
+      "enable": false
+    },
+    {
+      "name": "CrossChainTransfer",
+      "enable": false
+    }
+  ] 
+}

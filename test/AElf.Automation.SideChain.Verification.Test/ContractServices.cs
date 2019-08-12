@@ -1,13 +1,14 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Types;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.SideChain.VerificationTest
+namespace AElf.Automation.SideChain.Verification
 {
     public class ContractServices
     {
         public readonly IApiHelper ApiHelper;
-        public readonly string Url;
+        public readonly int ChainId;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -17,26 +18,19 @@ namespace AElf.Automation.SideChain.VerificationTest
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string type, string keyStore)
+        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId)
         {
-            Url = url;
+            ChainId = chainId;
             ApiHelper = new WebApiHelper(url,keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-
+            UnlockAccounts(ApiHelper,CallAddress,password);
+            
             //connect chain
             ConnectionChain();
 
             //get services
             GetContractServices();
-
-            if (type.Equals("Main"))
-            {
-                //ParliamentAuth contract
-                var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
-                ParliamentService =
-                    new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
-            }
         }
 
         public void GetContractServices()
@@ -50,6 +44,15 @@ namespace AElf.Automation.SideChain.VerificationTest
             //CrossChain contract
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChainName);
             CrossChainService = new CrossChainContract(ApiHelper, CallAddress, crossChainAddress.GetFormatted());
+            
+            //ParliamentAuth contract
+            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
+            ParliamentService =
+                new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
+            
+            //Consensus contract
+            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
+            ConsensusService = new ConsensusContract(ApiHelper,CallAddress,consensusAddress.GetFormatted());
         }
 
         private void ConnectionChain()
@@ -57,14 +60,16 @@ namespace AElf.Automation.SideChain.VerificationTest
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
         }
-        
-        private void UnlockInitAccount(string initAccount)
+
+        private void UnlockAccounts(IApiHelper apiHelper,string account,string password)
         {
+            ApiHelper.ListAccounts();
             var ci = new CommandInfo(ApiMethods.AccountUnlock)
             {
-                Parameter = $"{initAccount} 123 notimeout"
+                Parameter = $"{account} {password} notimeout"
             };
-            ApiHelper.ExecuteCommand(ci);
+            ci = apiHelper.ExecuteCommand(ci);
+            Assert.IsTrue(ci.Result);
         }
     }
 }
