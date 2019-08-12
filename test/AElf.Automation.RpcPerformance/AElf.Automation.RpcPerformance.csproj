@@ -18,7 +18,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="rpc-performance.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="logs" />
   </ItemGroup>
 </Project>

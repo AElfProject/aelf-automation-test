@@ -1,4 +1,6 @@
-﻿using AElf.Automation.Common.Helpers;
+﻿using System;
+using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 
@@ -47,6 +49,19 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
+        public bool TransferBalance(string from, string to, long amount, string symbol = "ELF")
+        {
+            var tester = GetNewTester(from);
+            var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            {
+                Symbol = symbol,
+                To = AddressHelper.Base58StringToAddress(to),
+                Amount = amount,
+                Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
+            });
+
+            return result.Result;
+        }
         public long GetUserBalance(string account, string symbol = "ELF")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -59,7 +74,8 @@ namespace AElf.Automation.Common.Contracts
         public TokenContractContainer.TokenContractStub GetTokenContractTester()
         {
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
-            var tokenStub = stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
+            var tokenStub =
+                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
             return tokenStub;
         }
     }

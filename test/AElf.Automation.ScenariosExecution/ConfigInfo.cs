@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
 using Newtonsoft.Json;
 
@@ -22,6 +22,7 @@ namespace AElf.Automation.ScenariosExecution
     {
         [JsonProperty("case_name")] public string CaseName { get; set; }
         [JsonProperty("enable")] public bool Enable { get; set; }
+        [JsonProperty("time_interval")] public int TimeInterval { get; set; }
     }
 
     public class SpecifyEndpoint
@@ -60,6 +61,7 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _instance;
         private static string _jsonContent;
         private static readonly object LockObj = new object();
+        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-nodes-local.json");
 
         public static ConfigInfo Config => GetConfigInfo();
 
@@ -75,15 +77,14 @@ namespace AElf.Automation.ScenariosExecution
 
         public static bool UpdateConfig(ContractsInfo info)
         {
-            var configFile = Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
             if (_jsonContent == null)
-                _jsonContent = File.ReadAllText(configFile);
+                _jsonContent = File.ReadAllText(ConfigFile);
 
             var configInfo = JsonConvert.DeserializeObject<ConfigInfo>(_jsonContent);
             configInfo.ContractsInfo = info;
 
             _jsonContent = JsonConvert.SerializeObject(configInfo, Formatting.Indented);
-            File.WriteAllText(configFile, _jsonContent);
+            File.WriteAllText(ConfigFile, _jsonContent);
 
             return true;
         }
@@ -94,8 +95,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 if (_instance != null) return _instance;
 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "scenario-nodes.json");
-                _jsonContent = File.ReadAllText(configFile);
+                _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<ConfigInfo>(_jsonContent);
             }
 

@@ -1,18 +1,10 @@
 ﻿using System;
 using System.IO;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using AElf.Automation.Common.Contracts;
-using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.MultiToken.Messages;
-using AElf.Contracts.Vote;
-using AElf.Kernel;
-using Google.Protobuf.WellKnownTypes;
-using VoteMinerInput = AElf.Contracts.Election.VoteMinerInput;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -28,15 +20,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public ILog Logger = Log4NetHelper.GetLogger();
         public string TokenContract { get; set; }
         public string ConsensusContract { get; set; }
         public string DividendsContract { get; set; }
-
         public string ElectionContract { get; set; }
-
         public string VoteContract { get; set; }
-
         public List<string> UserList { get; set; }
         public List<string> FullNodeAccounts { get; set; }
         public List<string> BpNodeAccounts { get; set; }
@@ -65,9 +54,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initialize()
         {
             //Init log
-            string logName = "VoteBP_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());

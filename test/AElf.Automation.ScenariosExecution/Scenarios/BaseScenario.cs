@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class BaseScenario
     {
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
@@ -35,22 +36,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
         }
 
-        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0)
+        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
+            bool interrupted = false)
         {
-            try
+            foreach (var action in actions)
             {
-                foreach (var action in actions)
+                try
                 {
                     action.Invoke();
                 }
+                catch (Exception e)
+                {
+                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}");
+                    if (interrupted)
+                        break;
+                }
+            }
 
-                if (sleepSeconds != 0)
-                    Thread.Sleep(1000 * sleepSeconds);
-            }
-            catch (Exception e)
-            {
-                Logger.Error($"ExecuteStandaloneTask got exception: {e.Message}");
-            }
+            if (sleepSeconds != 0)
+                Thread.Sleep(1000 * sleepSeconds);
         }
 
         public void CheckNodeTransactionAction()
@@ -77,7 +81,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = Services.ApiHelper.ApiService.GetBlockHeight().Result;
+                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeight);
                 if (newHeight == height)
                 {
                     checkTimes++;
@@ -109,8 +113,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected static int GenerateRandomNumber(int min, int max)
         {
-            var random = new Random(DateTime.UtcNow.Millisecond);
-            return random.Next(min, max);
+            var random = new Random(Guid.NewGuid().GetHashCode());
+            return random.Next(min, max + 1);
         }
     }
 }

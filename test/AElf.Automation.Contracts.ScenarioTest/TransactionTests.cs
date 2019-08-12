@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using AElf.Automation.Common.Utils;
 using AElf.Cryptography;
 using AElf.Kernel;
 using AElf.Types;
@@ -48,8 +49,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var newUserKeyPair = CryptoHelper.GenerateKeyPair();
             var transaction = new Transaction
             {
-                From = Address.FromPublicKey(newUserKeyPair.PublicKey),
-                To = new Address(),
+                From = AddressUtils.Generate(),
+                To = AddressUtils.Generate(),
                 MethodName = $"Method-{Guid.NewGuid()}",
                 Params = ByteString.CopyFrom(Hash.FromString(Guid.NewGuid().ToString()).ToByteArray()),
                 RefBlockNumber = 10

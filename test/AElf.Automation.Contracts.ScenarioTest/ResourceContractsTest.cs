@@ -8,13 +8,14 @@ using System.IO;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class ResourceContractsTest
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public string TokenContract { get; set; }
         public WebApiHelper ApiHelper { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
@@ -35,9 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             #region Basic Preparation
 
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("ContractTest");
 
             ApiHelper = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
@@ -108,6 +109,14 @@ namespace AElf.Automation.Common.OptionManagers
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
+        }
+        
+        public bool AccountIsExist(string address)
+        {
+            if(_accounts == null)
+                ListAccount();
+            
+            return _accounts.Contains(address);
         }
 
         private ECKeyPair GetKeyPair(string addr)

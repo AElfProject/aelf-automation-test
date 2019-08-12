@@ -9,15 +9,17 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
     public class ContractServices
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public readonly IApiHelper ApiHelper;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
+        public TreasuryContract TreasuryService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
         public static FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
@@ -60,6 +62,10 @@ namespace AElf.Automation.ScenariosExecution
                 ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].ServiceUrl);
             }
 
+            //Treasury contract
+            var treasuryAddress = GenesisService.GetContractAddressByName(NameProvider.TreasuryName);
+            TreasuryService = new TreasuryContract(ApiHelper, CallAddress, treasuryAddress.GetFormatted());
+
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
             TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
@@ -69,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution
             ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteSystemName);
+            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
             VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
 
             //ElectionService contract

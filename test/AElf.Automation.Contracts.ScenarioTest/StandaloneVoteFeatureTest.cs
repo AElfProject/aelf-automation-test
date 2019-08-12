@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
+using log4net;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -14,7 +15,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         #region Priority
 
-        public ILogHelper Logger = LogHelper.GetLogHelper();
+        public ILog Logger = Log4NetHelper.GetLogger();
         public string TokenAbi { get; set; }
         public string ConsensusAbi { get; set; }
         public string DividendsAbi { get; set; }
@@ -43,9 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Initlize()
         {
             //Init log
-            string logName = "VoteBP_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());

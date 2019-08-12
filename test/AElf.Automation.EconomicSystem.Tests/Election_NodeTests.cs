@@ -1,6 +1,12 @@
 using System.Linq;
+using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
+using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.Profit;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -83,7 +89,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
-
         [TestMethod]
         public void GetCandidateHistory()
         {
@@ -91,7 +96,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var candidateResult = Behaviors.GetCandidateInformation(candidate);
                 _logger.Info("Candidate: ");
-                _logger.Info($"PublicKey: {candidateResult.PublicKey}");
+                _logger.Info($"PublicKey: {candidateResult.Pubkey}");
                 _logger.Info($"Terms: {candidateResult.Terms}");
                 _logger.Info($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
                 _logger.Info($"ProducedBlocks: {candidateResult.ProducedBlocks}");

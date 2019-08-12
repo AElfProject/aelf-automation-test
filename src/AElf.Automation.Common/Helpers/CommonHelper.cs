@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
+using log4net;
+using System.Reflection;
 using System.Text;
-using Shouldly;
 
 namespace AElf.Automation.Common.Helpers
 {
     public static class CommonHelper
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
         public static string GetDefaultDataDir()
         {
             try
@@ -46,7 +46,6 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!File.Exists(originPath))
             {
-                Logger.Error($"File {originPath} not exist.");
                 throw new FileNotFoundException();
             }
 
@@ -55,11 +54,10 @@ namespace AElf.Automation.Common.Helpers
                 Directory.CreateDirectory(desPath);
                 if (!Directory.Exists(desPath))
                 {
-                    Logger.Error($"Directory {desPath} not exist.");
-                    throw new DirectoryNotFoundException(); 
+                    throw new DirectoryNotFoundException();
                 }
             }
-            
+
             File.Copy(originPath, desPath, true);
         }
 
@@ -67,10 +65,9 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!Directory.Exists(path))
             {
-                Logger.Error($"Directory {path} not exist.");
                 return false;
             }
-            
+
             Directory.Delete(path, true);
             Directory.CreateDirectory(path);
 
@@ -86,5 +83,11 @@ namespace AElf.Automation.Common.Helpers
                 builder.Append((char) (26 * random.NextDouble() + startChar));
             return builder.ToString();
         }
+
+        public static readonly string AppRoot = AppDomain.CurrentDomain.BaseDirectory;
+        public static string MapPath(string virtualPath) => AppRoot + virtualPath.TrimStart('~');
+
+        public static string ApplicationName =>
+            Assembly.GetEntryAssembly()?.GetName().Name ?? AppDomain.CurrentDomain.FriendlyName;
     }
 }

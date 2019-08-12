@@ -5,38 +5,43 @@ using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Contracts.Profit;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class UserScenario : BaseScenario
     {
+        public TreasuryContract Treasury { get; }
         public ElectionContract Election { get; }
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
         public List<string> Testers { get; }
-        public Dictionary<ProfitType, Hash> ProfitItemIds { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         private static List<string> _candidates;
         private static List<string> _candidatesExcludeMiners;
+        
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public UserScenario()
         {
             InitializeScenario();
+            Treasury = Services.TreasuryService;
             Election = Services.ElectionService;
             Consensus = Services.ConsensusService;
             Profit = Services.ProfitService;
             Token = Services.TokenService;
 
             //Get Profit items
-            Profit.GetProfitItemIds(Election.ContractAddress);
-            ProfitItemIds = Profit.ProfitItemIds;
+            Profit.GetTreasurySchemes(Treasury.ContractAddress);
+            Schemes = ProfitContract.Schemes;
 
             Testers = AllTesters.GetRange(50, 30);
         }
@@ -50,7 +55,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, true, 30);
         }
 
-        public void UserScenarioJob()
+        public void RunUserScenarioJob()
         {
             ExecuteStandaloneTask(new Action[]
             {
@@ -91,50 +96,59 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void TakeUserProfit(string account)
         {
-            var profitId = ProfitItemIds[ProfitType.CitizenWelfare];
+            var schemeId = Schemes[SchemeType.CitizenWelfare].SchemeId;
             var voteProfit =
-                Profit.GetProfitDetails(account, profitId);
+                Profit.GetProfitDetails(account, schemeId);
             if (voteProfit.Equals(new ProfitDetails())) return;
-            $"20% user vote profit details number: {voteProfit.Details}".WriteSuccessLine();
+            $"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}".WriteSuccessLine();
 
             //Get user profit amount
-            var profitAmount = Profit.GetProfitAmount(account, profitId);
+            var profitAmount = Profit.GetProfitAmount(account, schemeId);
             if (profitAmount == 0)
                 return;
 
             Logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
             //Profit.SetAccount(account);
             var profit = Profit.GetNewTester(account);
-            var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.Profit, new ProfitInput
+            var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                ProfitId = profitId
+                SchemeId = schemeId,
+                Symbol = "ELF"
             });
 
             if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
             if (profitDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 Logger.Info(
-                    $"Profit success - user {account} get vote profit from Id: {profitId}, value is: {profitAmount}");
+                    $"Profit success - user {account} get vote profit from Id: {schemeId}, value is: {profitAmount}");
         }
 
         private void UserVote(string account)
         {
-            var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
-            var lockTime = GenerateRandomNumber(3, 36) * 30;
+            var lockTime = GenerateRandomNumber(3, 30) * 30;
             var amount = GenerateRandomNumber(1, 5) * 5;
-
-            UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
+            if (_candidatesExcludeMiners.Count != 0)
+            {
+                var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
+                UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
+            }
+            else
+            {
+                var id = GenerateRandomNumber(0, _candidates.Count - 1);
+                UserVote(account, _candidates[id], lockTime, amount);
+            }
         }
 
         private void UserVote(string account, string candidatePublicKey, int lockTime, long amount)
         {
-            var beforeBalance = Token.GetUserBalance(account);
-            if (beforeBalance < amount) // balance not enough, bp transfer again
+            var beforeElfBalance = Token.GetUserBalance(account);
+            var beforeVoteBalance = Token.GetUserBalance(account, "VOTE");
+            if (beforeElfBalance < amount * 10000_0000) // balance not enough, bp transfer again
             {
                 var token = Token.GetNewTester(BpNodes.First().Account);
                 token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = "ELF",
-                    Amount = 10_0000,
+                    Amount = 10_0000_00000000,
                     To = AddressHelper.Base58StringToAddress(account),
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"
                 });
@@ -144,15 +158,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var election = Election.GetNewTester(account);
             election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePublicKey = candidatePublicKey,
+                CandidatePubkey = candidatePublicKey,
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime))
                     .Add(TimeSpan.FromHours(1))
                     .ToTimestamp()
             });
 
-            var afterBalance = Token.GetUserBalance(account);
-            if (beforeBalance == afterBalance + amount)
+            var afterElfBalance = Token.GetUserBalance(account);
+            var afterVoteBalance = Token.GetUserBalance(account, "VOTE");
+            if (beforeElfBalance == afterElfBalance + amount * 100000000 &&
+                beforeVoteBalance == afterVoteBalance - amount)
                 Logger.Info(
                     $"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days.");
         }

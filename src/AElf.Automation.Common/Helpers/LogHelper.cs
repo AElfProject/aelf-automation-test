@@ -44,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         {
         }
 
-        public static ILogHelper GetLogHelper()
+        public static ILogHelper GetLogger()
         {
             if (_logger != null) return _logger;
             lock (InitObject)
@@ -178,8 +178,6 @@ namespace AElf.Automation.Common.Helpers
 
                     _streamWriter.WriteLine(text);
                     _streamWriter.Flush();
-
-                    //Console.WriteLine(text);
                 }
                 catch (Exception exception)
                 {

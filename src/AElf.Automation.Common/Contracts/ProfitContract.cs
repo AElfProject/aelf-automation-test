@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -16,31 +17,34 @@ namespace AElf.Automation.Common.Contracts
         AddWeights,
         ReleaseProfit,
         AddProfits,
-        Profit,
+        ClaimProfits,
 
         //view
-        GetCreatedProfitItems,
-        GetProfitItemVirtualAddress,
+        GetManagingSchemeIds,
+        GetSchemeAddress,
+        GetScheme,
         GetReleasedProfitsInformation,
         GetProfitDetails,
         GetProfitItem,
         GetProfitAmount
     }
 
-    public enum ProfitType
+    public enum SchemeType
     {
         Treasury,
+
         MinerReward,
-        BackSubsidy,
+        BackupSubsidy,
         CitizenWelfare,
-        BasicMinerReward,
+
+        MinerBasicReward,
         VotesWeightReward,
         ReElectionReward
     }
 
     public class ProfitContract : BaseContract<ProfitMethod>
     {
-        public Dictionary<ProfitType, Hash> ProfitItemIds { get; set; }
+        public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
         public ProfitContract(IApiHelper apiHelper, string callAddress) :
             base(apiHelper, "AElf.Contracts.Profit", callAddress)
@@ -54,19 +58,35 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public void GetProfitItemIds(string electionContractAddress)
+        public void GetTreasurySchemes(string treasuryContractAddress)
         {
-            var profitItems = GetCreatedProfitItems(electionContractAddress);
-            ProfitItemIds = new Dictionary<ProfitType, Hash>
+            if (Schemes != null && Schemes.Count == 7)
+                return;
+            Schemes = new Dictionary<SchemeType, Scheme>();
+            var treasuryContract = new TreasuryContract(ApiHelper, CallAddress, treasuryContractAddress);
+            var treasurySchemeId =
+                treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
+            var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);
+            Schemes.Add(SchemeType.Treasury, treasuryScheme);
+            var minerRewardScheme =
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[0].SchemeId);
+            Schemes.Add(SchemeType.MinerReward, minerRewardScheme);
+
+            Schemes.Add(SchemeType.BackupSubsidy,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[1].SchemeId));
+            Schemes.Add(SchemeType.CitizenWelfare,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[2].SchemeId));
+            Schemes.Add(SchemeType.MinerBasicReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[0].SchemeId));
+            Schemes.Add(SchemeType.VotesWeightReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[1].SchemeId));
+            Schemes.Add(SchemeType.ReElectionReward,
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
+            Logger.Info("Scheme collection info:");
+            foreach (var (key, value) in Schemes)
             {
-                {ProfitType.Treasury, profitItems.ProfitIds[0]},
-                {ProfitType.MinerReward, profitItems.ProfitIds[1]},
-                {ProfitType.BackSubsidy, profitItems.ProfitIds[2]},
-                {ProfitType.CitizenWelfare, profitItems.ProfitIds[3]},
-                {ProfitType.BasicMinerReward, profitItems.ProfitIds[4]},
-                {ProfitType.VotesWeightReward, profitItems.ProfitIds[5]},
-                {ProfitType.ReElectionReward, profitItems.ProfitIds[6]}
-            };
+                Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
+            }
         }
 
         public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)
@@ -75,50 +95,31 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Receiver = AddressHelper.Base58StringToAddress(voteAddress),
-                        ProfitId = profitId
+                        Beneficiary = AddressHelper.Base58StringToAddress(voteAddress),
+                        SchemeId = profitId
                     });
             return result;
         }
 
-        public long GetProfitAmount(string account, Hash profitId)
+        public long GetProfitAmount(string account, Hash schemeId)
         {
-            SetAccount(account);
-            return CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ProfitInput
+            var newTester = GetNewTester(account);
+            return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
-                ProfitId = profitId
+                SchemeId = schemeId,
+                Symbol = "ELF"
             }).Value;
         }
 
-        public Address GetTreasuryAddress(Hash profitId, long period = 0)
+        public Address GetSchemeAddress(Hash schemeId, long period)
         {
-            return CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
+            var result = CallViewMethod<Address>(ProfitMethod.GetSchemeAddress,
+                new SchemePeriod
                 {
-                    ProfitId = profitId,
-                    Period = period
-                });
-        }
-
-        public Address GetProfitItemVirtualAddress(Hash profitId, long period)
-        {
-            var result = CallViewMethod<Address>(ProfitMethod.GetProfitItemVirtualAddress,
-                new GetProfitItemVirtualAddressInput
-                {
-                    ProfitId = profitId,
+                    SchemeId = schemeId,
                     Period = period
                 });
 
-            return result;
-        }
-
-        private CreatedProfitItems GetCreatedProfitItems(string electionContractAddress)
-        {
-            var result = CallViewMethod<CreatedProfitItems>(ProfitMethod.GetCreatedProfitItems,
-                new GetCreatedProfitItemsInput
-                {
-                    Creator = AddressHelper.Base58StringToAddress(electionContractAddress)
-                });
             return result;
         }
     }

@@ -12,7 +12,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     [TestClass]
     public class Online_EnvTest
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILogHelper _logger = LogHelper.GetLogger();
         protected static string RpcUrl { get; } = "http://3.94.106.10:8000";
         protected Behaviors Behaviors;
         protected string InitAccount { get; } = "1DBGP5qXt5r6QAu2iufv4eXodWHYqJVwmz4qNHwtNyjuCoDEm";

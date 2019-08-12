@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi;
+using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
@@ -9,7 +10,7 @@ namespace AElf.Automation.QueryTransaction
 {
     public class StressQuery
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly WebApiService _apiService;
 
         public StressQuery(string url)

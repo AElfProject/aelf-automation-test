@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
+using log4net;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace AElf.Automation.RpcPerformance
@@ -13,11 +15,11 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        private int ThreadCount { get; } = ConfigInfoHelper.Config.GroupCount;
+        private int GroupCount { get; } = ConfigInfoHelper.Config.GroupCount;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionGroup { get; } = ConfigInfoHelper.Config.TransactionCount;
+        private int TransactionCount { get; } = ConfigInfoHelper.Config.TransactionCount;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
         private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
@@ -34,7 +36,7 @@ namespace AElf.Automation.RpcPerformance
 
         #endregion
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static ILog Logger { get; set; }
 
         public static int Main(string[] args)
         {
@@ -50,23 +52,22 @@ namespace AElf.Automation.RpcPerformance
 
         private void OnExecute(CommandLineApplication app)
         {
-            if (ThreadCount == 0 || TransactionGroup == 0 || RpcUrl == null)
+            if (GroupCount == 0 || TransactionCount == 0 || RpcUrl == null)
             {
                 app.ShowHelp();
                 return;
             }
 
+            //Init Logger
+            var fileName = $"RpcPerformance_GC_{GroupCount}_TC_{TransactionCount}";
+            Log4NetHelper.LogInit(fileName);
+            Logger = Log4NetHelper.GetLogger();
+
             var transactionType = ConfigInfoHelper.Config.ReadOnlyTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new ReadOnlyCategory(ThreadCount, TransactionGroup, RpcUrl,
+                ? (IPerformanceCategory) new ReadOnlyCategory(GroupCount, TransactionCount, RpcUrl,
                     limitTransaction: LimitTransaction)
-                : new ExecutionCategory(ThreadCount, TransactionGroup, RpcUrl, limitTransaction: LimitTransaction);
-
-            //Init Logger
-            var logName = "RpcTh_" + performance.ThreadCount + "_Tx_" + performance.ExeTimes + "_" +
-                          DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
 
             //Execute transaction command
             try
@@ -80,8 +81,13 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
 
-                performance.InitExecCommand(1000 + ThreadCount);
-                performance.DeployContracts();
+                performance.InitExecCommand(1000 + GroupCount);
+                var authority = NodeInfoHelper.Config.RequireAuthority;
+                if(authority)
+                    performance.DeployContractsWithAuthority();
+                else
+                    performance.DeployContracts();
+                
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
@@ -97,9 +103,8 @@ namespace AElf.Automation.RpcPerformance
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-            Logger.Info("Log file: {0}", dir);
-            Logger.Info("Xml file: {0}", xmlFile);
-            Logger.Info("Complete performance testing.");
+            Logger.Info($"Xml file: {xmlFile}");
+            Logger.Info($"Complete performance testing.");
         }
 
         private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)

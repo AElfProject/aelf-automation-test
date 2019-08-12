@@ -3,9 +3,11 @@ using System.Collections.Concurrent;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
 using Google.Protobuf;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Common.Contracts
@@ -22,7 +24,7 @@ namespace AElf.Automation.Common.Contracts
 
         public static int Timeout { get; set; }
         private ConcurrentQueue<string> TxResultList { get; set; }
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
 
@@ -119,7 +121,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public CommandInfo ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
-            string rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
@@ -358,6 +360,17 @@ namespace AElf.Automation.Common.Contracts
 
         private void DeployContract()
         {
+            var requireAuthority = NodeInfoHelper.Config.RequireAuthority;
+            if (requireAuthority)
+            {
+                Logger.Info("Deploy contract with authority mode.");
+                var authority = new AuthorityManager(ApiHelper.GetApiUrl(), CallAddress);
+                var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
+                ContractAddress = contractAddress.GetFormatted();
+                return;
+            }
+            
+            Logger.Info("Deploy contract without authority mode.");
             var ci = new CommandInfo(ApiMethods.DeploySmartContract)
             {
                 Parameter = $"{FileName} {CallAddress}"

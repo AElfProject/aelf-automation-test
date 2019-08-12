@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
@@ -10,7 +11,7 @@ namespace AElf.Automation.QueryTransaction
 {
     class Program
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.35:8000";
@@ -32,10 +33,7 @@ namespace AElf.Automation.QueryTransaction
         private void OnExecute()
         {
             //Init Logger
-            var logName = "TransactionQuery" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
-
+            Log4NetHelper.LogInit("TransactionQuery");
             Logger.Info("Select execution type:");
             "1. RunQueryTransaction".WriteSuccessLine();
             "2. RunNodeStatusCheck".WriteSuccessLine();
@@ -62,7 +60,7 @@ namespace AElf.Automation.QueryTransaction
                     break;
             }
 
-            Console.WriteLine("Complete testing.");
+            Logger.Info("Complete testing.");
             Console.ReadLine();
         }
 
@@ -70,9 +68,14 @@ namespace AElf.Automation.QueryTransaction
         {
             var urlCollection = new List<string>
             {
-                "http://192.168.197.13:8100",
-                "http://192.168.197.28:8100",
-                "http://192.168.197.33:8100"
+                "192.168.197.46:8000",
+                "192.168.197.47:8000",
+                "192.168.197.29:8000",
+                "192.168.197.12:8000",
+                "192.168.197.13:8000",
+                "192.168.197.34:8000",
+                "192.168.197.28:8000",
+                "192.168.197.33:8000",
                 /*
                 "http://34.221.114.160:8000",
                 "http://34.222.242.234:8000",
