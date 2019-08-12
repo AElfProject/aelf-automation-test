@@ -97,10 +97,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
-                    Address.Parse(organizationAddress));
+                    AddressHelper.Base58StringToAddress(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
-                _logger.WriteInfo($"organization review is : {reviewer}");
+                _logger.Info($"organization review is : {reviewer}");
             }
         }
 
@@ -113,16 +113,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Symbol = "ELF",
                 Amount = 100,
-                To = Address.Parse(account),
+                To = AddressHelper.Base58StringToAddress(account),
                 Memo = "Transfer"
             };
             var _createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
-                ToAddress = Address.Parse(Tester.TokenService.ContractAddress),
+                ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
                 Params = _transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                OrganizationAddress = Address.Parse(organizationAddress)
+                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
             };
 
 

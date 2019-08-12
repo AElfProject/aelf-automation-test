@@ -17,6 +17,7 @@ namespace AElf.Automation.Common.Contracts
         //Action
         Approve,
         CreateProposal,
+        Release,
         
         //View
         GetGenesisOwnerAddress
