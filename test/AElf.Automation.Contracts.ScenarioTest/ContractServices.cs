@@ -39,7 +39,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
 
                 //VoteService contract
-                var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteSystemName);
+                var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
                 VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
 
                 //ElectionService contract

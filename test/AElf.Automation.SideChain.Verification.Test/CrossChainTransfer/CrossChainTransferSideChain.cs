@@ -51,6 +51,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var mainRawTx in mainRawTxInfos)
                 {
                     var resultTxInfo = GetCrossChainTransferResult(sideChainService, mainRawTx);
+                    if (resultTxInfo == null) continue;
                     mainResultTxInfos.Add(resultTxInfo);
                     Logger.Info(
                         $"The transactions block is:{resultTxInfo.BlockHeight},transaction id is: {resultTxInfo.TxId}");
@@ -82,6 +83,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     foreach (var rawTxInfo in rawTxInfos)
                     {
                         var resultTxInfo = GetCrossChainTransferResult(sideChainService, rawTxInfo);
+                        if (resultTxInfo == null) continue;
                         sideResultTxInfos.Add(resultTxInfo);
                         Logger.Info(
                             $"The transactions block is:{resultTxInfo.BlockHeight},transaction id is: {resultTxInfo.TxId}");
@@ -91,12 +93,19 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
 
                 Logger.Info("Waiting for the index");
-                Thread.Sleep(150000);
+                Thread.Sleep(200000);
 
                 var mainChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                 Logger.Info($"Main chain received Token {symbol}");
                 foreach (var mainRawTxInfo in mainResultTxInfos)
                 {
+                    Logger.Info("Check the index:");
+                    while (!CheckSideChainBlockIndex(sideChainService,mainRawTxInfo))
+                    {
+                        Logger.Info("Block is not recorded ");
+                        Thread.Sleep(10000);
+                    }
+                    
                     Logger.Info($"Receive CrossTransfer Transaction id is :{mainRawTxInfo.TxId}");
                     var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, mainRawTxInfo);
                     MainChainService.TokenService.SetAccount(mainRawTxInfo.FromAccount);

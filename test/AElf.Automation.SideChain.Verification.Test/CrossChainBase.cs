@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,9 +9,10 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.CSharp.Core.Utils;
-using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChain.Verification
@@ -20,7 +20,7 @@ namespace AElf.Automation.SideChain.Verification
     public class CrossChainBase
     {
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
-        protected static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly EnvironmentInfo _environmentInfo;
         private static int Timeout { get; set; }
         protected readonly string NativeToken = "ELF";
@@ -75,45 +75,7 @@ namespace AElf.Automation.SideChain.Verification
 
             return SideChainServices;
         }
-
-        protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true,
-            int sleepSeconds = 0)
-        {
-            while (true)
-            {
-                try
-                {
-                    if (actions == null)
-                        throw new ArgumentException("Action methods is null.");
-                    ExecuteStandaloneTask(actions, sleepSeconds);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"ExecuteContinuousTasks got exception: {e.Message}");
-                    if (interrupted)
-                        break;
-                }
-            }
-        }
-
-        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0)
-        {
-            try
-            {
-                foreach (var action in actions)
-                {
-                    action.Invoke();
-                }
-
-                if (sleepSeconds != 0)
-                    Thread.Sleep(1000 * sleepSeconds);
-            }
-            catch (Exception e)
-            {
-                Logger.Error($"ExecuteStandaloneTask got exception: {e.Message}");
-            }
-        }
-
+        
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
             var ci = new CommandInfo(ApiMethods.SendTransaction)
@@ -201,6 +163,14 @@ namespace AElf.Automation.SideChain.Verification
                 var result = services.ApiHelper.ExecuteCommand(ci);
                 if (!(result.InfoMsg is TransactionResultDto txResult)) return null;
                 var resultStatus = txResult.Status.ConvertTransactionResultStatus();
+                if (resultStatus == TransactionResultStatus.NotExisted)
+                {
+                    Logger.Info("Check the transaction again");
+                    result = services.ApiHelper.ExecuteCommand(ci);
+                    txResult = result.InfoMsg as TransactionResultDto;
+                    resultStatus = txResult.Status.ConvertTransactionResultStatus();
+                }
+
                 transactionStatus.Add(resultStatus.ToString());
             }
 
@@ -216,14 +186,14 @@ namespace AElf.Automation.SideChain.Verification
                 if (transactionIds[num] == TxId)
                 {
                     index = num;
+                    Logger.Info($"The transaction index is {index}");
                 }
             }
 
-            var bmt = new BinaryMerkleTree();
-            bmt.AddNodes(txIdsWithStatus);
-            var root = bmt.ComputeRootHash();
+            var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
+            var root = bmt.Root;
             var merklePath = new MerklePath();
-            merklePath.Path.AddRange(bmt.GenerateMerklePath(index));
+            merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             return merklePath;
         }
 
@@ -339,9 +309,9 @@ namespace AElf.Automation.SideChain.Verification
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
                 FromChainId = 9992731,
-                ParentChainHeight = rawTxInfo.BlockHeight
+                ParentChainHeight = rawTxInfo.BlockHeight,
+                MerklePath = merklePath
             };
-            crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
 
@@ -357,12 +327,11 @@ namespace AElf.Automation.SideChain.Verification
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
                 FromChainId = fromServices.ChainId,
+                MerklePath = merklePath
             };
-            crossChainReceiveToken.MerklePath.AddRange(merklePath.Path);
-
             // verify side chain transaction
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(fromServices, rawTxInfo.BlockHeight);
-            crossChainReceiveToken.MerklePath.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
+            crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.MerklePathNodes);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
@@ -435,6 +404,25 @@ namespace AElf.Automation.SideChain.Verification
             return TransactionResultList;
         }
 
+        protected bool CheckParentChainBlockIndex(ContractServices services,CrossChainTransactionInfo infos)
+        {
+            var transactionHeight = infos.BlockHeight;
+            var indexSideBlock =
+                MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value{Value = services.ChainId });
+           
+            return  indexSideBlock.Value > transactionHeight;
+        }
+        
+        protected bool CheckSideChainBlockIndex(ContractServices services,CrossChainTransactionInfo infos)
+        {
+            var indexParentBlock =
+                services.CrossChainService.CallViewMethod<SInt64Value>(
+                    CrossChainContractMethod.GetParentChainHeight, new Empty());
+            var transactionHeight = infos.BlockHeight;
+            return indexParentBlock.Value > transactionHeight;
+        }
+
 
         protected long GetBalance(ContractServices services, string address, string symbol)
         {
@@ -446,21 +434,7 @@ namespace AElf.Automation.SideChain.Verification
                 });
             return result.Balance;
         }
-
-        protected List<string> GenerateTestUsers(IApiHelper helper, int count)
-        {
-            var accounts = new List<string>();
-            Parallel.For(0, count, i =>
-            {
-                var command = new CommandInfo(ApiMethods.AccountNew, "123");
-                command = helper.NewAccount(command);
-                var account = command.InfoMsg.ToString();
-                accounts.Add(account);
-            });
-
-            return accounts;
-        }
-
+        
         protected List<string> NewAccount(ContractServices services, int count)
         {
             var accountList = new List<string>();

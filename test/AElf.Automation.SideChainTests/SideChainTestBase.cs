@@ -10,6 +10,7 @@ using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Types;
+using log4net;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -17,23 +18,21 @@ namespace AElf.Automation.SideChainTests
     {
         private static int Timeout { get; set; }
         public ContractTester Tester;
-        public readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
         
-        public static string MainChainUrl { get; } = "http://127.0.0.1:9000";    
-//        public static string MainChainUrl { get; } = "http://192.168.197.14:8001";
+//        public static string MainChainUrl { get; } = "http://127.0.0.1:9000";    
+        public static string MainChainUrl { get; } = "http://192.168.197.44:8000";
 //        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
  
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-//        public string InitAccount { get; } = "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs";
+//        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         
         public List<string> BpNodeAddress { get; set; }        
         public List<string> UserList { get; set; }
         protected void Initialize()
         {
             //Init Logger
-            string logName = "CrossChainTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            _logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit();
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
             var contractServices = new ContractServices(MainChainUrl,InitAccount,keyStore,"123",chainId);
@@ -43,14 +42,14 @@ namespace AElf.Automation.SideChainTests
             BpNodeAddress = new List<string>();
             //线下 - 4bp 
 //            BpNodeAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
-//            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
-//            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
+            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
+            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
             
 //            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
-//            BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
-//            BpNodeAddress.Add("XSYSQ2kf4MCcSu1uWnZ9mTtgM9pq6yu85HUtV2j743mk8b4WF");
-//            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
+            BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
+            BpNodeAddress.Add("XSYSQ2kf4MCcSu1uWnZ9mTtgM9pq6yu85HUtV2j743mk8b4WF");
+            BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
         }
 
         protected ContractTester GetSideChain(string url,string initAccount,string chainId)
@@ -97,12 +96,10 @@ namespace AElf.Automation.SideChainTests
                     index = num;
                 }
             }
-
-            var bmt = new BinaryMerkleTree();
-            bmt.AddNodes(txIdsWithStatus);
-            var root = bmt.ComputeRootHash();
+            var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
+            var root = bmt.Root;
             var merklePath = new MerklePath();
-            merklePath.Path.AddRange(bmt.GenerateMerklePath(index));
+            merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             return merklePath;
         }
 

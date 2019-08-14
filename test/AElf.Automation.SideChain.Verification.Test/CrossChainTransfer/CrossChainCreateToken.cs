@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -30,7 +31,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             IssueToken();
             
             Logger.Info("Waiting for indexing");
-            Thread.Sleep(120000);
+            Thread.Sleep(150000);
             SideChainCrossCreateToken();
         }
 
@@ -57,18 +58,17 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 if (!(result.InfoMsg is TransactionResultDto txResult))
                 {
                     Logger.Error($"Token {symbol} create failed. ");
-                    return;
+                    continue;
                 }
 
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed &&
                     txResult.Error.Contains("Token already exists."))
                 {
                     Logger.Info($"Token {symbol} already created");
-                    TokenSymbol.Add(symbol);
                     continue;
                 }
 
-                if (txResult.Status.ConvertTransactionResultStatus()!= TransactionResultStatus.Mined)
+                if (txResult.Status.ConvertTransactionResultStatus()== TransactionResultStatus.Failed)
                     Assert.IsTrue(false, $"Create token {symbol} Failed");
                 var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, createTransaction);
                 ChainCreateTxInfo.Add(symbol, mainChainTx);
@@ -89,7 +89,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     To = MainChainService.CallAccount
                 });
                 if (!(issueToken.InfoMsg is TransactionResultDto issueTokenResult)) return;
-                if (issueTokenResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                if (issueTokenResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false, $"Issue token {symbol} failed");
 
                 var balance =
@@ -117,19 +117,27 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     FromChainId = MainChainService.ChainId,
                     ParentChainHeight = mainChainCreateTxInfo.BlockHeight,
                     TransactionBytes =
-                        ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(mainChainCreateTxInfo.RawTx))
+                        ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(mainChainCreateTxInfo.RawTx)),
+                    MerklePath = merklePath
                 };
-                crossChainCreateInput.MerklePath.AddRange(merklePath.Path);
 
                 foreach (var sideChainService in SideChainServices)
                 {
+                    Logger.Info("Check the index:");
+                    while (!CheckSideChainBlockIndex(sideChainService, mainChainCreateTxInfo))
+                    {
+                        Logger.Info("Block is not recorded ");
+                        Thread.Sleep(10000);
+                    } 
+                    
                     var result =
                         sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
                             crossChainCreateInput);
                     if (!(result.InfoMsg is TransactionResultDto txResult)) return;
-                    if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                    if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                         Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
+                    
                 }
             }
         }

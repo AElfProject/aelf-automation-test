@@ -26,7 +26,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 var rawTxInfos = new List<CrossChainTransactionInfo>();
                 var resultTxInfos = new List<CrossChainTransactionInfo>();
-                
+
                 foreach (var mainAccount in AccountList[MainChainService.ChainId])
                 {
                     foreach (var sideAccount in AccountList[sideChainService.ChainId])
@@ -44,16 +44,17 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var rawTxInfo in rawTxInfos)
                 {
                     var resultTxInfo = GetCrossChainTransferResult(MainChainService, rawTxInfo);
+                    if (resultTxInfo == null) continue;
                     resultTxInfos.Add(resultTxInfo);
                     Logger.Info(
                         $"The transactions block is:{resultTxInfo.BlockHeight},transaction id is: {resultTxInfo.TxId}");
                 }
-                
+
                 mainRawTxInfos.Add(sideChainService.ChainId, resultTxInfos);
             }
 
             Logger.Info("Waiting for the index");
-            Thread.Sleep(120000);
+            Thread.Sleep(150000);
 
 
             foreach (var sideChainService in SideChainServices)
@@ -62,6 +63,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Logger.Info($"Side chain {sideChainService.ChainId} receive the token {symbol}");
                 foreach (var mainRawTxInfo in mainRawTxInfos[sideChainService.ChainId])
                 {
+                    Logger.Info("Check the index:");
+                    while (!CheckSideChainBlockIndex(sideChainService, mainRawTxInfo))
+                    {
+                        Logger.Info("Block is not recorded ");
+                        Thread.Sleep(10000);
+                    }
+                    
                     Logger.Info($"Receive CrossTransfer Transaction id is : {mainRawTxInfo.TxId}");
 
                     var receiveTokenInput = ReceiveFromMainChainInput(mainRawTxInfo);

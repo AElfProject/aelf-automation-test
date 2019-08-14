@@ -24,7 +24,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class GenesisContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         protected ContractTester MainTester;
         protected ContractTester SideTester;
         protected ContractTester SideTester2;

@@ -59,6 +59,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     foreach (var txId in mainTxIds)
                     {
                         var verifyInput = GetMainChainTransactionVerificationInput(mainChainTransaction.Key, txId);
+                        if (verifyInput == null) continue;
                         verifyInputList.Add(verifyInput);
                     }
                     verifyInputs.Add(mainChainTransaction.Key,verifyInputList);
@@ -96,9 +97,9 @@ namespace AElf.Automation.SideChain.Verification.Verify
             {
                 ParentChainHeight = blockHeight,
                 TransactionId = HashHelper.HexStringToHash(txId),
-                VerifiedChainId = MainChainService.ChainId
+                VerifiedChainId = MainChainService.ChainId,
+                Path = merklePath
             };
-            verificationInput.Path.AddRange(merklePath.Path);
             return verificationInput;
         }
     }

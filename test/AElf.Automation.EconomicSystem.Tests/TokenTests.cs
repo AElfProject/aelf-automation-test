@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public class TokenTests
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
+        protected readonly ILog _logger = Log4NetHelper.GetLogger();
         protected static string RpcUrl { get; } = "http://192.168.197.70:8000";
         protected Behaviors Behaviors;
         //protected RpcApiHelper CH { get; set; }   
@@ -46,11 +46,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             #endregion
             
             #region Basic Preparation
-
-            //Init Logger
-            string logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            _logger.InitLogHelper(dir);
+            
+            Log4NetHelper.LogInit();
             
             //Get BpNode Info
             BpNodeAddress = new List<string>();

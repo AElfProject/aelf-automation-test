@@ -6,6 +6,7 @@ using AElf.Automation.SideChain.Verification.CrossChainTransfer;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Types;
 using FluentScheduler;
+using log4net;
 
 namespace AElf.Automation.SideChain.Verification
 {
@@ -13,7 +14,7 @@ namespace AElf.Automation.SideChain.Verification
     {
         #region Private Properties
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
 
@@ -22,9 +23,7 @@ namespace AElf.Automation.SideChain.Verification
             #region Basic Preparation
 
             //Init Logger
-            var logName = "CrossChain_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("CrossChainTest");
 
             #endregion
 
@@ -56,8 +55,9 @@ namespace AElf.Automation.SideChain.Verification
 
             var mainTransfer = new CrossChainTransferMainChain();
             var sideTransfer = new CrossChainTransferSideChain();
-            while (true)
+            for (var i = 1; i > 0; i++)
             {
+                Logger.Info($"Transfer round {i} :");
                 mainTransfer.CrossChainTransferMainChainJob();
                 sideTransfer.CrossChainTransferSideChainJob();
             }

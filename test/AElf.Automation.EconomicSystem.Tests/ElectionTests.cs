@@ -7,14 +7,15 @@ using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogHelper();
-        protected static string RpcUrl { get; } = "http://192.168.197.11:8001";
+        protected readonly ILog _logger = Log4NetHelper.GetLogger();
+        protected static string RpcUrl { get; } = "http//:52.66.209.107:8000";
 
         protected Behaviors Behaviors;
 
@@ -38,10 +39,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected void Initialize()
         {
             //Init Logger
-            string logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            _logger.InitLogHelper(dir);
-            
+            Log4NetHelper.LogInit("ElectionTest");
+
             #region Get services
 
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());

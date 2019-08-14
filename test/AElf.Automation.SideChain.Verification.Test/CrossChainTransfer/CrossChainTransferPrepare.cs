@@ -58,10 +58,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     $"the transactions block is:{rawTxInfo.BlockHeight},transaction id is: {rawTxInfo.TxId}");
             }
             Logger.Info("Waiting for the index");
-            Thread.Sleep(120000);
+            Thread.Sleep(200000);
 
             foreach (var sideChainService in SideChainServices)
             {
+                
                 Logger.Info($"Side chain {sideChainService.ChainId} received token");
                 Logger.Info($"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
                 

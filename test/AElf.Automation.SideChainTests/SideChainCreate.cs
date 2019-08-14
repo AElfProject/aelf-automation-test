@@ -22,16 +22,16 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
+        [DataRow("2hxkDg6Pd2d4yU1A16PTZVMMrEDYEPR8oQojMDwWdax5LsBaxX")]
         public void RequestSideChain(string account)
         {
-            Tester.TransferToken(InitAccount, account, 400000, "ELF");
-            Tester.TokenApprove(account, 400000);
-            
-            var result = Tester.RequestSideChain(account,400000);
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var message = transactionResult.ReadableReturnValue;
-            _logger.Info($"proposal message is {message}");
+            Tester.TransferToken(InitAccount, account, 1000000, "ELF");
+//            Tester.TokenApprove(account, 400000);
+//            
+//            var result = Tester.RequestSideChain(account,400000);
+//            var transactionResult = result.InfoMsg as TransactionResultDto;
+//            var message = transactionResult.ReadableReturnValue;
+//            _logger.Info($"proposal message is {message}");
         }
 
         //708d7c62cb33df097c68686796fa4cba9b418ef3b73cd83ab85086037b5a0a9f 2882050
@@ -99,24 +99,6 @@ namespace AElf.Automation.SideChainTests
         {
             var status = Tester.GetChainStatus(chainId);
             _logger.Info($"side chain is {status}");
-        }
-
-        [TestMethod]
-//        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2750978,1000000)]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2816514,1000000)]
-        public void Recharge(string account,int chainId,long amount)
-        {
-            CheckBalance(account);
-            
-            if (Tester.GetBalance(account,"ELF").Balance < amount)
-            {
-                Tester.TransferToken(InitAccount, account, amount, "ELF");
-            }
-
-            Tester.TokenApprove(account, amount);
-            var reCharge = Tester.Recharge(account, chainId, amount);
-            var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
-            _logger.Info($"side chain lock balance is {balance}");
         }
 
         [TestMethod]

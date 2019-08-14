@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using log4net;
 
 namespace AElf.Automation.SideChainCreate
 {
@@ -9,7 +10,7 @@ namespace AElf.Automation.SideChainCreate
     {
         #region Private Properties
 
-        private static readonly ILogHelper Logger = LogHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
         
@@ -18,9 +19,8 @@ namespace AElf.Automation.SideChainCreate
             #region Basic Preparation
 
             //Init Logger
-            var logName = "CreateSideChain_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("SideChainCreate");
+
             #endregion
 
             var proposals = new List<string>();

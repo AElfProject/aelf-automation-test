@@ -120,12 +120,11 @@ namespace AElf.Automation.SideChain.Verification.Verify
             var verificationInput = new VerifyTransactionInput
             {
                 TransactionId = HashHelper.HexStringToHash(txId),
-                VerifiedChainId = services.ChainId
+                VerifiedChainId = services.ChainId,
+                Path = merklePath
             };
-            verificationInput.Path.AddRange(merklePath.Path);
-
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(services, blockHeight);
-            verificationInput.Path.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.Path);
+            verificationInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.MerklePathNodes);
             verificationInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
 
             return verificationInput;
