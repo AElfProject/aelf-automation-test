@@ -189,9 +189,12 @@ namespace AElf.Automation.RpcPerformance
         {
             for (var i = 0; i < ThreadCount; i++)
             {
-                var account = AccountList[i].Account;
+                var account = AccountList[0].Account;
                 var authority = new AuthorityManager(BaseUrl, account);
-                var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
+                var miners = authority.GetCurrentMiners();
+                if(i > miners.Count)
+                    return;
+                var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
                 ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
             }
         }
