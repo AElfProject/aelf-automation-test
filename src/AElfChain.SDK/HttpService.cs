@@ -54,7 +54,6 @@ namespace AElfChain.SDK
         public async Task<T> PostResponseAsync<T>(string url, Dictionary<string, string> parameters,
             string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            //$"Post request to: {url}".WriteSuccessLine();
             var strResponse = await PostResponseAsStringAsync(url, parameters, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -97,7 +96,7 @@ namespace AElfChain.SDK
 
             {
                 var response = await client.GetAsync(url);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden)
+                if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
                 throw new AElfChainApiException(message);
@@ -144,7 +143,7 @@ namespace AElfChain.SDK
             try
             {
                 var response = await client.PostAsync(url, content);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden)
+                if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
                 throw new AElfChainApiException(message);
@@ -174,7 +173,7 @@ namespace AElfChain.SDK
             try
             {
                 var response = await client.DeleteAsync(url);
-                if (response.StatusCode == expectedStatusCode || response.StatusCode == HttpStatusCode.Forbidden)
+                if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
                 throw new AElfChainApiException(message);

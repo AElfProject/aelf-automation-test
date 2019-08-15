@@ -19,6 +19,7 @@ namespace AElfChain.SDK
         CreateRawTransaction,
         GetContractFileDescriptorSet,
         ExecuteTransaction,
+        ExecuteRawTransaction,
         CurrentRoundInformation,
         TaskQueueStatus,
 

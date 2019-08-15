@@ -14,8 +14,4 @@
       <ProjectReference Include="..\AElf\src\AElf.Types\AElf.Types.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models" />
-    </ItemGroup>
-
 </Project>

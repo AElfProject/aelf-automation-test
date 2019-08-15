@@ -19,7 +19,6 @@ namespace AElf.Automation.Common.Helpers
         private string _chainId;
         private readonly AElfKeyStore _keyStore;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private Dictionary<ApiMethods, string> ApiRoute { get; set; }
 
         private string _genesisAddress;
         public string GenesisAddress => GetGenesisContractAddress();
@@ -39,8 +38,6 @@ namespace AElf.Automation.Common.Helpers
 
             ApiService = AElfChainClient.GetClient(baseUrl);
             CommandList = new List<CommandInfo>();
-
-            InitializeWebApiRoute();
         }
 
         public string GetApiUrl()
@@ -396,35 +393,6 @@ namespace AElf.Automation.Common.Helpers
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
-        }
-
-        private void InitializeWebApiRoute()
-        {
-            ApiRoute = new Dictionary<ApiMethods, string>
-            {
-                //chain route
-                {ApiMethods.GetChainInformation, "/api/blockChain/chainStatus"},
-                {ApiMethods.GetBlockHeight, "/api/blockChain/blockHeight"},
-                {
-                    ApiMethods.GetBlockByHeight,
-                    "/api/blockChain/blockByHeight?blockHeight={0}&includeTransactions={1}"
-                },
-                {ApiMethods.GetBlockByHash, "/api/blockChain/block?blockHash={0}&includeTransactions={1}"},
-                {ApiMethods.DeploySmartContract, "/api/blockChain/sendTransaction"},
-                {ApiMethods.SendTransaction, "/api/blockChain/sendTransaction"},
-                {ApiMethods.SendTransactions, "/api/blockChain/sendTransactions"},
-                {ApiMethods.QueryView, "/api/blockChain/executeTransaction"},
-                {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
-                {
-                    ApiMethods.GetTransactionResults,
-                    "/api/blockChain/transactionResults?blockHash={0}&offset={1}&limit={2}"
-                },
-
-                //net route
-                {ApiMethods.GetPeers, "/api/net/peers"},
-                {ApiMethods.AddPeer, "/api/net/peer"},
-                {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
-            };
         }
 
         private TransactionManager GetTransactionManager()

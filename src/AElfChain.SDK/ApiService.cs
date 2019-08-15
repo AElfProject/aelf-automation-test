@@ -32,8 +32,20 @@ namespace AElfChain.SDK
             var url = GetRequestUrl(ApiMethods.ExecuteTransaction);
             var parameters = new Dictionary<string, string>
             {
-                {"rawTransaction", rawTransaction}
+                {"RawTransaction", rawTransaction}
             };
+            return await _httpService.PostResponseAsync<string>(url, parameters);
+        }
+
+        public async Task<string> ExecuteRawTransactionAsync(ExecuteRawTransactionDto input)
+        {
+            var url = GetRequestUrl(ApiMethods.ExecuteRawTransaction);
+            var parameters = new Dictionary<string, string>
+            {
+                {"RawTransaction", input.RawTransaction},
+                {"Signature", input.Signature}
+            };
+
             return await _httpService.PostResponseAsync<string>(url, parameters);
         }
 
@@ -92,7 +104,7 @@ namespace AElfChain.SDK
             var url = GetRequestUrl(ApiMethods.SendTransaction);
             var parameters = new Dictionary<string, string>
             {
-                {"rawTransaction", rawTransaction}
+                {"RawTransaction", rawTransaction}
             };
             return await _httpService.PostResponseAsync<SendTransactionOutput>(url, parameters);
         }
@@ -102,7 +114,7 @@ namespace AElfChain.SDK
             var url = GetRequestUrl(ApiMethods.SendTransactions);
             var parameters = new Dictionary<string, string>
             {
-                {"rawTransactions", rawTransactions}
+                {"RawTransactions", rawTransactions}
             };
             return await _httpService.PostResponseAsync<string[]>(url, parameters);
         }
@@ -230,6 +242,7 @@ namespace AElfChain.SDK
                 {ApiMethods.SendRawTransaction, "/api/blockChain/sendRawTransaction"},
                 {ApiMethods.GetBlockState, "/api/blockChain/blockState?blockHash={0}"},
                 {ApiMethods.ExecuteTransaction, "/api/blockChain/executeTransaction"},
+                {ApiMethods.ExecuteRawTransaction, "/api/blockChain/executeRawTransaction"},
                 {ApiMethods.GetContractFileDescriptorSet, "/api/blockChain/contractFileDescriptorSet?address={0}"},
                 {ApiMethods.GetTransactionResult, "/api/blockChain/transactionResult?transactionId={0}"},
                 {
