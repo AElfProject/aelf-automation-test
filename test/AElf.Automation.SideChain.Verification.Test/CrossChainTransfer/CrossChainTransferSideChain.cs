@@ -100,7 +100,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var mainRawTxInfo in mainResultTxInfos)
                 {
                     Logger.Info("Check the index:");
-                    while (!CheckSideChainBlockIndex(sideChainService,mainRawTxInfo))
+                    while (!CheckParentChainBlockIndex(sideChainService,mainRawTxInfo))
                     {
                         Logger.Info("Block is not recorded ");
                         Thread.Sleep(10000);
