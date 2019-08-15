@@ -154,7 +154,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
             }
 
-            //Election.SetAccount(account);
             var election = Election.GetNewTester(account);
             election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {

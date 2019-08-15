@@ -133,5 +133,38 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public ConcurrentDictionary<Hash, TransactionReceipt> TransactionHub { get; set; }
         public int TestCount { get; set; } = 1000;
+
+        [TestMethod]
+        public void ComputeFibonacci_Test()
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var level1 = CalculateFibonacci(20);
+            stopwatch.Stop();
+            _logger.Info($"Level1 result: {level1}, spent time: {stopwatch.ElapsedMilliseconds}ms");
+            
+            stopwatch.Restart();
+            var level2 = CalculateFibonacci(24);
+            stopwatch.Stop();
+            _logger.Info($"Level2 result: {level2}, spent time: {stopwatch.ElapsedMilliseconds}ms");
+            
+            stopwatch.Restart();
+            var level3 = CalculateFibonacci(28);
+            stopwatch.Stop();
+            _logger.Info($"Level3 result: {level3}, spent time: {stopwatch.ElapsedMilliseconds}ms");
+            
+            stopwatch.Restart();
+            var level4 = CalculateFibonacci(32);
+            stopwatch.Stop();
+            _logger.Info($"Level4 result: {level4}, spent time: {stopwatch.ElapsedMilliseconds}ms");
+        }
+        
+        private static long CalculateFibonacci(long n)
+        {
+            if (n == 0 || n == 1)
+                return n;
+
+            return CalculateFibonacci(n - 2) + CalculateFibonacci(n - 1);
+        }
     }
 }

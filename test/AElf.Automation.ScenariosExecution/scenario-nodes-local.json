@@ -117,28 +117,33 @@
     },
     {
       "case_name": "NodeScenario",
-      "enable": true,
+      "enable": false,
       "time_interval": 60
     },
     {
       "case_name": "UserScenario",
-      "enable": true,
+      "enable": false,
       "time_interval": 10
     },
     {
       "case_name": "ExceptionScenario",
-      "enable": true,
+      "enable": false,
       "time_interval": 60
+    },
+    {
+      "case_name": "PerformanceScenario",
+      "enable": true,
+      "time_interval": 30
     }
   ],
   "UserCount": 100,
   "Timeout": 300,
   "SpecifyEndpoint": {
     "enable": true,
-    "service_url": "http://192.168.197.46:8000"
+    "service_url": "http://192.168.197.43:8100"
   },
   "ContractsInfo": {
-    "AutoUpdate": true,
+    "AutoUpdate": false,
     "Contracts": [
       {
         "name": "FeeReceiver",
@@ -157,6 +162,12 @@
         "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
         "code_hash": "38122a009d4d1c83432a322da39b9d55d2f0d60a537e6dadcbb160679829264b",
         "owner": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8"
+      },
+      {
+        "name": "Performance",
+        "address": "",
+        "code_hash": "",
+        "owner": ""
       }
     ]
   }

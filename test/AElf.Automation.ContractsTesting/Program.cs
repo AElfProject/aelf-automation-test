@@ -68,14 +68,21 @@ namespace AElf.Automation.ContractsTesting
             var rd = new Random(Guid.NewGuid().GetHashCode());
             while (true)
             {
-                var randUrl = endpoints[rd.Next(endpoints.Length)];
-                Logger.Info($"Send request to url: {randUrl}");
-                var contractExecution = new ContractExecution(randUrl);
-                contractExecution.DeployTestContract();
-                AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
-                AsyncHelper.RunSync(contractExecution.UpdateContract);
-                AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
-                Thread.Sleep(3000);
+                try
+                {
+                    var randUrl = endpoints[rd.Next(endpoints.Length)];
+                    Logger.Info($"Send request to url: {randUrl}");
+                    var contractExecution = new ContractExecution(randUrl);
+                    contractExecution.DeployTestContract();
+                    AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+                    AsyncHelper.RunSync(contractExecution.UpdateContract);
+                    AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+                    Thread.Sleep(3000);
+                }
+                catch (Exception e)
+                {
+                   Logger.Error(e.Message);
+                }
             }
 
             //configuration set

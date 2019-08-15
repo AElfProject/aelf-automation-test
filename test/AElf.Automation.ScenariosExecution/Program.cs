@@ -56,6 +56,10 @@ namespace AElf.Automation.ScenariosExecution
                         var exceptionScenario = new ExceptionScenario();
                         RegisterAction(registry, scenario, exceptionScenario.RunExceptionScenarioJob);
                         break;
+                    case "PerformanceScenario":
+                        var performanceScenario = new PerformanceScenario();
+                        RegisterAction(registry, scenario, performanceScenario.RunPerformanceScenarioJob);
+                        break;
                 }
             }
            

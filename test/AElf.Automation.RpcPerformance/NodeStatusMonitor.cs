@@ -102,6 +102,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     case TransactionResultStatus.Pending:
                         CheckTransactionsStatus(transactionIds, checkTimes);
+                        Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info($"Transaction: {transactionIds[0]}, Status: {txResult}");
