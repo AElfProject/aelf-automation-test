@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Types;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -65,7 +65,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 var i1 = i;
                 var transactionResult =
-                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[i1]));
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResultAsync(transactionIds[i1]));
                 var resultStatus = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (resultStatus)
                 {
@@ -96,7 +96,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 Logger.Info("Last one: {0}", transactionIds[0]);
                 var transactionResult =
-                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResult(transactionIds[0]));
+                    AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionResultAsync(transactionIds[0]));
                 var txResult = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (txResult)
                 {
@@ -125,7 +125,7 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                var currentHeight = AsyncHelper.RunSync(() => ApiHelper.ApiService.GetBlockHeight());
+                var currentHeight = AsyncHelper.RunSync(ApiHelper.ApiService.GetBlockHeightAsync);
                 if (BlockHeight != currentHeight)
                 {
                     BlockHeight = currentHeight;
@@ -146,7 +146,7 @@ namespace AElf.Automation.RpcPerformance
         private int GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =
-                AsyncHelper.RunSync(ApiHelper.ApiService.GetTransactionPoolStatus);
+                AsyncHelper.RunSync(ApiHelper.ApiService.GetTransactionPoolStatusAsync);
 
             return transactionPoolStatusOutput.Queued;
         }

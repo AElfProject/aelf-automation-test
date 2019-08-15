@@ -81,7 +81,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeight);
+                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeightAsync);
                 if (newHeight == height)
                 {
                     checkTimes++;

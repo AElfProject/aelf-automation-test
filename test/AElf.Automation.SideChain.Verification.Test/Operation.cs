@@ -1,7 +1,7 @@
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;

@@ -2,13 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Acs7;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
 using AElf.CSharp.Core.Utils;
-using AElf.Kernel;
 using AElf.Types;
+using AElfChain.SDK;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -29,7 +26,7 @@ namespace AElf.Automation.SideChainTests
         protected void Initialize()
         {
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
-            IS = new WebApiService(RpcUrl);
+            IS = AElfChainClient.GetClient(RpcUrl);
             var contractServices = new ContractServices(CH, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             //Init Logger
@@ -59,13 +56,13 @@ namespace AElf.Automation.SideChainTests
 
         protected MerklePath GetMerklePath(string blockNumber, int index, IApiService apiService)
         {
-            var blockInfoResult = apiService.GetBlockByHeight(long.Parse(blockNumber), true).Result;
+            var blockInfoResult = apiService.GetBlockByHeightAsync(long.Parse(blockNumber), true).Result;
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
-                var txResult = apiService.GetTransactionResult(transactionId).Result;
+                var txResult = apiService.GetTransactionResultAsync(transactionId).Result;
                 var resultStatus = txResult.Status;
                 transactionStatus.Add(resultStatus);
             }

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.OptionManagers;
-using AElf.Automation.Common.WebApi;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.SDK;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json.Linq;
@@ -37,7 +37,7 @@ namespace AElf.Automation.Common.Helpers
             _baseUrl = baseUrl;
             _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
 
-            ApiService = new WebApiService(baseUrl);
+            ApiService = AElfChainClient.GetClient(baseUrl);
             CommandList = new List<CommandInfo>();
 
             InitializeWebApiRoute();
@@ -51,11 +51,11 @@ namespace AElf.Automation.Common.Helpers
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
-            ApiService = new WebApiService(_baseUrl);
+            ApiService = AElfChainClient.GetClient(url);
             Logger.Info($"Request url updated to: {url}");
         }
 
-        public WebApiService ApiService { get; set; }
+        public IApiService ApiService { get; set; }
 
         public List<CommandInfo> CommandList { get; set; }
 
@@ -63,7 +63,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_genesisAddress != null) return _genesisAddress;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
             return _genesisAddress;
         }
@@ -150,7 +150,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void GetChainInformation(CommandInfo ci)
         {
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
             _chainId = statusDto.ChainId;
 
@@ -187,7 +187,7 @@ namespace AElf.Automation.Common.Helpers
                 return;
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
 
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
 
             ci.InfoMsg = transactionOutput;
             ci.Result = true;
@@ -204,7 +204,7 @@ namespace AElf.Automation.Common.Helpers
 
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tr);
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(rawTxString));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
             ci.Result = true;
         }
 
@@ -212,7 +212,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(1))
                 return;
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransaction(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(ci.Parameter));
             ci.Result = true;
         }
 
@@ -263,7 +263,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactions(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(ci.Parameter));
             ci.Result = true;
         }
 
@@ -272,13 +272,13 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetTransactionResult(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(ci.Parameter));
             ci.Result = true;
         }
 
         public void GetBlockHeight(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetBlockHeight());
+            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
             ci.Result = true;
         }
 
@@ -289,7 +289,7 @@ namespace AElf.Automation.Common.Helpers
 
             var parameterArray = ci.Parameter.Split(" ");
             ci.InfoMsg = AsyncHelper.RunSync(
-                () => ApiService.GetBlockByHeight(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1]))
+                () => ApiService.GetBlockByHeightAsync(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1]))
             );
             ci.Result = true;
         }
@@ -301,13 +301,13 @@ namespace AElf.Automation.Common.Helpers
 
             var parameterArray = ci.Parameter.Split(" ");
             ci.InfoMsg =
-                AsyncHelper.RunSync(() => ApiService.GetBlock(parameterArray[0], bool.Parse(parameterArray[1])));
+                AsyncHelper.RunSync(() => ApiService.GetBlockAsync(parameterArray[0], bool.Parse(parameterArray[1])));
             ci.Result = true;
         }
 
         public void GetTransactionPoolStatus(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetTransactionPoolStatus());
+            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
             ci.Result = true;
         }
 
@@ -356,7 +356,7 @@ namespace AElf.Automation.Common.Helpers
 
         public void QueryViewInfo(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(ci.Parameter));
             ci.Result = true;
         }
 
@@ -368,7 +368,7 @@ namespace AElf.Automation.Common.Helpers
         //Net Api
         public void NetGetPeers(CommandInfo ci)
         {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetPeers());
+            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetPeersAsync);
             ci.Result = true;
         }
 
@@ -377,7 +377,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.AddPeer(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.AddPeerAsync(ci.Parameter));
             ci.Result = true;
         }
 
@@ -386,7 +386,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(1))
                 return;
 
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.RemovePeer(ci.Parameter));
+            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(ci.Parameter));
             ci.Result = true;
         }
 
@@ -395,7 +395,7 @@ namespace AElf.Automation.Common.Helpers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.ExecuteTransaction(rawTxString));
+            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
         }
 
         private void InitializeWebApiRoute()
@@ -431,7 +431,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_transactionManager != null) return _transactionManager;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _chainId = statusDto.ChainId;
             _transactionManager = new TransactionManager(_keyStore, _chainId);
             return _transactionManager;
@@ -441,7 +441,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_accountManager != null) return _accountManager;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatus);
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _chainId = statusDto.ChainId;
             _accountManager = new AccountManager(_keyStore, _chainId);
             return _accountManager;

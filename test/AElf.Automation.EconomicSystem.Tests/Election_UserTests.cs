@@ -1,6 +1,6 @@
 using System.Linq;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

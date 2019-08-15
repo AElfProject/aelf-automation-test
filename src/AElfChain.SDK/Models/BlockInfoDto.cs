@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AElf.Automation.Common.WebApi.Dto
+namespace AElfChain.SDK.Models
 {
     public class BlockDto
     {

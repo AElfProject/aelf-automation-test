@@ -1,10 +1,9 @@
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken.Messages;
-using AElf.Types;
+using AElfChain.SDK;
 using Google.Protobuf;
 using Shouldly;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -91,7 +90,7 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
+            ISA = AElfChainClient.GetClient(SideARpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, index, ISA);
             var verificationInput = new VerifyTransactionInput
@@ -174,7 +173,7 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
+            ISA = AElfChainClient.GetClient(SideARpcUrl);
             //get tokenInfo
             var tokenInfo = TesterA.GetTokenInfo("ELF");
             //Transfer
@@ -190,7 +189,7 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainA = ChangeRpc(SideARpcUrl);
             TesterA = ChangeToSideChain(SideChainA, sideChainAccount);
-            ISA = new WebApiService(SideARpcUrl);
+            ISA = AElfChainClient.GetClient(SideARpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, index, ISA);
 
@@ -211,7 +210,7 @@ namespace AElf.Automation.SideChainTests
             //receive in side chain B
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
-            ISB = new WebApiService(SideBRpcUrl);
+            ISB = AElfChainClient.GetClient(SideBRpcUrl);
             TesterB.CrossChainReceive(accountB, crossChainReceiveToken);
 
             //verify
@@ -228,7 +227,7 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
-            ISB = new WebApiService(SideBRpcUrl);
+            ISB = AElfChainClient.GetClient(SideBRpcUrl);
 
             //get ELF token info
             var tokenInfo = TesterB.GetTokenInfo("ELF");
@@ -245,7 +244,7 @@ namespace AElf.Automation.SideChainTests
         {
             SideChainB = ChangeRpc(SideBRpcUrl);
             TesterB = ChangeToSideChain(SideChainB, sideChainBccount);
-            ISB = new WebApiService(SideBRpcUrl);
+            ISB = AElfChainClient.GetClient(SideBRpcUrl);
 
             var merklePath = GetMerklePath(blockNumber, index, ISB);
 

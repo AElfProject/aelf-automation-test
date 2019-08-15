@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
+using AElfChain.SDK;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -35,8 +35,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000")]
         public void GetPeers(string url)
         {
-            var service = new WebApiService(url);
-            var list = service.GetPeers().Result;
+            var service = AElfChainClient.GetClient(url);
+            var list = service.GetPeersAsync().Result;
             _logger.Info($"Peer {url} information");
             foreach (var peer in list)
             {
@@ -48,11 +48,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000", "192.168.197.205:6810")]
         public void AddPeers(string url, params string[] addressArray)
         {
-            var service = new WebApiService(url);
+            var service = AElfChainClient.GetClient(url);
             if (addressArray == null) return;
             foreach (var address in addressArray)
             {
-                var result = service.AddPeer(address).Result;
+                var result = service.AddPeerAsync(address).Result;
                 _logger.Info($"Add peer {address} result: {result}");
             }
         }
@@ -61,11 +61,11 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000", "192.168.197.28:6800")]
         public void RemovePeers(string url, params string[] addressArray)
         {
-            var service = new WebApiService(url);
+            var service = AElfChainClient.GetClient(url);
             if (addressArray == null) return;
             foreach (var address in addressArray)
             {
-                var result = service.RemovePeer(address).Result;
+                var result = service.RemovePeerAsync(address).Result;
                 _logger.Info($"Remove peer {address} result: {result}");
             }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;

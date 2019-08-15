@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -654,7 +654,7 @@ namespace AElf.Automation.RpcPerformance
                 try
                 {
                     var transactionPoolCount =
-                        AsyncHelper.RunSync(() => ApiHelper.ApiService.GetTransactionPoolStatus()).Queued;
+                        AsyncHelper.RunSync(ApiHelper.ApiService.GetTransactionPoolStatusAsync).Queued;
                     if (transactionPoolCount > maxLimit)
                     {
                         Thread.Sleep(1000);

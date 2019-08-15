@@ -4,14 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.CSharp.Core;
 using AElf.Types;
+using AElfChain.SDK;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.DependencyInjection;
+using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -21,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
         public string SenderAddress { get; set; }
         public Address Sender { get; set; }
         public WebApiHelper ApiHelper { get; }
-        public WebApiService ApiService { get; }
+        public IApiService ApiService { get; }
 
         private readonly string _baseUrl;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
@@ -51,7 +52,7 @@ namespace AElf.Automation.Common.Contracts
                 transaction.AddBlockReference(_baseUrl);
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
-                var transactionOutput = await ApiService.SendTransaction(transaction.ToByteArray().ToHex());
+                var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
                 var checkTimes = 0;
                 TransactionResultDto resultDto;
@@ -59,7 +60,7 @@ namespace AElf.Automation.Common.Contracts
                 while (true)
                 {
                     checkTimes++;
-                    resultDto = await ApiService.GetTransactionResult(transactionOutput.TransactionId);
+                    resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
                     if (status != TransactionResultStatus.Pending)
                     {
@@ -131,7 +132,7 @@ namespace AElf.Automation.Common.Contracts
                 };
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
-                var returnValue = await ApiService.ExecuteTransaction(transaction.ToByteArray().ToHex());
+                var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 

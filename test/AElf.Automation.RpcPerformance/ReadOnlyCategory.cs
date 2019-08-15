@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.MultiToken.Messages;
 using AElf.Types;
 using log4net;

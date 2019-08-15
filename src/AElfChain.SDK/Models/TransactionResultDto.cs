@@ -1,7 +1,7 @@
 using System;
 using AElf.Types;
 
-namespace AElf.Automation.Common.WebApi.Dto
+namespace AElfChain.SDK.Models
 {
     public class TransactionResultDto
     {

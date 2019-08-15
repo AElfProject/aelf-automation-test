@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest

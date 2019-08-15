@@ -1,6 +1,6 @@
-namespace AElf.Automation.Common.WebApi.Dto
+namespace AElfChain.SDK.Models
 {
-    public class ExecuteTransactionDto
+    public class SendTransactionInput
     {
         /// <summary>
         /// raw transaction

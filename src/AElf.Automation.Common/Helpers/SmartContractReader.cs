@@ -40,10 +40,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         private string GetKeyFileFullPath(string address)
         {
-            string dirPath = GetKeystoreDirectoryPath();
-            string filePath = Path.Combine(dirPath, address);
+            var dirPath = GetKeystoreDirectoryPath();
+            var filePath = Path.Combine(dirPath, address);
 
-            string filePathWithExtension = filePath + ContractExtension;
+            var filePathWithExtension = filePath + ContractExtension;
 
             return filePathWithExtension;
         }

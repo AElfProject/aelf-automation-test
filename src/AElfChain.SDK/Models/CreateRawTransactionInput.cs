@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using AElf.Types;
+using AElf;
 
-namespace AElf.Automation.Common.WebApi.Dto
+namespace AElfChain.SDK.Models
 {
-    [Display]
     public class CreateRawTransactionInput : IValidatableObject
     {
         /// <summary>

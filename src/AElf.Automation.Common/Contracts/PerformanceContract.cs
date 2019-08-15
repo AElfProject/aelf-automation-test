@@ -1,6 +1,6 @@
 using System;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
 using Shouldly;

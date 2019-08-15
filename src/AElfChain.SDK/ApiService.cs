@@ -1,47 +1,50 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElf;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
-using log4net;
 
-namespace AElf.Automation.Common.WebApi
+namespace AElfChain.SDK
 {
-    public class WebApiService : IApiService
+    public class ApiService : IApiService
     {
-        public string BaseUrl { get; }
+        private readonly string _baseUrl;
+        private readonly IHttpService _httpService;
         private Dictionary<ApiMethods, string> _apiRoute;
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public WebApiService(string baseUrl)
+        public ApiService(SdkOption sdkOption)
         {
-            BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
-
+            _baseUrl = FormatServiceUrl(sdkOption.ServiceUrl);
+            _httpService = new HttpService(sdkOption.TimeoutSeconds, sdkOption.FailReTryTimes);
+            
             InitializeWebApiRoute();
         }
-
+        
         #region Chain Api
 
-        public async Task<string> ExecuteTransaction(string rawTransaction)
+        public string GetServiceUrl()
+        {
+            return _baseUrl;
+        }
+
+        public async Task<string> ExecuteTransactionAsync(string rawTransaction)
         {
             var url = GetRequestUrl(ApiMethods.ExecuteTransaction);
             var parameters = new Dictionary<string, string>
             {
                 {"rawTransaction", rawTransaction}
             };
-            return await HttpHelper.PostResponseAsync<string>(url, parameters);
+            return await _httpService.PostResponseAsync<string>(url, parameters);
         }
 
-        public async Task<TResult> ExecuteTransaction<TResult>(string rawTransaction)
+        public async Task<TResult> ExecuteTransactionAsync<TResult>(string rawTransaction)
             where TResult : IMessage<TResult>, new()
         {
-            var hexString = await ExecuteTransaction(rawTransaction);
+            var hexString = await ExecuteTransactionAsync(rawTransaction);
 
-            if (hexString.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(hexString))
             {
-                Logger.Error("ExecuteTransaction response is null or empty.");
-                return default(TResult);
+                throw new AElfChainApiException("ExecuteTransactionAsync response is null or empty.");
             }
 
             var byteArray = ByteArrayHelper.HexStringToByteArray(hexString);
@@ -50,14 +53,14 @@ namespace AElf.Automation.Common.WebApi
             return messageParser.ParseFrom(byteArray);
         }
 
-        public async Task<byte[]> GetContractFileDescriptorSet(string address)
+        public async Task<byte[]> GetContractFileDescriptorSetAsync(string address)
         {
             var url = GetRequestUrl(ApiMethods.GetContractFileDescriptorSet, address);
 
-            return await HttpHelper.GetResponseAsync<byte[]>(url);
+            return await _httpService.GetResponseAsync<byte[]>(url);
         }
 
-        public async Task<CreateRawTransactionOutput> CreateRawTransaction(CreateRawTransactionInput input)
+        public async Task<CreateRawTransactionOutput> CreateRawTransactionAsync(CreateRawTransactionInput input)
         {
             var url = GetRequestUrl(ApiMethods.CreateRawTransaction);
             var parameters = new Dictionary<string, string>
@@ -69,10 +72,10 @@ namespace AElf.Automation.Common.WebApi
                 {"MethodName", input.MethodName},
                 {"Params", input.Params}
             };
-            return await HttpHelper.PostResponseAsync<CreateRawTransactionOutput>(url, parameters);
+            return await _httpService.PostResponseAsync<CreateRawTransactionOutput>(url, parameters);
         }
 
-        public async Task<SendRawTransactionOutput> SendRawTransaction(SendRawTransactionInput input)
+        public async Task<SendRawTransactionOutput> SendRawTransactionAsync(SendRawTransactionInput input)
         {
             var url = GetRequestUrl(ApiMethods.SendRawTransaction);
             var parameters = new Dictionary<string, string>
@@ -81,95 +84,95 @@ namespace AElf.Automation.Common.WebApi
                 {"Signature", input.Signature},
                 {"ReturnTransaction", input.ReturnTransaction ? "true" : "false"}
             };
-            return await HttpHelper.PostResponseAsync<SendRawTransactionOutput>(url, parameters);
+            return await _httpService.PostResponseAsync<SendRawTransactionOutput>(url, parameters);
         }
 
-        public async Task<SendTransactionOutput> SendTransaction(string rawTransaction)
+        public async Task<SendTransactionOutput> SendTransactionAsync(string rawTransaction)
         {
             var url = GetRequestUrl(ApiMethods.SendTransaction);
             var parameters = new Dictionary<string, string>
             {
                 {"rawTransaction", rawTransaction}
             };
-            return await HttpHelper.PostResponseAsync<SendTransactionOutput>(url, parameters);
+            return await _httpService.PostResponseAsync<SendTransactionOutput>(url, parameters);
         }
 
-        public async Task<string[]> SendTransactions(string rawTransactions)
+        public async Task<string[]> SendTransactionsAsync(string rawTransactions)
         {
             var url = GetRequestUrl(ApiMethods.SendTransactions);
             var parameters = new Dictionary<string, string>
             {
                 {"rawTransactions", rawTransactions}
             };
-            return await HttpHelper.PostResponseAsync<string[]>(url, parameters);
+            return await _httpService.PostResponseAsync<string[]>(url, parameters);
         }
 
-        public async Task<TransactionResultDto> GetTransactionResult(string transactionId)
+        public async Task<TransactionResultDto> GetTransactionResultAsync(string transactionId)
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionResult, transactionId);
-            return await HttpHelper.GetResponseAsync<TransactionResultDto>(url);
+            return await _httpService.GetResponseAsync<TransactionResultDto>(url);
         }
 
-        public async Task<List<TransactionResultDto>> GetTransactionResults(string blockHash, int offset = 0,
+        public async Task<List<TransactionResultDto>> GetTransactionResultsAsync(string blockHash, int offset = 0,
             int limit = 10)
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionResults, blockHash, offset, limit);
-            return await HttpHelper.GetResponseAsync<List<TransactionResultDto>>(url);
+            return await _httpService.GetResponseAsync<List<TransactionResultDto>>(url);
         }
 
-        public async Task<long> GetBlockHeight()
+        public async Task<long> GetBlockHeightAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetBlockHeight);
-            return await HttpHelper.GetResponseAsync<long>(url);
+            return await _httpService.GetResponseAsync<long>(url);
         }
 
-        public async Task<BlockDto> GetBlock(string blockHash, bool includeTransactions = false)
+        public async Task<BlockDto> GetBlockAsync(string blockHash, bool includeTransactions = false)
         {
             var url = GetRequestUrl(ApiMethods.GetBlockByHash, blockHash, includeTransactions);
-            return await HttpHelper.GetResponseAsync<BlockDto>(url);
+            return await _httpService.GetResponseAsync<BlockDto>(url);
         }
 
-        public async Task<BlockDto> GetBlockByHeight(long blockHeight, bool includeTransactions = false)
+        public async Task<BlockDto> GetBlockByHeightAsync(long blockHeight, bool includeTransactions = false)
         {
             var url = GetRequestUrl(ApiMethods.GetBlockByHeight, blockHeight, includeTransactions);
-            return await HttpHelper.GetResponseAsync<BlockDto>(url);
+            return await _httpService.GetResponseAsync<BlockDto>(url);
         }
 
-        public async Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatus()
+        public async Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatusAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionPoolStatus);
-            return await HttpHelper.GetResponseAsync<GetTransactionPoolStatusOutput>(url);
+            return await _httpService.GetResponseAsync<GetTransactionPoolStatusOutput>(url);
         }
 
-        public async Task<ChainStatusDto> GetChainStatus()
+        public async Task<ChainStatusDto> GetChainStatusAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetChainStatus);
-            return await HttpHelper.GetResponseAsync<ChainStatusDto>(url);
+            return await _httpService.GetResponseAsync<ChainStatusDto>(url);
         }
 
-        public async Task<BlockStateDto> GetBlockState(string blockHash)
+        public async Task<BlockStateDto> GetBlockStateAsync(string blockHash)
         {
             var url = GetRequestUrl(ApiMethods.GetBlockState, blockHash);
-            return await HttpHelper.GetResponseAsync<BlockStateDto>(url);
+            return await _httpService.GetResponseAsync<BlockStateDto>(url);
         }
 
-        public async Task<List<TaskQueueInfoDto>> GetTaskQueueStatus()
+        public async Task<List<TaskQueueInfoDto>> GetTaskQueueStatusAsync()
         {
             var url = GetRequestUrl(ApiMethods.TaskQueueStatus);
-            return await HttpHelper.GetResponseAsync<List<TaskQueueInfoDto>>(url);
+            return await _httpService.GetResponseAsync<List<TaskQueueInfoDto>>(url);
         }
 
         public async Task<RoundDto> GetCurrentRoundInformationAsync()
         {
             var url = GetRequestUrl(ApiMethods.CurrentRoundInformation);
-            return await HttpHelper.GetResponseAsync<RoundDto>(url);
+            return await _httpService.GetResponseAsync<RoundDto>(url);
         }
 
         #endregion
 
         #region Net api
 
-        public async Task<bool> AddPeer(string address)
+        public async Task<bool> AddPeerAsync(string address)
         {
             var url = GetRequestUrl(ApiMethods.AddPeer);
             var parameters = new Dictionary<string, string>
@@ -177,32 +180,38 @@ namespace AElf.Automation.Common.WebApi
                 {"address", address}
             };
 
-            return await HttpHelper.PostResponseAsync<bool>(url, parameters);
+            return await _httpService.PostResponseAsync<bool>(url, parameters);
         }
 
-        public async Task<bool> RemovePeer(string address)
+        public async Task<bool> RemovePeerAsync(string address)
         {
             var url = GetRequestUrl(ApiMethods.RemovePeer, address);
-            return await HttpHelper.DeleteResponseAsObjectAsync<bool>(url);
+            return await _httpService.DeleteResponseAsObjectAsync<bool>(url);
         }
 
-        public async Task<List<PeerDto>> GetPeers()
+        public async Task<List<PeerDto>> GetPeersAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetPeers);
-            return await HttpHelper.GetResponseAsync<List<PeerDto>>(url);
+            return await _httpService.GetResponseAsync<List<PeerDto>>(url);
         }
 
         #endregion
 
-        #region Private methods
-
+        private string FormatServiceUrl(string serviceUrl)
+        {
+            if (serviceUrl.Contains("http://") || serviceUrl.Contains("https://"))
+                return serviceUrl;
+            
+            return $"http://{serviceUrl}";
+        }
+        
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {
             var subUrl = string.Format(_apiRoute[api], parameters);
 
-            return $"{BaseUrl}{subUrl}";
+            return $"{_baseUrl}{subUrl}";
         }
-
+        
         private void InitializeWebApiRoute()
         {
             _apiRoute = new Dictionary<ApiMethods, string>
@@ -238,7 +247,5 @@ namespace AElf.Automation.Common.WebApi
                 {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
             };
         }
-
-        #endregion
     }
 }

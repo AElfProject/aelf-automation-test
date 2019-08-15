@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AElf.Automation.Common.WebApi
+namespace AElfChain.SDK
 {
     public static class Error
     {

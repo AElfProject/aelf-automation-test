@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Genesis;
-using AElf.Types;
 using Configuration;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -42,7 +41,7 @@ namespace AElf.Automation.RpcPerformance
 
         private async Task<ConfigurationContainer.ConfigurationStub> GetConfigurationContractStub()
         {
-            var chainStatus = await _apiHelper.ApiService.GetChainStatus();
+            var chainStatus = await _apiHelper.ApiService.GetChainStatusAsync();
             var genesisContractAddress = chainStatus.GenesisContractAddress;
             Logger.Info($"Genesis contract address: {genesisContractAddress}");
 

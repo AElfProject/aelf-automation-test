@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
+using AElfChain.SDK;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nito.AsyncEx;
+using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -130,14 +129,14 @@ namespace AElf.Automation.ScenariosExecution
 
         private void CheckNodeConnection(Node node)
         {
-            var service = new WebApiService(node.ServiceUrl);
+            var service = AElfChainClient.GetClient(node.ServiceUrl);
             try
             {
                 node.ApiService = service;
-                var chainStatus = service.GetChainStatus().Result;
+                var chainStatus = service.GetChainStatusAsync().Result;
                 if (chainStatus == null) return;
                 node.Status = true;
-                var height = service.GetBlockHeight().Result;
+                var height = service.GetBlockHeightAsync().Result;
                 Logger.Info($"Node {node.Name} [{node.ServiceUrl}] connection success, block height: {height}");
             }
             catch (Exception ex)
