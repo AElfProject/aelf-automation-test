@@ -9,7 +9,6 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Contracts.MultiToken.Messages;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel.Infrastructure;
 using AElf.Types;

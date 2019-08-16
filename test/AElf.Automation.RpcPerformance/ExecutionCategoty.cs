@@ -11,7 +11,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Automation.Common.WebApi.Dto;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

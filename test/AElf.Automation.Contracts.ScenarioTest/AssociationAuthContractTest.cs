@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.AssociationAuth;
-using AElf.Contracts.MultiToken.Messages;
-using AElf.Types;
+using AElf.Contracts.MultiToken;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

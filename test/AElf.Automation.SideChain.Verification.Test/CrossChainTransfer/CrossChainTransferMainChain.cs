@@ -74,8 +74,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
                     var receiveTokenInput = ReceiveFromMainChainInput(mainRawTxInfo);
                     sideChainService.TokenService.SetAccount(mainRawTxInfo.FromAccount);
-                    var txId = sideChainService.TokenService.ExecuteMethodWithTxId(TokenMethod.CrossChainReceiveToken,
-                        receiveTokenInput);
+                    var txId = sideChainService.TokenService.ExecuteMethodWithTxId(TokenMethod.CrossChainReceiveToken,receiveTokenInput);
                     var txInfo = new CrossChainTransactionInfo(txId, mainRawTxInfo.ReceiveAccount);
                     sideChainReceiveTxIds.Add(txInfo);
                 }

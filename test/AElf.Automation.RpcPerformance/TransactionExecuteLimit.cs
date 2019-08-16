@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.Genesis;
-using AElf.Types;
-using Configuration;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Volo.Abp.Threading;

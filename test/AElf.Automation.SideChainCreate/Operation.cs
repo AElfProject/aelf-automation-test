@@ -42,7 +42,7 @@ namespace AElf.Automation.SideChainCreate
             //token approve
             TokenService.SetAccount(InitAccount); 
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.Messages.ApproveInput
+                new Contracts.MultiToken.ApproveInput
                 {
                     Symbol = "ELF",
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),

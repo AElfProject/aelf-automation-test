@@ -9,14 +9,14 @@ using AElf.Automation.Common.WebApi;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
 using Shouldly;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ApproveInput = AElf.Contracts.MultiToken.Messages.ApproveInput;
+using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
 {

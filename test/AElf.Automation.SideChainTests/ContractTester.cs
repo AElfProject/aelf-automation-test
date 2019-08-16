@@ -9,7 +9,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
@@ -252,7 +252,7 @@ namespace AElf.Automation.SideChainTests
             TokenService.SetAccount(owner);
 
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.Messages.ApproveInput
+                new Contracts.MultiToken.ApproveInput
                 {
                     Symbol = "ELF",
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
