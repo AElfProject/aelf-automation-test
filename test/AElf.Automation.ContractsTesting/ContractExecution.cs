@@ -27,9 +27,8 @@ namespace AElf.Automation.ContractsTesting
 
         public ContractExecution(string serviceUrl)
         {
-            var keyStorePath = CommonHelper.GetCurrentDataDir();
-            _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
-            _stub = new ContractTesterFactory(serviceUrl, keyStorePath);
+            _apiHelper = new WebApiHelper(serviceUrl);
+            _stub = new ContractTesterFactory(serviceUrl);
 
             var accountInfo = _apiHelper.NewAccount(
                 new CommandInfo(ApiMethods.AccountNew)

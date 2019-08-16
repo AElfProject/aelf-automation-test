@@ -53,16 +53,40 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetTransferPair(out var from, out var to, out var amount);
             try
             {
-                //Token.SetAccount(from);
                 var token = Token.GetNewTester(from);
-                token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                var beforeA = Token.GetUserBalance(from);
+                var beforeB = Token.GetUserBalance(to);
+                var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
                     Symbol = "ELF",
                     To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
-                Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
+                if (tokenResult.Result)
+                {
+                    var afterA = Token.GetUserBalance(from);
+                    var afterB = Token.GetUserBalance(to);
+                    bool result = true;
+                    if (beforeA != afterA + amount)
+                    {
+                        Logger.Error($"Transfer failed, amount check not correct. From owner ELF: {beforeA}/{afterA + amount}");
+                        result = false;
+                    }
+
+                    if (beforeB != afterB - amount)
+                    {
+                        Logger.Error($"Transfer failed, amount check not correct. To owner ELF: {beforeB}/{afterB - amount}");
+                        result = false;
+                    }
+                    
+                    if(result)
+                        Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
+                }
+                else
+                {
+                    Logger.Error("Transfer request failed.");
+                }
             }
             catch (Exception e)
             {
@@ -101,7 +125,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     }
                 }
 
-                //Token.SetAccount(to);
                 token = Token.GetNewTester(to);
                 var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {

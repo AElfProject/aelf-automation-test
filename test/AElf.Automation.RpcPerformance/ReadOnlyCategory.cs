@@ -87,6 +87,10 @@ namespace AElf.Automation.RpcPerformance
         {
         }
 
+        public void SideChainDeployContractsWithAuthority()
+        {
+        }
+
         public void DeployContracts()
         {
         }

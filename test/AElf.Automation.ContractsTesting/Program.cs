@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using log4net;
@@ -30,7 +28,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.13:8100";
+        public string Endpoint { get; set; } = "http://192.168.197.43:8100";
 
         #endregion
 
@@ -55,22 +53,33 @@ namespace AElf.Automation.ContractsTesting
             //Init Logger
             Log4NetHelper.LogInit("ContractTest");
 
-            var ch = new WebApiHelper(Endpoint, CommonHelper.GetCurrentDataDir());
+            var ch = new WebApiHelper(Endpoint);
 
             //deploy contract
-
+            var endpoints = new[]
+            {
+                "192.168.197.43:8100",
+                "192.168.197.15:8100",
+                "192.168.197.52:8100",
+                "192.168.197.43:8200",
+                "192.168.197.15:8200",
+                "192.168.197.52:8200",
+            };
+            var rd = new Random(Guid.NewGuid().GetHashCode());
             while (true)
             {
-                var contractExecution = new ContractExecution(Endpoint);
+                var randUrl = endpoints[rd.Next(endpoints.Length)];
+                Logger.Info($"Send request to url: {randUrl}");
+                var contractExecution = new ContractExecution(randUrl);
                 contractExecution.DeployTestContract();
                 AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
                 AsyncHelper.RunSync(contractExecution.UpdateContract);
                 AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
-                Thread.Sleep(100);
+                Thread.Sleep(3000);
             }
 
             //configuration set
-            var configTransaction = new ConfigurationTransaction("http://192.168.197.13:8100");
+            var configTransaction = new ConfigurationTransaction(Endpoint);
             configTransaction.GetTransactionLimit();
             configTransaction.SetTransactionLimit(50);
             configTransaction.GetTransactionLimit();
