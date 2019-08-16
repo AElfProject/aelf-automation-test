@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AElfChain.SDK;
 using Shouldly;
@@ -72,13 +72,24 @@ namespace AElf.Automation.ApiTest
         [Fact]
         public async Task GetBlockState_Test()
         {
+            var chainStatus = await _client.GetChainStatusAsync();
+            
             await Task.CompletedTask;
         }
 
         [Fact]
         public async Task GetCurrentRoundInformation_Test()
         {
-            await Task.CompletedTask;
+            long totalCount = 0;
+            for (var i = 0; i < 100; i++)
+            {
+                var (roundInfo, timeSpan) = await _listener.ExecuteApi(_client.GetCurrentRoundInformationAsync);
+                totalCount += timeSpan;
+                _testOutputHelper.WriteLine($"Round info: {roundInfo.RoundNumber}, execute time: {timeSpan}ms");
+                Thread.Sleep(50);
+            }
+            
+            _testOutputHelper.WriteLine($"Total time: {totalCount}ms, Average time: {totalCount/100}ms");
         }
     }
 }
