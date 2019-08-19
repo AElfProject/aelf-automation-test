@@ -1,0 +1,114 @@
+{
+    "BpNodes": [
+        {
+            "name": "bp1",
+            "service_url": "http://192.168.197.43:8100",
+            "account": "2okRiaFAuhgbVyy13ynDoPDfo5XQFx9ZnjbwN21naNbkad1Xvm",
+            "password": "123"
+        },
+        {
+            "name": "bp2",
+            "service_url": "http://192.168.197.15:8100",
+            "account": "2nVJ1tmErFok7G6Bm9RbkiJwnXYxeTzyu38u18rwN7wBMnEgot",
+            "password": "123"
+        },
+        {
+            "name": "bp3",
+            "service_url": "http://192.168.197.52:8100",
+            "account": "e6hxkKgTr6FhWSsFjLXMccwEme2GASu1K29n4ko6FYrNmqfaF",
+            "password": "123"
+        },
+        {
+            "name": "bp4",
+            "service_url": "http://192.168.197.43:8200",
+            "account": "BTNrWftsmADsXDpDcRSwSZPwzfh1hREgZhtca32YrYbjg4Ymw",
+            "password": "123"
+        },
+        {
+            "name": "bp5",
+            "service_url": "http://192.168.197.15:8200",
+            "account": "vz3xyZ3khdMf1svD7SHaEqRYckMRJqQavks4frrvsYcnkX9Xn",
+            "password": "123"
+        },
+        {
+            "name": "bp6",
+            "service_url": "http://192.168.197.52:8200",
+            "account": "zWVxzPi5AyB6zBkcKT7dNiGDtGnUcpe3s4Zr1ugEdbyBp5PTJ",
+            "password": "123"
+        }
+    ],
+    "FullNodes": [
+    ],
+    "TestCases": [
+        {
+            "case_name": "TokenScenario",
+            "enable": false,
+            "time_interval": 5
+        },
+        {
+            "case_name": "ContractScenario",
+            "enable": false,
+            "time_interval": 180
+        },
+        {
+            "case_name": "ResourceScenario",
+            "enable": false,
+            "time_interval": 5
+        },
+        {
+            "case_name": "NodeScenario",
+            "enable": false,
+            "time_interval": 60
+        },
+        {
+            "case_name": "UserScenario",
+            "enable": false,
+            "time_interval": 10
+        },
+        {
+            "case_name": "ExceptionScenario",
+            "enable": false,
+            "time_interval": 60
+        },
+        {
+            "case_name": "PerformanceScenario",
+            "enable": true,
+            "time_interval": 20
+        }
+    ],
+    "UserCount": 100,
+    "Timeout": 300,
+    "SpecifyEndpoint": {
+        "enable": false,
+        "service_url": "http://192.168.197.43:8100"
+    },
+    "ContractsInfo": {
+        "AutoUpdate": false,
+        "Contracts": [
+            {
+                "name": "FeeReceiver",
+                "address": "RnQLF2SnJL9HLzBPtpzuPkDeLK34b9su7gtZ5TzVFvKP26DHw",
+                "code_hash": "5fdcf01450817cf58dbc3885eb1f33405c99c1c8fa07c4d39fab42f8d46b8e95",
+                "owner": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8"
+            },
+            {
+                "name": "TokenConverter",
+                "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
+                "code_hash": "f32216e083efaa5a583ca814940ae6a6a629387d07089a7335f17f16d53e52aa",
+                "owner": "eCU8ih8w7Hozja3K61JZuVMCnc2kzHJMViadHCokwXgiwrgFS"
+            },
+            {
+                "name": "BasicFunction",
+                "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
+                "code_hash": "38122a009d4d1c83432a322da39b9d55d2f0d60a537e6dadcbb160679829264b",
+                "owner": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8"
+            },
+            {
+                "name": "Performance",
+                "address": "",
+                "code_hash": "",
+                "owner": ""
+            }
+        ]
+    }
+}

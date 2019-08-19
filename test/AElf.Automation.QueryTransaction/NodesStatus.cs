@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using log4net;
 using Nito.AsyncEx;
 
@@ -13,15 +13,15 @@ namespace AElf.Automation.QueryTransaction
     public class NodesStatus
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly List<WebApiService> _apiServices;
+        private readonly List<IApiService> _apiServices;
         private long _height = 1;
 
         public NodesStatus(IEnumerable<string> urls)
         {
-            _apiServices = new List<WebApiService>();
+            _apiServices = new List<IApiService>();
             foreach (var url in urls)
             {
-                var apiHelper = new WebApiService(url);
+                var apiHelper = AElfChainClient.GetClient(url);
                 _apiServices.Add(apiHelper);
             }
         }
@@ -30,7 +30,7 @@ namespace AElf.Automation.QueryTransaction
         {
             while (true)
             {
-                var currentHeight = await _apiServices.First().GetBlockHeight();
+                var currentHeight = await _apiServices.First().GetBlockHeightAsync();
                 if (currentHeight == _height)
                 {
                     Thread.Sleep(1000);
@@ -47,10 +47,10 @@ namespace AElf.Automation.QueryTransaction
 
         private async Task CheckNodeHeight(long height)
         {
-            var collection = new List<(WebApiService, BlockDto)>();
+            var collection = new List<(IApiService, BlockDto)>();
             await _apiServices.AsParallel().Select(async api =>
             {
-                var block = await api.GetBlockByHeight(height);
+                var block = await api.GetBlockByHeightAsync(height);
                 collection.Add((api, block));
                 return collection;
             }).WhenAll();
@@ -58,7 +58,7 @@ namespace AElf.Automation.QueryTransaction
             var (webApiService, blockDto) = collection.First();
             Logger.Info($"Check height: {height}");
             Logger.Info(
-                $"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
+                $"Node: {webApiService.GetServiceUrl()}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
             var forked = false;
 
             Parallel.ForEach(collection.Skip(0), item =>
@@ -73,7 +73,7 @@ namespace AElf.Automation.QueryTransaction
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
                 Logger.Info(
-                    $"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
+                    $"Node: {item1.GetServiceUrl()}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
             });
 
             if (forked)

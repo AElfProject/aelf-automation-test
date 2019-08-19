@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using AElf.Automation.Common.WebApi;
+using AElfChain.SDK;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 
@@ -9,7 +9,7 @@ namespace AElf.Automation.Common.Helpers
     {
         string GetApiUrl();
         void UpdateApiUrl(string url);
-        WebApiService ApiService { get; set; }
+        IApiService ApiService { get; set; }
         List<CommandInfo> CommandList { get; set; }
         string GetGenesisContractAddress();
 

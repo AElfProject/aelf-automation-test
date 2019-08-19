@@ -4,11 +4,11 @@ using System.Threading;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -340,7 +340,7 @@ namespace AElf.Automation.SideChain.Verification
 
         protected long GetBlockHeight(ContractServices services)
         {
-            var blockHeight = services.ApiHelper.ApiService.GetBlockHeight().Result;
+            var blockHeight = services.ApiHelper.ApiService.GetBlockHeightAsync().Result;
             return blockHeight;
         }
 

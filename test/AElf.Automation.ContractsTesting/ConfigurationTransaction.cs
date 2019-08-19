@@ -2,7 +2,7 @@ using System.IO;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.Configuration;
 using AElf.Types;
 using Google.Protobuf;

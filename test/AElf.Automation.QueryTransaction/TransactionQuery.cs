@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
+using AElfChain.SDK;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -13,13 +13,13 @@ namespace AElf.Automation.QueryTransaction
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
-        private readonly WebApiService _apiService;
+        private readonly IApiService _apiService;
         private long _blockHeight = 1;
         private bool _completeQuery;
 
         public TransactionQuery(string url)
         {
-            _apiService = new WebApiService(url);
+            _apiService = AElfChainClient.GetClient(url);
         }
 
         public void ExecuteMultipleTasks(int threadCount = 1)
@@ -40,7 +40,7 @@ namespace AElf.Automation.QueryTransaction
         {
             while (true)
             {
-                var height = await _apiService.GetBlockHeight();
+                var height = await _apiService.GetBlockHeightAsync();
                 Logger.Info($"Current height:{height}");
                 if (_blockHeight == height)
                 {
@@ -50,7 +50,7 @@ namespace AElf.Automation.QueryTransaction
 
                 for (var i = _blockHeight; i <= height; i++)
                 {
-                    var block = await _apiService.GetBlockByHeight(i, true);
+                    var block = await _apiService.GetBlockByHeightAsync(i, true);
                     Logger.Info(
                         $"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
                     block.Body.Transactions.ForEach(item => _transactionQueue.Enqueue(item));
@@ -70,7 +70,7 @@ namespace AElf.Automation.QueryTransaction
                     continue;
                 }
 
-                var transaction = await _apiService.GetTransactionResult(txId);
+                var transaction = await _apiService.GetTransactionResultAsync(txId);
                 Logger.Info($"Transaction: {txId},{transaction.Status}");
             }
         }

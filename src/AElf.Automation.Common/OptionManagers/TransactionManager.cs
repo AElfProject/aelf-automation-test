@@ -3,9 +3,9 @@ using System.Linq;
 using AElf.Cryptography;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
+using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -134,8 +134,8 @@ namespace AElf.Automation.Common.OptionManagers
             while (true)
             {
                 requestTimes--;
-                var webApi = new WebApiService(baseUrl);
-                var height = AsyncHelper.RunSync(webApi.GetBlockHeight);
+                var client = AElfChainClient.GetClient(baseUrl);
+                var height = AsyncHelper.RunSync(client.GetBlockHeightAsync);
                 if (height != 0) return height;
 
                 if (requestTimes < 0) throw new Exception("Get Block height failed exception.");
@@ -148,8 +148,8 @@ namespace AElf.Automation.Common.OptionManagers
             while (true)
             {
                 requestTimes--;
-                var webApi = new WebApiService(baseUrl);
-                var blockInfo = AsyncHelper.RunSync(() => webApi.GetBlockByHeight(height));
+                var client = AElfChainClient.GetClient(baseUrl);
+                var blockInfo = AsyncHelper.RunSync(() => client.GetBlockByHeightAsync(height));
                 if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
 
                 if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");

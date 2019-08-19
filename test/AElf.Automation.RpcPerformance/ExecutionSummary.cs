@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -87,12 +87,12 @@ namespace AElf.Automation.RpcPerformance
 
         private long GetBlockHeight()
         {
-            return AsyncHelper.RunSync(ApiService.GetBlockHeight);
+            return AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return AsyncHelper.RunSync(() => ApiService.GetBlockByHeight(height));
+            return AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

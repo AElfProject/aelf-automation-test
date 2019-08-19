@@ -1,22 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Acs0;
 using Acs3;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine;
-using Shouldly;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
 {

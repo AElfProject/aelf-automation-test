@@ -1,12 +1,6 @@
 using System.Linq;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
-using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.Profit;
+using AElfChain.SDK.Models;
 using AElf.Types;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 

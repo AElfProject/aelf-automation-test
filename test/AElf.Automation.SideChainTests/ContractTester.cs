@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Acs0;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
-using AElf.CSharp.Core.Utils;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
-using Enum = System.Enum;
 
 namespace AElf.Automation.SideChainTests
 {

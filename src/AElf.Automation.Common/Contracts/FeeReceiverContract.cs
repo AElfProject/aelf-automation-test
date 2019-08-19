@@ -1,7 +1,7 @@
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.Resource.FeeReceiver;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Shouldly;
 
 namespace AElf.Automation.Common.Contracts

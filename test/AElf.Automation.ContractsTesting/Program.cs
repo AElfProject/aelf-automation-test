@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -68,14 +68,21 @@ namespace AElf.Automation.ContractsTesting
             var rd = new Random(Guid.NewGuid().GetHashCode());
             while (true)
             {
-                var randUrl = endpoints[rd.Next(endpoints.Length)];
-                Logger.Info($"Send request to url: {randUrl}");
-                var contractExecution = new ContractExecution(randUrl);
-                contractExecution.DeployTestContract();
-                AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
-                AsyncHelper.RunSync(contractExecution.UpdateContract);
-                AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
-                Thread.Sleep(3000);
+                try
+                {
+                    var randUrl = endpoints[rd.Next(endpoints.Length)];
+                    Logger.Info($"Send request to url: {randUrl}");
+                    var contractExecution = new ContractExecution(randUrl);
+                    contractExecution.DeployTestContract();
+                    AsyncHelper.RunSync(contractExecution.ExecuteBasicContractMethods);
+                    AsyncHelper.RunSync(contractExecution.UpdateContract);
+                    AsyncHelper.RunSync(contractExecution.ExecuteUpdateContractMethods);
+                    Thread.Sleep(3000);
+                }
+                catch (Exception e)
+                {
+                   Logger.Error(e.Message);
+                }
             }
 
             //configuration set

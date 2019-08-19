@@ -1,5 +1,5 @@
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 
 namespace AElf.Automation.ContractsTesting
 {

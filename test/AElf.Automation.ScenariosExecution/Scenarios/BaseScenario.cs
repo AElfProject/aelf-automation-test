@@ -29,7 +29,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"ExecuteContinuousTasks got exception: {e.Message}");
+                    Logger.Error($"ExecuteContinuousTasks got exception: {e.Message}", e);
                     if (interrupted)
                         break;
                 }
@@ -47,7 +47,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}");
+                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}", e);
                     if (interrupted)
                         break;
                 }
@@ -81,7 +81,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeight);
+                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeightAsync);
                 if (newHeight == height)
                 {
                     checkTimes++;

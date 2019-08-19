@@ -16,8 +16,8 @@ namespace AElf.Automation.Common.Contracts
 
     public class BasicFunctionContract : BaseContract<FunctionMethod>
     {
-        public BasicFunctionContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
-            : base(apiHelper, dividendsAddress)
+        public BasicFunctionContract(IApiHelper apiHelper, string callAddress, string contractAddress)
+            : base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -21,7 +21,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public ChainSummary(string baseUrl)
         {
-            _apiHelper = new WebApiService(baseUrl);
+            _apiHelper = AElfChainClient.GetClient(baseUrl);
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = GetBlockHeight();
         }
@@ -74,12 +74,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private long GetBlockHeight()
         {
-            return AsyncHelper.RunSync(_apiHelper.GetBlockHeight);
+            return AsyncHelper.RunSync(_apiHelper.GetBlockHeightAsync);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return AsyncHelper.RunSync(() => _apiHelper.GetBlockByHeight(height));
+            return AsyncHelper.RunSync(() => _apiHelper.GetBlockByHeightAsync(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

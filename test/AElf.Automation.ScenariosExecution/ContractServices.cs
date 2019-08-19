@@ -28,6 +28,8 @@ namespace AElf.Automation.ScenariosExecution
         public ConsensusContract ConsensusService { get; set; }
         public BasicFunctionContract FunctionContractService { get; set; }
         public BasicUpdateContract UpdateContractService { get; set; }
+        
+        public PerformanceContract PerformanceService { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
@@ -85,6 +87,7 @@ namespace AElf.Automation.ScenariosExecution
             //Get or deploy other contracts
             GetOrDeployFeeReceiverContract();
             GetOrDeployFunctionContract();
+            GetOrDeployPerformanceContract();
         }
 
         private void GetOrDeployFeeReceiverContract()
@@ -248,6 +251,37 @@ namespace AElf.Automation.ScenariosExecution
                     MinValue = 50,
                     MaxValue = 100
                 });
+            }
+        }
+
+        private void GetOrDeployPerformanceContract()
+        {
+            var contractsInfo = ConfigInfoHelper.Config.ContractsInfo;
+            var autoEnable = contractsInfo.AutoUpdate;
+            if (autoEnable)
+            {
+                var contractItem = contractsInfo.Contracts.First(o => o.Name == "Performance");
+                var queryResult = QueryContractItem(ref contractItem, out _);
+                if (queryResult)
+                {
+                    PerformanceService =
+                        new PerformanceContract(ApiHelper, CallAddress, contractItem.Address);
+                }
+                else
+                {
+                    PerformanceService = new PerformanceContract(ApiHelper, CallAddress);
+                    PerformanceService.InitializePerformance();
+                    
+                    //update configInfo
+                    contractItem.Address = TokenConverterService.ContractAddress;
+                    contractItem.Owner = CallAddress;
+                }
+            }
+            else
+            {
+                //Performance contract
+                PerformanceService = new PerformanceContract(ApiHelper, CallAddress);
+                PerformanceService.InitializePerformance();
             }
         }
 

@@ -3,8 +3,8 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -134,8 +134,8 @@ namespace AElf.Automation.Common.Contracts
         /// <summary>
         /// 执行交易，等待执行结果后返回
         /// </summary>
-        /// <param name="method"></param>
-        /// <param name="inputParameter"></param>
+        /// <param name="method">交易方法</param>
+        /// <param name="inputParameter">交易参数</param>
         /// <returns></returns>
         public CommandInfo ExecuteMethodWithResult(T method, IMessage inputParameter)
         {

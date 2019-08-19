@@ -2,7 +2,7 @@
 using System.IO;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

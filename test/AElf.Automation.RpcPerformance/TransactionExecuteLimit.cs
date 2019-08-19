@@ -41,7 +41,7 @@ namespace AElf.Automation.RpcPerformance
 
         private async Task<ConfigurationContainer.ConfigurationStub> GetConfigurationContractStub()
         {
-            var chainStatus = await _apiHelper.ApiService.GetChainStatus();
+            var chainStatus = await _apiHelper.ApiService.GetChainStatusAsync();
             var genesisContractAddress = chainStatus.GenesisContractAddress;
             Logger.Info($"Genesis contract address: {genesisContractAddress}");
 

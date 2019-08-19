@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
+using AElfChain.SDK.Models;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using Google.Protobuf;
-using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Contracts
 {

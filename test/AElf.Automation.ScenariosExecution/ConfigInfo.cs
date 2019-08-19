@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
+using AElfChain.SDK;
 using Newtonsoft.Json;
 
 namespace AElf.Automation.ScenariosExecution
@@ -15,7 +15,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
         [JsonIgnore] public bool Status { get; set; } = false;
-        [JsonIgnore] public WebApiService ApiService { get; set; }
+        [JsonIgnore] public IApiService ApiService { get; set; }
     }
 
     public class TestCase
@@ -61,7 +61,7 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _instance;
         private static string _jsonContent;
         private static readonly object LockObj = new object();
-        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-nodes-local.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-6-nodes.json");
 
         public static ConfigInfo Config => GetConfigInfo();
 
