@@ -45,7 +45,7 @@
       "Environment": "Offline2",
       "MainChainInfos":
       {
-        "MainChainUrl": "http://192.168.197.41:8000",
+        "MainChainUrl": "http://192.168.197.29:8000",
         "MainChainId": "AELF",
         "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
         "Password": "123"
@@ -80,22 +80,6 @@
             "SideChainId": "2113"
           }
       ]
-    },
-    {
-      "Environment": "Local",
-      "MainChainInfos":
-      {
-        "MainChainUrl": "http://127.0.0.1:9000",
-        "MainChainId": "AELF",
-        "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
-        "Password": "123"
-      },
-      "SideChainInfos":[
-        {
-          "SideChainUrl": "http://127.0.0.1:9001",
-          "SideChainId": "2112"
-        }
-      ]
     }
   ],
   "CreateTokenNumber": 1,
@@ -104,7 +88,7 @@
   "TestCases": [
     {
       "name": "CrossChainVerifyMainChain",
-      "enable": true
+      "enable": false
     },
     {
       "name": "CrossChainVerifySideChain",
@@ -112,7 +96,7 @@
     },
     {
       "name": "CrossChainTransfer",
-      "enable": false
+      "enable": true
     }
   ] 
 }

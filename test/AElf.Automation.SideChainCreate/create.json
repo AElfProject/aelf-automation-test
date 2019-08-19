@@ -1,5 +1,5 @@
 {
-  "TestEnvironment":"Other",
+  "TestEnvironment":"Offline",
   "EnvironmentInfo": [
     {
       "Environment": "Online",
@@ -9,8 +9,8 @@
     },
     {
       "Environment": "Offline",
-      "Url": "http://192.168.197.14:8001",
-      "InitAccount": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
+      "Url": "http://192.168.197.14:8000",
+      "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "Password": "123"
     },
     {
