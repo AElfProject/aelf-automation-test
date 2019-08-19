@@ -208,9 +208,9 @@ namespace AElf.Automation.Common.Helpers
 
                 var message = await response.Content.ReadAsStringAsync();
                 Logger.Error($"StatusCode: {response.StatusCode}, Message:{message}");
-                
-//                if (response.StatusCode == HttpStatusCode.Forbidden)
-//                    throw new WebException("Request forbidden");
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                    throw new WebException("Request forbidden");
                 throw new HttpRequestException();
             }
             catch (HttpRequestException)
@@ -288,7 +288,7 @@ namespace AElf.Automation.Common.Helpers
             return Client;
         }
 
-        private static int MaxRetryTimes { get; } = 100;
+        private static int MaxRetryTimes { get; } = 3;
         private static HttpClient Client { get; set; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
