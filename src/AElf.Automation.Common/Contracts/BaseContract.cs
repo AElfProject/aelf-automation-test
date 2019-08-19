@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
@@ -125,7 +124,8 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
-
+            Logger.Info($"Transaction rawTx: {rawTx}");
+            
             //Check result
             Thread.Sleep(100); //in case of 'NotExisted' issue
             return CheckTransactionResult(txId);
@@ -216,13 +216,14 @@ namespace AElf.Automation.Common.Contracts
 
             if (ci != null)
             {
-                var result = ci.InfoMsg as TransactionResultDto;
-                Logger.Error(result?.Error);
+                Logger.Error((ci.InfoMsg as TransactionResultDto)?.Error);
             }
-
-            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after 5 minutes.");
-
-            return ci;
+            
+            var result = ci.InfoMsg as TransactionResultDto;
+            Logger.Error(result?.Error);
+//            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
+            Logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
+            return null;
         }
 
         /// <summary>

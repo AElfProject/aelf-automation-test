@@ -15,11 +15,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ElectionContract ElectionService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public AssociationAuthContract AssociationAuthService { get; set; }
+        public ParliamentAuthContract ParliamentService { get; set; }
 
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(IApiHelper apiHelper, string callAddress)
+        public ContractServices(IApiHelper apiHelper, string callAddress, string type)
         {
             ApiHelper = apiHelper;
             CallAddress = callAddress;
@@ -30,6 +31,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //get all contract services
             GetAllContractServices();
+            
+            if (type.Equals("Main"))
+            {
+                //ProfitService contract
+                var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
+                ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
+
+                //VoteService contract
+                var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
+                VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
+
+                //ElectionService contract
+                var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
+                ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
+            }
         }
 
         public void GetAllContractServices()
@@ -44,26 +60,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
             //TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress, converterAddress.GetFormatted());
 
-            //ProfitService contract
-            var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
-            ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
-
-            //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
-            VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
-
-            //ElectionService contract
-            var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
-            ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
-
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
 
+            //Parliament contract
+            var parliamentAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
+            ParliamentService = new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAddress.GetFormatted());
+            
             //Association contract
 //            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssciationName);
-            var associationAuthAddress = "x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ";
-            AssociationAuthService = new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress);
+//            var associationAuthAddress = "x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ";
+//            AssociationAuthService = new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress);
         }
 
         private void ConnectionChain()

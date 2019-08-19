@@ -8,7 +8,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers;
 using AElfChain.SDK.Models;
 using AElf.Contracts.AssociationAuth;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -37,8 +37,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestInitialize]
         public void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
-            var contractServices = new ContractServices(CH, InitAccount);
+            CH = new WebApiHelper(RpcUrl,  CommonHelper.GetCurrentDataDir());
+            var contractServices = new ContractServices(CH, InitAccount,"Main");
             Tester = new ContractTester(contractServices);
 
             #region Basic Preparation

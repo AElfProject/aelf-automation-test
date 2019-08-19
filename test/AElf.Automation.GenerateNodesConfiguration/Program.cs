@@ -7,7 +7,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 {
     class Program
     {
-        private static readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private static readonly ILogHelper Logger = LogHelper.GetLogger();
 
         static void Main(string[] args)
         {
@@ -47,7 +47,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
                 configFile.GenerateSettingFile(info);
             }
 
-            Logger.WriteInfo("Complete all config file generate.");
+            Logger.Info("Complete all config file generate.");
             Console.ReadLine();
         }
     }

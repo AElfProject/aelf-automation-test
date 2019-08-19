@@ -4,11 +4,12 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElfChain.SDK.Models;
 using AElf.Contracts.Election;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
 using Shouldly;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -136,6 +137,10 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             return result;
         }
+        
+        #endregion
+
+        #region Token Method
 
         //token action
         public CommandInfo TransferToken(string from, string to, long amount, string symbol = "ELF")
@@ -172,12 +177,63 @@ namespace AElf.Automation.EconomicSystem.Tests
             var issue = TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = symbol,
-                Amount = 100_0000,
+                Amount = 100,
                 Memo = "Issue",
                 To = AddressHelper.Base58StringToAddress(toAddress)
             });
 
             return issue;
+        }
+
+        public CommandInfo ApproveToken(string from, string to, long amount, string symbol = "ELF")
+        {
+            TokenService.SetAccount(from);
+
+            var approve = TokenService.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
+            {
+                Symbol = symbol,
+                Spender = AddressHelper.Base58StringToAddress(to),
+                Amount = amount
+            });
+            return approve;
+        }
+        
+        public CommandInfo UnApproveToken(string from, string to, long amount, string symbol = "ELF")
+        {
+            TokenService.SetAccount(from);
+
+            var unapprove =  TokenService.ExecuteMethodWithResult(TokenMethod.UnApprove, new UnApproveInput
+            {
+                Symbol = symbol,
+                Spender = AddressHelper.Base58StringToAddress(to),
+                Amount = amount
+            });
+            return unapprove;
+        }
+
+        public CommandInfo TransfterFromToken(string from, string to, long amount, string symbol = "ELF")
+        {
+            TokenService.SetAccount(to);
+            var transferFrom =  TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
+            {
+                Symbol = symbol,
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
+                Amount = amount,
+                Memo = $"transferfrom: from {from} to {to}"
+            });
+            return transferFrom;
+        }
+
+        public CommandInfo BurnToken(long amount, string account,string symbol = "ELF")
+        {
+            TokenService.SetAccount(account);
+            var burn =  TokenService.ExecuteMethodWithResult(TokenMethod.Burn, new BurnInput
+            {
+                Amount = amount,
+                Symbol = symbol
+            });
+            return burn;
         }
 
         #endregion

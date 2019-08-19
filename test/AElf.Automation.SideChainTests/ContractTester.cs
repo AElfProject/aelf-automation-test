@@ -1,11 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Acs0;
+using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
+using AElf.CSharp.Core.Utils;
+using AElf.Kernel;
+using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
+using Enum = System.Enum;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -29,17 +43,27 @@ namespace AElf.Automation.SideChainTests
             ParliamentService = ContractServices.ParliamentService;
         }
 
+        #region cross chain transfer
+
+        public string ValidateTokenAddress()
+        {
+            var validateTransaction = ApiHelper.GenerateTransactionRawTx(
+                ContractServices.CallAddress, ContractServices.GenesisService.ContractAddress,
+                GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
+                {
+                    Address = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
+                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                });
+            return validateTransaction;
+        }
+
+        #endregion
+
         #region side chain create method
 
         public CommandInfo RequestSideChain(string account, long lockToken)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
-
-            var resourceBalance = new ResourceTypeBalancePair
-            {
-                Amount = 1,
-                Type = ResourceType.Ram
-            };
 
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainCreation,
@@ -48,27 +72,51 @@ namespace AElf.Automation.SideChainTests
                     LockedTokenAmount = lockToken,
                     IndexingPrice = 1,
                     ContractCode = code,
-                    //ResourceBalances = {resourceBalance}
                 });
             return result;
         }
+
+
+        public Address GetOrganizationAddress(string account)
+        {
+            ParliamentService.SetAccount(account);
+            var address =
+                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
+
+            return address;
+        }
+
+        public CommandInfo CreateSideChainProposal(Address organizationAddress, string account, int indexingPrice,
+            long lockedTokenAmount, bool isPrivilegePreserved)
+        {
+            ByteString code = ByteString.FromBase64("4d5a90000300");
+            var createProposalInput = new SideChainCreationRequest
+            {
+                ContractCode = code,
+                IndexingPrice = indexingPrice,
+                LockedTokenAmount = lockedTokenAmount,
+//                IsPrivilegePreserved = isPrivilegePreserved
+            };
+            ParliamentService.SetAccount(account);
+            var result =
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                    new CreateProposalInput
+                    {
+                        ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                        Params = createProposalInput.ToByteString(),
+                        ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
+                        OrganizationAddress = organizationAddress
+                    });
+
+            return result;
+        }
+
 
         public CommandInfo RequestChainDisposal(string account, int chainId)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal,
-                new SInt32Value
-                {
-                    Value = chainId
-                });
-
-            return result;
-        }
-
-        public CommandInfo WithdrawRequest(string account, int chainId)
-        {
-            CrossChainService.SetAccount(account);
-            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.WithdrawRequest,
                 new SInt32Value
                 {
                     Value = chainId
@@ -89,12 +137,19 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-
         public SInt32Value GetChainStatus(int chainId)
         {
             var result =
                 CrossChainService.CallViewMethod<SInt32Value>(CrossChainContractMethod.GetChainStatus,
                     new SInt32Value {Value = chainId});
+            return result;
+        }
+
+        public ProposalOutput GetProposal(string proposalId)
+        {
+            var result =
+                ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
+                    HashHelper.HexStringToHash(proposalId));
             return result;
         }
 
@@ -123,7 +178,6 @@ namespace AElf.Automation.SideChainTests
 
         #endregion
 
-
         #region Parliament Method
 
         public CommandInfo Approve(string account, string proposalId)
@@ -135,6 +189,15 @@ namespace AElf.Automation.SideChainTests
             });
 
             return result;
+        }
+
+        public CommandInfo Release(string account, string proposalId)
+        {
+            ParliamentService.SetAccount(account);
+            var transactionResult =
+                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    HashHelper.HexStringToHash(proposalId));
+            return transactionResult;
         }
 
         #endregion
@@ -189,7 +252,7 @@ namespace AElf.Automation.SideChainTests
             TokenService.SetAccount(owner);
 
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.Messages.ApproveInput
+                new Contracts.MultiToken.ApproveInput
                 {
                     Symbol = "ELF",
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
@@ -199,7 +262,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount, TokenInfo tokenInfo, int toChainId,
+        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount,int toChainId,
             long amount)
         {
             TokenService.SetAccount(fromAccount);
@@ -210,7 +273,6 @@ namespace AElf.Automation.SideChainTests
                     Memo = "transfer to side chain",
                     To = AddressHelper.Base58StringToAddress(toAccount),
                     ToChainId = toChainId,
-                    TokenInfo = tokenInfo
                 });
 
             return result;
@@ -242,6 +304,29 @@ namespace AElf.Automation.SideChainTests
             });
 
             return tokenInfo;
+        }
+
+        #endregion
+
+        #region Other Method
+
+        public string ExecuteMethodWithTxId(string rawTx)
+        {
+            var ci = new CommandInfo(ApiMethods.SendTransaction)
+            {
+                Parameter = rawTx
+            };
+            ApiHelper.BroadcastWithRawTx(ci);
+            if (ci.Result)
+            {
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+
+                return transactionOutput?.TransactionId;
+            }
+
+            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
+
+            return string.Empty;
         }
 
         #endregion

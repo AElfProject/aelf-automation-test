@@ -22,7 +22,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
         public string GenerateAccount()
         {
-            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAsync("123", "AELF"));
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync("123"));
             var pubKey = keypair.PublicKey;
             _node.PublicKey = pubKey.ToHex();
 
@@ -34,7 +34,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
         public void CopyAccount()
         {
-            var originPath = Path.Combine(_keyPath, $"{_node.Account}.ak");
+            var originPath = Path.Combine(_keyPath, $"{_node.Account}.json");
             var desPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results", _node.Name);
             CommonHelper.CopyFiles(originPath, desPath);
         }

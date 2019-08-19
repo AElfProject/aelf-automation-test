@@ -6,8 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Contracts.MultiToken.Messages;
-using AElf.Types;
+using AElf.Contracts.MultiToken;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -133,7 +132,6 @@ namespace AElf.Automation.RpcPerformance
 
                     from.Balance -= amount;
                     to.Balance += amount;
-
                     var bt = new CommandInfo(ApiMethods.SendTransaction, from.Account, contractAddress, "Transfer")
                     {
                         ParameterInput = new TransferInput

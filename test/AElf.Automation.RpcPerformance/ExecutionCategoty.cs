@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.SDK.Models;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -78,7 +77,7 @@ namespace AElf.Automation.RpcPerformance
             NewAccounts(userCount);
 
             //Unlock Account
-            UnlockAllAccounts(userCount);
+            UnlockAllAccounts(ThreadCount);
             
             //Prepare basic token for test - Disable now
             TransferTokenForTest(false);
@@ -578,11 +577,13 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
                     break;
-                Logger.Info("Transaction group: {0}, execution left: {1}", group + 1,
-                    GenerateTransactionQueue.Count);
+                
                 var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
-                ApiHelper.ExecuteCommand(ci);
-                Thread.Sleep(100);
+                ApiHelper.BroadcastWithRawTx(ci);
+                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+                Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
+                    GenerateTransactionQueue.Count, transactionOutput?.TransactionId);
+                Thread.Sleep(10);
             }
         }
 

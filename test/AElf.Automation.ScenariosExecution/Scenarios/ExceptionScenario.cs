@@ -5,7 +5,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Utils;
 using AElfChain.SDK.Models;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
 using Shouldly;

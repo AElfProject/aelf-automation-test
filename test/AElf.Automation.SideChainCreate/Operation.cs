@@ -13,7 +13,6 @@ using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainCreate
 {
@@ -45,7 +44,7 @@ namespace AElf.Automation.SideChainCreate
             //token approve
             TokenService.SetAccount(InitAccount); 
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.Messages.ApproveInput
+                new Contracts.MultiToken.ApproveInput
                 {
                     Symbol = "ELF",
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),

@@ -12,22 +12,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly VoteContract VoteService;
         public readonly ProfitContract ProfitService;
         public readonly TokenContract TokenService;
+        public readonly GenesisContract GenesisService;
         public readonly TokenConverterContract TokenConverterService;
         public readonly FeeReceiverContract FeeReceiverService;
         public readonly ConsensusContract ConsensusService;
         public readonly AssociationAuthContract AssociationService;
+        public readonly ParliamentAuthContract ParliamentService;
 
         public ContractTester(ContractServices contractServices)
         {
             ApiHelper = contractServices.ApiHelper;
             ContractServices = contractServices;
 
+            GenesisService = ContractServices.GenesisService;
             ElectionService = ContractServices.ElectionService;
             VoteService = ContractServices.VoteService;
             ProfitService = ContractServices.ProfitService;
             TokenService = ContractServices.TokenService;
             ConsensusService = ContractServices.ConsensusService;
             AssociationService = ContractServices.AssociationAuthService;
+            ParliamentService = ContractServices.ParliamentService;
         }
     }
 }

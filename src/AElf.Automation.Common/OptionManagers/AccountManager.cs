@@ -12,14 +12,12 @@ namespace AElf.Automation.Common.OptionManagers
     public class AccountManager
     {
         private readonly AElfKeyStore _keyStore;
-        private readonly string _chainId;
         private List<string> _accounts;
 
-        public AccountManager(AElfKeyStore keyStore, string chainId)
+        public AccountManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
-            _chainId = chainId;
-            _accounts = AsyncHelper.RunSync(() => _keyStore.ListAccountsAsync());
+            _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
         }
 
         public CommandInfo NewAccount(string password = "")
@@ -28,7 +26,7 @@ namespace AElf.Automation.Common.OptionManagers
             if (password == "")
                 password = AskInvisible("password:");
             result.Parameter = password;
-            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAsync(password, _chainId));
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(password));
             var pubKey = keypair.PublicKey;
 
             var addr = Address.FromPublicKey(pubKey);
@@ -49,7 +47,7 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var result = new CommandInfo(ApiMethods.AccountList)
             {
-                InfoMsg = AsyncHelper.RunSync(() => _keyStore.ListAccountsAsync())
+                InfoMsg = AsyncHelper.RunSync(_keyStore.GetAccountsAsync)
             };
             if (result.InfoMsg == null) return result;
             result.Result = true;
@@ -77,24 +75,24 @@ namespace AElf.Automation.Common.OptionManagers
             }
 
             var timeout = notimeout == "";
-            var tryOpen = AsyncHelper.RunSync(() => _keyStore.OpenAsync(address, password, timeout));
+            var tryOpen = AsyncHelper.RunSync(() => _keyStore.UnlockAccountAsync(address, password, timeout));
 
             switch (tryOpen)
             {
-                case AElfKeyStore.Errors.WrongPassword:
+                case KeyStoreErrors.WrongPassword:
                     result.ErrorMsg = "Error: incorrect password!";
                     break;
-                case AElfKeyStore.Errors.AccountAlreadyUnlocked:
+                case KeyStoreErrors.AccountAlreadyUnlocked:
                     result.InfoMsg = "Account already unlocked!";
                     result.Result = true;
                     break;
-                case AElfKeyStore.Errors.None:
+                case KeyStoreErrors.None:
                     result.InfoMsg = "Account successfully unlocked!";
                     result.Result = true;
                     break;
-                case AElfKeyStore.Errors.WrongAccountFormat:
+                case KeyStoreErrors.WrongAccountFormat:
                     break;
-                case AElfKeyStore.Errors.AccountFileNotFound:
+                case KeyStoreErrors.AccountFileNotFound:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

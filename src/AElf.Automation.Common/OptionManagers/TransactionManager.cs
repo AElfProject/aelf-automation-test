@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.OptionManagers
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
-            _accountManager = new AccountManager(keyStore, chainId);
+            _accountManager = new AccountManager(keyStore);
         }
 
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
@@ -111,10 +111,9 @@ namespace AElf.Automation.Common.OptionManagers
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
             string chainId = "AELF")
         {
-            var height = _cachedHeight;
-            var hash = _cachedHash;
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 30 ||
-                !_chainId.Equals(chainId))
+            var height = GetBlkHeight(rpcAddress);
+            var hash = GetBlkHash(rpcAddress, height);
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
                 height = GetBlkHeight(rpcAddress);

@@ -81,7 +81,7 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
 
-                performance.InitExecCommand(1000 + GroupCount);
+                performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = NodeInfoHelper.Config.IsMainChain;
                 if (authority && isMainChain)
