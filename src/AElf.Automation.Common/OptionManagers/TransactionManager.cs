@@ -22,7 +22,7 @@ namespace AElf.Automation.Common.OptionManagers
         public TransactionManager(AElfKeyStore keyStore, string chainId)
         {
             _keyStore = keyStore;
-            _accountManager = new AccountManager(keyStore, chainId);
+            _accountManager = new AccountManager(keyStore);
         }
 
         public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)

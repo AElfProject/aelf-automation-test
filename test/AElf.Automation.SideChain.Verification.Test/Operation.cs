@@ -4,7 +4,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Automation.SideChain.VerificationTest;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Google.Protobuf;
 

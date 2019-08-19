@@ -33,6 +33,10 @@ namespace AElf.Automation.Common.Helpers
                 var keyPath = Path.Combine(path, "keys");
                 if (!Directory.Exists(keyPath))
                     Directory.CreateDirectory(keyPath);
+                
+                var contractPath = Path.Combine(path, "contracts");
+                if (!Directory.Exists(contractPath))
+                    Directory.CreateDirectory(contractPath);
 
                 return path;
             }

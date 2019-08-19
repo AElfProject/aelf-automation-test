@@ -1,8 +1,6 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
-using AElf.Contracts.MultiToken.Messages;
-using AElf.Types;
+using AElf.Contracts.MultiToken;
 
 namespace AElf.Automation.Common.Contracts
 {
