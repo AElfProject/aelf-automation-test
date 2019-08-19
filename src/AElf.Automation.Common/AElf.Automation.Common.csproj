@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Core\AElf.Core.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Cryptography\AElf.Cryptography.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.CSharp.Core\AElf.CSharp.Core.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Kernel.Core\AElf.Kernel.Core.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Kernel.Types\AElf.Kernel.Types.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Sdk.CSharp\AElf.Sdk.CSharp.csproj"/>
-        <ProjectReference Include="..\AElf\src\AElf.Types\AElf.Types.csproj"/>
+        <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Core\AElf.Core.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Cryptography\AElf.Cryptography.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.CSharp.Core\AElf.CSharp.Core.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Kernel.Core\AElf.Kernel.Core.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Kernel.Types\AElf.Kernel.Types.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Sdk.CSharp\AElf.Sdk.CSharp.csproj" />
+        <ProjectReference Include="..\AElf\src\AElf.Types\AElf.Types.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -82,16 +82,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nethereum.KeyStore" Version="3.4.0"/>
-        <PackageReference Include="log4net" Version="2.0.8"/>
-        <PackageReference Include="MSTest.TestFramework" Version="1.4.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
-        <PackageReference Include="protobuf-net" Version="2.4.0"/>
-        <PackageReference Include="Shouldly" Version="3.0.2"/>
+        <PackageReference Include="Nethereum.KeyStore" Version="3.4.0" />
+        <PackageReference Include="log4net" Version="2.0.8" />
+        <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+        <PackageReference Include="protobuf-net" Version="2.4.0" />
+        <PackageReference Include="Shouldly" Version="3.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Protobuf\Generated"/>
+        <Folder Include="Protobuf\Generated" />
     </ItemGroup>
 
     <ItemGroup>

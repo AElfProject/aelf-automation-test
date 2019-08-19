@@ -1,6 +1,6 @@
 using System.Linq;
-using AElfChain.SDK.Models;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 

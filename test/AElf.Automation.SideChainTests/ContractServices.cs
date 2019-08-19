@@ -18,14 +18,14 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId)
+        public ContractServices(string url, string callAddress, string keyStore, string password, int chainId)
         {
             ChainId = chainId;
-            ApiHelper = new WebApiHelper(url,keyStore);
+            ApiHelper = new WebApiHelper(url, keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-            UnlockAccounts(ApiHelper,CallAddress,password);
-            
+            UnlockAccounts(ApiHelper, CallAddress, password);
+
             //connect chain
             ConnectionChain();
 
@@ -48,7 +48,7 @@ namespace AElf.Automation.SideChainTests
             //CrossChain contract
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChainName);
             CrossChainService = new CrossChainContract(ApiHelper, CallAddress, crossChainAddress.GetFormatted());
-            
+
             //ParliamentAuth contract
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
             ParliamentService =
@@ -60,8 +60,8 @@ namespace AElf.Automation.SideChainTests
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
             ApiHelper.GetChainInformation(ci);
         }
-        
-        private void UnlockAccounts(IApiHelper apiHelper,string account,string password)
+
+        private void UnlockAccounts(IApiHelper apiHelper, string account, string password)
         {
             var ci = new CommandInfo(ApiMethods.AccountUnlock)
             {

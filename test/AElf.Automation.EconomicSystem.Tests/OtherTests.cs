@@ -51,31 +51,31 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        public async Task SelectTransactionTest1()
+        public void SelectTransactionTest1()
         {
             var tasks = new List<Task>
             {
-                Task.Run(UpdateTransactionHub),
-                Task.Run(GetTransactionFromHub)
+                Task.Run(() => UpdateTransactionHub()),
+                Task.Run(() => GetTransactionFromHub())
             };
 
             Task.WaitAll(tasks.ToArray<Task>());
         }
 
         [TestMethod]
-        public async Task SelectTransactionTest2()
+        public void SelectTransactionTest2()
         {
             TestCount = 200;
             var tasks = new List<Task>
             {
-                Task.Run(UpdateTransactionHub),
-                Task.Run(GetSelectedTransactionFromHub)
+                Task.Run(() => UpdateTransactionHub()),
+                Task.Run(() => GetSelectedTransactionFromHub())
             };
 
             Task.WaitAll(tasks.ToArray());
         }
 
-        private async Task GetTransactionFromHub()
+        private void GetTransactionFromHub()
         {
             var count = 0;
             while (count < 1000_000)
@@ -90,7 +90,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
-        private async Task GetSelectedTransactionFromHub()
+        private void GetSelectedTransactionFromHub()
         {
             var count = 0;
             while (count < 1000_000)
@@ -105,7 +105,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
-        private async Task UpdateTransactionHub()
+        private void UpdateTransactionHub()
         {
             TransactionHub = new ConcurrentDictionary<Hash, TransactionReceipt>();
 
@@ -142,23 +142,23 @@ namespace AElf.Automation.EconomicSystem.Tests
             var level1 = CalculateFibonacci(20);
             stopwatch.Stop();
             _logger.Info($"Level1 result: {level1}, spent time: {stopwatch.ElapsedMilliseconds}ms");
-            
+
             stopwatch.Restart();
             var level2 = CalculateFibonacci(24);
             stopwatch.Stop();
             _logger.Info($"Level2 result: {level2}, spent time: {stopwatch.ElapsedMilliseconds}ms");
-            
+
             stopwatch.Restart();
             var level3 = CalculateFibonacci(28);
             stopwatch.Stop();
             _logger.Info($"Level3 result: {level3}, spent time: {stopwatch.ElapsedMilliseconds}ms");
-            
+
             stopwatch.Restart();
             var level4 = CalculateFibonacci(32);
             stopwatch.Stop();
             _logger.Info($"Level4 result: {level4}, spent time: {stopwatch.ElapsedMilliseconds}ms");
         }
-        
+
         private static long CalculateFibonacci(long n)
         {
             if (n == 0 || n == 1)

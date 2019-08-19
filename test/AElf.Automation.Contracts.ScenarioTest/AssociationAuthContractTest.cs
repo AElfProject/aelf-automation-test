@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,8 +34,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestInitialize]
         public void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl,  CommonHelper.GetCurrentDataDir());
-            var contractServices = new ContractServices(CH, InitAccount,"Main");
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            var contractServices = new ContractServices(CH, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
 
             #region Basic Preparation

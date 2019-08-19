@@ -255,7 +255,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount,int toChainId,
+        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount, int toChainId,
             long amount)
         {
             TokenService.SetAccount(fromAccount);

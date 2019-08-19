@@ -9,9 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElfChain.SDK.Models;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

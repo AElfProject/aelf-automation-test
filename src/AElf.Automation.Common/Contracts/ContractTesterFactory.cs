@@ -1,11 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
-using Volo.Abp.DependencyInjection;
 
 namespace AElf.Automation.Common.Contracts
 {

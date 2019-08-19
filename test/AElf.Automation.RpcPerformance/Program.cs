@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using log4net;

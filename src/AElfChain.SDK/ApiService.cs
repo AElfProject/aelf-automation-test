@@ -16,10 +16,10 @@ namespace AElfChain.SDK
         {
             _baseUrl = FormatServiceUrl(sdkOption.ServiceUrl);
             _httpService = new HttpService(sdkOption.TimeoutSeconds, sdkOption.FailReTryTimes);
-            
+
             InitializeWebApiRoute();
         }
-        
+
         #region Chain Api
 
         public string GetServiceUrl()
@@ -213,17 +213,17 @@ namespace AElfChain.SDK
         {
             if (serviceUrl.Contains("http://") || serviceUrl.Contains("https://"))
                 return serviceUrl;
-            
+
             return $"http://{serviceUrl}";
         }
-        
+
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {
             var subUrl = string.Format(_apiRoute[api], parameters);
 
             return $"{_baseUrl}{subUrl}";
         }
-        
+
         private void InitializeWebApiRoute()
         {
             _apiRoute = new Dictionary<ApiMethods, string>

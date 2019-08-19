@@ -9,7 +9,7 @@ namespace AElf.Automation.Common.OptionManagers
         public Timer LockTimer { private get; set; }
         public ECKeyPair KeyPair { get; set; }
         public string AccountName { get; }
-        
+
         public Account(string address)
         {
             AccountName = address;

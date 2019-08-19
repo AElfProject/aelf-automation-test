@@ -28,7 +28,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             MainChainCreateToken();
             Logger.Info("Issue token:");
             IssueToken();
-            
+
             Logger.Info("Waiting for indexing");
             Thread.Sleep(150000);
             SideChainCrossCreateToken();
@@ -67,7 +67,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     continue;
                 }
 
-                if (txResult.Status.ConvertTransactionResultStatus()== TransactionResultStatus.Failed)
+                if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false, $"Create token {symbol} Failed");
                 var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, createTransaction);
                 ChainCreateTxInfo.Add(symbol, mainChainTx);
@@ -108,7 +108,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 var mainChainCreateTxInfo = ChainCreateTxInfo[symbol];
 
-                var merklePath = GetMerklePath(MainChainService, mainChainCreateTxInfo.BlockHeight,mainChainCreateTxInfo.TxId);
+                var merklePath = GetMerklePath(MainChainService, mainChainCreateTxInfo.BlockHeight,
+                    mainChainCreateTxInfo.TxId);
                 if (merklePath == null)
                     Assert.IsTrue(false, "Can't get the merkle path.");
                 var crossChainCreateInput = new CrossChainCreateTokenInput
@@ -127,8 +128,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         Logger.Info("Block is not recorded ");
                         Thread.Sleep(10000);
-                    } 
-                    
+                    }
+
                     var result =
                         sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
                             crossChainCreateInput);
@@ -136,7 +137,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                         Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
-                    
                 }
             }
         }

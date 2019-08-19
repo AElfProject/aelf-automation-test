@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestPlatform.Common.DataCollection;
 using Shouldly;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -137,7 +136,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             return result;
         }
-        
+
         #endregion
 
         #region Token Method
@@ -197,12 +196,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             });
             return approve;
         }
-        
+
         public CommandInfo UnApproveToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(from);
 
-            var unapprove =  TokenService.ExecuteMethodWithResult(TokenMethod.UnApprove, new UnApproveInput
+            var unapprove = TokenService.ExecuteMethodWithResult(TokenMethod.UnApprove, new UnApproveInput
             {
                 Symbol = symbol,
                 Spender = AddressHelper.Base58StringToAddress(to),
@@ -214,7 +213,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public CommandInfo TransfterFromToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(to);
-            var transferFrom =  TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
+            var transferFrom = TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
             {
                 Symbol = symbol,
                 From = AddressHelper.Base58StringToAddress(from),
@@ -225,10 +224,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             return transferFrom;
         }
 
-        public CommandInfo BurnToken(long amount, string account,string symbol = "ELF")
+        public CommandInfo BurnToken(long amount, string account, string symbol = "ELF")
         {
             TokenService.SetAccount(account);
-            var burn =  TokenService.ExecuteMethodWithResult(TokenMethod.Burn, new BurnInput
+            var burn = TokenService.ExecuteMethodWithResult(TokenMethod.Burn, new BurnInput
             {
                 Amount = amount,
                 Symbol = symbol

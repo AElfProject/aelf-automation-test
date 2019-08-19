@@ -1,10 +1,10 @@
-﻿using AElf.Automation.Common.Contracts;
+﻿using System.Collections.Generic;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using log4net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {

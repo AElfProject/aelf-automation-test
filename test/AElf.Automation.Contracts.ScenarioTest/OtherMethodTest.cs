@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Utils;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ProtoBuf;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -21,7 +17,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
         }
-        
+
         [TestMethod]
         public void ConvertFromHex()
         {
@@ -45,7 +41,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var address = AddressUtils.Generate();
             var stream = new MemoryStream();
             address.WriteTo(stream);
-            
+
             var info = new Address();
             info.MergeFrom(stream);
             var value = info.GetFormatted();

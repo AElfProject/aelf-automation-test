@@ -6,7 +6,7 @@ namespace AElfChain.SDK.Models
         /// raw transaction
         /// </summary>
         public string RawTransaction { get; set; }
-        
+
         /// <summary>
         /// signature
         /// </summary>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
@@ -28,7 +27,7 @@ namespace AElf.Automation.ScenariosExecution
 
             JobManager.UseUtcTime();
             var registry = new Registry();
-            
+
             //scenario tasks
             foreach (var scenario in scenarios)
             {
@@ -39,7 +38,7 @@ namespace AElf.Automation.ScenariosExecution
                         break;
                     case "ResourceScenario":
                         var resourceScenario = new ResourceScenario();
-                        RegisterAction(registry, scenario, resourceScenario.RunResourceScenarioJob);                        
+                        RegisterAction(registry, scenario, resourceScenario.RunResourceScenarioJob);
                         break;
                     case "UserScenario":
                         var userScenario = new UserScenario();
@@ -62,7 +61,7 @@ namespace AElf.Automation.ScenariosExecution
                         break;
                 }
             }
-           
+
             JobManager.Initialize(registry);
             JobManager.JobException += info =>
                 Logger.Error($"Error job: {info.Name}, Error message: {info.Exception.Message}");

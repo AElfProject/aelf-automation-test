@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 
@@ -27,7 +27,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private static List<string> _candidates;
         private static List<string> _candidatesExcludeMiners;
-        
+
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public UserScenario()

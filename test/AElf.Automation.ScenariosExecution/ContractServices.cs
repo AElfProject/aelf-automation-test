@@ -28,7 +28,7 @@ namespace AElf.Automation.ScenariosExecution
         public ConsensusContract ConsensusService { get; set; }
         public BasicFunctionContract FunctionContractService { get; set; }
         public BasicUpdateContract UpdateContractService { get; set; }
-        
+
         public PerformanceContract PerformanceService { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
@@ -106,7 +106,8 @@ namespace AElf.Automation.ScenariosExecution
                 else
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
+                    FeeReceiverService.InitializeFeeReceiver(
+                        AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                         CallAccount);
 
                     //update configInfo
@@ -125,7 +126,8 @@ namespace AElf.Automation.ScenariosExecution
                 if (feeReceiverAddress == new Address())
                 {
                     FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
+                    FeeReceiverService.InitializeFeeReceiver(
+                        AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
                 }
                 else
                 {
@@ -271,7 +273,7 @@ namespace AElf.Automation.ScenariosExecution
                 {
                     PerformanceService = new PerformanceContract(ApiHelper, CallAddress);
                     PerformanceService.InitializePerformance();
-                    
+
                     //update configInfo
                     contractItem.Address = TokenConverterService.ContractAddress;
                     contractItem.Owner = CallAddress;

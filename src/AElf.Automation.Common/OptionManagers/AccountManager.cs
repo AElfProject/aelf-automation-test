@@ -107,12 +107,12 @@ namespace AElf.Automation.Common.OptionManagers
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
         }
-        
+
         public bool AccountIsExist(string address)
         {
-            if(_accounts == null)
+            if (_accounts == null)
                 ListAccount();
-            
+
             return _accounts.Contains(address);
         }
 

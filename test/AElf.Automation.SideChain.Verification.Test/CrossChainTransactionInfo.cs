@@ -18,7 +18,7 @@ namespace AElf.Automation.SideChain.Verification
             ReceiveAccount = receiveAccount;
         }
 
-        public CrossChainTransactionInfo( string txId,string receiveAccount)
+        public CrossChainTransactionInfo(string txId, string receiveAccount)
         {
             TxId = txId;
             ReceiveAccount = receiveAccount;
@@ -30,8 +30,8 @@ namespace AElf.Automation.SideChain.Verification
             BlockHeight = blockHeight;
             RawTx = rawTx;
         }
-        
-        public CrossChainTransactionInfo( string txId,string rawTx, string fromAccount,string receiveAccount)
+
+        public CrossChainTransactionInfo(string txId, string rawTx, string fromAccount, string receiveAccount)
         {
             TxId = txId;
             RawTx = rawTx;

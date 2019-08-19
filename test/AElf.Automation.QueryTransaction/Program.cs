@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using AElf.Automation.Common.Helpers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;

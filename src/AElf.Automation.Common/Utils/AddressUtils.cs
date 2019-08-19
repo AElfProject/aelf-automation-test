@@ -1,6 +1,4 @@
 using System;
-using System.ServiceModel.Channels;
-using AElf.Kernel.Blockchain.Application;
 using AElf.Types;
 
 namespace AElf.Automation.Common.Utils

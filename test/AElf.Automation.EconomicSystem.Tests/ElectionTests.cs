@@ -59,8 +59,6 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             #region Basic Preparation
 
-
-
             //Get FullNode Info
             FullNodeAddress = new List<string>();
             FullNodeAddress.Add("2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2");

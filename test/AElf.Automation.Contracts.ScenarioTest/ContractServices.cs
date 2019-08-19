@@ -31,7 +31,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //get all contract services
             GetAllContractServices();
-            
+
             if (type.Equals("Main"))
             {
                 //ProfitService contract
@@ -67,7 +67,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Parliament contract
             var parliamentAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
             ParliamentService = new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAddress.GetFormatted());
-            
+
             //Association contract
 //            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssciationName);
 //            var associationAuthAddress = "x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ";

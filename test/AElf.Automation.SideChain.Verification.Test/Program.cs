@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.SideChain.Verification.CrossChainTransfer;
 using AElf.Automation.SideChain.Verification.Verify;
-using AElf.Types;
-using FluentScheduler;
 using log4net;
 
 namespace AElf.Automation.SideChain.Verification

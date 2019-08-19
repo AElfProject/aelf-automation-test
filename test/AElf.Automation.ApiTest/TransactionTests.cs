@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Contracts.MultiToken.Messages;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Newtonsoft.Json;

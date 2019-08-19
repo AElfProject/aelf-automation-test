@@ -14,7 +14,6 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
 
-
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
     public class CrossChainRegister : CrossChainBase

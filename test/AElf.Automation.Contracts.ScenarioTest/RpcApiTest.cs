@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest
