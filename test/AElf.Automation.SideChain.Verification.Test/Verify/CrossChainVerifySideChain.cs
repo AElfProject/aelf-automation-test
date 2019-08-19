@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
+using AElfChain.SDK.Models;
 
 namespace AElf.Automation.SideChain.Verification.Verify
 {

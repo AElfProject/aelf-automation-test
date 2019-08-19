@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

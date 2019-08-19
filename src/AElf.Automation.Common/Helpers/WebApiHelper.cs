@@ -409,9 +409,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_accountManager != null) return _accountManager;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            _chainId = statusDto.ChainId;
-            _accountManager = new AccountManager(_keyStore, _chainId);
+            _accountManager = new AccountManager(_keyStore);
             return _accountManager;
         }
     }

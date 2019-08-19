@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Acs7;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.WebApi;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.CSharp.Core.Utils;
-using AElf.Kernel;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using log4net;
 
 namespace AElf.Automation.SideChainTests

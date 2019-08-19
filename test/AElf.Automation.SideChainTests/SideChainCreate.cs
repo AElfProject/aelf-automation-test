@@ -1,13 +1,7 @@
-using System.Linq.Expressions;
-using System.Text;
-using Acs3;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.CrossChain;
-using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace AElf.Automation.SideChainTests
 {
