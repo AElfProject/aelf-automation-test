@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -64,6 +65,12 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             Logger.Info($"Contract deploy passed authority, contract address: {address}");
 
             return address;
+        }
+
+        public List<string> GetCurrentMiners()
+        {
+            var currentMiners = _info.GetMinerNodes(_consensus).Select(o=>o.Account).ToList();
+            return currentMiners;
         }
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,

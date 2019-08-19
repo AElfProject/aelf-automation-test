@@ -83,11 +83,18 @@ namespace AElf.Automation.RpcPerformance
 
                 performance.InitExecCommand(1000 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
-                if(authority)
+                var isMainChain = NodeInfoHelper.Config.IsMainChain;
+                if (authority && isMainChain)
                     performance.DeployContractsWithAuthority();
+                else if (authority)
+                {
+                    performance.SideChainDeployContractsWithAuthority();
+                }
                 else
+                {
                     performance.DeployContracts();
-                
+                }
+
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
