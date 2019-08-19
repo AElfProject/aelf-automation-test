@@ -45,7 +45,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
     
     public class ConfigFiles
     {
-        private readonly ILogHelper Logger = LogHelper.GetLogHelper();
+        private readonly ILogHelper Logger = LogHelper.GetLogger();
         private readonly string _templateFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "templates");
         private const string LogFile = "log4net.config";
         private const string MainNetFile = "appsettings.MainChain.MainNet.json";
@@ -65,12 +65,12 @@ namespace AElf.Automation.GenerateNodesConfiguration
             //copy log setting
             var logFile = Path.Combine(_templateFolder, LogFile);
             CommonHelper.CopyFiles(logFile, desPath);
-            Logger.WriteInfo($"{LogFile} generate success.");
+            Logger.Info($"{LogFile} generate success.");
             
             //copy main chain net file
             var mainFile = Path.Combine(_templateFolder, MainNetFile);
             CommonHelper.CopyFiles(mainFile, desPath);
-            Logger.WriteInfo($"{MainNetFile} generate success.");
+            Logger.Info($"{MainNetFile} generate success.");
         }
 
         public void GenerateSettingFile(GenerateInformation info)
@@ -104,7 +104,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
         {
             var settingPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results", _node.Name, SettingFile);
             File.WriteAllText(settingPath, content, Encoding.UTF8);
-            Logger.WriteInfo($"{SettingFile} generate success.");
+            Logger.Info($"{SettingFile} generate success.");
         }
         
         private string ReadFiles(string fileName)

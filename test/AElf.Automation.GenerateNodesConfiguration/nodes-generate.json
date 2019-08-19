@@ -1,48 +1,13 @@
 {
     "BpNodes": [
         {
-            "name": "bp1",
-            "ip": "192.168.197.13",
+            "name": "node-1",
+            "ip": "127.0.0.1",
             "db_no": 1,
-            "api_port": 8100,
-            "net_port": 6810
-        },
-        {
-            "name": "bp2",
-            "ip": "192.168.197.28",
-            "db_no": 1,
-            "api_port": 8100,
-            "net_port": 6810
-        },
-        {
-            "name": "bp3",
-            "ip": "192.168.197.33",
-            "db_no": 1,
-            "api_port": 8100,
-            "net_port": 6810
+            "api_port": 8000,
+            "net_port": 6800
         }
     ],
     "FullNodes": [
-        {
-            "name": "full1",
-            "ip": "192.168.197.13",
-            "db_no": 2,
-            "api_port": 8200,
-            "net_port": 6820
-        },
-        {
-            "name": "full2",
-            "ip": "192.168.197.28",
-            "db_no": 2,
-            "api_port": 8200,
-            "net_port": 6820
-        },
-        {
-            "name": "full3",
-            "ip": "192.168.197.33",
-            "db_no": 2,
-            "api_port": 8200,
-            "net_port": 6820
-        }
     ]
 }
