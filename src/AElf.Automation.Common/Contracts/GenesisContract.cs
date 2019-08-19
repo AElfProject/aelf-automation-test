@@ -17,6 +17,8 @@ namespace AElf.Automation.Common.Contracts
         DeploySmartContract,
         UpdateSmartContract,
         ChangeContractAuthor,
+        ChangeGenesisOwner,
+        ValidateSystemContractAddress,
 
         //view
         CurrentContractSerialNumber,
@@ -39,7 +41,7 @@ namespace AElf.Automation.Common.Contracts
         ConsensusName,
         ParliamentName,
         CrossChainName,
-        AssciationName,
+        AssociationName,
         Configuration,
 
         BasicFunction
@@ -129,7 +131,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssciationName, Hash.FromString("AElf.ContractNames.Association")},
+                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };

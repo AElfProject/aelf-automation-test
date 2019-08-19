@@ -6,7 +6,6 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Utils;
 using AElf.Automation.Common.WebApi.Dto;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
 using log4net;
 using Shouldly;
 

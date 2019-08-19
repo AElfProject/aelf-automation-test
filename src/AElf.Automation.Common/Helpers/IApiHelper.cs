@@ -40,7 +40,6 @@ namespace AElf.Automation.Common.Helpers
 
         void QueryViewInfo(CommandInfo ci);
         string GetPublicKeyFromAddress(string account, string password = "123");
-
         //net
         void NetGetPeers(CommandInfo ci);
         void NetAddPeer(CommandInfo ci);

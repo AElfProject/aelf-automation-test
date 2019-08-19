@@ -132,7 +132,6 @@ namespace AElf.Automation.RpcPerformance
 
                     from.Balance -= amount;
                     to.Balance += amount;
-
                     var bt = new CommandInfo(ApiMethods.SendTransaction, from.Account, contractAddress, "Transfer")
                     {
                         ParameterInput = new TransferInput

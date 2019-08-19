@@ -1,10 +1,6 @@
 using System;
 using System.IO;
-using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests

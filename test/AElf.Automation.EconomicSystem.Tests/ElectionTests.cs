@@ -1,26 +1,23 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using log4net;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
-        protected readonly ILogHelper _logger = LogHelper.GetLogger();
-        protected static string RpcUrl { get; } = "http://3.1.220.141:8000";
+        protected readonly ILog _logger = Log4NetHelper.GetLogger();
+        protected static string RpcUrl { get; } = "http//:52.66.209.107:8000";
 
         protected Behaviors Behaviors;
 
         //protected RpcApiHelper CH { get; set; }   
         protected IApiHelper CH { get; set; }
-        protected string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
+        protected string InitAccount { get; } = "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
         protected List<string> UserList { get; set; }
@@ -37,6 +34,9 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         protected void Initialize()
         {
+            //Init Logger
+            Log4NetHelper.LogInit("ElectionTest");
+
             #region Get services
 
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
@@ -59,23 +59,23 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             #region Basic Preparation
 
-            //Init Logger
-            string logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            _logger.InitLogHelper(dir);
+
 
             //Get FullNode Info
             FullNodeAddress = new List<string>();
-            FullNodeAddress.Add("Ckk45Me2h1mG92VttavsW2FToqh8iq9MkLcytAQhGwastYKdB");
-            FullNodeAddress.Add("JLF7Cox7yMkw9zJDgUTmH1dJehndszZW2UTRqkwCsE9evq5Uq");
-            FullNodeAddress.Add("2sfQXA7WtHL2cpmDRw6uUEdMYhosf3gYBZQCD564yjW9ZhNFy6");
-            FullNodeAddress.Add("2im4Yo9tz81fpTo64y1PdFbvdFTVCqmHusHjJknGGuhK7mjdHF");
+            FullNodeAddress.Add("2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2");
+            FullNodeAddress.Add("2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D");
+            FullNodeAddress.Add("eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ");
+            FullNodeAddress.Add("2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws");
+            FullNodeAddress.Add("EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB");
+            FullNodeAddress.Add("2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx");
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
-            BpNodeAddress.Add("2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs");
-            BpNodeAddress.Add("jdJz9LkXkePfTHmHfYPaksnUueymUpHVRSsA7mRWCvkZpA2gL");
-            BpNodeAddress.Add("3PezHjVGutQefW54XjRNvXGN8SfNqz4v2pzuQZ7as5HwaVDeT");
+            BpNodeAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
+            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
+            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
+            BpNodeAddress.Add("WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k");
 
             //Get candidate infos
             NodesPublicKeys = new List<string>();
