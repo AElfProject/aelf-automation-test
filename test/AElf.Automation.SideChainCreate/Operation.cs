@@ -1,18 +1,17 @@
 using System.Collections.Generic;
-using System.Linq;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainCreate
 {
@@ -44,7 +43,7 @@ namespace AElf.Automation.SideChainCreate
             //token approve
             TokenService.SetAccount(InitAccount); 
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.ApproveInput
+                new ApproveInput
                 {
                     Symbol = "ELF",
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
@@ -85,7 +84,7 @@ namespace AElf.Automation.SideChainCreate
             foreach (var miner in miners)
             {
                 ParliamentService.SetAccount(miner.GetFormatted());
-                var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+                var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });

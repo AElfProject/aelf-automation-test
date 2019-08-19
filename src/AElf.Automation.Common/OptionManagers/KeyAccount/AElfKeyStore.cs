@@ -21,7 +21,7 @@ namespace AElf.Automation.Common.OptionManagers
         WrongAccountFormat = 3,
         AccountFileNotFound = 4
     }
-    
+
     public class AElfKeyStore : IKeyStore
     {
         private const string KeyFileExtension = ".json";
@@ -81,7 +81,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             return KeyStoreErrors.None;
         }
-        
+
         private void LockAccount(object accountObject)
         {
             if (!(accountObject is Account unlockedAccount))
@@ -89,7 +89,7 @@ namespace AElf.Automation.Common.OptionManagers
             unlockedAccount.Lock();
             _unlockedAccounts.Remove(unlockedAccount);
         }
-        
+
         public ECKeyPair GetAccountKeyPair(string address)
         {
             return _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
@@ -162,10 +162,10 @@ namespace AElf.Automation.Common.OptionManagers
                     writer.Flush();
                 }
             });
-            
+
             return true;
         }
-        
+
         /// <summary>
         /// Return the full path of the files 
         /// </summary>

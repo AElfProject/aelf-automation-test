@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -18,7 +17,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public FeeReceiverContract FeeReceiver { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
-        
+
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ResourceScenario()

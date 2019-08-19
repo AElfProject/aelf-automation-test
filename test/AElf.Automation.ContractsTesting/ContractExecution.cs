@@ -100,7 +100,9 @@ namespace AElf.Automation.ContractsTesting
             executeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //call method
-            var queryResult = await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(AddressHelper.Base58StringToAddress(_account));
+            var queryResult =
+                await _basicUpdateContractStub.QueryUserLoseMoney.CallAsync(
+                    AddressHelper.Base58StringToAddress(_account));
             queryResult.Int64Value.ShouldBeGreaterThanOrEqualTo(0);
         }
     }

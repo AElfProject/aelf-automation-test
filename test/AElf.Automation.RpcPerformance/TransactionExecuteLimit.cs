@@ -46,7 +46,8 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info($"Genesis contract address: {genesisContractAddress}");
 
             var basicZeroStub =
-                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(AddressHelper.Base58StringToAddress(genesisContractAddress),
+                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
+                    AddressHelper.Base58StringToAddress(genesisContractAddress),
                     _account);
             var configurationAddress =
                 await basicZeroStub.GetContractAddressByName.CallAsync(

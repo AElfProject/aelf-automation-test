@@ -66,7 +66,8 @@ namespace AElf.Automation.ContractsTesting
                 "192.168.197.52:8200",
             };
             var rd = new Random(Guid.NewGuid().GetHashCode());
-            while (true)
+            var count = 0;
+            while (count++ < 10000)
             {
                 try
                 {
@@ -81,7 +82,7 @@ namespace AElf.Automation.ContractsTesting
                 }
                 catch (Exception e)
                 {
-                   Logger.Error(e.Message);
+                    Logger.Error(e.Message);
                 }
             }
 

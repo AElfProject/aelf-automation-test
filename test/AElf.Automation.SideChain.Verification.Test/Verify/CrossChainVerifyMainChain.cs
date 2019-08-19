@@ -26,15 +26,15 @@ namespace AElf.Automation.SideChain.Verification.Verify
             while (true)
             {
                 var mainChainTransactions = new Dictionary<long, List<string>>();
-                var verifyInputs = new Dictionary<long,List<VerifyTransactionInput>>();
+                var verifyInputs = new Dictionary<long, List<VerifyTransactionInput>>();
                 var currentBlock = GetBlockHeight(MainChainService);
-                if (verifyBlock>=currentBlock)
+                if (verifyBlock >= currentBlock)
                 {
                     verifyBlock = currentBlock - 1000;
                     Logger.Info($"Reset the verify block height:{verifyBlock}, waiting for index");
                     Thread.Sleep(60000);
                 }
-                
+
                 //Get main chain transactions
                 for (var i = verifyBlock; i < verifyBlock + VerifyBlockNumber; i++)
                 {
@@ -51,7 +51,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
                             $"Block {i} has transaction {txId}");
                     }
                 }
-                
+
                 foreach (var mainChainTransaction in mainChainTransactions)
                 {
                     var verifyInputList = new List<VerifyTransactionInput>();
@@ -62,7 +62,8 @@ namespace AElf.Automation.SideChain.Verification.Verify
                         if (verifyInput == null) continue;
                         verifyInputList.Add(verifyInput);
                     }
-                    verifyInputs.Add(mainChainTransaction.Key,verifyInputList);
+
+                    verifyInputs.Add(mainChainTransaction.Key, verifyInputList);
                 }
 
                 foreach (var sideChainService in SideChainServices)
@@ -83,7 +84,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
                     CheckoutVerifyResult(sideChainService, verifyTxIds);
                 }
-                
+
                 verifyBlock += VerifyBlockNumber;
             }
         }

@@ -1,14 +1,14 @@
-﻿using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -35,7 +35,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Call()
         {
-            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress =
+                AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
@@ -49,7 +50,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task NewStubTest_Execution()
         {
-            var tokenContractAddress = AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+            var tokenContractAddress =
+                AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
             var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);

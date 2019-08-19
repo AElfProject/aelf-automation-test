@@ -16,23 +16,24 @@ namespace AElf.Automation.SideChainTests
         private static int Timeout { get; set; }
         public ContractTester Tester;
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        
+
 //        public static string MainChainUrl { get; } = "http://127.0.0.1:9000";    
         public static string MainChainUrl { get; } = "http://192.168.197.44:8000";
 //        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
- 
+
 //        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        
-        public List<string> BpNodeAddress { get; set; }        
+
+        public List<string> BpNodeAddress { get; set; }
         public List<string> UserList { get; set; }
+
         protected void Initialize()
         {
             //Init Logger
             Log4NetHelper.LogInit();
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var contractServices = new ContractServices(MainChainUrl,InitAccount,keyStore,"123",chainId);
+            var contractServices = new ContractServices(MainChainUrl, InitAccount, keyStore, "123", chainId);
             Tester = new ContractTester(contractServices);
 
             //Get BpNode Info
@@ -41,7 +42,7 @@ namespace AElf.Automation.SideChainTests
 //            BpNodeAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
             BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
             BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
-            
+
 //            BpNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823"); 
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             BpNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
@@ -49,11 +50,11 @@ namespace AElf.Automation.SideChainTests
             BpNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
         }
 
-        protected ContractTester GetSideChain(string url,string initAccount,string chainId)
+        protected ContractTester GetSideChain(string url, string initAccount, string chainId)
         {
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chain = ChainHelper.ConvertBase58ToChainId(chainId);
-            var contractServices = new ContractServices(url, initAccount, keyStore,"123",chain);
+            var contractServices = new ContractServices(url, initAccount, keyStore, "123", chain);
             var tester = new ContractTester(contractServices);
             return tester;
         }
@@ -72,7 +73,7 @@ namespace AElf.Automation.SideChainTests
                 var CI = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionId};
                 var result = tester.ApiHelper.ExecuteCommand(CI);
                 var txResult = result.InfoMsg as TransactionResultDto;
-                
+
                 var resultStatus =
                     (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
                         txResult.Status, true);
@@ -93,6 +94,7 @@ namespace AElf.Automation.SideChainTests
                     index = num;
                 }
             }
+
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
             var root = bmt.Root;
             var merklePath = new MerklePath();
@@ -110,8 +112,8 @@ namespace AElf.Automation.SideChainTests
                 File.Delete(file);
             }
         }
-        
-                protected CommandInfo CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
+
+        protected CommandInfo CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
         {
             if (maxTimes == -1)
             {
@@ -163,6 +165,5 @@ namespace AElf.Automation.SideChainTests
             _logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
             return ci;
         }
-
     }
 }

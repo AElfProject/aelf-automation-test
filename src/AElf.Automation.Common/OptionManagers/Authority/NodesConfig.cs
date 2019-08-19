@@ -14,7 +14,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
     }
-    
+
     public class NodesInfo
     {
         [JsonProperty("RequireAuthority")] public bool RequireAuthority { get; set; }
@@ -31,10 +31,11 @@ namespace AElf.Automation.Common.OptionManagers.Authority
                 var exist = accountManager.AccountIsExist(node.Account);
                 if (!exist)
                 {
-                    $"Account {node.Account} not exist, please copy account file into folder: {CommonHelper.GetCurrentDataDir()}/keys".WriteErrorLine();
+                    $"Account {node.Account} not exist, please copy account file into folder: {CommonHelper.GetCurrentDataDir()}/keys"
+                        .WriteErrorLine();
                     throw new FileNotFoundException();
                 }
-                
+
                 //get public key
                 var publicKey = accountManager.GetPublicKey(node.Account, node.Password);
                 node.PublicKey = publicKey;
@@ -55,7 +56,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         private static readonly object LockObj = new object();
 
         public static NodesInfo Config => GetConfigInfo();
-        
+
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)

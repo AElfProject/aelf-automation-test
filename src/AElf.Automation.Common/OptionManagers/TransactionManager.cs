@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using AElf.Cryptography;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Cryptography;
 using AElf.Types;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
@@ -113,7 +113,8 @@ namespace AElf.Automation.Common.OptionManagers
         {
             var height = GetBlkHeight(rpcAddress);
             var hash = GetBlkHash(rpcAddress, height);
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 || !_chainId.Equals(chainId))
+            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
+                !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
                 height = GetBlkHeight(rpcAddress);

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Types;
@@ -8,6 +7,7 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -125,7 +125,7 @@ namespace AElf.Automation.Common.Contracts
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             Logger.Info($"Transaction rawTx: {rawTx}");
-            
+
             //Check result
             Thread.Sleep(100); //in case of 'NotExisted' issue
             return CheckTransactionResult(txId);
@@ -218,7 +218,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 Logger.Error((ci.InfoMsg as TransactionResultDto)?.Error);
             }
-            
+
             var result = ci.InfoMsg as TransactionResultDto;
             Logger.Error(result?.Error);
 //            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
@@ -368,7 +368,7 @@ namespace AElf.Automation.Common.Contracts
                 ContractAddress = contractAddress.GetFormatted();
                 return;
             }
-            
+
             Logger.Info("Deploy contract without authority mode.");
             var ci = new CommandInfo(ApiMethods.DeploySmartContract)
             {

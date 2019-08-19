@@ -5,8 +5,6 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
-using TermSnapshot = AElf.Contracts.Election.TermSnapshot;
-
 
 namespace AElf.Automation.EconomicSystem.Tests
 {

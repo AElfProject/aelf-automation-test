@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace AElfChain.SDK.Models
 {
     public class ChainStatusDto

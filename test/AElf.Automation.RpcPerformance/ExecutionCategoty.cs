@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -79,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
 
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
-            
+
             //Prepare basic token for test - Disable now
             TransferTokenForTest(false);
 
@@ -111,12 +112,13 @@ namespace AElf.Automation.RpcPerformance
                 Logger.Error(e);
             }
         }
+
         public void DeployContracts()
         {
             var contractList = new List<object>();
             for (var i = 0; i < ThreadCount; i++)
             {
-                dynamic info = new System.Dynamic.ExpandoObject();
+                dynamic info = new ExpandoObject();
                 info.Id = i;
                 info.Account = AccountList[i].Account;
 
@@ -195,7 +197,7 @@ namespace AElf.Automation.RpcPerformance
                 ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
             }
         }
-        
+
         public void SideChainDeployContractsWithAuthority()
         {
             for (var i = 0; i < ThreadCount; i++)
@@ -203,7 +205,7 @@ namespace AElf.Automation.RpcPerformance
                 var account = AccountList[0].Account;
                 var authority = new AuthorityManager(BaseUrl, account);
                 var miners = authority.GetCurrentMiners();
-                if(i > miners.Count)
+                if (i > miners.Count)
                     return;
                 var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
                 ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
@@ -578,7 +580,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
                     break;
-                
+
                 var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
                 ApiHelper.BroadcastWithRawTx(ci);
                 var transactionOutput = ci.InfoMsg as SendTransactionOutput;
@@ -692,7 +694,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var genesis = GenesisContract.GetGenesisContract(ApiHelper, account);
             var tokenAddress = genesis.GetContractAddressByName(NameProvider.TokenName);
-            
+
             return new TokenContract(ApiHelper, account, tokenAddress.GetFormatted());
         }
 

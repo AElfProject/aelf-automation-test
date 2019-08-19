@@ -1,16 +1,15 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Google.Protobuf.WellKnownTypes;
+using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using AElfChain.SDK.Models;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
-
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -24,7 +23,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         private long _termNumber = 1;
-        
+
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public NodeScenario()

@@ -7,7 +7,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
         public int ChainId { get; set; }
         public string TxId { get; set; }
 
-        public CrossChainTransactionVerifyResult(string result,int chainId,string txId)
+        public CrossChainTransactionVerifyResult(string result, int chainId, string txId)
         {
             Result = result;
             ChainId = chainId;

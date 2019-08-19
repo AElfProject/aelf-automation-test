@@ -1,7 +1,7 @@
 using System.Linq;
 using AElf.Automation.Common.Contracts;
-using AElfChain.SDK.Models;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;

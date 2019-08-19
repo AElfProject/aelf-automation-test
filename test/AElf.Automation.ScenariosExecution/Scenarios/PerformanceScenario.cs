@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -124,7 +124,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             return ByteString.CopyFrom(bytes);
         }
-        
-        private static readonly List<int> ByteSizeArray = new List<int>{1000, 2000, 5000, 10000};
+
+        private static readonly List<int> ByteSizeArray = new List<int> {1000, 2000, 5000, 10000};
     }
 }

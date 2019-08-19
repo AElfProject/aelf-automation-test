@@ -46,10 +46,11 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo","6ab3db4d09f48526f5a64c573b57b6288a70a37822dbb6cd00ef025f35add9ce")]
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
+            "6ab3db4d09f48526f5a64c573b57b6288a70a37822dbb6cd00ef025f35add9ce")]
         public void ReleaseProposal(string account, string proposalId)
         {
-            var result = Tester.Release(account,proposalId);
+            var result = Tester.Release(account, proposalId);
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var creationRequested = transactionResult.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
@@ -65,23 +66,22 @@ namespace AElf.Automation.SideChainTests
             Tester.TransferToken(InitAccount, account, 400000, "ELF");
             Tester.TokenApprove(account, 400000);
             var address = Tester.GetOrganizationAddress(account);
-            var result = Tester.CreateSideChainProposal(address, account, 1, 1000,true);
-            
+            var result = Tester.CreateSideChainProposal(address, account, 1, 1000, true);
+
             var transactionResult = result.InfoMsg as TransactionResultDto;
             var message = transactionResult.ReadableReturnValue;
             _logger.Info($"proposal message is {message}");
         }
-        
+
 
         [TestMethod]
         [DataRow("94caf8b5a32e8d74c42ceb4a18cb4a06bde743f3c85da57e3fafbc8796443fbe")]
         public void GetProposal(string proposalId)
         {
             var result = Tester.GetProposal(proposalId);
-            _logger.Info($"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
-            
+            _logger.Info(
+                $"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
         }
-
 
 
         [TestMethod]
@@ -96,8 +96,8 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",2816514)]
-        public void RequestChainDisposal(string account,int chainId)
+        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2816514)]
+        public void RequestChainDisposal(string account, int chainId)
         {
             var result = Tester.RequestChainDisposal(account, chainId);
             var transactionReturn = result.InfoMsg as TransactionResultDto;

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using AElf.Automation.Common.Helpers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,9 +9,11 @@ namespace AElf.Automation.EconomicSystem.Tests
     {
         protected readonly ILog _logger = Log4NetHelper.GetLogger();
         protected static string RpcUrl { get; } = "http://192.168.197.70:8000";
+
         protected Behaviors Behaviors;
+
         //protected RpcApiHelper CH { get; set; }   
-        protected IApiHelper CH { get; set; } 
+        protected IApiHelper CH { get; set; }
         protected string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> UserList { get; set; }
@@ -39,24 +39,24 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected void Initialize()
         {
             #region Get services
+
             CH = new WebApiHelper(RpcUrl, CommonHelper.GetDefaultDataDir());
-            var contractServices = new ContractServices(CH,InitAccount);
+            var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
-            
+
             #endregion
-            
+
             #region Basic Preparation
-            
+
             Log4NetHelper.LogInit();
-            
+
             //Get BpNode Info
             BpNodeAddress = new List<string>();
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"); //13-10
-            
+
             //Generate 10 accounts to transfer
             PrepareUserAccount(7);
-            
-           
+
             #endregion
         }
 
@@ -75,8 +75,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             UserList = new List<string>();
             IssuerList = new List<string>();
-            
-            for (var i = 0; i < accountNumber-2; i++)
+
+            for (var i = 0; i < accountNumber - 2; i++)
             {
                 var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
                 ci = Behaviors.ApiHelper.ExecuteCommand(ci);
@@ -84,7 +84,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = ci.InfoMsg.ToString();
                 UserList.Add(account);
             }
-            
+
             for (var i = 0; i < 2; i++)
             {
                 var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
@@ -93,9 +93,9 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var account = ci.InfoMsg.ToString();
                 IssuerList.Add(account);
             }
-            
-            
-            for (var i = 0; i < accountNumber-2; i++)
+
+
+            for (var i = 0; i < accountNumber - 2; i++)
             {
                 var ci = new CommandInfo(ApiMethods.AccountUnlock)
                 {
@@ -103,8 +103,8 @@ namespace AElf.Automation.EconomicSystem.Tests
                 };
                 ci = Behaviors.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-            }  
-            
+            }
+
             for (var i = 0; i < 2; i++)
             {
                 var ci = new CommandInfo(ApiMethods.AccountUnlock)
@@ -113,7 +113,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 };
                 ci = Behaviors.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
-            }  
+            }
         }
     }
 }

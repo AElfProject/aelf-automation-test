@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -44,7 +43,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "aelf", "contracts");
             var code = File.ReadAllBytes(Path.Combine(contractPath, fileName));
-            
+
             return DeployContractWithAuthority(caller, code);
         }
 
@@ -56,9 +55,10 @@ namespace AElf.Automation.Common.OptionManagers.Authority
                 Category = KernelConstants.CodeCoverageRunnerCategory
             };
             var organizationAddress = _parliament.GetGenesisOwnerAddress();
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o=>o.Account).ToList();
+            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
 
-            var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress, nameof(GenesisMethod.DeploySmartContract),
+            var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
+                nameof(GenesisMethod.DeploySmartContract),
                 input, organizationAddress, currentMiners, caller);
             var byteString = transactionResult.Logs.First().NonIndexed;
             var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
@@ -69,7 +69,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 
         public List<string> GetCurrentMiners()
         {
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o=>o.Account).ToList();
+            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
             return currentMiners;
         }
 
@@ -80,7 +80,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             var proposalId = _parliament.CreateProposal(contractAddress,
                 method, input,
                 organizationAddress, callUser);
-            
+
             //approve
             foreach (var account in approveUsers)
             {

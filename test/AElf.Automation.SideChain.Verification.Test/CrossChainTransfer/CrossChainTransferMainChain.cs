@@ -69,12 +69,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Logger.Info("Block is not recorded ");
                         Thread.Sleep(10000);
                     }
-                    
+
                     Logger.Info($"Receive CrossTransfer Transaction id is : {mainRawTxInfo.TxId}");
 
                     var receiveTokenInput = ReceiveFromMainChainInput(mainRawTxInfo);
                     sideChainService.TokenService.SetAccount(mainRawTxInfo.FromAccount);
-                    var txId = sideChainService.TokenService.ExecuteMethodWithTxId(TokenMethod.CrossChainReceiveToken,receiveTokenInput);
+                    var txId = sideChainService.TokenService.ExecuteMethodWithTxId(TokenMethod.CrossChainReceiveToken,
+                        receiveTokenInput);
                     var txInfo = new CrossChainTransactionInfo(txId, mainRawTxInfo.ReceiveAccount);
                     sideChainReceiveTxIds.Add(txInfo);
                 }

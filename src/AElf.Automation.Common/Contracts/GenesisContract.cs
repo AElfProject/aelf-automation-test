@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Genesis;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 
 namespace AElf.Automation.Common.Contracts
@@ -63,7 +63,7 @@ namespace AElf.Automation.Common.Contracts
 
             return new GenesisContract(ch, callAddress, genesisContract);
         }
-        
+
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {
             var contractReader = new SmartContractReader();
@@ -111,7 +111,8 @@ namespace AElf.Automation.Common.Contracts
             var caller = callAddress ?? CallAddress;
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
             var contractStub =
-                stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(AddressHelper.Base58StringToAddress(ContractAddress), caller);
+                stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
+                    AddressHelper.Base58StringToAddress(ContractAddress), caller);
             return contractStub;
         }
 

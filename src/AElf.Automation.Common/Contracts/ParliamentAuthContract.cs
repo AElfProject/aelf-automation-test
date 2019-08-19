@@ -1,4 +1,3 @@
-using System;
 using Acs3;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.ParliamentAuth;
@@ -20,7 +19,7 @@ namespace AElf.Automation.Common.Contracts
         GetProposal,
         Release,
         CreateOrganization,
-        
+
         //View
         GetGenesisOwnerAddress
     }
@@ -34,7 +33,8 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress, string caller = null)
+        public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
+            string caller = null)
         {
             var tester = GetParliamentAuthContractTester(caller);
             var createProposalInput = new CreateProposalInput
@@ -45,13 +45,13 @@ namespace AElf.Automation.Common.Contracts
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
                 OrganizationAddress = organizationAddress
             };
-            var proposal = AsyncHelper.RunSync(()=>tester.CreateProposal.SendAsync(createProposalInput));
+            var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
             proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var returnValue = proposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
             Logger.Info($"Proposal {returnValue} created success by {caller ?? CallAddress}.");
             var proposalId =
                 HashHelper.HexStringToHash(returnValue);
-            
+
             return proposalId;
         }
 
@@ -76,15 +76,17 @@ namespace AElf.Automation.Common.Contracts
             return result.TransactionResult;
         }
 
-        public ParliamentAuthContractContainer.ParliamentAuthContractStub GetParliamentAuthContractTester(string callAddress = null)
+        public ParliamentAuthContractContainer.ParliamentAuthContractStub GetParliamentAuthContractTester(
+            string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
             var contractStub =
-                stub.Create<ParliamentAuthContractContainer.ParliamentAuthContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), caller);
+                stub.Create<ParliamentAuthContractContainer.ParliamentAuthContractStub>(
+                    AddressHelper.Base58StringToAddress(ContractAddress), caller);
             return contractStub;
         }
-        
+
         public Address GetGenesisOwnerAddress()
         {
             return CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());

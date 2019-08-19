@@ -26,18 +26,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private WebApiHelper _s2ch3 { get; set; }
         private WebApiHelper _s2ch4 { get; set; }
 
-
-        private string SideChainAddress1 = "192.168.197.56:6901";
-        private string SideChainAddress2 = "192.168.197.56:6902";
-        private string SideChainAddress3 = "192.168.197.56:6903";
-        private string SideChainAddress4 = "192.168.197.56:6904";
-
-        private string SideChain2Address1 = "192.168.197.70:6901";
-        private string SideChain2Address2 = "192.168.197.70:6902";
-        private string SideChain2Address3 = "192.168.197.70:6903";
-        private string SideChain2Address4 = "192.168.197.70:6904";
-
-        private string MainChainAddress1 = "192.168.197.56:6801";
         private string MainChainAddress2 = "192.168.197.56:6802";
         private string MainChainAddress3 = "192.168.197.56:6803";
         private string MainChainAddress4 = "192.168.197.56:6804";

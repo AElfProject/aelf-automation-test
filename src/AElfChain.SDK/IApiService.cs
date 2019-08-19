@@ -8,9 +8,9 @@ namespace AElfChain.SDK
     public interface IApiService
     {
         string GetServiceUrl();
-        
+
         Task<string> ExecuteTransactionAsync(string rawTransaction);
-        
+
         Task<string> ExecuteRawTransactionAsync(ExecuteRawTransactionDto input);
 
         Task<TResult> ExecuteTransactionAsync<TResult>(string rawTransaction) where TResult : IMessage<TResult>, new();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using log4net;
 using System.Reflection;
 using System.Text;
 
@@ -33,7 +32,7 @@ namespace AElf.Automation.Common.Helpers
                 var keyPath = Path.Combine(path, "keys");
                 if (!Directory.Exists(keyPath))
                     Directory.CreateDirectory(keyPath);
-                
+
                 var contractPath = Path.Combine(path, "contracts");
                 if (!Directory.Exists(contractPath))
                     Directory.CreateDirectory(contractPath);

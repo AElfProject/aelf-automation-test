@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Google.Protobuf.WellKnownTypes;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElfChain.SDK.Models;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.SDK.Models;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -18,7 +18,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public TokenContract Token { get; set; }
         public ElectionContract Election { get; set; }
         public List<string> Testers { get; }
-        
+
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TokenScenario()
@@ -70,17 +70,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     bool result = true;
                     if (beforeA != afterA + amount)
                     {
-                        Logger.Error($"Transfer failed, amount check not correct. From owner ELF: {beforeA}/{afterA + amount}");
+                        Logger.Error(
+                            $"Transfer failed, amount check not correct. From owner ELF: {beforeA}/{afterA + amount}");
                         result = false;
                     }
 
                     if (beforeB != afterB - amount)
                     {
-                        Logger.Error($"Transfer failed, amount check not correct. To owner ELF: {beforeB}/{afterB - amount}");
+                        Logger.Error(
+                            $"Transfer failed, amount check not correct. To owner ELF: {beforeB}/{afterB - amount}");
                         result = false;
                     }
-                    
-                    if(result)
+
+                    if (result)
                         Logger.Info($"Transfer success - from {from} to {to} with amount {amount}.");
                 }
                 else

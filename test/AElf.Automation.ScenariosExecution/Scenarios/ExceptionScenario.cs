@@ -4,9 +4,8 @@ using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Utils;
-using AElfChain.SDK.Models;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElfChain.SDK.Models;
 using log4net;
 using Shouldly;
 
@@ -17,7 +16,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public TokenContract Token { get; }
         public GenesisContract Genesis { get; }
         public List<string> Testers { get; }
-        
+
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ExceptionScenario()
@@ -93,11 +92,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var testUser = Testers[GenerateRandomNumber(0, 10)];
             var tester = Genesis.GetNewTester(testUser);
-            var executeResult = tester.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor, new ChangeContractAuthorInput
-            {
-                NewAuthor = AddressHelper.Base58StringToAddress(testUser),
-                ContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress)
-            });
+            var executeResult = tester.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                new ChangeContractAuthorInput
+                {
+                    NewAuthor = AddressHelper.Base58StringToAddress(testUser),
+                    ContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress)
+                });
             executeResult.Result.ShouldBeFalse();
             var info = executeResult.InfoMsg as TransactionResultDto;
             info?.Error.ShouldNotBeNull();
