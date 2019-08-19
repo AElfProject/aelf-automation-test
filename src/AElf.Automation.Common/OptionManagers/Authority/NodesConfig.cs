@@ -24,7 +24,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         public void CheckNodesAccount()
         {
             var keyStore = new AElfKeyStore(CommonHelper.GetCurrentDataDir());
-            var accountManager = new AccountManager(keyStore, "AELF");
+            var accountManager = new AccountManager(keyStore);
             foreach (var node in Nodes)
             {
                 //check account exist

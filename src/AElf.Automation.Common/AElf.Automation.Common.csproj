@@ -73,15 +73,13 @@
     <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
   </ProtoMessage>
   <ProtoContract Include="..\AElf\protobuf\configuration_contract.proto">
-    <Link>Protobuf\Proto\stub\configuration.proto</Link>
+    <Link>Protobuf\Proto\stub\configuration_contract.proto</Link>
   </ProtoContract>
 </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
+    <PackageReference Include="Nethereum.KeyStore" Version="3.4.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Secp256k1.Net" Version="0.1.54" />
-    <PackageReference Include="Virgil.Crypto" Version="2.4.10" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />

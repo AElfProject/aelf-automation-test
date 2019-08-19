@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.Utils;
 using AElf.Types;
 using Google.Protobuf;
@@ -15,6 +16,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class OtherMethodTest
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Log4NetHelper.LogInit();
+        }
+        
         [TestMethod]
         public void ConvertFromHex()
         {
@@ -42,6 +49,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var info = new Address();
             info.MergeFrom(stream);
             var value = info.GetFormatted();
+        }
+
+        [TestMethod]
+        public void AccountCreate()
+        {
+            var dataDir = CommonHelper.GetCurrentDataDir();
+            var keyStore = new AElfKeyStore(dataDir);
+            var accountManager = new AccountManager(keyStore);
+            for (var i = 0; i < 10; i++)
+            {
+                var accountInfo = accountManager.NewAccount("123");
+                var account = accountInfo.InfoMsg.ToString();
+                Console.WriteLine($"Account: {account}");
+
+                var publicKey = accountManager.GetPublicKey(account, "123");
+                Console.WriteLine($"Public Key: {publicKey}");
+
+                Console.WriteLine();
+            }
         }
     }
 }

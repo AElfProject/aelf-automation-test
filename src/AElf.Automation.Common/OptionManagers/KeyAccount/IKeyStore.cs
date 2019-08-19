@@ -6,14 +6,12 @@ namespace AElf.Automation.Common.OptionManagers
 {
     public interface IKeyStore
     {
-        Task<AElfKeyStore.Errors> OpenAsync(string address, string password, bool withTimeout = true);
+        Task<KeyStoreErrors> UnlockAccountAsync(string address, string password, bool withTimeout = true);
 
         ECKeyPair GetAccountKeyPair(string address);
 
-        Task<ECKeyPair> CreateAsync(string password, string chainId);
+        Task<ECKeyPair> CreateAccountKeyPairAsync(string password);
 
-        Task<List<string>> ListAccountsAsync();
-
-        Task<ECKeyPair> ReadKeyPairAsync(string address, string password);
+        Task<List<string>> GetAccountsAsync();
     }
 }
