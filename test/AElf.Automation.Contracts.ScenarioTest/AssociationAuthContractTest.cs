@@ -42,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             #endregion

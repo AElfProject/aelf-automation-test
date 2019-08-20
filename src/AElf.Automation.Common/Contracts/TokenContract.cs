@@ -61,7 +61,6 @@ namespace AElf.Automation.Common.Contracts
 
             return result.Result;
         }
-
         public long GetUserBalance(string account, string symbol = "ELF")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -75,8 +74,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
             var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
+                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
             return tokenStub;
         }
     }

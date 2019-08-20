@@ -1,42 +1,42 @@
 {
     "BpNodes": [
         {
-            "name": "bp1",
+            "name": "bp6-1",
             "ip": "192.168.197.43",
             "db_no": 1,
             "api_port": 8100,
             "net_port": 6810
         },
         {
-            "name": "bp2",
+            "name": "bp6-2",
             "ip": "192.168.197.15",
             "db_no": 1,
             "api_port": 8100,
             "net_port": 6810
         },
         {
-            "name": "bp3",
+            "name": "bp6-3",
             "ip": "192.168.197.52",
             "db_no": 1,
             "api_port": 8100,
             "net_port": 6810
         },
         {
-            "name": "bp4",
+            "name": "bp6-4",
             "ip": "192.168.197.43",
             "db_no": 2,
             "api_port": 8200,
             "net_port": 6820
         },
         {
-            "name": "bp5",
+            "name": "bp6-5",
             "ip": "192.168.197.15",
             "db_no": 2,
             "api_port": 8200,
             "net_port": 6820
         },
         {
-            "name": "bp6",
+            "name": "bp6-6",
             "ip": "192.168.197.52",
             "db_no": 2,
             "api_port": 8200,

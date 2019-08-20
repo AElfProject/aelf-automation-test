@@ -10,12 +10,15 @@ using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class TokenScenario : BaseScenario
     {
         public TokenContract Token { get; set; }
+        public TokenContractContainer.TokenContractStub TokenStub { get; set; }
         public ElectionContract Election { get; set; }
         public List<string> Testers { get; }
 
@@ -67,7 +70,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     var afterA = Token.GetUserBalance(from);
                     var afterB = Token.GetUserBalance(to);
-                    bool result = true;
+                    var result = true;
                     if (beforeA != afterA + amount)
                     {
                         Logger.Error(
@@ -127,18 +130,24 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     }
                 }
 
-                token = Token.GetNewTester(to);
-                var txResult2 = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
+                var beforeFrom = Token.GetUserBalance(from);
+                var beforeTo = Token.GetUserBalance(to);
+                var tokenStub = Token.GetTestStub<TokenContractContainer.TokenContractStub>(to);
+                var transactionResult = AsyncHelper.RunSync(()=>tokenStub.TransferFrom.SendAsync(new TransferFromInput
                 {
                     Amount = amount,
                     From = AddressHelper.Base58StringToAddress(from),
                     To = AddressHelper.Base58StringToAddress(to),
                     Symbol = "ELF",
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
-                });
-                if (!(txResult2.InfoMsg is TransactionResultDto txDto2)) return;
-                if (txDto2.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.Info($"TransferFrom success - from {@from} to {to} with amount {amount}.");
+                }));
+                if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
+                var afterFrom = Token.GetUserBalance(from);
+                var afterTo = Token.GetUserBalance(to);
+                if(beforeFrom - amount == afterFrom && beforeTo + amount == afterTo)
+                    Logger.Info($"TransferFrom success - from {from} to {to} with amount {amount}.");
+                else
+                    Logger.Error($"TransferFrom amount {amount} got some balance issue. From: {beforeFrom}/{afterFrom}, To:{beforeTo}/{afterTo}");
             }
             catch (Exception e)
             {

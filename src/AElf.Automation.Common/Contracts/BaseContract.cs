@@ -2,6 +2,8 @@
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Utils;
+using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -61,6 +63,22 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
+        /// <summary>
+        /// 获取合约Stub
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="password"></param>
+        /// <typeparam name="TStub"></typeparam>
+        /// <returns></returns>
+        public TStub GetTestStub<TStub>(string account, string password = "123") where TStub : ContractStubBase, new()
+        {
+            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var testStub =
+                stub.Create<TStub>(ContractAddress.ConvertStringToAddress(), account, password);
+            
+            return testStub;
+        }
+        
         public BaseContract<T> GetNewTester(string account, string password = "123")
         {
             return GetNewTester(ApiHelper, account, password);
@@ -68,7 +86,7 @@ namespace AElf.Automation.Common.Contracts
 
         public BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
         {
-            UnlockAccount(account);
+            UnlockAccount(account, password);
 
             var contract = new BaseContract<T>
             {

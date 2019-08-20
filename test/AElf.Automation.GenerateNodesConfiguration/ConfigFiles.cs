@@ -46,7 +46,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
     public class ConfigFiles
     {
         private readonly ILogHelper Logger = LogHelper.GetLogger();
-        private readonly string _templateFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "templates");
+        private readonly string _templateFolder = Path.Combine(CommonHelper.AppRoot, "templates");
         private const string LogFile = "log4net.config";
         private const string MainNetFile = "appsettings.MainChain.MainNet.json";
         private const string SettingFile = "appsettings.json";
@@ -60,7 +60,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
         public void GenerateBasicConfigFile()
         {
-            var desPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results", _node.Name);
+            var desPath = Path.Combine(CommonHelper.AppRoot, "results", _node.Name);
             
             //copy log setting
             var logFile = Path.Combine(_templateFolder, LogFile);
@@ -102,7 +102,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
         
         private void SaveSettingFiles(string content)
         {
-            var settingPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results", _node.Name, SettingFile);
+            var settingPath = Path.Combine(CommonHelper.AppRoot, "results", _node.Name, SettingFile);
             File.WriteAllText(settingPath, content, Encoding.UTF8);
             Logger.Info($"{SettingFile} generate success.");
         }

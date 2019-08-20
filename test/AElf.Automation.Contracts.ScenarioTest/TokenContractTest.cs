@@ -37,7 +37,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var tokenContractAddress =
                 AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
-            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+            var keyPath = Path.Combine(CommonHelper.AppRoot, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var tokenInfo = await tokenStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
@@ -52,7 +52,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var tokenContractAddress =
                 AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
-            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+            var keyPath = Path.Combine(CommonHelper.AppRoot, "aelf");
             var tester = new ContractTesterFactory(RpcUrl, keyPath);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput

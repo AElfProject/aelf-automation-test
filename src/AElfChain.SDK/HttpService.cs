@@ -99,6 +99,7 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
+                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)
@@ -132,7 +133,6 @@ namespace AElfChain.SDK
                 content = new StringContent(paramsStr, Encoding.UTF8, "application/json");
                 content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
             }
-
             else
             {
                 content = new FormUrlEncodedContent(parameters);
@@ -146,6 +146,7 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
+                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)
@@ -176,6 +177,7 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
+                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)

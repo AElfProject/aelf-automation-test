@@ -529,19 +529,24 @@ namespace AElf.Automation.RpcPerformance
         private void ExecuteNonConflictBatchTransactionTask(int threadNo, int times)
         {
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var rawTransactions = Group.GetRawTransactions();
-
+            stopwatch.Stop();
+            var generateRawInfoTime = stopwatch.ElapsedMilliseconds;
+            
             //Send batch transaction requests
+            stopwatch.Restart();
             var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
             ApiHelper.ExecuteCommand(commandInfo);
+            stopwatch.Stop();
+            var requestTime = stopwatch.ElapsedMilliseconds;
+            
             Assert.IsTrue(commandInfo.Result);
-            var transactions = (string[]) commandInfo.InfoMsg;
-            Logger.Info(" Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
-                transactions.Length);
-            Logger.Info("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
+            Logger.Info($"Thread {threadNo} send transactions: {times}, generate time: {generateRawInfoTime}ms, execute time: {requestTime}ms");
             Thread.Sleep(50);
         }
 

@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Contracts.TokenConverter;
 
 namespace AElf.Automation.Common.Contracts
 {

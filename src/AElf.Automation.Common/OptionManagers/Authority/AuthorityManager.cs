@@ -14,11 +14,12 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 {
     public class AuthorityManager
     {
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private NodesInfo _info;
         private GenesisContract _genesis;
         private ConsensusContract _consensus;
         private ParliamentAuthContract _parliament;
+        
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public AuthorityManager(string serviceUrl, string caller)
         {

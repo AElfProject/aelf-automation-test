@@ -123,7 +123,7 @@ namespace AElf.Automation.Common.Helpers
     {
         private List<CommandInfo> CommandList { get; set; }
         private List<CategoryRequest> CategoryList { get; set; }
-        private readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CategoryInfoSet(List<CommandInfo> commands)
         {
@@ -194,7 +194,7 @@ namespace AElf.Automation.Common.Helpers
 
             var fileName = "WebTh_" + threadCount + "_Tx_" + transactionCount + "_" +
                            DateTime.Now.ToString("MMddHHmmss") + ".xml";
-            var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", fileName);
+            var fullPath = Path.Combine(CommonHelper.AppRoot, "logs", fileName);
             xmlDoc.Save(fullPath);
             return fullPath;
         }

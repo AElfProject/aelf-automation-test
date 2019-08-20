@@ -153,7 +153,7 @@ namespace AElf.Automation.Common.Helpers
             return strValue;
         }
 
-        public static long ConvertHexToValue(string hexValue)
+        private static long ConvertHexToValue(string hexValue)
         {
             long value = 0;
             try

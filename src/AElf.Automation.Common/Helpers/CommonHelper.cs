@@ -25,7 +25,7 @@ namespace AElf.Automation.Common.Helpers
         {
             try
             {
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
+                var path = Path.Combine(CommonHelper.AppRoot, "aelf");
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
