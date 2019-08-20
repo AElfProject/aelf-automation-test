@@ -491,6 +491,8 @@ namespace AElf.Automation.RpcPerformance
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
 
             var rawTransactions = new List<string>();
+            var stopwatch = new Stopwatch();
+            stopwatch.Stop();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
@@ -511,19 +513,22 @@ namespace AElf.Automation.RpcPerformance
                 var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
                 rawTransactions.Add(requestInfo);
             }
+            stopwatch.Stop();
+            var createTxsTime = stopwatch.ElapsedMilliseconds;
 
             //Send batch transaction requests
+            stopwatch.Restart();
             var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
             {
                 Parameter = string.Join(",", rawTransactions)
             };
             ApiHelper.ExecuteCommand(commandInfo);
+            stopwatch.Stop();
+            var requestTxsTime = stopwatch.ElapsedMilliseconds;
+            
             Assert.IsTrue(commandInfo.Result);
-            var transactions = (string[]) commandInfo.InfoMsg;
-            Logger.Info("Batch request transactions: {0}, passed transaction count: {1}", rawTransactions.Count,
-                transactions.Length);
-            Logger.Info("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
-            Thread.Sleep(50);
+            Logger.Info($"Thread {threadNo} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+            Thread.Sleep(10);
         }
 
         private void ExecuteNonConflictBatchTransactionTask(int threadNo, int times)
