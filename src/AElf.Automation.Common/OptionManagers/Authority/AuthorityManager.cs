@@ -74,6 +74,11 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return currentMiners;
         }
 
+        public Address GetGenesisOwnerAddress()
+        {
+            return _parliament.GetGenesisOwnerAddress();
+        }
+
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             Address organizationAddress, IEnumerable<string> approveUsers, string callUser)
         {
