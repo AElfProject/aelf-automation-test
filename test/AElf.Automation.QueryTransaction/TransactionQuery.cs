@@ -36,6 +36,13 @@ namespace AElf.Automation.QueryTransaction
             Task.WaitAll(tasks.ToArray());
         }
 
+        public void QueryBlocksTask(long startHeight)
+        {
+            _blockHeight = startHeight;
+
+            AsyncHelper.RunSync(QueryBlockWithHeight);
+        }
+
         private async Task QueryBlockWithHeight()
         {
             while (true)
@@ -52,7 +59,7 @@ namespace AElf.Automation.QueryTransaction
                 {
                     var block = await _apiService.GetBlockByHeightAsync(i, true);
                     Logger.Info(
-                        $"Block height: {i}, Block hash: {block.BlockHash}, TxCount: {block.Body.TransactionsCount}");
+                        $"Block height: {i}, TxCount: {block.Body.TransactionsCount}");
                     block.Body.Transactions.ForEach(item => _transactionQueue.Enqueue(item));
                 }
 
@@ -66,7 +73,7 @@ namespace AElf.Automation.QueryTransaction
             {
                 if (!_transactionQueue.TryDequeue(out var txId))
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(10);
                     continue;
                 }
 

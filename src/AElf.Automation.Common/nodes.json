@@ -1,9 +1,9 @@
 {
-    "RequireAuthority": false,
+    "RequireAuthority": true,
     "Nodes": [
         {
-            "name": "bp",
-            "account": "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+            "name": "bp1",
+            "account": "28WeE1Zj4vQB3rm2iRqrvLE54rgLhwVpm9iQsaTSRDSKKV38aH",
             "password": "123"
         }
     ],
