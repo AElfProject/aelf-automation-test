@@ -492,7 +492,7 @@ namespace AElf.Automation.RpcPerformance
 
             var rawTransactions = new List<string>();
             var stopwatch = new Stopwatch();
-            stopwatch.Stop();
+            stopwatch.Start();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
