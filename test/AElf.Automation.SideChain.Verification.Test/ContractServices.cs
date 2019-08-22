@@ -1,7 +1,9 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Types;
+using AElfChain.SDK;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.SideChain.Verification
 {
@@ -22,6 +24,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             ChainId = chainId;
             ApiHelper = new WebApiHelper(url,keyStore);
+            ApiHelper.ApiService.SetFailReTryTimes(20);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             UnlockAccounts(ApiHelper,CallAddress,password);

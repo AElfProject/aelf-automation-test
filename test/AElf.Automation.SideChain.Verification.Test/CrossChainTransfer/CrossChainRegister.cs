@@ -214,6 +214,14 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
             if (!(createProposalResult.InfoMsg is TransactionResultDto txResult)) return;
+            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            {
+                Logger.Info("Send create proposal again: ");
+                createProposalResult =
+                    services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                        createProposalInput);
+                txResult = createProposalResult.InfoMsg as TransactionResultDto;
+            }
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
@@ -241,7 +249,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
             if (!(releaseResult.InfoMsg is TransactionResultDto releaseTxResult)) return;
-            if (releaseTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            if (releaseTxResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
         }

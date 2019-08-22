@@ -14,13 +14,18 @@ namespace AElfChain.SDK
     public class HttpService : IHttpService
     {
         private HttpClient Client { get; set; }
-        private int FailRetryTimes { get; }
+        public int FailRetryTimes { get; set; }
         private int TimeoutSeconds { get; }
 
         public HttpService(int timeout, int retryTimes)
         {
             TimeoutSeconds = timeout;
             FailRetryTimes = retryTimes;
+        }
+
+        public void SetFailRetryTimes(int times)
+        {
+            FailRetryTimes = times;
         }
 
         /// <summary>
@@ -146,7 +151,8 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
-                throw new AElfChainApiException(message);
+                Console.WriteLine($"StatusCode: {response.StatusCode}, Message:{message}");
+                throw new HttpRequestException();
             }
             catch (Exception ex)
             {

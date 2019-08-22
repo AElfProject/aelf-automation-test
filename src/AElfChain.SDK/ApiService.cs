@@ -207,6 +207,11 @@ namespace AElfChain.SDK
             return await _httpService.GetResponseAsync<List<PeerDto>>(url);
         }
 
+        public void SetFailReTryTimes(int times)
+        {
+            _httpService.SetFailRetryTimes(times);
+        }
+
         #endregion
 
         private string FormatServiceUrl(string serviceUrl)

@@ -6,6 +6,7 @@ namespace AElfChain.SDK
 {
     public interface IHttpService
     {
+        void SetFailRetryTimes(int times);
         Task<T> GetResponseAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
 
