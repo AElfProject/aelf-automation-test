@@ -157,8 +157,10 @@ namespace AElfChain.SDK
             catch (Exception ex)
             {
                 retryTimes++;
-                if (retryTimes > FailRetryTimes) throw new AElfChainApiException(ex.Message);
-                Thread.Sleep(500);
+                if (retryTimes > FailRetryTimes) throw new HttpRequestException(ex.Message);;
+
+                Console.WriteLine($"Retry PostResponseAsync request: {url}, times: {retryTimes}");
+                Thread.Sleep(5000);
                 return await PostResponseAsync(url, parameters, version, useApplicationJson, expectedStatusCode,
                     retryTimes);
             }
