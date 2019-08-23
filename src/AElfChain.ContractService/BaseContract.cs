@@ -29,9 +29,11 @@ namespace AElfChain.ContractService
             Logger = loggerFactory.CreateLogger<BaseContract>();
         }
         
-        public void SetContractExecutor(string account)
+        public async Task SetContractExecutor(string account, string password = AccountOption.DefaultPassword)
         {
             Account = account;
+
+            await _accountManager.UnlockAccountAsync(account, password);
         }
 
         public async Task<string> SendTransactionWithIdAsync(string method, IMessage input)

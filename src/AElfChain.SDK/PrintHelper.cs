@@ -7,7 +7,7 @@ namespace AElfChain.SDK
     /// </summary>
     public static class PrintHelper
     {
-        private static void WriteColorLine(string str, ConsoleColor color)
+        private static void WriteColorMessage(string str, ConsoleColor color)
         {
             var currentForeColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
@@ -20,9 +20,9 @@ namespace AElfChain.SDK
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red)
+        public static void WriteErrorMessage(this string str, ConsoleColor color = ConsoleColor.Red)
         {
-            WriteColorLine(str, color);
+            WriteColorMessage(str, color);
         }
 
         /// <summary>
@@ -30,9 +30,9 @@ namespace AElfChain.SDK
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow)
+        public static void WriteWarningMessage(this string str, ConsoleColor color = ConsoleColor.Yellow)
         {
-            WriteColorLine(str, color);
+            WriteColorMessage(str, color);
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace AElfChain.SDK
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void InfoLine(this string str, ConsoleColor color = ConsoleColor.White)
+        public static void InfoMessage(this string str, ConsoleColor color = ConsoleColor.White)
         {
-            WriteColorLine(str, color);
+            WriteColorMessage(str, color);
         }
 
         /// <summary>
@@ -50,9 +50,9 @@ namespace AElfChain.SDK
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green)
+        public static void WriteSuccessMessage(this string str, ConsoleColor color = ConsoleColor.Green)
         {
-            WriteColorLine(str, color);
+            WriteColorMessage(str, color);
         }
     }
 }
