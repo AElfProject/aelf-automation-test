@@ -34,7 +34,6 @@ namespace AElfChain.SDK
         public async Task<T> GetResponseAsync<T>(string url, string version = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            //$"Get request to: {url}".WriteSuccessLine();
             var strResponse = await GetResponseAsStringAsync(url, version, expectedStatusCode);
             return JsonConvert.DeserializeObject<T>(strResponse, new JsonSerializerSettings
             {
@@ -99,7 +98,6 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
-                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)
@@ -146,7 +144,6 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
-                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)
@@ -177,7 +174,6 @@ namespace AElfChain.SDK
                 if (response.StatusCode == expectedStatusCode)
                     return response;
                 var message = await response.Content.ReadAsStringAsync();
-                message.WriteErrorLine();
                 throw new AElfChainApiException(message);
             }
             catch (Exception ex)

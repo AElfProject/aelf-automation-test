@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
@@ -22,18 +23,6 @@ namespace AElf.Automation.QueryTransaction
         {
             for (var i = 0; i < times; i++)
             {
-                /*
-                var tasks = new List<Task>
-                {
-                    Task.Run(GetChainStatus),
-                    Task.Run(GetCurrentRoundInformationAsync),
-                    Task.Run(GetTaskQueueStatusAsync),
-                    Task.Run(GetTransactionPoolStatus),
-                    Task.Run(GetBlockStateAsync),
-                };
-
-                Task.WaitAll(tasks.ToArray());
-                */
                 AsyncHelper.RunSync(GetChainStatus);
                 AsyncHelper.RunSync(GetCurrentRoundInformationAsync);
                 AsyncHelper.RunSync(GetTaskQueueStatusAsync);
@@ -88,9 +77,16 @@ namespace AElf.Automation.QueryTransaction
 
             //query transaction
             var transactionId = block.Body.Transactions.First();
-            var transaction = await _apiService.GetTransactionResultAsync(transactionId);
-            Logger.Info($"Transaction: {JsonConvert.SerializeObject(transaction)}");
-
+            try
+            {
+                var transaction = await _apiService.GetTransactionResultAsync(transactionId.Replace('a', 'x'));
+                Logger.Info($"Transaction: {JsonConvert.SerializeObject(transaction)}");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+            }
+           
             //query transactions
             var transactions = await _apiService.GetTransactionResultsAsync(block.BlockHash);
             Logger.Info($"Transactions: {transactions}");

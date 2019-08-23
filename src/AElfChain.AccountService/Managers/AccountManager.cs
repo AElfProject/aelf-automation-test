@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Cryptography;
+using AElf.Types;
 using AElfChain.AccountService.KeyAccount;
+using Google.Protobuf;
 using log4net;
+using Microsoft.Extensions.Logging;
 using Volo.Abp.Threading;
 
 namespace AElfChain.AccountService
@@ -14,7 +19,7 @@ namespace AElfChain.AccountService
         private readonly AElfKeyStore _keyStore;
         private readonly List<string> _accounts;
 
-        public ILog Logger { get; set; }
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public static IAccountManager GetAccountManager(string dataPath = "")
         {
@@ -22,7 +27,7 @@ namespace AElfChain.AccountService
             {
                 DataPath = dataPath == "" ? CommonHelper.GetCurrentDataDir() : dataPath
             };
-
+            
             return new AccountManager(option);
         }
 
@@ -48,11 +53,13 @@ namespace AElfChain.AccountService
         public async Task<AccountInfo> NewAccountAsync(string password)
         {
             var keypair = await _keyStore.CreateAccountKeyPairAsync(password);
-
-            return new AccountInfo(keypair.PrivateKey, keypair.PublicKey);
+            var accountInfo = new AccountInfo(keypair.PrivateKey, keypair.PublicKey);
+            await _keyStore.UnlockAccountAsync(accountInfo.Formatted, password);
+            return accountInfo;
         }
 
-        public async Task<bool> UnlockAccountAsync(string account, string password = "123", bool notimeout = true)
+        public async Task<bool> UnlockAccountAsync(string account, string password = AccountOption.DefaultPassword,
+            bool notimeout = true)
         {
             var result = false;
             if (_accounts == null || _accounts.Count == 0)
@@ -92,24 +99,32 @@ namespace AElfChain.AccountService
             return result;
         }
 
-        public async Task<AccountInfo> GetAccountInfoAsync(string account, string password = "123")
+        public async Task<AccountInfo> GetAccountInfoAsync(string account,
+            string password = AccountOption.DefaultPassword)
         {
             var kp = _keyStore.GetAccountKeyPair(account) ?? await _keyStore.ReadKeyPairAsync(account, password);
 
             return new AccountInfo(kp.PrivateKey, kp.PublicKey);
         }
 
-        public async Task<byte[]> SignAsync(AccountInfo accountInfo, byte[] data)
+        public async Task<AccountInfo> GetRandomAccountInfoAsync()
         {
-            var signature = CryptoHelper.SignWithPrivateKey(accountInfo.PrivateKeys, data);
-            return await Task.FromResult(signature);
+            _accounts.Shuffle();
+            var account = _accounts.FirstOrDefault();
+            var kp = _keyStore.GetAccountKeyPair(account) ??
+                     await _keyStore.ReadKeyPairAsync(account, AccountOption.DefaultPassword);
+
+            return await Task.FromResult(new AccountInfo(kp.PrivateKey, kp.PublicKey));
         }
 
-        public async Task<byte[]> SignAsync(string account, string password, byte[] data)
+        public async Task<Transaction> SignTransactionAsync(Transaction transaction)
         {
-            var accountInfo = await GetAccountInfoAsync(account, password);
+            var accountInfo = await GetAccountInfoAsync(transaction.From.GetFormatted());
+            var txData = transaction.GetHash().ToByteArray();
+            var signature = CryptoHelper.SignWithPrivateKey(accountInfo.PrivateKeys, txData);
+            transaction.Signature = ByteString.CopyFrom(signature);
 
-            return await SignAsync(accountInfo, data);
+            return transaction;
         }
     }
 }

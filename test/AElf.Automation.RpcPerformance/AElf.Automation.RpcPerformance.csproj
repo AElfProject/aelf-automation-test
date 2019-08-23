@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+    <ProjectReference Include="..\..\src\AElfChain.AccountService\AElfChain.AccountService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="rpc-performance.json">

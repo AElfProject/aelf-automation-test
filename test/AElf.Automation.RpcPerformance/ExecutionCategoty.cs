@@ -10,14 +10,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.AccountService;
 using AElfChain.SDK.Models;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
+using AuthorityManager = AElf.Automation.Common.OptionManagers.Authority.AuthorityManager;
+using NodeInfoHelper = AElf.Automation.Common.OptionManagers.Authority.NodeInfoHelper;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -606,7 +608,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 var ci = new CommandInfo(ApiMethods.AccountUnlock)
                 {
-                    Parameter = $"{AccountList[i].Account} 123 notimeout"
+                    Parameter = $"{AccountList[i].Account} {AccountOption.DefaultPassword} notimeout"
                 };
                 ci = ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);

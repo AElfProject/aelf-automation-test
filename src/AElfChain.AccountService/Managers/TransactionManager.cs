@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Automation.Common.Helpers;
 using AElf.Types;
 using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -15,7 +19,7 @@ namespace AElfChain.AccountService
         private readonly IApiService _apiService;
 
         private string _chainId;
-        public ILog Logger { get; set; }
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public static ITransactionManager GetTransactionManager(string serviceUrl, string accountPath = "")
         {
@@ -33,7 +37,7 @@ namespace AElfChain.AccountService
             _chainId = AsyncHelper.RunSync(_apiService.GetChainStatusAsync).ChainId;
         }
         
-        public Transaction CreateTransaction(string @from, string to, string methodName, ByteString input)
+        public async Task<Transaction> CreateTransaction(string from, string to, string method, ByteString input)
         {
             try
             {
@@ -41,9 +45,12 @@ namespace AElfChain.AccountService
                 {
                     From = AddressHelper.Base58StringToAddress(from),
                     To = AddressHelper.Base58StringToAddress(to),
-                    MethodName = methodName,
+                    MethodName = method,
                     Params = input ?? ByteString.Empty
                 };
+
+                transaction = await AddBlockReference(transaction);
+                transaction = await _accountManager.SignTransactionAsync(transaction);
 
                 return transaction;
             }
@@ -54,35 +61,34 @@ namespace AElfChain.AccountService
             }
         }
 
-        public async Task<Transaction> AddBlockReference(Transaction transaction)
+        public async Task<string> SendTransactionWithIdAsync(Transaction transaction)
         {
-            return await transaction.AddBlockReference(_apiService, _chainId);
+            var transactionOutput = await _apiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
+            return transactionOutput.TransactionId;
         }
 
-        public async Task<Transaction> SignTransaction(Transaction transaction, string password = "123")
+        public async Task<List<string>> SendBatchTransactionWithIdAsync(List<Transaction> transactions)
         {
-            if (transaction.RefBlockNumber == 0)
-                transaction = await transaction.AddBlockReference(_apiService);
-            
-            var txData = transaction.GetHash().ToByteArray();
-            transaction.Signature = await Sign(transaction.From.GetFormatted(), password, txData);
+            var rawTransactions = string.Join(",", transactions.Select(o => o.ToByteArray().ToHex()));
+            var txIds = await _apiService.SendTransactionsAsync(rawTransactions);
 
-            return transaction;
+            return txIds.ToList();
+        }
+
+        public async Task<TransactionResultDto> QueryTransactionAsync(string transactionId)
+        {
+            var transactionResult =  await _apiService.GetTransactionResultAsync(transactionId);
+            return transactionResult;
         }
 
         public string ConvertTransactionToRawInfo(Transaction transaction)
         {
             return transaction.ToByteArray().ToHex();
         }
-        
-        private async Task<ByteString> Sign(string account, string password, byte[] txData)
-        {
-            var accountInfo = await _accountManager.GetAccountInfoAsync(account, password);
 
-            // Sign the hash
-            var signature = await _accountManager.SignAsync(accountInfo, txData);
-            
-            return ByteString.CopyFrom(signature);
+        private async Task<Transaction> AddBlockReference(Transaction transaction)
+        {
+            return await transaction.AddBlockReference(_apiService, _chainId);
         }
     }
 }

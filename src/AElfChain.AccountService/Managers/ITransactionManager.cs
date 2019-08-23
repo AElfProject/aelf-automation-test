@@ -1,14 +1,17 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 
 namespace AElfChain.AccountService
 {
     public interface ITransactionManager
     {
-        Transaction CreateTransaction(string from, string to, string methodName, ByteString input);
-        Task<Transaction> AddBlockReference(Transaction transaction);
-        Task<Transaction> SignTransaction(Transaction transaction, string password = "123");
+        Task<Transaction> CreateTransaction(string from, string to, string method, ByteString input);
+        Task<string> SendTransactionWithIdAsync(Transaction transaction);
+        Task<List<string>> SendBatchTransactionWithIdAsync(List<Transaction> transaction);
+        Task<TransactionResultDto> QueryTransactionAsync(string transactionId);
         string ConvertTransactionToRawInfo(Transaction transaction);
     }
 }
