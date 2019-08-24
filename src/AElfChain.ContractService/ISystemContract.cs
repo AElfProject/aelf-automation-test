@@ -9,6 +9,6 @@ namespace AElfChain.ContractService
     {
         Hash GetContractHashName(SystemContracts contract);
         Task<Address> GetSystemContractAddress(SystemContracts contract);
-        TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase;
+        TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase, new();
     }
 }

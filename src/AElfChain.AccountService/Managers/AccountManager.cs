@@ -8,18 +8,20 @@ using AElf.Cryptography;
 using AElf.Types;
 using AElfChain.AccountService.KeyAccount;
 using Google.Protobuf;
-using log4net;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+using Volo.Abp.DependencyInjection;
 using Volo.Abp.Threading;
 
 namespace AElfChain.AccountService
 {
-    public class AccountManager : IAccountManager
+    public class AccountManager : IAccountManager, ISingletonDependency
     {
-        private readonly AElfKeyStore _keyStore;
+        private readonly IKeyStore _keyStore;
         private readonly List<string> _accounts;
 
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public ILogger Logger { get; set; }
 
         public static IAccountManager GetAccountManager(string dataPath = "")
         {
@@ -31,7 +33,15 @@ namespace AElfChain.AccountService
             return new AccountManager(option);
         }
 
-        private AccountManager(AccountOption option)
+        public AccountManager(IKeyStore keyStore)
+        {
+            Logger = NullLogger<AccountManager>.Instance;
+            
+            _keyStore = keyStore;
+            _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
+        }
+        
+        public AccountManager(AccountOption option)
         {
             _keyStore = new AElfKeyStore(option.DataPath);
             _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
@@ -64,13 +74,13 @@ namespace AElfChain.AccountService
             var result = false;
             if (_accounts == null || _accounts.Count == 0)
             {
-                Logger.Error($"Error: the account '{account}' does not exist.");
+                Logger.LogError($"Error: the account '{account}' does not exist.");
                 return false;
             }
 
             if (!_accounts.Contains(account))
             {
-                Logger.Error($"Error: the account '{account}' does not exist.");
+                Logger.LogError($"Error: the account '{account}' does not exist.");
                 return false;
             }
 
@@ -79,10 +89,10 @@ namespace AElfChain.AccountService
             switch (tryOpen)
             {
                 case KeyStoreErrors.WrongPassword:
-                    Logger.Error("Error: incorrect password!");
+                    Logger.LogError("Error: incorrect password!");
                     break;
                 case KeyStoreErrors.AccountAlreadyUnlocked:
-                    Logger.Info("Account already unlocked!");
+                    Logger.LogInformation("Account already unlocked!");
                     result = true;
                     break;
                 case KeyStoreErrors.None:

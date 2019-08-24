@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Genesis;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -61,9 +62,12 @@ namespace AElfChain.ContractService
             }
         }
 
-        public TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase
+        public TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase, new()
         {
-            throw new System.NotImplementedException();
+            var stub = new ContractTesterFactory(_apiService.GetServiceUrl());
+            var contractStub =
+                stub.Create<TStub>(contract, caller);
+            return contractStub;
         }
 
         private Dictionary<SystemContracts, Hash> SystemContractHashNames => GetSystemContractHashNames();

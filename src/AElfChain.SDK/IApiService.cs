@@ -9,6 +9,8 @@ namespace AElfChain.SDK
     {
         string GetServiceUrl();
 
+        void SetServiceUrl(string serviceUrl);
+
         Task<string> ExecuteTransactionAsync(string rawTransaction);
 
         Task<string> ExecuteRawTransactionAsync(ExecuteRawTransactionDto input);

@@ -8,6 +8,9 @@ using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.ECDSA.Exceptions;
 using AElf.Types;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
 
@@ -24,9 +27,19 @@ namespace AElfChain.AccountService.KeyAccount
         private readonly KeyStoreService _keyStoreService;
         public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
 
+        public ILogger Logger { get; set; }
+
         public AElfKeyStore(string dataDirectory)
         {
             _dataDirectory = dataDirectory;
+            _unlockedAccounts = new List<Account>();
+            _keyStoreService = new KeyStoreService();
+        }
+
+        public AElfKeyStore(IOptions<AccountOption> option, ILoggerFactory loggerFactory)
+        {
+            Logger = loggerFactory.CreateLogger<AElfKeyStore>();
+            _dataDirectory = option.Value.DataPath;
             _unlockedAccounts = new List<Account>();
             _keyStoreService = new KeyStoreService();
         }
@@ -67,6 +80,7 @@ namespace AElfChain.AccountService.KeyAccount
         public async Task<ECKeyPair> CreateAccountKeyPairAsync(string password)
         {
             var keyPair = CryptoHelper.GenerateKeyPair();
+            Logger.LogInformation($"New account: {Address.FromPublicKey(keyPair.PublicKey)}");
             var res = await WriteKeyPairAsync(keyPair, password);
             return !res ? null : keyPair;
         }

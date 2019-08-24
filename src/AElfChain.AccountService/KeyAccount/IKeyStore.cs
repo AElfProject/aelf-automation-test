@@ -13,5 +13,6 @@ namespace AElfChain.AccountService.KeyAccount
         Task<ECKeyPair> CreateAccountKeyPairAsync(string password);
 
         Task<List<string>> GetAccountsAsync();
+        Task<ECKeyPair> ReadKeyPairAsync(string address, string password);
     }
 }

@@ -1,14 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
+using Microsoft.Extensions.Options;
 
 namespace AElfChain.SDK
 {
     public class ApiService : IApiService
     {
-        private readonly string _baseUrl;
+        private string _baseUrl;
         private readonly IHttpService _httpService;
         private Dictionary<ApiMethods, string> _apiRoute;
 
@@ -19,12 +21,25 @@ namespace AElfChain.SDK
 
             InitializeWebApiRoute();
         }
+        
+        public ApiService(IOptions<SdkOption> sdkOption)
+        {
+            _baseUrl = FormatServiceUrl(sdkOption.Value.ServiceUrl);
+            _httpService = new HttpService(sdkOption.Value.TimeoutSeconds, sdkOption.Value.FailReTryTimes);
+
+            InitializeWebApiRoute();
+        }
 
         #region Chain Api
 
         public string GetServiceUrl()
         {
             return _baseUrl;
+        }
+
+        public void SetServiceUrl(string serviceUrl)
+        {
+            _baseUrl = FormatServiceUrl(serviceUrl);
         }
 
         public async Task<string> ExecuteTransactionAsync(string rawTransaction)
@@ -211,6 +226,8 @@ namespace AElfChain.SDK
 
         private string FormatServiceUrl(string serviceUrl)
         {
+            if (serviceUrl == "")
+                return serviceUrl;
             if (serviceUrl.Contains("http://") || serviceUrl.Contains("https://"))
                 return serviceUrl;
 
@@ -219,6 +236,8 @@ namespace AElfChain.SDK
 
         private string GetRequestUrl(ApiMethods api, params object[] parameters)
         {
+            if(_baseUrl == "")
+                throw new ArgumentException("Service url should be set first.");
             var subUrl = string.Format(_apiRoute[api], parameters);
 
             return $"{_baseUrl}{subUrl}";

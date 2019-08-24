@@ -62,6 +62,16 @@ namespace AElfChain.ContractService
             throw new System.NotImplementedException();
         }
 
+        public string GetContractFileName()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public TContract DeployContract<TContract>(string caller) where TContract : IContract
+        {
+            throw new System.NotImplementedException();
+        }
+
         public TContract GetContractService<TContract>(Address contract, string caller) where TContract : IContract
         {
             throw new System.NotImplementedException();
