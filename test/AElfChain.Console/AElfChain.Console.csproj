@@ -7,13 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
-      <ProjectReference Include="..\..\src\AElfChain.AccountService\AElfChain.AccountService.csproj" />
-      <ProjectReference Include="..\..\src\AElfChain.TestBase\AElfChain.TestBase.csproj" />
+        <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+        <ProjectReference Include="..\..\src\AElfChain.AccountService\AElfChain.AccountService.csproj" />
+        <ProjectReference Include="..\..\src\AElfChain.TestBase\AElfChain.TestBase.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="logs" />
+        <Folder Include="logs" />
     </ItemGroup>
-
+    
 </Project>

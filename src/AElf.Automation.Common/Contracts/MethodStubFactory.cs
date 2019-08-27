@@ -11,6 +11,7 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
 using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
@@ -20,7 +21,7 @@ namespace AElf.Automation.Common.Contracts
     {
         public Address ContractAddress { get; set; }
         public string SenderAddress { get; set; }
-        public Address Sender { get; set; }
+        public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
         public WebApiHelper ApiHelper { get; }
         public IApiService ApiService { get; }
 
@@ -62,18 +63,18 @@ namespace AElf.Automation.Common.Contracts
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
-                    if (status != TransactionResultStatus.Pending)
+                    if (status != TransactionResultStatus.Pending && status != TransactionResultStatus.NotExisted)
                     {
                         if (status == TransactionResultStatus.Mined)
-                            Logger.Info($"TransactionId: {resultDto.TransactionId}, Status: {status}");
+                            Logger.Info($"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}");
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nError Message: {resultDto.Error}");
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}");
 
                         break;
                     }
 
-                    if (checkTimes == 120)
+                    if (checkTimes == 360) //max wait time 3 minutes
                         Assert.IsTrue(false,
                             $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
                     Thread.Sleep(500);

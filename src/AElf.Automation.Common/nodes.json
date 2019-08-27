@@ -3,7 +3,32 @@
     "Nodes": [
         {
             "name": "bp1",
-            "account": "28WeE1Zj4vQB3rm2iRqrvLE54rgLhwVpm9iQsaTSRDSKKV38aH",
+            "account": "eu6nm4Kxu3HcA7FhSdQpPjy29x896yqcPHSq55gKaggTKEwA3",
+            "password": "123"
+        },
+        {
+            "name": "bp2",
+            "account": "gLwL73wC56g53PKg1ZzNTVLmqJTvWgiXXWy6nQt5pChfJEkH8",
+            "password": "123"
+        },
+        {
+            "name": "bp3",
+            "account": "FJjSkjp6mrTjoVxgtjcgt9tYGHv7q4E89jxFLwTj6PLXhn5TF",
+            "password": "123"
+        },
+        {
+            "name": "bp4",
+            "account": "5Vr9ZdimQG6dyEBEWPadV7qRMi9QLoV1euZNNCvo5vWTKdXKR",
+            "password": "123"
+        },
+        {
+            "name": "bp5",
+            "account": "2pz6Mvtdr5AHqfYSc1XALkXaVokxmy8i63ugPJfzEf6TQzvyk3",
+            "password": "123"
+        },
+        {
+            "name": "bp6",
+            "account": "2k8fR54BZZ7zkhRN9mi9rSG7bSEeSvgcYQ1iMVqyzZKW4xAvb5",
             "password": "123"
         }
     ],

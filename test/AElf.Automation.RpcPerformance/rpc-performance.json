@@ -1,23 +1,26 @@
 {
     "GroupCount": 4,
-    "TransactionCount": 500,
-    "EnableRandomTransaction": false,
-    "ServiceUrl": "192.168.197.35:8000",
-    "SentTxLimit": 3000,
+    "TransactionCount": 100,
+    "EnableRandomTransaction": true,
+    "ServiceUrl": "192.168.197.43:8100",
+    "SentTxLimit": 400,
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
     "ReadOnlyTransaction": false,
     "NodeTransactionLimit": {
         "enable_limit": true,
-        "max_transactions_select": 200
+        "max_transactions_select": 50
     },
     "RequestRandomEndpoint": {
-        "enable_random": false,
+        "enable_random": true,
         "endpoint_list": [
-            "192.168.199.205:8100",
-            "192.168.199.205:8200",
-            "192.168.199.205:8300"
+            "192.168.197.43:8100",
+            "192.168.197.15:8100",
+            "192.168.197.52:8100",
+            "192.168.197.43:8200",
+            "192.168.197.15:8200",
+            "192.168.197.52:8200"
         ]
     }
 }

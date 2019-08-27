@@ -3,6 +3,7 @@ using AElf.Automation.Common.Helpers;
 using AElfChain.AccountService;
 using AElfChain.SDK;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Modularity;
 
 namespace AElfChain.TestBase
 {
@@ -29,6 +30,14 @@ namespace AElfChain.TestBase
             return transactionManager;
         }
 
+        public static IServiceProvider GetServiceProvider<T>()
+            where T : AbpModule
+        {
+            _provider = AbpHelper.InitializeModule<T>();
+
+            return _provider;
+        }
+        
         private static IServiceProvider _provider;
         private static IServiceProvider GetServiceProvider()
         {
@@ -38,5 +47,7 @@ namespace AElfChain.TestBase
             _provider = AbpHelper.InitializeModule<TestBaseModule>();
             return _provider;
         }
+        
+        
     }
 }

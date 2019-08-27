@@ -9,7 +9,6 @@ using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.ECDSA.Exceptions;
 using AElf.Types;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
@@ -39,6 +38,7 @@ namespace AElfChain.AccountService.KeyAccount
         public AElfKeyStore(IOptions<AccountOption> option, ILoggerFactory loggerFactory)
         {
             Logger = loggerFactory.CreateLogger<AElfKeyStore>();
+            
             _dataDirectory = option.Value.DataPath;
             _unlockedAccounts = new List<Account>();
             _keyStoreService = new KeyStoreService();
@@ -152,10 +152,10 @@ namespace AElfChain.AccountService.KeyAccount
             {
                 using (var writer = File.CreateText(fullPath))
                 {
-                    var scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
+                    var encryptedKey = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
                         keyPair.PrivateKey,
                         address.GetFormatted());
-                    writer.Write(scryptResult);
+                    writer.Write(encryptedKey);
                     writer.Flush();
                 }
             });
