@@ -54,6 +54,7 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)

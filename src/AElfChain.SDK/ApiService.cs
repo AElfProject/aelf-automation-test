@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AElf;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AElfChain.SDK
@@ -14,6 +15,8 @@ namespace AElfChain.SDK
         private readonly IHttpService _httpService;
         private Dictionary<ApiMethods, string> _apiRoute;
 
+        public ILogger Logger { get; set; }
+
         public ApiService(SdkOption sdkOption)
         {
             _baseUrl = FormatServiceUrl(sdkOption.ServiceUrl);
@@ -22,8 +25,9 @@ namespace AElfChain.SDK
             InitializeWebApiRoute();
         }
         
-        public ApiService(IOptions<SdkOption> sdkOption)
+        public ApiService(IOptions<SdkOption> sdkOption, ILoggerFactory loggerFactory)
         {
+            Logger = loggerFactory.CreateLogger<ApiService>();
             _baseUrl = FormatServiceUrl(sdkOption.Value.ServiceUrl);
             _httpService = new HttpService(sdkOption.Value.TimeoutSeconds, sdkOption.Value.FailReTryTimes);
 
@@ -40,6 +44,7 @@ namespace AElfChain.SDK
         public void SetServiceUrl(string serviceUrl)
         {
             _baseUrl = FormatServiceUrl(serviceUrl);
+            Logger.LogInformation($"Url updated to {_baseUrl}");
         }
 
         public async Task<string> ExecuteTransactionAsync(string rawTransaction)

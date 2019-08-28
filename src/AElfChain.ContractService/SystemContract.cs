@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf;
-using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Genesis;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -14,14 +14,16 @@ namespace AElfChain.ContractService
     public class SystemContract : ISystemContract
     {
         private Dictionary<SystemContracts, Address> SystemContractAddresses { get; }
+        private readonly IContractFactory _contractFactory;
         private readonly IAccountManager _accountManager;
         private readonly IApiService _apiService;
 
         public ILogger Logger { get; set; }
 
-        public SystemContract(IAccountManager accountManager, IApiService apiService, ILoggerFactory loggerFactory)
+        public SystemContract(IContractFactory contractFactory, IAccountManager accountManager, IApiService apiService, ILoggerFactory loggerFactory)
         {
             SystemContractAddresses = new Dictionary<SystemContracts, Address>();
+            _contractFactory = contractFactory;
             _accountManager = accountManager;
             _apiService = apiService;
 
@@ -33,11 +35,14 @@ namespace AElfChain.ContractService
             return SystemContractHashNames[contract];
         }
 
-        public async Task<Address> GetSystemContractAddress(SystemContracts contract)
+        public async Task<Address> GetSystemContractAddressAsync(SystemContracts contract)
         {
-            var address = SystemContractAddresses[contract];
-            if (address != null)
+            Address address;
+            if (SystemContractAddresses.Keys.Contains(contract))
+            {
+                address = SystemContractAddresses[contract];
                 return address;
+            }
 
             if (contract == SystemContracts.Genesis)
             {
@@ -50,9 +55,9 @@ namespace AElfChain.ContractService
             }
             else
             {
-                var genesisAddress = await GetSystemContractAddress(SystemContracts.Genesis);
+                var genesisAddress = await GetSystemContractAddressAsync(SystemContracts.Genesis);
                 var randomAccount = await _accountManager.GetRandomAccountInfoAsync();
-                var genesisStub = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(genesisAddress, randomAccount.Formatted);
+                var genesisStub = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(genesisAddress, randomAccount);
 
                 var hashName = SystemContractHashNames[contract];
                 address = await genesisStub.GetContractAddressByName.CallAsync(hashName);
@@ -62,11 +67,9 @@ namespace AElfChain.ContractService
             }
         }
 
-        public TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase, new()
+        public TStub GetTestStub<TStub>(Address contract, AccountInfo accountInfo) where TStub : ContractStubBase, new()
         {
-            var stub = new ContractTesterFactory(_apiService.GetServiceUrl());
-            var contractStub =
-                stub.Create<TStub>(contract, caller);
+            var contractStub = _contractFactory.Create<TStub>(contract, accountInfo);
             return contractStub;
         }
 

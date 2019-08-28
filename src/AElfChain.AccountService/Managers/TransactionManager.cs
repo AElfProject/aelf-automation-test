@@ -11,6 +11,7 @@ using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
@@ -23,7 +24,7 @@ namespace AElfChain.AccountService
 
         private string _chainId;
         private int _checkTimeout;
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public ILogger Logger { get; set; }
 
         public static ITransactionManager GetTransactionManager(string serviceUrl, string accountPath = "")
         {
@@ -35,6 +36,16 @@ namespace AElfChain.AccountService
         
         public TransactionManager(IApiService apiService, IAccountManager accountManager)
         {
+            _apiService = apiService;
+            _accountManager = accountManager;
+            _checkTimeout = 60;
+
+            _chainId = AsyncHelper.RunSync(_apiService.GetChainStatusAsync).ChainId;
+        }
+        
+        public TransactionManager(IApiService apiService, IAccountManager accountManager, ILoggerFactory loggerFactory)
+        {
+            Logger = loggerFactory.CreateLogger<TransactionManager>();
             _apiService = apiService;
             _accountManager = accountManager;
             _checkTimeout = 60;
@@ -61,7 +72,7 @@ namespace AElfChain.AccountService
             }
             catch (Exception e)
             {
-                Logger.Error($"Invalid transaction data: {e.Message}");
+                Logger.LogError($"Invalid transaction data: {e.Message}");
                 return null;
             }
         }
@@ -69,7 +80,7 @@ namespace AElfChain.AccountService
         public async Task<string> SendTransactionWithIdAsync(Transaction transaction)
         {
             var transactionOutput = await _apiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
-            Logger.Info($"Transaction method: {transaction.MethodName}, TxId: {transactionOutput.TransactionId}");
+            Logger.LogInformation($"Transaction method: {transaction.MethodName}, TxId: {transactionOutput.TransactionId}");
             return transactionOutput.TransactionId;
         }
 
@@ -101,12 +112,12 @@ namespace AElfChain.AccountService
                     switch (transactionStatus)
                     {
                         case TransactionResultStatus.Mined:
-                            Logger.Info($"Transaction: {transactionId}, Status: {transactionStatus}");
+                            Logger.LogInformation($"Transaction: {transactionId}, Status: {transactionStatus}");
                             completed = true;
                             break;
                         case TransactionResultStatus.Failed:
                         case TransactionResultStatus.Unexecutable:
-                            Logger.Error($"Failed transaction: {JsonConvert.SerializeObject(transactionResult)}");
+                            Logger.LogError($"Failed transaction: {JsonConvert.SerializeObject(transactionResult)}");
                             completed = true;
                             break;
                         default:
@@ -136,12 +147,12 @@ namespace AElfChain.AccountService
                 switch (transactionStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {txId}, Status: {transactionStatus}");
+                        Logger.LogInformation($"Transaction: {txId}, Status: {transactionStatus}");
                         transactionResults.Add(transactionResult);
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                        Logger.Error($"Failed transaction: {JsonConvert.SerializeObject(transactionResult)}");
+                        Logger.LogError($"Failed transaction: {JsonConvert.SerializeObject(transactionResult)}");
                         transactionResults.Add(transactionResult);
                         break;
                     default:

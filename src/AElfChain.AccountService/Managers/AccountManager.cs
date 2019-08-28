@@ -20,6 +20,7 @@ namespace AElfChain.AccountService
     {
         private readonly IKeyStore _keyStore;
         private readonly List<string> _accounts;
+        private readonly List<AccountInfo> _accountInfos;
 
         public ILogger Logger { get; set; }
 
@@ -39,12 +40,14 @@ namespace AElfChain.AccountService
             
             _keyStore = keyStore;
             _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
+            _accountInfos = new List<AccountInfo>();
         }
         
         public AccountManager(AccountOption option)
         {
             _keyStore = new AElfKeyStore(option.DataPath);
             _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
+            _accountInfos = new List<AccountInfo>();
         }
 
         public async Task<List<string>> ListAccount()
@@ -65,6 +68,8 @@ namespace AElfChain.AccountService
             var keypair = await _keyStore.CreateAccountKeyPairAsync(password);
             var accountInfo = new AccountInfo(keypair.PrivateKey, keypair.PublicKey);
             await _keyStore.UnlockAccountAsync(accountInfo.Formatted, password);
+            _accountInfos.Add(accountInfo);
+            
             return accountInfo;
         }
 
@@ -112,19 +117,36 @@ namespace AElfChain.AccountService
         public async Task<AccountInfo> GetAccountInfoAsync(string account,
             string password = AccountOption.DefaultPassword)
         {
+            if (_accountInfos.Select(o => o.Formatted).Contains(account))
+                return _accountInfos.First(o => o.Formatted == account);
+            
             var kp = _keyStore.GetAccountKeyPair(account) ?? await _keyStore.ReadKeyPairAsync(account, password);
 
-            return new AccountInfo(kp.PrivateKey, kp.PublicKey);
+            var accountInfo = new AccountInfo(kp.PrivateKey, kp.PublicKey);
+            _accountInfos.Add(accountInfo);
+
+            return accountInfo;
         }
 
         public async Task<AccountInfo> GetRandomAccountInfoAsync()
         {
+            if (_accountInfos.Count >= 1)
+            {
+                _accountInfos.Shuffle();
+                return _accountInfos.FirstOrDefault();
+            }
+            
             _accounts.Shuffle();
             var account = _accounts.FirstOrDefault();
+            
             var kp = _keyStore.GetAccountKeyPair(account) ??
                      await _keyStore.ReadKeyPairAsync(account, AccountOption.DefaultPassword);
 
-            return await Task.FromResult(new AccountInfo(kp.PrivateKey, kp.PublicKey));
+            var accountInfo = new AccountInfo(kp.PrivateKey, kp.PublicKey);
+            if(!_accountInfos.Select(o =>o.Formatted == account).Any())
+                _accountInfos.Add(accountInfo);
+            
+            return accountInfo;
         }
 
         public async Task<Transaction> SignTransactionAsync(Transaction transaction)

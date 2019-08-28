@@ -4,7 +4,7 @@
     "EnableRandomTransaction": true,
     "ServiceUrl": "192.168.197.43:8100",
     "SentTxLimit": 400,
-    "ExecuteMode": 4,
+    "ExecuteMode": 2,
     "Timeout": 300,
     "Conflict": true,
     "ReadOnlyTransaction": false,

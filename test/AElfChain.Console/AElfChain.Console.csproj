@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
         <ProjectReference Include="..\..\src\AElfChain.AccountService\AElfChain.AccountService.csproj" />
+        <ProjectReference Include="..\..\src\AElfChain.ContractService\AElfChain.ContractService.csproj" />
         <ProjectReference Include="..\..\src\AElfChain.TestBase\AElfChain.TestBase.csproj" />
     </ItemGroup>
 

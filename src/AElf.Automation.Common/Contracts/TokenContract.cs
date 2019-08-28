@@ -39,6 +39,7 @@ namespace AElf.Automation.Common.Contracts
         public TokenContract(IApiHelper apiHelper, string callAddress) :
             base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
         {
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
@@ -46,6 +47,7 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public bool TransferBalance(string from, string to, long amount, string symbol = "ELF")

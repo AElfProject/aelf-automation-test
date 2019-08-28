@@ -1,10 +1,7 @@
-using apache.log4net.Extensions.Logging;
 using AElf.Automation.Common.Helpers;
 using AElfChain.AccountService.KeyAccount;
 using AElfChain.SDK;
-using log4net;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.Modularity;
 
 namespace AElfChain.AccountService
@@ -21,7 +18,6 @@ namespace AElfChain.AccountService
 
             services.AddSingleton<IKeyStore, AElfKeyStore>();
             services.AddSingleton<IAccountManager, AccountManager>();
-            services.AddSingleton<IAuthorityManager, AuthorityManager>();
             services.AddTransient<ITransactionManager, TransactionManager>();
         }
     }

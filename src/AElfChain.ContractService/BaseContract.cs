@@ -12,39 +12,42 @@ namespace AElfChain.ContractService
 {
     public class BaseContract : IContract
     {
+        private readonly IContractFactory _contractFactory;
         private readonly ITransactionManager _transactionManager;
         private readonly IAccountManager _accountManager;
-        private readonly IApiService _apiService;
 
         public ILogger Logger { get; set; }
-        public string Account { get; set; }
+        public AccountInfo AccountInfo { get; set; }
 
         public Address Contract { get; set; }
 
-        public BaseContract(ITransactionManager transactionManager, IAccountManager accountManager, IApiService apiService, ILoggerFactory loggerFactory)
+        public BaseContract(IContractFactory contractFactory, ITransactionManager transactionManager, IAccountManager accountManager, ILoggerFactory loggerFactory)
         {
+            _contractFactory = contractFactory;
             _transactionManager = transactionManager;
             _accountManager = accountManager;
-            _apiService = apiService;
             Logger = loggerFactory.CreateLogger<BaseContract>();
         }
-        
+
+        public TContract GetContractService<TContract>(Address contract, AccountInfo accountInfo) where TContract : IContract
+        {
+            throw new System.NotImplementedException();
+        }
+
         public async Task SetContractExecutor(string account, string password = AccountOption.DefaultPassword)
         {
-            Account = account;
-
-            await _accountManager.UnlockAccountAsync(account, password);
+            AccountInfo = await _accountManager.GetAccountInfoAsync(account, password);
         }
 
         public async Task<string> SendTransactionWithIdAsync(string method, IMessage input)
         {
-            var transaction = await _transactionManager.CreateTransaction(Account, Contract.GetFormatted(), method, input.ToByteString());
+            var transaction = await _transactionManager.CreateTransaction(AccountInfo.Formatted, Contract.GetFormatted(), method, input.ToByteString());
             return await _transactionManager.SendTransactionWithIdAsync(transaction);
         }
 
-        public Task<List<string>> SendBatchTransactionsWithIdAsync(List<string> rawInfos)
+        public async Task<List<string>> SendBatchTransactionsWithIdAsync(List<Transaction> transactions)
         {
-            throw new System.NotImplementedException();
+            return await _transactionManager.SendBatchTransactionWithIdAsync(transactions);
         }
 
         public Task<TransactionResultDto> SendTransactionWithResultAsync(string method, IMessage input)
@@ -57,7 +60,7 @@ namespace AElfChain.ContractService
             throw new System.NotImplementedException();
         }
 
-        public TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase
+        TStub IContract.GetTestStub<TStub>(Address contract, AccountInfo accountInfo)
         {
             throw new System.NotImplementedException();
         }
@@ -67,14 +70,15 @@ namespace AElfChain.ContractService
             throw new System.NotImplementedException();
         }
 
-        public TContract DeployContract<TContract>(string caller) where TContract : IContract
+        public TContract DeployContract<TContract>(AccountInfo accountInfo) where TContract : IContract
         {
             throw new System.NotImplementedException();
         }
 
-        public TContract GetContractService<TContract>(Address contract, string caller) where TContract : IContract
+        public TStub GetTestStub<TStub>(Address contract, AccountInfo accountInfo) where TStub : ContractStubBase, new()
         {
-            throw new System.NotImplementedException();
+            var contractStub = _contractFactory.Create<TStub>(contract, accountInfo);
+            return contractStub;
         }
     }
 }

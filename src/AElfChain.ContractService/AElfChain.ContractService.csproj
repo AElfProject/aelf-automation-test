@@ -12,72 +12,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProtoMessage Include="..\AElf\protobuf\acs0.proto">
-            <Link>Protobuf\Proto\stub\acs0.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs1.proto">
-            <Link>Protobuf\Proto\stub\acs1.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs3.proto">
-            <Link>Protobuf\Proto\stub\acs3.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs7.proto">
-            <Link>Protobuf\Proto\stub\acs7.proto</Link>
-        </ProtoMessage>
-        <ProtoContract Include="..\AElf\protobuf\test_basic_function_contract.proto">
-            <Link>Protobuf\Proto\stub\test_basic_function_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\test_basic_update_contract.proto">
-            <Link>Protobuf\Proto\stub\test_basic_update_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\test_performance_contract.proto">
-            <Link>Protobuf\Proto\stub\test_performance_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
-            <Link>Protobuf\Proto\stub\token_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\treasury_contract.proto">
-            <Link>Protobuf\Proto\stub\treasury_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\fee_receiver_contract.proto">
-            <Link>Protobuf\Proto\stub\fee_receiver_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
-            <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\election_contract.proto">
-            <Link>Protobuf\Proto\stub\election_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\profit_contract.proto">
-            <Link>Protobuf\Proto\stub\profit_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\aedpos_contract.proto">
-            <Link>Protobuf\Proto\stub\aedpos_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\parliament_auth_contract.proto">
-            <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\association_auth_contract.proto">
-            <Link>Protobuf\Proto\stub\association_auth_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\vote_contract.proto">
-            <Link>Protobuf\Proto\stub\vote_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\token_converter_contract.proto">
-            <Link>Protobuf\Proto\stub\token_converter_contract.protot</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\cross_chain_contract.proto">
-            <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\configuration_contract.proto">
-            <Link>Protobuf\Proto\stub\configuration_contract.proto</Link>
-        </ProtoContract>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-      </Reference>
+      <Folder Include="Contracts" />
     </ItemGroup>
 
 </Project>

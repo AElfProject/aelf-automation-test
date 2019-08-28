@@ -11,13 +11,13 @@ namespace AElfChain.ContractService
     public interface IContract
     {
         string GetContractFileName();
-        TContract DeployContract<TContract>(string caller) where TContract: IContract;
-        TContract GetContractService<TContract>(Address contract, string caller) where TContract : IContract;
+        TContract DeployContract<TContract>(AccountInfo accountInfo) where TContract: IContract;
+        TContract GetContractService<TContract>(Address contract, AccountInfo accountInfo) where TContract : IContract;
         Task SetContractExecutor(string account, string password = AccountOption.DefaultPassword);
         Task<string> SendTransactionWithIdAsync(string method, IMessage input);
-        Task<List<string>> SendBatchTransactionsWithIdAsync(List<string> rawInfos);
+        Task<List<string>> SendBatchTransactionsWithIdAsync(List<Transaction> transactions);
         Task<TransactionResultDto> SendTransactionWithResultAsync(string method, IMessage input);
         TResult CallTransactionAsync<TResult>(string method, IMessage input) where TResult : IMessage<TResult>;
-        TStub GetTestStub<TStub>(Address contract, string caller) where TStub : ContractStubBase;
+        TStub GetTestStub<TStub>(Address contract, AccountInfo accountInfo) where TStub : ContractStubBase;
     }
 }

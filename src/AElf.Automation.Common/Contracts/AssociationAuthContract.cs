@@ -19,6 +19,7 @@ namespace AElf.Automation.Common.Contracts
         public AssociationAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.AssociationAuth",
             account)
         {
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
@@ -26,6 +27,7 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
     }
 }

@@ -11,10 +11,10 @@ namespace AElfChain.SDK
         {
             var services = context.Services;
             
-            services.Configure<SdkOption>(o=>o.ServiceUrl = "");
+            Configure<SdkOption>(o=>o.ServiceUrl = "");
             
-            services.AddSingleton<IHttpService>();
-            services.AddTransient<IApiService>();
+            services.AddSingleton<IHttpService, HttpService>();
+            services.AddTransient<IApiService, ApiService>();
         }
     }
 }
