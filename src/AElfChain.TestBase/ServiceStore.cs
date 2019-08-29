@@ -29,7 +29,7 @@ namespace AElfChain.TestBase
 
             return transactionManager;
         }
-
+        
         public static IServiceProvider GetServiceProvider<T>()
             where T : AbpModule
         {

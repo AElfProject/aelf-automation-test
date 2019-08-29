@@ -34,7 +34,7 @@ namespace AElfChain.AccountService
             return new TransactionManager(apiService, accountManager);
         }
         
-        public TransactionManager(IApiService apiService, IAccountManager accountManager)
+        private TransactionManager(IApiService apiService, IAccountManager accountManager)
         {
             _apiService = apiService;
             _accountManager = accountManager;

@@ -1,16 +1,6 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
-using AElf.Contracts.MultiToken;
-using AElf.Contracts.TestContract.Events;
-using AElf.Types;
-using AElfChain.AccountService;
-using AElfChain.ContractService;
+﻿using System.Threading.Tasks;
 using AElfChain.TestBase;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Shouldly;
 
 namespace AElfChain.Console
 {
@@ -19,45 +9,17 @@ namespace AElfChain.Console
         static async Task Main(string[] args)
         {
             ServiceStore.GetServiceProvider<ConsoleModule>();
-            var accountManager = ServiceStore.AccountManager;
-            var contractManager = ServiceStore.Provider.GetService<ISystemContract>();
-            var authorityManager = ServiceStore.Provider.GetService<IAuthorityManager>();
             
             var logger = ServiceStore.LoggerFactory.CreateLogger(nameof(Program));
-            var account = await accountManager.GetRandomAccountInfoAsync();
+            logger.LogInformation("Start test.");
             
-            var token = await contractManager.GetSystemContractAddressAsync(SystemContracts.MultiToken);
-
-            var bpAccount = NodeInfoHelper.Config.Nodes.First();
-            var bpInfo = await accountManager.GetAccountInfoAsync(bpAccount.Account, bpAccount.Password);
-
-            var eventsContract = await authorityManager.DeployContractWithAuthority(bpInfo, "AElf.Contracts.TestContract.Events");
-            var eventStub = contractManager.GetTestStub<EventsContractContainer.EventsContractStub>(eventsContract, bpInfo);
-            await eventStub.InitializeEvents.SendAsync(new InitializeInput
-            {
-                Manager = account.Account
-            });
+            var token = new TokenIssue();
+            await token.PrepareSomeToken("eu6nm4Kxu3HcA7FhSdQpPjy29x896yqcPHSq55gKaggTKEwA3");
+            await token.DeployTokenContract();
+            await token.GetTokenStub();
+            await token.ExecuteTokenTest();
             
-            //approve
-            var tokenStub = contractManager.GetTestStub<TokenContractContainer.TokenContractStub>(token, bpInfo);
-            await tokenStub.Approve.SendAsync(new ApproveInput
-            {
-                Spender = eventsContract,
-                Symbol = "ELF",
-                Amount = 1000_000
-            });
-            
-            //issue order
-            var transactionResult = await eventStub.IssueOrder.SendAsync(new OrderInput
-            {
-                SymbolPaid = "ELF",
-                SymbolObtain = "NET",
-                BalancePaid = 1000_000,
-                BalanceObtain = 500_000,
-            });
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
-            logger.LogInformation("test complete.");
+            logger.LogInformation("complete test.");
         }
     }
 }

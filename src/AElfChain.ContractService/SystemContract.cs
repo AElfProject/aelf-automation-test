@@ -50,21 +50,21 @@ namespace AElfChain.ContractService
                 address = AddressHelper.Base58StringToAddress(chainStatus.GenesisContractAddress);
                 
                 SystemContractAddresses[contract] = address;
-
+                Logger.LogInformation($"System contract {contract} address: {address}");
+                
                 return address;
             }
-            else
-            {
-                var genesisAddress = await GetSystemContractAddressAsync(SystemContracts.Genesis);
-                var randomAccount = await _accountManager.GetRandomAccountInfoAsync();
-                var genesisStub = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(genesisAddress, randomAccount);
 
-                var hashName = SystemContractHashNames[contract];
-                address = await genesisStub.GetContractAddressByName.CallAsync(hashName);
-                SystemContractAddresses[contract] = address;
+            var genesisAddress = await GetSystemContractAddressAsync(SystemContracts.Genesis);
+            var randomAccount = await _accountManager.GetRandomAccountInfoAsync();
+            var genesisStub = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(genesisAddress, randomAccount);
 
-                return address;
-            }
+            var hashName = SystemContractHashNames[contract];
+            address = await genesisStub.GetContractAddressByName.CallAsync(hashName);
+            SystemContractAddresses[contract] = address;
+            Logger.LogInformation($"System contract {contract} address: {address}");
+
+            return address;
         }
 
         public TStub GetTestStub<TStub>(Address contract, AccountInfo accountInfo) where TStub : ContractStubBase, new()
