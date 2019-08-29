@@ -9,6 +9,7 @@ using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
 
@@ -17,40 +18,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class AssociationAuthContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogger();
+        private static readonly ILog _logger = Log4NetHelper.GetLogger();
         protected ContractTester Tester;
         public WebApiHelper CH { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
 
-        public string ReviewAccount1 { get; } = "2Nbe57CVJQDmqwBB5C4C382PvZbgaXgM37x1k5LfgDUt8XomgW";
-        public string ReviewAccount2 { get; } = "2YXAMsMw66Q6tRxyKFfNcFXkb8gH7DgRq6PzYGsSyyrm42fQNz";
-        public string ReviewAccount3 { get; } = "2Z6n3FKBDTmzSZTv875Zr1C8Prww3CtQ5ZsrFpVnSpc4QFPdrN";
+        public string ReviewAccount1 { get; } = "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV";
+        public string ReviewAccount2 { get; } = "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX";
+        public string ReviewAccount3 { get; } = "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P";
         public List<Reviewer> ReviewerList { get; set; }
 
-        private static string RpcUrl { get; } = "http://192.168.197.13:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.56:8001";
 
         [TestInitialize]
         public void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
-            var contractServices = new ContractServices(CH, InitAccount, "Main");
-            Tester = new ContractTester(contractServices);
-
             #region Basic Preparation
 
             //Init Logger
-            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
-            _logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("AssociationTest_");
 
             #endregion
-
+            
+            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            var contractServices = new ContractServices(CH, InitAccount, "Main");
+            Tester = new ContractTester(contractServices);
+            
             ReviewerList = new List<Reviewer>();
             var review1 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 1};
-            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount2), Weight = 2};
-            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount3), Weight = 3};
+            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 2};
+            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 3};
             ReviewerList.Add(review1);
             ReviewerList.Add(review2);
             ReviewerList.Add(review3);
@@ -59,7 +58,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void CreateOrganization()
         {
-            var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.CreateOrganization,
+            var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
                     Reviewers = {ReviewerList[0], ReviewerList[1], ReviewerList[2]},
@@ -71,7 +70,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
-                Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
+                Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
@@ -93,7 +92,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetOrganization(string organizationAddress)
         {
             var organization =
-                Tester.AssociationService.CallViewMethod<Organization>(AssociationAuthMethod.GetOrganization,
+                Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
             foreach (var reviewer in organization.Reviewers)
             {
@@ -102,8 +101,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("2A1RKFfxeh2n7nZpcci6t8CcgbJMGz9a7WGpC94THpiTK3U7nG",
-            "ywiz4RLJMTJaC9msxBPpaHALEZttUjMrwnhbEShrjhJ98GHAt")]
+        [DataRow("2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+            "tospBuj9P6GAoutVZHnxVe8BqYmRFxgcumjwPncB1fTvAPvpu")]
         public void CreateProposal(string account, string organizationAddress)
         {
             var _transferInput = new TransferInput()
@@ -124,7 +123,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
 
             var result =
-                Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.CreateProposal,
+                Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateProposal,
                     _createProposalInput);
             var txResult = result.InfoMsg as TransactionResultDto;
             var proposal = txResult.ReadableReturnValue;
@@ -132,24 +131,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("b9cc0db02d32e457533e5dc62ea0095045839aca26dbfc80361a8a00a96c6abe")]
+        [DataRow("81a350581513bb60219b178ff7b8ecf52398deaf460b46949c6a8fc45fb27e27")]
         public void GetProposal(string proposalId)
         {
             var result =
-                Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.GetProposal,
+                Tester.AssociationService.CallViewMethod<ProposalOutput>(AssociationMethod.GetProposal,
                     HashHelper.HexStringToHash(proposalId));
-            var txResult = result.InfoMsg as TransactionResultDto;
+            var toBeRelease = result.ToBeReleased;
 
-            _logger.Info($"proposal message is {txResult.ReadableReturnValue}");
+            _logger.Info($"proposal is {toBeRelease}");
         }
 
         [TestMethod]
-        [DataRow("b9cc0db02d32e457533e5dc62ea0095045839aca26dbfc80361a8a00a96c6abe")]
+        [DataRow("81a350581513bb60219b178ff7b8ecf52398deaf460b46949c6a8fc45fb27e27")]
         public void Approve(string proposalId)
         {
-            Tester.AssociationService.SetAccount(ReviewAccount3);
+            Tester.AssociationService.SetAccount(ReviewAccount1);
             var result =
-                Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.Approve, new ApproveInput
+                Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, new ApproveInput
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
