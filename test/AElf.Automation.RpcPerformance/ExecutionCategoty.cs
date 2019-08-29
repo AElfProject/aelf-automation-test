@@ -82,7 +82,7 @@ namespace AElf.Automation.RpcPerformance
             UnlockAllAccounts(ThreadCount);
 
             //Prepare basic token for test - Disable now
-            TransferTokenForTest(false);
+            TransferTokenForTest(true);
 
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
