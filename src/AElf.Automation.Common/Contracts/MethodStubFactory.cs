@@ -62,7 +62,7 @@ namespace AElf.Automation.Common.Contracts
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
-                    if (status != TransactionResultStatus.Pending)
+                    if (status != TransactionResultStatus.Pending && status != TransactionResultStatus.NotExisted)
                     {
                         if (status == TransactionResultStatus.Mined)
                             Logger.Info($"TransactionId: {resultDto.TransactionId}, Status: {status}");
@@ -73,7 +73,7 @@ namespace AElf.Automation.Common.Contracts
                         break;
                     }
 
-                    if (checkTimes == 120)
+                    if (checkTimes == 360)
                         Assert.IsTrue(false,
                             $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
                     Thread.Sleep(500);
