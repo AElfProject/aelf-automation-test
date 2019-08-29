@@ -2,7 +2,7 @@ using AElf.Automation.Common.Helpers;
 
 namespace AElf.Automation.Common.Contracts
 {
-    public enum AssociationAuthMethod
+    public enum AssociationMethod
     {
         //View
         GetOrganization,
@@ -12,16 +12,18 @@ namespace AElf.Automation.Common.Contracts
         CreateOrganization,
         Approve,
         CreateProposal,
+        Release
     }
 
-    public class AssociationAuthContract : BaseContract<AssociationAuthMethod>
+    public class AssociationAuthContract : BaseContract<AssociationMethod>
     {
-        public AssociationAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.AssociationAuth",
-            account)
+        public AssociationAuthContract(IApiHelper apiHelper, string callAddress) : base(apiHelper, "AElf.Contracts.AssociationAuth",
+            callAddress)
         {
         }
 
-        public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
+
+        public AssociationAuthContract(IApiHelper apiHelper, string callAddress, string contractAddress) : base(apiHelper,
             contractAddress)
         {
             CallAddress = callAddress;

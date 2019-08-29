@@ -70,8 +70,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Association contract
 //            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssciationName);
-//            var associationAuthAddress = "x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ";
-//            AssociationAuthService = new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress);
+            var associationAuthAddress = "Acv7j84Ghi19JesSBQ8d56XenwCrJ5VBPvrS4mthtbuBjYtXR";
+            AssociationAuthService = new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress);
         }
 
         private void ConnectionChain()

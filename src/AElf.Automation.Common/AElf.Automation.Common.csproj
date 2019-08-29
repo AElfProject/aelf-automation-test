@@ -79,6 +79,9 @@
         <ProtoContract Include="..\AElf\protobuf\configuration_contract.proto">
             <Link>Protobuf\Proto\stub\configuration_contract.proto</Link>
         </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\referendum_auth_contract.proto">
+            <Link>Protobuf\Proto\stub\referendum_auth_contract.proto</Link>
+        </ProtoContract>
     </ItemGroup>
 
     <ItemGroup>

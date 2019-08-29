@@ -41,6 +41,7 @@ namespace AElf.Automation.Common.Contracts
         CrossChainName,
         AssociationName,
         Configuration,
+        ReferendumName,
 
         BasicFunction
     }
@@ -132,6 +133,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
+                {NameProvider.ReferendumName, Hash.FromString("AElf.ContractNames.Referendum")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };
 
