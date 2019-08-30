@@ -58,15 +58,13 @@ namespace AElf.Automation.ProposalTest
             var addressInfo = Parliament.CallViewMethod<Organization>(ParliamentMethod.GetOrganization, address);
             OrganizationList.Add(address, addressInfo.ReleaseThreshold);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 1; i <= MinersCount; i++)
             {
-                var rd = GenerateRandomNumber(1, MinersCount);
-                if (inputList.Count >= 1 && !inputList.Keys.Select(o => o.Equals(rd)).GetEnumerator().Current) continue;
                 var createOrganizationInput = new CreateOrganizationInput
                 {
-                    ReleaseThreshold = 10000 / rd
+                    ReleaseThreshold = 10000 / i
                 };
-                inputList.Add(rd, createOrganizationInput);
+                inputList.Add(i, createOrganizationInput);
             }
 
             foreach (var input in inputList)
@@ -186,8 +184,9 @@ namespace AElf.Automation.ProposalTest
                 foreach (var proposalId in proposal.Value)
                 {
                     var txInfoList = new Dictionary<string, string>();
-                    var approveCount = 10000 / proposal.Key.Value;
-                    var miners = Miners.Take(approveCount).ToList();
+                    var approveCount = Math.Ceiling((double)(MinersCount * proposal.Key.Value)/(double)10000);
+                    
+                    var miners = Miners.Take((int)approveCount).ToList();
 
                     foreach (var miner in miners)
                     {
