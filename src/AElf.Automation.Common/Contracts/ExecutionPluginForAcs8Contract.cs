@@ -13,7 +13,7 @@ namespace AElf.Automation.Common.Contracts
     public class ExecutionPluginForAcs8Contract : BaseContract<PluginAcs8Method>
     {
         public ExecutionPluginForAcs8Contract(IApiHelper apiHelper, string callAddress, string contractAddress) 
-            : base(apiHelper, callAddress)
+            : base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

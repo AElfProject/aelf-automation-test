@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Google.Protobuf;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -85,6 +86,15 @@ namespace AElf.Automation.Common.Helpers
             for (var i = 0; i < size; i++)
                 builder.Append((char) (26 * random.NextDouble() + startChar));
             return builder.ToString();
+        }
+        
+        public static byte[] GenerateRandombytes(long length)
+        {
+            var bytes = new byte[length];
+            var rand = new Random(Guid.NewGuid().GetHashCode());
+            rand.NextBytes(bytes);
+
+            return bytes;
         }
 
         public static readonly string AppRoot = AppDomain.CurrentDomain.BaseDirectory;
