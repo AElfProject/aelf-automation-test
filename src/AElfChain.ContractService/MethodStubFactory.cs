@@ -21,6 +21,7 @@ namespace AElfChain.ContractService
         
         private readonly ITransactionManager _transactionManager;
         private readonly IApiService _apiService;
+        private readonly ILoggerFactory _loggerFactory;
 
         public Address Contract { get; set; }
         public AccountInfo Account { get; set; }
@@ -30,14 +31,18 @@ namespace AElfChain.ContractService
             Logger = loggerFactory.CreateLogger<MethodStubFactory>();
             _transactionManager = transactionManager;
             _apiService = apiService;
+            _loggerFactory = loggerFactory;
         }
 
         public MethodStubFactory GetMethodStubFactory(Address contract, AccountInfo account)
         {
-            Contract = contract;
-            Account = account;
+            var methodStub = new MethodStubFactory(_transactionManager, _apiService, _loggerFactory)
+            {
+                Contract = contract, 
+                Account = account
+            };
 
-            return this;
+            return methodStub;
         }
         
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)

@@ -13,7 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
       <ProjectReference Include="..\AElfChain.AccountService\AElfChain.AccountService.csproj" />
       <ProjectReference Include="..\AElfChain.ContractService\AElfChain.ContractService.csproj" />
     </ItemGroup>

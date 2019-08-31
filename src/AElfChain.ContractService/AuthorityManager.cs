@@ -15,6 +15,7 @@ using AElfChain.AccountService;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 
 namespace AElfChain.ContractService
 {
@@ -56,7 +57,7 @@ namespace AElfChain.ContractService
             };
             var organizationAddress = await parliament.GetGenesisOwnerAddress.CallAsync(new Empty());
             var currentMiners = await GetConfigNodeInfo(accountInfo);
-
+            Logger.LogInformation($"Current miners: {string.Join(",", currentMiners)}");
             var gensisContract = await _systemContract.GetSystemContractAddressAsync(SystemContracts.Genesis);
             var transactionResult = await ExecuteTransactionWithAuthority(gensisContract,
                 nameof(GenesisMethod.DeploySmartContract),
@@ -85,8 +86,9 @@ namespace AElfChain.ContractService
                 Params = input.ToByteString(),
                 ToAddress = accountInfo.Account
             });
-            Logger.LogInformation($"Proposal Id: {proposalTransactionResult.Output}");
-            var proposalId = proposalTransactionResult.Output;
+            var proposalId = HashHelper.HexStringToHash( proposalTransactionResult.TransactionResult.ReadableReturnValue);
+            Logger.LogInformation($"Proposal Id: {proposalId}");
+
             //approve
             foreach (var account in approveUsers)
             {
@@ -98,10 +100,15 @@ namespace AElfChain.ContractService
                 {
                     ProposalId = proposalId
                 });
+                approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
 
             //release
+            parliament =
+                _systemContract.GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(
+                    parliamentContract, accountInfo);
             var result = await parliament.Release.SendAsync(proposalId);
+            
             return result.TransactionResult;
         }
         

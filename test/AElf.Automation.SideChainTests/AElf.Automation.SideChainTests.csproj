@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-
+        <GenerateProgramFile>false</GenerateProgramFile>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+      <ProjectReference Include="..\..\src\AElfChain.AccountService\AElfChain.AccountService.csproj" />
     </ItemGroup>
 
 </Project>

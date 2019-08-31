@@ -213,7 +213,7 @@ namespace AElf.Automation.Common.Contracts
                                 return ci;
                             case TransactionResultStatus.NotExisted:
                                 Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
+                                break;
                             case TransactionResultStatus.Failed:
                             {
                                 var message = $"Transaction {txId} status: {transactionResult.Status}";

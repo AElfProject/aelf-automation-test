@@ -11,7 +11,7 @@ namespace AElfChain.Console
         {
             Configure<SdkOption>(o =>
             {
-                o.ServiceUrl = "127.0.0.1:8000";
+                o.ServiceUrl = "192.168.197.15:8100";
                 o.TimeoutSeconds = 60;
                 o.FailReTryTimes = 1;
             });

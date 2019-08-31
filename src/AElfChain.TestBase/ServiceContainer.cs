@@ -1,13 +1,13 @@
 using System;
-using AElf.Automation.Common.Helpers;
 using AElfChain.AccountService;
 using AElfChain.SDK;
 using Microsoft.Extensions.Logging;
+using Volo.Abp;
 using Volo.Abp.Modularity;
 
 namespace AElfChain.TestBase
 {
-    public static class ServiceStore
+    public static class ServiceContainer
     {
         public static IServiceProvider Provider => GetServiceProvider();
 
@@ -30,24 +30,43 @@ namespace AElfChain.TestBase
             return transactionManager;
         }
         
+        public static T GetService<T>(this IServiceProvider provider)
+            where T : class
+        {
+            if (provider == null)
+                throw new ArgumentNullException(nameof (provider));
+            return (T) provider.GetService(typeof (T));
+        }
+        
         public static IServiceProvider GetServiceProvider<T>()
             where T : AbpModule
         {
-            _provider = AbpHelper.InitializeModule<T>();
+            _provider = InitializeModule<T>();
 
             return _provider;
         }
         
-        private static IServiceProvider _provider;
-        private static IServiceProvider GetServiceProvider()
+        public static IServiceProvider GetServiceProvider()
         {
             if (_provider != null)
                 return _provider;
             
-            _provider = AbpHelper.InitializeModule<TestBaseModule>();
+            _provider = InitializeModule<TestBaseModule>();
             return _provider;
         }
         
+        private static IServiceProvider _provider;
         
+        private static IServiceProvider InitializeModule<T>()
+            where T : AbpModule
+        {
+            var application = AbpApplicationFactory.Create<T>(option =>
+            {
+                option.UseAutofac();
+            });
+            application.Initialize();
+            
+            return application.ServiceProvider;
+        }
     }
 }

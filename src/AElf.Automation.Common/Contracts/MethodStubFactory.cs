@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -23,7 +24,7 @@ namespace AElf.Automation.Common.Contracts
         public string SenderAddress { get; set; }
         public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
         public WebApiHelper ApiHelper { get; }
-        public IApiService ApiService { get; }
+        public IApiService ApiService => ApiHelper.ApiService;
 
         private readonly string _baseUrl;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
@@ -32,9 +33,6 @@ namespace AElf.Automation.Common.Contracts
         {
             _baseUrl = baseUrl;
             ApiHelper = new WebApiHelper(baseUrl, keyPath);
-            ApiService = ApiHelper.ApiService;
-
-            ApiHelper.GetChainInformation(new CommandInfo(ApiMethods.GetChainInformation));
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -74,9 +72,12 @@ namespace AElf.Automation.Common.Contracts
                         break;
                     }
 
+                    if(checkTimes % 20 ==0)
+                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}".WriteWarningLine();
+                    
                     if (checkTimes == 360) //max wait time 3 minutes
-                        Assert.IsTrue(false,
-                            $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
+                        throw new Exception($"Transaction {resultDto.TransactionId} in pending status more than three minutes.");
+                    
                     Thread.Sleep(500);
                 }
 

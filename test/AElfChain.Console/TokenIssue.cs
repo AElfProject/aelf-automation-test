@@ -25,11 +25,11 @@ namespace AElfChain.Console
 
         public TokenIssue()
         {
-            Logger = ServiceStore.LoggerFactory.CreateLogger<TokenIssue>();
+            Logger = ServiceContainer.LoggerFactory.CreateLogger<TokenIssue>();
 
-            _systemContract = ServiceStore.Provider.GetService<ISystemContract>();
-            _authorityManager = ServiceStore.Provider.GetService<IAuthorityManager>();
-            _accountManager = ServiceStore.AccountManager;
+            _systemContract = ServiceContainer.Provider.GetService<ISystemContract>();
+            _authorityManager = ServiceContainer.Provider.GetService<IAuthorityManager>();
+            _accountManager = ServiceContainer.AccountManager;
 
             _accountInfo = AsyncHelper.RunSync(_accountManager.GetRandomAccountInfoAsync);
         }

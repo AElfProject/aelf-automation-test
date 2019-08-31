@@ -8,16 +8,13 @@ namespace AElfChain.Console
     {
         static async Task Main(string[] args)
         {
-            ServiceStore.GetServiceProvider<ConsoleModule>();
+            ServiceContainer.GetServiceProvider<ConsoleModule>();
             
-            var logger = ServiceStore.LoggerFactory.CreateLogger(nameof(Program));
+            var logger = ServiceContainer.LoggerFactory.CreateLogger(nameof(Program));
             logger.LogInformation("Start test.");
             
-            var token = new TokenIssue();
-            await token.PrepareSomeToken("eu6nm4Kxu3HcA7FhSdQpPjy29x896yqcPHSq55gKaggTKEwA3");
-            await token.DeployTokenContract();
-            await token.GetTokenStub();
-            await token.ExecuteTokenTest();
+            var eventsContract = new EventsContract();
+            await eventsContract.EventContract_Verify();
             
             logger.LogInformation("complete test.");
         }

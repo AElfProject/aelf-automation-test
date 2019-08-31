@@ -2,10 +2,10 @@ using apache.log4net.Extensions.Logging;
 using AElf.Automation.Common.Helpers;
 using AElfChain.AccountService;
 using AElfChain.ContractService;
-using log4net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.Modularity;
+using log4net;
 
 namespace AElfChain.TestBase
 {

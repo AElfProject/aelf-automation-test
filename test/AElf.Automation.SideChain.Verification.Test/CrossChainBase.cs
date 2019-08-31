@@ -53,6 +53,9 @@ namespace AElf.Automation.SideChain.Verification
             var mainChainId = ChainHelper.ConvertBase58ToChainId(_environmentInfo.MainChainInfos.MainChainId);
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId);
 
+            var userBalance = MainChainService.TokenService.GetUserBalance(InitAccount);
+            Logger.Info($"Main chain '{InitAccount}' balance: {userBalance}");
+            
             return MainChainService;
         }
 
@@ -70,6 +73,9 @@ namespace AElf.Automation.SideChain.Verification
                 sideChainIds.Add(chainId);
                 var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId);
                 SideChainServices.Add(sideService);
+                
+                var userBalance = sideService.TokenService.GetUserBalance(InitAccount);
+                Logger.Info($"Side chain '{InitAccount}' balance: {userBalance}");
             }
 
             return SideChainServices;

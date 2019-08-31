@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
-using AElf.Automation.Common.Helpers;
 using AElf.Contracts.TestContract.Events;
 using AElf.Types;
 using AElfChain.AccountService;
@@ -16,12 +15,11 @@ namespace AElfChain.Console
     {
         public async Task EventContract_Verify()
         {
-            ServiceStore.GetServiceProvider<ConsoleModule>();
-            var accountManager = ServiceStore.AccountManager;
-            var contractManager = ServiceStore.Provider.GetService<ISystemContract>();
-            var authorityManager = ServiceStore.Provider.GetService<IAuthorityManager>();
+            var accountManager = ServiceContainer.AccountManager;
+            var contractManager = ServiceContainer.Provider.GetService<ISystemContract>();
+            var authorityManager = ServiceContainer.Provider.GetService<IAuthorityManager>();
             
-            var logger = ServiceStore.LoggerFactory.CreateLogger(nameof(Program));
+            var logger = ServiceContainer.LoggerFactory.CreateLogger(nameof(Program));
             var account = await accountManager.GetRandomAccountInfoAsync();
             
             var token = await contractManager.GetSystemContractAddressAsync(SystemContracts.MultiToken);

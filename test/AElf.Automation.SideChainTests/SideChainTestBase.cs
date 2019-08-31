@@ -31,9 +31,8 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var contractServices = new ContractServices(MainChainUrl, InitAccount, keyStore, "123", chainId);
+            var contractServices = new ContractServices(MainChainUrl, InitAccount, "123", chainId);
             Tester = new ContractTester(contractServices);
 
             //Get BpNode Info
@@ -52,9 +51,8 @@ namespace AElf.Automation.SideChainTests
 
         protected ContractTester GetSideChain(string url, string initAccount, string chainId)
         {
-            var keyStore = CommonHelper.GetCurrentDataDir();
             var chain = ChainHelper.ConvertBase58ToChainId(chainId);
-            var contractServices = new ContractServices(url, initAccount, keyStore, "123", chain);
+            var contractServices = new ContractServices(url, initAccount, "123", chain);
             var tester = new ContractTester(contractServices);
             return tester;
         }

@@ -63,12 +63,13 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             {
                 if (_instance != null) return _instance;
 
-                var configFile = CommonHelper.MapPath("nodes.json");
-                _jsonContent = File.ReadAllText(configFile);
+                _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }
 
             return _instance;
         }
+
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
     }
 }
