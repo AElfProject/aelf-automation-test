@@ -70,6 +70,6 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return _instance;
         }
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-sidechain.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
     }
 }

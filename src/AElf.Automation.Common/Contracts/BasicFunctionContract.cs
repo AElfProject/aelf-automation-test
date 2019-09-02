@@ -24,7 +24,7 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public BasicFunctionContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.TestContract.BasicFunction", callAddress)
+            : base(apiHelper, ContractFileName, callAddress)
         {
         }
 

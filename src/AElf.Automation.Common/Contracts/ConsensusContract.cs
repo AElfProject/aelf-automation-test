@@ -46,11 +46,6 @@ namespace AElf.Automation.Common.Contracts
             UnlockAccount(CallAddress);
         }
 
-        public ConsensusContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Consensus", callAddress)
-        {
-        }
-
         public long GetCurrentTermInformation()
         {
             var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());

@@ -74,7 +74,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void DeployContractWithAuthority_Test()
         {
-            var authority = new AuthorityManager(RpcUrl, TestAccount);
+            var authority = new AuthorityManager(ApiHelper, TestAccount);
             var contractAddress = authority.DeployContractWithAuthority(TestAccount, "AElf.Contracts.MultiToken.dll");
             contractAddress.ShouldNotBeNull();
         }

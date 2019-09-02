@@ -46,8 +46,7 @@ namespace AElf.Automation.RpcPerformance
 
         private async Task<ConfigurationContainer.ConfigurationStub> GetConfigurationContractStub()
         {
-            var chainStatus = await _apiHelper.ApiService.GetChainStatusAsync();
-            var genesisContractAddress = chainStatus.GenesisContractAddress;
+            var genesisContractAddress = _apiHelper.GetGenesisContractAddress();
             Logger.Info($"Genesis contract address: {genesisContractAddress}");
 
             var basicZeroStub =
@@ -74,7 +73,7 @@ namespace AElf.Automation.RpcPerformance
             if (beforeResult.Value == limitCount)
                 return;
 
-            var authorityManager = new AuthorityManager(_apiHelper.GetApiUrl(), _account);
+            var authorityManager = new AuthorityManager(_apiHelper, _account);
             var minersList = authorityManager.GetCurrentMiners();
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
             var transactionResult = authorityManager.ExecuteTransactionWithAuthority(_configurationContractAddress.GetFormatted(),

@@ -107,7 +107,7 @@ namespace AElf.Automation.Common.Contracts
             return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
         }
 
-        public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
+        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
             var stub = new ContractTesterFactory(ApiHelper);

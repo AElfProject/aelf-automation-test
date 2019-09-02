@@ -19,16 +19,5 @@ namespace AElf.Automation.Common.Contracts
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
-        
-        public ConfigurationContainer.ConfigurationStub GetConfigurationStubTester(
-            string callAddress = null)
-        {
-            var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper);
-            var contractStub =
-                stub.Create<ConfigurationContainer.ConfigurationStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), caller);
-            return contractStub;
-        }
     }
 }
