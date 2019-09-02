@@ -14,11 +14,12 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 {
     public class AuthorityManager
     {
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private NodesInfo _info;
         private GenesisContract _genesis;
         private ConsensusContract _consensus;
         private ParliamentAuthContract _parliament;
+        
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public AuthorityManager(string serviceUrl, string caller)
         {
@@ -71,6 +72,11 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         {
             var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
             return currentMiners;
+        }
+
+        public Address GetGenesisOwnerAddress()
+        {
+            return _parliament.GetGenesisOwnerAddress();
         }
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
