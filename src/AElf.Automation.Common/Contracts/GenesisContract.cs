@@ -80,8 +80,8 @@ namespace AElf.Automation.Common.Contracts
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
-            return txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
+            
+            return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
         public Address GetContractAddressByName(NameProvider name)

@@ -66,8 +66,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ReleaseThreshold = 3,
                     ProposerThreshold = 0
                 });
-            var txResult = result.InfoMsg as TransactionResultDto;
-            var organizationAddress = txResult.ReadableReturnValue.Replace("\"", "");
+            var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
             _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
@@ -126,8 +125,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.CreateProposal,
                     _createProposalInput);
-            var txResult = result.InfoMsg as TransactionResultDto;
-            var proposal = txResult.ReadableReturnValue;
+            var proposal = result.ReadableReturnValue;
             _logger.Info($"Proposal is : {proposal}");
         }
 
@@ -138,9 +136,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 Tester.AssociationService.ExecuteMethodWithResult(AssociationAuthMethod.GetProposal,
                     HashHelper.HexStringToHash(proposalId));
-            var txResult = result.InfoMsg as TransactionResultDto;
 
-            _logger.Info($"proposal message is {txResult.ReadableReturnValue}");
+            _logger.Info($"proposal message is {result.ReadableReturnValue}");
         }
 
         [TestMethod]
@@ -153,8 +150,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
-            var resultDto = result.InfoMsg as TransactionResultDto;
-            _logger.Info($"Approve is {resultDto.ReadableReturnValue}");
+            _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
     }
 }

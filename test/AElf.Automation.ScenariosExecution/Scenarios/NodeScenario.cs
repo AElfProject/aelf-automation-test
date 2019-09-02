@@ -76,14 +76,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
-                if (electionResult.InfoMsg is TransactionResultDto electionDto)
+                if (electionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
-                    if (electionDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    {
-                        count++;
-                        Logger.Info($"User {fullNode.Account} announcement election success.");
-                        UserScenario.GetCandidates(Election); //更新candidates列表
-                    }
+                    count++;
+                    Logger.Info($"User {fullNode.Account} announcement election success.");
+                    UserScenario.GetCandidates(Election); //更新candidates列表
                 }
 
                 if (count == 3)
@@ -109,8 +106,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
-                if (!(quitResult.InfoMsg is TransactionResultDto electionDto)) continue;
-                if (electionDto.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
+                if (quitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.Info($"User {fullNode.Account} quit election success.");
                 UserScenario.GetCandidates(Election); //更新candidates列表
                 break;

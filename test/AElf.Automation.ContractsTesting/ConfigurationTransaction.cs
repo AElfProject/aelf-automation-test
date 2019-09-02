@@ -4,7 +4,6 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Configuration;
 using AElf.Types;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -58,7 +57,7 @@ namespace AElf.Automation.ContractsTesting
         {
             var code = File.ReadAllBytes(
                 $"/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
-            var commonInfo = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
+            var transactionResult = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
                 new SystemContractDeploymentInput
                 {
                     Category = 30,
@@ -67,9 +66,8 @@ namespace AElf.Automation.ContractsTesting
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-            var transactionResultDto = commonInfo.InfoMsg as TransactionResultDto;
 
-            return transactionResultDto.ReadableReturnValue.Replace("\"", "");
+            return transactionResult.ReadableReturnValue.Replace("\"", "");
         }
 
         public void SetTransactionLimit(int transactionCount)

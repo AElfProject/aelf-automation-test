@@ -79,9 +79,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-            var resultReturn = result.InfoMsg as TransactionResultDto;
-            resultReturn.Status.ShouldBe("FAILED");
-            resultReturn.Error.Contains("Unauthorized behavior.").ShouldBeTrue();
+            result.Status.ShouldBe("FAILED");
+            result.Error.Contains("Unauthorized behavior.").ShouldBeTrue();
         }
 
         [TestMethod]
@@ -138,8 +137,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(SideTester2.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            proposalReturn.Status.ShouldBe("FAILED");
+            proposal.Status.ShouldBe("FAILED");
         }
 
         [TestMethod]
@@ -157,8 +155,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(SideTester2.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            proposalReturn.Status.ShouldBe("MINED");
+            proposal.Status.ShouldBe("MINED");
         }
 
         [TestMethod]
@@ -245,9 +242,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-            var resultReturn = result.InfoMsg as TransactionResultDto;
-            resultReturn.Status.ShouldBe("FAILED");
-            resultReturn.Error.Contains("Unauthorized behavior.").ShouldBeTrue();
+            result.Status.ShouldBe("FAILED");
+            result.Error.Contains("Unauthorized behavior.").ShouldBeTrue();
         }
 
         [TestMethod]
@@ -279,8 +275,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
                     OrganizationAddress = organization
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            proposalReturn.Status.ShouldBe("MINED");
+            proposal.Status.ShouldBe("MINED");
         }
 
         [TestMethod]
@@ -349,16 +344,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(SideTester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            var proposalId = proposalReturn.ReadableReturnValue.Replace("\"", "");
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
             SideTester.GenesisService.SetAccount(InitAccount);
             var approve =
                 SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
-            var approveReturn = approve.InfoMsg as TransactionResultDto;
-            var approveResult = approveReturn.ReadableReturnValue;
+            var approveResult = approve.ReadableReturnValue;
 
             approveResult.ShouldBe("true");
 
@@ -366,8 +359,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
-            var resultReturn = result.InfoMsg as TransactionResultDto;
-            resultReturn.Status.ShouldBe("FAILED");
+            result.Status.ShouldBe("FAILED");
         }
 
 
@@ -413,8 +405,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            var proposalId = proposalReturn.ReadableReturnValue.Replace("\"", "");
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
 
             MainTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             var approve =
@@ -422,8 +413,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
-            var approveReturn = approve.InfoMsg as TransactionResultDto;
-            var approveResult = approveReturn.ReadableReturnValue;
+            var approveResult = approve.ReadableReturnValue;
 
             approveResult.ShouldBe("true");
 
@@ -484,8 +474,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"),
                     OrganizationAddress = organizationAddress
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            var proposalId = proposalReturn.ReadableReturnValue.Replace("\"", "");
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
 
             SideTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             var approve =
@@ -493,16 +482,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
-            var approveReturn = approve.InfoMsg as TransactionResultDto;
-            var approveResult = approveReturn.ReadableReturnValue;
+            var approveResult = approve.ReadableReturnValue;
 
             approveResult.ShouldBe("true");
 
             SideTester.GenesisService.SetAccount(InitAccount);
             var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner,
                 AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
-            var returnResult = result.InfoMsg as TransactionResultDto;
-            returnResult.Status.ShouldBe("MINED");
+            result.Status.ShouldBe("MINED");
         }
 
         #region private method
@@ -516,8 +503,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposerAuthorityRequired = isAuthority,
                     ProposerWhiteList = {proposer}
                 });
-            var addressReturn = address.InfoMsg as TransactionResultDto;
-            var organization = addressReturn.ReadableReturnValue.Replace("\"", "");
+            var organization = address.ReadableReturnValue.Replace("\"", "");
             return AddressHelper.Base58StringToAddress(organization);
         }
 
@@ -540,8 +526,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(tester.GenesisService.ContractAddress),
                     OrganizationAddress = organizationAddress
                 });
-            var proposalReturn = proposal.InfoMsg as TransactionResultDto;
-            var proposalId = proposalReturn.ReadableReturnValue.Replace("\"", "");
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
             return HashHelper.HexStringToHash(proposalId);
         }
 
@@ -553,8 +538,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     ProposalId = proposalId
                 });
-            var approveReturn = approve.InfoMsg as TransactionResultDto;
-            var approveResult = approveReturn.ReadableReturnValue;
+            var approveResult = approve.ReadableReturnValue;
 
             approveResult.ShouldBe("true");
         }
@@ -565,8 +549,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     proposalId);
-            var resultReturn = result.InfoMsg as TransactionResultDto;
-            return resultReturn;
+            return result;
         }
 
         private ContractDeploymentInput ContractDeploymentInput(string name)

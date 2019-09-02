@@ -73,8 +73,7 @@ namespace AElf.Automation.SideChainCreate
                         ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var proposalId = transactionResult.ReadableReturnValue.Replace("\"","");
+            var proposalId = result.ReadableReturnValue.Replace("\"","");
             return proposalId;
         }
         
@@ -96,8 +95,7 @@ namespace AElf.Automation.SideChainCreate
             ParliamentService.SetAccount(InitAccount);
             var result
                 = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var creationRequested = transactionResult.Logs[0].NonIndexed;
+            var creationRequested = result.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             return chainId;

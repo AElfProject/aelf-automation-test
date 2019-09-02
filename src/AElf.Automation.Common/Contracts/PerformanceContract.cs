@@ -47,10 +47,7 @@ namespace AElf.Automation.Common.Contracts
                     ContractName = $"Performance_{Guid.NewGuid().ToString()}",
                     Manager = AddressHelper.Base58StringToAddress(CallAddress)
                 });
-            if (initializeResult.InfoMsg is TransactionResultDto txDto)
-            {
-                txDto.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            }
+            initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         public static string ContractFileName => "AElf.Contracts.TestContract.Performance";

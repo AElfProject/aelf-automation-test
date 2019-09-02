@@ -1,6 +1,7 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken;
+using AElfChain.SDK.Models;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -50,7 +51,7 @@ namespace AElf.Automation.Common.Contracts
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public bool TransferBalance(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "ELF")
         {
             var tester = GetNewTester(from);
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -61,7 +62,7 @@ namespace AElf.Automation.Common.Contracts
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
             });
 
-            return result.Result;
+            return result;
         }
         public long GetUserBalance(string account, string symbol = "ELF")
         {

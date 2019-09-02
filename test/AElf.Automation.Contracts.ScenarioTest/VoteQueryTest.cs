@@ -36,7 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         #endregion
 
         [TestInitialize]
-        public void Initlize()
+        public void Initialize()
         {
             //Init log
             Log4NetHelper.LogInit("VoteBP");

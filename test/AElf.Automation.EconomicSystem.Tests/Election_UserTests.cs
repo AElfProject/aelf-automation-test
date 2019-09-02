@@ -1,5 +1,6 @@
 using System.Linq;
 using AElf.Automation.Common.Contracts;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
@@ -28,10 +29,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
             var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 100, amount);
-            var transactionResult = voteResult.InfoMsg as TransactionResultDto;
 
-            transactionResult.ShouldNotBeNull();
-            transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            voteResult.ShouldNotBeNull();
+            voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCurrentRoundInformation()
         {
             var roundInformation =
-                Behaviors.ConsensusService.CallViewMethod(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+                Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
             _logger.Info(roundInformation.ToString());
         }
     }

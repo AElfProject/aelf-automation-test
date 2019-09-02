@@ -40,8 +40,7 @@ namespace AElf.Automation.SideChainTests
             foreach (var bp in BpNodeAddress)
             {
                 var result = Tester.Approve(bp, proposalId);
-                var resultDto = result.InfoMsg as TransactionResultDto;
-                _logger.Info($"Approve is {resultDto.ReadableReturnValue}");
+                _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
 
@@ -51,8 +50,7 @@ namespace AElf.Automation.SideChainTests
         public void ReleaseProposal(string account, string proposalId)
         {
             var result = Tester.Release(account, proposalId);
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var creationRequested = transactionResult.Logs[0].NonIndexed;
+            var creationRequested = result.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             var creator = CreationRequested.Parser.ParseFrom(byteString).Creator;
@@ -68,8 +66,7 @@ namespace AElf.Automation.SideChainTests
             var address = Tester.GetOrganizationAddress(account);
             var result = Tester.CreateSideChainProposal(address, account, 1, 1000, true);
 
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var message = transactionResult.ReadableReturnValue;
+            var message = result.ReadableReturnValue;
             _logger.Info($"proposal message is {message}");
         }
 
@@ -100,8 +97,7 @@ namespace AElf.Automation.SideChainTests
         public void RequestChainDisposal(string account, int chainId)
         {
             var result = Tester.RequestChainDisposal(account, chainId);
-            var transactionReturn = result.InfoMsg as TransactionResultDto;
-            var proposalId = transactionReturn.ReadableReturnValue;
+            var proposalId = result.ReadableReturnValue;
 
             _logger.Info($"Disposal chain proposal id is {proposalId}");
         }

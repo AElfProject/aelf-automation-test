@@ -60,12 +60,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         break;
                 }
 
-                var commandResult = Performance.ExecuteMethodWithResult(method, new WriteInput
+                var txResult = Performance.ExecuteMethodWithResult(method, new WriteInput
                 {
                     Content = GenerateRandomByteString(item)
                 });
-                var txResult = commandResult.InfoMsg as TransactionResultDto;
-                txResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 
@@ -92,9 +91,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         break;
                 }
 
-                var commandResult = Performance.ExecuteMethodWithResult(method, new Empty());
-                var txResult = commandResult.InfoMsg as TransactionResultDto;
-                txResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var txResult = Performance.ExecuteMethodWithResult(method, new Empty());
+                txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 

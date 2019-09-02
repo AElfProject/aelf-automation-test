@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,17 +10,15 @@ using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
     public class MethodStubFactory : IMethodStubFactory, ITransientDependency
     {
-        public Address ContractAddress { get; set; }
-        public string SenderAddress { get; set; }
+        public Address Contract { private get; set; }
+        public string SenderAddress { private get; set; }
         public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
         public IApiHelper ApiHelper { get; }
         public IApiService ApiService => ApiHelper.ApiService;
@@ -33,7 +30,6 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper = apiHelper;
         }
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
         {
@@ -42,7 +38,7 @@ namespace AElf.Automation.Common.Contracts
                 var transaction = new Transaction
                 {
                     From = Sender,
-                    To = ContractAddress,
+                    To = Contract,
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
                 };
@@ -126,7 +122,7 @@ namespace AElf.Automation.Common.Contracts
                 var transaction = new Transaction()
                 {
                     From = Sender,
-                    To = ContractAddress,
+                    To = Contract,
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
