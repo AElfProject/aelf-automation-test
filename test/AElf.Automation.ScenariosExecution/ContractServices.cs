@@ -275,7 +275,7 @@ namespace AElf.Automation.ScenariosExecution
                     PerformanceService.InitializePerformance();
 
                     //update configInfo
-                    contractItem.Address = TokenConverterService.ContractAddress;
+                    contractItem.Address = PerformanceService.ContractAddress;
                     contractItem.Owner = CallAddress;
                 }
             }
