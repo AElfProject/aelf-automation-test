@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,31 +22,46 @@ namespace AElf.Automation.SideChainTests
             //Test
             var mainManager = new MainChainManager(ChainConstInfo.MainChainUrl, ChainConstInfo.ChainAccount);
             var main = mainManager.MainChain;
+            mainManager.GetContractTokenInfo("Acv7j84Ghi19JesSBQ8d56XenwCrJ5VBPvrS4mthtbuBjYtXR");
             var mBalance = mainManager.Token.GetUserBalance(ChainConstInfo.ChainAccount);
             logger.Info($"Main chain user balance: {mBalance}");
 
             //buy resource
             main.TokenService.TransferBalance(main.CallAddress, ChainConstInfo.TestAccount, 1000);
             
-            await mainManager.GetTokenInfos(new List<string> {"CPU", "NET", "STO"});
-            await mainManager.BuyResource(main.CallAddress, "CPU", 200);
-            await mainManager.BuyResource(main.CallAddress, "NET", 200);
-            await mainManager.BuyResource(main.CallAddress, "STO", 200);
+            await mainManager.GetTokenInfos();
+            await mainManager.BuyResources(main.CallAddress, 400);
 
             //deploy on main chain
-            var authorityMain = new AuthorityManager(main.ApiHelper.GetApiUrl(), main.CallAddress);
+            var authorityMain = new AuthorityManager(main.ApiHelper, main.CallAddress);
             var deployMain = authorityMain.DeployContractWithAuthority(main.CallAddress, contractName);
-            var genesisMain = main.GenesisService.GetBasicContractTester();
+            var contractAddress = deployMain.GetFormatted();
+            var genesisMain = main.GenesisService.GetGensisStub();
             var contractMain = await genesisMain.GetContractInfo.CallAsync(deployMain);
             logger.Info($"Main contract info: {contractMain}");
             
             //transfer resource
-            main.TokenService.TransferBalance(main.CallAddress, deployMain.GetFormatted(), 200_0000_0000, "CPU");
-            main.TokenService.TransferBalance(main.CallAddress, deployMain.GetFormatted(), 200_0000_0000, "NET");
-            main.TokenService.TransferBalance(main.CallAddress, deployMain.GetFormatted(), 200_0000_0000, "STO");
+            mainManager.TransferResourceToken(main, contractAddress);
+            
+            //get contract resource
+            logger.Info("Before acs8 contract resource");
+            mainManager.GetContractTokenInfo(contractAddress);
+            
+            logger.Info("Before consensus contract resource");
+            mainManager.GetContractTokenInfo(main.ConsensusService.ContractAddress);
 
-            var contractTest = new ContractTest(main, deployMain.GetFormatted());
-            AsyncHelper.RunSync(contractTest.ExecutionTest);
+            //execution test cases
+            var contractTest = new Acs8ContractTest(main, deployMain.GetFormatted());
+            await contractTest.ExecutionTest();
+            await Task.Delay(2000); //延迟检测共识资源币
+            
+            logger.Info("After acs8 contract resource");
+            mainManager.GetContractTokenInfo(contractAddress);
+            
+            logger.Info("After consensus contract resource");
+            mainManager.GetContractTokenInfo(main.ConsensusService.ContractAddress);
+
+            Console.ReadLine();
             
             //deploy on side chain
             var sideManager = new SideChainManager();
@@ -61,23 +77,24 @@ namespace AElf.Automation.SideChainTests
             logger.Info($"Side chain B user balance: {sBalanceB}");
             
             logger.Info("Test side chain.");
-            var authority = new AuthorityManager(sideA.ApiHelper.GetApiUrl(), sideA.CallAddress);
+            var authority = new AuthorityManager(sideA.ApiHelper, sideA.CallAddress);
             var deployContract = authority.DeployContractWithAuthority(sideA.CallAddress, contractName);
-            logger.Info($"{deployContract}");
+            var acs8Contract = deployContract.GetFormatted();
 
-            Thread.Sleep(30);
-
-            var genesisSide = sideA.GenesisService.GetBasicContractTester();
+            var genesisSide = sideA.GenesisService.GetGensisStub();
             var contractSide = await genesisSide.GetContractInfo.CallAsync(deployContract);
             logger.Info($"Side contract info: {contractSide}");
 
             var contractDescriptor =
-                AsyncHelper.RunSync(() =>
-                    sideA.ApiHelper.ApiService.GetContractFileDescriptorSetAsync(deployContract.GetFormatted()));
+                 await sideA.ApiHelper.ApiService.GetContractFileDescriptorSetAsync(acs8Contract);
             logger.Info($"Contract file descriptor: {contractDescriptor.ToHex()}");
-
-            var contract = new ContractTest(sideA, deployContract.GetFormatted());
-            AsyncHelper.RunSync(contract.ExecutionTest);
+            
+            //transfer resource to acs8
+            sideManager.TransferResourceToken(sideA, acs8Contract);
+            sideManager.GetContractTokenInfo(sideA, acs8Contract);
+            
+            var contract = new Acs8ContractTest(sideA, deployContract.GetFormatted());
+            await contract.ExecutionTest();
 
             sBalanceA = sideA.TokenService.GetUserBalance(ChainConstInfo.ChainAccount);
             logger.Info($"Side chain A user balance: {sBalanceA}");

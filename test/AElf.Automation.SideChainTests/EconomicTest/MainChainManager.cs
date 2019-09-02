@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Acs0;
 using AElf.Automation.Common.Contracts;
@@ -31,6 +32,9 @@ namespace AElf.Automation.SideChainTests.EconomicTest
         public IApiService ApiService => MainChain.ApiHelper.ApiService;
 
         public static readonly ILog Logger = Log4NetHelper.GetLogger();
+        
+        public List<string> Symbols = new List<string>{"CPU", "NET", "STO"};
+
 
         public MainChainManager(string serviceUrl, string account)
         {
@@ -38,34 +42,20 @@ namespace AElf.Automation.SideChainTests.EconomicTest
             MainChain = new ContractServices(serviceUrl, account, AccountOption.DefaultPassword, chainId);
         }
 
-        public async Task ValidateMainChainTokenInfo()
-        {
-            var tester = Genesis.GetBasicContractTester();
-            var result = await tester.ValidateSystemContractAddress.SendAsync(new ValidateSystemContractAddressInput
-            {
-                Address = AddressHelper.Base58StringToAddress(Token.ContractAddress),
-                SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
-            });
-            if (result.TransactionResult.Status == TransactionResultStatus.Failed)
-                throw new Exception($"Validate chain {MainChain.ChainId} token contract failed");
-            var validationRawTx = result.Transaction.ToByteArray().ToHex();
-            Logger.Info($"Validate main chain token address {Token.ContractAddress}");
-        }
-
-        public async Task GetTokenInfos(List<string> symbols)
+        public async Task GetTokenInfos()
         {
             var tester = Token.GetTestStub<TokenContractContainer.TokenContractStub>(MainChain.CallAddress);
-            foreach (var symbol in symbols)
+            foreach (var symbol in Symbols.Concat(new List<string>{"ELF"}))
             {
                 var result = await tester.GetTokenInfo.CallAsync(new GetTokenInfoInput
                 {
                     Symbol = symbol
                 });
                 Logger.Info($"Token '{symbol}' info: {result}");
-            };
+            }
         }
 
-        public async Task BuyResource(string account, string symbol, long amount)
+        public async Task BuyResources(string account, long amount)
         {
             var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverterName);
             var tokenContract = new TokenConverterContract(ApiHelper, account, tokenConverter.GetFormatted());
@@ -73,18 +63,38 @@ namespace AElf.Automation.SideChainTests.EconomicTest
                 tokenContract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(
                     account);
 
-            var beforeBalance = Token.GetUserBalance(account, symbol);
-
-            //buy
-            var transactionResult = await converter.Buy.SendAsync(new BuyInput
+            foreach (var symbol in Symbols)
             {
-                Symbol = symbol,
-                Amount = amount * 10000_0000
-            });
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                var beforeBalance = Token.GetUserBalance(account, symbol);
+                //buy
+                var transactionResult = await converter.Buy.SendAsync(new BuyInput
+                {
+                    Symbol = symbol,
+                    Amount = amount * 10000_0000
+                });
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var afterBalance = Token.GetUserBalance(account, symbol);
-            Logger.Info($"Token '{symbol}' balance: before = {beforeBalance}, after: {afterBalance}");
+                var afterBalance = Token.GetUserBalance(account, symbol);
+                Logger.Info($"Token '{symbol}' balance: before = {beforeBalance}, after: {afterBalance}");
+            }
+        }
+
+        public void TransferResourceToken(ContractServices services, string acs8Contract)
+        {
+            foreach (var symbol in Symbols.Concat(new List<string>{"ELF"}))
+            {
+                var ownerBalance = services.TokenService.GetUserBalance(services.CallAddress, symbol);
+                services.TokenService.TransferBalance(services.CallAddress, acs8Contract, ownerBalance / 2, symbol);
+            }
+        }
+        
+        public void GetContractTokenInfo(string contract)
+        {
+            foreach (var symbol in Symbols.Concat(new List<string>{"ELF"}))
+            {
+                var balance = Token.GetUserBalance(contract, symbol);
+                Logger.Info($"Contract balance {symbol}={balance}");
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace AElf.Automation.SideChainTests.EconomicTest
         
         //main chain
         //public const string MainChainUrl = "http://192.168.197.14:8000";
-        public const string MainChainUrl = "http://127.0.0.1:8000";
+        public const string MainChainUrl = "http://192.168.199.131:8000";
 
         //side chain A
         public const string SideChainUrlA = "http://192.168.197.32:8001";
