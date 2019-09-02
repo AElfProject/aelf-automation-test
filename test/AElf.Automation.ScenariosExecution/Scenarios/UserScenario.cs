@@ -116,8 +116,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Symbol = "ELF"
             });
 
-            if (!(profitResult.InfoMsg is TransactionResultDto profitDto)) return;
-            if (profitDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+            if (profitResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 Logger.Info(
                     $"Profit success - user {account} get vote profit from Id: {schemeId}, value is: {profitAmount}");
         }

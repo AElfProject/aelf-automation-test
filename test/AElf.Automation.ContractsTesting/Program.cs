@@ -28,7 +28,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.15:8100";
+        public string Endpoint { get; set; } = "http://192.168.197.43:8100";
 
         #endregion
 
@@ -55,14 +55,6 @@ namespace AElf.Automation.ContractsTesting
 
             var ch = new WebApiHelper(Endpoint);
 
-            //transaction limit test 
-            var tokenLimit = new ContractIssueLimit(Endpoint);
-            AsyncHelper.RunSync(tokenLimit.PrepareUserToken);
-            tokenLimit.DeployTestContract();
-            AsyncHelper.RunSync(tokenLimit.ExecuteMethodTest);
-            
-            Console.ReadLine();
-            
             //deploy contract
             var endpoints = new[]
             {

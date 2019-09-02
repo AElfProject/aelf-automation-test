@@ -66,7 +66,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 //            _logger.WriteInfo("Delete all account files created.");
 //            foreach (var item in UserList)
 //            {
-//                var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.ak");
+//                var file = Path.Combine(AccountManager.GetDefaultDataDir(), $"{item}.json");
 //                File.Delete(file);
 //            }
         }

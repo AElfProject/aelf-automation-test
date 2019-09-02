@@ -53,9 +53,8 @@ namespace AElf.Automation.ScenariosExecution
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
 
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
-            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
-
+            ConsensusService = GenesisService.GetConsensusContract();
+            
             CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             if (!specifyEndpoint.Enable) //随机选择bp执行
@@ -65,24 +64,19 @@ namespace AElf.Automation.ScenariosExecution
             }
 
             //Treasury contract
-            var treasuryAddress = GenesisService.GetContractAddressByName(NameProvider.TreasuryName);
-            TreasuryService = new TreasuryContract(ApiHelper, CallAddress, treasuryAddress.GetFormatted());
+            TreasuryService = GenesisService.GetTreasuryContract();
 
             //TokenService contract
-            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
-            TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
+            TokenService = GenesisService.GetTokenContract();
 
             //ProfitService contract
-            var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
-            ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
+            ProfitService = GenesisService.GetProfitContract();
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
-            VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
+            VoteService = GenesisService.GetVoteContract();
 
             //ElectionService contract
-            var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
-            ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
+            ElectionService = GenesisService.GetElectionContract();
 
             //Get or deploy other contracts
             GetOrDeployFeeReceiverContract();
@@ -275,7 +269,7 @@ namespace AElf.Automation.ScenariosExecution
                     PerformanceService.InitializePerformance();
 
                     //update configInfo
-                    contractItem.Address = TokenConverterService.ContractAddress;
+                    contractItem.Address = PerformanceService.ContractAddress;
                     contractItem.Owner = CallAddress;
                 }
             }

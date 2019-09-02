@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Genesis;
@@ -54,6 +55,7 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
@@ -79,15 +81,18 @@ namespace AElf.Automation.Common.Contracts
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
-            return txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
+            
+            return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
         public Address GetContractAddressByName(NameProvider name)
         {
+            if (_systemContractAddresses.Keys.Contains(name))
+                return _systemContractAddresses[name];
+            
             var hash = NameProviderInfos[name];
-
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
+            _systemContractAddresses[name] = address;
             var addString = address != new Address() ? address.GetFormatted() : "null";
             Logger.Info($"{name.ToString().Replace("Name", "")} contract address: {addString}");
 
@@ -106,10 +111,10 @@ namespace AElf.Automation.Common.Contracts
             return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
         }
 
-        public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
+        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(ApiHelper);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
                     AddressHelper.Base58StringToAddress(ContractAddress), caller);
@@ -137,5 +142,7 @@ namespace AElf.Automation.Common.Contracts
 
             return dic;
         }
+        
+        private readonly Dictionary<NameProvider, Address> _systemContractAddresses = new Dictionary<NameProvider, Address>();
     }
 }

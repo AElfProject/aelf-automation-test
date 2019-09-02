@@ -23,7 +23,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (null != LogManager.GetAllRepositories()
                     ?.FirstOrDefault(_ => _.Name == CommonHelper.ApplicationName)) return 0;
-            GlobalContext.Properties["LogName"] = fileName;
+            GlobalContext.Properties["LogName"] = $"{fileName}_";
             XmlConfigurator.Configure(LogManager.CreateRepository(CommonHelper.ApplicationName),
                 new FileInfo(configFilePath));
             return 1;

@@ -47,9 +47,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Symbol = "ELF",
                 Owner = AddressUtils.Generate()
             });
-            executeResult.Result.ShouldBe(false);
-            var info = executeResult.InfoMsg as TransactionResultDto;
-            info?.Error.ShouldNotBeNull();
+            executeResult.Error.ShouldNotBeNull();
             Logger.Info("Execute not existed contract method failed.");
         }
 
@@ -64,9 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 To = AddressUtils.Generate(),
                 Memo = "Transfer without enough token test"
             });
-            executeResult.Result.ShouldBe(false);
-            var info = executeResult.InfoMsg as TransactionResultDto;
-            info?.Error.ShouldNotBeNull();
+            executeResult.Error.ShouldNotBeNull();
             Logger.Info("Transfer without enough token execute failed.");
         }
 
@@ -82,9 +78,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 To = AddressUtils.Generate(),
                 Memo = "Transfer from test"
             });
-            executeResult.Result.ShouldBe(false);
-            var info = executeResult.InfoMsg as TransactionResultDto;
-            info?.Error.ShouldNotBeNull();
+            executeResult.Error.ShouldNotBeNull();
             Logger.Info("Transfer without enough allowance execute failed.");
         }
 
@@ -98,9 +92,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     NewAuthor = AddressHelper.Base58StringToAddress(testUser),
                     ContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress)
                 });
-            executeResult.Result.ShouldBeFalse();
-            var info = executeResult.InfoMsg as TransactionResultDto;
-            info?.Error.ShouldNotBeNull();
+            executeResult.Error.ShouldNotBeNull();
             Logger.Info("Update contract author information without permission execute failed.");
         }
     }

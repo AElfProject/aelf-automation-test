@@ -213,11 +213,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var createProposalResult =
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
-            if (!(createProposalResult.InfoMsg is TransactionResultDto txResult)) return;
-            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+            if (createProposalResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
-            var proposalId = txResult.ReadableReturnValue.Replace("\"", "");
+            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
 
             //approve
             var miners = GetMiners(services);
@@ -230,8 +229,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         ProposalId = HashHelper.HexStringToHash(proposalId)
                     });
-                if (!(approveResult.InfoMsg is TransactionResultDto approveTxResult)) return;
-                if (approveTxResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+                if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false,
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");
             }
@@ -240,8 +238,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var releaseResult
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
-            if (!(releaseResult.InfoMsg is TransactionResultDto releaseTxResult)) return;
-            if (releaseTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
         }

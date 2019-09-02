@@ -117,7 +117,7 @@ namespace AElf.Automation.RpcPerformance
             foreach (var item in ContractList)
             {
                 count++;
-                Logger.Info("{0:00}. Account: {1}, ContractAddress: {2}", count,
+                Logger.Info("{0:00}. Account: {1}, Contract: {2}", count,
                     item.Owner,
                     item.ContractPath);
             }

@@ -36,7 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         #endregion
 
         [TestInitialize]
-        public void Initlize()
+        public void Initialize()
         {
             //Init log
             Log4NetHelper.LogInit("VoteBP");
@@ -78,7 +78,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
+                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
         }

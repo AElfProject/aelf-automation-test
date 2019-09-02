@@ -1,6 +1,7 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken;
+using AElfChain.SDK.Models;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -39,6 +40,7 @@ namespace AElf.Automation.Common.Contracts
         public TokenContract(IApiHelper apiHelper, string callAddress) :
             base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
         {
+            Logger = Log4NetHelper.GetLogger();
         }
 
         public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
@@ -46,9 +48,10 @@ namespace AElf.Automation.Common.Contracts
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
-        public bool TransferBalance(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "ELF")
         {
             var tester = GetNewTester(from);
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -59,9 +62,8 @@ namespace AElf.Automation.Common.Contracts
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
             });
 
-            return result.Result;
+            return result;
         }
-
         public long GetUserBalance(string account, string symbol = "ELF")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -73,10 +75,9 @@ namespace AElf.Automation.Common.Contracts
 
         public TokenContractContainer.TokenContractStub GetTokenContractTester()
         {
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(ApiHelper);
             var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
+                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
             return tokenStub;
         }
     }

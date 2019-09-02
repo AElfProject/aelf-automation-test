@@ -48,19 +48,6 @@ namespace AElf.Automation.Common.Helpers
             return filePathWithExtension;
         }
 
-        private DirectoryInfo GetOrCreateContractDir()
-        {
-            try
-            {
-                var dirPath = GetKeystoreDirectoryPath();
-                return Directory.CreateDirectory(dirPath);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
         private string GetKeystoreDirectoryPath()
         {
             return Path.Combine(_dataDirectory, ContractFolderName);

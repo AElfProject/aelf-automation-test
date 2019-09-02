@@ -61,7 +61,7 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _instance;
         private static string _jsonContent;
         private static readonly object LockObj = new object();
-        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-6-nodes.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("scenario-nodes.json");
 
         public static ConfigInfo Config => GetConfigInfo();
 

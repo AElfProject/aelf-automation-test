@@ -26,9 +26,8 @@ namespace AElf.Automation.RpcPerformance
         {
             _account = account;
 
-            var keyStorePath = CommonHelper.GetCurrentDataDir();
-            _apiHelper = new WebApiHelper(url, keyStorePath);
-            _stub = new ContractTesterFactory(url, keyStorePath);
+            _apiHelper = new WebApiHelper(url);
+            _stub = new ContractTesterFactory(_apiHelper);
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
 
@@ -39,30 +38,18 @@ namespace AElf.Automation.RpcPerformance
 
         public void SetExecutionSelectTransactionLimit()
         {
-            var configurationStub = AsyncHelper.RunSync(GetConfigurationContractStub);
+            var configurationStub = GetConfigurationContractStub();
             var limitCount = _nodeTransactionOption.MaxTransactionSelect;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
         }
 
-        private async Task<ConfigurationContainer.ConfigurationStub> GetConfigurationContractStub()
+        private ConfigurationContainer.ConfigurationStub GetConfigurationContractStub()
         {
-            var chainStatus = await _apiHelper.ApiService.GetChainStatusAsync();
-            var genesisContractAddress = chainStatus.GenesisContractAddress;
-            Logger.Info($"Genesis contract address: {genesisContractAddress}");
+            var gensis = GenesisContract.GetGenesisContract(_apiHelper, _account);
 
-            var basicZeroStub =
-                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
-                    AddressHelper.Base58StringToAddress(genesisContractAddress),
-                    _account);
-            _configurationContractAddress =
-                await basicZeroStub.GetContractAddressByName.CallAsync(
-                    GenesisContract.NameProviderInfos[NameProvider.Configuration]);
-            Logger.Info($"Configuration contract address: {_configurationContractAddress.GetFormatted()}");
-
-            var configurationStub =
-                _stub.Create<ConfigurationContainer.ConfigurationStub>(_configurationContractAddress, _account);
-
-            return configurationStub;
+            _configurationContractAddress = gensis.GetContractAddressByName(NameProvider.Configuration);
+            
+            return gensis.GetConfigurationStub();
         }
 
         private async Task SetSelectTransactionLimit(ConfigurationContainer.ConfigurationStub configurationStub,
@@ -74,7 +61,7 @@ namespace AElf.Automation.RpcPerformance
             if (beforeResult.Value == limitCount)
                 return;
 
-            var authorityManager = new AuthorityManager(_apiHelper.GetApiUrl(), _account);
+            var authorityManager = new AuthorityManager(_apiHelper, _account);
             var minersList = authorityManager.GetCurrentMiners();
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
             var transactionResult = authorityManager.ExecuteTransactionWithAuthority(_configurationContractAddress.GetFormatted(),

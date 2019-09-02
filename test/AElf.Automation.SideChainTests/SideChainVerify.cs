@@ -392,9 +392,8 @@ namespace AElf.Automation.SideChainTests
             var createProposalResult =
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
-            if (!(createProposalResult.InfoMsg is TransactionResultDto txResult)) return;
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-            var proposalId = txResult.ReadableReturnValue.Replace("\"", "");
+            if (createProposalResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
 
             //approve
             var miners = GetMiners(services);
@@ -406,16 +405,14 @@ namespace AElf.Automation.SideChainTests
                     {
                         ProposalId = HashHelper.HexStringToHash(proposalId)
                     });
-                if (!(approveResult.InfoMsg is TransactionResultDto approveTxResult)) return;
-                if (approveTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+                if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             }
 
             services.ParliamentService.SetAccount(InitAccount);
             var releaseResult
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
-            if (!(releaseResult.InfoMsg is TransactionResultDto releaseTxResult)) return;
-            if (releaseTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
         }

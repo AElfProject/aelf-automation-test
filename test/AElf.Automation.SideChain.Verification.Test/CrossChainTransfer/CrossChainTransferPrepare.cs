@@ -70,7 +70,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Logger.Info(
                     $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
 
-                CommandInfo result = null;
+                TransactionResultDto result = null;
                 var transferTimes = 5;
                 while (result == null && transferTimes > 0)
                 {
@@ -86,8 +86,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Assert.IsTrue(false, "The first receive transfer failed, please start over.");
                 }
 
-                var resultReturn = result.InfoMsg as TransactionResultDto;
-                var status = resultReturn.Status.ConvertTransactionResultStatus();
+                var status = result.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                 {
                     Thread.Sleep(1000);
@@ -101,11 +100,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                             TokenMethod.CrossChainReceiveToken,
                             input);
                         if (reResult == null) continue;
-                        var reResultReturn = reResult.InfoMsg as TransactionResultDto;
-                        var reStatus = reResultReturn.Status.ConvertTransactionResultStatus();
+                        var reStatus = reResult.Status.ConvertTransactionResultStatus();
                         if (reStatus == TransactionResultStatus.Mined)
                             goto GetBalance;
-                        if (reResultReturn.Error.Contains("Token already claimed"))
+                        if (reResult.Error.Contains("Token already claimed"))
                             goto GetBalance;
                         Thread.Sleep(2000);
                     }

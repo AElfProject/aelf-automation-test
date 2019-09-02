@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers;
@@ -35,7 +34,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
         public void CopyAccount()
         {
             var originPath = Path.Combine(_keyPath, $"{_node.Account}.json");
-            var desPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results", _node.Name);
+            var desPath = Path.Combine(CommonHelper.AppRoot, "results", _node.Name);
             CommonHelper.CopyFiles(originPath, desPath);
         }
     }
