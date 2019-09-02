@@ -84,6 +84,7 @@
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\referendum_auth_contract.proto">
             <Link>Protobuf\Proto\stub\referendum_auth_contract.proto</Link>
+        </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\acs8_plugin_test_contract.proto">
             <Link>Protobuf\Proto\stub\acs8_plugin_test_contract.proto</Link>
         </ProtoContract>

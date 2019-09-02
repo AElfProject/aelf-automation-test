@@ -79,8 +79,7 @@ namespace AElf.Automation.ProposalTest
             {
                 var checkTime = 5;
                 var result = Referendum.CheckTransactionResult(value);
-                var res = result.InfoMsg as TransactionResultDto;
-                var status = res.Status.ConvertTransactionResultStatus();
+                var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
                     checkTime--;
@@ -94,7 +93,7 @@ namespace AElf.Automation.ProposalTest
                 else
                 {
                     var organizationAddress =
-                        AddressHelper.Base58StringToAddress(res.ReadableReturnValue.Replace("\"", ""));
+                        AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
                     if (OrganizationList.Keys.Contains(organizationAddress)) continue;
                     OrganizationList.Add(organizationAddress, key.ReleaseThreshold);
                 }
@@ -150,8 +149,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     var checkTime = 5;
                     var result = Referendum.CheckTransactionResult(txId);
-                    var res = result.InfoMsg as TransactionResultDto;
-                    var status = res.Status.ConvertTransactionResultStatus();
+                    var status = result.Status.ConvertTransactionResultStatus();
                     while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
                         checkTime--;
@@ -164,7 +162,7 @@ namespace AElf.Automation.ProposalTest
                     }
                     else
                     {
-                        var proposal = res.ReadableReturnValue.Replace("\"", "");
+                        var proposal = result.ReadableReturnValue.Replace("\"", "");
                         Logger.Info($"Create proposal {proposal} through organization address {key.Key}");
                         proposalIds.Add(proposal);
                     }
@@ -221,8 +219,7 @@ namespace AElf.Automation.ProposalTest
                     {
                         var checkTime = 5;
                         var result = Referendum.CheckTransactionResult(txInfo.Key);
-                        var res = result.InfoMsg as TransactionResultDto;
-                        var status = res.Status.ConvertTransactionResultStatus();
+                        var status = result.Status.ConvertTransactionResultStatus();
                         while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                         {
                             checkTime--;
@@ -265,8 +262,7 @@ namespace AElf.Automation.ProposalTest
             {
                 var checkTime = 5;
                 var result = Referendum.CheckTransactionResult(txInfo.Value);
-                var res = result.InfoMsg as TransactionResultDto;
-                var status = res.Status.ConvertTransactionResultStatus();
+                var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
                     checkTime--;
@@ -318,8 +314,7 @@ namespace AElf.Automation.ProposalTest
             {
                 var checkTime = 5;
                 var result = Referendum.CheckTransactionResult(txInfo.Value);
-                var res = result.InfoMsg as TransactionResultDto;
-                var status = res.Status.ConvertTransactionResultStatus();
+                var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
                     checkTime--;

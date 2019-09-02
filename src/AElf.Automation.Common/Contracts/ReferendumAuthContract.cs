@@ -37,7 +37,7 @@ namespace AElf.Automation.Common.Contracts
         public void InitializeReferendum()
         {
             var initializeResult = ExecuteMethodWithResult(ReferendumMethod.Initialize, new Empty());
-            if (initializeResult.InfoMsg is TransactionResultDto txDto)
+            if (initializeResult is TransactionResultDto txDto)
             {
                 txDto.Status.ToLower().ShouldBe("mined");
             }

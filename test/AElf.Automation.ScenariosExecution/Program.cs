@@ -76,7 +76,7 @@ namespace AElf.Automation.ScenariosExecution
         private static void RegisterAction(Registry registry, TestCase scenario, Action action)
         {
             Logger.Info($"Register {scenario.CaseName} with time interval: {scenario.TimeInterval} seconds.");
-            registry.Schedule(action.Invoke).WithName(scenario.CaseName)
+            registry.Schedule(() => action.Invoke()).WithName(scenario.CaseName)
                 .ToRunEvery(scenario.TimeInterval).Seconds();
         }
     }

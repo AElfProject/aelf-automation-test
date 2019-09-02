@@ -152,8 +152,7 @@ namespace AElf.Automation.ProposalTest
             };
             var result =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
-            var txResult = result.InfoMsg as TransactionResultDto;
-            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+            if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false, $"Create token {Symbol} Failed");
 
             Logger.Info($"Create token {Symbol} success");
@@ -167,8 +166,7 @@ namespace AElf.Automation.ProposalTest
             };
             var issueResult =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
-            var issueTxResult = issueResult.InfoMsg as TransactionResultDto;
-            if (issueTxResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+            if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false, $"Issue token {Symbol} Failed");
         }
 

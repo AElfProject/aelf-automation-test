@@ -39,17 +39,13 @@ namespace AElf.Automation.ProposalTest
             GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
 
             //TokenService contract
-            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
-            TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
+            TokenService = GenesisService.GetTokenContract();
 
             //ParliamentAuth contract
-            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
-            ParliamentService =
-                new ParliamentAuthContract(ApiHelper, CallAddress, parliamentAuthAddress.GetFormatted());
-
+            ParliamentService = GenesisService.GetParliamentAuthContract();
+            
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
-            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
+            ConsensusService = GenesisService.GetConsensusContract();
 
             GetOrDeployAssociationContract();
             GetOrDeployReferendumContract();
