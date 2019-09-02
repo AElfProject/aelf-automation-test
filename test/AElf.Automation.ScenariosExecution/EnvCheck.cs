@@ -147,7 +147,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private bool CheckAccountExist(string account)
         {
-            var path = Path.Combine(AccountDir, "keys", $"{account}.ak");
+            var path = Path.Combine(AccountDir, "keys", $"{account}.json");
             return File.Exists(path);
         }
 
