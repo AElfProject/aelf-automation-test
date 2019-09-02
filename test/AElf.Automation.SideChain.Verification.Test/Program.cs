@@ -43,10 +43,11 @@ namespace AElf.Automation.SideChain.Verification
 
             if (!enableCases.Contains("CrossChainTransfer")) return;
             register.DoCrossChainPrepare();
-            if (createTokenNumber >= 1)
-            {
-                create.DoCrossChainCreateToken();
-            }
+//            if (createTokenNumber >= 1)
+//            {
+//                create.DoCrossChainCreateToken();
+//            }
+            create.DoCrossChainCreateToken();
             prepare.DoCrossChainTransferPrepare();
 
             var mainTransfer = new CrossChainTransferMainChain();
