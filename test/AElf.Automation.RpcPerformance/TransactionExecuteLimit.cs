@@ -26,8 +26,7 @@ namespace AElf.Automation.RpcPerformance
         {
             _account = account;
 
-            var keyStorePath = CommonHelper.GetCurrentDataDir();
-            _apiHelper = new WebApiHelper(url, keyStorePath);
+            _apiHelper = new WebApiHelper(url);
             _stub = new ContractTesterFactory(_apiHelper);
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
@@ -39,29 +38,19 @@ namespace AElf.Automation.RpcPerformance
 
         public void SetExecutionSelectTransactionLimit()
         {
-            var configurationStub = AsyncHelper.RunSync(GetConfigurationContractStub);
+            var configurationStub = GetConfigurationContractStub();
             var limitCount = _nodeTransactionOption.MaxTransactionSelect;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
         }
 
-        private async Task<ConfigurationContainer.ConfigurationStub> GetConfigurationContractStub()
+        private ConfigurationContainer.ConfigurationStub GetConfigurationContractStub()
         {
-            var genesisContractAddress = _apiHelper.GetGenesisContractAddress();
-            Logger.Info($"Genesis contract address: {genesisContractAddress}");
+            var gensis = GenesisContract.GetGenesisContract(_apiHelper, _account);
 
-            var basicZeroStub =
-                _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
-                    AddressHelper.Base58StringToAddress(genesisContractAddress),
-                    _account);
-            _configurationContractAddress =
-                await basicZeroStub.GetContractAddressByName.CallAsync(
-                    GenesisContract.NameProviderInfos[NameProvider.Configuration]);
-            Logger.Info($"Configuration contract address: {_configurationContractAddress.GetFormatted()}");
-
-            var configurationStub =
-                _stub.Create<ConfigurationContainer.ConfigurationStub>(_configurationContractAddress, _account);
-
-            return configurationStub;
+            var configurationContract = gensis.GetConfigurationContract();
+            _configurationContractAddress = configurationContract.Contract;
+            
+            return gensis.GetConfigurationStub();
         }
 
         private async Task SetSelectTransactionLimit(ConfigurationContainer.ConfigurationStub configurationStub,

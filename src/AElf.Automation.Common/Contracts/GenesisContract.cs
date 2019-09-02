@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Genesis;
@@ -86,9 +87,12 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractAddressByName(NameProvider name)
         {
+            if (_systemContractAddresses.Keys.Contains(name))
+                return _systemContractAddresses[name];
+            
             var hash = NameProviderInfos[name];
-
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
+            _systemContractAddresses[name] = address;
             var addString = address != new Address() ? address.GetFormatted() : "null";
             Logger.Info($"{name.ToString().Replace("Name", "")} contract address: {addString}");
 
@@ -138,5 +142,7 @@ namespace AElf.Automation.Common.Contracts
 
             return dic;
         }
+        
+        private readonly Dictionary<NameProvider, Address> _systemContractAddresses = new Dictionary<NameProvider, Address>();
     }
 }

@@ -15,7 +15,6 @@ namespace AElf.Automation.Common.Contracts
             var feeReceiver = genesis.GetContractAddressByName(NameProvider.FeeReceiverName);
             
             return new FeeReceiverContract(genesis.ApiHelper, genesis.CallAddress, feeReceiver.GetFormatted());
-
         }
 
         public static ParliamentAuthContract GetParliamentAuthContract(
@@ -24,7 +23,6 @@ namespace AElf.Automation.Common.Contracts
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentName);
             
             return new ParliamentAuthContract(genesis.ApiHelper, genesis.CallAddress, parliamentAuth.GetFormatted());
-
         }
 
         public static ProfitContract GetProfitContract(this GenesisContract genesis)
@@ -39,7 +37,6 @@ namespace AElf.Automation.Common.Contracts
             var token = genesis.GetContractAddressByName(NameProvider.TokenName);
             
             return new TokenContract(genesis.ApiHelper, genesis.CallAddress, token.GetFormatted());
-
         }
 
         public static TokenConverterContract GetTokenConverterContract(

@@ -67,7 +67,7 @@ namespace AElfChain.Console
             Logger.LogInformation($"Deployed contract address: {_tokenAddress}");
         }
 
-        public async Task GetTokenStub()
+        public void GetTokenStub()
         {
             _tokenContractStub =
                 _systemContract.GetTestStub<TokenContractContainer.TokenContractStub>(_tokenAddress, _accountInfo);
