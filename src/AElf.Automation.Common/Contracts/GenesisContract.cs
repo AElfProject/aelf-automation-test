@@ -110,7 +110,7 @@ namespace AElf.Automation.Common.Contracts
         public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(ApiHelper);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
                     AddressHelper.Base58StringToAddress(ContractAddress), caller);

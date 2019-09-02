@@ -80,7 +80,7 @@ namespace AElf.Automation.Common.Contracts
             string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(ApiHelper);
             var contractStub =
                 stub.Create<ParliamentAuthContractContainer.ParliamentAuthContractStub>(
                     AddressHelper.Base58StringToAddress(ContractAddress), caller);

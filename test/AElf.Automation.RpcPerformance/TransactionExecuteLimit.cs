@@ -28,7 +28,7 @@ namespace AElf.Automation.RpcPerformance
 
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(url, keyStorePath);
-            _stub = new ContractTesterFactory(url, keyStorePath);
+            _stub = new ContractTesterFactory(_apiHelper);
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
 

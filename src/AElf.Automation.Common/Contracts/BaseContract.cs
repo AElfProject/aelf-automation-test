@@ -72,7 +72,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public TStub GetTestStub<TStub>(string account, string password = "123") where TStub : ContractStubBase, new()
         {
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(ApiHelper);
             var testStub =
                 stub.Create<TStub>(ContractAddress.ConvertStringToAddress(), account, password);
             

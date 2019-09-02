@@ -19,7 +19,7 @@ namespace AElf.Automation.QueryTransaction
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
             _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
-            _stub = new ContractTesterFactory(serviceUrl, keyStorePath);
+            _stub = new ContractTesterFactory(_apiHelper);
 
             GetOrCreateTestAccount();
             GetGenesisContract();

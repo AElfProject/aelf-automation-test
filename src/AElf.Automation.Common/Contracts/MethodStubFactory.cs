@@ -23,16 +23,14 @@ namespace AElf.Automation.Common.Contracts
         public Address ContractAddress { get; set; }
         public string SenderAddress { get; set; }
         public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
-        public WebApiHelper ApiHelper { get; }
+        public IApiHelper ApiHelper { get; }
         public IApiService ApiService => ApiHelper.ApiService;
 
-        private readonly string _baseUrl;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public MethodStubFactory(string baseUrl, string keyPath = "")
+        public MethodStubFactory(IApiHelper apiHelper)
         {
-            _baseUrl = baseUrl;
-            ApiHelper = new WebApiHelper(baseUrl, keyPath);
+            ApiHelper = apiHelper;
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -41,14 +39,14 @@ namespace AElf.Automation.Common.Contracts
         {
             async Task<IExecutionResult<TOutput>> SendAsync(TInput input)
             {
-                var transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     From = Sender,
                     To = ContractAddress,
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
                 };
-                transaction.AddBlockReference(_baseUrl);
+                transaction.AddBlockReference(ApiHelper.GetApiUrl());
                 transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
 
                 var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());

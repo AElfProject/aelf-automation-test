@@ -12,25 +12,23 @@ namespace AElf.Automation.Common.Contracts
 
     public class ContractTesterFactory : IContractTesterFactory
     {
-        private readonly string _baseUrl;
-        private readonly string _keyPath;
+        private readonly IApiHelper _apiHelper;
 
-        public ContractTesterFactory(string baseUrl, string keyPath = "")
+        public ContractTesterFactory(IApiHelper apiHelper)
         {
-            _baseUrl = baseUrl;
-            _keyPath = keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath;
+            _apiHelper = apiHelper;
         }
 
         public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
             where T : ContractStubBase, new()
         {
-            var factory = new MethodStubFactory(_baseUrl, _keyPath)
+            var factory = new MethodStubFactory(_apiHelper)
             {
                 SenderAddress = account,
                 ContractAddress = contractAddress
             };
             var timeout = notimeout ? "notimeout" : "";
-            factory.ApiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
+            _apiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{account} {password} {timeout}"
             });
