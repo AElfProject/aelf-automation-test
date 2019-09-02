@@ -26,7 +26,7 @@ do
     let count++
     if [ $count = 2 ]
     then
-        ACCOUNT=`basename $account_file .ak`
+        ACCOUNT=`basename $account_file .json`
         break
     fi
 done

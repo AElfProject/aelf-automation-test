@@ -35,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             //Init Logger
             string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             _ch1 = new WebApiHelper("http://192.168.197.56:8001", CommonHelper.GetCurrentDataDir());

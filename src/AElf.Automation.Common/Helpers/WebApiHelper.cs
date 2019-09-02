@@ -135,7 +135,7 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo UnlockAccount(CommandInfo ci)
         {
-            var parameters = ci.Parameter.Split(" ");
+            var parameters = ci.Parameter.Split(' ');
             ci = AccountManager.UnlockAccount(parameters[0], parameters[1],
                 parameters[2]);
             return ci;
@@ -159,7 +159,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(2))
                 return;
-            var parameterArray = ci.Parameter.Split(" ");
+            var parameterArray = ci.Parameter.Split(' ');
             var filename = parameterArray[0];
             var from = parameterArray[1];
 
@@ -284,7 +284,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(2))
                 return;
 
-            var parameterArray = ci.Parameter.Split(" ");
+            var parameterArray = ci.Parameter.Split(' ');
             ci.InfoMsg = AsyncHelper.RunSync(
                 () => ApiService.GetBlockByHeightAsync(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1]))
             );
@@ -296,7 +296,7 @@ namespace AElf.Automation.Common.Helpers
             if (!ci.CheckParameterValid(2))
                 return;
 
-            var parameterArray = ci.Parameter.Split(" ");
+            var parameterArray = ci.Parameter.Split(' ');
             ci.InfoMsg =
                 AsyncHelper.RunSync(() => ApiService.GetBlockAsync(parameterArray[0], bool.Parse(parameterArray[1])));
             ci.Result = true;

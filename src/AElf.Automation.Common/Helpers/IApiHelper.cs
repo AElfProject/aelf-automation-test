@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AElf.Automation.Common.OptionManagers;
 using AElfChain.SDK;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
@@ -10,6 +11,8 @@ namespace AElf.Automation.Common.Helpers
         string GetApiUrl();
         void UpdateApiUrl(string url);
         IApiService ApiService { get; set; }
+        AccountManager AccountManager { get; }
+        TransactionManager TransactionManager { get; }
         List<CommandInfo> CommandList { get; set; }
         string GetGenesisContractAddress();
 

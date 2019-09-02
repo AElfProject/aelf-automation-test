@@ -87,8 +87,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Memo = "Issue token",
                     To = MainChainService.CallAccount
                 });
-                if (!(issueToken.InfoMsg is TransactionResultDto issueTokenResult)) return;
-                if (issueTokenResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+                if (issueToken.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false, $"Issue token {symbol} failed");
 
                 var balance =
@@ -133,8 +132,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     var result =
                         sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
                             crossChainCreateInput);
-                    if (!(result.InfoMsg is TransactionResultDto txResult)) return;
-                    if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+                    if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                         Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
                 }

@@ -44,7 +44,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             //Init Logger
             string logName = "QueryTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             #endregion

@@ -19,7 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             //Init Logger
             string logName = "RpcApiTest.log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             Ch = new WebApiHelper(ServiceUrl, CommonHelper.GetCurrentDataDir());

@@ -14,7 +14,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             //Init Logger
             var logName = "GenerateConfig" +
                           DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             Logger.InitLogHelper(dir);
 
             //check config
@@ -23,7 +23,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             check.CheckOtherNumbers();
 
             //delete old config files
-            CommonHelper.DeleteDirectoryFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results"));
+            CommonHelper.DeleteDirectoryFiles(Path.Combine(CommonHelper.AppRoot, "results"));
 
             //gen all accounts
             var bps = ConfigInfoHelper.Config.BpNodes;

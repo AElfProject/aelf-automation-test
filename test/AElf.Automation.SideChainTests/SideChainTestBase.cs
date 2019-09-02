@@ -108,7 +108,7 @@ namespace AElf.Automation.SideChainTests
             _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
         }

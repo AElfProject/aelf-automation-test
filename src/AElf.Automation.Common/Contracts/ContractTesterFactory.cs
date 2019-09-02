@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
 
@@ -8,33 +9,44 @@ namespace AElf.Automation.Common.Contracts
     {
         T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
             where T : ContractStubBase, new();
+        T Create<T>(Address contractAddress, ECKeyPair keyPair)
+            where T : ContractStubBase, new();
     }
 
     public class ContractTesterFactory : IContractTesterFactory
     {
-        private readonly string _baseUrl;
-        private readonly string _keyPath;
+        private readonly IApiHelper _apiHelper;
 
-        public ContractTesterFactory(string baseUrl, string keyPath = "")
+        public ContractTesterFactory(IApiHelper apiHelper)
         {
-            _baseUrl = baseUrl;
-            _keyPath = keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath;
+            _apiHelper = apiHelper;
         }
 
         public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
             where T : ContractStubBase, new()
         {
-            var factory = new MethodStubFactory(_baseUrl, _keyPath)
+            var factory = new MethodStubFactory(_apiHelper)
             {
                 SenderAddress = account,
-                Sender = AddressHelper.Base58StringToAddress(account),
-                ContractAddress = contractAddress
+                Contract = contractAddress
             };
             var timeout = notimeout ? "notimeout" : "";
-            factory.ApiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
+            _apiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{account} {password} {timeout}"
             });
+
+            return new T() {__factory = factory};
+        }
+
+        public T Create<T>(Address contractAddress, ECKeyPair keyPair) 
+            where T : ContractStubBase, new()
+        {
+            var factory = new MethodStubFactory(_apiHelper)
+            {
+                SenderAddress = Address.FromPublicKey(keyPair.PublicKey).GetFormatted(),
+                Contract = contractAddress
+            };
 
             return new T() {__factory = factory};
         }

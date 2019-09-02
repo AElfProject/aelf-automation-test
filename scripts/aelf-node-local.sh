@@ -46,7 +46,7 @@ echo ">>Select account"
 dirpath="/home/$UserName/.local/share/aelf/keys"
 for account_file in ${dirpath}/*
 do
-    ACCOUNT=`basename $account_file .ak`
+    ACCOUNT=`basename $account_file .json`
     break
 done
 echo "  >> Run node with account: $ACCOUNT"

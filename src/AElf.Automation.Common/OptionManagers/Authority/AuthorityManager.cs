@@ -18,22 +18,19 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         private GenesisContract _genesis;
         private ConsensusContract _consensus;
         private ParliamentAuthContract _parliament;
+        private IApiHelper _apiHelper;
         
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public AuthorityManager(string serviceUrl, string caller)
+        public AuthorityManager(IApiHelper apiHelper, string caller)
         {
-            var apiHelper = new WebApiHelper(serviceUrl);
-
+            _apiHelper = apiHelper;
+            
             GetConfigNodeInfo();
 
             _genesis = GenesisContract.GetGenesisContract(apiHelper, caller);
-
-            var consensusAddress = _genesis.GetContractAddressByName(NameProvider.ConsensusName);
-            _consensus = new ConsensusContract(apiHelper, caller, consensusAddress.GetFormatted());
-
-            var parliamentAddress = _genesis.GetContractAddressByName(NameProvider.ParliamentName);
-            _parliament = new ParliamentAuthContract(apiHelper, caller, parliamentAddress.GetFormatted());
+            _consensus = _genesis.GetConsensusContract();
+            _parliament = _genesis.GetParliamentAuthContract();
         }
 
         public Address DeployContractWithAuthority(string caller, string contractName)

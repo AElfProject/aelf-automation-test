@@ -56,7 +56,7 @@ declare -a AccountList
 count=0
 for account_file in ${dirpath}/*
 do
-	AccountList[count]=`basename $account_file .ak`
+	AccountList[count]=`basename $account_file .json`
 	let count++
 done
 echo "  >> Run nodes with account:"

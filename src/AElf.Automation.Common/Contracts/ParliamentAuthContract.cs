@@ -37,7 +37,7 @@ namespace AElf.Automation.Common.Contracts
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
             string caller = null)
         {
-            var tester = GetParliamentAuthContractTester(caller);
+            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = method,
@@ -58,7 +58,7 @@ namespace AElf.Automation.Common.Contracts
 
         public void ApproveProposal(Hash proposalId, string caller = null)
         {
-            var tester = GetParliamentAuthContractTester(caller);
+            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
             var transactionResult = AsyncHelper.RunSync(() => tester.Approve.SendAsync(new ApproveInput
             {
                 ProposalId = proposalId
@@ -69,23 +69,12 @@ namespace AElf.Automation.Common.Contracts
 
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
         {
-            var tester = GetParliamentAuthContractTester(caller);
+            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.Release.SendAsync(proposalId));
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
 
             return result.TransactionResult;
-        }
-
-        public ParliamentAuthContractContainer.ParliamentAuthContractStub GetParliamentAuthContractTester(
-            string callAddress = null)
-        {
-            var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
-            var contractStub =
-                stub.Create<ParliamentAuthContractContainer.ParliamentAuthContractStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), caller);
-            return contractStub;
         }
 
         public Address GetGenesisOwnerAddress()

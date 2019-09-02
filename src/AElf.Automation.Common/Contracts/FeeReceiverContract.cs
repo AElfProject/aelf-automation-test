@@ -41,10 +41,8 @@ namespace AElf.Automation.Common.Contracts
                 ElfTokenAddress = tokenAddress,
                 FoundationAddress = foundationAddress
             });
-            if (initializeResult.InfoMsg is TransactionResultDto txDto)
-            {
-                txDto.Status.ToLower().ShouldBe("mined");
-            }
+                
+            initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }
 }

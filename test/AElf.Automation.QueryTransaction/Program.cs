@@ -13,7 +13,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.35:8000";
+        public string Endpoint { get; set; } = "192.168.197.35:8000";
 
         public static int Main(string[] args)
         {
@@ -34,9 +34,11 @@ namespace AElf.Automation.QueryTransaction
             //Init Logger
             Log4NetHelper.LogInit("TransactionQuery");
             Logger.Info("Select execution type:");
+            "0. RunQueryBlocks".WriteSuccessLine();
             "1. RunQueryTransaction".WriteSuccessLine();
             "2. RunNodeStatusCheck".WriteSuccessLine();
             "3. RunStressTest".WriteSuccessLine();
+            "4. RunQueryConfigurationLimit".WriteSuccessLine();
             var runType = Console.ReadLine();
             var check = int.TryParse(runType, out var selection);
 
@@ -48,6 +50,9 @@ namespace AElf.Automation.QueryTransaction
 
             switch (selection)
             {
+                case 0:
+                    RunQueryBlocks();
+                    break;
                 case 1:
                     RunQueryTransaction();
                     break;
@@ -56,6 +61,9 @@ namespace AElf.Automation.QueryTransaction
                     break;
                 case 3:
                     RunStressTest();
+                    break;
+                case 4:
+                    RunQueryConfigurationLimit();
                     break;
             }
 
@@ -99,10 +107,20 @@ namespace AElf.Automation.QueryTransaction
             AsyncHelper.RunSync(() => status.CheckAllNodes());
         }
 
+        private void RunQueryBlocks()
+        {
+            var query = new TransactionQuery(Endpoint);
+            "Please input query start height".WriteSuccessLine();
+            var input = Console.ReadLine();
+            long.TryParse(input, out var height);
+            query.QueryBlocksTask(height);
+            Logger.Info("Complete blocks query result.");
+        }
+        
         private void RunQueryTransaction()
         {
             var query = new TransactionQuery(Endpoint);
-            query.ExecuteMultipleTasks(1);
+            query.ExecuteMultipleTasks(8);
             Logger.Info("Complete transaction query result.");
         }
 
@@ -110,6 +128,12 @@ namespace AElf.Automation.QueryTransaction
         {
             var stress = new StressQuery(Endpoint);
             stress.RunStressTest(300);
+        }
+
+        private void RunQueryConfigurationLimit()
+        {
+            var configTransaction = new ConfigurationLimit(Endpoint);
+            configTransaction.GetTransactionLimit();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace AElf.Automation.ContractsTesting
         public ContractIssueLimit(string serviceUrl)
         {
             _apiHelper = new WebApiHelper(serviceUrl);
-            _stub = new ContractTesterFactory(serviceUrl);
+            _stub = new ContractTesterFactory(_apiHelper);
 
             var accountInfo = _apiHelper.NewAccount(
                 new CommandInfo(ApiMethods.AccountNew)

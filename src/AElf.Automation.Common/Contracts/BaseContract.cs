@@ -1,13 +1,17 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.CSharp.Core;
 using AElf.Types;
+using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
+using Volo.Abp.Threading;
+using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -16,14 +20,18 @@ namespace AElf.Automation.Common.Contracts
         #region Priority
 
         public IApiHelper ApiHelper { get; set; }
+        public IApiService ApiService => ApiHelper.ApiService;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
-        public Address CallAccount { get; set; }
+        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
         public string ContractAddress { get; set; }
+        public Address Contract => AddressHelper.Base58StringToAddress(ContractAddress);
 
         public static int Timeout { get; set; }
-        private ConcurrentQueue<string> TxResultList { get; set; }
-        public static readonly ILog Logger = Log4NetHelper.GetLogger();
+        
+        public static ILog Logger = Log4NetHelper.GetLogger();
+        
+        private readonly ConcurrentQueue<string> _txResultList = new ConcurrentQueue<string>();
 
         #endregion
 
@@ -38,8 +46,6 @@ namespace AElf.Automation.Common.Contracts
             ApiHelper = apiHelper;
             FileName = fileName;
             CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-            TxResultList = new ConcurrentQueue<string>();
 
             UnlockAccount(callAddress);
             DeployContract();
@@ -54,11 +60,27 @@ namespace AElf.Automation.Common.Contracts
         {
             ApiHelper = apiHelper;
             ContractAddress = contractAddress;
-            TxResultList = new ConcurrentQueue<string>();
         }
 
         private BaseContract()
         {
+        }
+
+        /// <summary>
+        /// 获取合约Stub
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="password"></param>
+        /// <typeparam name="TStub"></typeparam>
+        /// <returns></returns>
+        public TStub GetTestStub<TStub>(string account, string password = "123")
+            where TStub : ContractStubBase, new()
+        {
+            var stub = new ContractTesterFactory(ApiHelper);
+            var testStub =
+                stub.Create<TStub>(Contract, account, password);
+
+            return testStub;
         }
 
         public BaseContract<T> GetNewTester(string account, string password = "123")
@@ -66,19 +88,15 @@ namespace AElf.Automation.Common.Contracts
             return GetNewTester(ApiHelper, account, password);
         }
 
-        public BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
+        private BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
         {
-            UnlockAccount(account);
+            UnlockAccount(account, password);
 
             var contract = new BaseContract<T>
             {
                 ApiHelper = apiHelper,
                 ContractAddress = ContractAddress,
-
-                CallAccount = AddressHelper.Base58StringToAddress(account),
                 CallAddress = account,
-
-                TxResultList = new ConcurrentQueue<string>()
             };
 
             return contract;
@@ -96,7 +114,7 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
-            TxResultList.Enqueue(txId);
+            _txResultList.Enqueue(txId);
 
             return txId;
         }
@@ -118,7 +136,7 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
         /// <returns></returns>
-        public CommandInfo ExecuteMethodWithResult(string method, IMessage inputParameter)
+        public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
@@ -136,7 +154,7 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="method">交易方法</param>
         /// <param name="inputParameter">交易参数</param>
         /// <returns></returns>
-        public CommandInfo ExecuteMethodWithResult(T method, IMessage inputParameter)
+        public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
             return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
@@ -145,23 +163,14 @@ namespace AElf.Automation.Common.Contracts
         /// 获取执交易行结果是否成功
         /// </summary>
         /// <param name="txId"></param>
-        /// <param name="ci"></param>
+        /// <param name="transactionResult"></param>
         /// <returns></returns>
-        public bool GetTransactionResult(string txId, out CommandInfo ci)
+        public bool GetTransactionResult(string txId, out TransactionResultDto transactionResult)
         {
-            ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-            ApiHelper.ExecuteCommand(ci);
+            transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
 
-            if (ci.Result)
-            {
-                var transactionResult = ci.InfoMsg as TransactionResultDto;
-                Logger.Info($"Transaction: {txId}, Status: {transactionResult?.Status}");
-                if (transactionResult != null)
-                    return transactionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
-            }
-
-            Logger.Error(ci.GetErrorMessage());
-            return false;
+            Logger.Info($"Transaction: {txId}, Status: {transactionResult.Status}");
+            return transactionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
         /// <summary>
@@ -170,42 +179,34 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="txId"></param>
         /// <param name="maxTimes"></param>
         /// <returns></returns>
-        public CommandInfo CheckTransactionResult(string txId, int maxTimes = -1)
+        public TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1)
         {
             if (maxTimes == -1)
             {
                 maxTimes = Timeout == 0 ? 600 : Timeout;
             }
 
-            CommandInfo ci = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                ApiHelper.GetTransactionResult(ci);
-                if (ci.Result)
+                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (status)
                 {
-                    if (ci.InfoMsg is TransactionResultDto transactionResult)
+                    case TransactionResultStatus.Mined:
+                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
+                        return transactionResult;
+                    case TransactionResultStatus.NotExisted:
+                        Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
+                        break;
+                    case TransactionResultStatus.Failed:
                     {
-                        var status = transactionResult.Status.ConvertTransactionResultStatus();
-                        switch (status)
-                        {
-                            case TransactionResultStatus.Mined:
-                                Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.NotExisted:
-                                Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.Failed:
-                            {
-                                var message = $"Transaction {txId} status: {transactionResult.Status}";
-                                message +=
-                                    $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                                message += $"\r\nError Message: {transactionResult.Error}";
-                                Logger.Error(message);
-                                return ci;
-                            }
-                        }
+                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        message +=
+                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                        message += $"\r\nError Message: {transactionResult.Error}";
+                        Logger.Error(message);
+                        return transactionResult;
                     }
                 }
 
@@ -213,16 +214,7 @@ namespace AElf.Automation.Common.Contracts
                 Thread.Sleep(500);
             }
 
-            if (ci != null)
-            {
-                Logger.Error((ci.InfoMsg as TransactionResultDto)?.Error);
-            }
-
-            var result = ci.InfoMsg as TransactionResultDto;
-            Logger.Error(result?.Error);
-//            Assert.IsTrue(false, "Transaction execute status cannot be 'Mined' after one minutes.");
-            Logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
-            return null;
+            throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
         }
 
         /// <summary>
@@ -234,8 +226,6 @@ namespace AElf.Automation.Common.Contracts
         public bool SetAccount(string account, string password = "123")
         {
             CallAddress = account;
-            CallAccount = AddressHelper.Base58StringToAddress(account);
-
             //Unlock
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
             {
@@ -256,7 +246,7 @@ namespace AElf.Automation.Common.Contracts
 
             while (true)
             {
-                var result = TxResultList.TryDequeue(out var txId);
+                var result = _txResultList.TryDequeue(out var txId);
                 if (!result)
                     break;
                 var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
@@ -271,7 +261,7 @@ namespace AElf.Automation.Common.Contracts
                             case TransactionResultStatus.Mined:
                                 continue;
                             case TransactionResultStatus.Failed:
-                            case TransactionResultStatus.NotExisted:
+                            case TransactionResultStatus.Unexecutable:
                             {
                                 var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
                                 message += $"{transactionResult.Error}";
@@ -279,13 +269,13 @@ namespace AElf.Automation.Common.Contracts
                                 continue;
                             }
                             default:
-                                TxResultList.Enqueue(txId);
+                                _txResultList.Enqueue(txId);
                                 break;
                         }
                     }
                 }
 
-                if (queueLength == TxResultList.Count)
+                if (queueLength == _txResultList.Count)
                 {
                     queueSameTimes++;
                     Thread.Sleep(1000);
@@ -293,32 +283,10 @@ namespace AElf.Automation.Common.Contracts
                 else
                     queueSameTimes = 0;
 
-                queueLength = TxResultList.Count;
+                queueLength = _txResultList.Count;
                 if (queueSameTimes == 300)
                     Assert.IsTrue(false, "Transaction result check failed due to pending results in 5 minutes.");
             }
-        }
-
-        /// <summary>
-        /// 调用合约View方法
-        /// </summary>
-        /// <param name="method"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public JObject CallViewMethod(string method, IMessage input)
-        {
-            return ApiHelper.QueryView(CallAddress, ContractAddress, method, input);
-        }
-
-        /// <summary>
-        /// 调用合约View方法
-        /// </summary>
-        /// <param name="method"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public JObject CallViewMethod(T method, IMessage input)
-        {
-            return CallViewMethod(method.ToString(), input);
         }
 
         /// <summary>
@@ -362,7 +330,7 @@ namespace AElf.Automation.Common.Contracts
             if (requireAuthority)
             {
                 Logger.Info("Deploy contract with authority mode.");
-                var authority = new AuthorityManager(ApiHelper.GetApiUrl(), CallAddress);
+                var authority = new AuthorityManager(ApiHelper, CallAddress);
                 var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
                 ContractAddress = contractAddress.GetFormatted();
                 return;
@@ -397,12 +365,10 @@ namespace AElf.Automation.Common.Contracts
         private bool GetContractAddress(string txId, out string contractAddress)
         {
             contractAddress = string.Empty;
-            var ci = CheckTransactionResult(txId);
-
-            if (!ci.Result) return false;
-            var transactionResult = ci.InfoMsg as TransactionResultDto;
+            var transactionResult = CheckTransactionResult(txId);
             if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 return false;
+
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
             ContractAddress = contractAddress;
             Logger.Info($"Get contract address: TxId: {txId}, Address: {contractAddress}");
