@@ -18,10 +18,10 @@ namespace AElf.Automation.SideChainTests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string keyStore, string password, int chainId)
+        public ContractServices(string url, string callAddress, string password, int chainId)
         {
             ChainId = chainId;
-            ApiHelper = new WebApiHelper(url, keyStore);
+            ApiHelper = new WebApiHelper(url);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             UnlockAccounts(ApiHelper, CallAddress, password);

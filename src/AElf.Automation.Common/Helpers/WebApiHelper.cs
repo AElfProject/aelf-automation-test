@@ -36,7 +36,7 @@ namespace AElf.Automation.Common.Helpers
             _baseUrl = baseUrl;
             _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
 
-            ApiService = AElfChainClient.GetClient(baseUrl);
+            ApiService = AElfChainClient.GetClient(baseUrl, retryTimes: 10);
             CommandList = new List<CommandInfo>();
         }
 
@@ -172,7 +172,6 @@ namespace AElf.Automation.Common.Helpers
                 Code = ByteString.CopyFrom(codeArray)
             };
 
-            TransactionManager.SetCmdInfo(ci);
             var tx = TransactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl, _chainId);
@@ -357,7 +356,7 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
-        public string GetPublicKeyFromAddress(string account, string password = "123")
+        public string GetPublicKeyFromAddress(string account, string password = "")
         {
             return AccountManager.GetPublicKey(account, password);
         }
@@ -399,9 +398,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_transactionManager != null) return _transactionManager;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            _chainId = statusDto.ChainId;
-            _transactionManager = new TransactionManager(_keyStore, _chainId);
+            _transactionManager = new TransactionManager(_keyStore);
             return _transactionManager;
         }
 

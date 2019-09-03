@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -7,7 +8,7 @@ namespace AElf.Automation.Common.Contracts
 {
     public interface IContractTesterFactory
     {
-        T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+        T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
             where T : ContractStubBase, new();
         T Create<T>(Address contractAddress, ECKeyPair keyPair)
             where T : ContractStubBase, new();
@@ -22,9 +23,12 @@ namespace AElf.Automation.Common.Contracts
             _apiHelper = apiHelper;
         }
 
-        public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+        public T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
             where T : ContractStubBase, new()
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+            
             var factory = new MethodStubFactory(_apiHelper)
             {
                 SenderAddress = account,

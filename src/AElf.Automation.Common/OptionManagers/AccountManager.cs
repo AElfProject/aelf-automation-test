@@ -101,8 +101,11 @@ namespace AElf.Automation.Common.OptionManagers
             return result;
         }
 
-        public string GetPublicKey(string address, string password = "123")
+        public string GetPublicKey(string address, string password = "")
         {
+            if(password == "")
+                password = Account.DefaultPassword;
+            
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();

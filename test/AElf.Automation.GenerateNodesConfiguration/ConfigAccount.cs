@@ -21,7 +21,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
         public string GenerateAccount()
         {
-            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync("123"));
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(Account.DefaultPassword));
             var pubKey = keypair.PublicKey;
             _node.PublicKey = pubKey.ToHex();
 

@@ -11,8 +11,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             CrossChainTransferOnSideChain(NativeToken);
 
-            if (TokenSymbol.Count < 1) return;
-            foreach (var symbol in TokenSymbol)
+            if (TokenSymbols.Count < 1) return;
+            foreach (var symbol in TokenSymbols)
             {
                 CrossChainTransferOnSideChain(symbol);
             }

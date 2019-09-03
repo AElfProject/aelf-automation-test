@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using log4net;
@@ -49,7 +50,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ci = new CommandInfo(ApiMethods.AccountNew);
             for (int i = 0; i < 5; i++)
             {
-                ci.Parameter = "123";
+                ci.Parameter = Account.DefaultPassword;
                 ci = ApiHelper.NewAccount(ci);
                 if (ci.Result)
                     AccList.Add(ci.InfoMsg.ToString());

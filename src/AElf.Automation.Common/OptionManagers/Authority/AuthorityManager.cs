@@ -45,7 +45,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return DeployContractWithAuthority(caller, code);
         }
 
-        public Address DeployContractWithAuthority(string caller, byte[] code)
+        private Address DeployContractWithAuthority(string caller, byte[] code)
         {
             var input = new ContractDeploymentInput
             {

@@ -151,7 +151,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void PrepareAccountBalance()
         {
             //prepare bp account token
-            CollectAllBpTokensToBp0();
+            CollectHalfBpTokensToBp0();
             Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
 
             var publicKeysList = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
@@ -201,7 +201,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
         }
 
-        private void CollectAllBpTokensToBp0()
+        private void CollectHalfBpTokensToBp0()
         {
             Logger.Info("Transfer all bps token to first bp for testing.");
             var bp0 = BpNodes.First();
@@ -215,10 +215,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(bp.Account, bp.Password);
                 Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = balance,
+                    Amount = balance/2,
                     Symbol = "ELF",
                     To = AddressHelper.Base58StringToAddress(bp0.Account),
-                    Memo = "Collect all token from other bps."
+                    Memo = "Collect half tokens from other bps."
                 });
             }
 
@@ -238,6 +238,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 accountFrom = acc;
                 accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
                 amount = (long) randomNo % 10 + 1;
+                
                 return;
             }
         }

@@ -4,6 +4,7 @@ using System.Threading;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
@@ -31,7 +32,7 @@ namespace AElf.Automation.SideChain.Verification
         protected static List<ContractServices> SideChainServices;
         protected static Dictionary<int, List<string>> AccountList;
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> TransactionResultList;
-        protected static List<string> TokenSymbol { get; set; }
+        protected static List<string> TokenSymbols { get; set; }
 
         protected CrossChainBase()
         {
@@ -439,7 +440,7 @@ namespace AElf.Automation.SideChain.Verification
             var accountList = new List<string>();
             for (var i = 0; i < count; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
                 ci = services.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 accountList.Add(ci.InfoMsg.ToString());

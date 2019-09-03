@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 using log4net;
@@ -400,7 +401,7 @@ namespace AElf.Automation.RpcPerformance
 
                 for (var i = 0; i < count - accounts.Count; i++)
                 {
-                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
                     ci = ApiHelper.ExecuteCommand(ci);
                     Assert.IsTrue(ci.Result);
                     AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));

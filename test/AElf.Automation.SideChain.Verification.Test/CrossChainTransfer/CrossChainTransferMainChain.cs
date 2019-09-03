@@ -10,7 +10,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         public void CrossChainTransferMainChainJob()
         {
             CrossChainTransferOnMainChain(NativeToken);
-            foreach (var symbol in TokenSymbol)
+            foreach (var symbol in TokenSymbols)
             {
                 CrossChainTransferOnMainChain(symbol);
             }

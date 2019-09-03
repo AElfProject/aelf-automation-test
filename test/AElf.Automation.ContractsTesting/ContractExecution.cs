@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
@@ -32,7 +33,7 @@ namespace AElf.Automation.ContractsTesting
 
             var accountInfo = _apiHelper.NewAccount(
                 new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = "123"});
+                    {Parameter = Account.DefaultPassword});
             _account = accountInfo.InfoMsg.ToString();
             _genesisContract = GenesisContract.GetGenesisContract(_apiHelper, _account);
         }

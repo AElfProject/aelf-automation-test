@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -18,16 +22,17 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             MainChainService = InitMainChainServices();
             SideChainServices = InitSideChainServices();
-            TokenSymbol = new List<string>();
+            TokenSymbols = new List<string>(){"CPU", "NET", "STO"};
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
 
         public void DoCrossChainCreateToken()
         {
             Logger.Info("Create token:");
-            MainChainCreateToken();
-            Logger.Info("Issue token:");
-            IssueToken();
+            //MainChainCreateToken();
+            AsyncHelper.RunSync(() => BuyResources(200_0000_0000)); 
+            //Logger.Info("Issue token:");
+            //IssueToken();
 
             Logger.Info("Waiting for indexing");
             Thread.Sleep(150000);
@@ -72,13 +77,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, createTransaction);
                 ChainCreateTxInfo.Add(symbol, mainChainTx);
                 Logger.Info($"Create token {symbol} success");
-                TokenSymbol.Add(symbol);
+                TokenSymbols.Add(symbol);
             }
         }
 
         private void IssueToken()
         {
-            foreach (var symbol in TokenSymbol)
+            foreach (var symbol in TokenSymbols)
             {
                 var issueToken = MainChainService.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
                 {
@@ -103,7 +108,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
         private void SideChainCrossCreateToken()
         {
-            foreach (var symbol in TokenSymbol)
+            foreach (var symbol in TokenSymbols)
             {
                 var mainChainCreateTxInfo = ChainCreateTxInfo[symbol];
 
@@ -136,6 +141,26 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
                 }
+            }
+        }
+
+        private async Task BuyResources(long amount)
+        {
+            Logger.Info("Prepare resources token.");
+            var genesis = MainChainService.GenesisService;
+            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
+            var converter = new TokenConverterContract(MainChainService.ApiHelper, MainChainService.CallAddress, tokenConverter.GetFormatted());
+            var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
+            
+            var symbols = new List<string>{"CPU", "NET", "STO"};
+            foreach (var symbol in symbols)
+            {
+                var transactionResult = await testStub.Buy.SendAsync(new BuyInput
+                {
+                    Symbol = symbol,
+                    Amount = amount
+                });
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
         }
     }

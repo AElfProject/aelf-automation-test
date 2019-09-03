@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -51,7 +52,7 @@ namespace AElf.Automation.ApiTest
         private TokenContract DeployTokenContract()
         {
             _apiHelper = new WebApiHelper(ServiceUrl);
-            var cmdResult = _apiHelper.AccountManager.NewAccount("123");
+            var cmdResult = _apiHelper.AccountManager.NewAccount(Account.DefaultPassword);
             var account = cmdResult.InfoMsg.ToString();
             
             return new TokenContract(_apiHelper,account);

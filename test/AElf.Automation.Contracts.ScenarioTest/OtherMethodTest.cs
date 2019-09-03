@@ -55,11 +55,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var accountManager = new AccountManager(keyStore);
             for (var i = 0; i < 10; i++)
             {
-                var accountInfo = accountManager.NewAccount("123");
+                var accountInfo = accountManager.NewAccount(Account.DefaultPassword);
                 var account = accountInfo.InfoMsg.ToString();
                 Console.WriteLine($"Account: {account}");
 
-                var publicKey = accountManager.GetPublicKey(account, "123");
+                var publicKey = accountManager.GetPublicKey(account, Account.DefaultPassword);
                 Console.WriteLine($"Public Key: {publicKey}");
 
                 Console.WriteLine();

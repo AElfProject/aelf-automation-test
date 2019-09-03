@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -78,7 +79,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             for (var i = 0; i < accountNumber - 2; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
                 ci = Behaviors.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 var account = ci.InfoMsg.ToString();
@@ -87,7 +88,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             for (var i = 0; i < 2; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
                 ci = Behaviors.ApiHelper.ExecuteCommand(ci);
                 Assert.IsTrue(ci.Result);
                 var account = ci.InfoMsg.ToString();

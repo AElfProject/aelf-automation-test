@@ -10,6 +10,8 @@ namespace AElf.Automation.Common.OptionManagers
         public ECKeyPair KeyPair { get; set; }
         public string AccountName { get; }
 
+        public static string DefaultPassword = "123";
+
         public Account(string address)
         {
             AccountName = address;

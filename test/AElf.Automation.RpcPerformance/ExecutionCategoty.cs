@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -56,6 +57,7 @@ namespace AElf.Automation.RpcPerformance
             ContractList = new List<ContractInfo>();
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
+            
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
@@ -82,7 +84,7 @@ namespace AElf.Automation.RpcPerformance
             UnlockAllAccounts(ThreadCount);
 
             //Prepare basic token for test - Disable now
-            TransferTokenForTest(true);
+            TransferTokenFromBp(true);
 
             //Set select limit transaction
             var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
@@ -94,16 +96,20 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(ApiHelper);
         }
 
-        private void TransferTokenForTest(bool enable)
+        private void TransferTokenFromBp(bool enable)
         {
             if (!enable) return;
             try
             {
-                SystemToken = GetSystemToken(AccountList.First().Account);
+                var account = AccountList.First().Account;
+                var genesis = GenesisContract.GetGenesisContract(ApiHelper, account);
+                SystemToken = genesis.GetTokenContract();
+                
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
+                
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 9000_000_000);
+                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000);
                 }
             }
             catch (Exception e)
@@ -633,7 +639,7 @@ namespace AElf.Automation.RpcPerformance
                 var generateCount = count - accounts.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
-                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = "123"};
+                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
                     ci = ApiHelper.ExecuteCommand(ci);
                     Assert.IsTrue(ci.Result);
                     AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
@@ -698,14 +704,6 @@ namespace AElf.Automation.RpcPerformance
                     Logger.Error($"Query transaction pool status got exception : {ex.Message}");
                 }
             }
-        }
-
-        private TokenContract GetSystemToken(string account)
-        {
-            var genesis = GenesisContract.GetGenesisContract(ApiHelper, account);
-            var tokenAddress = genesis.GetContractAddressByName(NameProvider.TokenName);
-
-            return new TokenContract(ApiHelper, account, tokenAddress.GetFormatted());
         }
 
         #endregion

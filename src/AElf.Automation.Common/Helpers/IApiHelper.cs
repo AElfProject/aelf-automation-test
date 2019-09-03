@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Helpers
 
         void QueryViewInfo(CommandInfo ci);
 
-        string GetPublicKeyFromAddress(string account, string password = "123");
+        string GetPublicKeyFromAddress(string account, string password = "");
 
         //net
         void NetGetPeers(CommandInfo ci);

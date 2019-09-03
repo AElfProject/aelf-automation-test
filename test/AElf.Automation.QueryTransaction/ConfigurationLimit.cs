@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Contracts.Configuration;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -37,7 +38,7 @@ namespace AElf.Automation.QueryTransaction
         {
             var accountInfo = _apiHelper.NewAccount(
                 new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = "123"});
+                    {Parameter = Account.DefaultPassword});
             _account = accountInfo.InfoMsg.ToString();
         }
 

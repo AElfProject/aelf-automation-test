@@ -5,10 +5,8 @@ using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
-using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
-using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution
@@ -41,9 +39,6 @@ namespace AElf.Automation.ScenariosExecution
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
-            //connect chain
-            ConnectionChain();
-
             //get all contract services
             GetAllContractServices();
         }
@@ -54,7 +49,7 @@ namespace AElf.Automation.ScenariosExecution
 
             //Consensus contract
             ConsensusService = GenesisService.GetConsensusContract();
-            
+
             CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             if (!specifyEndpoint.Enable) //随机选择bp执行
@@ -304,20 +299,13 @@ namespace AElf.Automation.ScenariosExecution
             }
         }
 
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.GetChainInformation(ci);
-        }
-
         private List<Node> GetCurrentBpNodes()
         {
             var configInfo = ConfigInfoHelper.Config;
             var bpNodes = configInfo.BpNodes;
             var fullNodes = configInfo.FullNodes;
 
-            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minersPublicKeys = ConsensusService.GetCurrentMiners();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
             Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");

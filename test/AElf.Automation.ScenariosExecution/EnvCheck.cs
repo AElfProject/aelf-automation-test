@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElfChain.SDK;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,9 +14,9 @@ namespace AElf.Automation.ScenariosExecution
 {
     public class EnvCheck
     {
-        private string AccountDir { get; }
         private static ConfigInfo _config;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly string AccountDir = CommonHelper.GetCurrentDataDir();
         private static ContractServices Services { get; set; }
 
         public static EnvCheck GetDefaultEnvCheck()
@@ -27,7 +28,6 @@ namespace AElf.Automation.ScenariosExecution
 
         private EnvCheck()
         {
-            AccountDir = CommonHelper.GetCurrentDataDir();
             _config = ConfigInfoHelper.Config;
 
             CheckInitialEnvironment();
@@ -88,7 +88,7 @@ namespace AElf.Automation.ScenariosExecution
             var accounts = new List<string>();
             Parallel.For(0, count, i =>
             {
-                var command = new CommandInfo(ApiMethods.AccountNew, "123");
+                var command = new CommandInfo(ApiMethods.AccountNew, Account.DefaultPassword);
                 command = helper.NewAccount(command);
                 var account = command.InfoMsg.ToString();
                 accounts.Add(account);

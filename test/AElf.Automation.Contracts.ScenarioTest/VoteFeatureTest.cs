@@ -185,7 +185,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         [TestMethod]
         [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
-        public void QueryPublicKey(string account, string password="123")
+        public void QueryPublicKey(string account, string password="")
         {
             var pubKey = CH.GetPublicKeyFromAddress(account, password);
             Logger.Info($"PubKey: {pubKey}");

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -73,9 +74,12 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="password"></param>
         /// <typeparam name="TStub"></typeparam>
         /// <returns></returns>
-        public TStub GetTestStub<TStub>(string account, string password = "123")
+        public TStub GetTestStub<TStub>(string account, string password = "")
             where TStub : ContractStubBase, new()
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+            
             var stub = new ContractTesterFactory(ApiHelper);
             var testStub =
                 stub.Create<TStub>(Contract, account, password);
@@ -83,12 +87,15 @@ namespace AElf.Automation.Common.Contracts
             return testStub;
         }
 
-        public BaseContract<T> GetNewTester(string account, string password = "123")
+        public BaseContract<T> GetNewTester(string account, string password = "")
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+            
             return GetNewTester(ApiHelper, account, password);
         }
 
-        private BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "123")
+        private BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "")
         {
             UnlockAccount(account, password);
 
@@ -223,8 +230,11 @@ namespace AElf.Automation.Common.Contracts
         /// <param name="account"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool SetAccount(string account, string password = "123")
+        public bool SetAccount(string account, string password = "")
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+            
             CallAddress = account;
             //Unlock
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
@@ -313,8 +323,11 @@ namespace AElf.Automation.Common.Contracts
             return ApiHelper.QueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
         }
 
-        protected void UnlockAccount(string account, string password = "123")
+        protected void UnlockAccount(string account, string password = "")
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+            
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{account} {password} notimeout"

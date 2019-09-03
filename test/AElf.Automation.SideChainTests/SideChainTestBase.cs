@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -33,7 +34,7 @@ namespace AElf.Automation.SideChainTests
             Log4NetHelper.LogInit();
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var contractServices = new ContractServices(MainChainUrl, InitAccount, keyStore, "123", chainId);
+            var contractServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, chainId);
             Tester = new ContractTester(contractServices);
 
             //Get BpNode Info
@@ -54,7 +55,7 @@ namespace AElf.Automation.SideChainTests
         {
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chain = ChainHelper.ConvertBase58ToChainId(chainId);
-            var contractServices = new ContractServices(url, initAccount, keyStore, "123", chain);
+            var contractServices = new ContractServices(url, initAccount, Account.DefaultPassword, chain);
             var tester = new ContractTester(contractServices);
             return tester;
         }

@@ -25,8 +25,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Logger.Info($"Init account transfer {NativeToken} to other account");
             InitCrossChainTransfer(NativeToken);
 
-            if (TokenSymbol.Count.Equals(0)) return;
-            foreach (var symbol in TokenSymbol)
+            if (TokenSymbols.Count.Equals(0)) return;
+            foreach (var symbol in TokenSymbols)
             {
                 Logger.Info($"Main chain transfer {symbol} to other side chain InitAccount");
                 CrossChainTransferToInitAccount(symbol);
