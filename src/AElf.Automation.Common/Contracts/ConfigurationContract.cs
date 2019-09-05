@@ -13,8 +13,8 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ConfigurationContract : BaseContract<ConfigurationMethod>
     {
-        public ConfigurationContract(IApiHelper ch, string callAddress, string contractAddress) : 
-            base(ch, contractAddress)
+        public ConfigurationContract(IApiHelper apiHelper, string callAddress, string contractAddress) : 
+            base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);

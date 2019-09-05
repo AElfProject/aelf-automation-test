@@ -19,15 +19,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class BasicUpdateContract : BaseContract<UpdateMethod>
     {
-        public BasicUpdateContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
-            : base(apiHelper, dividendsAddress)
+        public BasicUpdateContract(IApiHelper apiHelper, string callAddress, string contractAddress)
+            : base(apiHelper, contractAddress)
         {
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
 
         public BasicUpdateContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.TestContract.BasicUpdate", callAddress)
+            : base(apiHelper, ContractFileName, callAddress)
         {
         }
 

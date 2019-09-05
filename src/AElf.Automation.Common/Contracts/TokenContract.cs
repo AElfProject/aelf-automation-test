@@ -72,13 +72,5 @@ namespace AElf.Automation.Common.Contracts
                 Symbol = symbol
             }).Balance;
         }
-
-        public TokenContractContainer.TokenContractStub GetTokenContractTester()
-        {
-            var stub = new ContractTesterFactory(ApiHelper);
-            var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
-            return tokenStub;
-        }
     }
 }

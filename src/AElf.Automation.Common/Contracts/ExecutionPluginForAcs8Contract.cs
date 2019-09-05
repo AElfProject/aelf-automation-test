@@ -18,5 +18,12 @@ namespace AElf.Automation.Common.Contracts
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
+
+        public ExecutionPluginForAcs8Contract(IApiHelper apiHelper, string callAddress)
+            : base(apiHelper, ContractFileName, callAddress)
+        {
+        }
+        
+        public static string ContractFileName => "AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract";
     }
 }

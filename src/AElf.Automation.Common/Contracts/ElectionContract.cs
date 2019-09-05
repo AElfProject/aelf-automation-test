@@ -39,7 +39,7 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public ElectionContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Election", callAddress)
+            : base(apiHelper, ContractFileName, callAddress)
         {
         }
 
@@ -53,5 +53,7 @@ namespace AElf.Automation.Common.Contracts
                     });
             return result;
         }
+
+        public static string ContractFileName => "AElf.Contracts.Election";
     }
 }

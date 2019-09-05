@@ -29,9 +29,9 @@ namespace AElf.Automation.Common.Contracts
         public Address Contract => AddressHelper.Base58StringToAddress(ContractAddress);
 
         public static int Timeout { get; set; }
-        
+
         public static ILog Logger = Log4NetHelper.GetLogger();
-        
+
         private readonly ConcurrentQueue<string> _txResultList = new ConcurrentQueue<string>();
 
         #endregion
@@ -77,9 +77,6 @@ namespace AElf.Automation.Common.Contracts
         public TStub GetTestStub<TStub>(string account, string password = "")
             where TStub : ContractStubBase, new()
         {
-            if (password == "")
-                password = Account.DefaultPassword;
-            
             var stub = new ContractTesterFactory(ApiHelper);
             var testStub =
                 stub.Create<TStub>(Contract, account, password);
@@ -89,9 +86,6 @@ namespace AElf.Automation.Common.Contracts
 
         public BaseContract<T> GetNewTester(string account, string password = "")
         {
-            if (password == "")
-                password = Account.DefaultPassword;
-            
             return GetNewTester(ApiHelper, account, password);
         }
 
@@ -99,14 +93,14 @@ namespace AElf.Automation.Common.Contracts
         {
             UnlockAccount(account, password);
 
-            var contract = new BaseContract<T>
+            var newTester = new BaseContract<T>
             {
                 ApiHelper = apiHelper,
                 ContractAddress = ContractAddress,
                 CallAddress = account,
             };
 
-            return contract;
+            return newTester;
         }
 
         /// <summary>
@@ -119,7 +113,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = ExecuteMethodWithTxId(rawTx);
+            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             _txResultList.Enqueue(txId);
 
@@ -147,7 +141,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = ExecuteMethodWithTxId(rawTx);
+            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -234,7 +228,7 @@ namespace AElf.Automation.Common.Contracts
         {
             if (password == "")
                 password = Account.DefaultPassword;
-            
+
             CallAddress = account;
             //Unlock
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
@@ -257,32 +251,22 @@ namespace AElf.Automation.Common.Contracts
             while (true)
             {
                 var result = _txResultList.TryDequeue(out var txId);
-                if (!result)
-                    break;
-                var ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                ApiHelper.GetTransactionResult(ci);
-                if (ci.Result)
+                if (!result) break;
+                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (status)
                 {
-                    if (ci.InfoMsg is TransactionResultDto transactionResult)
+                    case TransactionResultStatus.Mined:
+                        continue;
+                    case TransactionResultStatus.Failed:
+                    case TransactionResultStatus.Unexecutable:
                     {
-                        var status = transactionResult.Status.ConvertTransactionResultStatus();
-                        switch (status)
-                        {
-                            case TransactionResultStatus.Mined:
-                                continue;
-                            case TransactionResultStatus.Failed:
-                            case TransactionResultStatus.Unexecutable:
-                            {
-                                var message = $"Transaction {txId} status: {transactionResult.Status}\r\n";
-                                message += $"{transactionResult.Error}";
-                                Logger.Error(message);
-                                continue;
-                            }
-                            default:
-                                _txResultList.Enqueue(txId);
-                                break;
-                        }
+                        Logger.Error(transactionResult);
+                        continue;
                     }
+                    default:
+                        _txResultList.Enqueue(txId);
+                        break;
                 }
 
                 if (queueLength == _txResultList.Count)
@@ -327,7 +311,7 @@ namespace AElf.Automation.Common.Contracts
         {
             if (password == "")
                 password = Account.DefaultPassword;
-            
+
             var uc = new CommandInfo(ApiMethods.AccountUnlock)
             {
                 Parameter = $"{account} {password} notimeout"
@@ -386,25 +370,6 @@ namespace AElf.Automation.Common.Contracts
             ContractAddress = contractAddress;
             Logger.Info($"Get contract address: TxId: {txId}, Address: {contractAddress}");
             return true;
-        }
-
-        private string ExecuteMethodWithTxId(string rawTx)
-        {
-            var ci = new CommandInfo(ApiMethods.SendTransaction)
-            {
-                Parameter = rawTx
-            };
-            ApiHelper.BroadcastWithRawTx(ci);
-            if (ci.Result)
-            {
-                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
-
-                return transactionOutput?.TransactionId;
-            }
-
-            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
-
-            return string.Empty;
         }
 
         #endregion Methods

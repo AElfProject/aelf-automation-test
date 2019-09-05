@@ -25,7 +25,7 @@ namespace AElf.Automation.Common.Contracts
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
     {
         public CrossChainContract(IApiHelper ch, string account) :
-            base(ch, "AElf.Contracts.CrossChain", account)
+            base(ch, ContractFileName, account)
         {
         }
 
@@ -35,5 +35,7 @@ namespace AElf.Automation.Common.Contracts
             CallAddress = callAddress;
             UnlockAccount(CallAddress);
         }
+
+        public static string ContractFileName => "AElf.Contracts.CrossChain";
     }
 }

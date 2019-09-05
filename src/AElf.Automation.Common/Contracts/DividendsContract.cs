@@ -24,8 +24,10 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public DividendsContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Dividends", callAddress)
+            : base(apiHelper, ContractFileName, callAddress)
         {
         }
+
+        public static string ContractFileName => "AElf.Contracts.Dividends";
     }
 }

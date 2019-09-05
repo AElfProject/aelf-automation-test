@@ -34,6 +34,7 @@ namespace AElf.Automation.Common.Contracts
                 SenderAddress = account,
                 Contract = contractAddress
             };
+            
             var timeout = notimeout ? "notimeout" : "";
             _apiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
             {
