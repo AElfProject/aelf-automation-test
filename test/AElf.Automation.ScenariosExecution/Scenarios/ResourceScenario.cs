@@ -127,7 +127,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void InitializeTokenConverter()
         {
-            TokenConverter = new TokenConverterContract(Services.ApiHelper, Services.CallAddress);
+            TokenConverter = new TokenConverterContract(Services.NodeManager, Services.CallAddress);
 
             //Create and issue all resources token
             var token = Token.GetNewTester(Testers[0]);

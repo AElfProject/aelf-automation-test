@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -11,7 +13,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class RpcApiTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
-        private WebApiHelper Ch { get; set; }
+        private INodeManager Ch { get; set; }
         private const string ServiceUrl = "http://192.168.197.15:8020";
 
         [TestInitialize]
@@ -22,34 +24,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
             string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            Ch = new WebApiHelper(ServiceUrl, CommonHelper.GetCurrentDataDir());
+            Ch = new NodeManager(ServiceUrl);
         }
 
         [TestMethod]
         [DataRow(2441)]
         public void VerifyTransactionByHeight(int height)
         {
-            var ci = new CommandInfo(ApiMethods.GetBlockInfo);
-            ci.Parameter = $"{height.ToString()} {true}";
-            Ch.GetBlockByHeight(ci);
-            Assert.IsTrue(ci.Result, "Request block info failed.");
-
-            DataHelper.TryGetArrayFromJson(out var txArray, ci.InfoMsg.ToString(), "result", "result", "Body",
-                "Transactions");
+            var blockDto = AsyncHelper.RunSync(()=>Ch.ApiService.GetBlockByHeightAsync(height, true));
+            var txArray = blockDto.Body.Transactions;
 
             foreach (var txId in txArray)
             {
-                var txCi = new CommandInfo(ApiMethods.GetTransactionResult);
-                txCi.Parameter = txId;
-                Ch.GetTransactionResult(txCi);
-                Assert.IsTrue(txCi.Result, "Request transaction result failed.");
-
-                DataHelper.TryGetValueFromJson(out var status, txCi.InfoMsg.ToString(), "result", "result",
-                    "tx_status");
+                var transactionResult = AsyncHelper.RunSync(()=>Ch.ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status;
                 if (status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     _logger.Info($"{txId}: mined");
                 else
-                    _logger.Error(txCi.InfoMsg.ToString());
+                    _logger.Error(transactionResult.Error);
             }
         }
     }

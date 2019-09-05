@@ -3,6 +3,7 @@ using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
@@ -18,7 +19,7 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractTester
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public readonly ContractServices ContractServices;
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
@@ -27,7 +28,7 @@ namespace AElf.Automation.SideChainTests
 
         public ContractTester(ContractServices contractServices)
         {
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
 
             TokenService = ContractServices.TokenService;
@@ -40,7 +41,7 @@ namespace AElf.Automation.SideChainTests
 
         public string ValidateTokenAddress()
         {
-            var validateTransaction = ApiHelper.GenerateTransactionRawTx(
+            var validateTransaction = NodeManager.GenerateTransactionRawTx(
                 ContractServices.CallAddress, ContractServices.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
@@ -309,7 +310,7 @@ namespace AElf.Automation.SideChainTests
             {
                 Parameter = rawTx
             };
-            ApiHelper.BroadcastWithRawTx(ci);
+            NodeManager.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
                 var transactionOutput = ci.InfoMsg as SendTransactionOutput;

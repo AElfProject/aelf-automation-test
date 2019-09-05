@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using log4net;
@@ -24,11 +25,11 @@ namespace AElf.Automation.RpcPerformance
         /// <summary>
         /// 统计出块信息
         /// </summary>
-        /// <param name="apiHelper"></param>
+        /// <param name="nodeManager"></param>
         /// <param name="fromStart">是否从高度为1开始检测</param>
-        public ExecutionSummary(IApiHelper apiHelper, bool fromStart = false)
+        public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
-            ApiService = apiHelper.ApiService;
+            ApiService = nodeManager.ApiService;
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }

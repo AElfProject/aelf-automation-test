@@ -44,21 +44,6 @@ namespace AElf.Automation.Common.Helpers
         {
         }
 
-        public static ILogHelper GetLogger()
-        {
-            if (_logger != null) return _logger;
-            lock (InitObject)
-            {
-                if (_logger == null)
-                {
-                    // ReSharper disable once PossibleMultipleWriteAccessInDoubleCheckLocking
-                    _logger = new LogHelper();
-                }
-            }
-
-            return _logger;
-        }
-
         public void Dispose()
         {
             if (_streamWriter == null) return;
@@ -66,10 +51,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (_streamWriter != null)
                 {
-                    if (_streamWriter.BaseStream.CanRead)
-                    {
-                        _streamWriter.Dispose();
-                    }
+                    if (_streamWriter.BaseStream.CanRead) _streamWriter.Dispose();
 
                     _streamWriter = null;
                 }
@@ -80,31 +62,19 @@ namespace AElf.Automation.Common.Helpers
 
         public void InitLogHelper(string logFileSavePath)
         {
-            if (string.IsNullOrEmpty(logFileSavePath))
-            {
-                throw new ArgumentNullException(nameof(logFileSavePath));
-            }
+            if (string.IsNullOrEmpty(logFileSavePath)) throw new ArgumentNullException(nameof(logFileSavePath));
 
             try
             {
                 var logDirPath = Path.GetDirectoryName(logFileSavePath);
-                if (logDirPath == null)
-                {
-                    throw new ArgumentNullException(logFileSavePath);
-                }
+                if (logDirPath == null) throw new ArgumentNullException(logFileSavePath);
 
-                if (!Directory.Exists(logDirPath))
-                {
-                    Directory.CreateDirectory(logDirPath);
-                }
+                if (!Directory.Exists(logDirPath)) Directory.CreateDirectory(logDirPath);
 
                 lock (InitObject)
                 {
                     _logFilePath = logFileSavePath;
-                    if (!File.Exists(_logFilePath))
-                    {
-                        File.Create(_logFilePath).Close();
-                    }
+                    if (!File.Exists(_logFilePath)) File.Create(_logFilePath).Close();
                 }
 
                 //fileStream = new FileStream(logFilePath, FileMode.Append);
@@ -113,11 +83,11 @@ namespace AElf.Automation.Common.Helpers
                     _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
                 }
 
-                Info("Initial log helper successful. Log path is: {0}", logFileSavePath);
+                Info("Initial log manager successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
             {
-                throw new Exception("Create log helper fail.", exception);
+                throw new Exception("Create log manager fail.", exception);
             }
         }
 
@@ -144,10 +114,7 @@ namespace AElf.Automation.Common.Helpers
             const string timeStamp = "yyyy-MM-dd HH:mm:ss.fff";
             lock (WriteObject)
             {
-                if (string.IsNullOrEmpty(_logFilePath))
-                {
-                    throw new Exception("Please initial log helper first.");
-                }
+                if (string.IsNullOrEmpty(_logFilePath)) throw new Exception("Please initial log manager first.");
 
                 try
                 {
@@ -171,7 +138,7 @@ namespace AElf.Automation.Common.Helpers
                             break;
 
                         default:
-                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) +
+                            text = "Invalid LogType, log manager exception.\t" + DateTime.Now.ToString(timeStamp) +
                                    "\t" + content;
                             break;
                     }
@@ -191,10 +158,7 @@ namespace AElf.Automation.Common.Helpers
             const string timeStamp = "yyyy-MM-dd HH:mm:ss.fff";
             lock (WriteObject)
             {
-                if (string.IsNullOrEmpty(_logFilePath))
-                {
-                    throw new Exception("Please initial log helper first.");
-                }
+                if (string.IsNullOrEmpty(_logFilePath)) throw new Exception("Please initial log manager first.");
 
                 try
                 {
@@ -207,6 +171,17 @@ namespace AElf.Automation.Common.Helpers
                     throw new Exception("Can write to log file.", ex);
                 }
             }
+        }
+
+        public static ILogHelper GetLogger()
+        {
+            if (_logger != null) return _logger;
+            lock (InitObject)
+            {
+                if (_logger == null) _logger = new LogHelper();
+            }
+
+            return _logger;
         }
 
         ~LogHelper()

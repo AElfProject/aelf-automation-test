@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,20 +18,20 @@ namespace AElf.Automation.RpcPerformance
         private List<AccountInfo> TestUsers { get; }
         private List<ContractInfo> Contracts { get; }
 
-        private IApiHelper ApiHelper { get; }
+        private INodeManager NodeManager { get; }
         private ConcurrentQueue<List<string>> TransactionsQueue { get; }
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private NodeStatusMonitor NodeMonitor { get; }
 
-        public TransactionGroup(IApiHelper apiHelper, List<AccountInfo> users, List<ContractInfo> contracts)
+        public TransactionGroup(INodeManager nodeManager, List<AccountInfo> users, List<ContractInfo> contracts)
         {
             TransactionsQueue = new ConcurrentQueue<List<string>>();
             TestUsers = users;
             Contracts = contracts;
-            ApiHelper = apiHelper;
-            NodeMonitor = new NodeStatusMonitor(apiHelper);
+            NodeManager = nodeManager;
+            NodeMonitor = new NodeStatusMonitor(nodeManager);
         }
 
         public void InitializeAllUsersToken()
@@ -46,7 +47,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         NodeMonitor.CheckTransactionPoolStatus(true);
                         count++;
-                        var rawTx = ApiHelper.GenerateTransactionRawTx(contract.Owner, contract.ContractPath,
+                        var rawTx = NodeManager.GenerateTransactionRawTx(contract.Owner, contract.ContractPath,
                             TokenMethod.Transfer.ToString(),
                             new TransferInput
                             {
@@ -63,7 +64,7 @@ namespace AElf.Automation.RpcPerformance
                         {
                             Parameter = string.Join(",", rawTransactions)
                         };
-                        ApiHelper.ExecuteCommand(ci);
+                        NodeManager.ExecuteCommand(ci);
                         Assert.IsTrue(ci.Result);
                         var transactions = (string[]) ci.InfoMsg;
                         NodeMonitor.CheckTransactionsStatus(transactions.ToList());
@@ -142,7 +143,7 @@ namespace AElf.Automation.RpcPerformance
                             Memo = $"transfer test - {Guid.NewGuid()}"
                         }
                     };
-                    var rawTx = ApiHelper.GenerateTransactionRawTx(bt);
+                    var rawTx = NodeManager.GenerateTransactionRawTx(bt);
                     rawTransactions.Add(rawTx);
                 }
 

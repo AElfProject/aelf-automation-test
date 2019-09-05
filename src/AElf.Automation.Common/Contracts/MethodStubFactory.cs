@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
@@ -17,18 +17,18 @@ namespace AElf.Automation.Common.Contracts
 {
     public class MethodStubFactory : IMethodStubFactory, ITransientDependency
     {
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        public MethodStubFactory(INodeManager nodeManager)
+        {
+            NodeManager = nodeManager;
+        }
+
         public Address Contract { private get; set; }
         public string SenderAddress { private get; set; }
         public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
-        public IApiHelper ApiHelper { get; }
-        public IApiService ApiService => ApiHelper.ApiService;
-
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        public MethodStubFactory(IApiHelper apiHelper)
-        {
-            ApiHelper = apiHelper;
-        }
+        public INodeManager NodeManager { get; }
+        public IApiService ApiService => NodeManager.ApiService;
 
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -40,10 +40,10 @@ namespace AElf.Automation.Common.Contracts
                     From = Sender,
                     To = Contract,
                     MethodName = method.Name,
-                    Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
+                    Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
-                transaction.AddBlockReference(ApiHelper.GetApiUrl());
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
@@ -58,7 +58,8 @@ namespace AElf.Automation.Common.Contracts
                     if (status != TransactionResultStatus.Pending && status != TransactionResultStatus.NotExisted)
                     {
                         if (status == TransactionResultStatus.Mined)
-                            Logger.Info($"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}");
+                            Logger.Info(
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}");
                         else
                             Logger.Error(
                                 $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}");
@@ -66,12 +67,14 @@ namespace AElf.Automation.Common.Contracts
                         break;
                     }
 
-                    if(checkTimes % 20 ==0)
-                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}".WriteWarningLine();
-                    
+                    if (checkTimes % 20 == 0)
+                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}"
+                            .WriteWarningLine();
+
                     if (checkTimes == 360) //max wait time 3 minutes
-                        throw new Exception($"Transaction {resultDto.TransactionId} in pending status more than three minutes.");
-                    
+                        throw new Exception(
+                            $"Transaction {resultDto.TransactionId} in pending status more than three minutes.");
+
                     Thread.Sleep(500);
                 }
 
@@ -110,7 +113,7 @@ namespace AElf.Automation.Common.Contracts
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
 
-                return new ExecutionResult<TOutput>()
+                return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,
                     TransactionResult = transactionResult
@@ -119,14 +122,14 @@ namespace AElf.Automation.Common.Contracts
 
             async Task<TOutput> CallAsync(TInput input)
             {
-                var transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     From = Sender,
                     To = Contract,
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));

@@ -147,7 +147,7 @@ using System;
                      BasicUpdateContract.ContractFileName);
                  if (!result) return;
                  IsUpdateContract = true;
-                 UpdateContract = new BasicUpdateContract(Services.ApiHelper, owner.GetFormatted(),
+                 UpdateContract = new BasicUpdateContract(Services.NodeManager, owner.GetFormatted(),
                      FunctionContract.ContractAddress);
                  Logger.Info("Update contract to UpdateContract successful.");
              }
@@ -158,7 +158,7 @@ using System;
                      BasicFunctionContract.ContractFileName);
                  if (!result) return;
                  IsUpdateContract = false;
-                 FunctionContract = new BasicFunctionContract(Services.ApiHelper, owner.GetFormatted(),
+                 FunctionContract = new BasicFunctionContract(Services.NodeManager, owner.GetFormatted(),
                      UpdateContract.ContractAddress);
                  Logger.Info("Update contract to BasicContract successful.");
              }

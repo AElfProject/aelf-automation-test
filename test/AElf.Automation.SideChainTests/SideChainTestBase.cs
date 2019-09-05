@@ -4,37 +4,45 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using log4net;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChainTests
 {
     public class SideChainTestBase
     {
         private static int Timeout { get; set; }
-        public ContractTester Tester;
+        public ContractTester MainContracts;
+        public ContractTester SideAContracts;
+        public ContractTester SideBContracts;
+
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
-//        public static string MainChainUrl { get; } = "http://127.0.0.1:9000";    
-        public static string MainChainUrl { get; } = "http://192.168.197.44:8000";
-//        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
+        public static string MainChainUrl { get; } = "http://192.168.197.14:8000";
+        public static string SideAChainUrl { get; } = "http://192.168.197.14:8001";
+        public static string SideBChainUrl { get; } = "http://192.168.197.14:8002";
 
-//        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string InitAccount { get; } = "2boUmCEXvK9BamvsQTr9VQ5bXPZSvd5utzB9nz3fwPmbJtoySh";
 
         public List<string> BpNodeAddress { get; set; }
-        public List<string> UserList { get; set; }
 
         protected void Initialize()
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var contractServices = new ContractServices(MainChainUrl, InitAccount, keyStore, "123", chainId);
-            Tester = new ContractTester(contractServices);
+            var mainServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, chainId);
+            MainContracts = new ContractTester(mainServices);
+
+            var sideAServices = new ContractServices(SideAChainUrl, InitAccount, Account.DefaultPassword, 2112);
+            SideAContracts = new ContractTester(sideAServices);
+
+            var sideBServices = new ContractServices(SideBChainUrl, InitAccount, Account.DefaultPassword, 2113);
+            SideAContracts = new ContractTester(sideBServices);
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
@@ -54,7 +62,7 @@ namespace AElf.Automation.SideChainTests
         {
             var keyStore = CommonHelper.GetCurrentDataDir();
             var chain = ChainHelper.ConvertBase58ToChainId(chainId);
-            var contractServices = new ContractServices(url, initAccount, keyStore, "123", chain);
+            var contractServices = new ContractServices(url, initAccount, Account.DefaultPassword, chain);
             var tester = new ContractTester(contractServices);
             return tester;
         }
@@ -62,21 +70,16 @@ namespace AElf.Automation.SideChainTests
         protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractTester tester)
         {
             var index = 0;
-            var ci = new CommandInfo(ApiMethods.GetBlockByHeight) {Parameter = $"{blockNumber} true"};
-            ci = tester.ApiHelper.ExecuteCommand(ci);
-            var blockInfoResult = ci.InfoMsg as BlockDto;
+            var blockInfoResult =
+                AsyncHelper.RunSync(() => tester.NodeManager.ApiService.GetBlockByHeightAsync(long.Parse(blockNumber), true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
-                var CI = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionId};
-                var result = tester.ApiHelper.ExecuteCommand(CI);
-                var txResult = result.InfoMsg as TransactionResultDto;
-
-                var resultStatus =
-                    (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus),
-                        txResult.Status, true);
+                var txResult = AsyncHelper.RunSync(() =>
+                    tester.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
+                var resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 transactionStatus.Add(resultStatus.ToString());
             }
 
@@ -102,53 +105,35 @@ namespace AElf.Automation.SideChainTests
             return merklePath;
         }
 
-        protected void TestCleanUp()
-        {
-            if (UserList.Count == 0) return;
-            _logger.Info("Delete all account files created.");
-            foreach (var item in UserList)
-            {
-                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
-                File.Delete(file);
-            }
-        }
-
-        protected CommandInfo CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
+        protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
         {
             if (maxTimes == -1)
             {
                 maxTimes = Timeout == 0 ? 600 : Timeout;
             }
 
-            CommandInfo ci = null;
+            TransactionResultDto transactionResult = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                services.ApiHelper.GetTransactionResult(ci);
-                if (ci.Result)
+                transactionResult = AsyncHelper.RunSync(()=> services.NodeManager.ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (status)
                 {
-                    if (ci.InfoMsg is TransactionResultDto transactionResult)
+                    case TransactionResultStatus.Mined:
+                        _logger.Info($"Transaction {txId} status: {transactionResult.Status}");
+                        return transactionResult;
+                    case TransactionResultStatus.NotExisted:
+                        _logger.Error($"Transaction {txId} status: {transactionResult.Status}");
+                        return transactionResult;
+                    case TransactionResultStatus.Failed:
                     {
-                        var status = transactionResult.Status.ConvertTransactionResultStatus();
-                        switch (status)
-                        {
-                            case TransactionResultStatus.Mined:
-                                _logger.Info($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.NotExisted:
-                                _logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.Failed:
-                            {
-                                var message = $"Transaction {txId} status: {transactionResult.Status}";
-                                message +=
-                                    $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                                message += $"\r\nError Message: {transactionResult.Error}";
-                                _logger.Error(message);
-                                return ci;
-                            }
-                        }
+                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        message +=
+                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                        message += $"\r\nError Message: {transactionResult.Error}";
+                        _logger.Error(message);
+                        return transactionResult;
                     }
                 }
 
@@ -156,14 +141,8 @@ namespace AElf.Automation.SideChainTests
                 Thread.Sleep(500);
             }
 
-            if (ci != null)
-            {
-                var result = ci.InfoMsg as TransactionResultDto;
-                _logger.Error(result?.Error);
-            }
-
             _logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
-            return ci;
+            return transactionResult;
         }
     }
 }

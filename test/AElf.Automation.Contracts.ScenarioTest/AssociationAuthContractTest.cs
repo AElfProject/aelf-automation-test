@@ -4,6 +4,7 @@ using System.IO;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
@@ -20,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         protected ContractTester Tester;
-        public WebApiHelper CH { get; set; }
+        public INodeManager CH { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";

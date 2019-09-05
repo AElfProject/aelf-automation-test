@@ -5,12 +5,14 @@ using System.Security;
 using AElf.Automation.Common.Helpers;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
+using log4net;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public class AccountManager
     {
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly AElfKeyStore _keyStore;
         private List<string> _accounts;
 
@@ -20,76 +22,59 @@ namespace AElf.Automation.Common.OptionManagers
             _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
         }
 
-        public CommandInfo NewAccount(string password = "")
+        public string NewAccount(string password = "")
         {
-            var result = new CommandInfo(ApiMethods.AccountNew);
+            if (password == "")
+                password = Account.DefaultPassword;
+
             if (password == "")
                 password = AskInvisible("password:");
-            result.Parameter = password;
+
             var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(password));
             var pubKey = keypair.PublicKey;
+            var address = Address.FromPublicKey(pubKey);
 
-            var addr = Address.FromPublicKey(pubKey);
-            if (addr == null)
-            {
-                return result;
-            }
-
-            result.Result = true;
-            var account = addr.GetFormatted();
-            result.InfoMsg = account;
-            _accounts.Add(account);
-
-            return result;
+            return address.GetFormatted();
         }
 
-        public CommandInfo ListAccount()
+        public List<string> ListAccount()
         {
-            var result = new CommandInfo(ApiMethods.AccountList)
-            {
-                InfoMsg = AsyncHelper.RunSync(_keyStore.GetAccountsAsync)
-            };
-            if (result.InfoMsg == null) return result;
-            result.Result = true;
-            _accounts = (List<string>) result.InfoMsg;
-
-            return result;
+            _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
+            return _accounts;
         }
 
-        public CommandInfo UnlockAccount(string address, string password = "", string notimeout = "")
+        public bool UnlockAccount(string address, string password = "")
         {
-            var result = new CommandInfo(ApiMethods.AccountUnlock);
             if (password == "")
+                password = Account.DefaultPassword;
+
+            if (Account.DefaultPassword == "")
                 password = AskInvisible("password:");
-            result.Parameter = $"{address} {password} {notimeout}";
+
             if (_accounts == null || _accounts.Count == 0)
             {
-                result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
-                return result;
+                Logger.Error("No account exist in key store.");
+                return false;
             }
 
             if (!_accounts.Contains(address))
             {
-                result.ErrorMsg = "Error: the account '" + address + "' does not exist.";
-                return result;
+                Logger.Error($"Account '{address}' does not exist.");
+                return false;
             }
 
-            var timeout = notimeout == "";
-            var tryOpen = AsyncHelper.RunSync(() => _keyStore.UnlockAccountAsync(address, password, timeout));
+            var tryOpen = AsyncHelper.RunSync(() => _keyStore.UnlockAccountAsync(address, password, false));
 
             switch (tryOpen)
             {
                 case KeyStoreErrors.WrongPassword:
-                    result.ErrorMsg = "Error: incorrect password!";
+                    Logger.Error("Incorrect password!");
                     break;
                 case KeyStoreErrors.AccountAlreadyUnlocked:
-                    result.InfoMsg = "Account already unlocked!";
-                    result.Result = true;
-                    break;
+                    return true;
                 case KeyStoreErrors.None:
-                    result.InfoMsg = "Account successfully unlocked!";
-                    result.Result = true;
-                    break;
+                    Logger.Info($"Account '{address}' successfully unlocked!");
+                    return true;
                 case KeyStoreErrors.WrongAccountFormat:
                     break;
                 case KeyStoreErrors.AccountFileNotFound:
@@ -98,11 +83,14 @@ namespace AElf.Automation.Common.OptionManagers
                     throw new ArgumentOutOfRangeException();
             }
 
-            return result;
+            return false;
         }
 
-        public string GetPublicKey(string address, string password = "123")
+        public string GetPublicKey(string address, string password = "")
         {
+            if (password == "")
+                password = Account.DefaultPassword;
+
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
@@ -130,17 +118,11 @@ namespace AElf.Automation.Common.OptionManagers
             while (true)
             {
                 var i = Console.ReadKey(true);
-                if (i.Key == ConsoleKey.Enter)
-                {
-                    break;
-                }
+                if (i.Key == ConsoleKey.Enter) break;
 
                 if (i.Key == ConsoleKey.Backspace)
                 {
-                    if (pwd.Length > 0)
-                    {
-                        pwd.RemoveAt(pwd.Length - 1);
-                    }
+                    if (pwd.Length > 0) pwd.RemoveAt(pwd.Length - 1);
                 }
                 else
                 {

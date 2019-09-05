@@ -10,4 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="logs" />
+  </ItemGroup>
 </Project>

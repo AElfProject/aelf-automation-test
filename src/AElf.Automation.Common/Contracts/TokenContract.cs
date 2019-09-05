@@ -1,5 +1,6 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 
@@ -37,17 +38,16 @@ namespace AElf.Automation.Common.Contracts
 
     public class TokenContract : BaseContract<TokenMethod>
     {
-        public TokenContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
+        public TokenContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.MultiToken", callAddress)
         {
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public TokenContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
             Logger = Log4NetHelper.GetLogger();
         }
 
@@ -64,6 +64,7 @@ namespace AElf.Automation.Common.Contracts
 
             return result;
         }
+
         public long GetUserBalance(string account, string symbol = "ELF")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -71,14 +72,6 @@ namespace AElf.Automation.Common.Contracts
                 Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             }).Balance;
-        }
-
-        public TokenContractContainer.TokenContractStub GetTokenContractTester()
-        {
-            var stub = new ContractTesterFactory(ApiHelper);
-            var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
-            return tokenStub;
         }
     }
 }

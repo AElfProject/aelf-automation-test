@@ -10,25 +10,20 @@ using AElf.Types;
 using Google.Protobuf;
 using log4net;
 
-namespace AElf.Automation.Common.OptionManagers.Authority
+namespace AElf.Automation.Common.Managers
 {
     public class AuthorityManager
     {
-        private NodesInfo _info;
-        private GenesisContract _genesis;
-        private ConsensusContract _consensus;
-        private ParliamentAuthContract _parliament;
-        private IApiHelper _apiHelper;
-        
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly ConsensusContract _consensus;
+        private readonly GenesisContract _genesis;
+        private readonly ParliamentAuthContract _parliament;
+        private NodesInfo _info;
 
-        public AuthorityManager(IApiHelper apiHelper, string caller)
+        public AuthorityManager(INodeManager nodeManager, string caller)
         {
-            _apiHelper = apiHelper;
-            
             GetConfigNodeInfo();
-
-            _genesis = GenesisContract.GetGenesisContract(apiHelper, caller);
+            _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
             _parliament = _genesis.GetParliamentAuthContract();
         }
@@ -45,7 +40,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return DeployContractWithAuthority(caller, code);
         }
 
-        public Address DeployContractWithAuthority(string caller, byte[] code)
+        private Address DeployContractWithAuthority(string caller, byte[] code)
         {
             var input = new ContractDeploymentInput
             {
@@ -85,10 +80,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
                 organizationAddress, callUser);
 
             //approve
-            foreach (var account in approveUsers)
-            {
-                _parliament.ApproveProposal(proposalId, account);
-            }
+            foreach (var account in approveUsers) _parliament.ApproveProposal(proposalId, account);
 
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
@@ -16,7 +17,7 @@ namespace AElf.Automation.ContractsTesting
     public class ContractExecution
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
         private readonly string _account;
 
         private GenesisContract _genesisContract;
@@ -27,19 +28,16 @@ namespace AElf.Automation.ContractsTesting
 
         public ContractExecution(string serviceUrl)
         {
-            _apiHelper = new WebApiHelper(serviceUrl);
-            _stub = new ContractTesterFactory(_apiHelper);
+            _nodeManager = new NodeManager(serviceUrl);
+            _stub = new ContractTesterFactory(_nodeManager);
 
-            var accountInfo = _apiHelper.NewAccount(
-                new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = "123"});
-            _account = accountInfo.InfoMsg.ToString();
-            _genesisContract = GenesisContract.GetGenesisContract(_apiHelper, _account);
+            _account = _nodeManager.NewAccount();
+            _genesisContract = GenesisContract.GetGenesisContract(_nodeManager, _account);
         }
 
         public void DeployTestContract()
         {
-            var functionContract = new BasicFunctionContract(_apiHelper, _account);
+            var functionContract = new BasicFunctionContract(_nodeManager, _account);
             _contractAddress = functionContract.ContractAddress;
         }
 

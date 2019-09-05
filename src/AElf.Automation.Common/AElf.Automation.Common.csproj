@@ -43,6 +43,9 @@
         <ProtoContract Include="..\AElf\protobuf\test_performance_contract.proto">
             <Link>Protobuf\Proto\stub\test_performance_contract.proto</Link>
         </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\test_events_contract.proto">
+            <Link>Protobuf\Proto\stub\test_events_contract.proto</Link>
+        </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
             <Link>Protobuf\Proto\stub\token_contract.proto</Link>
         </ProtoContract>
@@ -109,6 +112,12 @@
         </None>
         <None Update="nodes.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="nodes-tps.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="nodes-sidechain.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

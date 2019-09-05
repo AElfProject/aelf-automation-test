@@ -76,6 +76,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ApiTest", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ProposalTest", "test\AElf.Automation.ProposalTest\AElf.Automation.ProposalTest.csproj", "{7E93C94B-E619-402B-8AA7-16762632FA16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainEconomicTest", "test\AElf.Automation.SideChainEconomicTest\AElf.Automation.SideChainEconomicTest.csproj", "{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,6 +172,10 @@ Global
 		{7E93C94B-E619-402B-8AA7-16762632FA16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E93C94B-E619-402B-8AA7-16762632FA16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E93C94B-E619-402B-8AA7-16762632FA16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,6 +205,7 @@ Global
 		{E08A3A7D-C380-4138-B0F4-48A18E659701} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 		{5BF58297-4970-4A51-B06B-9ECBCE1D604F} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{7E93C94B-E619-402B-8AA7-16762632FA16} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

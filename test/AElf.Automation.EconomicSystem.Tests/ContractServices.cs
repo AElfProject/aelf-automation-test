@@ -1,12 +1,13 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ContractServices
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
@@ -18,9 +19,9 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(IApiHelper apiHelper, string callAddress)
+        public ContractServices(INodeManager nodeManager, string callAddress)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
@@ -33,37 +34,37 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public void GetAllContractServices()
         {
-            GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
-            TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
+            TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.GetFormatted());
 
             //TokenConverter contract
             //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
-            //TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress, converterAddress.GetFormatted());
+            //TokenConverterService = new TokenConverterContract(NodeManager, CallAddress, converterAddress.GetFormatted());
 
             //ProfitService contract
             var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
-            ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
+            ProfitService = new ProfitContract(NodeManager, CallAddress, profitAddress.GetFormatted());
 
             //VoteService contract
             var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
-            VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
+            VoteService = new VoteContract(NodeManager, CallAddress, voteAddress.GetFormatted());
 
             //ElectionService contract
             var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
-            ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
+            ElectionService = new ElectionContract(NodeManager, CallAddress, electionAddress.GetFormatted());
 
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
-            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
+            ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
         }
 
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.GetChainInformation(ci);
+            NodeManager.GetChainInformation(ci);
         }
     }
 }

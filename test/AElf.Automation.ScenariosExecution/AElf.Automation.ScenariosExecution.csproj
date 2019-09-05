@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <Folder Include="figures" />
+      <Folder Include="logs" />
     </ItemGroup>
 
     <ItemGroup>

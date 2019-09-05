@@ -1,5 +1,4 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Contracts.TokenConverter;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -24,16 +23,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class TokenConverterContract : BaseContract<TokenConverterMethod>
     {
-        public TokenConverterContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.TokenConverter", callAddress)
+        public TokenConverterContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.TokenConverter", callAddress)
         {
         }
 
-        public TokenConverterContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public TokenConverterContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
     }
 }

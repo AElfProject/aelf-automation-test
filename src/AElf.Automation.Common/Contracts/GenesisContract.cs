@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -49,22 +50,24 @@ namespace AElf.Automation.Common.Contracts
 
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+        private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
+            new Dictionary<NameProvider, Address>();
 
-        private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
-            base(apiHelper, genesisAddress)
+        private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress)
+            : base(nodeManager, genesisAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
+        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+
+        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress)
         {
-            var genesisContract = ch.GetGenesisContractAddress();
+            var genesisContract = nm.GetGenesisContractAddress();
             Logger.Info($"Genesis contract Address: {genesisContract}");
 
-            return new GenesisContract(ch, callAddress, genesisContract);
+            return new GenesisContract(nm, callAddress, genesisContract);
         }
 
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
@@ -82,7 +85,7 @@ namespace AElf.Automation.Common.Contracts
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            
+
             return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
@@ -90,7 +93,7 @@ namespace AElf.Automation.Common.Contracts
         {
             if (_systemContractAddresses.Keys.Contains(name))
                 return _systemContractAddresses[name];
-            
+
             var hash = NameProviderInfos[name];
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             _systemContractAddresses[name] = address;
@@ -115,7 +118,7 @@ namespace AElf.Automation.Common.Contracts
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper);
+            var stub = new ContractTesterFactory(NodeManager);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
                     AddressHelper.Base58StringToAddress(ContractAddress), caller);
@@ -144,7 +147,5 @@ namespace AElf.Automation.Common.Contracts
 
             return dic;
         }
-        
-        private readonly Dictionary<NameProvider, Address> _systemContractAddresses = new Dictionary<NameProvider, Address>();
     }
 }

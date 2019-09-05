@@ -44,11 +44,11 @@ namespace AElf.Automation.EconomicSystem.Tests
             var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             publicKeys.Contains(
-                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
+                Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[no1])).ShouldBeTrue();
             publicKeys.Contains(
-                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
+                Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[no2])).ShouldBeTrue();
             publicKeys.Contains(
-                Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
+                Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[no3])).ShouldBeTrue();
         }
 
         [TestMethod]

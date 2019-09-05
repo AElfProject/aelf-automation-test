@@ -1,5 +1,6 @@
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using Newtonsoft.Json;
 
 namespace AElf.Automation.ContractsTesting
@@ -10,8 +11,8 @@ namespace AElf.Automation.ContractsTesting
 
         public static void NodeStateCheck(string name, string rpcUrl)
         {
-            var apiHelper = new WebApiHelper(rpcUrl);
-            var nodeStatus = new NodeStatus(apiHelper);
+            var nodeManager = new NodeManager(rpcUrl);
+            var nodeStatus = new NodeStatus(nodeManager);
             long height = 1;
             while (true)
             {
@@ -42,8 +43,8 @@ namespace AElf.Automation.ContractsTesting
 
         public static void GetAllBlockTimes(string name, string url)
         {
-            var apiHelper = new WebApiHelper(url);
-            var nodeStatus = new NodeStatus(apiHelper);
+            var nodeManager = new NodeManager(url);
+            var nodeStatus = new NodeStatus(nodeManager);
 
             var currentHeight = nodeStatus.GetBlockHeight();
             for (var i = 1; i <= currentHeight; i++)

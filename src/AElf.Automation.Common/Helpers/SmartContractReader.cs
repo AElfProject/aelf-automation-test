@@ -36,7 +36,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Return the full path of the files 
+        ///     Return the full path of the files
         /// </summary>
         private string GetKeyFileFullPath(string address)
         {

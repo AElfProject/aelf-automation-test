@@ -19,10 +19,10 @@ namespace AElf.Automation.SideChainTests
         [DataRow("2hxkDg6Pd2d4yU1A16PTZVMMrEDYEPR8oQojMDwWdax5LsBaxX")]
         public void RequestSideChain(string account)
         {
-            Tester.TransferToken(InitAccount, account, 1000000, "ELF");
-//            Tester.TokenApprove(account, 400000);
+            MainContracts.TransferToken(InitAccount, account, 1000000, "ELF");
+//            MainContracts.TokenApprove(account, 400000);
 //            
-//            var result = Tester.RequestSideChain(account,400000);
+//            var result = MainContracts.RequestSideChain(account,400000);
 //            var transactionResult = result.InfoMsg as TransactionResultDto;
 //            var message = transactionResult.ReadableReturnValue;
 //            _logger.Info($"proposal message is {message}");
@@ -39,7 +39,7 @@ namespace AElf.Automation.SideChainTests
         {
             foreach (var bp in BpNodeAddress)
             {
-                var result = Tester.Approve(bp, proposalId);
+                var result = MainContracts.Approve(bp, proposalId);
                 _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
@@ -49,7 +49,7 @@ namespace AElf.Automation.SideChainTests
             "6ab3db4d09f48526f5a64c573b57b6288a70a37822dbb6cd00ef025f35add9ce")]
         public void ReleaseProposal(string account, string proposalId)
         {
-            var result = Tester.Release(account, proposalId);
+            var result = MainContracts.Release(account, proposalId);
             var creationRequested = result.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
@@ -61,10 +61,10 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
         public void CreateProposal(string account)
         {
-            Tester.TransferToken(InitAccount, account, 400000, "ELF");
-            Tester.TokenApprove(account, 400000);
-            var address = Tester.GetOrganizationAddress(account);
-            var result = Tester.CreateSideChainProposal(address, account, 1, 1000, true);
+            MainContracts.TransferToken(InitAccount, account, 400000, "ELF");
+            MainContracts.TokenApprove(account, 400000);
+            var address = MainContracts.GetOrganizationAddress(account);
+            var result = MainContracts.CreateSideChainProposal(address, account, 1, 1000, true);
 
             var message = result.ReadableReturnValue;
             _logger.Info($"proposal message is {message}");
@@ -75,7 +75,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("94caf8b5a32e8d74c42ceb4a18cb4a06bde743f3c85da57e3fafbc8796443fbe")]
         public void GetProposal(string proposalId)
         {
-            var result = Tester.GetProposal(proposalId);
+            var result = MainContracts.GetProposal(proposalId);
             _logger.Info(
                 $"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
         }
@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChainTests
 //        [DataRow(2947586)]
         public void CheckStatus(int chainId)
         {
-            var status = Tester.GetChainStatus(chainId);
+            var status = MainContracts.GetChainStatus(chainId);
             _logger.Info($"side chain is {status}");
         }
 
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2816514)]
         public void RequestChainDisposal(string account, int chainId)
         {
-            var result = Tester.RequestChainDisposal(account, chainId);
+            var result = MainContracts.RequestChainDisposal(account, chainId);
             var proposalId = result.ReadableReturnValue;
 
             _logger.Info($"Disposal chain proposal id is {proposalId}");
@@ -107,10 +107,10 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
         public void CheckBalance(string account)
         {
-            var balance = Tester.GetBalance(Tester.CrossChainService.ContractAddress, "ELF");
+            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress, "ELF");
             _logger.Info($"side chain balance is {balance}");
 
-            var userBalance = Tester.GetBalance(account, "ELF");
+            var userBalance = MainContracts.GetBalance(account, "ELF");
             _logger.Info($"user balance is {userBalance}");
         }
     }

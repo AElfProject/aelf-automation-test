@@ -1,6 +1,4 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Contracts.Configuration;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -11,13 +9,13 @@ namespace AElf.Automation.Common.Contracts
         ChangeOwnerAddress,
         GetOwnerAddress
     }
+
     public class ConfigurationContract : BaseContract<ConfigurationMethod>
     {
-        public ConfigurationContract(IApiHelper ch, string callAddress, string contractAddress) : 
-            base(ch, contractAddress)
+        public ConfigurationContract(INodeManager nodeManager, string callAddress, string contractAddress)
+            : base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
     }
 }

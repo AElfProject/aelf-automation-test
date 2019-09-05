@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,7 +15,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         private static string RpcUrl { get; } = "http://34.212.171.27:8000";
         private Behaviors Behaviors;
         private string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
-        private IApiHelper CH { get; set; }
+        private INodeManager CH { get; set; }
         private Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
 
         [TestInitialize]
@@ -22,7 +23,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             #region Get services
 
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
