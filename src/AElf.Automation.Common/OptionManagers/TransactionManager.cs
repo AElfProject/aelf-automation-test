@@ -94,7 +94,7 @@ namespace AElf.Automation.Common.OptionManagers
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
             string chainId = "AELF")
         {
-            if (_cachedHeight == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
+            if (_cachedHeight == default || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
                 !_chainId.Equals(chainId))
             {
                 _chainId = chainId;

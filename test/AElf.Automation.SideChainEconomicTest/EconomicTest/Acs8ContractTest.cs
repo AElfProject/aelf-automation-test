@@ -8,7 +8,7 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.SideChainTests.EconomicTest
+namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
     public class Acs8ContractTest
     {
@@ -17,7 +17,7 @@ namespace AElf.Automation.SideChainTests.EconomicTest
         public ExecutionPluginForAcs8Contract PluginAcs8Contract { get; set; }
         public ContractServices Chain { get; set; }
 
-        public ILog Logger = Log4NetHelper.GetLogger();
+        public static ILog Logger = Log4NetHelper.GetLogger();
 
         public Acs8ContractTest(ContractServices chain, string contract)
         {
@@ -32,12 +32,9 @@ namespace AElf.Automation.SideChainTests.EconomicTest
 
             try
             {
-                var cpuBalance = Chain.TokenService.GetUserBalance(Contract, "CPU");
-                Logger.Info($"Contract 'CPU' balance: {cpuBalance}");
-           
                 //cpu
                 var cpuResult = await tester.CpuConsumingMethod.SendAsync(new Empty());
-                Logger.Info(JsonConvert.SerializeObject(cpuResult.TransactionResult));
+                Logger.Info(cpuResult.TransactionResult);
            
                 //net
                 var randomBytes = CommonHelper.GenerateRandombytes(10240);
@@ -45,15 +42,15 @@ namespace AElf.Automation.SideChainTests.EconomicTest
                 {
                     Blob = ByteString.CopyFrom(randomBytes)
                 });
-                Logger.Info(JsonConvert.SerializeObject(netResult.TransactionResult));
+                Logger.Info(netResult.TransactionResult);
 
                 //sto
                 var stoResult = await tester.StoConsumingMethod.SendAsync(new Empty());
-                Logger.Info(JsonConvert.SerializeObject(stoResult.TransactionResult));
+                Logger.Info(stoResult.TransactionResult);
 
                 //few
                 var fewResult = await tester.FewConsumingMethod.SendAsync(new Empty());
-                Logger.Info(JsonConvert.SerializeObject(fewResult.TransactionResult));
+                Logger.Info(fewResult.TransactionResult);
 
             }
             catch (Exception e)

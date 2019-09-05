@@ -15,27 +15,33 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         private static int Timeout { get; set; }
-        public ContractTester Tester;
+        public ContractTester MainContracts;
+        public ContractTester SideAContracts;
+        public ContractTester SideBContracts;
+        
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
-//        public static string MainChainUrl { get; } = "http://127.0.0.1:9000";    
-        public static string MainChainUrl { get; } = "http://192.168.197.44:8000";
-//        public static string RpcUrl { get; } = "http://192.168.197.56:8001";
+        public static string MainChainUrl { get; } = "http://192.168.197.14:8000";
+        public static string SideAChainUrl { get; } = "http://192.168.197.14:8001";
+        public static string SideBChainUrl { get; } = "http://192.168.197.14:8002";
 
-//        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string InitAccount { get; } = "2boUmCEXvK9BamvsQTr9VQ5bXPZSvd5utzB9nz3fwPmbJtoySh";
 
         public List<string> BpNodeAddress { get; set; }
-        public List<string> UserList { get; set; }
 
         protected void Initialize()
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            var keyStore = CommonHelper.GetCurrentDataDir();
             var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var contractServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, chainId);
-            Tester = new ContractTester(contractServices);
+            var mainServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, chainId);
+            MainContracts = new ContractTester(mainServices);
+            
+            var sideAServices = new ContractServices(SideAChainUrl, InitAccount, Account.DefaultPassword, 2112);
+            SideAContracts = new ContractTester(sideAServices);
+            
+            var sideBServices = new ContractServices(SideBChainUrl, InitAccount, Account.DefaultPassword, 2113);
+            SideAContracts = new ContractTester(sideBServices);
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
@@ -101,17 +107,6 @@ namespace AElf.Automation.SideChainTests
             var merklePath = new MerklePath();
             merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             return merklePath;
-        }
-
-        protected void TestCleanUp()
-        {
-            if (UserList.Count == 0) return;
-            _logger.Info("Delete all account files created.");
-            foreach (var item in UserList)
-            {
-                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
-                File.Delete(file);
-            }
         }
 
         protected CommandInfo CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)

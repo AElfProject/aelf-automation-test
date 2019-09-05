@@ -4,12 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.ECDSA.Exceptions;
 using AElf.Types;
+using log4net;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.OptionManagers
 {
@@ -32,6 +35,7 @@ namespace AElf.Automation.Common.OptionManagers
         private readonly List<Account> _unlockedAccounts;
         private readonly KeyStoreService _keyStoreService;
         public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
+        public static ILog Logger = Log4NetHelper.GetLogger();
 
         public AElfKeyStore(string dataDirectory)
         {
@@ -92,7 +96,14 @@ namespace AElf.Automation.Common.OptionManagers
 
         public ECKeyPair GetAccountKeyPair(string address)
         {
-            return _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+            var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+            if (kp == null)
+            {
+                AsyncHelper.RunSync(() => UnlockAccountAsync(address, Account.DefaultPassword));
+                kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+            }
+
+            return kp;
         }
 
         public async Task<ECKeyPair> CreateAccountKeyPairAsync(string password)
@@ -155,9 +166,18 @@ namespace AElf.Automation.Common.OptionManagers
             {
                 using (var writer = File.CreateText(fullPath))
                 {
-                    var scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
-                        keyPair.PrivateKey,
-                        address.GetFormatted());
+                    string scryptResult;
+                    while (true)
+                    {
+                        scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
+                            keyPair.PrivateKey,
+                            address.GetFormatted());
+                        if (!scryptResult.IsNullOrWhiteSpace())
+                            break;
+                        
+                        Logger.Error("Empty account");
+                    }
+
                     writer.Write(scryptResult);
                     writer.Flush();
                 }

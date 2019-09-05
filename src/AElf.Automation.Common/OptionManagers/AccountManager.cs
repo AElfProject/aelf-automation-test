@@ -39,7 +39,7 @@ namespace AElf.Automation.Common.OptionManagers
             var account = addr.GetFormatted();
             result.InfoMsg = account;
             _accounts.Add(account);
-
+            
             return result;
         }
 

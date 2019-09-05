@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Acs0;
+using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers;
+using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenConverter;
+using AElf.Types;
+using AElfChain.SDK;
+using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using log4net;
+using Shouldly;
+
+namespace AElf.Automation.SideChainEconomicTest.EconomicTest
+{
+    public class MainChainManager
+    {
+        public ContractServices MainChain { get; set; }
+
+        public GenesisContract Genesis => MainChain.GenesisService;
+
+        public TokenContract Token => MainChain.TokenService;
+
+        public IApiHelper ApiHelper => MainChain.ApiHelper;
+
+        public IApiService ApiService => MainChain.ApiHelper.ApiService;
+
+        public static ILog Logger = Log4NetHelper.GetLogger();
+
+        public List<string> Symbols = new List<string> {"CPU", "RAM", "NET", "STO"};
+
+
+        public MainChainManager(string serviceUrl, string account)
+        {
+            MainChain = new ContractServices(serviceUrl, account, Account.DefaultPassword);
+        }
+
+        public async Task BuyResources(string account, long amount)
+        {
+            var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverterName);
+            var tokenContract = new TokenConverterContract(ApiHelper, account, tokenConverter.GetFormatted());
+            var converter =
+                tokenContract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(
+                    account);
+
+            foreach (var symbol in Symbols)
+            {
+                var beforeBalance = Token.GetUserBalance(account, symbol);
+                //buy
+                var transactionResult = await converter.Buy.SendAsync(new BuyInput
+                {
+                    Symbol = symbol,
+                    Amount = amount * 10000_0000
+                });
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+                var afterBalance = Token.GetUserBalance(account, symbol);
+                Logger.Info($"Token '{symbol}' balance: before = {beforeBalance}, after: {afterBalance}");
+            }
+        }
+
+        public async Task ValidateMainChainTokenAddress(ContractServices sideServices)
+        {
+            var genesisStub = Genesis.GetGensisStub();
+            var validateResult = await genesisStub.ValidateSystemContractAddress.SendAsync(
+                new ValidateSystemContractAddressInput
+                {
+                    Address = Token.Contract,
+                    SystemContractHashName = GenesisContract.NameProviderInfos[NameProvider.TokenName]
+                });
+            validateResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //wait to index
+            await WaitSideChainIndex(sideServices, validateResult.TransactionResult.BlockNumber);
+            
+            //verify
+            var transaction = validateResult.Transaction;
+            var merklePath = await MainChain.GetMerklePath(validateResult.TransactionResult.TransactionId.ToHex());
+            var sideToken = sideServices.GenesisService.GetTokenStub();
+            var receiveResult = await sideToken.CrossChainReceiveToken.SendAsync(new CrossChainReceiveTokenInput
+            {
+                FromChainId = ChainConstInfo.MainChainId,
+                MerklePath = merklePath,
+                TransferTransactionBytes = transaction.ToByteString()
+            });
+            receiveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+        
+        public async Task WaitSideChainIndex(ContractServices sideChain, long blockNumber)
+        {
+            Logger.Info($"Wait side chain index target height: {blockNumber}");
+            var crossStub = sideChain.GenesisService.GetCrossChainStub();
+            while (true)
+            {
+                var chainStatus = await ApiService.GetChainStatusAsync();
+                if (chainStatus.LastIrreversibleBlockHeight >= blockNumber)
+                {
+                    try
+                    {
+                        var indexHeight = await crossStub.GetParentChainHeight.CallAsync(new Empty());
+                        if(indexHeight.Value > blockNumber)
+                            break;
+                        
+                        Logger.Info($"Current index height: {indexHeight.Value}");
+                        await Task.Delay(4000);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e.Message);
+                    }
+                }
+                else
+                {
+                    Logger.Info($"Chain lib height: {chainStatus.LastIrreversibleBlockHeight}");
+                    await Task.Delay(10000);
+                }
+            }
+        }
+    }
+}

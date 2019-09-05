@@ -22,6 +22,7 @@ namespace AElfChain.SDK
         ExecuteRawTransaction,
         CurrentRoundInformation,
         TaskQueueStatus,
+        GetMerklePathByTransactionId,
 
         //Net
         GetPeers,

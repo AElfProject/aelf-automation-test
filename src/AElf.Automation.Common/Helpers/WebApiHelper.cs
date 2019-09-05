@@ -28,6 +28,7 @@ namespace AElf.Automation.Common.Helpers
 
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
+        public List<CommandInfo> CommandList { get; set; }
 
         #endregion
 
@@ -37,6 +38,7 @@ namespace AElf.Automation.Common.Helpers
             _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
 
             ApiService = AElfChainClient.GetClient(baseUrl, retryTimes: 10);
+            _chainId = GetChainId();
             CommandList = new List<CommandInfo>();
         }
 
@@ -49,12 +51,12 @@ namespace AElf.Automation.Common.Helpers
         {
             _baseUrl = url;
             ApiService = AElfChainClient.GetClient(url);
+            _chainId = GetChainId();
+            
             Logger.Info($"Request url updated to: {url}");
         }
 
         public IApiService ApiService { get; set; }
-
-        public List<CommandInfo> CommandList { get; set; }
 
         public string GetGenesisContractAddress()
         {
@@ -408,6 +410,13 @@ namespace AElf.Automation.Common.Helpers
 
             _accountManager = new AccountManager(_keyStore);
             return _accountManager;
+        }
+
+        private string GetChainId()
+        {
+            var chainStatus = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+
+            return chainStatus.ChainId;
         }
     }
 }

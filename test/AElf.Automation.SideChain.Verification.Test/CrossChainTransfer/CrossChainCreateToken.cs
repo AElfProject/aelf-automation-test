@@ -29,10 +29,9 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         public void DoCrossChainCreateToken()
         {
             Logger.Info("Create token:");
-            //MainChainCreateToken();
-            AsyncHelper.RunSync(() => BuyResources(200_0000_0000)); 
-            //Logger.Info("Issue token:");
-            //IssueToken();
+            MainChainCreateToken();
+            Logger.Info("Issue token:");
+            IssueToken();
 
             Logger.Info("Waiting for indexing");
             Thread.Sleep(150000);
