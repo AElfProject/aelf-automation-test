@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -46,16 +47,15 @@ namespace AElf.Automation.Common.Contracts
     {
         public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
-        public ProfitContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.Profit", callAddress)
+        public ProfitContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.Profit", callAddress)
         {
         }
 
-        public ProfitContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public ProfitContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
         public void GetTreasurySchemes(string treasuryContractAddress)
@@ -63,7 +63,7 @@ namespace AElf.Automation.Common.Contracts
             if (Schemes != null && Schemes.Count == 7)
                 return;
             Schemes = new Dictionary<SchemeType, Scheme>();
-            var treasuryContract = new TreasuryContract(ApiHelper, CallAddress, treasuryContractAddress);
+            var treasuryContract = new TreasuryContract(NodeManager, CallAddress, treasuryContractAddress);
             var treasurySchemeId =
                 treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
             var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);

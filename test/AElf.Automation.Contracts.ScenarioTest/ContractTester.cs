@@ -1,11 +1,12 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     public class ContractTester
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public readonly ContractServices ContractServices;
 
         public readonly ElectionContract ElectionService;
@@ -21,7 +22,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public ContractTester(ContractServices contractServices)
         {
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
 
             GenesisService = ContractServices.GenesisService;

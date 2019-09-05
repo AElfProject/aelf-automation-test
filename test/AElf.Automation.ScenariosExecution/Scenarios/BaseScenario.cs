@@ -59,7 +59,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public void CheckNodeTransactionAction()
         {
-            var chain = new ChainSummary(Services.ApiHelper.GetApiUrl());
+            var chain = new ChainSummary(Services.NodeManager.GetApiUrl());
             chain.ContinuousCheckChainStatus();
         }
 
@@ -81,7 +81,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = AsyncHelper.RunSync(Services.ApiHelper.ApiService.GetBlockHeightAsync);
+                var newHeight = AsyncHelper.RunSync(Services.NodeManager.ApiService.GetBlockHeightAsync);
                 if (newHeight == height)
                 {
                     checkTimes++;

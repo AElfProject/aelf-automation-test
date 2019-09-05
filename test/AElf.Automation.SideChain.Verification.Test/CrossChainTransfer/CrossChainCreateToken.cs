@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             for (var i = 0; i < CreateTokenNumber; i++)
             {
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
-                var createTransaction = MainChainService.TokenService.ApiHelper.GenerateTransactionRawTx(
+                var createTransaction = MainChainService.TokenService.NodeManager.GenerateTransactionRawTx(
                     MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
                     TokenMethod.Create.ToString(), new CreateInput()
                     {
@@ -56,13 +56,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         TotalSupply = 5_0000_0000
                     });
                 var txId = ExecuteMethodWithTxId(MainChainService, createTransaction);
-                var result = CheckTransactionResult(MainChainService, txId);
-
-                if (!(result.InfoMsg is TransactionResultDto txResult))
-                {
-                    Logger.Error($"Token {symbol} create failed. ");
-                    continue;
-                }
+                var txResult = CheckTransactionResult(MainChainService, txId);
 
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed &&
                     txResult.Error.Contains("Token already exists."))
@@ -148,7 +142,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Logger.Info("Prepare resources token.");
             var genesis = MainChainService.GenesisService;
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
-            var converter = new TokenConverterContract(MainChainService.ApiHelper, MainChainService.CallAddress, tokenConverter.GetFormatted());
+            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress, tokenConverter.GetFormatted());
             var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
             
             var symbols = new List<string>{"CPU", "NET", "STO"};

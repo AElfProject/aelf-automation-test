@@ -4,11 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElfChain.SDK;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -48,20 +47,15 @@ namespace AElf.Automation.ScenariosExecution
             var url = specifyEndpoint.Enable
                 ? specifyEndpoint.ServiceUrl
                 : _config.BpNodes.First(o => o.Status).ServiceUrl;
-            var webHelper = new WebApiHelper(url, AccountDir);
+            var webHelper = new NodeManager(url, AccountDir);
 
-            var accountCommand = webHelper.ListAccounts();
+            var accounts = webHelper.ListAccounts();
+            var testUsers = accounts.FindAll(o => !ConfigInfoHelper.GetAccounts().Contains(o));
+            if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
-            if (!(accountCommand.InfoMsg is List<string> accounts))
-                return GenerateTestUsers(webHelper, _config.UserCount);
-            {
-                var testUsers = accounts.FindAll(o => !ConfigInfoHelper.GetAccounts().Contains(o));
-                if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
-
-                var newAccounts = GenerateTestUsers(webHelper, _config.UserCount - testUsers.Count);
-                testUsers.AddRange(newAccounts);
-                return testUsers;
-            }
+            var newAccounts = GenerateTestUsers(webHelper, _config.UserCount - testUsers.Count);
+            testUsers.AddRange(newAccounts);
+            return testUsers;
         }
 
         public ContractServices GetContractServices()
@@ -74,23 +68,21 @@ namespace AElf.Automation.ScenariosExecution
                 ? specifyEndpoint.ServiceUrl
                 : _config.BpNodes.First(o => o.Status).ServiceUrl;
             Logger.Info($"All request sent to endpoint: {url}");
-            var apiHelper = new WebApiHelper(url, AccountDir);
+            var nodeManager = new NodeManager(url, AccountDir);
 
-            GetConfigNodesPublicKey(apiHelper);
+            GetConfigNodesPublicKey(nodeManager);
 
-            Services = new ContractServices(apiHelper, GenerateOrGetTestUsers().First());
+            Services = new ContractServices(nodeManager, GenerateOrGetTestUsers().First());
 
             return Services;
         }
 
-        private List<string> GenerateTestUsers(IApiHelper helper, int count)
+        private List<string> GenerateTestUsers(INodeManager manager, int count)
         {
             var accounts = new List<string>();
             Parallel.For(0, count, i =>
             {
-                var command = new CommandInfo(ApiMethods.AccountNew, Account.DefaultPassword);
-                command = helper.NewAccount(command);
-                var account = command.InfoMsg.ToString();
+                var account = manager.NewAccount();
                 accounts.Add(account);
             });
 
@@ -151,16 +143,16 @@ namespace AElf.Automation.ScenariosExecution
             return File.Exists(path);
         }
 
-        private static void GetConfigNodesPublicKey(IApiHelper helper)
+        private static void GetConfigNodesPublicKey(INodeManager manager)
         {
             _config.BpNodes.ForEach(node =>
             {
-                node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password);
+                node.PublicKey = manager.GetPublicKeyFromAddress(node.Account, node.Password);
                 Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
             _config.FullNodes.ForEach(node =>
             {
-                node.PublicKey = helper.GetPublicKeyFromAddress(node.Account, node.Password);
+                node.PublicKey = manager.GetPublicKeyFromAddress(node.Account, node.Password);
                 Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
         }

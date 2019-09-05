@@ -1,51 +1,43 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
+using AElfChain.SDK;
 using AElfChain.SDK.Models;
+using Volo.Abp.Threading;
+using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.ContractsTesting
 {
     public class NodeStatus
     {
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
+        private IApiService _apiService => _nodeManager.ApiService;
 
-        public NodeStatus(IApiHelper apiHelper)
+        public NodeStatus(INodeManager nodeManager)
         {
-            _apiHelper = apiHelper;
+            _nodeManager = nodeManager;
         }
 
         public long GetBlockHeight()
         {
-            var command = new CommandInfo(ApiMethods.GetBlockHeight);
-            _apiHelper.GetBlockHeight(command);
-
-            var height = (long) command.InfoMsg;
-
-            return height;
+            return AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
         }
 
         public int GetTransactionPoolStatus()
         {
-            var command = new CommandInfo(ApiMethods.GetTransactionPoolStatus);
-            _apiHelper.GetTransactionPoolStatus(command);
-            var transactionPoolStatus = command.InfoMsg as GetTransactionPoolStatusOutput;
+            var transactionPoolStatus = AsyncHelper.RunSync(_apiService.GetTransactionPoolStatusAsync);
 
             return transactionPoolStatus?.Queued ?? 0;
         }
 
         public BlockDto GetBlockInfo(long height)
         {
-            var command = new CommandInfo(ApiMethods.GetBlockByHeight)
-            {
-                Parameter = $"{height} false"
-            };
-            _apiHelper.GetBlockByHeight(command);
-
-            return command.InfoMsg as BlockDto;
+            return AsyncHelper.RunSync(()=>_apiService.GetBlockByHeightAsync(height));
         }
 
         public ChainStatusDto GetChainInformation()
         {
             var command = new CommandInfo(ApiMethods.GetChainInformation);
-            _apiHelper.GetChainInformation(command);
+            _nodeManager.GetChainInformation(command);
 
             return command.InfoMsg as ChainStatusDto;
         }

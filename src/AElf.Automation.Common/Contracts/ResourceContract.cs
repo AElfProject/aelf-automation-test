@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -24,16 +25,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class ResourceContract : BaseContract<ResourceMethod>
     {
-        public ResourceContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Resource", callAddress)
+        public ResourceContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, "AElf.Contracts.Resource", callAddress)
         {
         }
 
-        public ResourceContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public ResourceContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
     }
 }

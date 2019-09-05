@@ -1,6 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Configuration;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -10,7 +10,7 @@ namespace AElf.Automation.QueryTransaction
     public class ConfigurationLimit
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
         private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
         private ConfigurationContainer.ConfigurationStub _configurationStub;
@@ -19,8 +19,8 @@ namespace AElf.Automation.QueryTransaction
         public ConfigurationLimit(string serviceUrl)
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
-            _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
-            _stub = new ContractTesterFactory(_apiHelper);
+            _nodeManager = new NodeManager(serviceUrl, keyStorePath);
+            _stub = new ContractTesterFactory(_nodeManager);
 
             GetOrCreateTestAccount();
             GetGenesisContract();
@@ -36,15 +36,12 @@ namespace AElf.Automation.QueryTransaction
         
         private void GetOrCreateTestAccount()
         {
-            var accountInfo = _apiHelper.NewAccount(
-                new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = Account.DefaultPassword});
-            _account = accountInfo.InfoMsg.ToString();
+            _account = _nodeManager.NewAccount();
         }
 
         private void GetGenesisContract()
         {
-            _genesisContract = GenesisContract.GetGenesisContract(_apiHelper, _account);
+            _genesisContract = GenesisContract.GetGenesisContract(_nodeManager, _account);
         }
 
         private void GetConfigurationStub()

@@ -23,7 +23,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             Chain = chain;
             Contract = contract;
-            PluginAcs8Contract = new ExecutionPluginForAcs8Contract(Chain.ApiHelper, Chain.CallAddress, Contract);
+            PluginAcs8Contract = new ExecutionPluginForAcs8Contract(Chain.NodeManager, Chain.CallAddress, Contract);
         }
 
         public async Task ExecutionTest()

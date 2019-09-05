@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -12,15 +13,14 @@ namespace AElf.Automation.Common.Contracts
     
     public class ExecutionPluginForAcs8Contract : BaseContract<PluginAcs8Method>
     {
-        public ExecutionPluginForAcs8Contract(IApiHelper apiHelper, string callAddress, string contractAddress) 
-            : base(apiHelper, contractAddress)
+        public ExecutionPluginForAcs8Contract(INodeManager nodeManager, string callAddress, string contractAddress) 
+            : base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public ExecutionPluginForAcs8Contract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, ContractFileName, callAddress)
+        public ExecutionPluginForAcs8Contract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, ContractFileName, callAddress)
         {
         }
         

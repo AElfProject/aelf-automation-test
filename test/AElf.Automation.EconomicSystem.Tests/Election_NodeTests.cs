@@ -52,9 +52,9 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
         }
 
         [TestMethod]

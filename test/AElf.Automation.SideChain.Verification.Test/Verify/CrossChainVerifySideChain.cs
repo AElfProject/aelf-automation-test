@@ -4,6 +4,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
 using AElfChain.SDK.Models;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify
 {
@@ -45,11 +46,10 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 //Get side chain transactions
                 for (var i = verifyBlock; i < verifyBlock + VerifyBlockNumber; i++)
                 {
-                    var txIds = new List<string>();
-                    var ci = new CommandInfo(ApiMethods.GetBlockByHeight) {Parameter = $"{i} true"};
-                    var result = services.ApiHelper.ExecuteCommand(ci);
-                    if (!(result.InfoMsg is BlockDto blockResult)) return;
-                    txIds = blockResult.Body.Transactions;
+                    var i1 = i;
+                    var blockResult =
+                        AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetBlockByHeightAsync(i1, true));
+                    var txIds = blockResult.Body.Transactions;
                     sideChainTransactions.Add(i, txIds);
 
                     foreach (var txId in txIds)

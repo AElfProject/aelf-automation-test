@@ -14,7 +14,7 @@ using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public enum KeyStoreErrors
     {
@@ -30,16 +30,27 @@ namespace AElf.Automation.Common.OptionManagers
         private const string KeyFileExtension = ".json";
         private const string KeyFolderName = "keys";
 
-        private readonly string _dataDirectory;
-
         private readonly List<Account> _unlockedAccounts;
         private readonly KeyStoreService _keyStoreService;
+        
+        public readonly string DataDirectory;
         public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
         public static ILog Logger = Log4NetHelper.GetLogger();
 
-        public AElfKeyStore(string dataDirectory)
+        private static AElfKeyStore _keyStore;
+        public static AElfKeyStore GetKeyStore(string dataDirectory)
         {
-            _dataDirectory = dataDirectory;
+            if (_keyStore != null && _keyStore.DataDirectory == dataDirectory)
+                return _keyStore;
+            
+            _keyStore = new AElfKeyStore(dataDirectory);
+            
+            return _keyStore;
+        }
+        
+        private AElfKeyStore(string dataDirectory)
+        {
+            DataDirectory = dataDirectory;
             _unlockedAccounts = new List<Account>();
             _keyStoreService = new KeyStoreService();
         }
@@ -211,7 +222,7 @@ namespace AElf.Automation.Common.OptionManagers
 
         private string GetKeystoreDirectoryPath()
         {
-            return Path.Combine(_dataDirectory, KeyFolderName);
+            return Path.Combine(DataDirectory, KeyFolderName);
         }
     }
 }

@@ -1,5 +1,6 @@
 using Acs3;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
@@ -26,11 +27,10 @@ namespace AElf.Automation.Common.Contracts
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
     {
-        public ParliamentAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
-            contractAddress)
+        public ParliamentAuthContract(INodeManager nm, string callAddress, string contractAddress) : 
+            base(nm, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,

@@ -113,11 +113,11 @@ namespace AElf.Automation.Common.Helpers
                     _streamWriter = new StreamWriter(_logFilePath, true, Encoding.UTF8);
                 }
 
-                Info("Initial log helper successful. Log path is: {0}", logFileSavePath);
+                Info("Initial log manager successful. Log path is: {0}", logFileSavePath);
             }
             catch (Exception exception)
             {
-                throw new Exception("Create log helper fail.", exception);
+                throw new Exception("Create log manager fail.", exception);
             }
         }
 
@@ -146,7 +146,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (string.IsNullOrEmpty(_logFilePath))
                 {
-                    throw new Exception("Please initial log helper first.");
+                    throw new Exception("Please initial log manager first.");
                 }
 
                 try
@@ -171,7 +171,7 @@ namespace AElf.Automation.Common.Helpers
                             break;
 
                         default:
-                            text = "Invalid LogType, log helper exception.\t" + DateTime.Now.ToString(timeStamp) +
+                            text = "Invalid LogType, log manager exception.\t" + DateTime.Now.ToString(timeStamp) +
                                    "\t" + content;
                             break;
                     }
@@ -193,7 +193,7 @@ namespace AElf.Automation.Common.Helpers
             {
                 if (string.IsNullOrEmpty(_logFilePath))
                 {
-                    throw new Exception("Please initial log helper first.");
+                    throw new Exception("Please initial log manager first.");
                 }
 
                 try

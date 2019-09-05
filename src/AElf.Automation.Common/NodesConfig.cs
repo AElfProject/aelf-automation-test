@@ -3,9 +3,10 @@ using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.Common.OptionManagers.Authority
+namespace AElf.Automation.Common
 {
     public class Node
     {
@@ -23,7 +24,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 
         public void CheckNodesAccount()
         {
-            var keyStore = new AElfKeyStore(CommonHelper.GetCurrentDataDir());
+            var keyStore = AElfKeyStore.GetKeyStore(CommonHelper.GetCurrentDataDir());
             var accountManager = new AccountManager(keyStore);
             foreach (var node in Nodes)
             {
@@ -70,6 +71,6 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             return _instance;
         }
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-sidechain.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-tps.json");
     }
 }

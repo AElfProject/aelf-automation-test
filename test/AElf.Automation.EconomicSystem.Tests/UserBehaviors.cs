@@ -29,7 +29,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
@@ -54,7 +54,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
                 {
-                    CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                    CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
                     Amount = i,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
                 });

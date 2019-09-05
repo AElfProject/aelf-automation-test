@@ -10,7 +10,7 @@ using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public class TransactionManager
     {

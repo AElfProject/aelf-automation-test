@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -14,7 +14,7 @@ namespace AElf.Automation.ContractsTesting
     public class ContractIssueLimit
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
         private readonly string _bpAccount;
         private readonly string _account;
 
@@ -24,14 +24,11 @@ namespace AElf.Automation.ContractsTesting
         
         public ContractIssueLimit(string serviceUrl)
         {
-            _apiHelper = new WebApiHelper(serviceUrl);
-            _stub = new ContractTesterFactory(_apiHelper);
+            _nodeManager = new NodeManager(serviceUrl);
+            _stub = new ContractTesterFactory(_nodeManager);
 
-            var accountInfo = _apiHelper.NewAccount(
-                new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = Account.DefaultPassword});
-            _account = accountInfo.InfoMsg.ToString();
-            _genesisContract = GenesisContract.GetGenesisContract(_apiHelper, _account);
+            _account = _nodeManager.NewAccount();
+            _genesisContract = GenesisContract.GetGenesisContract(_nodeManager, _account);
 
             _bpAccount = "eu6nm4Kxu3HcA7FhSdQpPjy29x896yqcPHSq55gKaggTKEwA3";
         }
@@ -55,7 +52,7 @@ namespace AElf.Automation.ContractsTesting
         
         public void DeployTestContract()
         {
-            var tokenContract = new TokenContract(_apiHelper, _account);
+            var tokenContract = new TokenContract(_nodeManager, _account);
             _contractAddress = tokenContract.ContractAddress;
         }
 

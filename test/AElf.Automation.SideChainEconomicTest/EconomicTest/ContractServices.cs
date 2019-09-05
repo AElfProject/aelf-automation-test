@@ -1,24 +1,20 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
-using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using log4net;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
     public class ContractServices
     {
-        public readonly IApiHelper ApiHelper;
-        public IApiService ApiService => ApiHelper.ApiService;
+        public readonly INodeManager NodeManager;
+        public IApiService ApiService => NodeManager.ApiService;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -35,11 +31,10 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public ContractServices(string url, string callAddress, string password)
         {
-            ApiHelper = new WebApiHelper(url);
+            NodeManager = new NodeManager(url);
             CallAddress = callAddress;
-            UnlockAccounts(CallAddress, password);
-
-            //get services
+            
+            NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();
         }
 
@@ -94,7 +89,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             Logger.Info($"Get contract service from: {ApiService.GetServiceUrl()}");
             
-            GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
             TokenService = GenesisService.GetTokenContract();
@@ -107,16 +102,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
             //ParliamentAuth contract
             ParliamentService = GenesisService.GetParliamentAuthContract();
-        }
-        
-        private void UnlockAccounts(string account, string password)
-        {
-            var ci = new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} notimeout"
-            };
-            
-            ApiHelper.UnlockAccount(ci);
         }
     }
 }

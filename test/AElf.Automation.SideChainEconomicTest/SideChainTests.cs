@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.SideChainEconomicTest
 {
@@ -17,7 +17,7 @@ namespace AElf.Automation.SideChainEconomicTest
 
         public async Task<string> DeployContract_And_Transfer_Resources()
         {
-            var authority = new AuthorityManager(SideA.ApiHelper, SideA.CallAddress);
+            var authority = new AuthorityManager(SideA.NodeManager, SideA.CallAddress);
             var deployContract = authority.DeployContractWithAuthority(SideA.CallAddress, Acs8ContractName);
             var acs8Contract = deployContract.GetFormatted();
             Logger.Info($"Acs8 contract address: {acs8Contract}");

@@ -1,5 +1,6 @@
 using System;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -27,15 +28,14 @@ namespace AElf.Automation.Common.Contracts
 
     public class PerformanceContract : BaseContract<PerformanceMethod>
     {
-        public PerformanceContract(IApiHelper apiHelper, string callAddress, string contractAddress)
-            : base(apiHelper, contractAddress)
+        public PerformanceContract(INodeManager nodeManager, string callAddress, string contractAddress)
+            : base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public PerformanceContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, ContractFileName, callAddress)
+        public PerformanceContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, ContractFileName, callAddress)
         {
         }
 

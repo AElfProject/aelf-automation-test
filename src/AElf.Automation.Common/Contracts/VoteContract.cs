@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -23,16 +24,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class VoteContract : BaseContract<VoteMethod>
     {
-        public VoteContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.Vote", callAddress)
+        public VoteContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.Vote", callAddress)
         {
         }
 
-        public VoteContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public VoteContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
     }
 }

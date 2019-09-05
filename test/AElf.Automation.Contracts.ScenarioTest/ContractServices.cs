@@ -1,12 +1,12 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     public class ContractServices
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
@@ -20,9 +20,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string CallAddress { get; set; }
         public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
 
-        public ContractServices(IApiHelper apiHelper, string callAddress, string type)
+        public ContractServices(INodeManager nodeManager, string callAddress, string type)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
             CallAddress = callAddress;
 
             //get all contract services
@@ -43,7 +43,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public void GetAllContractServices()
         {
-            GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
             TokenService = GenesisService.GetTokenContract();

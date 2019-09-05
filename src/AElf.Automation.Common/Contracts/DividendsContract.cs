@@ -1,4 +1,5 @@
 ﻿using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -16,15 +17,14 @@ namespace AElf.Automation.Common.Contracts
 
     public class DividendsContract : BaseContract<DividendsMethod>
     {
-        public DividendsContract(IApiHelper apiHelper, string callAddress, string dividendsAddress)
-            : base(apiHelper, dividendsAddress)
+        public DividendsContract(INodeManager nodeManager, string callAddress, string dividendsAddress)
+            : base(nodeManager, dividendsAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public DividendsContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, ContractFileName, callAddress)
+        public DividendsContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, ContractFileName, callAddress)
         {
         }
 

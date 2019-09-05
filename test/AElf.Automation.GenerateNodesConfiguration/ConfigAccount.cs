@@ -1,6 +1,6 @@
 using System.IO;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 using Volo.Abp.Threading;
 
@@ -15,7 +15,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
         {
             var dataPath = CommonHelper.GetCurrentDataDir();
             _keyPath = Path.Combine(dataPath, "keys");
-            _keyStore = new AElfKeyStore(dataPath);
+            _keyStore = AElfKeyStore.GetKeyStore(dataPath);
             _node = node;
         }
 

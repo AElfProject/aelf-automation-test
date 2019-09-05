@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using AElf.Automation.Common.Managers;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;

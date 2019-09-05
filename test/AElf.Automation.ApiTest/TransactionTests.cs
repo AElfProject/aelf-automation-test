@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -12,7 +12,7 @@ namespace AElf.Automation.ApiTest
 {
     public partial class ChainApiTests
     {
-        private WebApiHelper _apiHelper;
+        private INodeManager _nodeManager;
         
         [Fact]
         public async Task SendTransactions_Test()
@@ -41,7 +41,7 @@ namespace AElf.Automation.ApiTest
             
             var transactionId =
                 Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(rawTransactionOutput.RawTransaction));
-            var signature = _apiHelper.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray());
+            var signature = _nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray());
             var result = await _client.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
             {
                 RawTransaction = rawTransactionOutput.RawTransaction,
@@ -51,11 +51,10 @@ namespace AElf.Automation.ApiTest
 
         private TokenContract DeployTokenContract()
         {
-            _apiHelper = new WebApiHelper(ServiceUrl);
-            var cmdResult = _apiHelper.AccountManager.NewAccount(Account.DefaultPassword);
-            var account = cmdResult.InfoMsg.ToString();
+            _nodeManager = new NodeManager(ServiceUrl);
+            var account = _nodeManager.AccountManager.NewAccount(Account.DefaultPassword);
             
-            return new TokenContract(_apiHelper,account);
+            return new TokenContract(_nodeManager,account);
         }
     }
 }

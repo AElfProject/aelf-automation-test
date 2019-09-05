@@ -2,8 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
@@ -12,7 +11,7 @@ using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
+using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -20,8 +19,8 @@ namespace AElf.Automation.Common.Contracts
     {
         #region Priority
 
-        public IApiHelper ApiHelper { get; set; }
-        public IApiService ApiService => ApiHelper.ApiService;
+        public INodeManager NodeManager { get; set; }
+        public IApiService ApiService => NodeManager.ApiService;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
@@ -39,27 +38,26 @@ namespace AElf.Automation.Common.Contracts
         /// <summary>
         /// 部署新合约
         /// </summary>
-        /// <param name="apiHelper"></param>
+        /// <param name="nodeManager"></param>
         /// <param name="fileName"></param>
         /// <param name="callAddress"></param>
-        protected BaseContract(IApiHelper apiHelper, string fileName, string callAddress)
+        protected BaseContract(INodeManager nodeManager, string fileName, string callAddress)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
             FileName = fileName;
-            CallAddress = callAddress;
-
-            UnlockAccount(callAddress);
+            
+            SetAccount(callAddress);
             DeployContract();
         }
 
         /// <summary>
         /// 使用已存在合约
         /// </summary>
-        /// <param name="apiHelper"></param>
+        /// <param name="nodeManager"></param>
         /// <param name="contractAddress"></param>
-        protected BaseContract(IApiHelper apiHelper, string contractAddress)
+        protected BaseContract(INodeManager nodeManager, string contractAddress)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
             ContractAddress = contractAddress;
         }
 
@@ -77,7 +75,7 @@ namespace AElf.Automation.Common.Contracts
         public TStub GetTestStub<TStub>(string account, string password = "")
             where TStub : ContractStubBase, new()
         {
-            var stub = new ContractTesterFactory(ApiHelper);
+            var stub = new ContractTesterFactory(NodeManager);
             var testStub =
                 stub.Create<TStub>(Contract, account, password);
 
@@ -86,16 +84,15 @@ namespace AElf.Automation.Common.Contracts
 
         public BaseContract<T> GetNewTester(string account, string password = "")
         {
-            return GetNewTester(ApiHelper, account, password);
+            return GetNewTester(NodeManager, account, password);
         }
 
-        private BaseContract<T> GetNewTester(IApiHelper apiHelper, string account, string password = "")
+        private BaseContract<T> GetNewTester(INodeManager nodeManager, string account, string password = "")
         {
-            UnlockAccount(account, password);
-
+            SetAccount(account, password);
             var newTester = new BaseContract<T>
             {
-                ApiHelper = apiHelper,
+                NodeManager = nodeManager,
                 ContractAddress = ContractAddress,
                 CallAddress = account,
             };
@@ -226,18 +223,9 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public bool SetAccount(string account, string password = "")
         {
-            if (password == "")
-                password = Account.DefaultPassword;
-
             CallAddress = account;
-            //Unlock
-            var uc = new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} notimeout"
-            };
-            uc = ApiHelper.UnlockAccount(uc);
-
-            return uc.Result;
+            
+            return NodeManager.UnlockAccount(account, password);
         }
 
         /// <summary>
@@ -292,7 +280,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public TResult CallViewMethod<TResult>(string method, IMessage input) where TResult : IMessage<TResult>, new()
         {
-            return ApiHelper.QueryView<TResult>(CallAddress, ContractAddress, method, input);
+            return NodeManager.QueryView<TResult>(CallAddress, ContractAddress, method, input);
         }
 
         /// <summary>
@@ -304,19 +292,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public TResult CallViewMethod<TResult>(T method, IMessage input) where TResult : IMessage<TResult>, new()
         {
-            return ApiHelper.QueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
-        }
-
-        protected void UnlockAccount(string account, string password = "")
-        {
-            if (password == "")
-                password = Account.DefaultPassword;
-
-            var uc = new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} notimeout"
-            };
-            ApiHelper.UnlockAccount(uc);
+            return NodeManager.QueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
         }
 
         #region Private Methods
@@ -327,7 +303,7 @@ namespace AElf.Automation.Common.Contracts
             if (requireAuthority)
             {
                 Logger.Info("Deploy contract with authority mode.");
-                var authority = new AuthorityManager(ApiHelper, CallAddress);
+                var authority = new AuthorityManager(NodeManager, CallAddress);
                 var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
                 ContractAddress = contractAddress.GetFormatted();
                 return;
@@ -338,7 +314,7 @@ namespace AElf.Automation.Common.Contracts
             {
                 Parameter = $"{FileName} {CallAddress}"
             };
-            ApiHelper.DeployContract(ci);
+            NodeManager.DeployContract(ci);
             if (ci.Result)
             {
                 if (ci.InfoMsg is SendTransactionOutput transactionOutput)
@@ -356,7 +332,7 @@ namespace AElf.Automation.Common.Contracts
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return ApiHelper.GenerateTransactionRawTx(CallAddress, ContractAddress, method, inputParameter);
+            return NodeManager.GenerateTransactionRawTx(CallAddress, ContractAddress, method, inputParameter);
         }
 
         private bool GetContractAddress(string txId, out string contractAddress)

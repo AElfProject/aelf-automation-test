@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
 using AElf.Types;
 using Google.Protobuf;
@@ -51,15 +51,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void AccountCreate()
         {
             var dataDir = CommonHelper.GetCurrentDataDir();
-            var keyStore = new AElfKeyStore(dataDir);
+            var keyStore = AElfKeyStore.GetKeyStore(dataDir);
             var accountManager = new AccountManager(keyStore);
             for (var i = 0; i < 10; i++)
             {
                 var accountInfo = accountManager.NewAccount(Account.DefaultPassword);
-                var account = accountInfo.InfoMsg.ToString();
-                Console.WriteLine($"Account: {account}");
+                Console.WriteLine($"Account: {accountInfo}");
 
-                var publicKey = accountManager.GetPublicKey(account, Account.DefaultPassword);
+                var publicKey = accountManager.GetPublicKey(accountInfo, Account.DefaultPassword);
                 Console.WriteLine($"Public Key: {publicKey}");
 
                 Console.WriteLine();

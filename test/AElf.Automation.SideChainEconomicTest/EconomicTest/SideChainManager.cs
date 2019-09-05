@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK;
@@ -39,7 +39,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public void SetResourceUnitPrice(ContractServices services)
         {
             Logger.Info("Set resource token price");
-            var authority = new AuthorityManager(services.ApiHelper, services.CallAddress);
+            var authority = new AuthorityManager(services.NodeManager, services.CallAddress);
             var ownerAddress = services.ParliamentService.GetGenesisOwnerAddress();
             //set resource token price
             var contract = services.TokenService.ContractAddress;

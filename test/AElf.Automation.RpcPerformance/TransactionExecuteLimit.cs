@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Configuration;
-using AElf.Contracts.Genesis;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -14,7 +13,7 @@ namespace AElf.Automation.RpcPerformance
 {
     public class TransactionExecuteLimit
     {
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
         private readonly string _account;
         private readonly ContractTesterFactory _stub;
         private readonly NodeTransactionOption _nodeTransactionOption;
@@ -26,8 +25,8 @@ namespace AElf.Automation.RpcPerformance
         {
             _account = account;
 
-            _apiHelper = new WebApiHelper(url);
-            _stub = new ContractTesterFactory(_apiHelper);
+            _nodeManager = new NodeManager(url);
+            _stub = new ContractTesterFactory(_nodeManager);
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
 
@@ -45,7 +44,7 @@ namespace AElf.Automation.RpcPerformance
 
         private ConfigurationContainer.ConfigurationStub GetConfigurationContractStub()
         {
-            var gensis = GenesisContract.GetGenesisContract(_apiHelper, _account);
+            var gensis = GenesisContract.GetGenesisContract(_nodeManager, _account);
 
             _configurationContractAddress = gensis.GetContractAddressByName(NameProvider.Configuration);
             
@@ -61,7 +60,7 @@ namespace AElf.Automation.RpcPerformance
             if (beforeResult.Value == limitCount)
                 return;
 
-            var authorityManager = new AuthorityManager(_apiHelper, _account);
+            var authorityManager = new AuthorityManager(_nodeManager, _account);
             var minersList = authorityManager.GetCurrentMiners();
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
             var transactionResult = authorityManager.ExecuteTransactionWithAuthority(_configurationContractAddress.GetFormatted(),

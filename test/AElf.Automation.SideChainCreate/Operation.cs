@@ -3,6 +3,7 @@ using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Kernel;
@@ -17,7 +18,7 @@ namespace AElf.Automation.SideChainCreate
 {
     public class Operation
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
 
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
@@ -31,7 +32,7 @@ namespace AElf.Automation.SideChainCreate
         public Operation()
         {
             var contractServices = GetContractServices();
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             TokenService = contractServices.TokenService;
             CrossChainService = contractServices.CrossChainService;
             ParliamentService = contractServices.ParliamentService;

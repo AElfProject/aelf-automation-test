@@ -5,6 +5,7 @@ using Acs0;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Types;
@@ -23,10 +24,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         protected ContractTester MainTester;
         protected ContractTester SideTester;
         protected ContractTester SideTester2;
-        public WebApiHelper SideCH { get; set; }
-        public WebApiHelper SideCH2 { get; set; }
+        public INodeManager SideCH { get; set; }
+        public INodeManager SideCH2 { get; set; }
 
-        public WebApiHelper MainCH { get; set; }
+        public INodeManager MainCH { get; set; }
         public List<string> UserList { get; set; }
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string Creator { get; } = "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo";
@@ -47,9 +48,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             #endregion
 
-            MainCH = new WebApiHelper(MainRpcUrl, CommonHelper.GetCurrentDataDir());
-            SideCH = new WebApiHelper(SideRpcUrl, CommonHelper.GetDefaultDataDir());
-            SideCH2 = new WebApiHelper(SideRpcUrl2, CommonHelper.GetCurrentDataDir());
+            MainCH = new NodeManager(MainRpcUrl);
+            SideCH = new NodeManager(SideRpcUrl, CommonHelper.GetDefaultDataDir());
+            SideCH2 = new NodeManager(SideRpcUrl2);
 
             var mainContractServices = new ContractServices(MainCH, InitAccount, "Main");
             var sideContractServices = new ContractServices(SideCH, InitAccount, "Side");

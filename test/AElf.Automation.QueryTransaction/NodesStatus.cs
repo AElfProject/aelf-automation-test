@@ -21,8 +21,8 @@ namespace AElf.Automation.QueryTransaction
             _apiServices = new List<IApiService>();
             foreach (var url in urls)
             {
-                var apiHelper = AElfChainClient.GetClient(url);
-                _apiServices.Add(apiHelper);
+                var nodeManager = AElfChainClient.GetClient(url);
+                _apiServices.Add(nodeManager);
             }
         }
 

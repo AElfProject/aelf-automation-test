@@ -19,7 +19,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var consensus = genesis.GetContractAddressByName(NameProvider.ConsensusName);
             
-            var contract = new ConsensusContract(genesis.ApiHelper, genesis.CallAddress, consensus.GetFormatted());
+            var contract = new ConsensusContract(genesis.NodeManager, genesis.CallAddress, consensus.GetFormatted());
 
             return contract.GetTestStub<AEDPoSContractContainer.AEDPoSContractStub>(genesis.CallAddress);
         }
@@ -29,7 +29,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var feeReceiver = genesis.GetContractAddressByName(NameProvider.FeeReceiverName);
             
-            var contract = new FeeReceiverContract(genesis.ApiHelper, genesis.CallAddress, feeReceiver.GetFormatted());
+            var contract = new FeeReceiverContract(genesis.NodeManager, genesis.CallAddress, feeReceiver.GetFormatted());
 
             return contract.GetTestStub<FeeReceiverContractContainer.FeeReceiverContractStub>(genesis.CallAddress);
         }
@@ -39,7 +39,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentName);
             
-            var contract = new ParliamentAuthContract(genesis.ApiHelper, genesis.CallAddress, parliamentAuth.GetFormatted());
+            var contract = new ParliamentAuthContract(genesis.NodeManager, genesis.CallAddress, parliamentAuth.GetFormatted());
 
             return contract.GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(genesis.CallAddress);
         }
@@ -48,7 +48,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var profit = genesis.GetContractAddressByName(NameProvider.ProfitName);
             
-            var contract = new ProfitContract(genesis.ApiHelper, genesis.CallAddress, profit.GetFormatted());
+            var contract = new ProfitContract(genesis.NodeManager, genesis.CallAddress, profit.GetFormatted());
 
             return contract.GetTestStub<ProfitContractContainer.ProfitContractStub>(genesis.CallAddress);
         }
@@ -57,7 +57,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var token = genesis.GetContractAddressByName(NameProvider.TokenName);
             
-            var contract = new TokenContract(genesis.ApiHelper, genesis.CallAddress, token.GetFormatted());
+            var contract = new TokenContract(genesis.NodeManager, genesis.CallAddress, token.GetFormatted());
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(genesis.CallAddress);
         }
@@ -67,7 +67,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
             
-            var contract = new TokenConverterContract(genesis.ApiHelper, genesis.CallAddress, tokenConverter.GetFormatted());
+            var contract = new TokenConverterContract(genesis.NodeManager, genesis.CallAddress, tokenConverter.GetFormatted());
 
             return contract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(genesis.CallAddress);
         }
@@ -76,7 +76,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var treasury = genesis.GetContractAddressByName(NameProvider.TreasuryName);
             
-            var contract = new TreasuryContract(genesis.ApiHelper, genesis.CallAddress, treasury.GetFormatted());
+            var contract = new TreasuryContract(genesis.NodeManager, genesis.CallAddress, treasury.GetFormatted());
 
             return contract.GetTestStub<TreasuryContractContainer.TreasuryContractStub>(genesis.CallAddress);
         }
@@ -85,7 +85,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var vote = genesis.GetContractAddressByName(NameProvider.VoteName);
             
-            var contract = new VoteContract(genesis.ApiHelper, genesis.CallAddress, vote.GetFormatted());
+            var contract = new VoteContract(genesis.NodeManager, genesis.CallAddress, vote.GetFormatted());
 
             return contract.GetTestStub<VoteContractContainer.VoteContractStub>(genesis.CallAddress);
         }
@@ -94,7 +94,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var election = genesis.GetContractAddressByName(NameProvider.ElectionName);
             
-            var contract = new ElectionContract(genesis.ApiHelper, genesis.CallAddress, election.GetFormatted());
+            var contract = new ElectionContract(genesis.NodeManager, genesis.CallAddress, election.GetFormatted());
 
             return contract.GetTestStub<ElectionContractContainer.ElectionContractStub>(genesis.CallAddress);
         }
@@ -103,7 +103,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var cross = genesis.GetContractAddressByName(NameProvider.CrossChainName);
             
-            var contract = new CrossChainContract(genesis.ApiHelper, genesis.CallAddress, cross.GetFormatted());
+            var contract = new CrossChainContract(genesis.NodeManager, genesis.CallAddress, cross.GetFormatted());
 
             return contract.GetTestStub<CrossChainContractContainer.CrossChainContractStub>(genesis.CallAddress);
         }
@@ -113,7 +113,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var association = genesis.GetContractAddressByName(NameProvider.AssociationName);
             
-            var contract = new AssociationAuthContract(genesis.ApiHelper, genesis.CallAddress, association.GetFormatted());
+            var contract = new AssociationAuthContract(genesis.NodeManager, genesis.CallAddress, association.GetFormatted());
 
             return contract.GetTestStub<AssociationAuthContractContainer.AssociationAuthContractStub>(genesis.CallAddress);
         }
@@ -122,7 +122,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var configuration = genesis.GetContractAddressByName(NameProvider.Configuration);
             
-            var contract = new ConfigurationContract(genesis.ApiHelper, genesis.CallAddress, configuration.GetFormatted());
+            var contract = new ConfigurationContract(genesis.NodeManager, genesis.CallAddress, configuration.GetFormatted());
 
             return contract.GetTestStub<ConfigurationContainer.ConfigurationStub>(genesis.CallAddress);
         }

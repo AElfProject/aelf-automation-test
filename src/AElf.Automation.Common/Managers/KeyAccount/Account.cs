@@ -1,7 +1,7 @@
 using System.Threading;
 using AElf.Cryptography.ECDSA;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public class Account
     {

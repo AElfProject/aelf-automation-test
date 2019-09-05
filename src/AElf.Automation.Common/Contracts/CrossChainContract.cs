@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -24,16 +25,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
     {
-        public CrossChainContract(IApiHelper ch, string account) :
-            base(ch, ContractFileName, account)
+        public CrossChainContract(INodeManager nm, string account) :
+            base(nm, ContractFileName, account)
         {
         }
 
-        public CrossChainContract(IApiHelper ch, string callAddress, string contractAbi) :
-            base(ch, contractAbi)
+        public CrossChainContract(INodeManager nm, string callAddress, string contractAbi) :
+            base(nm, contractAbi)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
         public static string ContractFileName => "AElf.Contracts.CrossChain";

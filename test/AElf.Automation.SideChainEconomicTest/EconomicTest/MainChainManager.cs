@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
@@ -24,9 +24,9 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public TokenContract Token => MainChain.TokenService;
 
-        public IApiHelper ApiHelper => MainChain.ApiHelper;
+        public INodeManager NodeManager => MainChain.NodeManager;
 
-        public IApiService ApiService => MainChain.ApiHelper.ApiService;
+        public IApiService ApiService => MainChain.NodeManager.ApiService;
 
         public static ILog Logger = Log4NetHelper.GetLogger();
 
@@ -41,7 +41,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public async Task BuyResources(string account, long amount)
         {
             var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverterName);
-            var tokenContract = new TokenConverterContract(ApiHelper, account, tokenConverter.GetFormatted());
+            var tokenContract = new TokenConverterContract(NodeManager, account, tokenConverter.GetFormatted());
             var converter =
                 tokenContract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(
                     account);

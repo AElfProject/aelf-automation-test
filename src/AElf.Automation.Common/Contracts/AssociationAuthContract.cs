@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -16,11 +17,10 @@ namespace AElf.Automation.Common.Contracts
 
     public class AssociationAuthContract : BaseContract<AssociationAuthMethod>
     {
-        public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : 
-            base(ch, contractAddress)
+        public AssociationAuthContract(INodeManager nm, string callAddress, string contractAddress) : 
+            base(nm, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
             Logger = Log4NetHelper.GetLogger();
         }
     }

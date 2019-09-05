@@ -4,6 +4,7 @@ using System.IO;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
@@ -19,7 +20,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
         protected ContractTester Tester;
-        public WebApiHelper CH { get; set; }
+        public INodeManager CH { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
@@ -34,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestInitialize]
         public void Initialize()
         {
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
             var contractServices = new ContractServices(CH, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
 

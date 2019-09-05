@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 using log4net;
@@ -21,7 +21,7 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Public Property
 
-        public IApiHelper ApiHelper { get; private set; }
+        public INodeManager NodeManager { get; private set; }
         private ExecutionSummary Summary { get; set; }
 
         private TransactionGroup Group { get; set; }
@@ -65,11 +65,11 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info("Host Url: {0}", BaseUrl);
             Logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
 
-            ApiHelper = new WebApiHelper(BaseUrl, KeyStorePath);
+            NodeManager = new NodeManager(BaseUrl, KeyStorePath);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.ExecuteCommand(ci);
+            NodeManager.ExecuteCommand(ci);
             Assert.IsTrue(ci.Result, "Connect chain got exception.");
 
             //New
@@ -79,8 +79,8 @@ namespace AElf.Automation.RpcPerformance
             UnlockAllAccounts(userCount);
 
             //Init other services
-            Summary = new ExecutionSummary(ApiHelper);
-            Monitor = new NodeStatusMonitor(ApiHelper);
+            Summary = new ExecutionSummary(NodeManager);
+            Monitor = new NodeStatusMonitor(NodeManager);
         }
 
         public void DeployContractsWithAuthority()
@@ -98,11 +98,11 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             var callAddress = AccountList[0].Account;
-            var genesisService = GenesisContract.GetGenesisContract(ApiHelper, AccountList[0].Account);
+            var genesisService = GenesisContract.GetGenesisContract(NodeManager, AccountList[0].Account);
 
             //TokenService contract
             var tokenAddress = genesisService.GetContractAddressByName(NameProvider.TokenName);
-            Token = new TokenContract(ApiHelper, callAddress, tokenAddress.GetFormatted());
+            Token = new TokenContract(NodeManager, callAddress, tokenAddress.GetFormatted());
             ContractList = new List<ContractInfo>();
             for (var i = 0; i < ThreadCount; i++)
             {
@@ -272,7 +272,7 @@ namespace AElf.Automation.RpcPerformance
                         Owner = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
-                ApiHelper.ExecuteCommand(ci);
+                NodeManager.ExecuteCommand(ci);
 
                 if (ci.Result)
                 {
@@ -311,7 +311,7 @@ namespace AElf.Automation.RpcPerformance
                         Owner = AddressHelper.Base58StringToAddress(account1),
                     }
                 };
-                var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
+                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
                 rawTransactions.Add(requestInfo);
             }
 
@@ -320,7 +320,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 Parameter = string.Join(",", rawTransactions)
             };
-            ApiHelper.ExecuteCommand(commandInfo);
+            NodeManager.ExecuteCommand(commandInfo);
             Assert.IsTrue(commandInfo.Result);
             var transactions = (string[]) commandInfo.InfoMsg;
             Logger.Info("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
@@ -350,7 +350,7 @@ namespace AElf.Automation.RpcPerformance
                         Owner = AddressHelper.Base58StringToAddress(account1)
                     }
                 };
-                var requestInfo = ApiHelper.GenerateTransactionRawTx(ci);
+                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
                 GenerateTransactionQueue.Enqueue(requestInfo);
             }
         }
@@ -364,7 +364,7 @@ namespace AElf.Automation.RpcPerformance
                 Logger.Info("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
                 var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
-                ApiHelper.ExecuteCommand(ci);
+                NodeManager.ExecuteCommand(ci);
                 Thread.Sleep(100);
             }
         }
@@ -373,12 +373,8 @@ namespace AElf.Automation.RpcPerformance
         {
             for (var i = 0; i < count; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{AccountList[i].Account} 123 notimeout"
-                };
-                ci = ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                Assert.IsTrue(result);
             }
         }
 
@@ -401,20 +397,15 @@ namespace AElf.Automation.RpcPerformance
 
                 for (var i = 0; i < count - accounts.Count; i++)
                 {
-                    var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
-                    ci = ApiHelper.ExecuteCommand(ci);
-                    Assert.IsTrue(ci.Result);
-                    AccountList.Add(new AccountInfo(ci.InfoMsg.ToString()));
+                    var account = NodeManager.NewAccount();
+                    AccountList.Add(new AccountInfo(account));
                 }
             }
         }
 
         private List<string> GetExistAccounts()
         {
-            var ci = ApiHelper.ListAccounts();
-            var accounts = ci.InfoMsg as List<string>;
-
-            return accounts;
+            return NodeManager.ListAccounts();
         }
 
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)

@@ -2,6 +2,7 @@
 using System.IO;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -33,7 +34,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static DividendsContract dividendsService { get; set; }
 
         public string RpcUrl { get; } = "http://192.168.197.35:8000/chain";
-        public WebApiHelper CH { get; set; }
+        public INodeManager CH { get; set; }
 
         #endregion
 
@@ -44,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -118,7 +119,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.Info($"Account: {bpAcc}\nPubKey:{ApiHelper.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{NodeManager.GetPublicKeyFromAddress(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
@@ -142,14 +143,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < userAccount; i++)
             {
                 ci.Parameter = "123";
-                ci = ApiHelper.NewAccount(ci);
+                ci = NodeManager.NewAccount(ci);
                 if (ci.Result)
                     UserList.Add(ci.InfoMsg?[0]);
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                ApiHelper.UnlockAccount(uc);
+                NodeManager.UnlockAccount(uc);
             }
 
             //分配资金给普通用户

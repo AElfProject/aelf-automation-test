@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
@@ -20,14 +20,14 @@ namespace AElf.Automation.Common.Contracts
         public Address Contract { private get; set; }
         public string SenderAddress { private get; set; }
         public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
-        public IApiHelper ApiHelper { get; }
-        public IApiService ApiService => ApiHelper.ApiService;
+        public INodeManager NodeManager { get; }
+        public IApiService ApiService => NodeManager.ApiService;
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public MethodStubFactory(IApiHelper apiHelper)
+        public MethodStubFactory(INodeManager nodeManager)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
         }
 
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
@@ -42,8 +42,8 @@ namespace AElf.Automation.Common.Contracts
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
                 };
-                transaction.AddBlockReference(ApiHelper.GetApiUrl());
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
@@ -126,7 +126,7 @@ namespace AElf.Automation.Common.Contracts
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));

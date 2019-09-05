@@ -4,7 +4,7 @@ using System.Threading;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
@@ -14,6 +14,7 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification
 {
@@ -47,7 +48,7 @@ namespace AElf.Automation.SideChain.Verification
         protected ContractServices InitMainChainServices()
         {
             if (MainChainService != null) return MainChainService;
-            
+
             var mainChainUrl = _environmentInfo.MainChainInfos.MainChainUrl;
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
@@ -75,14 +76,14 @@ namespace AElf.Automation.SideChain.Verification
 
             return SideChainServices;
         }
-        
+
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
             var ci = new CommandInfo(ApiMethods.SendTransaction)
             {
                 Parameter = rawTx
             };
-            services.ApiHelper.BroadcastWithRawTx(ci);
+            services.NodeManager.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
                 var transactionOutput = ci.InfoMsg as SendTransactionOutput;
@@ -95,42 +96,36 @@ namespace AElf.Automation.SideChain.Verification
             return string.Empty;
         }
 
-        protected CommandInfo CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
+        protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
         {
             if (maxTimes == -1)
             {
                 maxTimes = Timeout == 0 ? 600 : Timeout;
             }
 
-            CommandInfo ci = null;
+            TransactionResultDto transactionResult = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = txId};
-                services.ApiHelper.GetTransactionResult(ci);
-                if (ci.Result)
+                transactionResult =
+                    AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (status)
                 {
-                    if (ci.InfoMsg is TransactionResultDto transactionResult)
+                    case TransactionResultStatus.Mined:
+                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
+                        return transactionResult;
+                    case TransactionResultStatus.NotExisted:
+                        Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
+                        return transactionResult;
+                    case TransactionResultStatus.Failed:
                     {
-                        var status = transactionResult.Status.ConvertTransactionResultStatus();
-                        switch (status)
-                        {
-                            case TransactionResultStatus.Mined:
-                                Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.NotExisted:
-                                Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                                return ci;
-                            case TransactionResultStatus.Failed:
-                            {
-                                var message = $"Transaction {txId} status: {transactionResult.Status}";
-                                message +=
-                                    $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                                message += $"\r\nError Message: {transactionResult.Error}";
-                                Logger.Error(message);
-                                return ci;
-                            }
-                        }
+                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        message +=
+                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                        message += $"\r\nError Message: {transactionResult.Error}";
+                        Logger.Error(message);
+                        return transactionResult;
                     }
                 }
 
@@ -138,36 +133,29 @@ namespace AElf.Automation.SideChain.Verification
                 Thread.Sleep(500);
             }
 
-            if (ci != null)
-            {
-                var result = ci.InfoMsg as TransactionResultDto;
-                Logger.Error(result?.Error);
-            }
-
             Logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
-            return ci;
+            return transactionResult;
         }
 
         protected MerklePath GetMerklePath(ContractServices services, long blockNumber, string TxId)
         {
             var index = 0;
-            var ci = new CommandInfo(ApiMethods.GetBlockByHeight) {Parameter = $"{blockNumber} true"};
-            ci = services.ApiHelper.ExecuteCommand(ci);
-            var blockInfoResult = ci.InfoMsg as BlockDto;
+            var blockInfoResult =
+                AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetBlockByHeightAsync(blockNumber, true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
-                ci = new CommandInfo(ApiMethods.GetTransactionResult) {Parameter = transactionId};
-                var result = services.ApiHelper.ExecuteCommand(ci);
-                if (!(result.InfoMsg is TransactionResultDto txResult)) return null;
+                var txResult = AsyncHelper.RunSync(() =>
+                    services.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
                 var resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 if (resultStatus == TransactionResultStatus.NotExisted)
                 {
+                    Thread.Sleep(500);
                     Logger.Info("Check the transaction again");
-                    result = services.ApiHelper.ExecuteCommand(ci);
-                    txResult = result.InfoMsg as TransactionResultDto;
+                    AsyncHelper.RunSync(() =>
+                        services.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
                     resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 }
 
@@ -225,23 +213,21 @@ namespace AElf.Automation.SideChain.Verification
                 ToChainId = toChainId,
             };
             // execute cross chain transfer
-            var rawTx = services.ApiHelper.GenerateTransactionRawTx(fromAccount,
+            var rawTx = services.NodeManager.GenerateTransactionRawTx(fromAccount,
                 services.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             Logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = ExecuteMethodWithTxId(services, rawTx);
-            var result = CheckTransactionResult(services, txId);
-            if (result == null)
+            var txResult = CheckTransactionResult(services, txId);
+            if (txResult == null)
                 return null;
             // get transaction info            
-            var txResult = result.InfoMsg as TransactionResultDto;
             var status = txResult.Status.ConvertTransactionResultStatus();
             if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                result = CheckTransactionResult(services, txId);
-                txResult = result.InfoMsg as TransactionResultDto;
+                txResult = CheckTransactionResult(services, txId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                     return null;
@@ -252,7 +238,7 @@ namespace AElf.Automation.SideChain.Verification
             var rawTxInfo = new CrossChainTransactionInfo(blockNumber, txId, rawTx, fromAccount, receiveAccount);
             return rawTxInfo;
         }
-        
+
         protected CrossChainTransactionInfo CrossChainTransferWithTxId(ContractServices services, string symbol,
             string fromAccount, string toAccount, int toChainId,
             long amount)
@@ -268,36 +254,36 @@ namespace AElf.Automation.SideChain.Verification
                 ToChainId = toChainId,
             };
             // execute cross chain transfer
-            var rawTx = services.ApiHelper.GenerateTransactionRawTx(fromAccount,
+            var rawTx = services.NodeManager.GenerateTransactionRawTx(fromAccount,
                 services.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             var txId = ExecuteMethodWithTxId(services, rawTx);
             Logger.Info($"Transaction rawTx is: {rawTx}, txId is {txId}");
-            var info = new CrossChainTransactionInfo(txId, rawTx,fromAccount,toAccount);
+            var info = new CrossChainTransactionInfo(txId, rawTx, fromAccount, toAccount);
             return info;
         }
 
-        protected CrossChainTransactionInfo GetCrossChainTransferResult(ContractServices services,CrossChainTransactionInfo info)
+        protected CrossChainTransactionInfo GetCrossChainTransferResult(ContractServices services,
+            CrossChainTransactionInfo info)
         {
-            var result = CheckTransactionResult(services, info.TxId);
-            if (result == null)
+            var txResult = CheckTransactionResult(services, info.TxId);
+            if (txResult == null)
                 return null;
             // get transaction info            
-            var txResult = result.InfoMsg as TransactionResultDto;
             var status = txResult.Status.ConvertTransactionResultStatus();
             if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                result = CheckTransactionResult(services,info.TxId);
-                txResult = result.InfoMsg as TransactionResultDto;
+                txResult = CheckTransactionResult(services, info.TxId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                     return null;
             }
 
             var blockNumber = txResult.BlockNumber;
-            var rawTxInfo = new CrossChainTransactionInfo(blockNumber, info.TxId, info.RawTx, info.FromAccount, info.ReceiveAccount);
+            var rawTxInfo = new CrossChainTransactionInfo(blockNumber, info.TxId, info.RawTx, info.FromAccount,
+                info.ReceiveAccount);
             return rawTxInfo;
         }
 
@@ -331,7 +317,8 @@ namespace AElf.Automation.SideChain.Verification
             };
             // verify side chain transaction
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(fromServices, rawTxInfo.BlockHeight);
-            crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.MerklePathNodes);
+            crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
+                .MerklePathForParentChainRoot.MerklePathNodes);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
@@ -341,7 +328,7 @@ namespace AElf.Automation.SideChain.Verification
 
         protected long GetBlockHeight(ContractServices services)
         {
-            var blockHeight = services.ApiHelper.ApiService.GetBlockHeightAsync().Result;
+            var blockHeight = services.NodeManager.ApiService.GetBlockHeightAsync().Result;
             return blockHeight;
         }
 
@@ -350,9 +337,8 @@ namespace AElf.Automation.SideChain.Verification
             var verifyResultList = new List<CrossChainTransactionVerifyResult>();
             foreach (var txId in txIds)
             {
-                var result = CheckTransactionResult(services, txId);
-                if (result == null) return;
-                var txResult = result.InfoMsg as TransactionResultDto;
+                var txResult = CheckTransactionResult(services, txId);
+                if (txResult == null) return;
                 var status = txResult.Status.ConvertTransactionResultStatus();
                 if (status != TransactionResultStatus.Mined) continue;
                 var verifyResult =
@@ -385,8 +371,7 @@ namespace AElf.Automation.SideChain.Verification
 
             foreach (var list in lists)
             {
-                var result = CheckTransactionResult(services, list.TxId);
-                var txResult = result.InfoMsg as TransactionResultDto;
+                var txResult = CheckTransactionResult(services, list.TxId);
                 var status = txResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -398,23 +383,23 @@ namespace AElf.Automation.SideChain.Verification
                         break;
                 }
             }
-            
+
             TransactionResultList.Add(TransactionResultStatus.Failed, transactionFailed);
             TransactionResultList.Add(TransactionResultStatus.Mined, transactionMined);
             return TransactionResultList;
         }
 
-        protected bool CheckParentChainBlockIndex(ContractServices services,CrossChainTransactionInfo infos)
+        protected bool CheckParentChainBlockIndex(ContractServices services, CrossChainTransactionInfo infos)
         {
             var transactionHeight = infos.BlockHeight;
             var indexSideBlock =
                 MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value{Value = services.ChainId });
-           
-            return  indexSideBlock.Value > transactionHeight;
+                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId});
+
+            return indexSideBlock.Value > transactionHeight;
         }
-        
-        protected bool CheckSideChainBlockIndex(ContractServices services,CrossChainTransactionInfo infos)
+
+        protected bool CheckSideChainBlockIndex(ContractServices services, CrossChainTransactionInfo infos)
         {
             var indexParentBlock =
                 services.CrossChainService.CallViewMethod<SInt64Value>(
@@ -434,16 +419,14 @@ namespace AElf.Automation.SideChain.Verification
                 });
             return result.Balance;
         }
-        
+
         protected List<string> NewAccount(ContractServices services, int count)
         {
             var accountList = new List<string>();
             for (var i = 0; i < count; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountNew) {Parameter = Account.DefaultPassword};
-                ci = services.ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                accountList.Add(ci.InfoMsg.ToString());
+                var account = services.NodeManager.NewAccount();
+                accountList.Add(account);
             }
 
             return accountList;
@@ -451,16 +434,10 @@ namespace AElf.Automation.SideChain.Verification
 
         protected void UnlockAccounts(ContractServices services, int count, List<string> accountList)
         {
-            services.ApiHelper.ListAccounts();
-
             for (var i = 0; i < count; i++)
             {
-                var ci = new CommandInfo(ApiMethods.AccountUnlock)
-                {
-                    Parameter = $"{accountList[i]} 123 notimeout"
-                };
-                ci = services.ApiHelper.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
+                var result = services.NodeManager.UnlockAccount(accountList[i]);
+                Assert.IsTrue(result);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElfChain.SDK;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -20,7 +21,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string Full4Url = "http://192.168.199.205:8400";
 
         protected readonly ILogHelper _logger = LogHelper.GetLogger();
-        protected IApiHelper CH { get; set; }
+        protected INodeManager CH { get; set; }
 
         [TestInitialize]
         public void InitializeTest()

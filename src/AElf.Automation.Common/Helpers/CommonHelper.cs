@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Google.Protobuf;
 
 namespace AElf.Automation.Common.Helpers
 {
@@ -26,7 +25,7 @@ namespace AElf.Automation.Common.Helpers
         {
             try
             {
-                var path = Path.Combine(CommonHelper.AppRoot, "aelf");
+                var path = Path.Combine(AppRoot, "aelf");
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 

@@ -1,6 +1,6 @@
 using System.IO;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
 using log4net;
 
@@ -24,7 +24,7 @@ namespace AElf.Automation.SideChainEconomicTest
         public ContractServices SideA => SideManager.SideChains[ChainConstInfo.SideChainIdA];
         public ContractServices SideB => SideManager.SideChains[ChainConstInfo.SideChainIdB];
         
-        public AccountManager AccountManager = new AccountManager(new AElfKeyStore(DataPath));
+        public AccountManager AccountManager = new AccountManager(AElfKeyStore.GetKeyStore(DataPath));
 
         private SideChainManager InitializeSideChainManager()
         {

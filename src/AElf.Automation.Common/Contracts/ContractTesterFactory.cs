@@ -1,5 +1,5 @@
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
@@ -16,11 +16,11 @@ namespace AElf.Automation.Common.Contracts
 
     public class ContractTesterFactory : IContractTesterFactory
     {
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
 
-        public ContractTesterFactory(IApiHelper apiHelper)
+        public ContractTesterFactory(INodeManager nodeManager)
         {
-            _apiHelper = apiHelper;
+            _nodeManager = nodeManager;
         }
 
         public T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
@@ -29,17 +29,13 @@ namespace AElf.Automation.Common.Contracts
             if (password == "")
                 password = Account.DefaultPassword;
             
-            var factory = new MethodStubFactory(_apiHelper)
+            var factory = new MethodStubFactory(_nodeManager)
             {
                 SenderAddress = account,
                 Contract = contractAddress
             };
             
-            var timeout = notimeout ? "notimeout" : "";
-            _apiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} {timeout}"
-            });
+            _nodeManager.UnlockAccount(account, password);
 
             return new T() {__factory = factory};
         }
@@ -47,7 +43,7 @@ namespace AElf.Automation.Common.Contracts
         public T Create<T>(Address contractAddress, ECKeyPair keyPair) 
             where T : ContractStubBase, new()
         {
-            var factory = new MethodStubFactory(_apiHelper)
+            var factory = new MethodStubFactory(_nodeManager)
             {
                 SenderAddress = Address.FromPublicKey(keyPair.PublicKey).GetFormatted(),
                 Contract = contractAddress

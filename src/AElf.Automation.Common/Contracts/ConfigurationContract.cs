@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.ParliamentAuth;
 
@@ -13,11 +14,10 @@ namespace AElf.Automation.Common.Contracts
     }
     public class ConfigurationContract : BaseContract<ConfigurationMethod>
     {
-        public ConfigurationContract(IApiHelper apiHelper, string callAddress, string contractAddress) : 
-            base(apiHelper, contractAddress)
+        public ConfigurationContract(INodeManager nodeManager, string callAddress, string contractAddress) 
+            : base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
     }
 }
