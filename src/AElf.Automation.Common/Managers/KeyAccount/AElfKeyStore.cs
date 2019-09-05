@@ -29,44 +29,21 @@ namespace AElf.Automation.Common.Managers
     {
         private const string KeyFileExtension = ".json";
         private const string KeyFolderName = "keys";
-
-        private readonly List<Account> _unlockedAccounts;
-        private readonly KeyStoreService _keyStoreService;
-        
-        public readonly string DataDirectory;
-        public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
         public static ILog Logger = Log4NetHelper.GetLogger();
 
         private static AElfKeyStore _keyStore;
-        public static AElfKeyStore GetKeyStore(string dataDirectory)
-        {
-            if (_keyStore != null && _keyStore.DataDirectory == dataDirectory)
-                return _keyStore;
-            
-            _keyStore = new AElfKeyStore(dataDirectory);
-            
-            return _keyStore;
-        }
-        
+        private readonly KeyStoreService _keyStoreService;
+
+        private readonly List<Account> _unlockedAccounts;
+
+        public readonly string DataDirectory;
+        public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
+
         private AElfKeyStore(string dataDirectory)
         {
             DataDirectory = dataDirectory;
             _unlockedAccounts = new List<Account>();
             _keyStoreService = new KeyStoreService();
-        }
-
-        private async Task UnlockAccountAsync(string address, string password, TimeSpan? timeoutToClose)
-        {
-            var keyPair = await ReadKeyPairAsync(address, password);
-            var unlockedAccount = new Account(address) {KeyPair = keyPair};
-
-            if (timeoutToClose.HasValue)
-            {
-                var t = new Timer(LockAccount, unlockedAccount, timeoutToClose.Value, timeoutToClose.Value);
-                unlockedAccount.LockTimer = t;
-            }
-
-            _unlockedAccounts.Add(unlockedAccount);
         }
 
         public async Task<KeyStoreErrors> UnlockAccountAsync(string address, string password, bool withTimeout = true)
@@ -77,13 +54,9 @@ namespace AElf.Automation.Common.Managers
                     return KeyStoreErrors.AccountAlreadyUnlocked;
 
                 if (withTimeout)
-                {
                     await UnlockAccountAsync(address, password, DefaultTimeoutToClose);
-                }
                 else
-                {
                     await UnlockAccountAsync(address, password, null);
-                }
             }
             catch (InvalidPasswordException)
             {
@@ -95,14 +68,6 @@ namespace AElf.Automation.Common.Managers
             }
 
             return KeyStoreErrors.None;
-        }
-
-        private void LockAccount(object accountObject)
-        {
-            if (!(accountObject is Account unlockedAccount))
-                return;
-            unlockedAccount.Lock();
-            _unlockedAccounts.Remove(unlockedAccount);
         }
 
         public ECKeyPair GetAccountKeyPair(string address)
@@ -130,6 +95,38 @@ namespace AElf.Automation.Common.Managers
             var files = dir.GetFiles("*" + KeyFileExtension);
 
             return await Task.Run(() => files.Select(f => Path.GetFileNameWithoutExtension(f.Name)).ToList());
+        }
+
+        public static AElfKeyStore GetKeyStore(string dataDirectory)
+        {
+            if (_keyStore != null && _keyStore.DataDirectory == dataDirectory)
+                return _keyStore;
+
+            _keyStore = new AElfKeyStore(dataDirectory);
+
+            return _keyStore;
+        }
+
+        private async Task UnlockAccountAsync(string address, string password, TimeSpan? timeoutToClose)
+        {
+            var keyPair = await ReadKeyPairAsync(address, password);
+            var unlockedAccount = new Account(address) {KeyPair = keyPair};
+
+            if (timeoutToClose.HasValue)
+            {
+                var t = new Timer(LockAccount, unlockedAccount, timeoutToClose.Value, timeoutToClose.Value);
+                unlockedAccount.LockTimer = t;
+            }
+
+            _unlockedAccounts.Add(unlockedAccount);
+        }
+
+        private void LockAccount(object accountObject)
+        {
+            if (!(accountObject is Account unlockedAccount))
+                return;
+            unlockedAccount.Lock();
+            _unlockedAccounts.Remove(unlockedAccount);
         }
 
         public async Task<ECKeyPair> ReadKeyPairAsync(string address, string password)
@@ -185,7 +182,7 @@ namespace AElf.Automation.Common.Managers
                             address.GetFormatted());
                         if (!scryptResult.IsNullOrWhiteSpace())
                             break;
-                        
+
                         Logger.Error("Empty account");
                     }
 
@@ -198,7 +195,7 @@ namespace AElf.Automation.Common.Managers
         }
 
         /// <summary>
-        /// Return the full path of the files 
+        ///     Return the full path of the files
         /// </summary>
         private string GetKeyFileFullPath(string address)
         {

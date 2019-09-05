@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using Google.Protobuf.WellKnownTypes;
@@ -40,7 +39,7 @@ namespace AElf.Automation.Common.Contracts
 
     public class ConsensusContract : BaseContract<ConsensusMethod>
     {
-        public ConsensusContract(INodeManager nodeManager, string callAddress, string consensusAddress) 
+        public ConsensusContract(INodeManager nodeManager, string callAddress, string consensusAddress)
             : base(nodeManager, consensusAddress)
         {
             SetAccount(callAddress);

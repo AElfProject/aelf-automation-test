@@ -15,15 +15,15 @@ namespace AElf.Automation.Common.Helpers
 
             JToken info = JObject.Parse(jsonInfo);
             foreach (var path in pathArray)
-            {
                 if (info[path] != null)
+                {
                     info = info[path];
+                }
                 else
                 {
                     Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
-            }
 
             value = info.ToString();
 
@@ -36,15 +36,15 @@ namespace AElf.Automation.Common.Helpers
 
             JToken info = jsonInfo;
             foreach (var path in pathArray)
-            {
                 if (info[path] != null)
+                {
                     info = info[path];
+                }
                 else
                 {
                     Logger.Error($"Child path '{path}' not exist.");
                     return false;
                 }
-            }
 
             value = info.ToString();
 
@@ -57,7 +57,6 @@ namespace AElf.Automation.Common.Helpers
 
             JToken info = JObject.Parse(jsonInfo);
             for (var i = 0; i < pathArray.Length; i++)
-            {
                 if (info[pathArray[i]] != null)
                 {
                     if (i != pathArray.Length - 1)
@@ -65,14 +64,12 @@ namespace AElf.Automation.Common.Helpers
                         info = info[pathArray[i]];
                         continue;
                     }
-                    else
+
+                    var array = (JArray) info[pathArray[i]];
+                    foreach (var item in array)
                     {
-                        var array = (JArray) info[pathArray[i]];
-                        foreach (var item in array)
-                        {
-                            var value = item.ToString();
-                            valueList.Add(value);
-                        }
+                        var value = item.ToString();
+                        valueList.Add(value);
                     }
 
                     return true;
@@ -82,7 +79,6 @@ namespace AElf.Automation.Common.Helpers
                     Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
-            }
 
             return true;
         }
@@ -93,7 +89,6 @@ namespace AElf.Automation.Common.Helpers
 
             JToken info = jsonInfo;
             for (var i = 0; i < pathArray.Length; i++)
-            {
                 if (info[pathArray[i]] != null)
                 {
                     if (i != pathArray.Length - 1)
@@ -101,14 +96,9 @@ namespace AElf.Automation.Common.Helpers
                         info = info[pathArray[i]];
                         continue;
                     }
-                    else
-                    {
-                        var array = (JArray) info[pathArray[i]];
-                        foreach (var item in array)
-                        {
-                            valueList.Add(item.Value<string>());
-                        }
-                    }
+
+                    var array = (JArray) info[pathArray[i]];
+                    foreach (var item in array) valueList.Add(item.Value<string>());
 
                     return true;
                 }
@@ -117,13 +107,12 @@ namespace AElf.Automation.Common.Helpers
                     Logger.Error($"Child path '{pathArray[i]}' not exist.");
                     return false;
                 }
-            }
 
             return true;
         }
 
         /// <summary>
-        /// 转换十六进制字符串
+        ///     转换十六进制字符串
         /// </summary>
         /// <param name="hexString"></param>
         /// <param name="isHex">是否是十六进制数值</param>

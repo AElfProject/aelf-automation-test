@@ -14,8 +14,8 @@ namespace AElf.Automation.Common.Managers
 {
     public class TransactionManager
     {
-        private readonly AElfKeyStore _keyStore;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly AElfKeyStore _keyStore;
 
         public TransactionManager(AElfKeyStore keyStore)
         {

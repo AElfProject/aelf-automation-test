@@ -7,6 +7,11 @@ namespace AElf.Automation.Common.Helpers
 {
     public static class CommonHelper
     {
+        public static readonly string AppRoot = AppDomain.CurrentDomain.BaseDirectory;
+
+        public static string ApplicationName =>
+            Assembly.GetEntryAssembly()?.GetName().Name ?? AppDomain.CurrentDomain.FriendlyName;
+
         public static string GetDefaultDataDir()
         {
             try
@@ -47,18 +52,12 @@ namespace AElf.Automation.Common.Helpers
 
         public static void CopyFiles(string originPath, string desPath)
         {
-            if (!File.Exists(originPath))
-            {
-                throw new FileNotFoundException();
-            }
+            if (!File.Exists(originPath)) throw new FileNotFoundException();
 
             if (!Directory.Exists(desPath))
             {
                 Directory.CreateDirectory(desPath);
-                if (!Directory.Exists(desPath))
-                {
-                    throw new DirectoryNotFoundException();
-                }
+                if (!Directory.Exists(desPath)) throw new DirectoryNotFoundException();
             }
 
             File.Copy(originPath, desPath, true);
@@ -66,10 +65,7 @@ namespace AElf.Automation.Common.Helpers
 
         public static bool DeleteDirectoryFiles(string path)
         {
-            if (!Directory.Exists(path))
-            {
-                return false;
-            }
+            if (!Directory.Exists(path)) return false;
 
             Directory.Delete(path, true);
             Directory.CreateDirectory(path);
@@ -86,7 +82,7 @@ namespace AElf.Automation.Common.Helpers
                 builder.Append((char) (26 * random.NextDouble() + startChar));
             return builder.ToString();
         }
-        
+
         public static byte[] GenerateRandombytes(long length)
         {
             var bytes = new byte[length];
@@ -96,10 +92,9 @@ namespace AElf.Automation.Common.Helpers
             return bytes;
         }
 
-        public static readonly string AppRoot = AppDomain.CurrentDomain.BaseDirectory;
-        public static string MapPath(string virtualPath) => AppRoot + virtualPath.TrimStart('~');
-
-        public static string ApplicationName =>
-            Assembly.GetEntryAssembly()?.GetName().Name ?? AppDomain.CurrentDomain.FriendlyName;
+        public static string MapPath(string virtualPath)
+        {
+            return AppRoot + virtualPath.TrimStart('~');
+        }
     }
 }

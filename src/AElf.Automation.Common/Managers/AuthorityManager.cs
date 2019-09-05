@@ -14,12 +14,11 @@ namespace AElf.Automation.Common.Managers
 {
     public class AuthorityManager
     {
-        private NodesInfo _info;
-        private readonly GenesisContract _genesis;
-        private readonly ConsensusContract _consensus;
-        private readonly ParliamentAuthContract _parliament;
-
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly ConsensusContract _consensus;
+        private readonly GenesisContract _genesis;
+        private readonly ParliamentAuthContract _parliament;
+        private NodesInfo _info;
 
         public AuthorityManager(INodeManager nodeManager, string caller)
         {
@@ -81,10 +80,7 @@ namespace AElf.Automation.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            foreach (var account in approveUsers)
-            {
-                _parliament.ApproveProposal(proposalId, account);
-            }
+            foreach (var account in approveUsers) _parliament.ApproveProposal(proposalId, account);
 
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);

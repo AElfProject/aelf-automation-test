@@ -5,6 +5,6 @@
         GetChainInformation,
         DeploySmartContract,
         SendTransaction,
-        SendTransactions,
+        SendTransactions
     }
 }

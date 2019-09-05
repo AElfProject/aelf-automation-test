@@ -1,5 +1,4 @@
 using System;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
@@ -39,6 +38,8 @@ namespace AElf.Automation.Common.Contracts
         {
         }
 
+        public static string ContractFileName => "AElf.Contracts.TestContract.Performance";
+
         public void InitializePerformance()
         {
             var initializeResult = ExecuteMethodWithResult(PerformanceMethod.InitialPerformanceContract,
@@ -49,7 +50,5 @@ namespace AElf.Automation.Common.Contracts
                 });
             initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
-
-        public static string ContractFileName => "AElf.Contracts.TestContract.Performance";
     }
 }

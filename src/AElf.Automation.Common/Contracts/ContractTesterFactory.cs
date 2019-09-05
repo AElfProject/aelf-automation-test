@@ -1,4 +1,3 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
@@ -10,6 +9,7 @@ namespace AElf.Automation.Common.Contracts
     {
         T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
             where T : ContractStubBase, new();
+
         T Create<T>(Address contractAddress, ECKeyPair keyPair)
             where T : ContractStubBase, new();
     }
@@ -28,19 +28,19 @@ namespace AElf.Automation.Common.Contracts
         {
             if (password == "")
                 password = Account.DefaultPassword;
-            
+
             var factory = new MethodStubFactory(_nodeManager)
             {
                 SenderAddress = account,
                 Contract = contractAddress
             };
-            
+
             _nodeManager.UnlockAccount(account, password);
 
-            return new T() {__factory = factory};
+            return new T {__factory = factory};
         }
 
-        public T Create<T>(Address contractAddress, ECKeyPair keyPair) 
+        public T Create<T>(Address contractAddress, ECKeyPair keyPair)
             where T : ContractStubBase, new()
         {
             var factory = new MethodStubFactory(_nodeManager)
@@ -49,7 +49,7 @@ namespace AElf.Automation.Common.Contracts
                 Contract = contractAddress
             };
 
-            return new T() {__factory = factory};
+            return new T {__factory = factory};
         }
     }
 }

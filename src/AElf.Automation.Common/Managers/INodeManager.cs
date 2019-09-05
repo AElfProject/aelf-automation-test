@@ -8,13 +8,13 @@ namespace AElf.Automation.Common.Managers
 {
     public interface INodeManager
     {
-        string GetApiUrl();
-        void UpdateApiUrl(string url);
-        string GetChainId();
         IApiService ApiService { get; set; }
         AccountManager AccountManager { get; }
         TransactionManager TransactionManager { get; }
         List<CommandInfo> CommandList { get; set; }
+        string GetApiUrl();
+        void UpdateApiUrl(string url);
+        string GetChainId();
         string GetGenesisContractAddress();
 
         CommandInfo ExecuteCommand(CommandInfo ci);
@@ -32,8 +32,10 @@ namespace AElf.Automation.Common.Managers
         string GenerateTransactionRawTx(CommandInfo ci);
         string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter);
         void BroadcastTxs(CommandInfo ci);
+
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
             where TResult : IMessage<TResult>, new();
+
         string GetPublicKeyFromAddress(string account, string password = "");
 
         //net

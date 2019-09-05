@@ -49,14 +49,17 @@ namespace AElf.Automation.Common.Contracts
 
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+        private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
+            new Dictionary<NameProvider, Address>();
 
-        private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress) 
+        private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress)
             : base(nodeManager, genesisAddress)
         {
             SetAccount(callAddress);
             Logger = Log4NetHelper.GetLogger();
         }
+
+        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
 
         public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress)
         {
@@ -81,7 +84,7 @@ namespace AElf.Automation.Common.Contracts
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            
+
             return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
@@ -89,7 +92,7 @@ namespace AElf.Automation.Common.Contracts
         {
             if (_systemContractAddresses.Keys.Contains(name))
                 return _systemContractAddresses[name];
-            
+
             var hash = NameProviderInfos[name];
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             _systemContractAddresses[name] = address;
@@ -142,7 +145,5 @@ namespace AElf.Automation.Common.Contracts
 
             return dic;
         }
-        
-        private readonly Dictionary<NameProvider, Address> _systemContractAddresses = new Dictionary<NameProvider, Address>();
     }
 }

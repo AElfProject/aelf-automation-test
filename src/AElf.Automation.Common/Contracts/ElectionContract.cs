@@ -1,4 +1,3 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Election;
 
@@ -32,7 +31,7 @@ namespace AElf.Automation.Common.Contracts
 
     public class ElectionContract : BaseContract<ElectionMethod>
     {
-        public ElectionContract(INodeManager nodeManager, string callAddress, string electionAddress) 
+        public ElectionContract(INodeManager nodeManager, string callAddress, string electionAddress)
             : base(nodeManager, electionAddress)
         {
             SetAccount(callAddress);
@@ -42,6 +41,8 @@ namespace AElf.Automation.Common.Contracts
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
+
+        public static string ContractFileName => "AElf.Contracts.Election";
 
         public CandidateInformation GetCandidateInformation(string account)
         {
@@ -53,7 +54,5 @@ namespace AElf.Automation.Common.Contracts
                     });
             return result;
         }
-
-        public static string ContractFileName => "AElf.Contracts.Election";
     }
 }

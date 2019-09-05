@@ -13,25 +13,6 @@ namespace AElf.Automation.Common.Managers
 {
     public class NodeManager : INodeManager
     {
-        #region Properties
-
-        private string _baseUrl;
-        private string _chainId;
-        private readonly AElfKeyStore _keyStore;
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        private string _genesisAddress;
-        public string GenesisAddress => GetGenesisContractAddress();
-
-        private AccountManager _accountManager;
-        public AccountManager AccountManager => GetAccountManager();
-
-        private TransactionManager _transactionManager;
-        public TransactionManager TransactionManager => GetTransactionManager();
-        public List<CommandInfo> CommandList { get; set; }
-
-        #endregion
-
         public NodeManager(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
@@ -52,15 +33,15 @@ namespace AElf.Automation.Common.Managers
             _baseUrl = url;
             ApiService = AElfChainClient.GetClient(url);
             _chainId = GetChainId();
-            
+
             Logger.Info($"Request url updated to: {url}");
         }
-        
+
         public string GetChainId()
         {
             if (_chainId != null)
                 return _chainId;
-            
+
             var chainStatus = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
 
             _chainId = chainStatus.ChainId;
@@ -107,6 +88,47 @@ namespace AElf.Automation.Common.Managers
 
             return ci;
         }
+
+        private string CallTransaction(Transaction tx)
+        {
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
+            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
+        }
+
+        private TransactionManager GetTransactionManager()
+        {
+            if (_transactionManager != null) return _transactionManager;
+
+            _transactionManager = new TransactionManager(_keyStore);
+            return _transactionManager;
+        }
+
+        private AccountManager GetAccountManager()
+        {
+            if (_accountManager != null) return _accountManager;
+
+            _accountManager = new AccountManager(_keyStore);
+            return _accountManager;
+        }
+
+        #region Properties
+
+        private string _baseUrl;
+        private string _chainId;
+        private readonly AElfKeyStore _keyStore;
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        private string _genesisAddress;
+        public string GenesisAddress => GetGenesisContractAddress();
+
+        private AccountManager _accountManager;
+        public AccountManager AccountManager => GetAccountManager();
+
+        private TransactionManager _transactionManager;
+        public TransactionManager TransactionManager => GetTransactionManager();
+        public List<CommandInfo> CommandList { get; set; }
+
+        #endregion
 
         #region Account methods
 
@@ -165,7 +187,7 @@ namespace AElf.Automation.Common.Managers
             tx = TransactionManager.SignTransaction(tx);
             if (tx == null)
                 return;
-            
+
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
 
@@ -217,7 +239,7 @@ namespace AElf.Automation.Common.Managers
 
         public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
         {
-            var tr = new Transaction()
+            var tr = new Transaction
             {
                 From = AddressHelper.Base58StringToAddress(from),
                 To = AddressHelper.Base58StringToAddress(to),
@@ -250,7 +272,7 @@ namespace AElf.Automation.Common.Managers
         public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)
             where T : IMessage<T>, new()
         {
-            var transaction = new Transaction()
+            var transaction = new Transaction
             {
                 From = AddressHelper.Base58StringToAddress(from),
                 To = AddressHelper.Base58StringToAddress(to),
@@ -296,27 +318,5 @@ namespace AElf.Automation.Common.Managers
         }
 
         #endregion
-
-        private string CallTransaction(Transaction tx)
-        {
-            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
-        }
-
-        private TransactionManager GetTransactionManager()
-        {
-            if (_transactionManager != null) return _transactionManager;
-
-            _transactionManager = new TransactionManager(_keyStore);
-            return _transactionManager;
-        }
-
-        private AccountManager GetAccountManager()
-        {
-            if (_accountManager != null) return _accountManager;
-
-            _accountManager = new AccountManager(_keyStore);
-            return _accountManager;
-        }
     }
 }

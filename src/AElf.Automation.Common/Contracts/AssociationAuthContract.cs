@@ -12,12 +12,12 @@ namespace AElf.Automation.Common.Contracts
         //Action
         CreateOrganization,
         Approve,
-        CreateProposal,
+        CreateProposal
     }
 
     public class AssociationAuthContract : BaseContract<AssociationAuthMethod>
     {
-        public AssociationAuthContract(INodeManager nm, string callAddress, string contractAddress) : 
+        public AssociationAuthContract(INodeManager nm, string callAddress, string contractAddress) :
             base(nm, contractAddress)
         {
             SetAccount(callAddress);

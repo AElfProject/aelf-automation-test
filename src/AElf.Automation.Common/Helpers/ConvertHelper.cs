@@ -5,7 +5,7 @@ namespace AElf.Automation.Common.Helpers
     public static class ConvertHelper
     {
         /// <summary>
-        /// 将object对象转换为Json数据
+        ///     将object对象转换为Json数据
         /// </summary>
         /// <param name="obj">object对象</param>
         /// <returns>转换后的json字符串</returns>
@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// 将object对象转换为Json数据
+        ///     将object对象转换为Json数据
         /// </summary>
         /// <param name="obj">object对象</param>
         /// <param name="serializerSettings">序列化设置</param>
@@ -26,7 +26,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// 将object对象转换为Json数据
+        ///     将object对象转换为Json数据
         /// </summary>
         /// <param name="obj">目标对象</param>
         /// <param name="isConvertToSingleQuotes">是否将双引号转成单引号</param>
@@ -41,7 +41,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// 将object对象转换为Json数据
+        ///     将object对象转换为Json数据
         /// </summary>
         /// <param name="obj">目标对象</param>
         /// <param name="isConvertToSingleQuotes">是否将双引号转成单引号</param>
@@ -57,18 +57,18 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// 将Json对象转换为T对象
+        ///     将Json对象转换为T对象
         /// </summary>
         /// <typeparam name="T">对象的类型</typeparam>
         /// <param name="jsonString">json对象字符串</param>
         /// <returns>由字符串转换得到的T对象</returns>
         public static T JsonToObject<T>(string jsonString)
         {
-            return string.IsNullOrWhiteSpace(jsonString) ? default(T) : JsonConvert.DeserializeObject<T>(jsonString);
+            return string.IsNullOrWhiteSpace(jsonString) ? default : JsonConvert.DeserializeObject<T>(jsonString);
         }
 
         /// <summary>
-        /// 将Json对象转换为T对象
+        ///     将Json对象转换为T对象
         /// </summary>
         /// <typeparam name="T">对象的类型</typeparam>
         /// <param name="jsonString">json对象字符串</param>
@@ -77,7 +77,7 @@ namespace AElf.Automation.Common.Helpers
         public static T JsonToObject<T>(string jsonString, JsonSerializerSettings settings)
         {
             return string.IsNullOrWhiteSpace(jsonString)
-                ? default(T)
+                ? default
                 : JsonConvert.DeserializeObject<T>(jsonString, settings);
         }
     }

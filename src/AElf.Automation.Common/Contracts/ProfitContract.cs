@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Profit;
 using AElf.Types;
@@ -45,8 +44,6 @@ namespace AElf.Automation.Common.Contracts
 
     public class ProfitContract : BaseContract<ProfitMethod>
     {
-        public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
-
         public ProfitContract(INodeManager nodeManager, string callAddress) :
             base(nodeManager, "AElf.Contracts.Profit", callAddress)
         {
@@ -57,6 +54,8 @@ namespace AElf.Automation.Common.Contracts
         {
             SetAccount(callAddress);
         }
+
+        public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
         public void GetTreasurySchemes(string treasuryContractAddress)
         {
@@ -83,10 +82,7 @@ namespace AElf.Automation.Common.Contracts
             Schemes.Add(SchemeType.ReElectionReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
             Logger.Info("Scheme collection info:");
-            foreach (var (key, value) in Schemes)
-            {
-                Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
-            }
+            foreach (var (key, value) in Schemes) Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
         }
 
         public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)

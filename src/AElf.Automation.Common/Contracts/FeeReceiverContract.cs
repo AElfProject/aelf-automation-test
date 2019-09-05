@@ -1,4 +1,3 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Resource.FeeReceiver;
 using AElf.Types;
@@ -23,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
 
     public class FeeReceiverContract : BaseContract<FeeReceiverMethod>
     {
-        public FeeReceiverContract(INodeManager nodeManager, string callAddress, string feeReceiverAddress) 
+        public FeeReceiverContract(INodeManager nodeManager, string callAddress, string feeReceiverAddress)
             : base(nodeManager, feeReceiverAddress)
         {
             SetAccount(callAddress);
@@ -41,7 +40,7 @@ namespace AElf.Automation.Common.Contracts
                 ElfTokenAddress = tokenAddress,
                 FoundationAddress = foundationAddress
             });
-                
+
             initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }

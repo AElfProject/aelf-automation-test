@@ -12,20 +12,6 @@ namespace AElf.Automation.Common.Helpers
 {
     public class CommandInfo
     {
-        public string Category { get; set; }
-        public string Cmd { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public IMessage ParameterInput { get; set; }
-        public string Parameter { get; set; }
-        public ApiMethods Method { get; set; }
-        public string ContractMethod { get; set; }
-
-        public bool Result { get; set; }
-        public JObject JsonInfo { get; set; }
-        public object InfoMsg { get; set; }
-        public object ErrorMsg { get; set; }
-
         private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CommandInfo()
@@ -34,7 +20,7 @@ namespace AElf.Automation.Common.Helpers
 
         public CommandInfo(string cmd, string category = "")
         {
-            Category = (category == "") ? cmd : category;
+            Category = category == "" ? cmd : category;
             Cmd = cmd;
             Parameter = string.Empty;
             Result = false;
@@ -56,14 +42,25 @@ namespace AElf.Automation.Common.Helpers
             Category = method.ToString();
             Cmd = method.ToString();
             Method = method;
-            foreach (var parameter in objects)
-            {
-                Parameter += parameter + " ";
-            }
+            foreach (var parameter in objects) Parameter += parameter + " ";
 
             Parameter = Parameter?.Trim();
             Result = false;
         }
+
+        public string Category { get; set; }
+        public string Cmd { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public IMessage ParameterInput { get; set; }
+        public string Parameter { get; set; }
+        public ApiMethods Method { get; set; }
+        public string ContractMethod { get; set; }
+
+        public bool Result { get; set; }
+        public JObject JsonInfo { get; set; }
+        public object InfoMsg { get; set; }
+        public object ErrorMsg { get; set; }
 
         public void GetJsonInfo()
         {
@@ -105,12 +102,6 @@ namespace AElf.Automation.Common.Helpers
 
     public class CategoryRequest
     {
-        public string Category { get; set; }
-        public int Count { get; set; }
-        public int PassCount { get; set; }
-        public int FailCount { get; set; }
-        public List<CommandInfo> Commands { get; set; }
-
         public CategoryRequest()
         {
             Commands = new List<CommandInfo>();
@@ -118,12 +109,16 @@ namespace AElf.Automation.Common.Helpers
             PassCount = 0;
             FailCount = 0;
         }
+
+        public string Category { get; set; }
+        public int Count { get; set; }
+        public int PassCount { get; set; }
+        public int FailCount { get; set; }
+        public List<CommandInfo> Commands { get; set; }
     }
 
     public class CategoryInfoSet
     {
-        private List<CommandInfo> CommandList { get; set; }
-        private List<CategoryRequest> CategoryList { get; set; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CategoryInfoSet(List<CommandInfo> commands)
@@ -131,6 +126,9 @@ namespace AElf.Automation.Common.Helpers
             CommandList = commands;
             CategoryList = new List<CategoryRequest>();
         }
+
+        private List<CommandInfo> CommandList { get; }
+        private List<CategoryRequest> CategoryList { get; }
 
         public void GetCategoryBasicInfo()
         {

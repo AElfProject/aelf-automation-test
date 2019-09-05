@@ -1,19 +1,18 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
-    public enum PluginAcs8Method 
+    public enum PluginAcs8Method
     {
         CpuConsumingMethod,
         StoConsumingMethod,
         NetConsumingMethod,
         FewConsumingMethod
     }
-    
+
     public class ExecutionPluginForAcs8Contract : BaseContract<PluginAcs8Method>
     {
-        public ExecutionPluginForAcs8Contract(INodeManager nodeManager, string callAddress, string contractAddress) 
+        public ExecutionPluginForAcs8Contract(INodeManager nodeManager, string callAddress, string contractAddress)
             : base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
@@ -23,7 +22,7 @@ namespace AElf.Automation.Common.Contracts
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
         public static string ContractFileName => "AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract";
     }
 }

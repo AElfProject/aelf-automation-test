@@ -1,4 +1,3 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
@@ -6,11 +5,11 @@ namespace AElf.Automation.Common.Contracts
     public enum EventsMethod
     {
         //action
-        InitializeEvents,  
+        InitializeEvents,
         IssueOrder,
         DealOrder,
         CancelOrder,
-        
+
         //view
         QueryIssueOrders,
         QueryDoneOrders,
@@ -18,20 +17,20 @@ namespace AElf.Automation.Common.Contracts
         QueryOrderById,
         QueryOrderSubOrders
     }
-    
+
     public class EventsContract : BaseContract<EventsMethod>
     {
-        protected EventsContract(INodeManager nodeManager, string callAddress, string contractAddress) 
+        protected EventsContract(INodeManager nodeManager, string callAddress, string contractAddress)
             : base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
         }
 
-        protected EventsContract(INodeManager nodeManager, string callAddress) : 
+        protected EventsContract(INodeManager nodeManager, string callAddress) :
             base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
         public static string ContractFileName => "AElf.Contracts.TestContract.Events";
     }
 }

@@ -64,6 +64,7 @@ namespace AElf.Automation.Common.Contracts
 
             return result;
         }
+
         public long GetUserBalance(string account, string symbol = "ELF")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput

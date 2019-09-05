@@ -1,5 +1,4 @@
 using Acs3;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
@@ -27,7 +26,7 @@ namespace AElf.Automation.Common.Contracts
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
     {
-        public ParliamentAuthContract(INodeManager nm, string callAddress, string contractAddress) : 
+        public ParliamentAuthContract(INodeManager nm, string callAddress, string contractAddress) :
             base(nm, contractAddress)
         {
             SetAccount(callAddress);

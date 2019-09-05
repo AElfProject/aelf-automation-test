@@ -12,10 +12,9 @@ namespace AElf.Automation.Common.Managers
 {
     public class AccountManager
     {
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly AElfKeyStore _keyStore;
         private List<string> _accounts;
-
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public AccountManager(AElfKeyStore keyStore)
         {
@@ -27,10 +26,10 @@ namespace AElf.Automation.Common.Managers
         {
             if (password == "")
                 password = Account.DefaultPassword;
-            
-            if(password == "")
+
+            if (password == "")
                 password = AskInvisible("password:");
-            
+
             var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(password));
             var pubKey = keypair.PublicKey;
             var address = Address.FromPublicKey(pubKey);
@@ -48,13 +47,13 @@ namespace AElf.Automation.Common.Managers
         {
             if (password == "")
                 password = Account.DefaultPassword;
-            
+
             if (Account.DefaultPassword == "")
                 password = AskInvisible("password:");
-            
+
             if (_accounts == null || _accounts.Count == 0)
             {
-                Logger.Error($"No account exist in key store.");
+                Logger.Error("No account exist in key store.");
                 return false;
             }
 
@@ -89,9 +88,9 @@ namespace AElf.Automation.Common.Managers
 
         public string GetPublicKey(string address, string password = "")
         {
-            if(password == "")
+            if (password == "")
                 password = Account.DefaultPassword;
-            
+
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);
             return keyPair.PublicKey.ToHex();
@@ -119,17 +118,11 @@ namespace AElf.Automation.Common.Managers
             while (true)
             {
                 var i = Console.ReadKey(true);
-                if (i.Key == ConsoleKey.Enter)
-                {
-                    break;
-                }
+                if (i.Key == ConsoleKey.Enter) break;
 
                 if (i.Key == ConsoleKey.Backspace)
                 {
-                    if (pwd.Length > 0)
-                    {
-                        pwd.RemoveAt(pwd.Length - 1);
-                    }
+                    if (pwd.Length > 0) pwd.RemoveAt(pwd.Length - 1);
                 }
                 else
                 {

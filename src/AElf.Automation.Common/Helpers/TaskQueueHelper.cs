@@ -29,32 +29,33 @@ namespace AElf.Automation.Common.Helpers
 
     public interface ITaskQueue<T> : IDisposable
     {
+        int Size { get; }
+        int TimeOut { get; }
+        Action<T> ProcessAction { get; }
+        Action<T, CancellationToken> ProcessActionWithCancellation { get; }
         void Start(int customerCount = 1, bool enableTimeout = false);
         void Stop();
         void Enqueue(T task);
         void SetTimeout(int seconds);
         void SetProcessAction(Action<T> action);
-        int Size { get; }
-        int TimeOut { get; }
-        Action<T> ProcessAction { get; }
-        Action<T, CancellationToken> ProcessActionWithCancellation { get; }
     }
 
     public class TaskQueue<T> : ITaskQueue<T>
     {
-        private ILogger<TaskQueue> Logger { get; set; }
         private readonly BufferBlock<T> _queue = new BufferBlock<T>();
         private CancellationTokenSource _cancellationTokenSource;
-
-        public int Size => _queue.Count;
-        public int TimeOut { get; private set; }
-        public Action<T> ProcessAction { get; private set; }
-        public Action<T, CancellationToken> ProcessActionWithCancellation { get; private set; }
 
         public TaskQueue()
         {
             Logger = NullLogger<TaskQueue>.Instance;
         }
+
+        private ILogger<TaskQueue> Logger { get; }
+
+        public int Size => _queue.Count;
+        public int TimeOut { get; private set; }
+        public Action<T> ProcessAction { get; private set; }
+        public Action<T, CancellationToken> ProcessActionWithCancellation { get; private set; }
 
         public void Enqueue(T task)
         {
@@ -71,11 +72,6 @@ namespace AElf.Automation.Common.Helpers
         public void SetProcessAction(Action<T> action)
         {
             ProcessAction = action;
-        }
-
-        public void SetProcessTimeoutAction(Action<T, CancellationToken> action)
-        {
-            ProcessActionWithCancellation = action;
         }
 
         public void Start(int customerCount = 1, bool enableTimeout = false)
@@ -121,14 +117,16 @@ namespace AElf.Automation.Common.Helpers
         {
             if (_cancellationTokenSource == null) return;
 
-            if (!_cancellationTokenSource.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-            }
+            if (!_cancellationTokenSource.IsCancellationRequested) _cancellationTokenSource.Cancel();
 
             if (_queue.Count > 0)
                 Task.WaitAny(_queue.Completion);
             _cancellationTokenSource.Dispose();
+        }
+
+        public void SetProcessTimeoutAction(Action<T, CancellationToken> action)
+        {
+            ProcessActionWithCancellation = action;
         }
 
         public void ProcessTimeoutAction(T task)

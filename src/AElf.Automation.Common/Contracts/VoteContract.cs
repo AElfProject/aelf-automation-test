@@ -1,4 +1,3 @@
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
