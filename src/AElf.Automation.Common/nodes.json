@@ -1,5 +1,5 @@
 {
-  "RequireAuthority": false,
+  "RequireAuthority": true,
   "Nodes": [
     {
       "name": "bp1",
