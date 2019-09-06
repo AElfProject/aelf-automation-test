@@ -18,17 +18,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class AssociationAuthContract : BaseContract<AssociationMethod>
     {
-        public AssociationAuthContract(IApiHelper apiHelper, string callAddress) : base(apiHelper, "AElf.Contracts.AssociationAuth",
-            callAddress)
-        {
-        }
-
-
-        public AssociationAuthContract(IApiHelper apiHelper, string callAddress, string contractAddress) : base(apiHelper,
-            contractAddress)
+        public AssociationAuthContract(INodeManager nodeManager, string callAddress, string electionAddress)
+            : base(nodeManager, electionAddress)
         {
             SetAccount(callAddress);
-            Logger = Log4NetHelper.GetLogger();
+        }
+
+        public AssociationAuthContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, "AElf.Contracts.AssociationAuth", callAddress)
+        {
         }
     }
 }

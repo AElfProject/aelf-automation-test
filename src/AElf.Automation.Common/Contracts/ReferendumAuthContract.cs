@@ -1,4 +1,5 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -22,16 +23,15 @@ namespace AElf.Automation.Common.Contracts
 
     public class ReferendumAuthContract : BaseContract<ReferendumMethod>
     {
-        public ReferendumAuthContract(IApiHelper apiHelper, string callAddress) : base(apiHelper, "AElf.Contracts.ReferendumAuth",
-            callAddress)
+        public ReferendumAuthContract(INodeManager nodeManager, string callAddress, string electionAddress)
+            : base(nodeManager, electionAddress)
         {
+            SetAccount(callAddress);
         }
 
-        public ReferendumAuthContract(IApiHelper apiHelper, string callAddress, string contractAddress) : base(apiHelper,
-            contractAddress)
+        public ReferendumAuthContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
         }
         
         public void InitializeReferendum()

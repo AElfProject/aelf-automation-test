@@ -21,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         protected ContractTester Tester;
-        public INodeManager CH { get; set; }
+        public INodeManager NodeManager { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
@@ -43,8 +43,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             #endregion
             
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
-            var contractServices = new ContractServices(CH, InitAccount, "Main");
+            NodeManager = new NodeManager(RpcUrl);
+            var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             
             ReviewerList = new List<Reviewer>();

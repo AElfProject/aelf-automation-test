@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -82,20 +83,16 @@ namespace AElf.Automation.ProposalTest
         private List<string> GenerateOrGetTestUsers()
         {
             var url = _environmentInfo.Url;
-            var webHelper = new WebApiHelper(url, AccountDir);
+            var nodeManager = new NodeManager(url, AccountDir);
 
-            var accountCommand = webHelper.ListAccounts();
+            var accounts = nodeManager.ListAccounts();
 
-            if (!(accountCommand.InfoMsg is List<string> accounts))
-                return GenerateTestUsers(webHelper, _config.UserCount);
-            {
-                var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMiners().Contains(o));
-                if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
+            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMiners().Contains(o));
+            if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
-                var newAccounts = GenerateTestUsers(webHelper, _config.UserCount - testUsers.Count);
-                testUsers.AddRange(newAccounts);
-                return testUsers;
-            }
+            var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
+            testUsers.AddRange(newAccounts);
+            return testUsers;
         }
 
         private ContractServices GetContractServices()
@@ -108,14 +105,12 @@ namespace AElf.Automation.ProposalTest
             return Services;
         }
 
-        private List<string> GenerateTestUsers(IApiHelper helper, int count)
+        private List<string> GenerateTestUsers(INodeManager manager, int count)
         {
             var accounts = new List<string>();
             Parallel.For(0, count, i =>
             {
-                var command = new CommandInfo(ApiMethods.AccountNew, "123");
-                command = helper.NewAccount(command);
-                var account = command.InfoMsg.ToString();
+                var account = manager.NewAccount();
                 accounts.Add(account);
             });
 

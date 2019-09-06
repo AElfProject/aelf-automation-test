@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Types;
 using Google.Protobuf;
 using log4net.Repository.Hierarchy;
@@ -9,7 +10,7 @@ namespace AElf.Automation.ProposalTest
 {
     public class ContractServices
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -22,10 +23,10 @@ namespace AElf.Automation.ProposalTest
 
         public ContractServices(string url, string callAddress, string keyStore, string password)
         {
-            ApiHelper = new WebApiHelper(url, keyStore);
+            NodeManager = new NodeManager(url,keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-            UnlockAccounts(ApiHelper, CallAddress, password);
+            NodeManager.UnlockAccount(CallAddress, password);
 
             //connect chain
             ConnectionChain();
@@ -36,7 +37,7 @@ namespace AElf.Automation.ProposalTest
 
         public void GetContractServices()
         {
-            GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
             TokenService = GenesisService.GetTokenContract();
@@ -54,34 +55,23 @@ namespace AElf.Automation.ProposalTest
         private void ConnectionChain()
         {
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.GetChainInformation(ci);
+            NodeManager.GetChainInformation(ci);
         }
-
-        private void UnlockAccounts(IApiHelper apiHelper, string account, string password)
-        {
-            ApiHelper.ListAccounts();
-            var ci = new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} notimeout"
-            };
-            ci = apiHelper.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result);
-        }
-
+        
         private void GetOrDeployAssociationContract()
         {
             var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssociationName).Value;
             AssociationService = associationAuthAddress == ByteString.Empty
-                ? new AssociationAuthContract(ApiHelper, CallAddress)
-                : new AssociationAuthContract(ApiHelper, CallAddress, associationAuthAddress.ToBase64());
+                ? new AssociationAuthContract(NodeManager, CallAddress)
+                : new AssociationAuthContract(NodeManager, CallAddress, associationAuthAddress.ToBase64());
         }
 
         private void GetOrDeployReferendumContract()
         {
             var referendumAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ReferendumName).Value;
             ReferendumService = referendumAuthAddress == ByteString.Empty
-                ? new ReferendumAuthContract(ApiHelper, CallAddress)
-                : new ReferendumAuthContract(ApiHelper, CallAddress, referendumAuthAddress.ToBase64());
+                ? new ReferendumAuthContract(NodeManager, CallAddress)
+                : new ReferendumAuthContract(NodeManager, CallAddress, referendumAuthAddress.ToBase64());
             ReferendumService.InitializeReferendum();
         }
     }
