@@ -1,10 +1,13 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.OptionManagers.Authority;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.Genesis;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -16,6 +19,8 @@ namespace AElf.Automation.RpcPerformance
         private readonly ContractTesterFactory _stub;
         private readonly NodeTransactionOption _nodeTransactionOption;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        private Address _configurationContractAddress; 
 
         public TransactionExecuteLimit(string url, string account)
         {
@@ -49,13 +54,13 @@ namespace AElf.Automation.RpcPerformance
                 _stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
                     AddressHelper.Base58StringToAddress(genesisContractAddress),
                     _account);
-            var configurationAddress =
+            _configurationContractAddress =
                 await basicZeroStub.GetContractAddressByName.CallAsync(
                     GenesisContract.NameProviderInfos[NameProvider.Configuration]);
-            Logger.Info($"Configuration contract address: {configurationAddress.GetFormatted()}");
+            Logger.Info($"Configuration contract address: {_configurationContractAddress.GetFormatted()}");
 
             var configurationStub =
-                _stub.Create<ConfigurationContainer.ConfigurationStub>(configurationAddress, _account);
+                _stub.Create<ConfigurationContainer.ConfigurationStub>(_configurationContractAddress, _account);
 
             return configurationStub;
         }
@@ -69,10 +74,18 @@ namespace AElf.Automation.RpcPerformance
             if (beforeResult.Value == limitCount)
                 return;
 
-            await configurationStub.SetBlockTransactionLimit.SendAsync(new Int32Value
-            {
-                Value = limitCount
-            });
+            var authorityManager = new AuthorityManager(_apiHelper.GetApiUrl(), _account);
+            var minersList = authorityManager.GetCurrentMiners();
+            var gensisOwner = authorityManager.GetGenesisOwnerAddress();
+            var transactionResult = authorityManager.ExecuteTransactionWithAuthority(_configurationContractAddress.GetFormatted(),
+                nameof(configurationStub.SetBlockTransactionLimit),
+                new Int32Value {Value = limitCount},
+                gensisOwner,
+                minersList,
+                _account
+            );
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
             var afterResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
             Logger.Info($"New transaction limit number: {afterResult.Value}");
             if (afterResult.Value == limitCount)

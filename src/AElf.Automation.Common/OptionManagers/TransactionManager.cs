@@ -111,22 +111,18 @@ namespace AElf.Automation.Common.OptionManagers
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
             string chainId = "AELF")
         {
-            var height = GetBlkHeight(rpcAddress);
-            var hash = GetBlkHash(rpcAddress, height);
-            if (height == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
+            if (_cachedHeight == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
                 !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
-                height = GetBlkHeight(rpcAddress);
-                hash = GetBlkHash(rpcAddress, height);
-                _cachedHeight = height;
-                _cachedHash = hash;
+                _cachedHeight = GetBlkHeight(rpcAddress);
+                _cachedHash = GetBlkHash(rpcAddress, _cachedHeight);
                 _refBlockTime = DateTime.Now;
             }
 
-            transaction.RefBlockNumber = height;
+            transaction.RefBlockNumber = _cachedHeight;
             transaction.RefBlockPrefix =
-                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(hash).Where((b, i) => i < 4).ToArray());
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(_cachedHash).Where((b, i) => i < 4).ToArray());
             return transaction;
         }
 

@@ -124,7 +124,6 @@ namespace AElf.Automation.Common.Contracts
 
             var txId = ExecuteMethodWithTxId(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
-            $"Transaction rawTx: {rawTx}".WriteSuccessLine();
 
             //Check result
             Thread.Sleep(100); //in case of 'NotExisted' issue
