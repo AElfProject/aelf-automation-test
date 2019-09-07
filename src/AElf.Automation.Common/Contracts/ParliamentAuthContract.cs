@@ -21,7 +21,8 @@ namespace AElf.Automation.Common.Contracts
         CreateOrganization,
 
         //View
-        GetGenesisOwnerAddress
+        GetGenesisOwnerAddress,
+        GetOrganization
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>

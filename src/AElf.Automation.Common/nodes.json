@@ -2,33 +2,53 @@
   "RequireAuthority": true,
   "Nodes": [
     {
-      "name": "bp1",
-      "account": "eu6nm4Kxu3HcA7FhSdQpPjy29x896yqcPHSq55gKaggTKEwA3",
+      "name": "bp",
+      "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     },
     {
-      "name": "bp2",
-      "account": "gLwL73wC56g53PKg1ZzNTVLmqJTvWgiXXWy6nQt5pChfJEkH8",
+      "name": "bp",
+      "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
       "password": "123"
     },
     {
-      "name": "bp3",
-      "account": "FJjSkjp6mrTjoVxgtjcgt9tYGHv7q4E89jxFLwTj6PLXhn5TF",
+      "name": "bp",
+      "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
       "password": "123"
     },
     {
-      "name": "bp4",
-      "account": "5Vr9ZdimQG6dyEBEWPadV7qRMi9QLoV1euZNNCvo5vWTKdXKR",
+      "name": "bp",
+      "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
       "password": "123"
     },
     {
-      "name": "bp5",
-      "account": "2pz6Mvtdr5AHqfYSc1XALkXaVokxmy8i63ugPJfzEf6TQzvyk3",
+      "name": "bp",
+      "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
       "password": "123"
     },
     {
-      "name": "bp6",
-      "account": "2k8fR54BZZ7zkhRN9mi9rSG7bSEeSvgcYQ1iMVqyzZKW4xAvb5",
+      "name": "bp",
+      "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+      "password": "123"
+    },
+    {
+      "name": "bp",
+      "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+      "password": "123"
+    },
+    {
+      "name": "bp",
+      "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+      "password": "123"
+    },
+    {
+      "name": "bp",
+      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+      "password": "123"
+    },
+    {
+      "name": "bp",
+      "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
       "password": "123"
     }
   ],
