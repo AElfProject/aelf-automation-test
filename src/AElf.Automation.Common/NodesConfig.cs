@@ -3,9 +3,10 @@ using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.Common.OptionManagers.Authority
+namespace AElf.Automation.Common
 {
     public class Node
     {
@@ -23,7 +24,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
 
         public void CheckNodesAccount()
         {
-            var keyStore = new AElfKeyStore(CommonHelper.GetCurrentDataDir());
+            var keyStore = AElfKeyStore.GetKeyStore(CommonHelper.GetCurrentDataDir());
             var accountManager = new AccountManager(keyStore);
             foreach (var node in Nodes)
             {
@@ -55,6 +56,8 @@ namespace AElf.Automation.Common.OptionManagers.Authority
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
+
         public static NodesInfo Config => GetConfigInfo();
 
         private static NodesInfo GetConfigInfo()
@@ -63,8 +66,7 @@ namespace AElf.Automation.Common.OptionManagers.Authority
             {
                 if (_instance != null) return _instance;
 
-                var configFile = CommonHelper.MapPath("nodes.json");
-                _jsonContent = File.ReadAllText(configFile);
+                _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }
 

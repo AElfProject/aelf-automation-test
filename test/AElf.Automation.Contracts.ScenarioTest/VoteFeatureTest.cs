@@ -2,6 +2,7 @@
 using System.IO;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -45,7 +46,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static VoteContract voteService { get; set; }
 
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
-        public WebApiHelper CH { get; set; }
+        public INodeManager CH { get; set; }
 
         #endregion
 
@@ -56,7 +57,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -113,7 +114,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
+                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
         }
@@ -185,7 +186,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         [TestMethod]
         [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
-        public void QueryPublicKey(string account, string password="123")
+        public void QueryPublicKey(string account, string password="")
         {
             var pubKey = CH.GetPublicKeyFromAddress(account, password);
             Logger.Info($"PubKey: {pubKey}");

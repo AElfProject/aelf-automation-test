@@ -16,7 +16,7 @@ namespace AElf.Automation.EconomicSystem.Tests
     public partial class Behaviors
     {
         //action
-        public CommandInfo UserVote(string account, string candidate, int lockTime, long amount)
+        public TransactionResultDto UserVote(string account, string candidate, int lockTime, long amount)
         {
             //check balance
             var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
@@ -29,12 +29,11 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
-            var transactionResult = vote.InfoMsg as TransactionResultDto;
-            transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
@@ -55,7 +54,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
                 {
-                    CandidatePubkey = ApiHelper.GetPublicKeyFromAddress(candidate),
+                    CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
                     Amount = i,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
                 });
@@ -66,7 +65,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return list;
         }
 
-        public CommandInfo Profit(string account, Hash profitId)
+        public TransactionResultDto Profit(string account, Hash profitId)
         {
             ProfitService.SetAccount(account);
             var result = ProfitService.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
@@ -80,7 +79,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         #region TokenConverter Method
 
         // action
-        public CommandInfo TokenConverterInitialize(string initAccount)
+        public TransactionResultDto TokenConverterInitialize(string initAccount)
         {
             var ramConnector = new Connector
             {
@@ -142,7 +141,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         #region Token Method
 
         //token action
-        public CommandInfo TransferToken(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransferToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(from);
 
@@ -155,7 +154,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             });
         }
 
-        public CommandInfo CreateToken(string issuer, string symbol, string tokenName)
+        public TransactionResultDto CreateToken(string issuer, string symbol, string tokenName)
         {
             TokenService.SetAccount(issuer);
             var create = TokenService.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
@@ -170,7 +169,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return create;
         }
 
-        public CommandInfo IssueToken(string issuer, string symbol, string toAddress)
+        public TransactionResultDto IssueToken(string issuer, string symbol, string toAddress)
         {
             TokenService.SetAccount(issuer);
             var issue = TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
@@ -184,7 +183,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return issue;
         }
 
-        public CommandInfo ApproveToken(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto ApproveToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(from);
 
@@ -197,7 +196,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return approve;
         }
 
-        public CommandInfo UnApproveToken(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto UnApproveToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(from);
 
@@ -210,7 +209,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return unapprove;
         }
 
-        public CommandInfo TransfterFromToken(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransfterFromToken(string from, string to, long amount, string symbol = "ELF")
         {
             TokenService.SetAccount(to);
             var transferFrom = TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
@@ -224,7 +223,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             return transferFrom;
         }
 
-        public CommandInfo BurnToken(long amount, string account, string symbol = "ELF")
+        public TransactionResultDto BurnToken(long amount, string account, string symbol = "ELF")
         {
             TokenService.SetAccount(account);
             var burn = TokenService.ExecuteMethodWithResult(TokenMethod.Burn, new BurnInput

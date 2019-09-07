@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
@@ -18,7 +16,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private ILog Logger { get; set; }
         public string TokenAbi { get; set; }
-        public WebApiHelper CH { get; set; }
+        public INodeManager NodeManager { get; set; }
         public List<string> UserList { get; set; }
 
         public string InitAccount { get; } = "e3SpqBExbGQu6AgV9jaqdbwbRVVuB521Qm8NTR4kgja9C2qZ2";
@@ -30,6 +28,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit("ContractTest");
             Logger = Log4NetHelper.GetLogger();
+
+            NodeManager = new NodeManager(RpcUrl);
         }
 
         [TestMethod]
@@ -37,8 +37,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var tokenContractAddress =
                 AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
-            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
-            var tester = new ContractTesterFactory(RpcUrl, keyPath);
+            var tester = new ContractTesterFactory(NodeManager);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var tokenInfo = await tokenStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
             {
@@ -52,8 +51,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var tokenContractAddress =
                 AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
-            var keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "aelf");
-            var tester = new ContractTesterFactory(RpcUrl, keyPath);
+            var tester = new ContractTesterFactory(NodeManager);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput
             {
@@ -76,7 +74,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void DeployContractWithAuthority_Test()
         {
-            var authority = new AuthorityManager(RpcUrl, TestAccount);
+            var authority = new AuthorityManager(NodeManager, TestAccount);
             var contractAddress = authority.DeployContractWithAuthority(TestAccount, "AElf.Contracts.MultiToken.dll");
             contractAddress.ShouldNotBeNull();
         }

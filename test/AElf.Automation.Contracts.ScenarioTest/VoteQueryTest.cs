@@ -2,6 +2,7 @@
 using System.IO;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -31,18 +32,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public static DividendsContract dividendsService { get; set; }
 
         public string RpcUrl { get; } = "http://192.168.197.20:8010/chain";
-        public WebApiHelper CH { get; set; }
+        public INodeManager CH { get; set; }
 
         #endregion
 
         [TestInitialize]
-        public void Initlize()
+        public void Initialize()
         {
             //Init log
             Log4NetHelper.LogInit("VoteBP");
             CandidatePublicKeys = new List<string>();
             UserList = new List<string>();
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
 
             //Connect Chain
             var ci = new CommandInfo(ApiMethods.GetChainInformation);
@@ -78,7 +79,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
+                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
         }

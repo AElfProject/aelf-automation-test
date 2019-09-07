@@ -1,6 +1,6 @@
 using Org.BouncyCastle.OpenSsl;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public class Password : IPasswordFinder
     {

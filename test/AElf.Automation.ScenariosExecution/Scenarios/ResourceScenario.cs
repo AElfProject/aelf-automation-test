@@ -63,8 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     Symbol = connector.Symbol
                 });
-                if (!(buyResult.InfoMsg is TransactionResultDto txDto)) continue;
-                if (txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                if (buyResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.Info(
                         $"Buy resource - {user} buy resource {connector.Symbol} cost token {amount}");
             }
@@ -84,8 +83,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     Symbol = connector.Symbol,
                 });
-                if (!(sellResult.InfoMsg is TransactionResultDto txDto)) continue;
-                if (txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                if (sellResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.Info(
                         $"Sell resource - {user} sell resource {connector.Symbol} with amount {amount}");
             }
@@ -129,7 +127,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void InitializeTokenConverter()
         {
-            TokenConverter = new TokenConverterContract(Services.ApiHelper, Services.CallAddress);
+            TokenConverter = new TokenConverterContract(Services.NodeManager, Services.CallAddress);
 
             //Create and issue all resources token
             var token = Token.GetNewTester(Testers[0]);
@@ -157,8 +155,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     TokenName = $"{connector.Symbol} Resource",
                     TotalSupply = 100_000_000
                 });
-                if (!(createResult.InfoMsg is TransactionResultDto createDto)) continue;
-                if (createDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                if (createResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.Info($"Create resource {connector.Symbol} successful.");
 
                 var issueResult = token.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
@@ -168,8 +165,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"Issue {connector.Symbol} token",
                     To = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress)
                 });
-                if (!(issueResult.InfoMsg is TransactionResultDto issueDto)) continue;
-                if (issueDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.Info($"Issue total amount 100_0000 resource {connector.Symbol} successful.");
             }
 

@@ -26,7 +26,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestInitialize]
         public void InitTest()
         {
-            _logger.InitLogHelper(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test.log"));
+            _logger.InitLogHelper(Path.Combine(CommonHelper.AppRoot, "test.log"));
         }
 
         [TestMethod]

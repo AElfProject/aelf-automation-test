@@ -1,18 +1,116 @@
 using System.Collections.Generic;
 using Acs0;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
 using AElfChain.SDK;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
-using Newtonsoft.Json.Linq;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElf.Automation.Common.Managers
 {
-    public class WebApiHelper : IApiHelper
+    public class NodeManager : INodeManager
     {
+        public NodeManager(string baseUrl, string keyPath = "")
+        {
+            _baseUrl = baseUrl;
+            _keyStore = AElfKeyStore.GetKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
+
+            ApiService = AElfChainClient.GetClient(baseUrl);
+            _chainId = GetChainId();
+            CommandList = new List<CommandInfo>();
+        }
+
+        public string GetApiUrl()
+        {
+            return _baseUrl;
+        }
+
+        public void UpdateApiUrl(string url)
+        {
+            _baseUrl = url;
+            ApiService = AElfChainClient.GetClient(url);
+            _chainId = GetChainId();
+
+            Logger.Info($"Request url updated to: {url}");
+        }
+
+        public string GetChainId()
+        {
+            if (_chainId != null)
+                return _chainId;
+
+            var chainStatus = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+
+            _chainId = chainStatus.ChainId;
+
+            return _chainId;
+        }
+
+        public IApiService ApiService { get; set; }
+
+        public string GetGenesisContractAddress()
+        {
+            if (_genesisAddress != null) return _genesisAddress;
+
+            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+            _genesisAddress = statusDto.GenesisContractAddress;
+            return _genesisAddress;
+        }
+
+        public CommandInfo ExecuteCommand(CommandInfo ci)
+        {
+            switch (ci.Method)
+            {
+                case ApiMethods.GetChainInformation:
+                    GetChainInformation(ci);
+                    break;
+                case ApiMethods.DeploySmartContract:
+                    DeployContract(ci);
+                    break;
+                case ApiMethods.SendTransaction:
+                    BroadcastTx(ci);
+                    break;
+                case ApiMethods.SendTransactions:
+                    BroadcastTxs(ci);
+                    break;
+                default:
+                    Logger.Error("Invalid command.");
+                    break;
+            }
+
+            ci.PrintResultMessage();
+
+            if (!ci.Result) //analyze failed result
+                CommandList.Add(ci);
+
+            return ci;
+        }
+
+        private string CallTransaction(Transaction tx)
+        {
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
+            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
+        }
+
+        private TransactionManager GetTransactionManager()
+        {
+            if (_transactionManager != null) return _transactionManager;
+
+            _transactionManager = new TransactionManager(_keyStore);
+            return _transactionManager;
+        }
+
+        private AccountManager GetAccountManager()
+        {
+            if (_accountManager != null) return _accountManager;
+
+            _accountManager = new AccountManager(_keyStore);
+            return _accountManager;
+        }
+
         #region Properties
 
         private string _baseUrl;
@@ -28,117 +126,25 @@ namespace AElf.Automation.Common.Helpers
 
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
+        public List<CommandInfo> CommandList { get; set; }
 
         #endregion
 
-        public WebApiHelper(string baseUrl, string keyPath = "")
-        {
-            _baseUrl = baseUrl;
-            _keyStore = new AElfKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
-
-            ApiService = AElfChainClient.GetClient(baseUrl);
-            CommandList = new List<CommandInfo>();
-        }
-
-        public string GetApiUrl()
-        {
-            return _baseUrl;
-        }
-
-        public void UpdateApiUrl(string url)
-        {
-            _baseUrl = url;
-            ApiService = AElfChainClient.GetClient(url);
-            Logger.Info($"Request url updated to: {url}");
-        }
-
-        public IApiService ApiService { get; set; }
-
-        public List<CommandInfo> CommandList { get; set; }
-
-        public string GetGenesisContractAddress()
-        {
-            if (_genesisAddress != null) return _genesisAddress;
-
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            _genesisAddress = statusDto.GenesisContractAddress;
-            return _genesisAddress;
-        }
-
-        public CommandInfo ExecuteCommand(CommandInfo ci)
-        {
-            switch (ci.Method)
-            {
-                //Account request
-                case ApiMethods.AccountNew:
-                    ci = NewAccount(ci);
-                    break;
-                case ApiMethods.AccountList:
-                    ci = ListAccounts();
-                    break;
-                case ApiMethods.AccountUnlock:
-                    ci = UnlockAccount(ci);
-                    break;
-                case ApiMethods.GetChainInformation:
-                    GetChainInformation(ci);
-                    break;
-                case ApiMethods.DeploySmartContract:
-                    DeployContract(ci);
-                    break;
-                case ApiMethods.SendTransaction:
-                    BroadcastTx(ci);
-                    break;
-                case ApiMethods.SendTransactions:
-                    BroadcastTxs(ci);
-                    break;
-                case ApiMethods.GetTransactionResult:
-                    GetTransactionResult(ci);
-                    break;
-                case ApiMethods.GetBlockHeight:
-                    GetBlockHeight(ci);
-                    break;
-                case ApiMethods.GetBlockByHeight:
-                    GetBlockByHeight(ci);
-                    break;
-                case ApiMethods.GetBlockByHash:
-                    GetBlockByHash(ci);
-                    break;
-                case ApiMethods.QueryView:
-                    QueryViewInfo(ci);
-                    break;
-                default:
-                    Logger.Error("Invalid command.");
-                    break;
-            }
-
-            ci.PrintResultMessage();
-
-            if (!ci.Result) //analyze failed result
-                CommandList.Add(ci);
-
-            return ci;
-        }
-
         #region Account methods
 
-        public CommandInfo NewAccount(CommandInfo ci)
+        public string NewAccount(string password = "")
         {
-            ci = AccountManager.NewAccount(ci.Parameter);
-            return ci;
+            return AccountManager.NewAccount(password);
         }
 
-        public CommandInfo ListAccounts()
+        public List<string> ListAccounts()
         {
-            var ci = AccountManager.ListAccount();
-            return ci;
+            return AccountManager.ListAccount();
         }
 
-        public CommandInfo UnlockAccount(CommandInfo ci)
+        public bool UnlockAccount(string account, string password = "")
         {
-            var parameters = ci.Parameter.Split(" ");
-            ci = AccountManager.UnlockAccount(parameters[0], parameters[1],
-                parameters[2]);
-            return ci;
+            return AccountManager.UnlockAccount(account, password);
         }
 
         #endregion
@@ -159,7 +165,7 @@ namespace AElf.Automation.Common.Helpers
         {
             if (!ci.CheckParameterValid(2))
                 return;
-            var parameterArray = ci.Parameter.Split(" ");
+            var parameterArray = ci.Parameter.Split(' ');
             var filename = parameterArray[0];
             var from = parameterArray[1];
 
@@ -172,7 +178,6 @@ namespace AElf.Automation.Common.Helpers
                 Code = ByteString.CopyFrom(codeArray)
             };
 
-            TransactionManager.SetCmdInfo(ci);
             var tx = TransactionManager.CreateTransaction(from, GenesisAddress,
                 ci.Cmd, input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl, _chainId);
@@ -182,8 +187,8 @@ namespace AElf.Automation.Common.Helpers
             tx = TransactionManager.SignTransaction(tx);
             if (tx == null)
                 return;
-            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
 
+            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
 
             ci.InfoMsg = transactionOutput;
@@ -234,7 +239,7 @@ namespace AElf.Automation.Common.Helpers
 
         public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
         {
-            var tr = new Transaction()
+            var tr = new Transaction
             {
                 From = AddressHelper.Base58StringToAddress(from),
                 To = AddressHelper.Base58StringToAddress(to),
@@ -264,70 +269,10 @@ namespace AElf.Automation.Common.Helpers
             ci.Result = true;
         }
 
-        public void GetTransactionResult(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(1))
-                return;
-
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(ci.Parameter));
-            ci.Result = true;
-        }
-
-        public void GetBlockHeight(CommandInfo ci)
-        {
-            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
-            ci.Result = true;
-        }
-
-        public void GetBlockByHeight(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(2))
-                return;
-
-            var parameterArray = ci.Parameter.Split(" ");
-            ci.InfoMsg = AsyncHelper.RunSync(
-                () => ApiService.GetBlockByHeightAsync(long.Parse(parameterArray[0]), bool.Parse(parameterArray[1]))
-            );
-            ci.Result = true;
-        }
-
-        public void GetBlockByHash(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(2))
-                return;
-
-            var parameterArray = ci.Parameter.Split(" ");
-            ci.InfoMsg =
-                AsyncHelper.RunSync(() => ApiService.GetBlockAsync(parameterArray[0], bool.Parse(parameterArray[1])));
-            ci.Result = true;
-        }
-
-        public void GetTransactionPoolStatus(CommandInfo ci)
-        {
-            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
-            ci.Result = true;
-        }
-
-        public JObject QueryView(string from, string to, string methodName, IMessage inputParameter)
-        {
-            var transaction = new Transaction()
-            {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
-                MethodName = methodName,
-                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
-            };
-            transaction = TransactionManager.SignTransaction(transaction);
-
-            var resp = CallTransaction(transaction);
-
-            return resp == string.Empty ? new JObject() : JObject.Parse(resp);
-        }
-
         public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)
             where T : IMessage<T>, new()
         {
-            var transaction = new Transaction()
+            var transaction = new Transaction
             {
                 From = AddressHelper.Base58StringToAddress(from),
                 To = AddressHelper.Base58StringToAddress(to),
@@ -342,7 +287,7 @@ namespace AElf.Automation.Common.Helpers
             if (resp == null)
             {
                 Logger.Error("ExecuteTransaction response is null.");
-                return default(T);
+                return default;
             }
 
             var byteArray = ByteArrayHelper.HexStringToByteArray(resp);
@@ -351,66 +296,27 @@ namespace AElf.Automation.Common.Helpers
             return messageParser.ParseFrom(byteArray);
         }
 
-        public void QueryViewInfo(CommandInfo ci)
-        {
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(ci.Parameter));
-            ci.Result = true;
-        }
-
-        public string GetPublicKeyFromAddress(string account, string password = "123")
+        public string GetPublicKeyFromAddress(string account, string password = "")
         {
             return AccountManager.GetPublicKey(account, password);
         }
 
         //Net Api
-        public void NetGetPeers(CommandInfo ci)
+        public List<PeerDto> NetGetPeers()
         {
-            ci.InfoMsg = AsyncHelper.RunSync(ApiService.GetPeersAsync);
-            ci.Result = true;
+            return AsyncHelper.RunSync(ApiService.GetPeersAsync);
         }
 
-        public void NetAddPeer(CommandInfo ci)
+        public bool NetAddPeer(string address)
         {
-            if (!ci.CheckParameterValid(1))
-                return;
-
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.AddPeerAsync(ci.Parameter));
-            ci.Result = true;
+            return AsyncHelper.RunSync(() => ApiService.AddPeerAsync(address));
         }
 
-        public void NetRemovePeer(CommandInfo ci)
+        public bool NetRemovePeer(string address)
         {
-            if (!ci.CheckParameterValid(1))
-                return;
-
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(ci.Parameter));
-            ci.Result = true;
+            return AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(address));
         }
 
         #endregion
-
-        private string CallTransaction(Transaction tx)
-        {
-            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
-        }
-
-        private TransactionManager GetTransactionManager()
-        {
-            if (_transactionManager != null) return _transactionManager;
-
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            _chainId = statusDto.ChainId;
-            _transactionManager = new TransactionManager(_keyStore, _chainId);
-            return _transactionManager;
-        }
-
-        private AccountManager GetAccountManager()
-        {
-            if (_accountManager != null) return _accountManager;
-
-            _accountManager = new AccountManager(_keyStore);
-            return _accountManager;
-        }
     }
 }

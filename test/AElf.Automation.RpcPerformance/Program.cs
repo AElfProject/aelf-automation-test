@@ -1,6 +1,7 @@
 ﻿using System;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers.Authority;
+using AElf.Automation.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -74,8 +75,8 @@ namespace AElf.Automation.RpcPerformance
                 if (ExecuteMode == 0) //检测链交易和出块结果
                 {
                     Logger.Info("Check node transaction status information");
-                    var apiHelper = new WebApiHelper(performance.BaseUrl);
-                    var nodeSummary = new ExecutionSummary(apiHelper, true);
+                    var nodeManager = new NodeManager(performance.BaseUrl);
+                    var nodeSummary = new ExecutionSummary(nodeManager, true);
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
@@ -105,7 +106,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            var set = new CategoryInfoSet(performance.ApiHelper.CommandList);
+            var set = new CategoryInfoSet(performance.NodeManager.CommandList);
             set.GetCategoryBasicInfo();
             set.GetCategorySummaryInfo();
             var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);

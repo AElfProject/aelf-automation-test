@@ -9,12 +9,18 @@ namespace AElf.Automation.Common.Helpers
 {
     public static class Log4NetHelper
     {
-        public static int LogInit() => LogInit(configFilePath: CommonHelper.MapPath("log4net.config"));
+        public static int LogInit()
+        {
+            return LogInit(configFilePath: CommonHelper.MapPath("log4net.config"));
+        }
 
-        public static int LogInit(string fileName) => LogInit(CommonHelper.MapPath("log4net.config"), fileName);
+        public static int LogInit(string fileName)
+        {
+            return LogInit(CommonHelper.MapPath("log4net.config"), fileName);
+        }
 
         /// <summary>
-        /// log4net init
+        ///     log4net init
         /// </summary>
         /// <param name="configFilePath">log4net config file path</param>
         /// <param name="fileName"></param>
@@ -23,14 +29,14 @@ namespace AElf.Automation.Common.Helpers
         {
             if (null != LogManager.GetAllRepositories()
                     ?.FirstOrDefault(_ => _.Name == CommonHelper.ApplicationName)) return 0;
-            GlobalContext.Properties["LogName"] = fileName;
+            GlobalContext.Properties["LogName"] = $"{fileName}_";
             XmlConfigurator.Configure(LogManager.CreateRepository(CommonHelper.ApplicationName),
                 new FileInfo(configFilePath));
             return 1;
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger<TCategory>()
         {
@@ -38,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(Type type)
         {
@@ -46,7 +52,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger()
         {
@@ -59,7 +65,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(string loggerName)
         {
@@ -67,7 +73,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Info extension method
+        ///     Info extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -79,7 +85,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Warn extension method
+        ///     Warn extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -91,7 +97,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Error extension method
+        ///     Error extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>

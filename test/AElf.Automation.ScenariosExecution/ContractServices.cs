@@ -4,11 +4,10 @@ using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Automation.ScenariosExecution.Scenarios;
-using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
-using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution
@@ -16,7 +15,7 @@ namespace AElf.Automation.ScenariosExecution
     public class ContractServices
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TreasuryContract TreasuryService { get; set; }
@@ -35,14 +34,11 @@ namespace AElf.Automation.ScenariosExecution
 
         public static List<Node> CurrentBpNodes { get; set; }
 
-        public ContractServices(IApiHelper apiHelper, string callAddress)
+        public ContractServices(INodeManager nodeManager, string callAddress)
         {
-            ApiHelper = apiHelper;
+            NodeManager = nodeManager;
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-
-            //connect chain
-            ConnectionChain();
 
             //get all contract services
             GetAllContractServices();
@@ -50,39 +46,33 @@ namespace AElf.Automation.ScenariosExecution
 
         private void GetAllContractServices()
         {
-            GenesisService = GenesisContract.GetGenesisContract(ApiHelper, CallAddress);
+            GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
-            ConsensusService = new ConsensusContract(ApiHelper, CallAddress, consensusAddress.GetFormatted());
+            ConsensusService = GenesisService.GetConsensusContract();
 
             CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             if (!specifyEndpoint.Enable) //随机选择bp执行
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                ApiHelper.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].ServiceUrl);
+                NodeManager.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].ServiceUrl);
             }
 
             //Treasury contract
-            var treasuryAddress = GenesisService.GetContractAddressByName(NameProvider.TreasuryName);
-            TreasuryService = new TreasuryContract(ApiHelper, CallAddress, treasuryAddress.GetFormatted());
+            TreasuryService = GenesisService.GetTreasuryContract();
 
             //TokenService contract
-            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
-            TokenService = new TokenContract(ApiHelper, CallAddress, tokenAddress.GetFormatted());
+            TokenService = GenesisService.GetTokenContract();
 
             //ProfitService contract
-            var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
-            ProfitService = new ProfitContract(ApiHelper, CallAddress, profitAddress.GetFormatted());
+            ProfitService = GenesisService.GetProfitContract();
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
-            VoteService = new VoteContract(ApiHelper, CallAddress, voteAddress.GetFormatted());
+            VoteService = GenesisService.GetVoteContract();
 
             //ElectionService contract
-            var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
-            ElectionService = new ElectionContract(ApiHelper, CallAddress, electionAddress.GetFormatted());
+            ElectionService = GenesisService.GetElectionContract();
 
             //Get or deploy other contracts
             GetOrDeployFeeReceiverContract();
@@ -101,11 +91,11 @@ namespace AElf.Automation.ScenariosExecution
                 if (queryResult)
                 {
                     FeeReceiverService =
-                        new FeeReceiverContract(ApiHelper, CallAddress, contractItem.Address);
+                        new FeeReceiverContract(NodeManager, CallAddress, contractItem.Address);
                 }
                 else
                 {
-                    FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
+                    FeeReceiverService = new FeeReceiverContract(NodeManager, CallAddress);
                     FeeReceiverService.InitializeFeeReceiver(
                         AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                         CallAccount);
@@ -125,14 +115,14 @@ namespace AElf.Automation.ScenariosExecution
                 var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
                 if (feeReceiverAddress == new Address())
                 {
-                    FeeReceiverService = new FeeReceiverContract(ApiHelper, CallAddress);
+                    FeeReceiverService = new FeeReceiverContract(NodeManager, CallAddress);
                     FeeReceiverService.InitializeFeeReceiver(
                         AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
                 }
                 else
                 {
                     FeeReceiverService =
-                        new FeeReceiverContract(ApiHelper, CallAddress, feeReceiverAddress.GetFormatted());
+                        new FeeReceiverContract(NodeManager, CallAddress, feeReceiverAddress.GetFormatted());
                 }
             }
         }
@@ -150,11 +140,11 @@ namespace AElf.Automation.ScenariosExecution
                     if (queryResult)
                     {
                         TokenConverterService =
-                            new TokenConverterContract(ApiHelper, CallAddress, contractItem.Address);
+                            new TokenConverterContract(NodeManager, CallAddress, contractItem.Address);
                     }
                     else
                     {
-                        TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress);
+                        TokenConverterService = new TokenConverterContract(NodeManager, CallAddress);
 
                         //update configInfo
                         contractItem.Address = TokenConverterService.ContractAddress;
@@ -168,7 +158,7 @@ namespace AElf.Automation.ScenariosExecution
             else
             {
                 //Token converter contract
-                TokenConverterService = new TokenConverterContract(ApiHelper, CallAddress);
+                TokenConverterService = new TokenConverterContract(NodeManager, CallAddress);
             }
         }
 
@@ -189,14 +179,14 @@ namespace AElf.Automation.ScenariosExecution
 
                     if (updated)
                         UpdateContractService =
-                            new BasicUpdateContract(ApiHelper, CallAddress, contractItem.Address);
+                            new BasicUpdateContract(NodeManager, CallAddress, contractItem.Address);
                     else
                         FunctionContractService =
-                            new BasicFunctionContract(ApiHelper, CallAddress, contractItem.Address);
+                            new BasicFunctionContract(NodeManager, CallAddress, contractItem.Address);
                 }
                 else
                 {
-                    FunctionContractService = new BasicFunctionContract(ApiHelper, CallAddress);
+                    FunctionContractService = new BasicFunctionContract(NodeManager, CallAddress);
                     ContractScenario.IsUpdateContract = false;
                     ContractScenario.ContractOwner = CallAddress;
                     ContractScenario.ContractManager = CallAddress;
@@ -232,7 +222,7 @@ namespace AElf.Automation.ScenariosExecution
             else
             {
                 //BasicFunction contract
-                FunctionContractService = new BasicFunctionContract(ApiHelper, CallAddress);
+                FunctionContractService = new BasicFunctionContract(NodeManager, CallAddress);
                 ContractScenario.IsUpdateContract = false;
                 ContractScenario.ContractOwner = CallAddress;
                 ContractScenario.ContractManager = CallAddress;
@@ -267,22 +257,22 @@ namespace AElf.Automation.ScenariosExecution
                 if (queryResult)
                 {
                     PerformanceService =
-                        new PerformanceContract(ApiHelper, CallAddress, contractItem.Address);
+                        new PerformanceContract(NodeManager, CallAddress, contractItem.Address);
                 }
                 else
                 {
-                    PerformanceService = new PerformanceContract(ApiHelper, CallAddress);
+                    PerformanceService = new PerformanceContract(NodeManager, CallAddress);
                     PerformanceService.InitializePerformance();
 
                     //update configInfo
-                    contractItem.Address = TokenConverterService.ContractAddress;
+                    contractItem.Address = PerformanceService.ContractAddress;
                     contractItem.Owner = CallAddress;
                 }
             }
             else
             {
                 //Performance contract
-                PerformanceService = new PerformanceContract(ApiHelper, CallAddress);
+                PerformanceService = new PerformanceContract(NodeManager, CallAddress);
                 PerformanceService.InitializePerformance();
             }
         }
@@ -310,20 +300,13 @@ namespace AElf.Automation.ScenariosExecution
             }
         }
 
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            ApiHelper.GetChainInformation(ci);
-        }
-
         private List<Node> GetCurrentBpNodes()
         {
             var configInfo = ConfigInfoHelper.Config;
             var bpNodes = configInfo.BpNodes;
             var fullNodes = configInfo.FullNodes;
 
-            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            var minersPublicKeys = ConsensusService.GetCurrentMiners();
             var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
             Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");

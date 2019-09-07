@@ -1,10 +1,11 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.RpcPerformance
 {
     public interface IPerformanceCategory
     {
-        IApiHelper ApiHelper { get; }
+        INodeManager NodeManager { get; }
         int ThreadCount { get; }
         int ExeTimes { get; }
         string BaseUrl { get; }

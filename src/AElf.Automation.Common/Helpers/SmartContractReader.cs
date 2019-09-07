@@ -36,7 +36,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Return the full path of the files 
+        ///     Return the full path of the files
         /// </summary>
         private string GetKeyFileFullPath(string address)
         {
@@ -46,19 +46,6 @@ namespace AElf.Automation.Common.Helpers
             var filePathWithExtension = filePath + ContractExtension;
 
             return filePathWithExtension;
-        }
-
-        private DirectoryInfo GetOrCreateContractDir()
-        {
-            try
-            {
-                var dirPath = GetKeystoreDirectoryPath();
-                return Directory.CreateDirectory(dirPath);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         private string GetKeystoreDirectoryPath()

@@ -1,6 +1,8 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElfChain.SDK.Models;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -36,19 +38,20 @@ namespace AElf.Automation.Common.Contracts
 
     public class TokenContract : BaseContract<TokenMethod>
     {
-        public TokenContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.MultiToken", callAddress)
+        public TokenContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.MultiToken", callAddress)
         {
+            Logger = Log4NetHelper.GetLogger();
         }
 
-        public TokenContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
+        public TokenContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
-        public bool TransferBalance(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "ELF")
         {
             var tester = GetNewTester(from);
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -59,7 +62,7 @@ namespace AElf.Automation.Common.Contracts
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
             });
 
-            return result.Result;
+            return result;
         }
 
         public long GetUserBalance(string account, string symbol = "ELF")
@@ -69,15 +72,6 @@ namespace AElf.Automation.Common.Contracts
                 Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = symbol
             }).Balance;
-        }
-
-        public TokenContractContainer.TokenContractStub GetTokenContractTester()
-        {
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
-            var tokenStub =
-                stub.Create<TokenContractContainer.TokenContractStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), CallAddress);
-            return tokenStub;
         }
     }
 }

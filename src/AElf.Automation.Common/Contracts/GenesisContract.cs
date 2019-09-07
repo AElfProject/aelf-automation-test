@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -41,27 +43,31 @@ namespace AElf.Automation.Common.Contracts
         CrossChainName,
         AssociationName,
         Configuration,
+        ReferendumName,
 
         BasicFunction
     }
 
     public class GenesisContract : BaseContract<GenesisMethod>
     {
-        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+        private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
+            new Dictionary<NameProvider, Address>();
 
-        private GenesisContract(IApiHelper apiHelper, string callAddress, string genesisAddress) :
-            base(apiHelper, genesisAddress)
+        private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress)
+            : base(nodeManager, genesisAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
+            Logger = Log4NetHelper.GetLogger();
         }
 
-        public static GenesisContract GetGenesisContract(IApiHelper ch, string callAddress)
+        public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+
+        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress)
         {
-            var genesisContract = ch.GetGenesisContractAddress();
+            var genesisContract = nm.GetGenesisContractAddress();
             Logger.Info($"Genesis contract Address: {genesisContract}");
 
-            return new GenesisContract(ch, callAddress, genesisContract);
+            return new GenesisContract(nm, callAddress, genesisContract);
         }
 
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
@@ -79,15 +85,18 @@ namespace AElf.Automation.Common.Contracts
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)
             });
-            if (!(txResult.InfoMsg is TransactionResultDto txDto)) return false;
-            return txDto.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
+
+            return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
         public Address GetContractAddressByName(NameProvider name)
         {
-            var hash = NameProviderInfos[name];
+            if (_systemContractAddresses.Keys.Contains(name))
+                return _systemContractAddresses[name];
 
+            var hash = NameProviderInfos[name];
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
+            _systemContractAddresses[name] = address;
             var addString = address != new Address() ? address.GetFormatted() : "null";
             Logger.Info($"{name.ToString().Replace("Name", "")} contract address: {addString}");
 
@@ -106,10 +115,10 @@ namespace AElf.Automation.Common.Contracts
             return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
         }
 
-        public BasicContractZeroContainer.BasicContractZeroStub GetBasicContractTester(string callAddress = null)
+        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
-            var stub = new ContractTesterFactory(ApiHelper.GetApiUrl());
+            var stub = new ContractTesterFactory(NodeManager);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
                     AddressHelper.Base58StringToAddress(ContractAddress), caller);
@@ -132,6 +141,7 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
+                {NameProvider.ReferendumName, Hash.FromString("AElf.ContractNames.Referendum")},
                 {NameProvider.BasicFunction, Hash.FromString("AElf.Contracts.BasicFunction")}
             };
 

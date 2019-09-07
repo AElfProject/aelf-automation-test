@@ -2,9 +2,9 @@ using System.IO;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Configuration;
 using AElf.Types;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -15,7 +15,7 @@ namespace AElf.Automation.ContractsTesting
     public class ConfigurationTransaction
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiHelper _apiHelper;
+        private readonly INodeManager _nodeManager;
         private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
         private ConfigurationContainer.ConfigurationStub _configurationStub;
@@ -24,8 +24,8 @@ namespace AElf.Automation.ContractsTesting
         public ConfigurationTransaction(string serviceUrl)
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
-            _apiHelper = new WebApiHelper(serviceUrl, keyStorePath);
-            _stub = new ContractTesterFactory(serviceUrl, keyStorePath);
+            _nodeManager = new NodeManager(serviceUrl, keyStorePath);
+            _stub = new ContractTesterFactory(_nodeManager);
 
             GetOrCreateTestAccount();
             GetGenesisContract();
@@ -34,15 +34,12 @@ namespace AElf.Automation.ContractsTesting
 
         private void GetOrCreateTestAccount()
         {
-            var accountInfo = _apiHelper.NewAccount(
-                new CommandInfo(ApiMethods.AccountNew)
-                    {Parameter = "123"});
-            _account = accountInfo.InfoMsg.ToString();
+            _account = _nodeManager.NewAccount();
         }
 
         private void GetGenesisContract()
         {
-            _genesisContract = GenesisContract.GetGenesisContract(_apiHelper, _account);
+            _genesisContract = GenesisContract.GetGenesisContract(_nodeManager, _account);
         }
 
         private void GetConfigurationStub()
@@ -58,7 +55,7 @@ namespace AElf.Automation.ContractsTesting
         {
             var code = File.ReadAllBytes(
                 $"/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
-            var commonInfo = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
+            var transactionResult = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
                 new SystemContractDeploymentInput
                 {
                     Category = 30,
@@ -67,9 +64,8 @@ namespace AElf.Automation.ContractsTesting
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-            var transactionResultDto = commonInfo.InfoMsg as TransactionResultDto;
 
-            return transactionResultDto.ReadableReturnValue.Replace("\"", "");
+            return transactionResult.ReadableReturnValue.Replace("\"", "");
         }
 
         public void SetTransactionLimit(int transactionCount)

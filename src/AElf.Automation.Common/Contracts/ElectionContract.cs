@@ -1,4 +1,4 @@
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Election;
 
 namespace AElf.Automation.Common.Contracts
@@ -31,17 +31,18 @@ namespace AElf.Automation.Common.Contracts
 
     public class ElectionContract : BaseContract<ElectionMethod>
     {
-        public ElectionContract(IApiHelper apiHelper, string callAddress, string electionAddress) :
-            base(apiHelper, electionAddress)
+        public ElectionContract(INodeManager nodeManager, string callAddress, string electionAddress)
+            : base(nodeManager, electionAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public ElectionContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Election", callAddress)
+        public ElectionContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, ContractFileName, callAddress)
         {
         }
+
+        public static string ContractFileName => "AElf.Contracts.Election";
 
         public CandidateInformation GetCandidateInformation(string account)
         {
@@ -49,7 +50,7 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
                     new StringInput
                     {
-                        Value = ApiHelper.GetPublicKeyFromAddress(account)
+                        Value = NodeManager.GetPublicKeyFromAddress(account)
                     });
             return result;
         }

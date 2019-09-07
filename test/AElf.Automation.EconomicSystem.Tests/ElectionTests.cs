@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
@@ -16,7 +17,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected Behaviors Behaviors;
 
         //protected RpcApiHelper CH { get; set; }   
-        protected IApiHelper CH { get; set; }
+        protected INodeManager CH { get; set; }
         protected string InitAccount { get; } = "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
@@ -39,7 +40,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             #region Get services
 
-            CH = new WebApiHelper(RpcUrl, CommonHelper.GetCurrentDataDir());
+            CH = new NodeManager(RpcUrl);
             var contractServices = new ContractServices(CH, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
@@ -139,7 +140,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             _logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.ak");
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
             */

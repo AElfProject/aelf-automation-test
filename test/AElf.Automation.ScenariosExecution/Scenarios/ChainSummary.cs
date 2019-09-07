@@ -12,7 +12,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class ChainSummary
     {
-        private readonly IApiService _apiHelper;
+        private readonly IApiService _apiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
@@ -21,7 +21,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public ChainSummary(string baseUrl)
         {
-            _apiHelper = AElfChainClient.GetClient(baseUrl);
+            _apiService = AElfChainClient.GetClient(baseUrl);
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = GetBlockHeight();
         }
@@ -74,12 +74,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private long GetBlockHeight()
         {
-            return AsyncHelper.RunSync(_apiHelper.GetBlockHeightAsync);
+            return AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return AsyncHelper.RunSync(() => _apiHelper.GetBlockByHeightAsync(height));
+            return AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

@@ -1,4 +1,5 @@
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
+using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
 
@@ -6,37 +7,49 @@ namespace AElf.Automation.Common.Contracts
 {
     public interface IContractTesterFactory
     {
-        T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+        T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
+            where T : ContractStubBase, new();
+
+        T Create<T>(Address contractAddress, ECKeyPair keyPair)
             where T : ContractStubBase, new();
     }
 
     public class ContractTesterFactory : IContractTesterFactory
     {
-        private readonly string _baseUrl;
-        private readonly string _keyPath;
+        private readonly INodeManager _nodeManager;
 
-        public ContractTesterFactory(string baseUrl, string keyPath = "")
+        public ContractTesterFactory(INodeManager nodeManager)
         {
-            _baseUrl = baseUrl;
-            _keyPath = keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath;
+            _nodeManager = nodeManager;
         }
 
-        public T Create<T>(Address contractAddress, string account, string password = "123", bool notimeout = true)
+        public T Create<T>(Address contractAddress, string account, string password = "", bool notimeout = true)
             where T : ContractStubBase, new()
         {
-            var factory = new MethodStubFactory(_baseUrl, _keyPath)
+            if (password == "")
+                password = Account.DefaultPassword;
+
+            var factory = new MethodStubFactory(_nodeManager)
             {
                 SenderAddress = account,
-                Sender = AddressHelper.Base58StringToAddress(account),
-                ContractAddress = contractAddress
+                Contract = contractAddress
             };
-            var timeout = notimeout ? "notimeout" : "";
-            factory.ApiHelper.UnlockAccount(new CommandInfo(ApiMethods.AccountUnlock)
-            {
-                Parameter = $"{account} {password} {timeout}"
-            });
 
-            return new T() {__factory = factory};
+            _nodeManager.UnlockAccount(account, password);
+
+            return new T {__factory = factory};
+        }
+
+        public T Create<T>(Address contractAddress, ECKeyPair keyPair)
+            where T : ContractStubBase, new()
+        {
+            var factory = new MethodStubFactory(_nodeManager)
+            {
+                SenderAddress = Address.FromPublicKey(keyPair.PublicKey).GetFormatted(),
+                Contract = contractAddress
+            };
+
+            return new T {__factory = factory};
         }
     }
 }

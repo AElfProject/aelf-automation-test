@@ -47,7 +47,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         // validate
         private void ValidateMainChainTokenAddress()
         {
-            var validateTransaction = MainChainService.GenesisService.ApiHelper.GenerateTransactionRawTx(
+            var validateTransaction = MainChainService.GenesisService.NodeManager.GenerateTransactionRawTx(
                 MainChainService.CallAddress, MainChainService.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
@@ -55,8 +55,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                 });
             var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
-            var result = CheckTransactionResult(MainChainService, txId);
-            if (!(result.InfoMsg is TransactionResultDto txResult)) return;
+            var txResult = CheckTransactionResult(MainChainService, txId);
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false, $"Validate chain {MainChainService.ChainId} token contract failed");
             var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
@@ -68,7 +67,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             foreach (var sideChainService in SideChainServices)
             {
-                var validateTransaction = sideChainService.GenesisService.ApiHelper.GenerateTransactionRawTx(
+                var validateTransaction = sideChainService.GenesisService.NodeManager.GenerateTransactionRawTx(
                     sideChainService.CallAddress, sideChainService.GenesisService.ContractAddress,
                     GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                     {
@@ -76,8 +75,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                     });
                 var sideTxId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
-                var result = CheckTransactionResult(sideChainService, sideTxId);
-                if (!(result.InfoMsg is TransactionResultDto txResult)) return;
+                var txResult = CheckTransactionResult(sideChainService, sideTxId);
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false, $"Validate chain {sideChainService.ChainId} token contract failed");
                 var sideChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, sideTxId, validateTransaction);
@@ -213,19 +211,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var createProposalResult =
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
-            if (!(createProposalResult.InfoMsg is TransactionResultDto txResult)) return;
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Info("Send create proposal again: ");
-                createProposalResult =
-                    services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                        createProposalInput);
-                txResult = createProposalResult.InfoMsg as TransactionResultDto;
-            }
-            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+            if (createProposalResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
-            var proposalId = txResult.ReadableReturnValue.Replace("\"", "");
+            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
 
             //approve
             var miners = GetMiners(services);
@@ -238,8 +227,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         ProposalId = HashHelper.HexStringToHash(proposalId)
                     });
-                if (!(approveResult.InfoMsg is TransactionResultDto approveTxResult)) return;
-                if (approveTxResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+                if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     Assert.IsTrue(false,
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");
             }
@@ -248,8 +236,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var releaseResult
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
-            if (!(releaseResult.InfoMsg is TransactionResultDto releaseTxResult)) return;
-            if (releaseTxResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
+            if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
         }

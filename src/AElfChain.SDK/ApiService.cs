@@ -180,6 +180,12 @@ namespace AElfChain.SDK
             return await _httpService.GetResponseAsync<RoundDto>(url);
         }
 
+        public async Task<MerklePathDto> GetMerklePathByTransactionIdAsync(string transactionId)
+        {
+            var url = GetRequestUrl(ApiMethods.GetMerklePathByTransactionId, transactionId);
+            return await _httpService.GetResponseAsync<MerklePathDto>(url);
+        }
+
         #endregion
 
         #region Net api
@@ -258,6 +264,7 @@ namespace AElfChain.SDK
                     ApiMethods.CurrentRoundInformation, "/api/blockChain/currentRoundInformation"
                 },
                 {ApiMethods.TaskQueueStatus, "/api/blockChain/taskQueueStatus"},
+                {ApiMethods.GetMerklePathByTransactionId, "/api/blockChain/merklePathByTransactionId?transactionId={0}"},
 
                 //net route
                 {ApiMethods.GetPeers, "/api/net/peers"},

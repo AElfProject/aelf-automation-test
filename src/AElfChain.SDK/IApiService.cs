@@ -44,6 +44,8 @@ namespace AElfChain.SDK
         Task<List<TaskQueueInfoDto>> GetTaskQueueStatusAsync();
 
         Task<RoundDto> GetCurrentRoundInformationAsync();
+        
+        Task<MerklePathDto> GetMerklePathByTransactionIdAsync(string transactionId);
 
         Task<bool> AddPeerAsync(string address);
 

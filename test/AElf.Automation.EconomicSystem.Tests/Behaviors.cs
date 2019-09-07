@@ -1,11 +1,12 @@
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public readonly ContractServices ContractServices;
 
         public readonly ElectionContract ElectionService;
@@ -18,7 +19,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public Behaviors(ContractServices contractServices)
         {
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
 
             ElectionService = ContractServices.ElectionService;

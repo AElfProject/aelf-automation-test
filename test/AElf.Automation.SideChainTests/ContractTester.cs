@@ -3,6 +3,7 @@ using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
@@ -18,7 +19,7 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractTester
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
         public readonly ContractServices ContractServices;
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
@@ -27,7 +28,7 @@ namespace AElf.Automation.SideChainTests
 
         public ContractTester(ContractServices contractServices)
         {
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
 
             TokenService = ContractServices.TokenService;
@@ -40,7 +41,7 @@ namespace AElf.Automation.SideChainTests
 
         public string ValidateTokenAddress()
         {
-            var validateTransaction = ApiHelper.GenerateTransactionRawTx(
+            var validateTransaction = NodeManager.GenerateTransactionRawTx(
                 ContractServices.CallAddress, ContractServices.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
@@ -54,7 +55,7 @@ namespace AElf.Automation.SideChainTests
 
         #region side chain create method
 
-        public CommandInfo RequestSideChain(string account, long lockToken)
+        public TransactionResultDto RequestSideChain(string account, long lockToken)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
 
@@ -79,7 +80,7 @@ namespace AElf.Automation.SideChainTests
             return address;
         }
 
-        public CommandInfo CreateSideChainProposal(Address organizationAddress, string account, int indexingPrice,
+        public TransactionResultDto CreateSideChainProposal(Address organizationAddress, string account, int indexingPrice,
             long lockedTokenAmount, bool isPrivilegePreserved)
         {
             ByteString code = ByteString.FromBase64("4d5a90000300");
@@ -106,7 +107,7 @@ namespace AElf.Automation.SideChainTests
         }
 
 
-        public CommandInfo RequestChainDisposal(string account, int chainId)
+        public TransactionResultDto RequestChainDisposal(string account, int chainId)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainDisposal,
@@ -118,7 +119,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo Recharge(string account, int chainId, long amount)
+        public TransactionResultDto Recharge(string account, int chainId, long amount)
         {
             CrossChainService.SetAccount(account);
             var result =
@@ -150,7 +151,7 @@ namespace AElf.Automation.SideChainTests
 
         #region cross chain verify 
 
-        public CommandInfo VerifyTransaction(VerifyTransactionInput input, string account)
+        public TransactionResultDto VerifyTransaction(VerifyTransactionInput input, string account)
         {
             CrossChainService.SetAccount(account);
             var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.VerifyTransaction, input);
@@ -173,7 +174,7 @@ namespace AElf.Automation.SideChainTests
 
         #region Parliament Method
 
-        public CommandInfo Approve(string account, string proposalId)
+        public TransactionResultDto Approve(string account, string proposalId)
         {
             ParliamentService.SetAccount(account);
             var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
@@ -184,7 +185,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo Release(string account, string proposalId)
+        public TransactionResultDto Release(string account, string proposalId)
         {
             ParliamentService.SetAccount(account);
             var transactionResult =
@@ -198,7 +199,7 @@ namespace AElf.Automation.SideChainTests
         #region Token Method
 
         //action
-        public CommandInfo TransferToken(string owner, string spender, long amount, string symbol)
+        public TransactionResultDto TransferToken(string owner, string spender, long amount, string symbol)
         {
             TokenService.SetAccount(owner);
             var transfer = TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -211,7 +212,7 @@ namespace AElf.Automation.SideChainTests
             return transfer;
         }
 
-        public CommandInfo CreateToken(string issuer, string symbol, string tokenName)
+        public TransactionResultDto CreateToken(string issuer, string symbol, string tokenName)
         {
             TokenService.SetAccount(issuer);
             var create = TokenService.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
@@ -226,7 +227,7 @@ namespace AElf.Automation.SideChainTests
             return create;
         }
 
-        public CommandInfo IssueToken(string issuer, string symbol, string toAddress)
+        public TransactionResultDto IssueToken(string issuer, string symbol, string toAddress)
         {
             TokenService.SetAccount(issuer);
             var issue = TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
@@ -240,7 +241,7 @@ namespace AElf.Automation.SideChainTests
             return issue;
         }
 
-        public CommandInfo TokenApprove(string owner, long amount)
+        public TransactionResultDto TokenApprove(string owner, long amount)
         {
             TokenService.SetAccount(owner);
 
@@ -255,7 +256,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo CrossChainTransfer(string fromAccount, string toAccount, int toChainId,
+        public TransactionResultDto CrossChainTransfer(string fromAccount, string toAccount, int toChainId,
             long amount)
         {
             TokenService.SetAccount(fromAccount);
@@ -271,7 +272,7 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public CommandInfo CrossChainReceive(string account, CrossChainReceiveTokenInput input)
+        public TransactionResultDto CrossChainReceive(string account, CrossChainReceiveTokenInput input)
         {
             TokenService.SetAccount(account);
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
@@ -309,7 +310,7 @@ namespace AElf.Automation.SideChainTests
             {
                 Parameter = rawTx
             };
-            ApiHelper.BroadcastWithRawTx(ci);
+            NodeManager.BroadcastWithRawTx(ci);
             if (ci.Result)
             {
                 var transactionOutput = ci.InfoMsg as SendTransactionOutput;

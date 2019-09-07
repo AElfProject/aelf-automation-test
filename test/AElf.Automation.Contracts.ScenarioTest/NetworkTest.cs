@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,20 +12,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class NetworkTest
     {
         private ILogHelper _logger = LogHelper.GetLogger();
-        private WebApiHelper _ch1 { get; set; }
-        private WebApiHelper _ch2 { get; set; }
-        private WebApiHelper _ch3 { get; set; }
-        private WebApiHelper _ch4 { get; set; }
+        private INodeManager _ch1 { get; set; }
+        private INodeManager _ch2 { get; set; }
+        private INodeManager _ch3 { get; set; }
+        private INodeManager _ch4 { get; set; }
 
-        private WebApiHelper _s1ch1 { get; set; }
-        private WebApiHelper _s1ch2 { get; set; }
-        private WebApiHelper _s1ch3 { get; set; }
-        private WebApiHelper _s1ch4 { get; set; }
+        private INodeManager _s1ch1 { get; set; }
+        private INodeManager _s1ch2 { get; set; }
+        private INodeManager _s1ch3 { get; set; }
+        private INodeManager _s1ch4 { get; set; }
 
-        private WebApiHelper _s2ch1 { get; set; }
-        private WebApiHelper _s2ch2 { get; set; }
-        private WebApiHelper _s2ch3 { get; set; }
-        private WebApiHelper _s2ch4 { get; set; }
+        private INodeManager _s2ch1 { get; set; }
+        private INodeManager _s2ch2 { get; set; }
+        private INodeManager _s2ch3 { get; set; }
+        private INodeManager _s2ch4 { get; set; }
 
         private string MainChainAddress2 = "192.168.197.56:6802";
         private string MainChainAddress3 = "192.168.197.56:6803";
@@ -35,23 +36,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             //Init Logger
             string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", logName);
+            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
-            _ch1 = new WebApiHelper("http://192.168.197.56:8001", CommonHelper.GetCurrentDataDir());
-            _ch2 = new WebApiHelper("http://192.168.197.56:8002", CommonHelper.GetCurrentDataDir());
-            _ch3 = new WebApiHelper("http://192.168.197.56:8003", CommonHelper.GetCurrentDataDir());
-            _ch4 = new WebApiHelper("http://192.168.197.56:8004", CommonHelper.GetCurrentDataDir());
+            _ch1 = new NodeManager("http://192.168.197.56:8001");
+            _ch2 = new NodeManager("http://192.168.197.56:8002");
+            _ch3 = new NodeManager("http://192.168.197.56:8003");
+            _ch4 = new NodeManager("http://192.168.197.56:8004");
 
-            _s1ch1 = new WebApiHelper("http://192.168.197.56:8011", CommonHelper.GetCurrentDataDir());
-            _s1ch2 = new WebApiHelper("http://192.168.197.56:8012", CommonHelper.GetCurrentDataDir());
-            _s1ch3 = new WebApiHelper("http://192.168.197.56:8013", CommonHelper.GetCurrentDataDir());
-            _s1ch4 = new WebApiHelper("http://192.168.197.56:8014", CommonHelper.GetCurrentDataDir());
+            _s1ch1 = new NodeManager("http://192.168.197.56:8011");
+            _s1ch2 = new NodeManager("http://192.168.197.56:8012");
+            _s1ch3 = new NodeManager("http://192.168.197.56:8013");
+            _s1ch4 = new NodeManager("http://192.168.197.56:8014");
 
-            _s2ch1 = new WebApiHelper("http://192.168.197.70:8011", CommonHelper.GetCurrentDataDir());
-            _s2ch2 = new WebApiHelper("http://192.168.197.70:8012", CommonHelper.GetCurrentDataDir());
-            _s2ch3 = new WebApiHelper("http://192.168.197.70:8013", CommonHelper.GetCurrentDataDir());
-            _s2ch4 = new WebApiHelper("http://192.168.197.70:8014", CommonHelper.GetCurrentDataDir());
+            _s2ch1 = new NodeManager("http://192.168.197.70:8011");
+            _s2ch2 = new NodeManager("http://192.168.197.70:8012");
+            _s2ch3 = new NodeManager("http://192.168.197.70:8013");
+            _s2ch4 = new NodeManager("http://192.168.197.70:8014");
         }
 
         [TestMethod]
@@ -86,34 +87,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
 
-        public void GetPeer(WebApiHelper wa)
+        public void GetPeer(INodeManager wa)
         {
-            var ci = new CommandInfo(ApiMethods.GetPeers);
-            wa.NetGetPeers(ci);
-            Assert.IsTrue(ci.Result, "Get peers request failed.");
-            var result = ci.InfoMsg as List<PeerDto>;
-
-            foreach (var res in result)
+            var peers = wa.NetGetPeers();
+            
+            foreach (var res in peers)
             {
                 _logger.Info(res.IpAddress);
             }
         }
 
 
-        public void AddPeer(string address, WebApiHelper wa)
+        public void AddPeer(string address, INodeManager wa)
         {
-            var ci = new CommandInfo(ApiMethods.AddPeer);
-            ci.Parameter = address;
-            wa.NetAddPeer(ci);
-            Assert.IsTrue(ci.Result, "Add peer request failed.");
+            var result = wa.NetAddPeer(address);
+            Assert.IsTrue(result, "Add peer request failed.");
         }
 
-        public void RemovePeer(string address, WebApiHelper wa)
+        public void RemovePeer(string address, INodeManager wa)
         {
-            var ci = new CommandInfo("remove_peer");
-            ci.Parameter = address;
-            wa.NetRemovePeer(ci);
-            Assert.IsTrue(ci.Result, "Remove peer request failed.");
+            var result = wa.NetRemovePeer(address);
+            Assert.IsTrue(result, "Remove peer request failed.");
         }
 
         [TestMethod]
@@ -121,13 +115,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestAddPeer1(string address)
         {
-            var ci = new CommandInfo("add_peer");
-            ci.Parameter = address;
-            _ch1.NetAddPeer(ci);
-            Assert.IsTrue(ci.Result, "Add peer request failed.");
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
-
+            var result = _ch1.NetAddPeer(address);
+            Assert.IsTrue(result, "Add peer request failed.");
             TestGetPeer();
         }
 
@@ -136,13 +125,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestRemovePeer1(string address)
         {
-            var ci = new CommandInfo("remove_peer");
-            ci.Parameter = address;
-            _ch1.NetRemovePeer(ci);
-            Assert.IsTrue(ci.Result, "Remove peer request failed.");
-
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var result = _ch1.NetRemovePeer(address);
+            Assert.IsTrue(result, "Remove peer request failed.");
 
             TestGetPeer();
         }
@@ -150,11 +134,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void TestGetPeer2()
         {
-            var ci = new CommandInfo("get_peers");
-            _ch2.NetGetPeers(ci);
-            Assert.IsTrue(ci.Result, "Get peers request failed.");
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var peers = _ch2.NetGetPeers();
+            _logger.Info(peers.ToString());
         }
 
         [TestMethod]
@@ -162,12 +143,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestAddPeer2(string address)
         {
-            var ci = new CommandInfo("add_peer");
-            ci.Parameter = address;
-            _ch2.NetAddPeer(ci);
-            Assert.IsTrue(ci.Result, "Add peer request failed.");
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var result = _ch2.NetAddPeer(address);
+            Assert.IsTrue(result, "Add peer request failed.");
 
             TestGetPeer2();
         }
@@ -177,13 +154,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestRemovePeer2(string address)
         {
-            var ci = new CommandInfo("remove_peer");
-            ci.Parameter = address;
-            _ch2.NetRemovePeer(ci);
-            Assert.IsTrue(ci.Result, "Remove peer request failed.");
-
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var result = _ch2.NetRemovePeer(address);
+            Assert.IsTrue(result, "Remove peer request failed.");
 
             TestGetPeer();
         }
@@ -191,11 +163,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void TestGetPeer3()
         {
-            var ci = new CommandInfo("get_peers");
-            _ch3.NetGetPeers(ci);
-            Assert.IsTrue(ci.Result, "Get peers request failed.");
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var peers = _ch3.NetGetPeers();
+            _logger.Info(peers.ToString());
         }
 
         [TestMethod]
@@ -203,12 +172,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.13:6800")]
         public void TestAddPeer3(string address)
         {
-            var ci = new CommandInfo("add_peer");
-            ci.Parameter = address;
-            _ch3.NetAddPeer(ci);
-            Assert.IsTrue(ci.Result, "Add peer request failed.");
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var result = _ch3.NetAddPeer(address);
+            Assert.IsTrue(result, "Add peer request failed.");
 
             TestGetPeer3();
         }
@@ -218,13 +183,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.13:6800")]
         public void TestRemovePeer3(string address)
         {
-            var ci = new CommandInfo("remove_peer");
-            ci.Parameter = address;
-            _ch3.NetRemovePeer(ci);
-            Assert.IsTrue(ci.Result, "Remove peer request failed.");
-
-            ci.GetJsonInfo();
-            _logger.Info(ci.JsonInfo.ToString());
+            var result = _ch3.NetRemovePeer(address);
+            Assert.IsTrue(result, "Remove peer request failed.");
 
             TestGetPeer3();
         }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -44,26 +44,25 @@ namespace AElf.Automation.Common.Contracts
 
     public class ProfitContract : BaseContract<ProfitMethod>
     {
+        public ProfitContract(INodeManager nodeManager, string callAddress) :
+            base(nodeManager, "AElf.Contracts.Profit", callAddress)
+        {
+        }
+
+        public ProfitContract(INodeManager nodeManager, string callAddress, string contractAddress) :
+            base(nodeManager, contractAddress)
+        {
+            SetAccount(callAddress);
+        }
+
         public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
-
-        public ProfitContract(IApiHelper apiHelper, string callAddress) :
-            base(apiHelper, "AElf.Contracts.Profit", callAddress)
-        {
-        }
-
-        public ProfitContract(IApiHelper apiHelper, string callAddress, string contractAddress) :
-            base(apiHelper, contractAddress)
-        {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
-        }
 
         public void GetTreasurySchemes(string treasuryContractAddress)
         {
             if (Schemes != null && Schemes.Count == 7)
                 return;
             Schemes = new Dictionary<SchemeType, Scheme>();
-            var treasuryContract = new TreasuryContract(ApiHelper, CallAddress, treasuryContractAddress);
+            var treasuryContract = new TreasuryContract(NodeManager, CallAddress, treasuryContractAddress);
             var treasurySchemeId =
                 treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
             var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);
@@ -83,10 +82,7 @@ namespace AElf.Automation.Common.Contracts
             Schemes.Add(SchemeType.ReElectionReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
             Logger.Info("Scheme collection info:");
-            foreach (var (key, value) in Schemes)
-            {
-                Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
-            }
+            foreach (var (key, value) in Schemes) Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
         }
 
         public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)

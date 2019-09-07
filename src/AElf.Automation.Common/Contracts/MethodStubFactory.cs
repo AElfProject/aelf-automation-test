@@ -1,56 +1,49 @@
-using System.Diagnostics.CodeAnalysis;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.OptionManagers;
+using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
     public class MethodStubFactory : IMethodStubFactory, ITransientDependency
     {
-        public Address ContractAddress { get; set; }
-        public string SenderAddress { get; set; }
-        public Address Sender { get; set; }
-        public WebApiHelper ApiHelper { get; }
-        public IApiService ApiService { get; }
-
-        private readonly string _baseUrl;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public MethodStubFactory(string baseUrl, string keyPath = "")
+        public MethodStubFactory(INodeManager nodeManager)
         {
-            _baseUrl = baseUrl;
-            ApiHelper = new WebApiHelper(baseUrl, keyPath);
-            ApiService = ApiHelper.ApiService;
-
-            ApiHelper.GetChainInformation(new CommandInfo(ApiMethods.GetChainInformation));
+            NodeManager = nodeManager;
         }
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public Address Contract { private get; set; }
+        public string SenderAddress { private get; set; }
+        public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
+        public INodeManager NodeManager { get; }
+        public IApiService ApiService => NodeManager.ApiService;
+
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
         {
             async Task<IExecutionResult<TOutput>> SendAsync(TInput input)
             {
-                var transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     From = Sender,
-                    To = ContractAddress,
+                    To = Contract,
                     MethodName = method.Name,
-                    Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input)),
+                    Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
-                transaction.AddBlockReference(_baseUrl);
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
@@ -65,17 +58,23 @@ namespace AElf.Automation.Common.Contracts
                     if (status != TransactionResultStatus.Pending && status != TransactionResultStatus.NotExisted)
                     {
                         if (status == TransactionResultStatus.Mined)
-                            Logger.Info($"TransactionId: {resultDto.TransactionId}, Status: {status}");
+                            Logger.Info(
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}");
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nError Message: {resultDto.Error}");
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}");
 
                         break;
                     }
 
-                    if (checkTimes == 360)
-                        Assert.IsTrue(false,
-                            $"Transaction {resultDto.TransactionId} in pending status more than one minutes.");
+                    if (checkTimes % 20 == 0)
+                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}"
+                            .WriteWarningLine();
+
+                    if (checkTimes == 360) //max wait time 3 minutes
+                        throw new Exception(
+                            $"Transaction {resultDto.TransactionId} in pending status more than three minutes.");
+
                     Thread.Sleep(500);
                 }
 
@@ -114,7 +113,7 @@ namespace AElf.Automation.Common.Contracts
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
 
-                return new ExecutionResult<TOutput>()
+                return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,
                     TransactionResult = transactionResult
@@ -123,14 +122,14 @@ namespace AElf.Automation.Common.Contracts
 
             async Task<TOutput> CallAsync(TInput input)
             {
-                var transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     From = Sender,
-                    To = ContractAddress,
+                    To = Contract,
                     MethodName = method.Name,
                     Params = ByteString.CopyFrom(method.RequestMarshaller.Serializer(input))
                 };
-                transaction = ApiHelper.TransactionManager.SignTransaction(transaction);
+                transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));

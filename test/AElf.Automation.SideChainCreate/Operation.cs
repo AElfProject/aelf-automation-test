@@ -3,6 +3,7 @@ using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Kernel;
@@ -17,7 +18,7 @@ namespace AElf.Automation.SideChainCreate
 {
     public class Operation
     {
-        public readonly IApiHelper ApiHelper;
+        public readonly INodeManager NodeManager;
 
         public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
@@ -31,7 +32,7 @@ namespace AElf.Automation.SideChainCreate
         public Operation()
         {
             var contractServices = GetContractServices();
-            ApiHelper = contractServices.ApiHelper;
+            NodeManager = contractServices.NodeManager;
             TokenService = contractServices.TokenService;
             CrossChainService = contractServices.CrossChainService;
             ParliamentService = contractServices.ParliamentService;
@@ -73,8 +74,7 @@ namespace AElf.Automation.SideChainCreate
                         ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var proposalId = transactionResult.ReadableReturnValue.Replace("\"","");
+            var proposalId = result.ReadableReturnValue.Replace("\"","");
             return proposalId;
         }
         
@@ -96,8 +96,7 @@ namespace AElf.Automation.SideChainCreate
             ParliamentService.SetAccount(InitAccount);
             var result
                 = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            var creationRequested = transactionResult.Logs[0].NonIndexed;
+            var creationRequested = result.Logs[0].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             return chainId;

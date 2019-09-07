@@ -1,8 +1,9 @@
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
-    public enum AssociationAuthMethod
+    public enum AssociationMethod
     {
         //View
         GetOrganization,
@@ -12,20 +13,20 @@ namespace AElf.Automation.Common.Contracts
         CreateOrganization,
         Approve,
         CreateProposal,
+        Release
     }
 
-    public class AssociationAuthContract : BaseContract<AssociationAuthMethod>
+    public class AssociationAuthContract : BaseContract<AssociationMethod>
     {
-        public AssociationAuthContract(IApiHelper ch, string account) : base(ch, "AElf.Contracts.AssociationAuth",
-            account)
+        public AssociationAuthContract(INodeManager nodeManager, string callAddress, string electionAddress)
+            : base(nodeManager, electionAddress)
         {
+            SetAccount(callAddress);
         }
 
-        public AssociationAuthContract(IApiHelper ch, string callAddress, string contractAddress) : base(ch,
-            contractAddress)
+        public AssociationAuthContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, "AElf.Contracts.AssociationAuth", callAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
         }
     }
 }

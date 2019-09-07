@@ -27,8 +27,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             foreach (var nodeAddress in FullNodeAddress)
             {
                 var result = Behaviors.AnnouncementElection(nodeAddress);
-                var transactionResult = result.InfoMsg as TransactionResultDto;
-                transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 
@@ -53,9 +52,9 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.ApiHelper.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[0])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[1])).ShouldBeTrue();
+            publicKeys.Contains(Behaviors.NodeManager.GetPublicKeyFromAddress(FullNodeAddress[2])).ShouldBeTrue();
         }
 
         [TestMethod]
@@ -65,8 +64,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
 
-            var transactionResult = result.InfoMsg as TransactionResultDto;
-            transactionResult?.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             beforeBalance.ShouldBe(afterBalance - 100_000L);

@@ -1,4 +1,4 @@
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -16,15 +16,14 @@ namespace AElf.Automation.Common.Contracts
 
     public class BasicFunctionContract : BaseContract<FunctionMethod>
     {
-        public BasicFunctionContract(IApiHelper apiHelper, string callAddress, string contractAddress)
-            : base(apiHelper, contractAddress)
+        public BasicFunctionContract(INodeManager nodeManager, string callAddress, string contractAddress)
+            : base(nodeManager, contractAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public BasicFunctionContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.TestContract.BasicFunction", callAddress)
+        public BasicFunctionContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, ContractFileName, callAddress)
         {
         }
 

@@ -1,4 +1,4 @@
-using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using AElf.Contracts.Resource.FeeReceiver;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -22,15 +22,14 @@ namespace AElf.Automation.Common.Contracts
 
     public class FeeReceiverContract : BaseContract<FeeReceiverMethod>
     {
-        public FeeReceiverContract(IApiHelper apiHelper, string callAddress, string feeReceiverAddress) :
-            base(apiHelper, feeReceiverAddress)
+        public FeeReceiverContract(INodeManager nodeManager, string callAddress, string feeReceiverAddress)
+            : base(nodeManager, feeReceiverAddress)
         {
-            CallAddress = callAddress;
-            UnlockAccount(CallAddress);
+            SetAccount(callAddress);
         }
 
-        public FeeReceiverContract(IApiHelper apiHelper, string callAddress)
-            : base(apiHelper, "AElf.Contracts.Resource.FeeReceiver", callAddress)
+        public FeeReceiverContract(INodeManager nodeManager, string callAddress)
+            : base(nodeManager, "AElf.Contracts.Resource.FeeReceiver", callAddress)
         {
         }
 
@@ -41,10 +40,8 @@ namespace AElf.Automation.Common.Contracts
                 ElfTokenAddress = tokenAddress,
                 FoundationAddress = foundationAddress
             });
-            if (initializeResult.InfoMsg is TransactionResultDto txDto)
-            {
-                txDto.Status.ToLower().ShouldBe("mined");
-            }
+
+            initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }
 }

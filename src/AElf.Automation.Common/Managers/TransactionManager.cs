@@ -10,30 +10,16 @@ using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.OptionManagers
+namespace AElf.Automation.Common.Managers
 {
     public class TransactionManager
     {
-        private readonly AElfKeyStore _keyStore;
-        private CommandInfo _cmdInfo;
-        private AccountManager _accountManager;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly AElfKeyStore _keyStore;
 
-        public TransactionManager(AElfKeyStore keyStore, string chainId)
+        public TransactionManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
-            _accountManager = new AccountManager(keyStore);
-        }
-
-        public TransactionManager(AElfKeyStore keyStore, CommandInfo ci)
-        {
-            _keyStore = keyStore;
-            _cmdInfo = ci;
-        }
-
-        public void SetCmdInfo(CommandInfo ci)
-        {
-            _cmdInfo = ci;
         }
 
         public Transaction CreateTransaction(string from, string to,
@@ -49,13 +35,11 @@ namespace AElf.Automation.Common.OptionManagers
                     Params = input ?? ByteString.Empty
                 };
 
-                _cmdInfo.Result = true;
-
                 return transaction;
             }
             catch (Exception e)
             {
-                _cmdInfo.ErrorMsg = $"Invalid transaction data: {e.Message}";
+                Logger.Error($"Invalid transaction data: {e.Message}");
                 return null;
             }
         }
@@ -73,8 +57,7 @@ namespace AElf.Automation.Common.OptionManagers
 
             if (kp == null)
             {
-                _cmdInfo.ErrorMsg = $"The following account is locked: {addr}";
-                _cmdInfo.Result = false;
+                Logger.Error($"The following account is locked: {addr}");
                 return null;
             }
 
@@ -111,7 +94,7 @@ namespace AElf.Automation.Common.OptionManagers
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
             string chainId = "AELF")
         {
-            if (_cachedHeight == default(long) || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
+            if (_cachedHeight == default || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
                 !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
