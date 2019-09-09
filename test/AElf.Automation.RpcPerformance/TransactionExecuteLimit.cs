@@ -15,18 +15,16 @@ namespace AElf.Automation.RpcPerformance
     {
         private readonly INodeManager _nodeManager;
         private readonly string _account;
-        private readonly ContractTesterFactory _stub;
         private readonly NodeTransactionOption _nodeTransactionOption;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private Address _configurationContractAddress; 
 
-        public TransactionExecuteLimit(string url, string account)
+        public TransactionExecuteLimit(INodeManager nodeManager, string account)
         {
             _account = account;
 
-            _nodeManager = new NodeManager(url);
-            _stub = new ContractTesterFactory(_nodeManager);
+            _nodeManager = nodeManager;
             _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
         }
 

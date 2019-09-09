@@ -77,42 +77,20 @@ namespace AElf.Automation.RpcPerformance
             //Connect
             AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             //New
-            NewAccounts(userCount);
+            GetTestAccounts(userCount);
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
             //Prepare basic token for test - Disable now
             TransferTokenFromBp(true);
             //Set select limit transaction
-            var transactionExecuteLimit = new TransactionExecuteLimit(BaseUrl, AccountList[0].Account);
+            var setAccount = GetSetConfigurationLimitAccount();
+            var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
             //Init other services
             Summary = new ExecutionSummary(NodeManager);
             Monitor = new NodeStatusMonitor(NodeManager);
-        }
-
-        private void TransferTokenFromBp(bool enable)
-        {
-            if (!enable) return;
-            try
-            {
-                var account = AccountList.First().Account;
-                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                SystemToken = genesis.GetTokenContract();
-                
-                var bpNode = NodeInfoHelper.Config.Nodes.First();
-                
-                for (var i = 0; i < ThreadCount; i++)
-                {
-                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Prepare basic ELF token got exception.");
-                Logger.Error(e);
-            }
         }
 
         public void DeployContracts()
@@ -608,9 +586,9 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private void NewAccounts(int count)
+        private void GetTestAccounts(int count)
         {
-            var accounts = GetExistAccounts();
+            var accounts = NodeManager.ListAccounts();
             if (accounts.Count >= count)
             {
                 foreach (var acc in accounts.Take(count))
@@ -632,11 +610,6 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
-        }
-
-        private List<string> GetExistAccounts()
-        {
-            return NodeManager.ListAccounts();
         }
 
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)
@@ -688,6 +661,35 @@ namespace AElf.Automation.RpcPerformance
                     Logger.Error($"Query transaction pool status got exception : {ex.Message}");
                 }
             }
+        }
+        
+        private void TransferTokenFromBp(bool enable)
+        {
+            if (!enable) return;
+            try
+            {
+                var account = AccountList.First().Account;
+                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
+                SystemToken = genesis.GetTokenContract();
+                
+                var bpNode = NodeInfoHelper.Config.Nodes.First();
+                
+                for (var i = 0; i < ThreadCount; i++)
+                {
+                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Prepare basic ELF token got exception.");
+                Logger.Error(e);
+            }
+        }
+
+        private string GetSetConfigurationLimitAccount()
+        {
+            var nodeConfig = NodeInfoHelper.Config;
+            return nodeConfig.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion
