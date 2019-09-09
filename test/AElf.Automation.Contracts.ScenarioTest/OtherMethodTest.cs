@@ -50,8 +50,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void AccountCreate()
         {
-            var dataDir = CommonHelper.GetCurrentDataDir();
-            var keyStore = AElfKeyStore.GetKeyStore(dataDir);
+            var keyStore = AElfKeyStore.GetKeyStore();
             var accountManager = new AccountManager(keyStore);
             for (var i = 0; i < 10; i++)
             {

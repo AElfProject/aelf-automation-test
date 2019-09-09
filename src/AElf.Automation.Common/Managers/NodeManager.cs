@@ -16,7 +16,7 @@ namespace AElf.Automation.Common.Managers
         public NodeManager(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _keyStore = AElfKeyStore.GetKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
+            _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
             ApiService = AElfChainClient.GetClient(baseUrl);
             _chainId = GetChainId();
