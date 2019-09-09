@@ -173,9 +173,7 @@ namespace AElf.Automation.Common.Contracts
                     case TransactionResultStatus.Mined:
                         Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
                         return transactionResult;
-                    case TransactionResultStatus.NotExisted:
-                        Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                        break;
+                    case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.Failed:
                     {
                         var message = $"Transaction {txId} status: {transactionResult.Status}";
