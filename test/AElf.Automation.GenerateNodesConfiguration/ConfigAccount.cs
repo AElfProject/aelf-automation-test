@@ -35,7 +35,10 @@ namespace AElf.Automation.GenerateNodesConfiguration
         {
             var originPath = Path.Combine(_keyPath, $"{_node.Account}.json");
             var desPath = Path.Combine(CommonHelper.AppRoot, "results", _node.Name);
+            var keysPath = Path.Combine(CommonHelper.AppRoot, "results", "keys");
+            
             CommonHelper.CopyFiles(originPath, desPath);
+            CommonHelper.CopyFiles(originPath, keysPath);
         }
     }
 }

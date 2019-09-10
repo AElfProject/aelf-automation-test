@@ -24,7 +24,7 @@ namespace AElf.Automation.Common
 
         public void CheckNodesAccount()
         {
-            var keyStore = AElfKeyStore.GetKeyStore(CommonHelper.GetCurrentDataDir());
+            var keyStore = AElfKeyStore.GetKeyStore();
             var accountManager = new AccountManager(keyStore);
             foreach (var node in Nodes)
             {

@@ -102,6 +102,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (txResult)
                 {
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.NotExisted:
                         CheckTransactionsStatus(transactionIds, checkTimes);
                         Thread.Sleep(500);
                         break;

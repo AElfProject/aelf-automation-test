@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
-using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
 using log4net;
@@ -42,9 +41,24 @@ namespace AElf.Automation.Common.Managers
             return accountInfo;
         }
 
-        public ECKeyPair GenerateRandomKeyPair()
+        public string GetRandomAccount()
         {
-            return CryptoHelper.GenerateKeyPair();
+            var n = 0;
+            var account = string.Empty;
+            while (n < 10)
+            {
+                var number = CommonHelper.GenerateRandomNumber(0, _accounts.Count);
+                account = _accounts[number];
+
+                var result = UnlockAccount(account);
+                if (result)
+                    return account;
+                if(n==10)
+                    throw new Exception("Cannot got random account with default password.");
+                n++;
+            }
+
+            return account;
         }
 
         public List<string> ListAccount()
