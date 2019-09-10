@@ -137,6 +137,16 @@ namespace AElf.Automation.Common.Managers
             return AccountManager.NewAccount(password);
         }
 
+        public string GetRandomAccount()
+        {
+            var accounts = AccountManager.ListAccount();
+            var randomId = CommonHelper.GenerateRandomNumber(0, accounts.Count);
+
+            AccountManager.UnlockAccount(accounts[randomId]);
+
+            return accounts[randomId];
+        }
+
         public List<string> ListAccounts()
         {
             return AccountManager.ListAccount();

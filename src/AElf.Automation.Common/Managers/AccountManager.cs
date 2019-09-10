@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using AElf.Automation.Common.Helpers;
+using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
 using log4net;
@@ -34,7 +35,16 @@ namespace AElf.Automation.Common.Managers
             var pubKey = keypair.PublicKey;
             var address = Address.FromPublicKey(pubKey);
 
-            return address.GetFormatted();
+            var accountInfo = address.GetFormatted();
+            _accounts.Add(accountInfo);
+            Logger.Info($"New account '{accountInfo}' generated.");
+
+            return accountInfo;
+        }
+
+        public ECKeyPair GenerateRandomKeyPair()
+        {
+            return CryptoHelper.GenerateKeyPair();
         }
 
         public List<string> ListAccount()

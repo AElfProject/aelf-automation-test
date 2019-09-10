@@ -18,7 +18,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class TokenScenario : BaseScenario
     {
         public TokenContract Token { get; set; }
-        public TokenContractContainer.TokenContractStub TokenStub { get; set; }
         public ElectionContract Election { get; set; }
         public List<string> Testers { get; }
 

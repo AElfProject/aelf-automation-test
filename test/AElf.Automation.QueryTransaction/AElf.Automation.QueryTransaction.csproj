@@ -7,9 +7,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 

@@ -16,6 +16,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
                           DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit();
 
             //check config
             var check = new ConfigCheck();

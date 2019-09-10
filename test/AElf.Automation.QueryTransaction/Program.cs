@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +15,7 @@ namespace AElf.Automation.QueryTransaction
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "192.168.197.35:8000";
+        public string Endpoint { get; set; } = "192.168.197.42:8001";
 
         public static int Main(string[] args)
         {
@@ -39,6 +41,7 @@ namespace AElf.Automation.QueryTransaction
             "2. RunNodeStatusCheck".WriteSuccessLine();
             "3. RunStressTest".WriteSuccessLine();
             "4. RunQueryConfigurationLimit".WriteSuccessLine();
+            "5. GetContractFileDescriptorInfo".WriteSuccessLine();
             var runType = Console.ReadLine();
             var check = int.TryParse(runType, out var selection);
 
@@ -65,6 +68,10 @@ namespace AElf.Automation.QueryTransaction
                 case 4:
                     RunQueryConfigurationLimit();
                     break;
+                case 5:
+                    var contractDescriptor = new ContractAnalyze(new NodeManager(Endpoint));
+                    AsyncHelper.RunSync(contractDescriptor.AnalyzeContractFileDescriptors);
+                    break;
             }
 
             Logger.Info("Complete testing.");
@@ -75,12 +82,10 @@ namespace AElf.Automation.QueryTransaction
         {
             var urlCollection = new List<string>
             {
-                "192.168.197.43:8100",
-                "192.168.197.15:8100",
-                "192.168.197.52:8100",
-                "192.168.197.43:8200",
-                "192.168.197.15:8200",
-                "192.168.197.52:8200"
+                "192.168.197.14:8001",
+                "192.168.197.42:8001",
+                "192.168.197.24:8001",
+                "192.168.197.23:8001"
                 /*
                 "http://34.221.114.160:8000",
                 "http://34.222.242.234:8000",
