@@ -34,6 +34,9 @@
         <ProtoMessage Include="..\AElf\protobuf\acs8.proto">
             <Link>Protobuf\Proto\stub\acs8.proto</Link>
         </ProtoMessage>
+        <ProtoMessage Include="..\AElf\protobuf\descriptor_equivalent.proto">
+            <Link>Protobuf\Proto\stub\descriptor_equivalent.proto</Link>
+        </ProtoMessage>
         <ProtoContract Include="..\AElf\protobuf\test_basic_function_contract.proto">
             <Link>Protobuf\Proto\stub\test_basic_function_contract.proto</Link>
         </ProtoContract>
