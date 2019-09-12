@@ -112,12 +112,14 @@ namespace AElf.Automation.Common.Contracts
                         Status = status,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
-
+                
+                var returnByte = resultDto.ReturnValue == null ? 
+                    new byte[]{} : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
                 return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,
                     TransactionResult = transactionResult,
-                    Output = method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue))
+                    Output = method.ResponseMarshaller.Deserializer(returnByte)
                 };
             }
 

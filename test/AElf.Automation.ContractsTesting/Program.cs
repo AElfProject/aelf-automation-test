@@ -23,13 +23,13 @@ namespace AElf.Automation.ContractsTesting
         #region Parameter Option
 
         [Option("-ba|--bp.accoount", Description = "Bp account info")]
-        public string BpAccount { get; set; } = "ELF_3SMq6XUt2ogboq3fTXwKF6bs3zt9f3EBqsMfDpVzvaX4U4K";
+        public string BpAccount { get; set; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         [Option("-bp|--bp.password", Description = "Bp account password info")]
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.43:8100";
+        public string Endpoint { get; set; } = "http://127.0.0.1:8000";
 
         #endregion
 
@@ -57,6 +57,16 @@ namespace AElf.Automation.ContractsTesting
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
 
+            //generate random number
+            var randGen = new RandomGenerate(nm, BpAccount);
+            AsyncHelper.RunSync(() => randGen.GenerateAndCheckRandomNumbers(10));
+            Console.ReadLine();
+            
+            //check configuration
+            var nodeStatus = new NodeStatus(nm);
+            nodeStatus.CheckConfigurationInfo();
+            Console.ReadLine();
+            
             //deploy contract
             var endpoints = new[]
             {

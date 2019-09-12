@@ -12,8 +12,8 @@ namespace AElf.Automation.ApiTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private const string ServiceUrl = "192.168.197.15:8100";
-        private IApiService _client;
-        private AnalyzeListener _listener;
+        private readonly IApiService _client;
+        private readonly AnalyzeListener _listener;
         
         public ChainApiTests(ITestOutputHelper testOutputHelper)
         {
@@ -72,8 +72,8 @@ namespace AElf.Automation.ApiTest
         [Fact]
         public async Task GetBlockState_Test()
         {
-            var chainStatus = await _client.GetChainStatusAsync();
-            
+            var (chainStatus, timeSpan) = await _listener.ExecuteApi(_client.GetChainStatusAsync);
+            _testOutputHelper.WriteLine($"Chain status info: {chainStatus}, execute time: {timeSpan}ms");
             await Task.CompletedTask;
         }
 

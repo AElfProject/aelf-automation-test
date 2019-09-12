@@ -20,7 +20,7 @@ namespace AElf.Automation.ContractsTesting
         private readonly INodeManager _nodeManager;
         private readonly string _account;
 
-        private GenesisContract _genesisContract;
+        private readonly GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
         private string _contractAddress;
         private BasicFunctionContractContainer.BasicFunctionContractStub _basicFunctionContractStub;
