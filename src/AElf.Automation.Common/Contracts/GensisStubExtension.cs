@@ -24,6 +24,16 @@ namespace AElf.Automation.Common.Contracts
             return contract.GetTestStub<AEDPoSContractContainer.AEDPoSContractStub>(genesis.CallAddress);
         }
 
+        public static AEDPoSContractImplContainer.AEDPoSContractImplStub GetConsensusImplStub(
+            this GenesisContract genesis)
+        {
+            var consensus = genesis.GetContractAddressByName(NameProvider.ConsensusName);
+
+            var contract = new ConsensusContract(genesis.NodeManager, genesis.CallAddress, consensus.GetFormatted());
+
+            return contract.GetTestStub<AEDPoSContractImplContainer.AEDPoSContractImplStub>(genesis.CallAddress);
+        }
+
         public static FeeReceiverContractContainer.FeeReceiverContractStub GetFeeReceiverStub(
             this GenesisContract genesis)
         {

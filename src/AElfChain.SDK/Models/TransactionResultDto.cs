@@ -19,6 +19,7 @@ namespace AElfChain.SDK.Models
 
         public TransactionDto Transaction { get; set; }
 
+        public string ReturnValue { get; set; }
         public string ReadableReturnValue { get; set; }
 
         public string Error { get; set; }

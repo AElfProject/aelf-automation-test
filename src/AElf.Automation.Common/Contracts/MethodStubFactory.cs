@@ -68,12 +68,12 @@ namespace AElf.Automation.Common.Contracts
                     }
 
                     if (checkTimes % 20 == 0)
-                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}"
+                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction?.MethodName}, Status: {status}"
                             .WriteWarningLine();
 
                     if (checkTimes == 360) //max wait time 3 minutes
                         throw new Exception(
-                            $"Transaction {resultDto.TransactionId} in pending status more than three minutes.");
+                            $"Transaction {resultDto.TransactionId} in '{status}' status more than three minutes.");
 
                     Thread.Sleep(500);
                 }
@@ -116,7 +116,8 @@ namespace AElf.Automation.Common.Contracts
                 return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,
-                    TransactionResult = transactionResult
+                    TransactionResult = transactionResult,
+                    Output = method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue))
                 };
             }
 

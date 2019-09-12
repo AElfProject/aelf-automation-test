@@ -28,6 +28,12 @@
         <ProtoMessage Include="..\AElf\protobuf\acs3.proto">
             <Link>Protobuf\Proto\stub\acs3.proto</Link>
         </ProtoMessage>
+        <ProtoMessage Include="..\AElf\protobuf\acs4.proto">
+            <Link>Protobuf\Proto\stub\acs4.proto</Link>
+        </ProtoMessage>
+        <ProtoMessage Include="..\AElf\protobuf\acs6.proto">
+            <Link>Protobuf\Proto\stub\acs6.proto</Link>
+        </ProtoMessage>
         <ProtoMessage Include="..\AElf\protobuf\acs7.proto">
             <Link>Protobuf\Proto\stub\acs7.proto</Link>
         </ProtoMessage>
@@ -66,6 +72,9 @@
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\aedpos_contract.proto">
             <Link>Protobuf\Proto\stub\aedpos_contract.proto</Link>
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\aedpos_contract_impl.proto">
+            <Link>Protobuf\Proto\stub\aedpos_contract_impl.proto</Link>
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\parliament_auth_contract.proto">
             <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
