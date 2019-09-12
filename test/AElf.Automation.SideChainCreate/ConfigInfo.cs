@@ -8,7 +8,7 @@ namespace AElf.Automation.SideChainCreate
     {
         [JsonProperty("TestEnvironment")] public string TestEnvironment { get; set; }
         [JsonProperty("EnvironmentInfo")] public List<EnvironmentInfo> EnvironmentInfos { get; set; }
-        [JsonProperty("ApproveTokenAmount")] public string ApproveTokenAmount { get; set; }
+        [JsonProperty("ApproveTokenAmount")] public long ApproveTokenAmount { get; set; }
         [JsonProperty("SideChainInfo")] public List<SideChainInfo> SideChainInfos { get; set; }
     }
 
@@ -25,6 +25,7 @@ namespace AElf.Automation.SideChainCreate
         [JsonProperty("IndexingPrice")] public long IndexingPrice { get; set; }
         [JsonProperty("LockedTokenAmount")] public long LockedTokenAmount { get; set; }
         [JsonProperty("IsPrivilegePreserved")] public bool IsPrivilegePreserved { get; set; }
+        [JsonProperty("TokenSymbol")] public string TokenSymbol { get; set; }
     }
 
     public static class ConfigHelper

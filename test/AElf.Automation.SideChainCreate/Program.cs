@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Acs7;
 using AElf.Automation.Common.Helpers;
 using log4net;
 
@@ -24,13 +25,22 @@ namespace AElf.Automation.SideChainCreate
             var proposals = new List<string>();
             var operation = new Operation();
             var sideChainInfos = ConfigHelper.Config.SideChainInfos;
-            var approveTokenAmount = long.Parse(ConfigHelper.Config.ApproveTokenAmount);
+            var approveTokenAmount = ConfigHelper.Config.ApproveTokenAmount;
             
             operation.ApproveToken(approveTokenAmount);
             foreach (var sideChainInfo in sideChainInfos)
             {
+                var tokenInfo = new SideChainTokenInfo
+                {
+                    Symbol = sideChainInfo.TokenSymbol,
+                    TokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
+                    Decimals = 8,
+                    IsBurnable = true,
+                    Issuer = AddressHelper.Base58StringToAddress(operation.InitAccount),
+                    TotalSupply = 10_000_000_000_00000000
+                };
                 var proposal = operation.CreateProposal(sideChainInfo.IndexingPrice, sideChainInfo.LockedTokenAmount,
-                    sideChainInfo.IsPrivilegePreserved);
+                    sideChainInfo.IsPrivilegePreserved, tokenInfo);
                 proposals.Add(proposal);
             }
 

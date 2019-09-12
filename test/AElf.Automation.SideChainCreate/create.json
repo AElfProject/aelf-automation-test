@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Offline",
+    "TestEnvironment": "Online",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -9,7 +9,7 @@
         },
         {
             "Environment": "Offline",
-            "Url": "http://192.168.197.14:8000",
+            "Url": "http://192.168.197.40:8000",
             "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         },
@@ -20,17 +20,19 @@
             "Password": "123"
         }
     ],
-    "ApproveTokenAmount": "8000000",
+    "ApproveTokenAmount": 8000000,
     "SideChainInfo": [
         {
             "IndexingPrice": "1",
-            "LockedTokenAmount": "4000000",
-            "IsPrivilegePreserved": true
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SAELF"
         },
         {
             "IndexingPrice": "1",
-            "LockedTokenAmount": "4000000",
-            "IsPrivilegePreserved": true
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SBELF"
         }
     ]
 }

@@ -52,7 +52,7 @@ namespace AElf.Automation.SideChainCreate
                 });
         }
         
-        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved)
+        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved, SideChainTokenInfo tokenInfo)
         {
             var organizationAddress = GetGenesisOwnerAddress();
             ByteString code = ByteString.FromBase64("4d5a90000300");
@@ -61,7 +61,8 @@ namespace AElf.Automation.SideChainCreate
                 ContractCode = code,
                 IndexingPrice = indexingPrice,
                 LockedTokenAmount = lockedTokenAmount,
-                IsPrivilegePreserved = isPrivilegePreserved
+                IsPrivilegePreserved = isPrivilegePreserved,
+                SideChainTokenInfo = tokenInfo
             };
             ParliamentService.SetAccount(InitAccount);
             var result =
