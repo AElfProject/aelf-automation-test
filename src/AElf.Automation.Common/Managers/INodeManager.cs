@@ -21,6 +21,7 @@ namespace AElf.Automation.Common.Managers
 
         //account
         string NewAccount(string password = "");
+        string GetRandomAccount();
         List<string> ListAccounts();
         bool UnlockAccount(string account, string password = "");
 

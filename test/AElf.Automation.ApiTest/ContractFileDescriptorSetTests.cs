@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using AElf.Automation.Common.Helpers;
 using AElf.Types;
 using Xunit;
 
@@ -13,9 +14,7 @@ namespace AElf.Automation.ApiTest
             //not exist address
             for (var i = 0; i < 10; i++)
             {
-                var bytes = new byte[32];
-                var rd = new Random(Guid.NewGuid().GetHashCode());
-                rd.NextBytes(bytes);
+                var bytes = CommonHelper.GenerateRandombytes(32);
                 var randomAddress = Address.FromPublicKey(bytes);
 
                 var (_, timeSpan) =

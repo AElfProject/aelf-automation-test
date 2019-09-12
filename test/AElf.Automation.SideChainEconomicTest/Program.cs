@@ -17,8 +17,8 @@ namespace AElf.Automation.SideChainEconomicTest
             var mainTest = new MainChainTests();
             var sideTest = new SideChainTests();
             sideTest.GetTokenInfo();
-
-            var acs8Contract = "gsGGxTWEeqr9EMV4a3hFyNMWjJjstWQWTH2vFrniU3mxcpPij";
+            
+            var acs8Contract = "mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s";
             if (acs8Contract == "")
             {
                 await mainTest.MainManager.BuyResources(ChainConstInfo.ChainAccount, 2000);

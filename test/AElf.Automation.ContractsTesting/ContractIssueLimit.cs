@@ -18,7 +18,7 @@ namespace AElf.Automation.ContractsTesting
         private readonly string _bpAccount;
         private readonly string _account;
 
-        private GenesisContract _genesisContract;
+        private readonly GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
         private string _contractAddress;
         

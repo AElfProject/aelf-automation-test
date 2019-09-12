@@ -22,5 +22,5 @@
             "password": "123"
         }
     ],
-    "IsMainChain": true
+    "IsMainChain": false
 }

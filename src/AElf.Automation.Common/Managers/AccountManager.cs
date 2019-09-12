@@ -34,7 +34,31 @@ namespace AElf.Automation.Common.Managers
             var pubKey = keypair.PublicKey;
             var address = Address.FromPublicKey(pubKey);
 
-            return address.GetFormatted();
+            var accountInfo = address.GetFormatted();
+            _accounts.Add(accountInfo);
+            Logger.Info($"New account '{accountInfo}' generated.");
+
+            return accountInfo;
+        }
+
+        public string GetRandomAccount()
+        {
+            var n = 0;
+            var account = string.Empty;
+            while (n < 10)
+            {
+                var number = CommonHelper.GenerateRandomNumber(0, _accounts.Count);
+                account = _accounts[number];
+
+                var result = UnlockAccount(account);
+                if (result)
+                    return account;
+                if(n==10)
+                    throw new Exception("Cannot got random account with default password.");
+                n++;
+            }
+
+            return account;
         }
 
         public List<string> ListAccount()

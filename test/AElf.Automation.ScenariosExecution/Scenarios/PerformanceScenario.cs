@@ -62,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 var txResult = Performance.ExecuteMethodWithResult(method, new WriteInput
                 {
-                    Content = GenerateRandomByteString(item)
+                    Content = ByteString.CopyFrom(CommonHelper.GenerateRandombytes(item))
                 });
                 txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
@@ -112,15 +112,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Number = randomNumber
             });
             Logger.Info($"Fibonacci query, number: {result2.Number}, result: {result2.Result}");
-        }
-
-        private static ByteString GenerateRandomByteString(long length)
-        {
-            var bytes = new byte[length];
-            var rand = new Random(Guid.NewGuid().GetHashCode());
-            rand.NextBytes(bytes);
-
-            return ByteString.CopyFrom(bytes);
         }
 
         private static readonly List<int> ByteSizeArray = new List<int> {1000, 2000, 5000, 10000};

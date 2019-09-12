@@ -16,16 +16,21 @@ namespace AElf.Automation.GenerateNodesConfiguration
                           DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             Logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit();
+            var logger = Log4NetHelper.GetLogger();
 
             //check config
+            logger.Info("Check configuration setting parameters.");
             var check = new ConfigCheck();
             check.CheckNodeName();
             check.CheckOtherNumbers();
 
             //delete old config files
+            logger.Info("Delete old config files.");
             CommonHelper.DeleteDirectoryFiles(Path.Combine(CommonHelper.AppRoot, "results"));
 
             //gen all accounts
+            logger.Info("Generate all accounts for configuration.");
             var bps = ConfigInfoHelper.Config.BpNodes;
             var fulls = ConfigInfoHelper.Config.FullNodes;
             foreach (var node in bps.Concat(fulls))

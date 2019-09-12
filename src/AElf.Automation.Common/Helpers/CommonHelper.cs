@@ -92,6 +92,12 @@ namespace AElf.Automation.Common.Helpers
             return bytes;
         }
 
+        public static int GenerateRandomNumber(int min, int max)
+        {
+            var rd = new Random(Guid.NewGuid().GetHashCode());
+            return rd.Next(min, max);
+        }
+
         public static string MapPath(string virtualPath)
         {
             return AppRoot + virtualPath.TrimStart('~');

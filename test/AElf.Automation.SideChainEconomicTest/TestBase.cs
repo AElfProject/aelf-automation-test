@@ -24,7 +24,7 @@ namespace AElf.Automation.SideChainEconomicTest
         public ContractServices SideA => SideManager.SideChains[ChainConstInfo.SideChainIdA];
         public ContractServices SideB => SideManager.SideChains[ChainConstInfo.SideChainIdB];
         
-        public AccountManager AccountManager = new AccountManager(AElfKeyStore.GetKeyStore(DataPath));
+        public AccountManager AccountManager = new AccountManager(AElfKeyStore.GetKeyStore());
 
         private SideChainManager InitializeSideChainManager()
         {
@@ -36,7 +36,5 @@ namespace AElf.Automation.SideChainEconomicTest
 
             return chainManager;
         }
-
-        private static readonly string DataPath = CommonHelper.GetCurrentDataDir();
     }
 }

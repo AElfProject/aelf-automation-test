@@ -16,7 +16,7 @@ namespace AElf.Automation.Common.Managers
         public NodeManager(string baseUrl, string keyPath = "")
         {
             _baseUrl = baseUrl;
-            _keyStore = AElfKeyStore.GetKeyStore(keyPath == "" ? CommonHelper.GetCurrentDataDir() : keyPath);
+            _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
             ApiService = AElfChainClient.GetClient(baseUrl);
             _chainId = GetChainId();
@@ -135,6 +135,16 @@ namespace AElf.Automation.Common.Managers
         public string NewAccount(string password = "")
         {
             return AccountManager.NewAccount(password);
+        }
+
+        public string GetRandomAccount()
+        {
+            var accounts = AccountManager.ListAccount();
+            var randomId = CommonHelper.GenerateRandomNumber(0, accounts.Count);
+
+            AccountManager.UnlockAccount(accounts[randomId]);
+
+            return accounts[randomId];
         }
 
         public List<string> ListAccounts()

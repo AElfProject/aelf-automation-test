@@ -97,8 +97,11 @@ namespace AElf.Automation.Common.Managers
             return await Task.Run(() => files.Select(f => Path.GetFileNameWithoutExtension(f.Name)).ToList());
         }
 
-        public static AElfKeyStore GetKeyStore(string dataDirectory)
+        public static AElfKeyStore GetKeyStore(string dataDirectory = "")
         {
+            if (dataDirectory == "")
+                dataDirectory = CommonHelper.GetCurrentDataDir();
+            
             if (_keyStore != null && _keyStore.DataDirectory == dataDirectory)
                 return _keyStore;
 

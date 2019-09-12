@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Managers;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {
@@ -82,6 +83,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             
             //update account
             content = content.Replace("[ACCOUNT]", _node.Account);
+            content = content.Replace("[PASSWORD]", Account.DefaultPassword);
             
             //update api port
             content = content.Replace("[API_PORT]", _node.ApiPort.ToString());
