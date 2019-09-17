@@ -183,6 +183,23 @@ namespace AElf.Automation.ProposalTest
                     balance = Services.TokenService.GetUserBalance(tester);
                 }
             }
+            
+            foreach (var miner in Miners)
+            {
+                var balance = Services.TokenService.GetUserBalance(miner);
+                while (balance == 0)
+                {
+                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                    {
+                        Symbol = "ELF",
+                        To = AddressHelper.Base58StringToAddress(miner),
+                        Amount = 1000,
+                        Memo = "Transfer to organization address"
+                    });
+
+                    balance = Services.TokenService.GetUserBalance(miner);
+                }
+            }
         }
     }
 }
