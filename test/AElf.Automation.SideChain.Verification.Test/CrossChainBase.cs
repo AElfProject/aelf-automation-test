@@ -69,13 +69,29 @@ namespace AElf.Automation.SideChain.Verification
             {
                 var url = info.SideChainUrl;
                 var chainId = ChainHelper.ConvertBase58ToChainId(info.SideChainId);
+                var defaultToken = info.SideChainTokenSymbol;
                 sideChainIds.Add(chainId);
-                var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId);
+                var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId,defaultToken);
                 SideChainServices.Add(sideService);
             }
 
             return SideChainServices;
         }
+        
+        protected void IssueSideChainToken(ContractServices services,string account)
+        {
+
+            Logger.Info($"Issue side chain {services.ChainId} token {services.DefaultToken} to {account}");
+            services.TokenService.SetAccount(services.CallAddress);
+            services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
+            {
+                Symbol = services.DefaultToken,
+                Amount = 1000000,
+                Memo = "Issue side chain token",
+                To = AddressHelper.Base58StringToAddress(account)
+            });
+        }
+        
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {

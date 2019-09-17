@@ -24,6 +24,8 @@ namespace AElf.Automation.SideChain.Verification
     {
         [JsonProperty("SideChainUrl")] public string SideChainUrl { get; set; }
         [JsonProperty("SideChainId")] public string SideChainId { get; set; }
+        [JsonProperty("SideChainTokenSymbol")] public string SideChainTokenSymbol { get; set; }
+
     }
 
     public class TestCase

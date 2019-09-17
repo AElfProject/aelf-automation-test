@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using Acs3;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
@@ -37,7 +38,9 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             ValidateSideChainTokenAddress();
             Logger.Info("Waiting for indexing");
             Thread.Sleep(200000);
-
+            
+            Logger.Info("Transfer side chain token");
+            IssueSideTokenForBpAccount();
             Logger.Info("Register address");
             SideChainRegisterMainChain();
             MainChainRegister();
@@ -82,6 +85,21 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 ChainValidateTxInfo.Add(sideChainService.ChainId, sideChainTx);
                 Logger.Info(
                     $"Validate chain {sideChainService.ChainId} token address {sideChainService.TokenService.ContractAddress}");
+            }
+        }
+
+        private void IssueSideTokenForBpAccount()
+        {
+            var nodeConfig = NodeInfoHelper.Config;
+            foreach (var sideChainService in SideChainServices)
+            {
+                var nodes = nodeConfig.Nodes;
+
+                foreach (var node in nodes)
+                {
+                    if (node.Account == sideChainService.CallAddress) continue;
+                    IssueSideChainToken(sideChainService,node.Account);
+                }
             }
         }
 

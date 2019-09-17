@@ -18,7 +18,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
         public void VerifySideChain()
         {
-            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber]);
+            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber-1]);
         }
 
         private void VerifySideChainTransaction(ContractServices services)

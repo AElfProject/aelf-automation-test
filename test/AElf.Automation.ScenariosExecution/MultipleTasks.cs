@@ -64,8 +64,8 @@ namespace AElf.Automation.ScenariosExecution
             }
             
             //node status monitor
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeTransactionAction));
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeStatusAction));
+            _taskCollection.Add(Task.Run((Action) nodeScenario.CheckNodeTransactionAction));
+            _taskCollection.Add(Task.Run((Action) nodeScenario.CheckNodeStatusAction));
 
             Task.WaitAll(_taskCollection.ToArray());
         }
@@ -143,13 +143,13 @@ namespace AElf.Automation.ScenariosExecution
                 }
             }
 
-            return Task.Run(NewAction);
+            return Task.Run((Action) NewAction);
         }
         
         private static void RegisterAction(Registry registry, TestCase scenario, Action action)
         {
             Logger.Info($"Register {scenario.CaseName} with time interval: {scenario.TimeInterval} seconds.");
-            registry.Schedule(action.Invoke).WithName(scenario.CaseName)
+            registry.Schedule((Action) action.Invoke).WithName(scenario.CaseName)
                 .ToRunEvery(scenario.TimeInterval).Seconds();
         }
     }

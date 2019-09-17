@@ -155,6 +155,14 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
             }
 
+            foreach (var sideChain in SideChainServices)
+            {
+                foreach (var account in AccountList[sideChain.ChainId])
+                {
+                    IssueSideChainToken(sideChain, account);
+                }
+            }
+            
             Logger.Info("Transfer token to each account :");
 
             var mainTransferTxIds = new List<CrossChainTransactionInfo>();

@@ -1,23 +1,22 @@
 {
+    "IsMainChain": false,
+    "SideChainTokenSymbol": "SAELF",
     "GroupCount": 4,
-    "TransactionCount": 100,
+    "TransactionCount": 10,
     "EnableRandomTransaction": true,
-    "ServiceUrl": "192.168.197.43:8100",
-    "SentTxLimit": 1000,
+    "ServiceUrl": "54.233.124.191:8000",
+    "SentTxLimit": 500,
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
     "ReadOnlyTransaction": false,
     "NodeTransactionLimit": {
         "enable_limit": true,
-        "max_transactions_select": 100
+        "max_transactions_select": 30
     },
     "RequestRandomEndpoint": {
         "enable_random": false,
         "endpoint_list": [
-            "192.168.197.43:8100",
-            "192.168.197.15:8100",
-            "192.168.197.52:8100"
         ]
     }
 }

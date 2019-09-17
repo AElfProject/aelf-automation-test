@@ -2,9 +2,6 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
-using AElfChain.SDK;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ApiMethods = AElf.Automation.Common.Helpers.ApiMethods;
 
 namespace AElf.Automation.SideChain.Verification
 {
@@ -12,6 +9,7 @@ namespace AElf.Automation.SideChain.Verification
     {
         public readonly INodeManager NodeManager;
         public readonly int ChainId;
+        public readonly string DefaultToken;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -21,13 +19,14 @@ namespace AElf.Automation.SideChain.Verification
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId)
+        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId, string defaultToken = "ELF")
         {
             ChainId = chainId;
+            DefaultToken = defaultToken;
+
             NodeManager = new NodeManager(url,keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-            
             NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();
         }
@@ -52,12 +51,6 @@ namespace AElf.Automation.SideChain.Verification
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(NodeManager,CallAddress,consensusAddress.GetFormatted());
-        }
-
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
         }
     }
 }

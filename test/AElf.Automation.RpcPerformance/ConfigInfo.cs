@@ -35,7 +35,8 @@ namespace AElf.Automation.RpcPerformance
 
         [JsonProperty("EnableRandomTransaction")]
         public bool EnableRandomTransaction { get; set; }
-
+        [JsonProperty("IsMainChain")] public bool IsMainChain { get; set; }
+        [JsonProperty("SideChainTokenSymbol")] public string SideChainTokenSymbol { get; set; }
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; }
         [JsonProperty("SentTxLimit")] public int SentTxLimit { get; set; }
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }

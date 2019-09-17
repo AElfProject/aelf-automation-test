@@ -22,7 +22,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             MainChainService = InitMainChainServices();
             SideChainServices = InitSideChainServices();
-            TokenSymbols = new List<string>(){"CPU", "NET", "STO"};
+            TokenSymbols = new List<string>();
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
 
@@ -134,26 +134,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
                 }
-            }
-        }
-
-        private async Task BuyResources(long amount)
-        {
-            Logger.Info("Prepare resources token.");
-            var genesis = MainChainService.GenesisService;
-            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
-            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress, tokenConverter.GetFormatted());
-            var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
-            
-            var symbols = new List<string>{"CPU", "NET", "STO"};
-            foreach (var symbol in symbols)
-            {
-                var transactionResult = await testStub.Buy.SendAsync(new BuyInput
-                {
-                    Symbol = symbol,
-                    Amount = amount
-                });
-                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
         }
     }
