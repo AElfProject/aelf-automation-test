@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -72,15 +73,15 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
+                var nodeManager = new NodeManager(performance.BaseUrl);
                 if (ExecuteMode == 0) //检测链交易和出块结果
                 {
                     Logger.Info("Check node transaction status information");
-                    var nodeManager = new NodeManager(performance.BaseUrl);
                     var nodeSummary = new ExecutionSummary(nodeManager, true);
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
-
+                
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = NodeInfoHelper.Config.IsMainChain;

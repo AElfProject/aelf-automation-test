@@ -20,7 +20,7 @@ namespace AElf.Automation.Common.Managers
         private readonly ParliamentAuthContract _parliament;
         private NodesInfo _info;
 
-        public AuthorityManager(INodeManager nodeManager, string caller)
+        public AuthorityManager(INodeManager nodeManager, string caller = "")
         {
             GetConfigNodeInfo();
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);

@@ -53,6 +53,17 @@ namespace AElf.Automation.Common.Contracts
         private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
             new Dictionary<NameProvider, Address>();
 
+        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress = "")
+        {
+            if(callAddress == "")
+                callAddress = nm.GetRandomAccount();
+            
+            var genesisContract = nm.GetGenesisContractAddress();
+            Logger.Info($"Genesis contract Address: {genesisContract}");
+
+            return new GenesisContract(nm, callAddress, genesisContract);
+        }
+        
         private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress)
             : base(nodeManager, genesisAddress)
         {
@@ -61,14 +72,6 @@ namespace AElf.Automation.Common.Contracts
         }
 
         public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
-
-        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress)
-        {
-            var genesisContract = nm.GetGenesisContractAddress();
-            Logger.Info($"Genesis contract Address: {genesisContract}");
-
-            return new GenesisContract(nm, callAddress, genesisContract);
-        }
 
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {

@@ -29,7 +29,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = "123";
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://127.0.0.1:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.14:8000";
 
         #endregion
 

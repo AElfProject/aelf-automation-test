@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Acs0;
 using AElf.Automation.Common.Helpers;
@@ -140,11 +141,17 @@ namespace AElf.Automation.Common.Managers
         public string GetRandomAccount()
         {
             var accounts = AccountManager.ListAccount();
-            var randomId = CommonHelper.GenerateRandomNumber(0, accounts.Count);
+            var retry = 0;
+            while (retry < 5)
+            {
+                retry++;
+                var randomId = CommonHelper.GenerateRandomNumber(0, accounts.Count);
+                var result = AccountManager.UnlockAccount(accounts[randomId]);
+                if(!result) continue;
 
-            AccountManager.UnlockAccount(accounts[randomId]);
-
-            return accounts[randomId];
+                return accounts[randomId];
+            }
+            throw new Exception("Cannot got account with default password.");
         }
 
         public List<string> ListAccounts()

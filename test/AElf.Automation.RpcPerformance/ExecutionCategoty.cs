@@ -41,7 +41,6 @@ namespace AElf.Automation.RpcPerformance
         public int ThreadCount { get; }
         public int ExeTimes { get; }
         public bool LimitTransaction { get; }
-        private TokenContract SystemToken { get; set; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -668,20 +667,20 @@ namespace AElf.Automation.RpcPerformance
             if (!enable) return;
             try
             {
-                var account = AccountList.First().Account;
-                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                SystemToken = genesis.GetTokenContract();
-                
+                var genesis = GenesisContract.GetGenesisContract(NodeManager);
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
+                var token = genesis.GetTokenContract();
+                var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
+                var symbol = chainType.IsMainChain ? "ELF" : chainType.TokenSymbol;
                 
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    SystemToken.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000);
+                    token.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000, symbol);
                 }
             }
             catch (Exception e)
             {
-                Logger.Error("Prepare basic ELF token got exception.");
+                Logger.Error("Prepare basic token got exception.");
                 Logger.Error(e);
             }
         }
