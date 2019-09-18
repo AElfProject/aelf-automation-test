@@ -1,23 +1,28 @@
 {
     "GroupCount": 4,
-    "TransactionCount": 100,
+    "TransactionCount": 50,
     "EnableRandomTransaction": true,
-    "ServiceUrl": "192.168.197.43:8100",
-    "SentTxLimit": 1000,
+    "ServiceUrl": "192.168.197.14:8000",
+    "SentTxLimit": 500,
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
     "ReadOnlyTransaction": false,
+    "ChainType": {
+        "is_main_chain": true,
+        "token_symbol": "ELF"
+    },
     "NodeTransactionLimit": {
         "enable_limit": true,
-        "max_transactions_select": 100
+        "max_transactions_select": 50
     },
     "RequestRandomEndpoint": {
-        "enable_random": false,
+        "enable_random": true,
         "endpoint_list": [
-            "192.168.197.43:8100",
-            "192.168.197.15:8100",
-            "192.168.197.52:8100"
+            "192.168.197.14:8000",
+            "192.168.197.42:8000",
+            "192.168.197.24:8000",
+            "192.168.197.23:8000"
         ]
     }
 }
