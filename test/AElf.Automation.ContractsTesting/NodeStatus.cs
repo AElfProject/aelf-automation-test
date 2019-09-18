@@ -40,14 +40,6 @@ namespace AElf.Automation.ContractsTesting
             return AsyncHelper.RunSync(()=>_apiService.GetBlockByHeightAsync(height));
         }
 
-        public ChainStatusDto GetChainInformation()
-        {
-            var command = new CommandInfo(ApiMethods.GetChainInformation);
-            _nodeManager.GetChainInformation(command);
-
-            return command.InfoMsg as ChainStatusDto;
-        }
-
         public void CheckConfigurationInfo()
         {
             var account = _nodeManager.AccountManager.GetRandomAccount();

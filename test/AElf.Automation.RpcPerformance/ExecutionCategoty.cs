@@ -195,29 +195,21 @@ namespace AElf.Automation.RpcPerformance
             {
                 var account = contract.Owner;
                 var contractPath = contract.ContractPath;
-
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
-                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Create")
+                
+                var token = new TokenContract(NodeManager, account, contractPath);
+                var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
-                    ParameterInput = new CreateInput
-                    {
-                        Symbol = symbol,
-                        TokenName = $"elf token {symbol}",
-                        TotalSupply = long.MaxValue,
-                        Decimals = 2,
-                        Issuer = AddressHelper.Base58StringToAddress(account),
-                        IsBurnable = true
-                    }
-                };
-                NodeManager.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as SendTransactionOutput;
-                var transactionId = transactionResult?.TransactionId;
-                Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
+                    Symbol = symbol,
+                    TokenName = $"elf token {symbol}",
+                    TotalSupply = long.MaxValue,
+                    Decimals = 2,
+                    Issuer = AddressHelper.Base58StringToAddress(account),
+                    IsBurnable = true
+                });
                 TxIdList.Add(transactionId);
             }
-
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
@@ -226,25 +218,17 @@ namespace AElf.Automation.RpcPerformance
                 var account = contract.Owner;
                 var contractPath = contract.ContractPath;
                 var symbol = contract.Symbol;
-
-                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Issue")
+                
+                var token = new TokenContract(NodeManager, account, contractPath);
+                var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput()
                 {
-                    ParameterInput = new IssueInput()
-                    {
-                        Amount = long.MaxValue,
-                        Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
-                        Symbol = symbol,
-                        To = AddressHelper.Base58StringToAddress(account)
-                    }
-                };
-                NodeManager.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as SendTransactionOutput;
-                var transactionId = transactionResult?.TransactionId;
-                Assert.IsFalse(string.IsNullOrEmpty(transactionId), "Transaction Id is null or empty");
+                    Amount = long.MaxValue,
+                    Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
+                    Symbol = symbol,
+                    To = AddressHelper.Base58StringToAddress(account)
+                });
                 TxIdList.Add(transactionId);
             }
-
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //prepare conflict environment
