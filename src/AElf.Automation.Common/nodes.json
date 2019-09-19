@@ -52,5 +52,6 @@
       "password": "123"
     }
   ],
-  "IsMainChain": true
+  "IsMainChain": true,
+  "DefaultPassword": "123"
 }
