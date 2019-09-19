@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -24,7 +25,7 @@ namespace AElf.Automation.SideChain.Verification
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly EnvironmentInfo _environmentInfo;
         private static int Timeout { get; set; }
-        protected readonly string NativeToken = "ELF";
+        protected readonly string NativeToken;
         protected static string InitAccount;
         protected readonly int CreateTokenNumber;
         protected readonly int VerifySideChainNumber;
@@ -43,6 +44,7 @@ namespace AElf.Automation.SideChain.Verification
             CreateTokenNumber = ConfigInfoHelper.Config.CreateTokenNumber;
             VerifySideChainNumber = ConfigInfoHelper.Config.VerifySideChainNumber;
             VerifyBlockNumber = ConfigInfoHelper.Config.VerifyBlockNumber;
+            NativeToken = _environmentInfo.MainChainInfos.NativeToken;
         }
 
         protected ContractServices InitMainChainServices()
@@ -423,6 +425,20 @@ namespace AElf.Automation.SideChain.Verification
             var transactionHeight = infos.BlockHeight;
             return indexParentBlock.Value > transactionHeight;
         }
+        
+        protected async Task<bool> SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,ContractServices servicesTo, CrossChainTransactionInfo infos)
+        {
+            var indexSideChainBlock = MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = servicesFrom.ChainId});
+            var mainHeight = await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
+            
+            var indexParentBlock =
+                servicesTo.CrossChainService.CallViewMethod<SInt64Value>(
+                    CrossChainContractMethod.GetParentChainHeight, new Empty());
+            
+            var transactionHeight = infos.BlockHeight;
+            return indexSideChainBlock.Value > transactionHeight && indexParentBlock.Value > mainHeight;
+        }
 
 
         protected long GetBalance(ContractServices services, string address, string symbol)
@@ -450,6 +466,7 @@ namespace AElf.Automation.SideChain.Verification
 
         protected void UnlockAccounts(ContractServices services, int count, List<string> accountList)
         {
+            services.NodeManager.ListAccounts();
             for (var i = 0; i < count; i++)
             {
                 var result = services.NodeManager.UnlockAccount(accountList[i]);

@@ -69,6 +69,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Logger.Info($"Side chain {sideChainService.ChainId} received token");
                 Logger.Info(
                     $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
+                
+                Logger.Info("Check the index:");
+                while (!CheckSideChainBlockIndex(sideChainService, initRawTxInfos[sideChainService.ChainId]))
+                {
+                    Logger.Info("Block is not recorded ");
+                    Thread.Sleep(10000);
+                }
 
                 TransactionResultDto result = null;
                 var transferTimes = 5;
@@ -102,8 +109,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         if (reResult == null) continue;
                         var reStatus = reResult.Status.ConvertTransactionResultStatus();
                         if (reStatus == TransactionResultStatus.Mined)
-                            goto GetBalance;
-                        if (reResult.Error.Contains("Token already claimed"))
                             goto GetBalance;
                         Thread.Sleep(2000);
                     }
@@ -140,7 +145,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var accountList in AccountList)
             {
                 UnlockAccounts(MainChainService, accountList.Value.Count, accountList.Value);
-                UnlockAccounts(MainChainService, mainAccounts.Count, mainAccounts);
             }
 
             // Unlock account on side chain

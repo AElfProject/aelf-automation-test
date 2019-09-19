@@ -15,7 +15,7 @@ namespace AElf.Automation.SideChain.Verification
     {
         [JsonProperty("MainChainUrl")] public string MainChainUrl { get; set; }
         [JsonProperty("MainChainId")] public string MainChainId { get; set; }
-
+        [JsonProperty("NativeToken")] public string NativeToken { get; set; }
         [JsonProperty("Account")] public string Account { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
     }

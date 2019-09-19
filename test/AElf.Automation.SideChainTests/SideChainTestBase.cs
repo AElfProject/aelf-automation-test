@@ -22,11 +22,11 @@ namespace AElf.Automation.SideChainTests
 
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
-        public static string MainChainUrl { get; } = "http://192.168.197.14:8000";
+        public static string MainChainUrl { get; } = "http://54.202.235.179:8000";
         public static string SideAChainUrl { get; } = "http://192.168.197.14:8001";
         public static string SideBChainUrl { get; } = "http://192.168.197.14:8002";
 
-        public string InitAccount { get; } = "2boUmCEXvK9BamvsQTr9VQ5bXPZSvd5utzB9nz3fwPmbJtoySh";
+        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         public List<string> BpNodeAddress { get; set; }
 

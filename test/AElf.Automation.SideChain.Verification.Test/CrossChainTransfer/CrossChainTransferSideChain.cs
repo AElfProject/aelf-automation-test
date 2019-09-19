@@ -138,6 +138,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     var sideChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                     foreach (var sideRawTxInfo in sideRawTxInfos[receiveSideChain.ChainId])
                     {
+                        Logger.Info("Check the index:");
+                        while (!SideChainCheckSideChainBlockIndex(sideChainService, receiveSideChain,sideRawTxInfo).Result)
+                        {
+                            Logger.Info("Block is not recorded ");
+                            Thread.Sleep(10000);
+                        }
+                        
                         Logger.Info($"Receive CrossTransfer Transaction id is :{sideRawTxInfo.TxId}");
 
                         var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, sideRawTxInfo);

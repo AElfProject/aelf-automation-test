@@ -1,6 +1,10 @@
 using System.Linq;
+using AElf.Automation.Common.Contracts;
+using AElf.Contracts.Election;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -30,6 +34,22 @@ namespace AElf.Automation.EconomicSystem.Tests
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
+        
+        [TestMethod]
+        public void NodeAnnounceElectionAction()
+        {
+            var candidates = Behaviors.ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
+            var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+
+            foreach (var user in UserList)
+            {
+                var election = Behaviors.ElectionService.GetNewTester(user,"123");
+                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty()); 
+            }
+  
+            Behaviors.GetCandidates();
+        }
+
 
         [TestMethod]
         public void Get_Miners_Count()

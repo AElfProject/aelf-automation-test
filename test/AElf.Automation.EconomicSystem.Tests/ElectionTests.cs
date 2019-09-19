@@ -6,22 +6,23 @@ using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public class ElectionTests
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        protected static string RpcUrl { get; } = "http://52.90.147.175:8000";
+        protected static string RpcUrl { get; } = "http://18.162.41.20:8000";
 
         protected Behaviors Behaviors;
 
         //protected RpcApiHelper CH { get; set; }   
         protected INodeManager CH { get; set; }
-        protected string InitAccount { get; } = "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k";
+        protected string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
-        protected List<string> UserList { get; set; }
+        protected static List<string> UserList { get; set; }
         protected List<string> NodesPublicKeys { get; set; }
         protected List<CandidateInfo> CandidateInfos { get; set; }
         protected Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
@@ -127,8 +128,8 @@ namespace AElf.Automation.EconomicSystem.Tests
                 Behaviors.TokenService.CheckTransactionResultList();
             }
 
-            //Generate 50 accounts to vote
-            PrepareUserAccountAndBalance(10);
+           
+            PrepareUserAccountAndBalance(30);
 
             #endregion
         }
@@ -146,17 +147,16 @@ namespace AElf.Automation.EconomicSystem.Tests
             */
         }
 
-        private void PrepareUserAccountAndBalance(int userAccount)
+        protected void PrepareUserAccountAndBalance(int userAccount)
         {
+            
             //Account preparation
-            UserList = new List<string>
-            {
-                "2KTYvsWxcnjQPNnD1zWFCm83aLvmRGAQ8bvLnLFUV7XrrnYWNv"
-            };
+            UserList = NewAccount(Behaviors,userAccount);
+            UnlockAccounts(Behaviors,userAccount,UserList);
 
             //分配资金给普通用户
             var balance = Behaviors.GetBalance(UserList[0]);
-            if (balance.Balance >= 500)
+            if (balance.Balance >= 20_0000_00000000)
                 return;
 
             Behaviors.TokenService.SetAccount(BpNodeAddress[0]);
@@ -164,7 +164,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = 1000,
+                    Amount = 20_0000_00000000,
                     Memo = "transfer for balance test",
                     Symbol = "ELF",
                     To = AddressHelper.Base58StringToAddress(acc)
@@ -185,6 +185,28 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
 
             _logger.Info("All accounts prepared and unlocked.");
+        }
+        
+        protected List<string> NewAccount(Behaviors services, int count)
+        {
+            var accountList = new List<string>();
+            for (var i = 0; i < count; i++)
+            {
+                var account = services.NodeManager.NewAccount();
+                accountList.Add(account);
+            }
+
+            return accountList;
+        }
+        
+        protected void UnlockAccounts(Behaviors services, int count, List<string> accountList)
+        {
+            services.NodeManager.ListAccounts();
+            for (var i = 0; i < count; i++)
+            {
+                var result = services.NodeManager.UnlockAccount(accountList[i]);
+                Assert.IsTrue(result);
+            }
         }
     }
 }

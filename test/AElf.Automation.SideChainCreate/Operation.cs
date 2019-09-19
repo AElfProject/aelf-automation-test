@@ -28,6 +28,7 @@ namespace AElf.Automation.SideChainCreate
         public string Url;
         public string InitAccount;
         public string Password;
+        public string NativeSymbol;
 
         public Operation()
         {
@@ -46,7 +47,7 @@ namespace AElf.Automation.SideChainCreate
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NativeSymbol,
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                     Amount = amount,
                 });
@@ -112,6 +113,7 @@ namespace AElf.Automation.SideChainCreate
             InitAccount = environmentInfo.InitAccount;
             Url = environmentInfo.Url;
             Password = environmentInfo.Password;
+            NativeSymbol = environmentInfo.NativeSymbol;
             var contractService = new ContractServices(Url,InitAccount,Password);
             return contractService;
         }

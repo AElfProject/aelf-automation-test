@@ -16,10 +16,10 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow("2hxkDg6Pd2d4yU1A16PTZVMMrEDYEPR8oQojMDwWdax5LsBaxX")]
+        [DataRow("VMxr1PRJopCTXBVboUtrkZUN4SfqtbigFc6z8E9TiMiWyoCF6")]
         public void RequestSideChain(string account)
         {
-            MainContracts.TransferToken(InitAccount, account, 1000000, "ELF");
+            MainContracts.TransferToken(InitAccount, account, 100_0000_00000000, "ELF");
 //            MainContracts.TokenApprove(account, 400000);
 //            
 //            var result = MainContracts.RequestSideChain(account,400000);

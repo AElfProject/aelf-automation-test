@@ -33,6 +33,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
         public void DoCrossChainPrepare()
         {
+            Logger.Info("Check token address");
+            var checkResult = CheckTokenAddress();
+            if (checkResult)
+            {
+                Logger.Info("All the token address is registered");
+                return;
+            }
             Logger.Info("Validate token address");
             ValidateMainChainTokenAddress();
             ValidateSideChainTokenAddress();
@@ -45,6 +52,48 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             SideChainRegisterMainChain();
             MainChainRegister();
             SideChainRegisterSideChain();
+        }
+
+        private bool CheckTokenAddress()
+        {
+            var mainTokenAddress = AddressHelper.Base58StringToAddress(MainChainService.TokenService.ContractAddress);
+            foreach (var sideChainService in SideChainServices)
+            {
+                var mainAddress = MainChainService.TokenService.CallViewMethod<Address>(
+                    TokenMethod.GetCrossChainTransferTokenContractAddress,
+                    new GetCrossChainTransferTokenContractAddressInput
+                    {
+                        ChainId = sideChainService.ChainId
+                    });
+                var sideTokenAddress = AddressHelper.Base58StringToAddress(sideChainService.TokenService.ContractAddress);
+                if (!mainAddress.Equals(sideTokenAddress)) return false;
+                Logger.Info($"{MainChainService.ChainId} already register {mainAddress}.");
+                
+                var sideAddress = sideChainService.TokenService.CallViewMethod<Address>(
+                    TokenMethod.GetCrossChainTransferTokenContractAddress,
+                    new GetCrossChainTransferTokenContractAddressInput
+                    {
+                        ChainId = MainChainService.ChainId
+                    });
+                if (!sideAddress.Equals(mainTokenAddress)) return false;
+                Logger.Info($"{sideChainService.ChainId} already register {sideAddress}.");
+
+                foreach (var sideService in SideChainServices)
+                {
+                    if (sideService == sideChainService) continue;
+                    var sideAddress1 = sideChainService.TokenService.CallViewMethod<Address>(
+                        TokenMethod.GetCrossChainTransferTokenContractAddress,
+                        new GetCrossChainTransferTokenContractAddressInput
+                        {
+                            ChainId = sideService.ChainId
+                        });
+                    var side1TokenAddress = AddressHelper.Base58StringToAddress(sideService.TokenService.ContractAddress);
+                    if (!sideAddress1.Equals(side1TokenAddress)) return false;
+                    Logger.Info($"{sideChainService.ChainId} already register {sideAddress1}.");
+                }
+            }
+
+            return true;
         }
 
         // validate

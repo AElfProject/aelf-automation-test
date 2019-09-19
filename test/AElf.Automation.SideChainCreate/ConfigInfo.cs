@@ -18,6 +18,7 @@ namespace AElf.Automation.SideChainCreate
         [JsonProperty("InitAccount")] public string InitAccount { get; set; }
         [JsonProperty("Url")] public string Url { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
+        [JsonProperty("NativeSymbol")] public string NativeSymbol { get; set; }
     }
 
     public class SideChainInfo
