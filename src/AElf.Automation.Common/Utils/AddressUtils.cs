@@ -13,5 +13,10 @@ namespace AElf.Automation.Common.Utils
 
             return Address.FromBytes(randomBytes);
         }
+
+        public static Address ConvertAddress(this string address)
+        {
+            return AddressHelper.Base58StringToAddress(address);
+        }
     }
 }

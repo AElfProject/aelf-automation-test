@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Utils;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
+using AElf.Kernel;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
