@@ -1,6 +1,4 @@
 {
-    "IsMainChain": false,
-    "SideChainTokenSymbol": "SAELF",
     "GroupCount": 4,
     "TransactionCount": 30,
     "EnableRandomTransaction": true,
