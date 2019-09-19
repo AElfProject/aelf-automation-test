@@ -53,8 +53,9 @@ namespace AElf.Automation.SideChain.Verification
             var mainChainUrl = _environmentInfo.MainChainInfos.MainChainUrl;
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
+            var defaultToken = _environmentInfo.MainChainInfos.NativeToken;
             var mainChainId = ChainHelper.ConvertBase58ToChainId(_environmentInfo.MainChainInfos.MainChainId);
-            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId);
+            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId,defaultToken);
 
             return MainChainService;
         }
@@ -300,7 +301,7 @@ namespace AElf.Automation.SideChain.Verification
                 return null;
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
-                FromChainId = 9992731,
+                FromChainId = MainChainService.ChainId,
                 ParentChainHeight = rawTxInfo.BlockHeight,
                 MerklePath = merklePath
             };

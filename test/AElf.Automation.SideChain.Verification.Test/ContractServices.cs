@@ -18,7 +18,7 @@ namespace AElf.Automation.SideChain.Verification
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId, string defaultToken = "ELF")
+        public ContractServices(string url, string callAddress, string keyStore,string password, int chainId, string defaultToken)
         {
             ChainId = chainId;
             DefaultToken = defaultToken;
