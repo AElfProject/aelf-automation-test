@@ -5,7 +5,7 @@ namespace AElf.Automation.Common.Managers
 {
     public class Account
     {
-        public static string DefaultPassword = "123";
+        public static readonly string DefaultPassword = NodeInfoHelper.Config.DefaultPassword;
 
         public Account(string address)
         {

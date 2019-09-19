@@ -13,6 +13,7 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
@@ -41,7 +42,7 @@ namespace AElf.Automation.SideChainTests
 
         public string ValidateTokenAddress()
         {
-            var validateTransaction = NodeManager.GenerateTransactionRawTx(
+            var validateTransaction = NodeManager.GenerateRawTransaction(
                 ContractServices.CallAddress, ContractServices.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
@@ -306,21 +307,10 @@ namespace AElf.Automation.SideChainTests
 
         public string ExecuteMethodWithTxId(string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.SendTransaction)
-            {
-                Parameter = rawTx
-            };
-            NodeManager.BroadcastWithRawTx(ci);
-            if (ci.Result)
-            {
-                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+            var transactionOutput =
+                AsyncHelper.RunSync(() => NodeManager.ApiService.SendTransactionAsync(rawTx));
 
-                return transactionOutput?.TransactionId;
-            }
-
-            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
-
-            return string.Empty;
+            return transactionOutput.TransactionId;
         }
 
         #endregion

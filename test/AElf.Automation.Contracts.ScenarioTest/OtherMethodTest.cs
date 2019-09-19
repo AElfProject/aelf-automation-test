@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -62,6 +65,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 Console.WriteLine();
             }
+        }
+
+        [TestMethod]
+        public async Task GetDeployedContracts()
+        {
+            const string endpoint = "18.162.41.20:8000";
+            var nodeManager = new NodeManager(endpoint);
+
+            var genesis = GenesisContract.GetGenesisContract(nodeManager);
+            var genesisStub = genesis.GetGensisStub();
+
+            var contractList = await genesisStub.GetDeployedContractAddressList.CallAsync(new Empty());
+            Console.WriteLine($"Total deployed contracts: {contractList.Value.Count}");
+            Console.WriteLine(contractList.Value);
         }
     }
 }

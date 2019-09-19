@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
 
 namespace AElf.Automation.SideChainEconomicTest
@@ -14,11 +13,15 @@ namespace AElf.Automation.SideChainEconomicTest
         {
             Log4NetHelper.LogInit();
             var logger = Log4NetHelper.GetLogger();
-            var mainTest = new MainChainTests();
             var sideTest = new SideChainTests();
             sideTest.GetTokenInfo();
+
+            await sideTest.SideManager.RunCheckSideChainTokenInfo(sideTest.SideA, "SAELF");
+
+            Console.ReadLine();
             
-            var acs8Contract = "mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s";
+            var mainTest = new MainChainTests();
+            var acs8Contract = "";
             if (acs8Contract == "")
             {
                 await mainTest.MainManager.BuyResources(ChainConstInfo.ChainAccount, 2000);

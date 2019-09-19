@@ -8,7 +8,6 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.SDK;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
@@ -18,8 +17,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
     public class SideChainManager
     {
         public Dictionary<int, ContractServices> SideChains { get; set; }
-        private List<string> Symbols = new List<string>{"CPU", "NET", "STO"};
-
         public static ILog Logger = Log4NetHelper.GetLogger();
 
         public SideChainManager()
@@ -84,6 +81,59 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                     await Task.Delay(10000);
                 }
             }
+        }
+
+        public async Task RunCheckSideChainTokenInfo(ContractServices chain, string tokenSymbol)
+        {
+            var tokenTester = chain.GenesisService.GetTokenStub();
+            var tokenInfo = await tokenTester.GetTokenInfo.CallAsync(new GetTokenInfoInput
+            {
+                Symbol = tokenSymbol
+            });
+            Logger.Info($"Token info: {tokenInfo}");
+            
+            //transfer some other owner
+            var account = chain.NodeManager.AccountManager.GetRandomAccount();
+            var address = AddressHelper.Base58StringToAddress(account);
+            await tokenTester.Transfer.SendAsync(new TransferInput
+            {
+                Symbol = tokenSymbol,
+                Amount = 1000_000,
+                To = address,
+                Memo = $"Transfer for execution test {Guid.NewGuid()}"
+            });
+            var issuerBalance = await tokenTester.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = chain.CallAccount,
+                Symbol = tokenSymbol
+            });
+            Logger.Info($"Issuer token balance: {issuerBalance.Balance}");
+            
+            var balance = await tokenTester.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = address,
+                Symbol = tokenSymbol
+            });
+            Logger.Info($"Random owner token balance: {balance.Balance}");
+            
+            tokenTester = chain.TokenService.GetTestStub<TokenContractContainer.TokenContractStub>(account);
+            var transactionResult = await tokenTester.Approve.SendAsync(new ApproveInput
+            {
+                Symbol = tokenSymbol,
+                Amount = 1000_000,
+                Spender = chain.CallAccount
+            });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            account = chain.NodeManager.AccountManager.GetRandomAccount();
+            tokenTester = chain.TokenService.GetTestStub<TokenContractContainer.TokenContractStub>(account);
+            transactionResult = await tokenTester.Approve.SendAsync(new ApproveInput
+            {
+                Symbol = tokenSymbol,
+                Amount = 1000_000,
+                Spender = chain.CallAccount
+            });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.NotExisted);
         }
     }
 }

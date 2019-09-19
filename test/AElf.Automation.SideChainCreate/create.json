@@ -10,7 +10,7 @@
         },
         {
             "Environment": "Offline",
-            "Url": "http://192.168.197.14:8000",
+            "Url": "http://192.168.197.40:8000",
             "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123",
             "NativeSymbol": "ELF"
@@ -23,17 +23,19 @@
             "NativeSymbol": "ELF"
         }
     ],
-    "ApproveTokenAmount": "8000000",
+    "ApproveTokenAmount": 8000000,
     "SideChainInfo": [
         {
-            "IndexingPrice": "0",
-            "LockedTokenAmount": "4000000",
-            "IsPrivilegePreserved": true
+            "IndexingPrice": "1",
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SAELF"
         },
         {
-            "IndexingPrice": "0",
-            "LockedTokenAmount": "4000000",
-            "IsPrivilegePreserved": true
+            "IndexingPrice": "1",
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SBELF"
         }
     ]
 }

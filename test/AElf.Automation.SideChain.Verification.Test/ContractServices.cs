@@ -1,5 +1,4 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
 

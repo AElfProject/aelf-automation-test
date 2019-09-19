@@ -148,7 +148,7 @@ namespace AElf.Automation.SideChainTests
                 ToChainId = SideTester[0].ContractServices.ChainId,
             };
             // execute cross chain transfer
-            var rawTx = MainContracts.NodeManager.GenerateTransactionRawTx(InitAccount,
+            var rawTx = MainContracts.NodeManager.GenerateRawTransaction(InitAccount,
                 MainContracts.ContractServices.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
@@ -199,7 +199,7 @@ namespace AElf.Automation.SideChainTests
                 ToChainId = SideTester[1].ContractServices.ChainId,
             };
             // execute cross chain transfer
-            var rawTx = SideTester[0].NodeManager.GenerateTransactionRawTx(InitAccount,
+            var rawTx = SideTester[0].NodeManager.GenerateRawTransaction(InitAccount,
                 SideTester[0].ContractServices.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");

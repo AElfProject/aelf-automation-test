@@ -38,13 +38,15 @@ namespace AElf.Automation.Common.Helpers
         /// <summary>
         ///     Return the full path of the files
         /// </summary>
-        private string GetKeyFileFullPath(string address)
+        private string GetKeyFileFullPath(string contractName)
         {
             var dirPath = GetKeystoreDirectoryPath();
-            var filePath = Path.Combine(dirPath, address);
+            var filePath = Path.Combine(dirPath, contractName);
 
+            if (contractName.Contains(ContractExtension))
+                return contractName;
+            
             var filePathWithExtension = filePath + ContractExtension;
-
             return filePathWithExtension;
         }
 

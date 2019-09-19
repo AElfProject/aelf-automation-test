@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
-using AElfChain.SDK.Models;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,10 +25,10 @@ namespace AElf.Automation.ContractsTesting
         public string BpAccount { get; set; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         [Option("-bp|--bp.password", Description = "Bp account password info")]
-        public string BpPassword { get; set; } = "123";
+        public string BpPassword { get; set; } = Account.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://127.0.0.1:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.14:8000";
 
         #endregion
 

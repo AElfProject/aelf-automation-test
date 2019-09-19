@@ -2,14 +2,12 @@ using System.Collections.Generic;
 using Acs3;
 using Acs7;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
@@ -53,7 +51,7 @@ namespace AElf.Automation.SideChainCreate
                 });
         }
         
-        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved)
+        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved, SideChainTokenInfo tokenInfo)
         {
             var organizationAddress = GetGenesisOwnerAddress();
             ByteString code = ByteString.FromBase64("4d5a90000300");
@@ -62,7 +60,8 @@ namespace AElf.Automation.SideChainCreate
                 ContractCode = code,
                 IndexingPrice = indexingPrice,
                 LockedTokenAmount = lockedTokenAmount,
-                IsPrivilegePreserved = isPrivilegePreserved
+                IsPrivilegePreserved = isPrivilegePreserved,
+                SideChainTokenInfo = tokenInfo
             };
             ParliamentService.SetAccount(InitAccount);
             var result =

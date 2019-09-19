@@ -2,6 +2,7 @@ using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using Newtonsoft.Json;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -30,7 +31,7 @@ namespace AElf.Automation.ContractsTesting
                     height = currentHeight;
                     //message = $"Node: {name}, Height: {currentHeight}, TxPool Count: {txPoolCount}";
                     //Log.Info(message);
-                    var chainStatus = nodeStatus.GetChainInformation();
+                    var chainStatus = AsyncHelper.RunSync(nodeManager.ApiService.GetChainStatusAsync);
                     Log.Info($"Chain Status: {JsonConvert.SerializeObject(chainStatus)}");
                     var blockInfo = nodeStatus.GetBlockInfo(height);
                     var blockMessage =

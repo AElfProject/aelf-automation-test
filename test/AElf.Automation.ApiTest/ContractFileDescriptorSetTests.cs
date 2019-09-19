@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Types;

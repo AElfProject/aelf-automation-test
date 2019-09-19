@@ -32,7 +32,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
                     new StringInput
                     {
-                        Value = NodeManager.GetPublicKeyFromAddress(account)
+                        Value = NodeManager.GetAccountPublicKey(account)
                     });
             return result;
         }
@@ -51,7 +51,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result =
                 ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringInput
                 {
-                    Value = NodeManager.GetPublicKeyFromAddress(voteAccount)
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
                 });
 
             return result;
@@ -62,7 +62,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformationWithRecords,
                 new StringInput
                 {
-                    Value = NodeManager.GetPublicKeyFromAddress(voteAccount)
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
                 });
             return result;
         }
@@ -72,7 +72,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithAllRecords,
                 new StringInput
                 {
-                    Value = NodeManager.GetPublicKeyFromAddress(voteAccount)
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
                 });
             return result;
         }

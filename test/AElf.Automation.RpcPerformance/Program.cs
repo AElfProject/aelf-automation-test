@@ -72,15 +72,15 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
+                var nodeManager = new NodeManager(performance.BaseUrl);
                 if (ExecuteMode == 0) //检测链交易和出块结果
                 {
                     Logger.Info("Check node transaction status information");
-                    var nodeManager = new NodeManager(performance.BaseUrl);
                     var nodeSummary = new ExecutionSummary(nodeManager, true);
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
-
+                
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = ConfigInfoHelper.Config.IsMainChain;
@@ -106,11 +106,6 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            var set = new CategoryInfoSet(performance.NodeManager.CommandList);
-            set.GetCategoryBasicInfo();
-            set.GetCategorySummaryInfo();
-            var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-            Logger.Info($"Xml file: {xmlFile}");
             Logger.Info($"Complete performance testing.");
         }
 

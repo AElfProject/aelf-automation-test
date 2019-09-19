@@ -10,7 +10,6 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -44,7 +43,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             for (var i = 0; i < CreateTokenNumber; i++)
             {
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
-                var createTransaction = MainChainService.TokenService.NodeManager.GenerateTransactionRawTx(
+                var createTransaction = MainChainService.TokenService.NodeManager.GenerateRawTransaction(
                     MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
                     TokenMethod.Create.ToString(), new CreateInput()
                     {

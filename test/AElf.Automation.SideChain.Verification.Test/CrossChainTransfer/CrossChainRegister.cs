@@ -99,7 +99,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         // validate
         private void ValidateMainChainTokenAddress()
         {
-            var validateTransaction = MainChainService.GenesisService.NodeManager.GenerateTransactionRawTx(
+            var validateTransaction = MainChainService.GenesisService.NodeManager.GenerateRawTransaction(
                 MainChainService.CallAddress, MainChainService.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
@@ -119,7 +119,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             foreach (var sideChainService in SideChainServices)
             {
-                var validateTransaction = sideChainService.GenesisService.NodeManager.GenerateTransactionRawTx(
+                var validateTransaction = sideChainService.GenesisService.NodeManager.GenerateRawTransaction(
                     sideChainService.CallAddress, sideChainService.GenesisService.ContractAddress,
                     GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                     {

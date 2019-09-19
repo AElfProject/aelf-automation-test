@@ -1,5 +1,4 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
 
@@ -24,9 +23,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             NodeManager = nodeManager;
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-
-            //connect chain
-            ConnectionChain();
 
             //get all contract services
             GetAllContractServices();
@@ -59,12 +55,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
-        }
-
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
         }
     }
 }

@@ -94,7 +94,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var name = $"Bp-{i + 1}";
                 var account = BpNodeAddress[i];
-                var pubKey = CH.GetPublicKeyFromAddress(account);
+                var pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
@@ -104,7 +104,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var name = $"Full-{i + 1}";
                 var account = FullNodeAddress[i];
-                var pubKey = CH.GetPublicKeyFromAddress(account);
+                var pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});

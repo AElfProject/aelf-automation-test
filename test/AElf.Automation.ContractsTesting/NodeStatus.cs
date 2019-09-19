@@ -7,7 +7,6 @@ using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -38,14 +37,6 @@ namespace AElf.Automation.ContractsTesting
         public BlockDto GetBlockInfo(long height)
         {
             return AsyncHelper.RunSync(()=>_apiService.GetBlockByHeightAsync(height));
-        }
-
-        public ChainStatusDto GetChainInformation()
-        {
-            var command = new CommandInfo(ApiMethods.GetChainInformation);
-            _nodeManager.GetChainInformation(command);
-
-            return command.InfoMsg as ChainStatusDto;
         }
 
         public void CheckConfigurationInfo()

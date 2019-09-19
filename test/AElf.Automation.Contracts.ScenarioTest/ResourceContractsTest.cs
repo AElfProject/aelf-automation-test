@@ -37,14 +37,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             NodeManager = new NodeManager(RpcUrl);
 
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
-            //Get MultiToken and TokenConverter contract address 
-
-
             //Account preparation
             AccList = new List<string>();
             for (var i = 0; i < 5; i++)

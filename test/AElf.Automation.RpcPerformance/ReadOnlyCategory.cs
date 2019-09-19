@@ -11,9 +11,9 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
-using AElfChain.SDK.Models;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -68,9 +68,7 @@ namespace AElf.Automation.RpcPerformance
             NodeManager = new NodeManager(BaseUrl, KeyStorePath);
 
             //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.ExecuteCommand(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
+            AsyncHelper.RunSync(NodeManager.ApiService.GetChainStatusAsync);
 
             //New
             NewAccounts(userCount);
@@ -263,23 +261,15 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
-                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var getBalanceInput = new GetBalanceInput
                 {
-                    ParameterInput = new GetBalanceInput
-                    {
-                        Symbol = "ELF",
-                        Owner = AddressHelper.Base58StringToAddress(account1)
-                    }
+                    Symbol = "ELF",
+                    Owner = AddressHelper.Base58StringToAddress(account1)
                 };
-                NodeManager.ExecuteCommand(ci);
-
-                if (ci.Result)
-                {
-                    var transactionResult = ci.InfoMsg as SendTransactionOutput;
-                    txIdList.Add(transactionResult?.TransactionId);
-                    passCount++;
-                }
+                var transactionId = NodeManager.SendTransaction(AccountList[threadNo].Account,
+                    Token.ContractAddress, TokenMethod.GetBalance.ToString(), getBalanceInput);
+                txIdList.Add(transactionId);
+                passCount++;
 
                 Thread.Sleep(10);
             }
@@ -293,7 +283,7 @@ namespace AElf.Automation.RpcPerformance
         {
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
 
-            var rawTransactions = new List<string>();
+            var rawTransactionList = new List<string>();
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
@@ -302,29 +292,22 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
-                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var getBalanceInput = new GetBalanceInput
                 {
-                    ParameterInput = new GetBalanceInput
-                    {
-                        Symbol = "ELF",
-                        Owner = AddressHelper.Base58StringToAddress(account1),
-                    }
+                    Symbol = "ELF",
+                    Owner = AddressHelper.Base58StringToAddress(account1),
                 };
-                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
-                rawTransactions.Add(requestInfo);
+                var requestInfo = NodeManager.GenerateRawTransaction(AccountList[threadNo].Account,
+                    Token.ContractAddress,
+                    TokenMethod.GetBalance.ToString(), getBalanceInput);
+                rawTransactionList.Add(requestInfo);
             }
 
             //Send batch transaction requests
-            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
-            {
-                Parameter = string.Join(",", rawTransactions)
-            };
-            NodeManager.ExecuteCommand(commandInfo);
-            Assert.IsTrue(commandInfo.Result);
-            var transactions = (string[]) commandInfo.InfoMsg;
-            Logger.Info("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactions.Count,
-                transactions.Length);
+            var rawTransactions = string.Join(",", rawTransactionList);
+            var transactions = NodeManager.SendTransactions(rawTransactions);
+            Logger.Info("Batch request userCount: {0}, passed transaction userCount: {1}", rawTransactionList.Count,
+                transactions.Count);
             Logger.Info("Thread [{0}] completed executed {1} times contracts work.", threadNo, times);
             Thread.Sleep(50);
         }
@@ -341,16 +324,13 @@ namespace AElf.Automation.RpcPerformance
                 var account1 = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, AccountList[threadNo].Account,
-                    Token.ContractAddress, TokenMethod.GetBalance.ToString())
+                var getBalanceInput = new GetBalanceInput
                 {
-                    ParameterInput = new GetBalanceInput
-                    {
-                        Symbol = "ELF",
-                        Owner = AddressHelper.Base58StringToAddress(account1)
-                    }
+                    Symbol = "ELF",
+                    Owner = AddressHelper.Base58StringToAddress(account1)
                 };
-                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
+                var requestInfo = NodeManager.GenerateRawTransaction(AccountList[threadNo].Account,
+                    Token.ContractAddress, TokenMethod.GetBalance.ToString(), getBalanceInput);
                 GenerateTransactionQueue.Enqueue(requestInfo);
             }
         }
@@ -359,12 +339,11 @@ namespace AElf.Automation.RpcPerformance
         {
             while (true)
             {
-                if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
+                if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
                     break;
                 Logger.Info("Transaction group: {0}, execution left: {1}", group + 1,
                     GenerateTransactionQueue.Count);
-                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
-                NodeManager.ExecuteCommand(ci);
+                NodeManager.SendTransaction(rawTransaction);
                 Thread.Sleep(100);
             }
         }

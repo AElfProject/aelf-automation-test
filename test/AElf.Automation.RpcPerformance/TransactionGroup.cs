@@ -8,8 +8,9 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElfChain.SDK;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -19,6 +20,8 @@ namespace AElf.Automation.RpcPerformance
         private List<ContractInfo> Contracts { get; }
 
         private INodeManager NodeManager { get; }
+
+        private IApiService ApiService => NodeManager.ApiService;
         private ConcurrentQueue<List<string>> TransactionsQueue { get; }
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
@@ -47,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         NodeMonitor.CheckTransactionPoolStatus(true);
                         count++;
-                        var rawTx = NodeManager.GenerateTransactionRawTx(contract.Owner, contract.ContractPath,
+                        var rawTx = NodeManager.GenerateRawTransaction(contract.Owner, contract.ContractPath,
                             TokenMethod.Transfer.ToString(),
                             new TransferInput
                             {
@@ -60,13 +63,8 @@ namespace AElf.Automation.RpcPerformance
                         user.Balance = 10000;
 
                         if (count % 50 != 0) continue;
-                        var ci = new CommandInfo(ApiMethods.SendTransactions)
-                        {
-                            Parameter = string.Join(",", rawTransactions)
-                        };
-                        NodeManager.ExecuteCommand(ci);
-                        Assert.IsTrue(ci.Result);
-                        var transactions = (string[]) ci.InfoMsg;
+                        var rawTxs = string.Join(",", rawTransactions);
+                        var transactions = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(rawTxs));
                         NodeMonitor.CheckTransactionsStatus(transactions.ToList());
                         Logger.Info("Batch request count: {0}, passed transaction count: {1}",
                             rawTransactions.Count,
@@ -133,17 +131,14 @@ namespace AElf.Automation.RpcPerformance
 
                     from.Balance -= amount;
                     to.Balance += amount;
-                    var bt = new CommandInfo(ApiMethods.SendTransaction, from.Account, contractAddress, "Transfer")
+                    var input = new TransferInput
                     {
-                        ParameterInput = new TransferInput
-                        {
-                            Symbol = symbol,
-                            To = AddressHelper.Base58StringToAddress(to.Account),
-                            Amount = (i + 1) % 4 + 1,
-                            Memo = $"transfer test - {Guid.NewGuid()}"
-                        }
+                        Symbol = symbol,
+                        To = AddressHelper.Base58StringToAddress(to.Account),
+                        Amount = (i + 1) % 4 + 1,
+                        Memo = $"transfer test - {Guid.NewGuid()}"
                     };
-                    var rawTx = NodeManager.GenerateTransactionRawTx(bt);
+                    var rawTx = NodeManager.GenerateRawTransaction(from.Account, contractAddress, "Transfer", input);
                     rawTransactions.Add(rawTx);
                 }
 

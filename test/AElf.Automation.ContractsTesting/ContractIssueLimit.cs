@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using log4net;

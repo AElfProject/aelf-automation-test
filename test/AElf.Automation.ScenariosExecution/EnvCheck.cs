@@ -147,12 +147,12 @@ namespace AElf.Automation.ScenariosExecution
         {
             _config.BpNodes.ForEach(node =>
             {
-                node.PublicKey = manager.GetPublicKeyFromAddress(node.Account, node.Password);
+                node.PublicKey = manager.GetAccountPublicKey(node.Account, node.Password);
                 Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
             _config.FullNodes.ForEach(node =>
             {
-                node.PublicKey = manager.GetPublicKeyFromAddress(node.Account, node.Password);
+                node.PublicKey = manager.GetAccountPublicKey(node.Account, node.Password);
                 Logger.Info($"Node: {node.Name}, PublicKey: {node.PublicKey}");
             });
         }

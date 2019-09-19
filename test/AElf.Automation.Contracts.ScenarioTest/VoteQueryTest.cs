@@ -45,11 +45,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             UserList = new List<string>();
             CH = new NodeManager(RpcUrl);
 
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.GetChainInformation(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
             //Get FullNode Info
             FullNodeAccounts = new List<string>();
             FullNodeAccounts.Add("ELF_26cUpeiNb6q4DdFFEXTiPgWcifxtwEMsqshKHWGeYxaJkT1");

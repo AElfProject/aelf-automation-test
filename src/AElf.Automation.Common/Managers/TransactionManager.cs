@@ -70,18 +70,6 @@ namespace AElf.Automation.Common.Managers
         {
             return tx.ToByteArray().ToHex();
         }
-
-        public Transaction ConvertFromCommandInfo(CommandInfo commandInfo)
-        {
-            var tr = new Transaction
-            {
-                From = AddressHelper.Base58StringToAddress(commandInfo.From),
-                To = AddressHelper.Base58StringToAddress(commandInfo.To),
-                MethodName = commandInfo.ContractMethod
-            };
-
-            return tr;
-        }
     }
 
     public static class BlockMarkingHelper

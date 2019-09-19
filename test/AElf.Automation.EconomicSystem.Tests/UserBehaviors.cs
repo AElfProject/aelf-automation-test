@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
@@ -29,7 +28,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
-                CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
+                CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
                 Amount = amount,
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
@@ -54,7 +53,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 var txId = ElectionService.ExecuteMethodWithTxId(ElectionMethod.Vote, new VoteMinerInput
                 {
-                    CandidatePubkey = NodeManager.GetPublicKeyFromAddress(candidate),
+                    CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
                     Amount = i,
                     EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
                 });

@@ -89,7 +89,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var count = 1;
             foreach (var key in keyList)
             {
-                var publicKey = CH.GetPublicKeyFromAddress(key);
+                var publicKey = CH.GetAccountPublicKey(key);
                 _logger.Info($"{count:00} {key} {publicKey}");
                 count++;
             }
