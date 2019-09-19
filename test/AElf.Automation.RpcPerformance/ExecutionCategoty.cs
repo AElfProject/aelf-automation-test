@@ -79,7 +79,7 @@ namespace AElf.Automation.RpcPerformance
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
             
-            if (ConfigInfoHelper.Config.IsMainChain)
+            if (ConfigInfoHelper.Config.ChainTypeInfo.IsMainChain)
                 //Prepare basic token for test - Disable now
                 TransferTokenFromBp();
             else
@@ -633,7 +633,7 @@ namespace AElf.Automation.RpcPerformance
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
                 var token = genesis.GetTokenContract();
                 var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
-                var symbol = chainType.IsMainChain ? "ELF" : chainType.TokenSymbol;
+                var symbol = chainType.TokenSymbol;
 
                 for (var i = 0; i < ThreadCount; i++)
                 {
@@ -654,13 +654,13 @@ namespace AElf.Automation.RpcPerformance
                 var nodeConfig = NodeInfoHelper.Config;
                 var config = ConfigInfoHelper.Config;
                 var account = nodeConfig.Nodes.First().Account;
-                var sideChainTokenSymbol = config.SideChainTokenSymbol;
+                var sideChainTokenSymbol = config.ChainTypeInfo.TokenSymbol;
                 var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                SystemToken = genesis.GetTokenContract();
+                var systemToken = genesis.GetTokenContract();
                 
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    SystemToken.IssueBalance(account, AccountList[i].Account, 10000,sideChainTokenSymbol);
+                    systemToken.IssueBalance(account, AccountList[i].Account, 10000,sideChainTokenSymbol);
                 }
 
                 var nodes = nodeConfig.Nodes;
@@ -668,7 +668,7 @@ namespace AElf.Automation.RpcPerformance
                 foreach (var node in nodes)
                 {
                     if (node.Account == account) continue;
-                    SystemToken.IssueBalance(account, node.Account, 10000,sideChainTokenSymbol);
+                    systemToken.IssueBalance(account, node.Account, 10000,sideChainTokenSymbol);
                 }
             }
             catch (Exception e)
@@ -682,7 +682,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var nodeConfig = NodeInfoHelper.Config;
             var config = ConfigInfoHelper.Config;
-            return config.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
+            return config.ChainTypeInfo.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion

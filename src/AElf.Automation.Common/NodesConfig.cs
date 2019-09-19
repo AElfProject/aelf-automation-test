@@ -20,6 +20,8 @@ namespace AElf.Automation.Common
     {
         [JsonProperty("RequireAuthority")] public bool RequireAuthority { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
+        [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
+        
         public void CheckNodesAccount()
         {
             var keyStore = AElfKeyStore.GetKeyStore();

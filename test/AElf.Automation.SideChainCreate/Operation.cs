@@ -41,7 +41,7 @@ namespace AElf.Automation.SideChainCreate
         public void ApproveToken(long amount)
         {
             //token approve
-            TokenService.SetAccount(InitAccount); 
+            TokenService.SetAccount(InitAccount,Password); 
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput
                 {
@@ -63,7 +63,7 @@ namespace AElf.Automation.SideChainCreate
                 IsPrivilegePreserved = isPrivilegePreserved,
                 SideChainTokenInfo = tokenInfo
             };
-            ParliamentService.SetAccount(InitAccount);
+            ParliamentService.SetAccount(InitAccount,Password);
             var result =
                 ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     new CreateProposalInput
@@ -83,7 +83,7 @@ namespace AElf.Automation.SideChainCreate
             var miners = GetMiners();
             foreach (var miner in miners)
             {
-                ParliamentService.SetAccount(miner.GetFormatted());
+                ParliamentService.SetAccount(miner.GetFormatted(),"123");
                 var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
@@ -93,7 +93,7 @@ namespace AElf.Automation.SideChainCreate
 
         public int ReleaseProposal(string proposalId)
         {
-            ParliamentService.SetAccount(InitAccount);
+            ParliamentService.SetAccount(InitAccount,Password);
             var result
                 = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
             var creationRequested = result.Logs[0].NonIndexed;
@@ -132,7 +132,7 @@ namespace AElf.Automation.SideChainCreate
 
         private Address GetGenesisOwnerAddress()
         {
-            ParliamentService.SetAccount(InitAccount);
+            ParliamentService.SetAccount(InitAccount,Password);
             var address =
                 ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
 
