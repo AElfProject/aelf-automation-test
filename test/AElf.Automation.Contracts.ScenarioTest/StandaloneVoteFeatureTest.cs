@@ -47,11 +47,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             UserList = new List<string>();
             CH = new NodeManager(RpcUrl);
 
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.GetChainInformation(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
             //Get BpNode Info
             BpNodeAccounts = new List<string>();
             BpNodeAccounts.Add("ELF_36MNPfQt6KZJaRHKjjoMMxwuPffTSKjgve2RuBxpLHmCjVm");
@@ -62,7 +57,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 string name = $"Bp-{i + 1}";
                 string account = BpNodeAccounts[i];
-                string pubKey = CH.GetPublicKeyFromAddress(account);
+                string pubKey = CH.GetAccountPublicKey(account);
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -119,7 +114,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.Info($"Account: {bpAcc}\nPubKey:{NodeManager.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{NodeManager.GetAccountPublicKey(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)

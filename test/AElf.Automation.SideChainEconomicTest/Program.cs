@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
 
 namespace AElf.Automation.SideChainEconomicTest

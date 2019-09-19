@@ -59,11 +59,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             UserList = new List<string>();
             CH = new NodeManager(RpcUrl);
 
-            //Connect Chain
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            CH.GetChainInformation(ci);
-            Assert.IsTrue(ci.Result, "Connect chain got exception.");
-
             //Get FullNode Info
             FullNodeAccounts = new List<string>();
             FullNodeAccounts.Add("4KTaV1zZSCx4tKiEreqBEsB9DJoU2LqwRugcjowQpeX6YhM");
@@ -83,7 +78,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 string name = $"Bp-{i + 1}";
                 string account = BpNodeAccounts[i];
-                string pubKey = CH.GetPublicKeyFromAddress(account);
+                string pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
@@ -93,7 +88,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 string name = $"Full-{i + 1}";
                 string account = FullNodeAccounts[i];
-                string pubKey = CH.GetPublicKeyFromAddress(account);
+                string pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
@@ -188,7 +183,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("ELF_6HC6tx7kPguUhCFWeoVQfEJiv5Tfw4itrEgMPNT5ujsV2Vz")]
         public void QueryPublicKey(string account, string password="")
         {
-            var pubKey = CH.GetPublicKeyFromAddress(account, password);
+            var pubKey = CH.GetAccountPublicKey(account, password);
             Logger.Info($"PubKey: {pubKey}");
         }
 
@@ -201,7 +196,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Allowance token to FullNode accounts");
             foreach (var fullAcc in FullNodeAccounts)
             {
-                Logger.Info($"Account: {fullAcc}\nPubKey:{CH.GetPublicKeyFromAddress(fullAcc)}");
+                Logger.Info($"Account: {fullAcc}\nPubKey:{CH.GetAccountPublicKey(fullAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(fullAcc),
@@ -221,7 +216,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.Info($"Account: {bpAcc}\nPubKey:{CH.GetPublicKeyFromAddress(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{CH.GetAccountPublicKey(bpAcc)}");
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(bpAcc),

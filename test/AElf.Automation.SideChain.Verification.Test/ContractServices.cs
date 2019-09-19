@@ -1,8 +1,6 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChain.Verification
 {
@@ -50,12 +48,6 @@ namespace AElf.Automation.SideChain.Verification
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
             ConsensusService = new ConsensusContract(NodeManager,CallAddress,consensusAddress.GetFormatted());
-        }
-
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
         }
     }
 }

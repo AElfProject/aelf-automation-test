@@ -4,7 +4,6 @@ using System.Threading;
 using Acs7;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
@@ -79,21 +78,10 @@ namespace AElf.Automation.SideChain.Verification
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
-            var ci = new CommandInfo(ApiMethods.SendTransaction)
-            {
-                Parameter = rawTx
-            };
-            services.NodeManager.BroadcastWithRawTx(ci);
-            if (ci.Result)
-            {
-                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+            var transactionOutput =
+                AsyncHelper.RunSync(() => services.NodeManager.ApiService.SendTransactionAsync(rawTx));
 
-                return transactionOutput?.TransactionId;
-            }
-
-            Assert.IsTrue(ci.Result, $"Execute contract failed. Reason: {ci.GetErrorMessage()}");
-
-            return string.Empty;
+            return transactionOutput.TransactionId;
         }
 
         protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
@@ -213,7 +201,7 @@ namespace AElf.Automation.SideChain.Verification
                 ToChainId = toChainId,
             };
             // execute cross chain transfer
-            var rawTx = services.NodeManager.GenerateTransactionRawTx(fromAccount,
+            var rawTx = services.NodeManager.GenerateRawTransaction(fromAccount,
                 services.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             Logger.Info($"Transaction rawTx is: {rawTx}");
@@ -254,7 +242,7 @@ namespace AElf.Automation.SideChain.Verification
                 ToChainId = toChainId,
             };
             // execute cross chain transfer
-            var rawTx = services.NodeManager.GenerateTransactionRawTx(fromAccount,
+            var rawTx = services.NodeManager.GenerateRawTransaction(fromAccount,
                 services.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             var txId = ExecuteMethodWithTxId(services, rawTx);

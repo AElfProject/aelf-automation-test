@@ -50,7 +50,7 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
                     new StringInput
                     {
-                        Value = NodeManager.GetPublicKeyFromAddress(account)
+                        Value = NodeManager.GetAccountPublicKey(account)
                     });
             return result;
         }

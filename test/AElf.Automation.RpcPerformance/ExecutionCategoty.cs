@@ -20,7 +20,6 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -29,7 +28,7 @@ namespace AElf.Automation.RpcPerformance
         #region Public Property
 
         public INodeManager NodeManager { get; private set; }
-        public IApiService ApiService => NodeManager.ApiService;        
+        public IApiService ApiService => NodeManager.ApiService;
         private ExecutionSummary Summary { get; set; }
         private TransactionGroup Group { get; set; }
         private NodeStatusMonitor Monitor { get; set; }
@@ -59,7 +58,7 @@ namespace AElf.Automation.RpcPerformance
             ContractList = new List<ContractInfo>();
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
-            
+
             ThreadCount = threadCount;
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
@@ -101,15 +100,7 @@ namespace AElf.Automation.RpcPerformance
                 info.Id = i;
                 info.Account = AccountList[i].Account;
 
-                var ci = new CommandInfo(ApiMethods.DeploySmartContract)
-                {
-                    Parameter = $"AElf.Contracts.MultiToken {AccountList[i].Account}"
-                };
-                NodeManager.ExecuteCommand(ci);
-                Assert.IsTrue(ci.Result);
-                var transactionResult = ci.InfoMsg as SendTransactionOutput;
-                var txId = transactionResult?.TransactionId;
-                Assert.IsFalse(string.IsNullOrEmpty(txId), "Transaction Id is null or empty");
+                var txId = NodeManager.DeployContract(AccountList[i].Account, "AElf.Contracts.MultiToken");
                 info.TxId = txId;
                 info.Result = false;
                 contractList.Add(info);
@@ -126,7 +117,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     if (item.Result != false) continue;
                     string txId = item.TxId;
-                    var transactionResult = AsyncHelper.RunSync(()=>ApiService.GetTransactionResultAsync(txId));
+                    var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
                     var status = transactionResult.Status.ConvertTransactionResultStatus();
                     switch (status)
                     {
@@ -197,7 +188,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractPath;
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
-                
+
                 var token = new TokenContract(NodeManager, account, contractPath);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
@@ -210,6 +201,7 @@ namespace AElf.Automation.RpcPerformance
                 });
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
@@ -218,7 +210,7 @@ namespace AElf.Automation.RpcPerformance
                 var account = contract.Owner;
                 var contractPath = contract.ContractPath;
                 var symbol = contract.Symbol;
-                
+
                 var token = new TokenContract(NodeManager, account, contractPath);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput()
                 {
@@ -229,6 +221,7 @@ namespace AElf.Automation.RpcPerformance
                 });
                 TxIdList.Add(transactionId);
             }
+
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //prepare conflict environment
@@ -415,24 +408,16 @@ namespace AElf.Automation.RpcPerformance
                 var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, account, abiPath, "Transfer")
+                var transferInput = new TransferInput
                 {
-                    ParameterInput = new TransferInput
-                    {
-                        Symbol = ContractList[threadNo].Symbol,
-                        Amount = (i + 1) % 4 + 1,
-                        Memo = $"transfer test - {Guid.NewGuid()}",
-                        To = AddressHelper.Base58StringToAddress(toAccount)
-                    }
+                    Symbol = ContractList[threadNo].Symbol,
+                    Amount = (i + 1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}",
+                    To = AddressHelper.Base58StringToAddress(toAccount)
                 };
-                NodeManager.ExecuteCommand(ci);
-
-                if (ci.Result)
-                {
-                    var transactionResult = ci.InfoMsg as SendTransactionOutput;
-                    txIdList.Add(transactionResult?.TransactionId);
-                    passCount++;
-                }
+                var transactionId = NodeManager.SendTransaction(account, abiPath, "Transfer", transferInput);
+                txIdList.Add(transactionId);
+                passCount++;
 
                 Thread.Sleep(10);
             }
@@ -450,7 +435,7 @@ namespace AElf.Automation.RpcPerformance
 
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
 
-            var rawTransactions = new List<string>();
+            var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             for (var i = 0; i < times; i++)
@@ -460,34 +445,30 @@ namespace AElf.Automation.RpcPerformance
                 var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
+                var transferInput = new TransferInput
                 {
-                    ParameterInput = new TransferInput
-                    {
-                        Symbol = ContractList[threadNo].Symbol,
-                        To = AddressHelper.Base58StringToAddress(toAccount),
-                        Amount = (i + 1) % 4 + 1,
-                        Memo = $"transfer test - {Guid.NewGuid()}"
-                    }
+                    Symbol = ContractList[threadNo].Symbol,
+                    To = AddressHelper.Base58StringToAddress(toAccount),
+                    Amount = (i + 1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
                 };
-                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
-                rawTransactions.Add(requestInfo);
+                var requestInfo =
+                    NodeManager.GenerateRawTransaction(account, contractPath, TokenMethod.Transfer.ToString(),
+                        transferInput);
+                rawTransactionList.Add(requestInfo);
             }
+
             stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
 
             //Send batch transaction requests
             stopwatch.Restart();
-            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
-            {
-                Parameter = string.Join(",", rawTransactions)
-            };
-            NodeManager.ExecuteCommand(commandInfo);
+            var rawTransactions = string.Join(",", rawTransactionList);
+            NodeManager.SendTransactions(rawTransactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
-            
-            Assert.IsTrue(commandInfo.Result);
-            Logger.Info($"Thread {threadNo} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+            Logger.Info(
+                $"Thread {threadNo} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
             Thread.Sleep(10);
         }
 
@@ -496,22 +477,18 @@ namespace AElf.Automation.RpcPerformance
             Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var rawTransactions = Group.GetRawTransactions();
+            var rawTransactionList = Group.GetRawTransactions();
             stopwatch.Stop();
             var generateRawInfoTime = stopwatch.ElapsedMilliseconds;
-            
+
             //Send batch transaction requests
             stopwatch.Restart();
-            var commandInfo = new CommandInfo(ApiMethods.SendTransactions)
-            {
-                Parameter = string.Join(",", rawTransactions)
-            };
-            NodeManager.ExecuteCommand(commandInfo);
+            var rawTransactions = string.Join(",", rawTransactionList);
+            NodeManager.SendTransactions(rawTransactions);
             stopwatch.Stop();
             var requestTime = stopwatch.ElapsedMilliseconds;
-            
-            Assert.IsTrue(commandInfo.Result);
-            Logger.Info($"Thread {threadNo} send transactions: {times}, generate time: {generateRawInfoTime}ms, execute time: {requestTime}ms");
+            Logger.Info(
+                $"Thread {threadNo} send transactions: {times}, generate time: {generateRawInfoTime}ms, execute time: {requestTime}ms");
             Thread.Sleep(50);
         }
 
@@ -529,17 +506,15 @@ namespace AElf.Automation.RpcPerformance
                 var toAccount = AccountList[countNo].Account;
 
                 //Execute Transfer
-                var ci = new CommandInfo(ApiMethods.SendTransaction, account, contractPath, "Transfer")
+                var transferInput = new TransferInput
                 {
-                    ParameterInput = new TransferInput
-                    {
-                        Symbol = ContractList[threadNo].Symbol,
-                        To = AddressHelper.Base58StringToAddress(toAccount),
-                        Amount = (i + 1) % 4 + 1,
-                        Memo = $"transfer test - {Guid.NewGuid()}"
-                    }
+                    Symbol = ContractList[threadNo].Symbol,
+                    To = AddressHelper.Base58StringToAddress(toAccount),
+                    Amount = (i + 1) % 4 + 1,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
                 };
-                var requestInfo = NodeManager.GenerateTransactionRawTx(ci);
+                var requestInfo = NodeManager.GenerateRawTransaction(account, contractPath,
+                    TokenMethod.Transfer.ToString(), transferInput);
                 GenerateTransactionQueue.Enqueue(requestInfo);
             }
         }
@@ -548,14 +523,12 @@ namespace AElf.Automation.RpcPerformance
         {
             while (true)
             {
-                if (!GenerateTransactionQueue.TryDequeue(out var rpcMsg))
+                if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
                     break;
 
-                var ci = new CommandInfo(ApiMethods.SendTransaction) {Parameter = rpcMsg};
-                NodeManager.BroadcastWithRawTx(ci);
-                var transactionOutput = ci.InfoMsg as SendTransactionOutput;
+                var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
                 Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
-                    GenerateTransactionQueue.Count, transactionOutput?.TransactionId);
+                    GenerateTransactionQueue.Count, transactionOutput.TransactionId);
                 Thread.Sleep(10);
             }
         }
@@ -645,7 +618,7 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
         }
-        
+
         private void TransferTokenFromBp(bool enable)
         {
             if (!enable) return;
@@ -656,7 +629,7 @@ namespace AElf.Automation.RpcPerformance
                 var token = genesis.GetTokenContract();
                 var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
                 var symbol = chainType.IsMainChain ? "ELF" : chainType.TokenSymbol;
-                
+
                 for (var i = 0; i < ThreadCount; i++)
                 {
                     token.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000, symbol);

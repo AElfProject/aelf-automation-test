@@ -4,16 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -53,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         NodeMonitor.CheckTransactionPoolStatus(true);
                         count++;
-                        var rawTx = NodeManager.GenerateTransactionRawTx(contract.Owner, contract.ContractPath,
+                        var rawTx = NodeManager.GenerateRawTransaction(contract.Owner, contract.ContractPath,
                             TokenMethod.Transfer.ToString(),
                             new TransferInput
                             {
@@ -141,7 +138,7 @@ namespace AElf.Automation.RpcPerformance
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     };
-                    var rawTx = NodeManager.GenerateTransactionRawTx(from.Account, contractAddress, "Transfer", input);
+                    var rawTx = NodeManager.GenerateRawTransaction(from.Account, contractAddress, "Transfer", input);
                     rawTransactions.Add(rawTx);
                 }
 

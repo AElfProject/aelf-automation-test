@@ -1,10 +1,7 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
 using Google.Protobuf;
-using log4net.Repository.Hierarchy;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.ProposalTest
 {
@@ -28,9 +25,6 @@ namespace AElf.Automation.ProposalTest
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             NodeManager.UnlockAccount(CallAddress, password);
 
-            //connect chain
-            ConnectionChain();
-
             //get all contract services
             GetContractServices();
         }
@@ -52,12 +46,6 @@ namespace AElf.Automation.ProposalTest
             GetOrDeployReferendumContract();
         }
 
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
-        }
-        
         private void GetOrDeployAssociationContract()
         {
             var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssociationName).Value;

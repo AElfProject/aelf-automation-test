@@ -1,8 +1,6 @@
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -50,12 +48,6 @@ namespace AElf.Automation.SideChainTests
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
             ParliamentService =
                 new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
-        }
-
-        private void ConnectionChain()
-        {
-            var ci = new CommandInfo(ApiMethods.GetChainInformation);
-            NodeManager.GetChainInformation(ci);
         }
     }
 }

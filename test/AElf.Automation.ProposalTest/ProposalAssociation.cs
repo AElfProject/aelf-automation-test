@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Acs3;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.MultiToken;
@@ -12,7 +11,6 @@ using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.ProposalTest

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -107,11 +106,6 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            var set = new CategoryInfoSet(performance.NodeManager.CommandList);
-            set.GetCategoryBasicInfo();
-            set.GetCategorySummaryInfo();
-            var xmlFile = set.SaveTestResultXml(performance.ThreadCount, performance.ExeTimes);
-            Logger.Info($"Xml file: {xmlFile}");
             Logger.Info($"Complete performance testing.");
         }
 

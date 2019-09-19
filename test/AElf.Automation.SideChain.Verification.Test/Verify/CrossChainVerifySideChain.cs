@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
 using AElf.Contracts.CrossChain;
-using AElfChain.SDK.Models;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify

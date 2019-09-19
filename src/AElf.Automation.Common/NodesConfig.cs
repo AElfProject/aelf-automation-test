@@ -56,7 +56,7 @@ namespace AElf.Automation.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-sidechain.json");
 
         public static NodesInfo Config => GetConfigInfo();
 

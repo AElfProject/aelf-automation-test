@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
@@ -21,7 +23,6 @@ namespace AElf.Automation.Common.Managers
 
             ApiService = AElfChainClient.GetClient(baseUrl);
             _chainId = GetChainId();
-            CommandList = new List<CommandInfo>();
         }
 
         public string GetApiUrl()
@@ -44,13 +45,10 @@ namespace AElf.Automation.Common.Managers
                 return _chainId;
 
             var chainStatus = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-
             _chainId = chainStatus.ChainId;
 
             return _chainId;
         }
-
-        public IApiService ApiService { get; set; }
 
         public string GetGenesisContractAddress()
         {
@@ -58,36 +56,8 @@ namespace AElf.Automation.Common.Managers
 
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
+            
             return _genesisAddress;
-        }
-
-        public CommandInfo ExecuteCommand(CommandInfo ci)
-        {
-            switch (ci.Method)
-            {
-                case ApiMethods.GetChainInformation:
-                    GetChainInformation(ci);
-                    break;
-                case ApiMethods.DeploySmartContract:
-                    DeployContract(ci);
-                    break;
-                case ApiMethods.SendTransaction:
-                    BroadcastTx(ci);
-                    break;
-                case ApiMethods.SendTransactions:
-                    BroadcastTxs(ci);
-                    break;
-                default:
-                    Logger.Error("Invalid command.");
-                    break;
-            }
-
-            ci.PrintResultMessage();
-
-            if (!ci.Result) //analyze failed result
-                CommandList.Add(ci);
-
-            return ci;
         }
 
         private string CallTransaction(Transaction tx)
@@ -127,7 +97,7 @@ namespace AElf.Automation.Common.Managers
 
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
-        public List<CommandInfo> CommandList { get; set; }
+        public IApiService ApiService { get; set; }
 
         #endregion
 
@@ -147,11 +117,17 @@ namespace AElf.Automation.Common.Managers
                 retry++;
                 var randomId = CommonHelper.GenerateRandomNumber(0, accounts.Count);
                 var result = AccountManager.UnlockAccount(accounts[randomId]);
-                if(!result) continue;
+                if (!result) continue;
 
                 return accounts[randomId];
             }
+
             throw new Exception("Cannot got account with default password.");
+        }
+
+        public string GetAccountPublicKey(string account, string password = "")
+        {
+            return AccountManager.GetPublicKey(account, password);
         }
 
         public List<string> ListAccounts()
@@ -168,24 +144,8 @@ namespace AElf.Automation.Common.Managers
 
         #region Web request methods
 
-        public void GetChainInformation(CommandInfo ci)
+        public string DeployContract(string from, string filename)
         {
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            _genesisAddress = statusDto.GenesisContractAddress;
-            _chainId = statusDto.ChainId;
-
-            ci.InfoMsg = statusDto;
-            ci.Result = true;
-        }
-
-        public void DeployContract(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(2))
-                return;
-            var parameterArray = ci.Parameter.Split(' ');
-            var filename = parameterArray[0];
-            var from = parameterArray[1];
-
             // Read sc bytes
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(filename);
@@ -196,65 +156,38 @@ namespace AElf.Automation.Common.Managers
             };
 
             var tx = TransactionManager.CreateTransaction(from, GenesisAddress,
-                ci.Cmd, input.ToByteString());
+                GenesisMethod.DeploySmartContract.ToString(), input.ToByteString());
             tx = tx.AddBlockReference(_baseUrl, _chainId);
-
-            if (tx == null)
-                return;
             tx = TransactionManager.SignTransaction(tx);
-            if (tx == null)
-                return;
-
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
             var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
 
-            ci.InfoMsg = transactionOutput;
-            ci.Result = true;
+            return transactionOutput.TransactionId;
         }
 
-        public void BroadcastTx(CommandInfo ci)
+        public string SendTransaction(string from, string to, string methodName, IMessage inputParameter)
         {
-            var tr = TransactionManager.ConvertFromCommandInfo(ci);
+            var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
 
-            var parameter = ci.ParameterInput.ToByteString();
-            tr.Params = parameter == null ? ByteString.Empty : parameter;
-            tr = tr.AddBlockReference(_baseUrl, _chainId);
-            TransactionManager.SignTransaction(tr);
-
-            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tr);
-
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
-            ci.Result = true;
+            return transactionOutput.TransactionId;
         }
 
-        public void BroadcastWithRawTx(CommandInfo ci)
+        public string SendTransaction(string rawTransaction)
         {
-            if (!ci.CheckParameterValid(1))
-                return;
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(ci.Parameter));
-            ci.Result = true;
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
+
+            return transactionOutput.TransactionId;
         }
 
-        public string GenerateTransactionRawTx(CommandInfo ci)
+        public List<string> SendTransactions(string rawTransactions)
         {
-            var tr = TransactionManager.ConvertFromCommandInfo(ci);
+            var transactions = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(rawTransactions));
 
-            if (tr.MethodName == null)
-            {
-                ci.ErrorMsg = "Method not found.";
-                return string.Empty;
-            }
-
-            var parameter = ci.ParameterInput.ToByteString();
-            tr.Params = parameter == null ? ByteString.Empty : parameter;
-            tr = tr.AddBlockReference(_baseUrl, _chainId);
-
-            TransactionManager.SignTransaction(tr);
-
-            return tr.ToByteArray().ToHex();
+            return transactions.ToList();
         }
 
-        public string GenerateTransactionRawTx(string from, string to, string methodName, IMessage inputParameter)
+        public string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter)
         {
             var tr = new Transaction
             {
@@ -275,15 +208,6 @@ namespace AElf.Automation.Common.Managers
             TransactionManager.SignTransaction(tr);
 
             return tr.ToByteArray().ToHex();
-        }
-
-        public void BroadcastTxs(CommandInfo ci)
-        {
-            if (!ci.CheckParameterValid(1))
-                return;
-
-            ci.InfoMsg = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(ci.Parameter));
-            ci.Result = true;
         }
 
         public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)
@@ -311,11 +235,6 @@ namespace AElf.Automation.Common.Managers
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);
-        }
-
-        public string GetPublicKeyFromAddress(string account, string password = "")
-        {
-            return AccountManager.GetPublicKey(account, password);
         }
 
         //Net Api

@@ -6,7 +6,6 @@ using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
-using Newtonsoft.Json;
 
 namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {

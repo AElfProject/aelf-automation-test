@@ -11,7 +11,6 @@ using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -307,27 +306,16 @@ namespace AElf.Automation.Common.Contracts
             }
 
             Logger.Info("Deploy contract without authority mode.");
-            var ci = new CommandInfo(ApiMethods.DeploySmartContract)
-            {
-                Parameter = $"{FileName} {CallAddress}"
-            };
-            NodeManager.DeployContract(ci);
-            if (ci.Result)
-                if (ci.InfoMsg is SendTransactionOutput transactionOutput)
-                {
-                    var txId = transactionOutput.TransactionId;
-                    Logger.Info($"Transaction: DeploySmartContract, TxId: {txId}");
+            var txId = NodeManager.DeployContract(CallAddress, FileName);
+            Logger.Info($"Transaction: DeploySmartContract, TxId: {txId}");
 
-                    var result = GetContractAddress(txId, out _);
-                    Assert.IsTrue(result, "Get contract address failed.");
-                }
-
-            Assert.IsTrue(ci.Result, $"Deploy contract failed. Reason: {ci.GetErrorMessage()}");
+            var result = GetContractAddress(txId, out _);
+            Assert.IsTrue(result, "Get contract address failed.");
         }
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
-            return NodeManager.GenerateTransactionRawTx(CallAddress, ContractAddress, method, inputParameter);
+            return NodeManager.GenerateRawTransaction(CallAddress, ContractAddress, method, inputParameter);
         }
 
         private bool GetContractAddress(string txId, out string contractAddress)

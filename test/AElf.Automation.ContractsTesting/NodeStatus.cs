@@ -7,7 +7,6 @@ using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Volo.Abp.Threading;
-using ApiMethods = AElf.Automation.Common.Managers.ApiMethods;
 
 namespace AElf.Automation.ContractsTesting
 {

@@ -26,7 +26,8 @@ namespace AElf.Automation.Common.Contracts
         GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
-        GetSmartContractRegistrationByAddress
+        GetSmartContractRegistrationByAddress,
+        GetDeployedContractAddressList
     }
 
     public enum NameProvider

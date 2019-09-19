@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private INodeManager NodeManager { get; }
         private long BlockHeight { get; set; } = 1;
-        public static int MaxLimit { get; set; }
+        public static int MaxLimit { private get; set; }
 
         public NodeStatusMonitor(INodeManager nodeManager)
         {

@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using AElf.Automation.Common.Managers;
-using Google.Protobuf;
 using log4net;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.Helpers
@@ -14,90 +11,17 @@ namespace AElf.Automation.Common.Helpers
     {
         private readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public CommandInfo()
-        {
-        }
-
-        public CommandInfo(string cmd, string category = "")
-        {
-            Category = category == "" ? cmd : category;
-            Cmd = cmd;
-            Parameter = string.Empty;
-            Result = false;
-        }
-
-        public CommandInfo(ApiMethods method, string from, string to, string contractMethod)
-        {
-            Category = method.ToString();
-            Cmd = method.ToString();
-            Method = method;
-            From = from;
-            To = to;
-            ContractMethod = contractMethod;
-            Result = false;
-        }
-
-        public CommandInfo(ApiMethods method, params object[] objects)
-        {
-            Category = method.ToString();
-            Cmd = method.ToString();
-            Method = method;
-            foreach (var parameter in objects) Parameter += parameter + " ";
-
-            Parameter = Parameter?.Trim();
-            Result = false;
-        }
-
         public string Category { get; set; }
         public string Cmd { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public IMessage ParameterInput { get; set; }
         public string Parameter { get; set; }
-        public ApiMethods Method { get; set; }
         public string ContractMethod { get; set; }
 
         public bool Result { get; set; }
         public JObject JsonInfo { get; set; }
         public object InfoMsg { get; set; }
         public object ErrorMsg { get; set; }
-
-        public void GetJsonInfo()
-        {
-            JsonInfo = JsonConvert.DeserializeObject<JObject>(Result ? InfoMsg.ToString() : ErrorMsg.ToString());
-        }
-
-        public void PrintResultMessage()
-        {
-            if (Result)
-            {
-                Logger.Info("Request: {0}: Result: {1}", Category, "Pass");
-                Logger.Info(JsonConvert.SerializeObject(InfoMsg));
-            }
-            else
-            {
-                Logger.Error("Request: {0}: Result: {1}", Category, "Failed");
-                Logger.Error(JsonConvert.SerializeObject(ErrorMsg));
-            }
-        }
-
-        public string GetErrorMessage()
-        {
-            return ErrorMsg != null ? ErrorMsg.ToString() : string.Empty;
-        }
-
-        public bool CheckParameterValid(int count)
-        {
-            if (count == 1 && Parameter.Trim() == "")
-                return false;
-
-            var paraArray = Parameter.Split(" ");
-            if (paraArray.Length == count) return true;
-
-            ErrorMsg = "Parameter error.";
-            Logger.Error("{0} command parameter is invalid.", Category);
-            return false;
-        }
     }
 
     public class CategoryRequest
