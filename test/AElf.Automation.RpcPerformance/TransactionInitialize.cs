@@ -53,13 +53,12 @@ namespace AElf.Automation.RpcPerformance
         public void TokenPreparation(IEnumerable<AccountInfo> testUsers)
         {
             var bpInfos = NodeInfoHelper.Config.Nodes;
-            var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
             var tokenAddress = _genesis.GetContractAddressByName(NameProvider.TokenName);
             if(tokenAddress == new Address())
                 throw new Exception("Token was not deployed.");
             
             var bpTester = new TokenContract(_nodeManager, bpInfos.First().Account, tokenAddress.GetFormatted());
-            var tokenSymbol = chainType.IsMainChain ? "ELF" : chainType.TokenSymbol;
+            var tokenSymbol = NodeOption.IsMainChain ? NodeOption.NativeTokenSymbol : NodeOption.ChainToken;
             
             foreach (var user in testUsers)
             {
@@ -82,12 +81,11 @@ namespace AElf.Automation.RpcPerformance
         {
             var contracts = new List<ContractInfo>();
             
-            var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
             for (var i = 0; i < groups; i++)
             {
                 string account;
                 var authority = new AuthorityManager(_nodeManager);
-                if (!chainType.IsMainChain)
+                if (!NodeOption.IsMainChain)
                 {
                     var miners = authority.GetCurrentMiners();
                     if (i > miners.Count) continue;

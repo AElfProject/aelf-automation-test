@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -24,7 +25,7 @@ namespace AElf.Automation.ProposalTest
 
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected static List<string> Tester { get; set; }
-        protected static readonly string NativeToken = "ELF";
+        protected static readonly string NativeToken = NodeOption.NativeTokenSymbol;
         protected static string InitAccount;
         protected static string Symbol;
 
@@ -174,7 +175,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
-                        Symbol = "ELF",
+                        Symbol = NodeOption.NativeTokenSymbol,
                         To = AddressHelper.Base58StringToAddress(tester),
                         Amount = 1000,
                         Memo = "Transfer to organization address"

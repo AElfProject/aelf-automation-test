@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Acs3;
 using Acs7;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -44,7 +45,7 @@ namespace AElf.Automation.SideChainCreate
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                     Amount = amount,
                 });

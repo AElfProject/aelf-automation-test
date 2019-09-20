@@ -51,12 +51,12 @@ namespace AElf.Automation.Common.Contracts
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "")
         {
             var tester = GetNewTester(from);
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
-                Symbol = symbol,
+                Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = AddressHelper.Base58StringToAddress(to),
                 Amount = amount,
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
@@ -65,12 +65,12 @@ namespace AElf.Automation.Common.Contracts
             return result;
         }
 
-        public long GetUserBalance(string account, string symbol = "ELF")
+        public long GetUserBalance(string account, string symbol = "")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(account),
-                Symbol = symbol
+                Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -289,7 +290,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
-                Symbol = "ELF"
+                Symbol = NodeOption.NativeTokenSymbol
             });
 
             var afterBalance = Token.GetUserBalance(account);

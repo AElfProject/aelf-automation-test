@@ -103,7 +103,7 @@ namespace AElf.Automation.Common.Contracts
             return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
-                Symbol = "ELF"
+                Symbol = NodeOption.NativeTokenSymbol
             }).Value;
         }
 

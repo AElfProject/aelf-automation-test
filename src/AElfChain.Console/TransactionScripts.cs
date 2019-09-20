@@ -27,8 +27,8 @@ namespace AElfChain.Console
 
         public async Task ExecuteTransactionCommand()
         {
-            UsageInfo();
-            var input = System.Console.ReadLine();
+            
+            var input = UsageInfo();
             while (true)
             {
                 var result = int.TryParse(input, out var select);
@@ -55,11 +55,11 @@ namespace AElfChain.Console
                 input = System.Console.ReadLine();
                 if(input.ToLower().Trim().Equals("yes"))
                     break;
-                UsageInfo();
+                input = UsageInfo();
             }
         }
 
-        private async Task TransferToken(string address = "", string symbol = "ELF")
+        private async Task TransferToken(string address = "")
         {
             var bp = NodeInfoHelper.Config.Nodes.First();
             var tokenStub = Genesis.GetTokenStub(bp.Account);
@@ -70,17 +70,30 @@ namespace AElfChain.Console
                 "Please input transfer account address: ".WriteSuccessLine();
                 address = System.Console.ReadLine();
             }
+            
+            "Please input transfer token symbol: ".WriteSuccessLine();
+            var symbol = System.Console.ReadLine();
+            
+            "Please input transfer balance amount: ".WriteSuccessLine();
+            var balanceInput = System.Console.ReadLine();
+            var result = long.TryParse(balanceInput, out var balance);
+            if (!result)
+            {
+                Logger.Warn($"Wrong inout, use default balance: 100_00000000L");
+                balance = 100_00000000L;
+            }
+            
             var beforeBalance = tokenContract.GetUserBalance(address, symbol);
             
             await tokenStub.Transfer.SendAsync(new TransferInput
             {
-                Symbol = symbol,
+                Symbol = NodeOption.NativeTokenSymbol,
                 To = address.ConvertAddress(),
-                Amount = 1000_00000000L,
+                Amount = balance,
                 Memo = $"Transfer for test - {Guid.NewGuid()}"
             });
             
-            var afterBalance = tokenContract.GetUserBalance(address, symbol);
+            var afterBalance = tokenContract.GetUserBalance(address, NodeOption.NativeTokenSymbol);
             Logger.Info($"Account : {address}");
             Logger.Info($"Before balance: {beforeBalance}, after balance: {afterBalance}");
         }
@@ -93,7 +106,7 @@ namespace AElfChain.Console
             var filename = System.Console.ReadLine();
             
             var tokenContract = Genesis.GetTokenContract();
-            var balance = tokenContract.GetUserBalance(address);
+            var balance = tokenContract.GetUserBalance(address, NodeOption.NativeTokenSymbol);
             if (balance == 0)
             {
                 Logger.Error("user account token balance is 0 and cannot deploy contract.");
@@ -104,11 +117,15 @@ namespace AElfChain.Console
             authority.DeployContractWithAuthority(address, filename);
         }
 
-        private void UsageInfo()
+        private string UsageInfo()
         {
             "1. Transfer token to tester".WriteSuccessLine();
             "2. Deploy contract".WriteSuccessLine();
             "Select item you want execute: ".WriteSuccessLine();
+            
+            var input = System.Console.ReadLine();
+
+            return input.Trim();
         }
     }
 }

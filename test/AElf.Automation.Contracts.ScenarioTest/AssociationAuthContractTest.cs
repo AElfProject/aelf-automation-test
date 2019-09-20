@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Acs3;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -78,7 +79,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Tester.TokenService.SetAccount(InitAccount);
             var transfer = Tester.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 1000,
                 Memo = "transfer to Organization",
                 To = AddressHelper.Base58StringToAddress(organizationAddress)
@@ -105,7 +106,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var _transferInput = new TransferInput()
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100,
                 To = AddressHelper.Base58StringToAddress(account),
                 Memo = "Transfer"

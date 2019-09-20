@@ -3,12 +3,12 @@
     "Nodes": [
         {
             "name": "bp1",
-            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "password": "123"
         },
         {
             "name": "bp2",
-            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
             "password": "123"
         },
         {
@@ -22,6 +22,10 @@
             "password": "123"
         }
     ],
-    "IsMainChain": false,
+    "ChainType": {
+        "is_main_chain": true,
+        "token_symbol": "ELF"
+    },
+    "NativeTokenSymbol" : "ELF",
     "DefaultPassword": "123"
 }

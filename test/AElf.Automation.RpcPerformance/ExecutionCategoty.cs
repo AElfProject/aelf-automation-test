@@ -627,8 +627,7 @@ namespace AElf.Automation.RpcPerformance
                 var genesis = GenesisContract.GetGenesisContract(NodeManager);
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
                 var token = genesis.GetTokenContract();
-                var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
-                var symbol = chainType.IsMainChain ? "ELF" : chainType.TokenSymbol;
+                var symbol = NodeOption.NativeTokenSymbol;
 
                 for (var i = 0; i < ThreadCount; i++)
                 {
@@ -645,7 +644,7 @@ namespace AElf.Automation.RpcPerformance
         private string GetSetConfigurationLimitAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
-            return nodeConfig.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
+            return NodeOption.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion

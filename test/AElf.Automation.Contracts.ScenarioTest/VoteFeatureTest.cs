@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -34,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public List<string> CurrentMinersKeys { get; set; }
         public List<CandidateInfo> CandidateInfos { get; set; }
 
-        public string TokenSymbol { get; } = "ELF";
+        public string TokenSymbol { get; } = NodeOption.NativeTokenSymbol;
         public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
         public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
 
@@ -120,13 +121,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var consensusBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(ConsensusContract),
-                Symbol = TokenSymbol
+                Symbol = NativeTokenSymbol
             });
             Logger.Info($"Consensus account balance : {consensusBalance.Balance}");
             var dividendsResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(DividendsContract),
-                Symbol = TokenSymbol
+                Symbol = NativeTokenSymbol
             });
             Logger.Info($"Dividends account balance : {dividendsResult.Balance}");
         }
@@ -141,7 +142,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var feeBalance = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(FeeAccount),
-                Symbol = TokenSymbol
+                Symbol = NativeTokenSymbol
             });
             Logger.Info($"Fee account balance : {feeBalance.Balance}");
         }
@@ -162,7 +163,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(bpAcc),
-                    Symbol = TokenSymbol
+                    Symbol = NativeTokenSymbol
                 });
                 Console.WriteLine($"BpNode-[{bpAcc}] balance: " + callResult.Balance);
             }
@@ -173,7 +174,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new GetBalanceInput
                     {
                         Owner = AddressHelper.Base58StringToAddress(fullAcc),
-                        Symbol = TokenSymbol
+                        Symbol = NativeTokenSymbol
                     });
                 Console.WriteLine($"FullNode-[{fullAcc}] balance: " + callResult.Balance);
             }
@@ -200,7 +201,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(fullAcc),
-                    Symbol = TokenSymbol
+                    Symbol = NativeTokenSymbol
                 });
                 if (balanceResult.Balance >= 100000)
                     continue;
@@ -208,7 +209,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 tokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput {
                     Memo = "transfer balance for announcement election.",
                     Amount = 100_000,
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(fullAcc)
                 });
             }
@@ -220,7 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balanceResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(bpAcc),
-                    Symbol = TokenSymbol
+                    Symbol = NativeTokenSymbol
                 });
                 if (balanceResult.Balance >= 100000)
                     continue;
@@ -228,7 +229,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 tokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput {
                     Memo = "transfer balance for announcement election.",
                     Amount = 100_000,
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(bpAcc)
                 });
             }
@@ -316,7 +317,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Amount = 100_000,
                     Memo = "",
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(acc) 
                 });
             }
@@ -326,7 +327,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
@@ -520,7 +521,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"Account check: {userAcc}");
                 var balanceBefore = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Init balance: {balanceBefore.Balance}");
@@ -530,7 +531,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var balanceAfter1 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Received dividends balance: {balanceAfter1.Balance}");
@@ -539,7 +540,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var balanceAfter2 = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(userAcc)
                 });
                 Logger.Info($"Revert back vote balance: {balanceAfter2.Balance}");
@@ -581,7 +582,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
-                    Symbol = TokenSymbol,
+                    Symbol = NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(fullAcc)
                 });
                 Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);
@@ -611,7 +612,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(fullAcc),
-                    Symbol = TokenSymbol
+                    Symbol = NativeTokenSymbol
                 });
                 Console.WriteLine($"FullNode token-{fullAcc}: " + callResult.Balance);
             }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -263,7 +264,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 var getBalanceInput = new GetBalanceInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(account1)
                 };
                 var transactionId = NodeManager.SendTransaction(AccountList[threadNo].Account,
@@ -294,7 +295,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 var getBalanceInput = new GetBalanceInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(account1),
                 };
                 var requestInfo = NodeManager.GenerateRawTransaction(AccountList[threadNo].Account,
@@ -326,7 +327,7 @@ namespace AElf.Automation.RpcPerformance
                 //Execute Transfer
                 var getBalanceInput = new GetBalanceInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Owner = AddressHelper.Base58StringToAddress(account1)
                 };
                 var requestInfo = NodeManager.GenerateRawTransaction(AccountList[threadNo].Account,

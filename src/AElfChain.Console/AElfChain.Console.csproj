@@ -6,8 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
-      <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
+        <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+        <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
+        <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
     </ItemGroup>
 
 </Project>

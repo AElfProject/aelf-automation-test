@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Acs7;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.SideChain.Verification.Verify;
@@ -23,7 +24,7 @@ namespace AElf.Automation.SideChain.Verification
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly EnvironmentInfo _environmentInfo;
         private static int Timeout { get; set; }
-        protected readonly string NativeToken = "ELF";
+        protected readonly string NativeToken = NodeOption.NativeTokenSymbol;
         protected static string InitAccount;
         protected readonly int CreateTokenNumber;
         protected readonly int VerifySideChainNumber;

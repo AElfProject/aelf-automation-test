@@ -1,6 +1,7 @@
 using Acs0;
 using Acs3;
 using Acs7;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -249,7 +250,7 @@ namespace AElf.Automation.SideChainTests
             var result = TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new Contracts.MultiToken.ApproveInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                     Amount = amount,
                 });

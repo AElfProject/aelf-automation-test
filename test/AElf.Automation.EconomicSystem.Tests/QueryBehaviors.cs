@@ -1,3 +1,4 @@
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
@@ -110,12 +111,12 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         #region TokenService Method
 
-        public GetBalanceOutput GetBalance(string account, string symbol = "ELF")
+        public GetBalanceOutput GetBalance(string account, string symbol = "")
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(account),
-                Symbol = symbol
+                Symbol = NodeOption.GetTokenSymbol(symbol)
             });
             return balance;
         }

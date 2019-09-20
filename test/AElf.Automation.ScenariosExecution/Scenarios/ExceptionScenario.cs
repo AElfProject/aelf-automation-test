@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Acs0;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Utils;
@@ -44,7 +45,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var methodName = $"Test-{Guid.NewGuid()}";
             var executeResult = Token.ExecuteMethodWithResult(methodName, new GetBalanceInput
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 Owner = AddressUtils.Generate()
             });
             executeResult.Error.ShouldNotBeNull();
@@ -57,7 +58,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var testToken = Token.GetNewTester(user);
             var executeResult = testToken.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100_000_00000000L,
                 To = AddressUtils.Generate(),
                 Memo = "Transfer without enough token test"
@@ -72,7 +73,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var testToken = Token.GetNewTester(user);
             var executeResult = testToken.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100_000_00000000L,
                 From = AddressUtils.Generate(),
                 To = AddressUtils.Generate(),

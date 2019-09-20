@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
@@ -22,7 +23,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 new GetBalanceInput
                 {
                     Owner = AddressHelper.Base58StringToAddress(account),
-                    Symbol = "ELF"
+                    Symbol = NodeOption.NativeTokenSymbol
                 }).Balance;
 
             ElectionService.SetAccount(account);
@@ -37,7 +38,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(account),
-                Symbol = "ELF"
+                Symbol = NodeOption.NativeTokenSymbol
             }).Balance;
 
             beforeBalance.ShouldBe(afterBalance + amount, "user voted but user balance not correct.");
@@ -114,7 +115,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             };
             var elfConnector = new Connector
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 IsPurchaseEnabled = true,
                 IsVirtualBalanceEnabled = true,
                 VirtualBalance = 100_0000,
@@ -124,7 +125,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = TokenConverterService.ExecuteMethodWithResult(TokenConverterMethod.Initialize,
                 new InitializeInput
                 {
-                    BaseTokenSymbol = "ELF",
+                    BaseTokenSymbol = NodeOption.NativeTokenSymbol,
                     ManagerAddress = AddressHelper.Base58StringToAddress(initAccount),
                     FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverService.ContractAddress),
                     FeeRate = "0.05",

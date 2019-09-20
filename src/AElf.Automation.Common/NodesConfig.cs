@@ -15,12 +15,19 @@ namespace AElf.Automation.Common
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
     }
+    
+    public class ChainType
+    {
+        [JsonProperty("is_main_chain")] public bool IsMainChain { get; set; }
+        [JsonProperty("token_symbol")] public string TokenSymbol { get; set; }
+    }
 
     public class NodesInfo
     {
         [JsonProperty("RequireAuthority")] public bool RequireAuthority { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
-        [JsonProperty("IsMainChain")] public bool IsMainChain { get; set; }
+        [JsonProperty("NativeTokenSymbol")] public string NativeTokenSymbol { get; set; }
+        [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
 
         public void CheckNodesAccount()
@@ -57,7 +64,7 @@ namespace AElf.Automation.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-test.json");
 
         public static NodesInfo Config => GetConfigInfo();
 

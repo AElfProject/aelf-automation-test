@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -17,7 +18,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager NodeManager { get; set; }
         public string RpcUrl { get; } = "http://192.168.197.13:8100/chain";
         public List<string> AccList { get; set; }
-        public string TokenSymbol { get; } = "ELF";
+        public string TokenSymbol { get; } = NodeOption.NativeTokenSymbol;
         public string InitAccount { get; } = "ELF_64V9T3sYjDGBhjrKDc18baH2BQRjFyJifXqHaDZ83Z5ZQ7d";
         public string FeeReceiverAccount { get; } = "";
         public string ManagerAccount { get; } = "";
