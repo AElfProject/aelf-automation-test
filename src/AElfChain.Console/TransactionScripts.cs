@@ -38,7 +38,7 @@ namespace AElfChain.Console
                 $"Name: {command.GetCommandInfo()}".WriteSuccessLine();
                 command.RunCommand();
 
-                "Quit transaction execution(yes/no)? ".WriteWarningLine();
+                "Quit transaction execution(yes/no)? ".WriteWarningLine(changeLine: false);
                 input = System.Console.ReadLine();
                 if(input.ToLower().Trim().Equals("yes"))
                     break;
