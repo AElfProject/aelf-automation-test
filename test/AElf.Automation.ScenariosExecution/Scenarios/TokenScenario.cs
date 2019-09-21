@@ -61,7 +61,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
@@ -103,7 +103,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Owner = AddressHelper.Base58StringToAddress(from),
                         Spender = AddressHelper.Base58StringToAddress(to),
-                        Symbol = "ELF"
+                        Symbol = NativeToken
                     }).Allowance;
 
                 var token = Token.GetNewTester(from);
@@ -113,7 +113,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Amount = 1000_00000000,
                         Spender = AddressHelper.Base58StringToAddress(to),
-                        Symbol = "ELF"
+                        Symbol = NativeToken
                     });
                     if (txResult1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                         Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
@@ -129,7 +129,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     From = AddressHelper.Base58StringToAddress(from),
                     To = AddressHelper.Base58StringToAddress(to),
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
@@ -170,7 +170,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     Amount = 200_000_00000000,
                     To = AddressHelper.Base58StringToAddress(fullNode.Account),
                     Memo = "Transfer for announcement event"
@@ -188,7 +188,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     Amount = 500_000_00000000 - balance,
                     To = AddressHelper.Base58StringToAddress(user),
                     Memo = $"Transfer for testing - {Guid.NewGuid()}"
@@ -215,7 +215,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = balance/2,
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect half tokens from other bps."
                 });

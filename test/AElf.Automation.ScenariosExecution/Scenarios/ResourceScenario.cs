@@ -172,7 +172,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //initialize resources
             TokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Initialize, new InitializeInput
             {
-                BaseTokenSymbol = "ELF",
+                BaseTokenSymbol = NativeToken,
                 FeeRate = "0.01",
                 ManagerAddress = AddressHelper.Base58StringToAddress(Testers[0]),
                 TokenContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
@@ -192,7 +192,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = "ELF",
+                    Symbol = NativeToken,
                     Amount = 100_000_000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
@@ -229,7 +229,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private Connector ElfConnector = new Connector
         {
-            Symbol = "ELF",
+            Symbol = NativeToken,
             VirtualBalance = 100_000_000,
             Weight = "0.5",
             IsPurchaseEnabled = true,

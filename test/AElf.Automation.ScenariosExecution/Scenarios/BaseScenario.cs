@@ -14,6 +14,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
+        protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
         protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true,
@@ -109,6 +110,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;
             FullNodes = configInfo.FullNodes;
+            NativeToken = configInfo.NativeToken;
         }
 
         protected static int GenerateRandomNumber(int min, int max)

@@ -160,9 +160,24 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             foreach (var sideChain in SideChainServices)
             {
-                foreach (var account in AccountList[sideChain.ChainId])
+                Logger.Info("Issue side chain token: ");
+                foreach (var account in AccountList)
                 {
-                    IssueSideChainToken(sideChain, account);
+                    foreach (var acc in account.Value)
+                    {
+                        IssueSideChainToken(sideChain, acc);
+                    }
+                }
+                
+                Logger.Info("Check the balance:");
+
+                foreach (var account in AccountList)
+                {
+                    foreach (var acc in account.Value)
+                    {
+                        var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
+                        Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
+                    }
                 }
             }
             

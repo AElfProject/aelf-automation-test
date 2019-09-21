@@ -2,71 +2,77 @@
     "BpNodes": [
         {
             "name": "bp1",
-            "service_url": "http://192.168.197.14:8000",
-            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
-            "password": "123"
-        },
-        {
-            "name": "bp2",
-            "service_url": "http://192.168.197.42:8000",
+            "service_url": "http://18.212.240.254:8000",
             "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "password": "123"
         },
         {
-            "name": "bp3",
-            "service_url": "http://192.168.197.24:8000",
+            "name": "bp2",
+            "service_url": "http://54.183.221.226:8000",
             "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
             "password": "123"
         },
         {
-            "name": "bp4",
-            "service_url": "http://192.168.197.23:8000",
+            "name": "bp3",
+            "service_url": "http://13.230.195.6:8000",
             "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "password": "123"
+        },
+        {
+            "name": "bp4",
+            "service_url": "http://35.183.35.159:8000",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "password": "123"
+        },
+        {
+            "name": "bp5",
+            "service_url": "http://34.255.1.143:8000",
+            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
             "password": "123"
         }
     ],
     "FullNodes": [
         {
             "name": "full1",
-            "service_url": "http://192.168.197.32:8000",
-            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
+            "service_url": "http://18.163.40.216:8000",
+            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
             "password": "123"
         },
         {
             "name": "full2",
-            "service_url": "http://192.168.197.16:8000",
-            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+            "service_url": "http://3.1.211.78:8000",
+            "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
             "password": "123"
         },
         {
             "name": "full3",
-            "service_url": "http://192.168.197.11:8000",
-            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+            "service_url": "http://13.210.243.191:8000",
+            "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
             "password": "123"
         },
         {
             "name": "full4",
-            "service_url": "http://192.168.197.26:8000",
-            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+            "service_url": "http://18.231.115.220:8000",
+            "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
             "password": "123"
         },
         {
             "name": "full5",
-            "service_url": "http://192.168.197.34:8000",
-            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+            "service_url": "http://35.177.181.31:8000",
+            "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
             "password": "123"
         },
         {
             "name": "full6",
-            "service_url": "http://192.168.197.20:8000",
-            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "service_url": "http://13.231.179.27:8000",
+            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
             "password": "123"
         }
     ],
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 2
         },
         {
@@ -76,7 +82,7 @@
         },
         {
             "case_name": "ResourceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 2
         },
         {
@@ -91,12 +97,12 @@
         },
         {
             "case_name": "ExceptionScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         },
         {
             "case_name": "PerformanceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 30
         }
     ],
@@ -104,7 +110,7 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": true,
-        "service_url": "http://192.168.197.42:8000"
+        "service_url": "http://13.230.195.6:8000"
     },
     "ContractsInfo": {
         "AutoUpdate": false,
@@ -134,5 +140,7 @@
                 "owner": ""
             }
         ]
-    }
+    },
+    "NativeToken": "TELF",
+    "InitAccount": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D"
 }

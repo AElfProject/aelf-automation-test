@@ -149,6 +149,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     if (node.Account == sideChainService.CallAddress) continue;
                     IssueSideChainToken(sideChainService,node.Account);
                 }
+                
+                foreach (var node in nodes)
+                {
+                    var accountBalance = GetBalance(sideChainService, node.Account, sideChainService.DefaultToken);
+                    Logger.Info($"Account:{node.Account}, {sideChainService.DefaultToken} balance is: {accountBalance}");
+                }
             }
         }
 

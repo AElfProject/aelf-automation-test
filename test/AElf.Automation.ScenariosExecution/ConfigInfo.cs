@@ -54,6 +54,9 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("SpecifyEndpoint")] public SpecifyEndpoint SpecifyEndpoint { get; set; }
         [JsonProperty("ContractsInfo")] public ContractsInfo ContractsInfo { get; set; }
+        [JsonProperty("NativeToken")] public string NativeToken { get; set; }
+        [JsonProperty("InitAccount")] public string InitAccount { get; set; }
+
     }
 
     public static class ConfigInfoHelper

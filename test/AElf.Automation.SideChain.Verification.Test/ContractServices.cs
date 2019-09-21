@@ -22,7 +22,6 @@ namespace AElf.Automation.SideChain.Verification
         {
             ChainId = chainId;
             DefaultToken = defaultToken;
-
             NodeManager = new NodeManager(url,keyStore);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);

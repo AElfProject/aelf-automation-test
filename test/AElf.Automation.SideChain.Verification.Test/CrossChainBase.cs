@@ -56,6 +56,7 @@ namespace AElf.Automation.SideChain.Verification
             var defaultToken = _environmentInfo.MainChainInfos.NativeToken;
             var mainChainId = ChainHelper.ConvertBase58ToChainId(_environmentInfo.MainChainInfos.MainChainId);
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId,defaultToken);
+            MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
 
             return MainChainService;
         }
@@ -75,8 +76,8 @@ namespace AElf.Automation.SideChain.Verification
                 sideChainIds.Add(chainId);
                 var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId,defaultToken);
                 SideChainServices.Add(sideService);
+                sideService.NodeManager.ApiService.SetFailReTryTimes(10);
             }
-
             return SideChainServices;
         }
         
@@ -415,18 +416,28 @@ namespace AElf.Automation.SideChain.Verification
             return indexParentBlock.Value > transactionHeight;
         }
         
-        protected async Task<bool> SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,ContractServices servicesTo, CrossChainTransactionInfo infos)
+        protected async void SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,ContractServices servicesTo, CrossChainTransactionInfo infos)
         {
-            var indexSideChainBlock = MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = servicesFrom.ChainId});
             var mainHeight = await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
-            
-            var indexParentBlock =
-                servicesTo.CrossChainService.CallViewMethod<SInt64Value>(
-                    CrossChainContractMethod.GetParentChainHeight, new Empty());
-            
-            var transactionHeight = infos.BlockHeight;
-            return indexSideChainBlock.Value > transactionHeight && indexParentBlock.Value > mainHeight;
+            var checkResult = false;
+
+            while (!checkResult)
+            {
+                var indexSideChainBlock = MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = servicesFrom.ChainId});
+                var indexParentBlock =
+                    servicesTo.CrossChainService.CallViewMethod<SInt64Value>(
+                        CrossChainContractMethod.GetParentChainHeight, new Empty());
+                var transactionHeight = infos.BlockHeight;
+
+                if (indexSideChainBlock.Value > transactionHeight && indexParentBlock.Value > mainHeight)
+                    checkResult = true;
+                else
+                {
+                    Logger.Info("Block is not recorded ");
+                    Thread.Sleep(10000);
+                }
+            }
         }
 
 

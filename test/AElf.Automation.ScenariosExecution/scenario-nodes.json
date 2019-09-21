@@ -182,5 +182,6 @@
     "SpecifyEndpoint": {
         "enable": true,
         "service_url": "http://3.94.106.10:8000"
-    }
+    },
+    "NativeToken": "ELF"
 }
