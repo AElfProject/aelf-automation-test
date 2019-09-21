@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AElf.Automation.Common.Contracts;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;

@@ -1,29 +1,27 @@
-using System;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
-using AElfChain.Console.CommandOptions;
-using Microsoft.Extensions.CommandLineUtils;
+using log4net;
 
 namespace AElfChain.Console.Commands
 {
-    public abstract class BaseCommand : CommandLineApplication
+    public abstract class BaseCommand
     {
-        protected EndpointCommandOption EndpointOption;
+        public INodeManager NodeManager { get; set; }
         
-        public BaseCommand()
+        public ContractServices Services { get; set; }
+
+        public ILog Logger = Log4NetHelper.GetLogger();
+        
+        public BaseCommand(INodeManager nodeManager)
         {
-            InitOptions();
-            HelpOption("-? | -h | --help");
-            OnExecute(RunCommand);
+            NodeManager = nodeManager;
+            Services = new ContractServices(NodeManager);
         }
 
-        protected virtual void InitOptions()
-        {
-            Log4NetHelper.LogInit();
-            EndpointOption = new EndpointCommandOption();
-            EndpointOption.AddOptionToCommandLineApplication(this);
-        }
+        public abstract void RunCommand();
 
-        protected abstract int RunCommand();
+        public abstract string GetCommandInfo();
+
+        public abstract string[] InputParameters();
     }
 }

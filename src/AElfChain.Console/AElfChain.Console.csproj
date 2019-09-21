@@ -8,6 +8,7 @@
     <ItemGroup>
         <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
         <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
+        <PackageReference Include="FluentCommandLineParser" Version="1.5.0.20-commands" />
         <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
     </ItemGroup>
 
