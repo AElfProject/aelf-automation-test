@@ -5,6 +5,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
+using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -37,7 +38,24 @@ namespace AElf.Automation.SideChainCreate
             ParliamentService = contractServices.ParliamentService;
             ConsensusService = contractServices.ConsensusService;
         }
-        
+
+        public void TransferToken(long amount)
+        {
+            TokenService.SetAccount(InitAccount, Password);
+            var miners = GetMiners();
+            foreach (var miner in miners)
+            {
+                if (miner.GetFormatted().Equals(InitAccount)) continue;
+                TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                {
+                    Symbol = NativeSymbol,
+                    Amount = amount,
+                    Memo = "Transfer to miners",
+                    To = miner
+                });
+            }
+        }
+
         public void ApproveToken(long amount)
         {
             //token approve
