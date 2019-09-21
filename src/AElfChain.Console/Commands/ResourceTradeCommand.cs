@@ -3,6 +3,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.TokenConverter;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
 {
@@ -25,22 +26,22 @@ namespace AElfChain.Console.Commands
             var tokenConverter = Services.Genesis.GetTokenConverterStub(parameters[0]);
             if (parameters[1].Equals("buy"))
             {
-                tokenConverter.Buy.SendAsync(new BuyInput
+                AsyncHelper.RunSync(()=>tokenConverter.Buy.SendAsync(new BuyInput
                 {
                     Symbol = parameters[2],
                     Amount = long.Parse(parameters[3]),
                     PayLimit = 0
-                });
+                }));
             }
 
             if (parameters[1].Equals("sell"))
             {
-                tokenConverter.Sell.SendAsync(new SellInput
+                AsyncHelper.RunSync(()=>tokenConverter.Sell.SendAsync(new SellInput
                 {
                     Symbol = parameters[2],
                     Amount = long.Parse(parameters[3]),
                     ReceiveLimit = 0
-                });
+                }));
             }
             
             var afterNativeToken = Services.Token.GetUserBalance(parameters[0]);
