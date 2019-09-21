@@ -286,8 +286,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balance = token.GetUserBalance(contract, symbol);
                 Logger.Info($"Contract: {symbol}={balance}");
             }
-            
-            GetContractResource(contract);
         }
 
         [TestMethod]
@@ -297,8 +295,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var acs8Contract = new ExecutionPluginForAcs8Contract(MainNode, BpAccount, contract);
             var acs8Stub = acs8Contract.GetTestStub<ContractContainer.ContractStub>(BpAccount);
 
-//            var cpuResult = await acs8Stub.CpuConsumingMethod.SendAsync(new Empty());
-//            CheckTransactionResult(cpuResult.TransactionResult);
+            var cpuResult = await acs8Stub.CpuConsumingMethod.SendAsync(new Empty());
+            CheckTransactionResult(cpuResult.TransactionResult);
 
             var netResult = await acs8Stub.NetConsumingMethod.SendAsync(new NetConsumingMethodInput
             {
