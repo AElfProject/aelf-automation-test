@@ -21,13 +21,13 @@ namespace AElfChain.Console
             Log4NetHelper.LogInit();
             Logger = Log4NetHelper.GetLogger();
             
-            "Please input endpoint address(eg: 127.0.0.1:8000):".WriteSuccessLine();
+            "Please input endpoint address(eg: 127.0.0.1:8000): ".WriteSuccessLine(changeLine: false);
             Endpoint = System.Console.ReadLine();
             NodeManager = new NodeManager(Endpoint);
             try
             {
                 var chainStatusDto = await ApiService.GetChainStatusAsync();
-                Logger.Info(JsonConvert.SerializeObject(chainStatusDto));
+                Logger.Info($"ChainId: {chainStatusDto.ChainId}, LongestChainHeight: {chainStatusDto.LongestChainHeight}, LastIrreversibleBlockHeight: {chainStatusDto.LastIrreversibleBlockHeight}");
 
                 var scripts = new TransactionScripts(NodeManager);
                 await scripts.ExecuteTransactionCommand();

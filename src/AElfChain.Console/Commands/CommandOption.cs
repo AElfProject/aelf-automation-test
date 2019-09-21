@@ -11,7 +11,7 @@ namespace AElfChain.Console.Commands
             var result = parameters.Length == length;
             
             if(!result)
-                $"Wrong input parameters, input again".WriteErrorLine();
+                $"Wrong input parameters, parameter needed {parameters.Length}/{length}.input again".WriteErrorLine();
 
             return result;
         }
@@ -21,7 +21,7 @@ namespace AElfChain.Console.Commands
             while (true)
             {
                 var input = System.Console.ReadLine();
-                var result = CommandOption.TryParseParameters(input, length, out var parameters);
+                var result = TryParseParameters(input, length, out var parameters);
 
                 if(!result) continue;
                 

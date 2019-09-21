@@ -30,11 +30,12 @@ namespace AElfChain.Console
                 var result = int.TryParse(input, out var select);
                 if (!result || select > Commands.Count)
                 {
-                    Logger.Error("Wrong input.");
+                    Logger.Error("Wrong input selection.");
                     continue;
                 }
 
                 var command = Commands[select - 1];
+                $"Name: {command.GetCommandInfo()}".WriteSuccessLine();
                 command.RunCommand();
 
                 "Quit transaction execution(yes/no)? ".WriteWarningLine();
@@ -47,9 +48,12 @@ namespace AElfChain.Console
         public void InitializeCommands()
         {
             Commands.Add(new TransferCommand(NodeManager));
+            Commands.Add(new QueryTokenCommand(NodeManager));
             Commands.Add(new DeployCommand(NodeManager));
             Commands.Add(new ResourceTradeCommand(NodeManager));
             Commands.Add(new SetConnectorCommand(NodeManager));
+            Commands.Add(new SetTransactionFeeCommand(NodeManager));
+            Commands.Add(new SwitchOtherChainCommand(NodeManager));
         }
 
         public string GetUsageInfo()
@@ -61,8 +65,8 @@ namespace AElfChain.Console
                 $"{count:0}. {command.GetCommandInfo()}".WriteSuccessLine();
                 count++;
             }
-            $"Please input which command you want to execution:".WriteSuccessLine();
             $"=================================================".WriteSuccessLine();
+            $"Please input which command you want to execution: ".WriteSuccessLine(changeLine:false);
             return System.Console.ReadLine();
         }
     }

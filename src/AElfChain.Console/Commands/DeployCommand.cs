@@ -28,7 +28,7 @@ namespace AElfChain.Console.Commands
             string from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
             string filename = "AElf.Contract.MultiToken";
             
-            "Parameter: [FROM] [Contract_FileName]".WriteSuccessLine();
+            "Parameter: [From] [ContractFileName]".WriteSuccessLine();
             $"eg: {from} {filename}".WriteSuccessLine();
             
             return CommandOption.InputParameters(2);

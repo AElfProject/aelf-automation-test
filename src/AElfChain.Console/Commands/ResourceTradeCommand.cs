@@ -62,7 +62,7 @@ namespace AElfChain.Console.Commands
             var symbol = "STA";
             var amount = 1000;
             
-            "Parameter: [FROM] [Operation] [SYMBOL] [AMOUNT]".WriteSuccessLine();
+            "Parameter: [From] [Operation] [Symbol] [Amount]".WriteSuccessLine();
             $"eg1: {from} {operation1} {symbol} {amount}".WriteSuccessLine();
             $"eg2: {from} {operation2} {symbol} {amount}".WriteSuccessLine();
 

@@ -34,7 +34,7 @@ namespace AElfChain.Console.Commands
             var to = "2ERBTcqx8CzgMP7fvQS4DnKQX1AM98CSwAGFyRCQvn9Bvs4Qt1";
             var symbol = "STA";
             var amount = 1000;
-            "Parameter: [FROM] [TO] [SYMBOL] [AMOUNT]".WriteSuccessLine();
+            "Parameter: [From] [To] [Symbol] [Amount]".WriteSuccessLine();
             $"eg: {from} {to} {symbol} {amount}".WriteSuccessLine();
             
             return CommandOption.InputParameters(4);
