@@ -10,7 +10,8 @@ namespace AElfChain.Console.Commands
 {
     public class SetTransactionFeeCommand : BaseCommand
     {
-        public SetTransactionFeeCommand(INodeManager nodeManager) : base(nodeManager)
+        public SetTransactionFeeCommand(INodeManager nodeManager, ContractServices contractServices) 
+            : base(nodeManager, contractServices)
         {
         }
 

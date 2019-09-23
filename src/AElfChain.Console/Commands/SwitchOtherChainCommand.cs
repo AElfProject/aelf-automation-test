@@ -5,7 +5,8 @@ namespace AElfChain.Console.Commands
 {
     public class SwitchOtherChainCommand : BaseCommand
     {
-        public SwitchOtherChainCommand(INodeManager nodeManager) : base(nodeManager)
+        public SwitchOtherChainCommand(INodeManager nodeManager, ContractServices contractServices) 
+            : base(nodeManager, contractServices)
         {
         }
 

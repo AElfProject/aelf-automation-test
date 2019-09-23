@@ -60,7 +60,6 @@ namespace AElf.Automation.Common.Contracts
                 callAddress = nm.GetRandomAccount();
             
             var genesisContract = nm.GetGenesisContractAddress();
-            Logger.Info($"Genesis contract Address: {genesisContract}");
 
             return new GenesisContract(nm, callAddress, genesisContract);
         }

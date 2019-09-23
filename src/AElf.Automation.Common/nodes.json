@@ -56,6 +56,6 @@
     "is_main_chain": true,
     "token_symbol": "ELF"
   },
-  "NativeTokenSymbol" : "TELF",
+  "NativeTokenSymbol" : "ELF",
   "DefaultPassword": "123"
 }

@@ -14,7 +14,8 @@ namespace AElfChain.Console.Commands
 {
     public class SetConnectorCommand : BaseCommand
     {
-        public SetConnectorCommand(INodeManager nodeManager) : base(nodeManager)
+        public SetConnectorCommand(INodeManager nodeManager, ContractServices contractServices) 
+            : base(nodeManager, contractServices)
         {
         }
 

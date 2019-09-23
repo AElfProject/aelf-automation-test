@@ -2,35 +2,47 @@
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
-using AElfChain.Console.Commands;
 using AElfChain.SDK;
-using Fclp;
 using log4net;
-using Newtonsoft.Json;
+using McMaster.Extensions.CommandLineUtils;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Console
 {
+    [Command(Name = "Transaction Client", Description = "Transaction CLI client tool.")]
+    [HelpOption("-?")]
     class Program
     {
-        private static string Endpoint;
+        [Option("-e|--endpoint", Description = "Service endpoint url of node. It's required parameter.")]
+        private static string Endpoint { get; set; }
+        
         private static INodeManager NodeManager;
         private static IApiService ApiService => NodeManager.ApiService;
         private static ILog Logger { get; set; }
-        static async Task Main(string[] args)
+        
+        public static int Main(string[] args)
+        {
+            return CommandLineApplication.Execute<Program>(args);
+        }
+
+        private void OnExecute(CommandLineApplication app)
         {
             Log4NetHelper.LogInit();
-            Logger = Log4NetHelper.GetLogger();
-            
-            "Please input endpoint address(eg: 127.0.0.1:8000): ".WriteSuccessLine(changeLine: false);
-            Endpoint = System.Console.ReadLine();
+            Logger = Log4NetHelper.GetLogger("Program");
+
+            if (Endpoint == null)
+            {
+                "Please input endpoint address(eg: 127.0.0.1:8000): ".WriteSuccessLine(changeLine: false);
+                Endpoint = System.Console.ReadLine();
+            }
             NodeManager = new NodeManager(Endpoint);
             try
             {
-                var chainStatusDto = await ApiService.GetChainStatusAsync();
+                var chainStatusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
                 Logger.Info($"ChainId: {chainStatusDto.ChainId}, LongestChainHeight: {chainStatusDto.LongestChainHeight}, LastIrreversibleBlockHeight: {chainStatusDto.LastIrreversibleBlockHeight}");
 
                 var scripts = new TransactionScripts(NodeManager);
-                await scripts.ExecuteTransactionCommand();
+                scripts.ExecuteTransactionCommand();
             }
             catch (Exception e)
             {

@@ -9,7 +9,8 @@ namespace AElfChain.Console.Commands
 {
     public class ResourceTradeCommand : BaseCommand
     {
-        public ResourceTradeCommand(INodeManager nodeManager) : base(nodeManager)
+        public ResourceTradeCommand(INodeManager nodeManager, ContractServices contractServices) 
+            : base(nodeManager, contractServices)
         {
         }
 

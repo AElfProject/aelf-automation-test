@@ -12,12 +12,12 @@ namespace AElfChain.Console.Commands
 
         public ILog Logger = Log4NetHelper.GetLogger();
         
-        public BaseCommand(INodeManager nodeManager)
+        public BaseCommand(INodeManager nodeManager, ContractServices contractServices)
         {
             NodeManager = nodeManager;
-            Services = new ContractServices(NodeManager);
+            Services = contractServices;
         }
-
+        
         public abstract void RunCommand();
 
         public abstract string GetCommandInfo();
