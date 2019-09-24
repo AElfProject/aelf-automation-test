@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,6 +51,7 @@ namespace AElf.Automation.Common.Contracts
                 var checkTimes = 0;
                 TransactionResultDto resultDto;
                 TransactionResultStatus status;
+                var stopwatch = Stopwatch.StartNew();
                 while (true)
                 {
                     checkTimes++;
@@ -59,25 +61,26 @@ namespace AElf.Automation.Common.Contracts
                     {
                         if (status == TransactionResultStatus.Mined)
                             Logger.Info(
-                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}");
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}", true);
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}");
-
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}", true);
                         break;
                     }
 
-                    if (checkTimes % 20 == 0)
-                        $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction?.MethodName}, Status: {status}"
-                            .WriteWarningLine();
+                    Console.Write($"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
 
                     if (checkTimes == 360) //max wait time 3 minutes
+                    {
+                        Console.Write("\r\n");
                         throw new Exception(
                             $"Transaction {resultDto.TransactionId} in '{status}' status more than three minutes.");
+                    }
 
                     Thread.Sleep(500);
                 }
-
+                stopwatch.Stop();
+                
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {

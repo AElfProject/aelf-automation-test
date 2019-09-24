@@ -98,6 +98,23 @@ namespace AElf.Automation.Common.Helpers
             return rd.Next(min, max);
         }
 
+        public static string ConvertMileSeconds(long elapsedMilliseconds)
+        {
+            var minutes = elapsedMilliseconds / (60000);
+            var seconds = elapsedMilliseconds % (60000) / 1000;
+            var milliseconds = elapsedMilliseconds % 1000;
+
+            var stamp = string.Empty;
+
+            if (minutes != 0)
+                stamp += $"{minutes}m:";
+            if (minutes != 0 || seconds != 0)
+                stamp += $"{seconds}s:";
+            stamp += $"{milliseconds}ms";
+
+            return stamp;
+        }
+
         public static string MapPath(string virtualPath)
         {
             return AppRoot + virtualPath.TrimStart('~');

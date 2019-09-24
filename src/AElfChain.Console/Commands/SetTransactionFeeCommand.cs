@@ -33,7 +33,7 @@ namespace AElfChain.Console.Commands
             var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
             var miners = Services.Authority.GetCurrentMiners();
             var caller = Services.Token.CallAddress;
-            var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0], parameters[1],
+            var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0], "SetMethodFee",
                 input, genesisOwner, miners, caller);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             

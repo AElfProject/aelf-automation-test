@@ -11,7 +11,7 @@ namespace AElf.Automation.Common.Helpers
     {
         public static int LogInit()
         {
-            return LogInit(configFilePath: CommonHelper.MapPath("log4net.config"));
+            return LogInit(CommonHelper.MapPath("log4net.config"),"");
         }
 
         public static int LogInit(string fileName)
@@ -20,12 +20,12 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     log4net init
+        /// log4net init
         /// </summary>
         /// <param name="configFilePath">log4net config file path</param>
         /// <param name="fileName"></param>
         /// <returns>1 config success,0 config has existed</returns>
-        public static int LogInit(string configFilePath, string fileName = "")
+        public static int LogInit(string configFilePath, string fileName)
         {
             if (null != LogManager.GetAllRepositories()
                     ?.FirstOrDefault(_ => _.Name == CommonHelper.ApplicationName)) return 0;
@@ -36,7 +36,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     Get a log4net logger
+        /// Get a log4net logger
         /// </summary>
         public static ILog GetLogger<TCategory>()
         {
@@ -44,7 +44,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     Get a log4net logger
+        /// Get a log4net logger
         /// </summary>
         public static ILog GetLogger(Type type)
         {
@@ -52,7 +52,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     Get a log4net logger
+        /// Get a log4net logger
         /// </summary>
         public static ILog GetLogger()
         {
@@ -65,7 +65,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     Get a log4net logger
+        /// Get a log4net logger
         /// </summary>
         public static ILog GetLogger(string loggerName)
         {
@@ -73,7 +73,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        ///     Info extension method
+        /// Info extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -84,8 +84,16 @@ namespace AElf.Automation.Common.Helpers
             logger.Info(message);
         }
 
+        public static void Info(this ILog logger, string message, bool checkCursorLeft)
+        {
+            if(checkCursorLeft && Console.CursorLeft !=0)
+                Console.Write("\r\n");
+            
+            logger.Info(message);
+        }
+
         /// <summary>
-        ///     Warn extension method
+        /// Warn extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -96,8 +104,16 @@ namespace AElf.Automation.Common.Helpers
             logger.Warn(message);
         }
 
+        public static void Warn(this ILog logger, string message, bool checkCursorLeft)
+        {
+            if(checkCursorLeft && Console.CursorLeft !=0)
+                Console.Write("\r\n");
+            
+            logger.Warn(message);
+        }
+
         /// <summary>
-        ///     Error extension method
+        /// Error extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -105,6 +121,14 @@ namespace AElf.Automation.Common.Helpers
         public static void Error(this ILog logger, string format, params object[] parameters)
         {
             var message = string.Format(format, parameters);
+            logger.Error(message);
+        }
+
+        public static void Error(this ILog logger, string message, bool checkCursorLeft)
+        {
+            if(checkCursorLeft && Console.CursorLeft !=0)
+                Console.Write("\r\n");
+            
             logger.Error(message);
         }
     }

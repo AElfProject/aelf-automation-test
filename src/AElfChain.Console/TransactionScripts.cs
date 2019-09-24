@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.Console.Commands;
@@ -11,7 +13,7 @@ namespace AElfChain.Console
     public class TransactionScripts
     {
         private INodeManager NodeManager { get; set; }
-        
+
         private ContractServices Contracts { get; set; }
 
         private ILog Logger = Log4NetHelper.GetLogger();
@@ -21,7 +23,8 @@ namespace AElfChain.Console
         public TransactionScripts(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            Contracts = new ContractServices(nodeManager);
+            var bp = NodeInfoHelper.Config.Nodes.First();
+            Contracts = new ContractServices(nodeManager, bp.Account);
             Commands = new List<BaseCommand>();
             InitializeCommands();
         }
@@ -48,36 +51,42 @@ namespace AElfChain.Console
                 {
                     Logger.Error(e.Message);
                 }
-                
-                "Quit transaction execution(yes/no)? ".WriteWarningLine(changeLine: false);
+
+                "Quit execution transaction(yes/no)? ".WriteWarningLine(changeLine: false);
                 input = System.Console.ReadLine();
-                if(input.ToLower().Trim().Equals("yes"))
+                if (input.ToLower().Trim().Equals("yes"))
                     break;
             }
         }
 
         public void InitializeCommands()
         {
-            Commands.Add(new TransferCommand(NodeManager, Contracts));
+            Commands.Add(new SwitchOtherChainCommand(NodeManager, Contracts));
+            Commands.Add(new QueryContractCommand(NodeManager, Contracts));
             Commands.Add(new QueryTokenCommand(NodeManager, Contracts));
+            Commands.Add(new QueryProposalCommand(NodeManager, Contracts));
+            Commands.Add(new ConsensusCommand(NodeManager, Contracts));
             Commands.Add(new DeployCommand(NodeManager, Contracts));
+            Commands.Add(new TransferCommand(NodeManager, Contracts));
             Commands.Add(new ResourceTradeCommand(NodeManager, Contracts));
             Commands.Add(new SetConnectorCommand(NodeManager, Contracts));
             Commands.Add(new SetTransactionFeeCommand(NodeManager, Contracts));
-            Commands.Add(new SwitchOtherChainCommand(NodeManager, Contracts));
+            Commands.Add(new TransactionLimitCommand(NodeManager,Contracts));
         }
 
-        public string GetUsageInfo()
+        private string GetUsageInfo()
         {
             var count = 1;
-            $"=====================Command=====================".WriteSuccessLine();
+            "==================== Command ====================".WriteSuccessLine();
             foreach (var command in Commands)
             {
-                $"{count:0}. {command.GetCommandInfo()}".WriteSuccessLine();
+                $"{count:00}. {command.GetCommandInfo()}".WriteSuccessLine();
                 count++;
             }
-            $"=================================================".WriteSuccessLine();
-            $"Please input which command you want to execution: ".WriteSuccessLine(changeLine:false);
+
+            "=================================================".WriteSuccessLine();
+            "Please input command order number to execution: ".WriteSuccessLine(changeLine: false);
+            
             return System.Console.ReadLine();
         }
     }

@@ -464,7 +464,8 @@ namespace AElf.Automation.RpcPerformance
             //Send batch transaction requests
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
-            NodeManager.SendTransactions(rawTransactions);
+            var transactions = NodeManager.SendTransactions(rawTransactions);
+            Logger.Info(transactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(

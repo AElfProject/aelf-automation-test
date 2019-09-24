@@ -33,7 +33,8 @@ namespace AElf.Automation.Common.Contracts
         GetTokenInfo,
         GetBalance,
         GetAllowance,
-        IsInWhiteList
+        IsInWhiteList,
+        GetMethodFee
     }
 
     public class TokenContract : BaseContract<TokenMethod>

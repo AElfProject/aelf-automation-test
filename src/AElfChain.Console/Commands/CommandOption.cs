@@ -8,7 +8,7 @@ namespace AElfChain.Console.Commands
         public static bool TryParseParameters(string input, int length, out string[] parameters)
         {
             parameters = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var result = parameters.Length == length;
+            var result = parameters.Length >= length;
             
             if(!result)
                 $"Wrong input parameters, parameter needed {parameters.Length}/{length}.input again".WriteErrorLine();
@@ -20,6 +20,7 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
+                "[Input parameter]: ".WriteSuccessLine(changeLine:false);
                 var input = System.Console.ReadLine();
                 var result = TryParseParameters(input, length, out var parameters);
 

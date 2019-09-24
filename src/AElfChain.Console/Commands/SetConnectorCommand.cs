@@ -55,7 +55,7 @@ namespace AElfChain.Console.Commands
             var isPurchaseEnabled = "true";
             var isVirtualBalanceEnabled = "true";
             var weight = "0.5";
-            var virtualBalance = "100_00000000";
+            var virtualBalance = "10000000000";
             
             "Parameter: [Symbol] [IsPurchaseEnabled] [IsVirtualBalanceEnabled] [Weight] [VirtualBalance]".WriteSuccessLine();
             $"eg: {symbol} {isPurchaseEnabled} {isVirtualBalanceEnabled} {weight} {virtualBalance}".WriteSuccessLine();

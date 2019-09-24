@@ -312,6 +312,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetContractResource(contract);
         }
 
+        [TestMethod]
+        public async Task CheckTransaction_Fee()
+        {
+            var nodeUrls = new List<string>
+            {
+                "18.212.240.254:8000",
+                "54.183.221.226:8000",
+                "13.230.195.6:8000",
+                "35.183.35.159:8000",
+                "34.255.1.143:8000",
+                "18.163.40.216:8000",
+                "3.1.211.78:8000",
+                "13.210.243.191:8000",
+                "18.231.115.220:8000",
+                "35.177.181.31:8000"
+            };
+            foreach (var url in nodeUrls)
+            {
+                Logger.Info($"Test endpoint: {url}");
+                
+                var nodeManager = new NodeManager(url);
+                var genesis = nodeManager.GetGenesisContract();
+                var token = genesis.GetTokenContract();
+
+                var tokenAmount = token.CallViewMethod<TokenAmounts>(TokenMethod.GetMethodFee, new MethodName
+                {
+                    Name = "Transfer"
+                });
+                Logger.Info(tokenAmount);
+            }
+        }
+
         private void CheckTransactionResult(TransactionResult result)
         {
             if (!result.Status.Equals(TransactionResultStatus.Mined))

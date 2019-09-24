@@ -10,6 +10,7 @@
         <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
         <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+        <PackageReference Include="ReadLine" Version="2.0.1" />
     </ItemGroup>
 
 </Project>

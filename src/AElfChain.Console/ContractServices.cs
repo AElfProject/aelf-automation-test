@@ -1,17 +1,24 @@
+using System;
+using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.TokenConverter;
+using AElf.Types;
 
 namespace AElfChain.Console
 {
     public class ContractServices
     {
+        public INodeManager NodeManager;
         public GenesisContract Genesis;
-        public AuthorityManager Authority;
+
+        public AuthorityManager Authority => GetAuthority();
 
         //contract
+        public Dictionary<string, string> SystemContracts => GetSystemContracts();
         public TokenContract Token => Genesis.GetTokenContract();
 
         public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();
@@ -25,11 +32,45 @@ namespace AElfChain.Console
             Genesis.GetTokenConverterStub();
 
         public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => Genesis.GetConsensusStub();
+
+        public ParliamentAuthContract ParliamentAuth => Genesis.GetParliamentAuthContract();
+
+        public ParliamentAuthContractContainer.ParliamentAuthContractStub ParliamentAuthStub =>
+            Genesis.GetParliamentAuthStub();
         
         public ContractServices(INodeManager nodeManager, string caller = "")
         {
+            NodeManager = nodeManager;
             Genesis = nodeManager.GetGenesisContract(caller);
-            Authority = new AuthorityManager(nodeManager, Genesis.CallAddress);
+            ReadLine.AutoCompletionHandler = new AutoCompleteWithRegisteredCommand(SystemContracts);
         }
+
+        private AuthorityManager GetAuthority()
+        {
+            if(_authorityManager == null)
+                _authorityManager = new AuthorityManager(NodeManager, Genesis.CallAddress);
+
+            return _authorityManager;
+        }
+
+        private AuthorityManager _authorityManager;
+
+        private Dictionary<string, string> GetSystemContracts()
+        {
+            if (_systemContracts == null)
+            {
+                var contracts = Genesis.GetAllSystemContracts();
+                _systemContracts = new Dictionary<string, string>();
+                foreach (var key in contracts.Keys)
+                {
+                    if(contracts[key].Equals(new Address())) continue;
+                    _systemContracts.Add(key.ToString().Replace("Name", "").ToLower(), contracts[key].GetFormatted());
+                }
+            }
+
+            return _systemContracts;
+        }
+
+        private Dictionary<string, string> _systemContracts;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
@@ -71,16 +72,16 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
+                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
-                        $"Transaction: {transactionIds[i]}, Status: {resultStatus}".WriteWarningLine();
+                        Console.Write($"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}");
-                        Logger.Error($"Error message: {transactionResult.Error}");
+                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
+                        Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                 }
@@ -95,7 +96,7 @@ namespace AElf.Automation.RpcPerformance
 
             if (transactionIds.Count == 1)
             {
-                Logger.Info("Last one: {0}", transactionIds[0]);
+                Console.Write($"\rLast one: {transactionIds[0]}");
                 var transactionResult =
                     AsyncHelper.RunSync(() => NodeManager.ApiService.GetTransactionResultAsync(transactionIds[0]));
                 var txResult = transactionResult.Status.ConvertTransactionResultStatus();
@@ -107,12 +108,12 @@ namespace AElf.Automation.RpcPerformance
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[0]}, Status: {txResult}");
+                        Logger.Info($"Transaction: {transactionIds[0]}, Status: {txResult}", true);
                         transactionIds.RemoveAt(0);
                         return;
                     default:
-                        Logger.Error($"Transaction: {transactionIds[0]}, Status: {txResult}");
-                        Logger.Error($"Error message: {transactionResult.Error}");
+                        Logger.Error($"Transaction: {transactionIds[0]}, Status: {txResult}", true);
+                        Logger.Error($"Error message: {transactionResult.Error}", true);
                         break;
                 }
             }
@@ -136,12 +137,14 @@ namespace AElf.Automation.RpcPerformance
 
                 checkTimes++;
                 Thread.Sleep(100);
-                if (checkTimes % 100 == 0)
-                    Logger.Warn(
-                        $"Current block height {currentHeight}, not changed in {checkTimes / 10} seconds.");
+                if (checkTimes % 10 == 0)
+                    Console.Write(
+                        $"\rCurrent block height {currentHeight}, not changed in {checkTimes / 10 : 000} seconds.");
 
-                if (checkTimes == 3000)
-                    Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
+                if (checkTimes != 3000) continue;
+                
+                Console.Write("\r\n");
+                Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
             }
         }
 
@@ -151,6 +154,19 @@ namespace AElf.Automation.RpcPerformance
                 AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync);
 
             return transactionPoolStatusOutput.Queued;
+        }
+
+        private static string SpinInfo(int number)
+        {
+            switch (number % 4)
+            {
+                case 0: return "/";
+                case 1: return "-";
+                case 2: return "\\";
+                case 3: return "-";
+                default:
+                    return ".";
+            }
         }
     }
 }
