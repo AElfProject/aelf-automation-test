@@ -42,6 +42,7 @@ namespace AElfChain.Console.Commands
                      GetBlockState();
                      break;
                  case "CurrentRoundInformation":
+                     GetCurrentRoundInformation();
                      break;
                  case "ChainStatus":
                      GetChainStatus();
@@ -76,7 +77,7 @@ namespace AElfChain.Console.Commands
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockAsync(hash, includeTransaction));
             Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
-
+        
         private void GetBlockByHeight()
         {
             "Parameter: [Height] [IncludeTransaction]=false".WriteSuccessLine();
@@ -85,6 +86,12 @@ namespace AElfChain.Console.Commands
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height, includeTransaction));
             Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
+        }
+
+        private void GetCurrentRoundInformation()
+        {
+            var roundInformation = AsyncHelper.RunSync(ApiService.GetCurrentRoundInformationAsync);
+            Logger.Info(JsonConvert.SerializeObject(roundInformation, Formatting.Indented));
         }
 
         private void GetTransactionPoolStatus()

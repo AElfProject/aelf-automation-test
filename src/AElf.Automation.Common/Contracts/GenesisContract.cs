@@ -161,9 +161,9 @@ namespace AElf.Automation.Common.Contracts
                 {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.Association")},
+                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.AssociationAuth")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
-                {NameProvider.ReferendumName, Hash.FromString("AElf.ContractNames.Referendum")}
+                {NameProvider.ReferendumName, Hash.FromString("AElf.ContractNames.ReferendumAuth")}
             };
 
             return dic;
