@@ -2,6 +2,7 @@ using Acs1;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
+using AElfChain.Console.InputOption;
 using Google.Protobuf;
 using Newtonsoft.Json;
 using Shouldly;
@@ -61,8 +62,8 @@ namespace AElfChain.Console.Commands
             
             "Parameter: [ContractAddress] [Method] [Symbol] [Amount]".WriteSuccessLine();
             $"eg: {contract} {method} {symbol} {amount}".WriteSuccessLine();
-            
-            return CommandOption.InputParameters(4);
+            var reader = new ConsoleReader(new ContractsCompletionEngine(Services.SystemContracts));
+            return CommandOption.InputParameters(4, reader);
         }
     }
 }

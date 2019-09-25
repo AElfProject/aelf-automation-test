@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Types;
 
 namespace AElfChain.Console.Commands
 {
@@ -13,8 +14,12 @@ namespace AElfChain.Console.Commands
 
         public override void RunCommand()
         {
-            Logger.Info($"Genesis contract address: {Services.Genesis.ContractAddress}");
-            Services.Genesis.GetAllSystemContracts();
+            var contracts = Services.Genesis.GetAllSystemContracts();
+            foreach (var key in contracts.Keys)
+            {
+                var address = contracts[key] == new Address() ? "None" : contracts[key].GetFormatted();
+                $"Contract name: {key.ToString().Replace("Name", "").PadRight(16)} Address: {address}".WriteSuccessLine();
+            }
         }
 
         public override string GetCommandInfo()

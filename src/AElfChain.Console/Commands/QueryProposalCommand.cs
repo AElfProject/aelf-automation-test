@@ -32,7 +32,6 @@ namespace AElfChain.Console.Commands
         public override string[] InputParameters()
         {
             var proposalId = "1e91820cf9a6758ec9222dd1bde9e0be5e45beac31cd8ccc8aa3ead2799414ff";
-            
             "Parameter: [ProposalId]".WriteSuccessLine();
             $"eg: {proposalId}".WriteSuccessLine();
             

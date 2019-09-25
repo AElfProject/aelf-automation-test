@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -208,6 +211,35 @@ namespace AElf.Automation.Common.Managers
             TransactionManager.SignTransaction(tr);
 
             return tr.ToByteArray().ToHex();
+        }
+
+        public void CheckTransactionStatus(List<string> transactionIds)
+        {
+            var transactionQueue = new ConcurrentQueue<string>();
+            transactionIds.ForEach(transactionQueue.Enqueue);
+            var stopwatch = Stopwatch.StartNew();
+            while (transactionQueue.TryDequeue(out var transactionId))
+            {
+                var id = transactionId;
+                var transationResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(id));
+                var status = transationResult.Status.ConvertTransactionResultStatus();
+                switch (status)
+                {
+                    case TransactionResultStatus.Pending:
+                        Console.Write($"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                        transactionQueue.Enqueue(id);
+                        Thread.Sleep(500);
+                        break;
+                    case TransactionResultStatus.Mined:
+                        Logger.Info($"TransactionId: {id}, Status: {status}", true);
+                        break;
+                    case TransactionResultStatus.Failed:
+                    case TransactionResultStatus.Unexecutable:
+                    case TransactionResultStatus.NotExisted:
+                        Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transationResult.Error}", true);
+                        break;
+                }
+            }
         }
 
         public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)

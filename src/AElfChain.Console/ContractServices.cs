@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
@@ -42,7 +41,6 @@ namespace AElfChain.Console
         {
             NodeManager = nodeManager;
             Genesis = nodeManager.GetGenesisContract(caller);
-            ReadLine.AutoCompletionHandler = new AutoCompleteWithRegisteredCommand(SystemContracts);
         }
 
         private AuthorityManager GetAuthority()

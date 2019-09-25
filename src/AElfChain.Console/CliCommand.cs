@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.Console.Commands;
+using AElfChain.Console.InputOption;
 using log4net;
 
 namespace AElfChain.Console
 {
-    public class TransactionScripts
+    public class CliCommand
     {
         private INodeManager NodeManager { get; set; }
 
@@ -20,7 +20,11 @@ namespace AElfChain.Console
 
         public List<BaseCommand> Commands;
 
-        public TransactionScripts(INodeManager nodeManager)
+        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo()).ToList();
+
+        public ConsoleReader InputReader { get; set; }
+
+        public CliCommand(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
             var bp = NodeInfoHelper.Config.Nodes.First();
@@ -31,17 +35,35 @@ namespace AElfChain.Console
 
         public void ExecuteTransactionCommand()
         {
+            InputReader = new ConsoleReader(new CommandsCompletionEngine(CommandNames));
+            GetUsageInfo();
             while (true)
             {
-                var input = GetUsageInfo();
-                var result = int.TryParse(input, out var select);
-                if (!result || select > Commands.Count)
+                "[Input command order/name]=> ".WriteWarningLine(changeLine: false);
+                var input = InputReader.ReadLine();
+                
+                //quit command
+                var quitCommand = new List<string>{"quit", "exit", "close"};
+                if (quitCommand.Contains(input.ToLower().Trim()))
                 {
-                    Logger.Error("Wrong input selection.");
-                    continue;
+                    "CLI was been closed.".WriteWarningLine();
+                    break;
+                }
+                
+                //execute command
+                var command = Commands.FirstOrDefault(o => o.GetCommandInfo().Equals(input));
+                if (command == null)
+                {
+                    var result = int.TryParse(input, out var select);
+                    if (!result || select > Commands.Count)
+                    {
+                        Logger.Error("Wrong input selection, please refer following command list.");
+                        GetUsageInfo();
+                        continue;
+                    }
+                    command = Commands[select - 1];
                 }
 
-                var command = Commands[select - 1];
                 $"Name: {command.GetCommandInfo()}".WriteSuccessLine();
                 try
                 {
@@ -51,17 +73,12 @@ namespace AElfChain.Console
                 {
                     Logger.Error(e.Message);
                 }
-
-                "Quit execution transaction(yes/no)? ".WriteWarningLine(changeLine: false);
-                input = System.Console.ReadLine();
-                if (input.ToLower().Trim().Equals("yes"))
-                    break;
             }
         }
 
-        public void InitializeCommands()
+        private void InitializeCommands()
         {
-            Commands.Add(new SwitchOtherChainCommand(NodeManager, Contracts));
+            Commands.Add(new BlockChainCommand(NodeManager, Contracts));
             Commands.Add(new QueryContractCommand(NodeManager, Contracts));
             Commands.Add(new QueryTokenCommand(NodeManager, Contracts));
             Commands.Add(new QueryProposalCommand(NodeManager, Contracts));
@@ -71,23 +88,20 @@ namespace AElfChain.Console
             Commands.Add(new ResourceTradeCommand(NodeManager, Contracts));
             Commands.Add(new SetConnectorCommand(NodeManager, Contracts));
             Commands.Add(new SetTransactionFeeCommand(NodeManager, Contracts));
-            Commands.Add(new TransactionLimitCommand(NodeManager,Contracts));
+            Commands.Add(new TransactionLimitCommand(NodeManager, Contracts));
         }
 
-        private string GetUsageInfo()
+        private void GetUsageInfo()
         {
             var count = 1;
-            "==================== Command ====================".WriteSuccessLine();
+            "======================= Command =======================".WriteSuccessLine();
             foreach (var command in Commands)
             {
                 $"{count:00}. {command.GetCommandInfo()}".WriteSuccessLine();
                 count++;
             }
 
-            "=================================================".WriteSuccessLine();
-            "Please input command order number to execution: ".WriteSuccessLine(changeLine: false);
-            
-            return System.Console.ReadLine();
+            "=======================================================".WriteSuccessLine();
         }
     }
 }

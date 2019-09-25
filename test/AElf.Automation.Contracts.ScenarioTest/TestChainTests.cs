@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
 using AElf.Automation.Common;
@@ -36,7 +38,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit();
             Logger = Log4NetHelper.GetLogger();
 
-            MainNode = new NodeManager("18.212.240.254:8000");
+            MainNode = new NodeManager("192.168.197.43:8100");
             SideNode1 = new NodeManager("3.84.143.239:8000");
             SideNode2 = new NodeManager("34.224.27.242:8000");
 
@@ -342,6 +344,64 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
                 Logger.Info(tokenAmount);
             }
+        }
+
+        [TestMethod]
+        public async Task TransferToken_Test()
+        {
+            var token = MainNode.GetGenesisContract().GetTokenContract();
+            var accounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
+
+            for (var i = 0; i < 200; i++)
+            {
+                var fromId = CommonHelper.GenerateRandomNumber(0, accounts.Count - 1);
+                var toId = CommonHelper.GenerateRandomNumber(0, accounts.Count - 1);
+                if(fromId == toId)
+                    continue;
+                var tester = token.GetNewTester(accounts[fromId]);
+                var amount = CommonHelper.GenerateRandomNumber(5000, 10000);
+                var transactionId = tester.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Symbol = "TELF",
+                    To = accounts[toId].ConvertAddress(),
+                    Amount = amount,
+                    Memo = $"transfer - {Guid.NewGuid()}"
+                });
+                Logger.Info($"From: account{fromId}, To: account{toId}, Amount: {amount}, TransactionId: {transactionId}");
+            }
+        }
+
+        [TestMethod]
+        public async Task SendTwoTransaction_Test()
+        {
+            var accounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
+            var otherAccounts = MainNode.ListAccounts();
+            var token = MainNode.GetGenesisContract().GetTokenContract();
+
+            var rawInfo1 = MainNode.GenerateRawTransaction(accounts[0], token.ContractAddress, "Transfer", new TransferInput
+            {
+                Symbol = "ELF",
+                To = otherAccounts[1].ConvertAddress(),
+                Amount = 1000,
+                Memo = $"transfer test - {Guid.NewGuid()}"
+            });
+            
+            var rawInfo2 = MainNode.GenerateRawTransaction(accounts[1], token.ContractAddress, "Transfer", new TransferInput
+            {
+                Symbol = "ELF",
+                To = otherAccounts[2].ConvertAddress(),
+                Amount = 1000,
+                Memo = $"transfer test - {Guid.NewGuid()}"
+            });
+
+            var rawTransactions = $"{rawInfo1},{rawInfo2}";
+            var transactions = MainNode.SendTransactions(rawTransactions);
+            foreach (var transaction in transactions)
+            {
+                Logger.Info($"TransactionId: {transaction}");
+            }
+            
+            MainNode.CheckTransactionStatus(transactions);
         }
 
         private void CheckTransactionResult(TransactionResult result)

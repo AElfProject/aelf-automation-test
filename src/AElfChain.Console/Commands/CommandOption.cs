@@ -1,5 +1,6 @@
 using System;
 using AElf.Automation.Common.Helpers;
+using AElfChain.Console.InputOption;
 
 namespace AElfChain.Console.Commands
 {
@@ -22,6 +23,20 @@ namespace AElfChain.Console.Commands
             {
                 "[Input parameter]: ".WriteSuccessLine(changeLine:false);
                 var input = System.Console.ReadLine();
+                var result = TryParseParameters(input, length, out var parameters);
+
+                if(!result) continue;
+                
+                return parameters;
+            }
+        }
+
+        public static string[] InputParameters(int length, ConsoleReader reader)
+        {
+            while (true)
+            {
+                "[Input parameter]: ".WriteSuccessLine(changeLine:false);
+                var input = reader.ReadLine();
                 var result = TryParseParameters(input, length, out var parameters);
 
                 if(!result) continue;

@@ -41,8 +41,8 @@ namespace AElfChain.Console
                 var chainStatusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
                 Logger.Info($"ChainId: {chainStatusDto.ChainId}, LongestChainHeight: {chainStatusDto.LongestChainHeight}, LastIrreversibleBlockHeight: {chainStatusDto.LastIrreversibleBlockHeight}");
 
-                var scripts = new TransactionScripts(NodeManager);
-                scripts.ExecuteTransactionCommand();
+                var cliCommand = new CliCommand(NodeManager);
+                cliCommand.ExecuteTransactionCommand();
             }
             catch (Exception e)
             {
