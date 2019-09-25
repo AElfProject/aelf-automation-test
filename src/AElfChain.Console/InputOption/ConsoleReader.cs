@@ -60,10 +60,8 @@ namespace AElfChain.Console.InputOption
                             bufferIndex = Insert(" ", startLeft, startTop, buffer, selection, bufferIndex);
                             break;
                         case ConsoleKey.Enter:
-                            completionCandidates = null;
-                            completionIndex = -1;
-                            selection.Reset(bufferIndex);
-                            break;
+                            console.WriteLine();
+                            return buffer.ToString();
                         default:
                             bufferIndex = Delete(startLeft, startTop, buffer, selection, bufferIndex, keyInfo);
                             bufferIndex = Insert(keyInfo.KeyChar.ToString(), startLeft, startTop, buffer, selection, bufferIndex);
@@ -73,6 +71,11 @@ namespace AElfChain.Console.InputOption
                 }
                 else
                 {
+                    if (keyInfo.Key == ConsoleKey.Enter)
+                    {
+                        console.WriteLine();
+                        return buffer.ToString();
+                    }
                     if (keyInfo.Key == _completionEngine.Trigger.Key
                         && keyInfo.Modifiers == _completionEngine.Trigger.Modifiers)
                     {
