@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AElf.Automation.Common.Contracts;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -28,6 +29,7 @@ namespace AElf.Automation.Common.Managers
         string SendTransaction(string rawTransaction);
         List<string> SendTransactions(string rawTransactions);
         string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter);
+        void CheckTransactionStatus(List<string> transactionIds);
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
             where TResult : IMessage<TResult>, new();
 

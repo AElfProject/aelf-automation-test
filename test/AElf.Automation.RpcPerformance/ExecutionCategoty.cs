@@ -470,7 +470,8 @@ namespace AElf.Automation.RpcPerformance
             //Send batch transaction requests
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
-            NodeManager.SendTransactions(rawTransactions);
+            var transactions = NodeManager.SendTransactions(rawTransactions);
+            Logger.Info(transactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
@@ -632,8 +633,7 @@ namespace AElf.Automation.RpcPerformance
                 var genesis = GenesisContract.GetGenesisContract(NodeManager);
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
                 var token = genesis.GetTokenContract();
-                var chainType = ConfigInfoHelper.Config.ChainTypeInfo;
-                var symbol = chainType.TokenSymbol;
+                var symbol = NodeOption.NativeTokenSymbol;
 
                 for (var i = 0; i < ThreadCount; i++)
                 {
@@ -681,8 +681,7 @@ namespace AElf.Automation.RpcPerformance
         private string GetSetConfigurationLimitAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
-            var config = ConfigInfoHelper.Config;
-            return config.ChainTypeInfo.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
+            return NodeOption.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion

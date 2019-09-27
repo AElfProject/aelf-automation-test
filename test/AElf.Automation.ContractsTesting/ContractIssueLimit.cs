@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -40,13 +41,13 @@ namespace AElf.Automation.ContractsTesting
             var transferBalance = await systemStub.Transfer.SendAsync(new TransferInput
             {
                 Amount = 1000,
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 To = AddressHelper.Base58StringToAddress(_account),
                 Memo = $"transfer for tx execution {Guid.NewGuid()}"
             });
             transferBalance.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            await GetUserBalance(systemStub, "ELF", _account);
+            await GetUserBalance(systemStub, NodeOption.NativeTokenSymbol, _account);
         }
         
         public void DeployTestContract()

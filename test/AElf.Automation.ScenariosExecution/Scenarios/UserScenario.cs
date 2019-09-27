@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -113,7 +114,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
-                Symbol = NativeToken
+                Symbol = NodeOption.NativeTokenSymbol
             });
 
             if (profitResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
@@ -146,7 +147,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var token = Token.GetNewTester(BpNodes.First().Account);
                 token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 10_0000_00000000,
                     To = AddressHelper.Base58StringToAddress(account),
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"

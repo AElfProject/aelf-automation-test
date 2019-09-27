@@ -7,11 +7,14 @@ namespace AElf.Automation.Common.Helpers
     /// </summary>
     public static class ConsoleHelper
     {
-        private static void WriteColorLine(string str, ConsoleColor color)
+        private static void WriteColorLine(string str, ConsoleColor color, bool changeLine = true)
         {
             var currentForeColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
-            Console.WriteLine(str);
+            if (changeLine)
+                Console.WriteLine(str);
+            else
+                Console.Write(str);
             Console.ForegroundColor = currentForeColor;
         }
 
@@ -20,9 +23,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red)
+        /// <param name="changeLine"></param>
+        public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red, bool changeLine = true)
         {
-            WriteColorLine(str, color);
+            WriteColorLine(str, color, changeLine);
         }
 
         /// <summary>
@@ -30,9 +34,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow)
+        /// <param name="changeLine"></param>
+        public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow, bool changeLine = true)
         {
-            WriteColorLine(str, color);
+            WriteColorLine(str, color, changeLine);
         }
 
         /// <summary>
@@ -40,9 +45,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void InfoLine(this string str, ConsoleColor color = ConsoleColor.White)
+        /// <param name="changeLine"></param>
+        public static void InfoLine(this string str, ConsoleColor color = ConsoleColor.White, bool changeLine = true)
         {
-            WriteColorLine(str, color);
+            WriteColorLine(str, color, changeLine);
         }
 
         /// <summary>
@@ -50,9 +56,10 @@ namespace AElf.Automation.Common.Helpers
         /// </summary>
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
-        public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green)
+        /// <param name="changeLine"></param>
+        public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green, bool changeLine = true)
         {
-            WriteColorLine(str, color);
+            WriteColorLine(str, color, changeLine);
         }
     }
 }

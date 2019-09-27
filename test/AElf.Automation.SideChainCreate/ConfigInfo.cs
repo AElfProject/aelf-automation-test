@@ -26,7 +26,7 @@ namespace AElf.Automation.SideChainCreate
         [JsonProperty("IndexingPrice")] public long IndexingPrice { get; set; }
         [JsonProperty("LockedTokenAmount")] public long LockedTokenAmount { get; set; }
         [JsonProperty("IsPrivilegePreserved")] public bool IsPrivilegePreserved { get; set; }
-        [JsonProperty("TokenSymbol")] public string TokenSymbol { get; set; }
+        [JsonProperty("NativeTokenSymbol")] public string TokenSymbol { get; set; }
     }
 
     public static class ConfigHelper

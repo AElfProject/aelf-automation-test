@@ -1,3 +1,4 @@
+using AElf.Automation.Common;
 using AElf.Contracts.CrossChain;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -19,7 +20,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("VMxr1PRJopCTXBVboUtrkZUN4SfqtbigFc6z8E9TiMiWyoCF6")]
         public void RequestSideChain(string account)
         {
-            MainContracts.TransferToken(InitAccount, account, 100_0000_00000000, "ELF");
+            MainContracts.TransferToken(InitAccount, account, 1000000, NodeOption.NativeTokenSymbol);
 //            MainContracts.TokenApprove(account, 400000);
 //            
 //            var result = MainContracts.RequestSideChain(account,400000);
@@ -61,7 +62,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
         public void CreateProposal(string account)
         {
-            MainContracts.TransferToken(InitAccount, account, 400000, "ELF");
+            MainContracts.TransferToken(InitAccount, account, 400000, NodeOption.NativeTokenSymbol);
             MainContracts.TokenApprove(account, 400000);
             var address = MainContracts.GetOrganizationAddress(account);
             var result = MainContracts.CreateSideChainProposal(address, account, 1, 1000, true);
@@ -107,10 +108,10 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
         public void CheckBalance(string account)
         {
-            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress, "ELF");
+            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress, NodeOption.NativeTokenSymbol);
             _logger.Info($"side chain balance is {balance}");
 
-            var userBalance = MainContracts.GetBalance(account, "ELF");
+            var userBalance = MainContracts.GetBalance(account, NodeOption.NativeTokenSymbol);
             _logger.Info($"user balance is {userBalance}");
         }
     }

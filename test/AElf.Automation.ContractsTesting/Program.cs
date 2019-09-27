@@ -28,7 +28,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = Account.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.14:8000";
+        public string Endpoint { get; set; } = "http://18.163.40.216:8000";
 
         #endregion
 
@@ -55,7 +55,10 @@ namespace AElf.Automation.ContractsTesting
 
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
-
+            
+            //proto file serialize
+            var serialize = new ProtoFileTest(nm);
+            
             //generate random number
             var randGen = new RandomGenerate(nm, BpAccount);
             AsyncHelper.RunSync(() => randGen.GenerateAndCheckRandomNumbers(10));

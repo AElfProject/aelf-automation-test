@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Contracts.Election;
@@ -61,7 +62,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
@@ -73,14 +74,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (beforeA != afterA + amount)
                 {
                     Logger.Error(
-                        $"Transfer failed, amount check not correct. From owner ELF: {beforeA}/{afterA + amount}");
+                        $"Transfer failed, amount check not correct. From owner {NodeOption.NativeTokenSymbol}: {beforeA}/{afterA + amount}");
                     result = false;
                 }
 
                 if (beforeB != afterB - amount)
                 {
                     Logger.Error(
-                        $"Transfer failed, amount check not correct. To owner ELF: {beforeB}/{afterB - amount}");
+                        $"Transfer failed, amount check not correct. To owner {NodeOption.NativeTokenSymbol}: {beforeB}/{afterB - amount}");
                     result = false;
                 }
 
@@ -103,7 +104,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Owner = AddressHelper.Base58StringToAddress(from),
                         Spender = AddressHelper.Base58StringToAddress(to),
-                        Symbol = NativeToken
+                        Symbol = NodeOption.NativeTokenSymbol
                     }).Allowance;
 
                 var token = Token.GetNewTester(from);
@@ -113,7 +114,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Amount = 1000_00000000,
                         Spender = AddressHelper.Base58StringToAddress(to),
-                        Symbol = NativeToken
+                        Symbol = NodeOption.NativeTokenSymbol
                     });
                     if (txResult1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                         Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
@@ -129,7 +130,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     From = AddressHelper.Base58StringToAddress(from),
                     To = AddressHelper.Base58StringToAddress(to),
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
@@ -170,7 +171,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 200_000_00000000,
                     To = AddressHelper.Base58StringToAddress(fullNode.Account),
                     Memo = "Transfer for announcement event"
@@ -188,7 +189,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 500_000_00000000 - balance,
                     To = AddressHelper.Base58StringToAddress(user),
                     Memo = $"Transfer for testing - {Guid.NewGuid()}"
@@ -215,7 +216,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = balance/2,
-                    Symbol = NativeToken,
+                    Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect half tokens from other bps."
                 });

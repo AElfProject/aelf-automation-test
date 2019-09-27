@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -41,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var tokenInfo = await tokenStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
             {
-                Symbol = "ELF"
+                Symbol = NodeOption.NativeTokenSymbol
             });
             tokenInfo.ShouldNotBeNull();
         }
@@ -56,7 +57,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput
             {
                 Amount = 100,
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 To = AddressHelper.Base58StringToAddress(TestAccount),
                 Memo = "Test transfer with new sdk"
             });
@@ -66,7 +67,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(TestAccount),
-                Symbol = "ELF"
+                Symbol = NodeOption.NativeTokenSymbol
             });
             result.Balance.ShouldBeGreaterThanOrEqualTo(100);
         }

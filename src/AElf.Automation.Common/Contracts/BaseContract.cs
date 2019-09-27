@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -163,6 +164,7 @@ namespace AElf.Automation.Common.Contracts
             if (maxTimes == -1) maxTimes = Timeout == 0 ? 600 : Timeout;
 
             var checkTimes = 1;
+            var stopwatch = Stopwatch.StartNew();
             while (checkTimes <= maxTimes)
             {
                 var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
@@ -170,7 +172,7 @@ namespace AElf.Automation.Common.Contracts
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
+                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
                         return transactionResult;
                     case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.Failed:
@@ -179,15 +181,18 @@ namespace AElf.Automation.Common.Contracts
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";
-                        Logger.Error(message);
+                        Logger.Error(message, true);
                         return transactionResult;
                     }
                 }
-
+                
+                Console.Write($"\rTransaction {txId} status: {transactionResult.Status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                
                 checkTimes++;
                 Thread.Sleep(500);
             }
-
+            
+            Console.Write("\r\n");
             throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
         }
 
@@ -270,7 +275,7 @@ namespace AElf.Automation.Common.Contracts
         /// <returns></returns>
         public TResult CallViewMethod<TResult>(T method, IMessage input) where TResult : IMessage<TResult>, new()
         {
-            return NodeManager.QueryView<TResult>(CallAddress, ContractAddress, method.ToString(), input);
+            return CallViewMethod<TResult>(method.ToString(), input);
         }
 
         #region Priority

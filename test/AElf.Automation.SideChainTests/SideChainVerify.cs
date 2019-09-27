@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Acs3;
-using Acs7;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -135,7 +135,7 @@ namespace AElf.Automation.SideChainTests
         {
             var crossChainTransferInput = new CrossChainTransferInput()
             {
-                Symbol = "ELF",
+                Symbol = NodeOption.NativeTokenSymbol,
                 IssueChainId = MainContracts.ContractServices.ChainId,
                 Amount = 10000,
                 Memo = "cross chain transfer",

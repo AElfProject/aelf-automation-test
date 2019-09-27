@@ -23,22 +23,14 @@ namespace AElf.Automation.RpcPerformance
     public class NodeTransactionOption
     {
         [JsonProperty("enable_limit")] public bool EnableLimit { get; set; }
-
         [JsonProperty("max_transactions_select")]
         public int MaxTransactionSelect { get; set; }
-    }
-
-    public class ChainType
-    {
-        [JsonProperty("is_main_chain")] public bool IsMainChain { get; set; }
-        [JsonProperty("token_symbol")] public string TokenSymbol { get; set; }
     }
 
     public class ConfigInfo
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
-
         [JsonProperty("EnableRandomTransaction")]
         public bool EnableRandomTransaction { get; set; }
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; }
@@ -47,10 +39,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("Conflict")] public bool Conflict { get; set; }
         [JsonProperty("ReadOnlyTransaction")] public bool ReadOnlyTransaction { get; set; }
-        
-        [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
-
         [JsonProperty("RequestRandomEndpoint")]
         public RandomTransactionOption RandomEndpointOption { get; set; }
     }

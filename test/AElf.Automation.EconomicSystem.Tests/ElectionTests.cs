@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -118,7 +119,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {
                     Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
-                        Symbol = "ELF",
+                        Symbol = NodeOption.NativeTokenSymbol,
                         Amount = 200_000L,
                         To = AddressHelper.Base58StringToAddress(account),
                         Memo = "Transfer token for announcement."
@@ -166,7 +167,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {
                     Amount = 20_0000_00000000,
                     Memo = "transfer for balance test",
-                    Symbol = "ELF",
+                    Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(acc)
                 });
             }
@@ -178,7 +179,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var callResult = Behaviors.TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                     new GetBalanceInput
                     {
-                        Symbol = "ELF",
+                        Symbol = NodeOption.NativeTokenSymbol,
                         Owner = AddressHelper.Base58StringToAddress(userAcc)
                     });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
