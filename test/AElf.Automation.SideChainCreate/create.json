@@ -1,0 +1,38 @@
+{
+    "TestEnvironment": "Online",
+    "EnvironmentInfo": [
+        {
+            "Environment": "Online",
+            "Url": "http://3.94.106.10:8000",
+            "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "Password": "123"
+        },
+        {
+            "Environment": "Offline",
+            "Url": "http://192.168.197.40:8000",
+            "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "Password": "123"
+        },
+        {
+            "Environment": "Other",
+            "Url": "http://192.168.197.56:8001",
+            "InitAccount": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "Password": "123"
+        }
+    ],
+    "ApproveTokenAmount": 8000000,
+    "SideChainInfo": [
+        {
+            "IndexingPrice": "1",
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SAELF"
+        },
+        {
+            "IndexingPrice": "1",
+            "LockedTokenAmount": 4000000,
+            "IsPrivilegePreserved": true,
+            "TokenSymbol": "SBELF"
+        }
+    ]
+}

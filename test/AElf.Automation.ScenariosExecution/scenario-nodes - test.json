@@ -1,0 +1,97 @@
+{
+    "BpNodes": [
+        {
+            "name": "bp1",
+            "service_url": "http://192.168.197.13:8100",
+            "account": "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
+            "password": "123"
+        },
+        {
+            "name": "bp2",
+            "service_url": "http://192.168.197.28:8100",
+            "account": "jdJz9LkXkePfTHmHfYPaksnUueymUpHVRSsA7mRWCvkZpA2gL",
+            "password": "123"
+        },
+        {
+            "name": "bp3",
+            "service_url": "http://192.168.197.33:8100",
+            "account": "3PezHjVGutQefW54XjRNvXGN8SfNqz4v2pzuQZ7as5HwaVDeT",
+            "password": "123"
+        },
+        {
+            "name": "bp4",
+            "service_url": "http://192.168.197.36:8100",
+            "account": "dRRveVhMwtBCPfgC8XwenLYaETm4qvvx88J3ShTDENKxy46aY",
+            "password": "123"
+        },
+        {
+            "name": "bp5",
+            "service_url": "http://192.168.197.40:8100",
+            "account": "kBAo3trKRHSHqREFniQQgrwAYjCzPMQ5V7k4FDAaWUh4zontX",
+            "password": "123"
+        }
+    ],
+    "FullNodes": [
+        {
+            "name": "full1",
+            "service_url": "http://192.168.197.13:8200",
+            "account": "27TQjMxBx2Ep9MqnTupxXoz9ByoAMgZJvBjn4eJNGKzvEMxNsE",
+            "password": "123"
+        },
+        {
+            "name": "full2",
+            "service_url": "http://192.168.197.13:8300",
+            "account": "rmXn6GFX1P82KthaovPoFU2QLP9n2YS6qMZNCuHHv7CjGxuzh",
+            "password": "123"
+        },
+        {
+            "name": "full3",
+            "service_url": "http://192.168.197.28:8200",
+            "account": "j524cYcfkxFCSoSV5Lh9BavWw2vu3PD9YrUFrJcQ2Hwqf9kWb",
+            "password": "123"
+        },
+        {
+            "name": "full4",
+            "service_url": "http://192.168.197.28:8300",
+            "account": "2G9ygXZixbjUvbAP8TE4o5cZ9oCLG3n3iY899tN6dEmdbb7oaA",
+            "password": "123"
+        },
+        {
+            "name": "full5",
+            "service_url": "http://192.168.197.33:8200",
+            "account": "2nyWx5YoBZeVPASHPGdiTjwPdU2XKmY1pq48c2JQT1cAFgJFoY",
+            "password": "123"
+        },
+        {
+            "name": "full6",
+            "service_url": "http://192.168.197.33:8300",
+            "account": "2kYRs5eHFaskGQ18sARc5BKnguy3NRJs5WTnaVmWtFoMBzCLxo",
+            "password": "123"
+        },
+        {
+            "name": "full7",
+            "service_url": "http://192.168.197.36:8300",
+            "account": "RSsSihZ4wpSPsUau5ceEVNiA8eL7kzLMyHJp4ZGahaSVo33zu",
+            "password": "123"
+        },
+        {
+            "name": "full8",
+            "service_url": "http://192.168.197.36:8300",
+            "account": "a9tykK4pAeZd8Jyzm43oGep4Ft7FPP7NGDCRUmYZzWCS55GCW",
+            "password": "123"
+        },
+        {
+            "name": "full9",
+            "service_url": "http://192.168.197.40:8200",
+            "account": "2mdgpg8u6NVqZZ2s56GqUKUP8PxpjUYc7uWtwjDPfqvSk8To1U",
+            "password": "123"
+        },
+        {
+            "name": "full10",
+            "service_url": "http://192.168.197.40:8300",
+            "account": "mWMJ7k3j2K7GJKhzcVPur9xv5Xo2sGkjdS4sc9RQbd4TUnCiK",
+            "password": "123"
+        }
+    ],
+    "UserCount": 100
+}

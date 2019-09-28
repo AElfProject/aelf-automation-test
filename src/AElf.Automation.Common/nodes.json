@@ -1,0 +1,26 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "bp1",
+      "account": "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt",
+      "password": "123"
+    },
+    {
+      "name": "bp2",
+      "account": "2pE19sCDT4DLAkU58GbwZbHZXbWcCDPxfAdvAhyaaznba38T6N",
+      "password": "123"
+    },
+    {
+      "name": "bp3",
+      "account": "8NnkHHN4EBFtdpDa2d6LmN7kVNxdCyb9z8ieYX2stNpERDqra",
+      "password": "123"
+    }
+  ],
+  "ChainType": {
+    "is_main_chain": true,
+    "token_symbol": "ELF"
+  },
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "123"
+}

@@ -1,3 +1,4 @@
-[submodule "AElf"]
-	path = AElf
+[submodule "src/AElf"]
+	path = src/AElf
 	url = https://github.com/AElfProject/AElf
+	branch = dev

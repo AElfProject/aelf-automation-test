@@ -268,6 +268,12 @@ __pycache__/
 .vs/
 slnx.sqlite
 /AElf.Automation.RpcPerformance/Properties
+TestRelease/
 
 #Remove testing result files
 RpcResult_Thread*
+
+#Protobuf generated code
+*.g.cs
+*.c.cs
+contract_csharp_plugin

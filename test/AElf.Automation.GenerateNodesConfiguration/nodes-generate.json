@@ -1,0 +1,20 @@
+{
+    "BpNodes": [
+        {
+            "name": "bp1",
+            "ip": "127.0.0.1",
+            "db_no": 1,
+            "api_port": 8100,
+            "net_port": 6810
+        },
+        {
+            "name": "bp2",
+            "ip": "127.0.0.1",
+            "db_no": 2,
+            "api_port": 8200,
+            "net_port": 6820
+        }
+    ],
+    "FullNodes": [
+    ]
+}
