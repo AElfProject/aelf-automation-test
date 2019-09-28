@@ -48,7 +48,7 @@ namespace AElf.Automation.ProposalTest
 
         private void GetOrDeployAssociationContract()
         {
-            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssociationName).Value;
+            var associationAuthAddress = GenesisService.GetContractAddressByName(NameProvider.AssociationAuth).Value;
             AssociationService = associationAuthAddress == ByteString.Empty
                 ? new AssociationAuthContract(NodeManager, CallAddress)
                 : new AssociationAuthContract(NodeManager, CallAddress, associationAuthAddress.ToBase64());
@@ -56,7 +56,7 @@ namespace AElf.Automation.ProposalTest
 
         private void GetOrDeployReferendumContract()
         {
-            var referendumAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ReferendumName).Value;
+            var referendumAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ReferendumAuth).Value;
             ReferendumService = referendumAuthAddress == ByteString.Empty
                 ? new ReferendumAuthContract(NodeManager, CallAddress)
                 : new ReferendumAuthContract(NodeManager, CallAddress, referendumAuthAddress.ToBase64());

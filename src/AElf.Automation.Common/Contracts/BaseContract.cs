@@ -125,7 +125,7 @@ namespace AElf.Automation.Common.Contracts
 
             //Check result
             Thread.Sleep(100); //in case of 'NotExisted' issue
-            return CheckTransactionResult(txId);
+            return NodeManager.CheckTransactionResult(txId);
         }
 
         /// <summary>
@@ -137,63 +137,6 @@ namespace AElf.Automation.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
             return ExecuteMethodWithResult(method.ToString(), inputParameter);
-        }
-
-        /// <summary>
-        ///     获取执交易行结果是否成功
-        /// </summary>
-        /// <param name="txId"></param>
-        /// <param name="transactionResult"></param>
-        /// <returns></returns>
-        public bool GetTransactionResult(string txId, out TransactionResultDto transactionResult)
-        {
-            transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
-
-            Logger.Info($"Transaction: {txId}, Status: {transactionResult.Status}");
-            return transactionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
-        }
-
-        /// <summary>
-        ///     检查交易执行结果
-        /// </summary>
-        /// <param name="txId"></param>
-        /// <param name="maxTimes"></param>
-        /// <returns></returns>
-        public TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1)
-        {
-            if (maxTimes == -1) maxTimes = Timeout == 0 ? 600 : Timeout;
-
-            var checkTimes = 1;
-            var stopwatch = Stopwatch.StartNew();
-            while (checkTimes <= maxTimes)
-            {
-                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
-                var status = transactionResult.Status.ConvertTransactionResultStatus();
-                switch (status)
-                {
-                    case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
-                        return transactionResult;
-                    case TransactionResultStatus.Unexecutable:
-                    case TransactionResultStatus.Failed:
-                    {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}";
-                        message +=
-                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        message += $"\r\nError Message: {transactionResult.Error}";
-                        Logger.Error(message, true);
-                        return transactionResult;
-                    }
-                }
-                
-                Console.Write($"\rTransaction {txId} status: {transactionResult.Status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                
-                checkTimes++;
-                Thread.Sleep(500);
-            }
-            
-            Console.Write("\r\n");
-            throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
         }
 
         /// <summary>
@@ -326,7 +269,7 @@ namespace AElf.Automation.Common.Contracts
         private bool GetContractAddress(string txId, out string contractAddress)
         {
             contractAddress = string.Empty;
-            var transactionResult = CheckTransactionResult(txId);
+            var transactionResult = NodeManager.CheckTransactionResult(txId);
             if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 return false;
 

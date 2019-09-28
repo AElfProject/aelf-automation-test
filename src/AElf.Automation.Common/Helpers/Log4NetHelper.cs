@@ -4,9 +4,16 @@ using System.IO;
 using System.Linq;
 using log4net;
 using log4net.Config;
+using Newtonsoft.Json;
 
 namespace AElf.Automation.Common.Helpers
 {
+    public enum Format
+    {
+        None,
+        Json
+    }
+    
     public static class Log4NetHelper
     {
         public static int LogInit()
@@ -92,6 +99,18 @@ namespace AElf.Automation.Common.Helpers
             logger.Info(message);
         }
 
+        public static void Info(this ILog logger, string message, Format format)
+        {
+            if (format == Format.Json)
+            {
+                var info = ConvertJsonString(message);
+                logger.Info(info);
+                return;
+            }
+            
+            logger.Info(message);
+        }
+
         /// <summary>
         /// Warn extension method
         /// </summary>
@@ -131,5 +150,30 @@ namespace AElf.Automation.Common.Helpers
             
             logger.Error(message);
         }
+        
+        private static string ConvertJsonString(string str)
+        {
+            //格式化json字符串
+            var serializer = new JsonSerializer();
+            var tr = new StringReader(str);
+            var jtr = new JsonTextReader(tr);
+            var obj = serializer.Deserialize(jtr);
+            if (obj != null)
+            {
+                var textWriter = new StringWriter();
+                var jsonWriter = new JsonTextWriter(textWriter)
+                {
+                    Formatting = Formatting.Indented,
+                    Indentation = 4,
+                    IndentChar = ' '
+                };
+                serializer.Serialize(jsonWriter, obj);
+                return textWriter.ToString();
+            }
+            else
+            {
+                return str;
+            }         
+        } 
     }
 }

@@ -58,6 +58,7 @@ namespace AElf.Automation.ContractsTesting
             
             //proto file serialize
             var serialize = new ProtoFileTest(nm);
+            Console.ReadLine();
             
             //generate random number
             var randGen = new RandomGenerate(nm, BpAccount);

@@ -53,7 +53,7 @@ namespace AElf.Automation.RpcPerformance
         public void TokenPreparation(IEnumerable<AccountInfo> testUsers)
         {
             var bpInfos = NodeInfoHelper.Config.Nodes;
-            var tokenAddress = _genesis.GetContractAddressByName(NameProvider.TokenName);
+            var tokenAddress = _genesis.GetContractAddressByName(NameProvider.Token);
             if(tokenAddress == new Address())
                 throw new Exception("Token was not deployed.");
             

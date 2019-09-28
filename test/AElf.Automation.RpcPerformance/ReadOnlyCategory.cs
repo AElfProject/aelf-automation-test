@@ -100,7 +100,7 @@ namespace AElf.Automation.RpcPerformance
             var genesisService = GenesisContract.GetGenesisContract(NodeManager, AccountList[0].Account);
 
             //TokenService contract
-            var tokenAddress = genesisService.GetContractAddressByName(NameProvider.TokenName);
+            var tokenAddress = genesisService.GetContractAddressByName(NameProvider.Token);
             Token = new TokenContract(NodeManager, callAddress, tokenAddress.GetFormatted());
             ContractList = new List<ContractInfo>();
             for (var i = 0; i < ThreadCount; i++)

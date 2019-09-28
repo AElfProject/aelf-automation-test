@@ -81,7 +81,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in txIdList)
             {
                 var checkTime = 5;
-                var result = Association.CheckTransactionResult(value);
+                var result = Association.NodeManager.CheckTransactionResult(value);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
@@ -104,7 +104,7 @@ namespace AElf.Automation.ProposalTest
 
             foreach (var (key, value) in OrganizationList)
             {
-                Logger.Info($"Association organization : {key}");
+                Logger.Info($"AssociationAuth organization : {key}");
                 foreach (var reviewer in value.Reviewers)
                 {
                     Logger.Info($"Reviewer is {reviewer}");
@@ -156,7 +156,7 @@ namespace AElf.Automation.ProposalTest
                 foreach (var txId in value)
                 {
                     var checkTime = 5;
-                    var result = Association.CheckTransactionResult(txId);
+                    var result = Association.NodeManager.CheckTransactionResult(txId);
                     var status = result.Status.ConvertTransactionResultStatus();
                     while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
@@ -220,7 +220,7 @@ namespace AElf.Automation.ProposalTest
                     foreach (var txInfo in proposalApprove.Value)
                     {
                         var checkTime = 5;
-                        var result = Association.CheckTransactionResult(txInfo.Value);
+                        var result = Association.NodeManager.CheckTransactionResult(txInfo.Value);
                         var status = result.Status.ConvertTransactionResultStatus();
                         while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                         {
@@ -269,7 +269,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var txId in releaseTxIds)
             {
                 var checkTime = 5;
-                var result = Association.CheckTransactionResult(txId);
+                var result = Association.NodeManager.CheckTransactionResult(txId);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {

@@ -401,7 +401,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"TransactionId: {transaction}");
             }
             
-            MainNode.CheckTransactionStatus(transactions);
+            MainNode.CheckTransactionListResult(transactions);
         }
 
         private void CheckTransactionResult(TransactionResult result)

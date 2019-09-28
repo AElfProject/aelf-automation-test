@@ -14,7 +14,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly TokenContract TokenService;
         public readonly GenesisContract GenesisService;
         public readonly TokenConverterContract TokenConverterService;
-        public readonly FeeReceiverContract FeeReceiverService;
         public readonly ConsensusContract ConsensusService;
         public readonly AssociationAuthContract AssociationService;
         public readonly ParliamentAuthContract ParliamentService;

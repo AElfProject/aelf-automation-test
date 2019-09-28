@@ -213,7 +213,44 @@ namespace AElf.Automation.Common.Managers
             return tr.ToByteArray().ToHex();
         }
 
-        public void CheckTransactionStatus(List<string> transactionIds)
+        public TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1)
+        {
+            if (maxTimes == -1) maxTimes = 600;
+
+            var checkTimes = 1;
+            var stopwatch = Stopwatch.StartNew();
+            while (checkTimes <= maxTimes)
+            {
+                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                switch (status)
+                {
+                    case TransactionResultStatus.Mined:
+                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
+                        return transactionResult;
+                    case TransactionResultStatus.Unexecutable:
+                    case TransactionResultStatus.Failed:
+                    {
+                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        message +=
+                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
+                        message += $"\r\nError Message: {transactionResult.Error}";
+                        Logger.Error(message, true);
+                        return transactionResult;
+                    }
+                }
+                
+                Console.Write($"\rTransaction {txId} status: {transactionResult.Status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                
+                checkTimes++;
+                Thread.Sleep(500);
+            }
+            
+            Console.Write("\r\n");
+            throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
+        }
+        
+        public void CheckTransactionListResult(List<string> transactionIds)
         {
             var transactionQueue = new ConcurrentQueue<string>();
             transactionIds.ForEach(transactionQueue.Enqueue);
@@ -221,8 +258,8 @@ namespace AElf.Automation.Common.Managers
             while (transactionQueue.TryDequeue(out var transactionId))
             {
                 var id = transactionId;
-                var transationResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(id));
-                var status = transationResult.Status.ConvertTransactionResultStatus();
+                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(id));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
                     case TransactionResultStatus.Pending:
@@ -236,7 +273,7 @@ namespace AElf.Automation.Common.Managers
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.NotExisted:
-                        Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transationResult.Error}", true);
+                        Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transactionResult.Error}", true);
                         break;
                 }
             }
@@ -267,6 +304,31 @@ namespace AElf.Automation.Common.Managers
             var messageParser = new MessageParser<T>(() => new T());
 
             return messageParser.ParseFrom(byteArray);
+        }
+
+        public ByteString QueryView(string @from, string to, string methodName, IMessage inputParameter)
+        {
+            var transaction = new Transaction
+            {
+                From = AddressHelper.Base58StringToAddress(from),
+                To = AddressHelper.Base58StringToAddress(to),
+                MethodName = methodName,
+                Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
+            };
+            transaction = TransactionManager.SignTransaction(transaction);
+
+            var resp = CallTransaction(transaction);
+
+            //deserialize response
+            if (resp == null)
+            {
+                Logger.Error("ExecuteTransaction response is null.");
+                return default;
+            }
+
+            var byteArray = ByteArrayHelper.HexStringToByteArray(resp);
+            
+            return ByteString.CopyFrom(byteArray);
         }
 
         //Net Api

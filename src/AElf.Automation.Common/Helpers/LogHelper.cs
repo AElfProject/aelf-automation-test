@@ -6,7 +6,7 @@ namespace AElf.Automation.Common.Helpers
 {
     public interface ILogHelper
     {
-        void InitLogHelper(string logFilePath);
+        void InitLogHelper(string logFilePath = "");
 
         void Info(string logText, params object[] arg);
 
@@ -60,9 +60,12 @@ namespace AElf.Automation.Common.Helpers
             }
         }
 
-        public void InitLogHelper(string logFileSavePath)
+        public void InitLogHelper(string logFileSavePath = "")
         {
-            if (string.IsNullOrEmpty(logFileSavePath)) throw new ArgumentNullException(nameof(logFileSavePath));
+            if (string.IsNullOrEmpty(logFileSavePath))
+            {
+                logFileSavePath = CommonHelper.MapPath($"/logs/{DateTime.Now:yyyy-M-d dddd}.log");
+            }
 
             try
             {

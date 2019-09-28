@@ -140,7 +140,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             Logger.Info("Prepare resources token.");
             var genesis = MainChainService.GenesisService;
-            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
+            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
             var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress, tokenConverter.GetFormatted());
             var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
             

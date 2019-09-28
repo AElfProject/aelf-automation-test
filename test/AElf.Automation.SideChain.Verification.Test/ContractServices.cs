@@ -33,20 +33,20 @@ namespace AElf.Automation.SideChain.Verification
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
-            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
+            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.Token);
             TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.GetFormatted());
 
             //CrossChain contract
-            var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChainName);
+            var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChain);
             CrossChainService = new CrossChainContract(NodeManager, CallAddress, crossChainAddress.GetFormatted());
             
             //ParliamentAuth contract
-            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentName);
+            var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
                 new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
             
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
+            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);
             ConsensusService = new ConsensusContract(NodeManager,CallAddress,consensusAddress.GetFormatted());
         }
     }

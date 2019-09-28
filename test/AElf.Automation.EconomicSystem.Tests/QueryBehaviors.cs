@@ -102,7 +102,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
                 new GetManagingSchemeIdsInput
                 {
-                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.TreasuryName)
+                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.Treasury)
                 });
             return result;
         }

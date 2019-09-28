@@ -11,6 +11,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public TokenContract TokenService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
         public VoteContract VoteService { get; set; }
+        public TreasuryContract TreasuryService { get; set; }
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -33,28 +34,27 @@ namespace AElf.Automation.EconomicSystem.Tests
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
             //TokenService contract
-            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.TokenName);
+            var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.Token);
             TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.GetFormatted());
 
-            //TokenConverter contract
-            //var converterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
-            //TokenConverterService = new TokenConverterContract(NodeManager, CallAddress, converterAddress.GetFormatted());
-
             //ProfitService contract
-            var profitAddress = GenesisService.GetContractAddressByName(NameProvider.ProfitName);
+            var profitAddress = GenesisService.GetContractAddressByName(NameProvider.Profit);
             ProfitService = new ProfitContract(NodeManager, CallAddress, profitAddress.GetFormatted());
 
             //VoteService contract
-            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.VoteName);
+            var voteAddress = GenesisService.GetContractAddressByName(NameProvider.Vote);
             VoteService = new VoteContract(NodeManager, CallAddress, voteAddress.GetFormatted());
 
             //ElectionService contract
-            var electionAddress = GenesisService.GetContractAddressByName(NameProvider.ElectionName);
+            var electionAddress = GenesisService.GetContractAddressByName(NameProvider.Election);
             ElectionService = new ElectionContract(NodeManager, CallAddress, electionAddress.GetFormatted());
 
             //Consensus contract
-            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.ConsensusName);
+            var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);
             ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
+            
+            //Treasury contract
+            TreasuryService = GenesisService.GetTreasuryContract();
         }
     }
 }

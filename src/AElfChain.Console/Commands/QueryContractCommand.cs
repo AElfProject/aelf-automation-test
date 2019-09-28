@@ -18,7 +18,7 @@ namespace AElfChain.Console.Commands
             foreach (var key in contracts.Keys)
             {
                 var address = contracts[key] == new Address() ? "None" : contracts[key].GetFormatted();
-                $"Contract name: {key.ToString().Replace("Name", "").PadRight(16)} Address: {address}".WriteSuccessLine();
+                $"Contract name: {key.ToString().PadRight(16)} Address: {address}".WriteSuccessLine();
             }
         }
 
