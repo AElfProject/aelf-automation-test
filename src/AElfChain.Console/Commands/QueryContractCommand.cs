@@ -22,9 +22,13 @@ namespace AElfChain.Console.Commands
             }
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query all system contracts";
+            return new CommandInfo
+            {
+                Name = "system-contracts",
+                Description = "Query all system contracts"
+            };
         }
 
         public override string[] InputParameters()

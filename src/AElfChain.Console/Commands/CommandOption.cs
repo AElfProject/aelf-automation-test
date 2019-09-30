@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElfChain.Console.InputOption;
 
@@ -35,8 +36,14 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
-                "[Input parameter]: ".WriteSuccessLine(changeLine:false);
+                "[Selection(Tab)]: ".WriteSuccessLine(changeLine:false);
                 var input = reader.ReadLine();
+                if (input == "list")
+                {
+                    string.Join("\r\n", reader.CompletionEngine.GetAllSelections()).WriteSuccessLine();
+                    continue;
+                }
+                
                 var result = TryParseParameters(input, length, out var parameters);
 
                 if(!result) continue;

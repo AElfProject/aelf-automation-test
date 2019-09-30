@@ -226,6 +226,7 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
+                        Console.WriteLine();
                         Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
                         return transactionResult;
                     case TransactionResultStatus.Unexecutable:

@@ -6,6 +6,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -50,10 +51,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 performance.GetTestStub<PerformanceContractContainer.PerformanceContractStub>(TestAccount);
             for (var i = 1; i < 5; i++)
             {
-                var transactionResult = await PerformanceStub.ComputeLevel.SendAsync(new NumberInput
-                {
-                    Number = i * 10
-                });
+                var transactionResult = await PerformanceStub.ComputeLevel4.SendAsync(new Empty());
                 Logger.Info($"Test number: {i * 5}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
             }
         }
@@ -67,7 +65,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 performance.GetTestStub<PerformanceContractContainer.PerformanceContractStub>(TestAccount);
             for (var i = 1; i < 10; i++)
             {
-                var transactionResult = await PerformanceStub.WriteKContentByte.SendAsync(new WriteInput
+                var transactionResult = await PerformanceStub.Write10KContentByte.SendAsync(new WriteInput
                 {
                     Content = ByteString.CopyFrom(CommonHelper.GenerateRandombytes(1024 * i))
                 });

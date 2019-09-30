@@ -58,7 +58,9 @@ namespace AElfChain.Console.Commands
             methodInfo.GetInputParameters();
             methodInfo.GetOutputParameters();
 
-            var parameterInput = CommandOption.InputParameters(methodInfo.InputFields.Count);
+            var parameterInput = methodInfo.InputType.Name == "Empty" ? new[] {""} : 
+                CommandOption.InputParameters(methodInfo.InputFields.Count);
+
             var jsonObject = new JObject();
             for (var i = 0; i < methodInfo.InputFields.Count; i++)
             {
@@ -89,9 +91,13 @@ namespace AElfChain.Console.Commands
             Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Execute contract action methods";
+            return new CommandInfo
+            {
+                Name = "send",
+                Description = "Execute contract action methods"
+            };
         }
 
         public override string[] InputParameters()

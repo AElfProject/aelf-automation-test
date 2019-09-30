@@ -19,9 +19,13 @@ namespace AElfChain.Console.Commands
             Services.Authority.DeployContractWithAuthority(parameters[0], parameters[1]);
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Deploy contract";
+            return new CommandInfo
+            {
+                Name = "deploy",
+                Description = "Deploy contract with authority permission"
+            };
         }
 
         public override string[] InputParameters()

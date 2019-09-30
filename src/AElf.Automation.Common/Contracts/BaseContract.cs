@@ -11,6 +11,7 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Contracts
@@ -170,10 +171,11 @@ namespace AElf.Automation.Common.Contracts
                 {
                     case TransactionResultStatus.Mined:
                         continue;
+                    case TransactionResultStatus.NotExisted:
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
                     {
-                        Logger.Error(transactionResult);
+                        Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;
                     }
                     default:

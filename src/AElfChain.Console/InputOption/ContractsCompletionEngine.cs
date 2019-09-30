@@ -14,7 +14,12 @@ namespace AElfChain.Console.InputOption
         {
             SystemContracts = systemContracts;
         }
-        
+
+        public string[] GetAllSelections()
+        {
+            return SystemContracts.Keys.ToArray();
+        }
+
         public string[] GetCompletions(string partial)
         {
             var keys = SystemContracts.Keys.Where(o => o.ToLower().StartsWith(partial)).ToList();

@@ -20,7 +20,7 @@ namespace AElfChain.Console
 
         public List<BaseCommand> Commands;
 
-        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo()).ToList();
+        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo().Name).ToList();
 
         public ConsoleReader InputReader { get; set; }
 
@@ -50,10 +50,23 @@ namespace AElfChain.Console
                     break;
                 }
                 
+                //clear console
+                if (input.ToLower().Trim() == "clear")
+                {
+                    System.Console.Clear();
+                    continue;
+                }
+                
                 //execute command
-                var command = Commands.FirstOrDefault(o => o.GetCommandInfo().Equals(input));
+                var command = Commands.FirstOrDefault(o => o.GetCommandInfo().Name.Equals(input));
                 if (command == null)
                 {
+                    if (input == "list" || input == "help" || input == "?")
+                    {
+                        GetUsageInfo();
+                        continue;
+                    }
+                    
                     var result = int.TryParse(input, out var select);
                     if (!result || select > Commands.Count)
                     {
@@ -61,10 +74,11 @@ namespace AElfChain.Console
                         GetUsageInfo();
                         continue;
                     }
+                    
                     command = Commands[select - 1];
                 }
 
-                $"Name: {command.GetCommandInfo()}".WriteSuccessLine();
+                $"Name: {command.GetCommandInfo().Description}".WriteSuccessLine();
                 try
                 {
                     command.RunCommand();
@@ -99,7 +113,7 @@ namespace AElfChain.Console
             "======================= Command =======================".WriteSuccessLine();
             foreach (var command in Commands)
             {
-                $"{count:00}. {command.GetCommandInfo()}".WriteSuccessLine();
+                $"{count:00}. {command.GetCommandInfo().Description}".WriteSuccessLine();
                 count++;
             }
 

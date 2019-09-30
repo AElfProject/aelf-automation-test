@@ -52,9 +52,13 @@ namespace AElfChain.Console.Commands
             Logger.Info($"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float)(beforeNativeToken-afterNativeToken)/(float)(afterResourceToken - beforeResourceToken)}");
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Resource buy and sell";
+            return new CommandInfo
+            {
+                Name = "resource",
+                Description = "Resource buy and sell"
+            };
         }
 
         public override string[] InputParameters()

@@ -54,7 +54,8 @@ namespace AElfChain.Console.Commands
             methodInfo.GetInputParameters();
             methodInfo.GetOutputParameters();
 
-            var parameterInput = CommandOption.InputParameters(methodInfo.InputFields.Count);
+            var parameterInput = methodInfo.InputType.Name == "Empty" ? new[] {""} : 
+                CommandOption.InputParameters(methodInfo.InputFields.Count);
             var jsonObject = new JObject();
             for (var i = 0; i < methodInfo.InputFields.Count; i++)
             {
@@ -86,9 +87,13 @@ namespace AElfChain.Console.Commands
             Logger.Info(JsonFormatter.ToDiagnosticString(message), Format.Json);
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Call contract view methods";
+            return new CommandInfo
+            {
+                Name = "call",
+                Description = "Call contract view methods"
+            };
         }
 
         public override string[] InputParameters()

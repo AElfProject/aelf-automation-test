@@ -14,7 +14,12 @@ namespace AElfChain.Console.InputOption
         {
             _commands = commands;
         }
-        
+
+        public string[] GetAllSelections()
+        {
+            return _commands.ToArray();
+        }
+
         public string[] GetCompletions(string partial)
         {
             return _commands.Where(cmd => cmd.ToLower().StartsWith(partial.ToLower())).ToArray();
