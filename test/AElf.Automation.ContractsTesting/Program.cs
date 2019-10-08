@@ -28,7 +28,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = Account.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://127.0.0.1:8200";
+        public string Endpoint { get; set; } = "http://192.168.197.43:8100";
 
         #endregion
 

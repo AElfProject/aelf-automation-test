@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
@@ -15,7 +16,7 @@ namespace AElf.Automation.ContractsTesting
         public INodeManager NodeManager { get; set; }
         public ILog Logger = Log4NetHelper.GetLogger();
         public BasicWithParallelContract ParallelContract { get; set; }
-        public string Tester = "2WFS2hJqtY8jhshuAGLWuwNKxqJ67qvmXygqPA27SMPWiY6GnB";
+        public string Tester = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
         public string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
         
         public CodeRemarkTest(INodeManager nodeManager)
@@ -37,6 +38,31 @@ namespace AElf.Automation.ContractsTesting
                                        MortgageValue = 100_000_00000000
                                    });
             var toInfos = new List<string>();
+            //execute some other transactions
+            //transfer
+            var accounts = new List<string>();
+            var genesis = NodeManager.GetGenesisContract();
+            var token = genesis.GetTokenContract();
+            for (var i = 0; i < 100; i++)
+            {
+                var acc = NodeManager.GetRandomAccount();
+                accounts.Add(acc);
+                token.TransferBalance(Tester, acc, 100);
+            }
+            
+            for (var i = 0; i < 100; i++)
+            {
+                ParallelContract.SetAccount(accounts[i]);
+                var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.UserPlayBet, new BetInput
+                {
+                    Int64Value = (i+1) * 100
+                });
+                
+                Logger.Info($"TransactionId: {transactionId}");
+            }
+            ParallelContract.CheckTransactionResultList();
+            Console.ReadLine();
+            
             for (var i = 0; i < 100; i++)
             {
                 var address = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
@@ -50,6 +76,7 @@ namespace AElf.Automation.ContractsTesting
             
             ParallelContract.CheckTransactionResultList();
 
+            //query result
             foreach (var to in toInfos)
             {
                 var result = ParallelContract.CallViewMethod<TwoUserMoneyOut>(BasicParallelMethod.QueryTwoUserWinMoney,
@@ -60,9 +87,6 @@ namespace AElf.Automation.ContractsTesting
                     });
                 Logger.Info($"to: {result.SecondInt64Value}");
             }
-            
-            //query result
-            
         }
     }
 }

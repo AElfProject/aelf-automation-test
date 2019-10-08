@@ -107,10 +107,10 @@ namespace AElf.Automation.Common.Helpers
             var stamp = string.Empty;
 
             if (minutes != 0)
-                stamp += $"{minutes}m:";
+                stamp += $"{minutes : 00}m:";
             if (minutes != 0 || seconds != 0)
-                stamp += $"{seconds}s:";
-            stamp += $"{milliseconds}ms";
+                stamp += $"{seconds : 00}s:";
+            stamp += $"{milliseconds : 000}ms";
 
             return stamp;
         }

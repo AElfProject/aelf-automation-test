@@ -2,67 +2,24 @@
     "BpNodes": [
         {
             "name": "bp1",
-            "service_url": "http://192.168.197.14:8000",
-            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "service_url": "http://127.0.0.1:8100",
+            "account": "2WFS2hJqtY8jhshuAGLWuwNKxqJ67qvmXygqPA27SMPWiY6GnB",
             "password": "123"
         },
         {
             "name": "bp2",
-            "service_url": "http://192.168.197.42:8000",
-            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "service_url": "http://127.0.0.1:8200",
+            "account": "2eVMtfxis65pknBNhnHdUYW8ntMzo7Azwp4QjbMzMYr8j5pjRH",
             "password": "123"
         },
         {
             "name": "bp3",
-            "service_url": "http://192.168.197.24:8000",
-            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
-            "password": "123"
-        },
-        {
-            "name": "bp4",
-            "service_url": "http://192.168.197.23:8000",
-            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "service_url": "http://127.0.0.1:8300",
+            "account": "2egwecJrCa45pQLdgSEijXaVwZwKh5Nz92zvjC7v7oQiLKiYT6",
             "password": "123"
         }
     ],
-    "FullNodes": [
-        {
-            "name": "full1",
-            "service_url": "http://192.168.197.32:8000",
-            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
-            "password": "123"
-        },
-        {
-            "name": "full2",
-            "service_url": "http://192.168.197.16:8000",
-            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
-            "password": "123"
-        },
-        {
-            "name": "full3",
-            "service_url": "http://192.168.197.11:8000",
-            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
-            "password": "123"
-        },
-        {
-            "name": "full4",
-            "service_url": "http://192.168.197.26:8000",
-            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
-            "password": "123"
-        },
-        {
-            "name": "full5",
-            "service_url": "http://192.168.197.34:8000",
-            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
-            "password": "123"
-        },
-        {
-            "name": "full6",
-            "service_url": "http://192.168.197.20:8000",
-            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
-            "password": "123"
-        }
-    ],
+    "FullNodes": [],
     "TestCases": [
         {
             "case_name": "TokenScenario",
@@ -72,38 +29,38 @@
         {
             "case_name": "ContractScenario",
             "enable": false,
-            "time_interval": 120
+            "time_interval": 60
         },
         {
             "case_name": "ResourceScenario",
             "enable": true,
-            "time_interval": 2
+            "time_interval": 3
         },
         {
             "case_name": "NodeScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 60
         },
         {
             "case_name": "UserScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 5
         },
         {
             "case_name": "ExceptionScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         },
         {
             "case_name": "PerformanceScenario",
             "enable": true,
-            "time_interval": 30
+            "time_interval": 10
         }
     ],
     "UserCount": 100,
     "Timeout": 300,
     "SpecifyEndpoint": {
-        "enable": true,
+        "enable": false,
         "service_url": "http://192.168.197.42:8000"
     },
     "ContractsInfo": {
