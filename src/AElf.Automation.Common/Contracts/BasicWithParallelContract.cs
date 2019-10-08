@@ -11,12 +11,31 @@ namespace AElf.Automation.Common.Contracts
         UnlockToken,
         ValidateOrigin,
         IncreaseWinMoney,
+        IncreaseValue,
+        IncreaseValueParallel,
+        IncreaseValueWithInline,
+        IncreaseValueWithPrePlugin,
+        IncreaseValueWithPostPlugin,
+        IncreaseValueWithInlineAndPostPlugin,
+        IncreaseValueWithPlugin,
+        IncreaseValueWithInlineAndPlugin,
+        IncreaseValueParallelWithInlineAndPlugin,
+        RemoveValue,
+        RemoveValueFromInlineWithPlugin,
+        RemoveValueFromPrePlugin,
+        RemoveValueFromPostPlugin,
+        RemoveValueParallelFromPostPlugin,
+        RemoveValueWithPlugin,
+        RemoveAfterSetValue,
+        SetAfterRemoveValue,
+        RemoveValueParallel,
         
         QueryWinMoney,
         QueryRewardMoney,
         QueryUserWinMoney,
         QueryUserLoseMoney,
-        QueryTwoUserWinMoney
+        QueryTwoUserWinMoney,
+        GetValue
     }
     public class BasicWithParallelContract : BaseContract<BasicParallelMethod>
     {

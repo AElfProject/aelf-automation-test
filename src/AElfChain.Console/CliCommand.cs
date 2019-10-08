@@ -113,7 +113,7 @@ namespace AElfChain.Console
             "======================= Command =======================".WriteSuccessLine();
             foreach (var command in Commands)
             {
-                $"{count:00}. {command.GetCommandInfo().Description}".WriteSuccessLine();
+                $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}".WriteSuccessLine();
                 count++;
             }
 

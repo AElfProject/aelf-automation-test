@@ -60,6 +60,10 @@ namespace AElf.Automation.ScenariosExecution
                         var performanceScenario = new PerformanceScenario();
                         _taskCollection.Add(RunContinueJobWithInterval(performanceScenario.RunPerformanceScenarioJob, scenario.TimeInterval));
                         break;
+                    case "DeleteValueScenario":
+                        var deleteValueScenario = new DeleteValueScenario();
+                        _taskCollection.Add(RunContinueJobWithInterval(deleteValueScenario.RunDeleteValueScenarioJob, scenario.TimeInterval));
+                        break;
                 }
             }
             
@@ -111,6 +115,10 @@ namespace AElf.Automation.ScenariosExecution
                     case "PerformanceScenario":
                         var performanceScenario = new PerformanceScenario();
                         RegisterAction(registry, scenario, performanceScenario.RunPerformanceScenarioJob);
+                        break;
+                    case "DeleteValueScenario":
+                        var deleteValueScenario = new DeleteValueScenario();
+                        RegisterAction(registry, scenario, deleteValueScenario.RunDeleteValueScenarioJob);
                         break;
                 }
             }

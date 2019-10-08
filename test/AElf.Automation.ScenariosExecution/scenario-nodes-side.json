@@ -98,6 +98,11 @@
             "case_name": "PerformanceScenario",
             "enable": true,
             "time_interval": 30
+        },
+        {
+            "case_name": "DeleteValueScenario",
+            "enable": true,
+            "time_interval": 10
         }
     ],
     "ContractsInfo": {

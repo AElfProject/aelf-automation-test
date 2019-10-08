@@ -2,20 +2,20 @@
     "BpNodes": [
         {
             "name": "bp1",
-            "service_url": "http://127.0.0.1:8100",
-            "account": "2WFS2hJqtY8jhshuAGLWuwNKxqJ67qvmXygqPA27SMPWiY6GnB",
+            "service_url": "http://192.168.197.43:8100",
+            "account": "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt",
             "password": "123"
         },
         {
             "name": "bp2",
-            "service_url": "http://127.0.0.1:8200",
-            "account": "2eVMtfxis65pknBNhnHdUYW8ntMzo7Azwp4QjbMzMYr8j5pjRH",
+            "service_url": "http://192.168.197.15:8100",
+            "account": "2pE19sCDT4DLAkU58GbwZbHZXbWcCDPxfAdvAhyaaznba38T6N",
             "password": "123"
         },
         {
             "name": "bp3",
-            "service_url": "http://127.0.0.1:8300",
-            "account": "2egwecJrCa45pQLdgSEijXaVwZwKh5Nz92zvjC7v7oQiLKiYT6",
+            "service_url": "http://192.168.197.52:8100",
+            "account": "8NnkHHN4EBFtdpDa2d6LmN7kVNxdCyb9z8ieYX2stNpERDqra",
             "password": "123"
         }
     ],
@@ -23,7 +23,7 @@
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 2
         },
         {
@@ -33,7 +33,7 @@
         },
         {
             "case_name": "ResourceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 3
         },
         {
@@ -53,6 +53,11 @@
         },
         {
             "case_name": "PerformanceScenario",
+            "enable": false,
+            "time_interval": 10
+        },
+        {
+            "case_name": "DeleteValueScenario",
             "enable": true,
             "time_interval": 10
         }
@@ -61,7 +66,7 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": false,
-        "service_url": "http://192.168.197.42:8000"
+        "service_url": "http://192.168.197.43:8100"
     },
     "ContractsInfo": {
         "AutoUpdate": false,
