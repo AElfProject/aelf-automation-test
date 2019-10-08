@@ -133,12 +133,12 @@ namespace AElf.Automation.RpcPerformance
                         case TransactionResultStatus.NotExisted:
                         case TransactionResultStatus.Unexecutable:
                             var message =
-                                $"Transaction {item.TxId} execution status: {transactionResult.Status}." +
+                                $"Transaction {item.TxId} execution status: {status}." +
                                 $"\r\nDetail Message: {JsonConvert.SerializeObject(transactionResult)}";
                             Logger.Error(message);
                             break;
                         case TransactionResultStatus.Pending:
-                            Logger.Warn($"Transaction {item.TxId} execution status: {transactionResult.Status}.");
+                            Logger.Warn($"Transaction {item.TxId} execution status: {status}.");
                             continue;
                         default:
                             throw new ArgumentOutOfRangeException();

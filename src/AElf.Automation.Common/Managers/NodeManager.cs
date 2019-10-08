@@ -227,12 +227,12 @@ namespace AElf.Automation.Common.Managers
                 {
                     case TransactionResultStatus.Mined:
                         Console.WriteLine();
-                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
+                        Logger.Info($"Transaction {txId} status: {status}", true);
                         return transactionResult;
                     case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.Failed:
                     {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        var message = $"Transaction {txId} status: {status}";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";
@@ -241,7 +241,7 @@ namespace AElf.Automation.Common.Managers
                     }
                 }
                 
-                Console.Write($"\rTransaction {txId} status: {transactionResult.Status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                Console.Write($"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                 
                 checkTimes++;
                 Thread.Sleep(500);
