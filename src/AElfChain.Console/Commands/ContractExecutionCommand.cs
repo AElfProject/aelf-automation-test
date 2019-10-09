@@ -46,7 +46,7 @@ namespace AElfChain.Console.Commands
             }
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
-            contractInfo.GetContractViewMethodsInfo();
+            contractInfo.GetContractMethodsInfo();
 
             var methodEngine = new CommandsCompletionEngine(contractInfo.ActionMethodNames);
             var methodReader = new ConsoleReader(methodEngine);

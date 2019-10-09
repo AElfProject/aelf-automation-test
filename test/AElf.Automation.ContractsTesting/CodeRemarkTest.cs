@@ -63,16 +63,16 @@ namespace AElf.Automation.ContractsTesting
             ParallelContract.CheckTransactionResultList();
             Console.ReadLine();
             
-            for (var i = 0; i < 100; i++)
-            {
-                var address = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
-                var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseWinMoney, new IncreaseWinMoneyInput
-                {
-                    First = Tester.ConvertAddress(), Second = address
-                });
-                toInfos.Add(address.GetFormatted());
-                Logger.Info($"TransactionId: {transactionId}, From:{Tester}, To: {address.GetFormatted()}");
-            }
+//            for (var i = 0; i < 100; i++)
+//            {
+//                var address = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
+//                var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseWinMoney, new IncreaseWinMoneyInput
+//                {
+//                    First = Tester.ConvertAddress(), Second = address
+//                });
+//                toInfos.Add(address.GetFormatted());
+//                Logger.Info($"TransactionId: {transactionId}, From:{Tester}, To: {address.GetFormatted()}");
+//            }
             
             ParallelContract.CheckTransactionResultList();
 
