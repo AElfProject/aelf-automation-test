@@ -46,7 +46,7 @@ namespace AElfChain.Console
 
         public string GetContractAddress(string name)
         {
-            if (SystemContracts.Keys.Contains(name))
+            if (SystemContracts.ContainsKey(name))
                 return SystemContracts[name];
             
             return null;

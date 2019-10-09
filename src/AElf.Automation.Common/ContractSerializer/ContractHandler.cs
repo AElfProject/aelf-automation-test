@@ -29,7 +29,7 @@ namespace AElf.Automation.Common.ContractSerializer
 
         public ContractInfo GetContractInfo(NameProvider name)
         {
-            if (ContractInfos.Keys.Contains(name))
+            if (ContractInfos.ContainsKey(name))
                 return ContractInfos[name];
 
             var descriptor = SystemContractsDescriptors[name];

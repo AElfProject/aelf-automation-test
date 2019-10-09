@@ -94,7 +94,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     var organizationAddress =
                         AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
-                    if (OrganizationList.Keys.Contains(organizationAddress)) continue;
+                    if (OrganizationList.ContainsKey(organizationAddress)) continue;
                     OrganizationList.Add(organizationAddress, key.ReleaseThreshold);
                 }
             }

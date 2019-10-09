@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractAddressByName(NameProvider name)
         {
-            if (_systemContractAddresses.Keys.Contains(name))
+            if (_systemContractAddresses.ContainsKey(name))
                 return _systemContractAddresses[name];
 
             if (name == NameProvider.Genesis)
