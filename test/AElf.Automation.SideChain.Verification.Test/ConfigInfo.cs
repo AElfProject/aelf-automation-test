@@ -42,6 +42,7 @@ namespace AElf.Automation.SideChain.Verification
         [JsonProperty("CreateTokenNumber")] public int CreateTokenNumber { get; set; }
         [JsonProperty("VerifySideChainNumber")] public int VerifySideChainNumber { get; set; }
         [JsonProperty("VerifyBlockNumber")] public int VerifyBlockNumber { get; set; }
+        [JsonProperty("TransferAccount")] public int TransferAccount { get; set; }
     }
     
     public static class ConfigInfoHelper

@@ -6,6 +6,7 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.Profit;
+using AElf.Contracts.ReferendumAuth;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
@@ -160,6 +161,21 @@ namespace AElf.Automation.Common.Contracts
                 new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
 
             return contract.GetTestStub<AssociationAuthContractContainer.AssociationAuthContractStub>(caller);
+        }
+        
+        public static ReferendumAuthContractContainer.ReferendumAuthContractStub GetReferendumAuthStub(
+            this GenesisContract genesis, string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+            
+            var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
+
+            var contract =
+                new ReferendumAuthContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+
+            return contract
+                .GetTestStub<ReferendumAuthContractContainer.ReferendumAuthContractStub>(caller);
         }
 
         public static ConfigurationContainer.ConfigurationStub GetConfigurationStub(this GenesisContract genesis,

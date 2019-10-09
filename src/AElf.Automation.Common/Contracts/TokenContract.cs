@@ -34,7 +34,7 @@ namespace AElf.Automation.Common.Contracts
         GetBalance,
         GetAllowance,
         IsInWhiteList,
-        GetCrossChainTransferTokenContractAddress
+        GetCrossChainTransferTokenContractAddress,
         GetMethodFee
     }
 

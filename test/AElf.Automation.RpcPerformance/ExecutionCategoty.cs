@@ -79,7 +79,7 @@ namespace AElf.Automation.RpcPerformance
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
             
-            if (ConfigInfoHelper.Config.ChainTypeInfo.IsMainChain)
+            if (NodeInfoHelper.Config.ChainTypeInfo.IsMainChain)
                 //Prepare basic token for test - Disable now
                 TransferTokenFromBp();
             else
@@ -654,7 +654,7 @@ namespace AElf.Automation.RpcPerformance
                 var nodeConfig = NodeInfoHelper.Config;
                 var config = ConfigInfoHelper.Config;
                 var account = nodeConfig.Nodes.First().Account;
-                var sideChainTokenSymbol = config.ChainTypeInfo.TokenSymbol;
+                var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
                 var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
                 var systemToken = genesis.GetTokenContract();
                 

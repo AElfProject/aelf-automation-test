@@ -97,6 +97,7 @@
     "CreateTokenNumber": 1,
     "VerifySideChainNumber": 1,
     "VerifyBlockNumber": 10,
+    "TransferAccount":5,
     "TestCases": [
         {
             "name": "CrossChainVerifyMainChain",

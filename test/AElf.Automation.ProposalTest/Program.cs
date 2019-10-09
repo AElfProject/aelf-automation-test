@@ -24,12 +24,12 @@ namespace AElf.Automation.ProposalTest
             JobManager.UseUtcTime();
             var registry = new Registry();
 
-            registry.Schedule(() => proposalParliament.ParliamentJob()).WithName("Parliament")
+            registry.Schedule(() => proposalParliament.ParliamentJob()).WithName("ParliamentAuth")
                 .ToRunEvery(30).Seconds();
             registry.Schedule(() => proposalAssociation.AssociationJob()).WithName("AssociationAuth")
                 .ToRunEvery(60).Seconds();
-//            registry.Schedule(() => proposalReferendum.ReferendumJob()).WithName("ReferendumAuth")
-//                .ToRunEvery(600).Seconds();
+            registry.Schedule(() => proposalReferendum.ReferendumJob()).WithName("ReferendumAuth")
+                .ToRunEvery(600).Seconds();
 
 
             JobManager.Initialize(registry);

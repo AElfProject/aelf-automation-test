@@ -166,11 +166,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var chainTxInfo = ChainValidateTxInfo[sideChainService.ChainId];
 
                 Logger.Info("Check the index:");
-                while (!CheckParentChainBlockIndex(sideChainService, chainTxInfo))
-                {
-                    Logger.Info("Block is not recorded ");
-                    Thread.Sleep(10000);
-                }
+                CheckSideChainBlockIndexParentChainHeight(sideChainService, chainTxInfo);
 
                 var crossChainMerkleProofContext =
                     GetCrossChainMerkleProofContext(sideChainService, chainTxInfo.BlockHeight);

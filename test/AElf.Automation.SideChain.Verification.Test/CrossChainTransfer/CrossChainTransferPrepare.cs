@@ -128,15 +128,16 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         private void InitCrossChainTransfer(string symbol)
         {
             AccountList = new Dictionary<int, List<string>>();
+            var count = ConfigInfoHelper.Config.TransferAccount;
             Logger.Info("Create account on main chain:");
-            var mainAccounts = NewAccount(MainChainService, 10);
+            var mainAccounts = NewAccount(MainChainService, count);
             AccountList.Add(MainChainService.ChainId, mainAccounts);
 
             Logger.Info("Create account on each side chain:");
             foreach (var sideChainService in SideChainServices)
             {
                 Logger.Info($"Create account on chain {sideChainService.ChainId} :");
-                var accounts = NewAccount(sideChainService, 10);
+                var accounts = NewAccount(sideChainService, count);
                 AccountList.Add(sideChainService.ChainId, accounts);
             }
 
@@ -178,6 +179,25 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
                         Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
                     }
+                }
+            }
+            
+            foreach (var account in AccountList)
+            {
+                foreach (var acc in account.Value)
+                {
+                    if(acc.Equals(InitAccount)) continue;
+                    MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
+                        MainChainService.DefaultToken);
+                }
+            }
+            
+            foreach (var account in AccountList)
+            {
+                foreach (var acc in account.Value)
+                {
+                    var accountBalance = GetBalance(MainChainService, acc, MainChainService.DefaultToken);
+                    Logger.Info($"Account:{acc}, {MainChainService.DefaultToken} balance is: {accountBalance}");
                 }
             }
             
