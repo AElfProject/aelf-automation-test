@@ -117,11 +117,14 @@ namespace AElf.Automation.ProposalTest
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
 
+                    var threshold = organizationAddress.Value;
+                    var balance = Token.GetUserBalance(organizationAddress.Key.GetFormatted(), Symbol);
+                    var amount = balance > threshold ? threshold : balance / 2;
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = 100,
+                        Amount = amount,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -134,7 +137,9 @@ namespace AElf.Automation.ProposalTest
                         Params = transferInput.ToByteString()
                     };
 
+                    Referendum.SetAccount(InitAccount);
                     var txId = Referendum.ExecuteMethodWithTxId(ReferendumMethod.CreateProposal, createProposalInput);
+                    Logger.Info($"transfer amount {amount}");
                     txIdList.Add(txId);
                 }
 
@@ -251,9 +256,10 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("Release proposal: ");
             var releaseTxInfos = new Dictionary<string, string>();
             ReleaseMinedProposal = new List<string>();
-            Referendum.SetAccount(InitAccount);
+            
             foreach (var proposalId in ReleaseProposalList)
             {
+                Referendum.SetAccount(InitAccount);
                 var txId = Referendum.ExecuteMethodWithTxId(ReferendumMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
                 releaseTxInfos.Add(proposalId, txId);
@@ -354,9 +360,8 @@ namespace AElf.Automation.ProposalTest
                     });
 
                     balance = Token.GetUserBalance(organization.Key.GetFormatted(),Symbol);
+                    Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
                 }
-
-                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
             }
         }
 

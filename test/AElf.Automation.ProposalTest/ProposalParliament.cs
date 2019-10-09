@@ -114,12 +114,11 @@ namespace AElf.Automation.ProposalTest
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
-
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = 100,
+                        Amount = 1000,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -133,6 +132,7 @@ namespace AElf.Automation.ProposalTest
                     };
 
                     var txId = Parliament.ExecuteMethodWithTxId(ParliamentMethod.CreateProposal, createProposalInput);
+
                     txIdList.Add(txId);
                 }
 
@@ -292,9 +292,8 @@ namespace AElf.Automation.ProposalTest
                     });
 
                     balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                    Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
                 }
-
-                Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
             }
         }
     }

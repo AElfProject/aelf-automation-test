@@ -19,7 +19,7 @@ namespace AElf.Automation.ProposalTest
     {
         private Dictionary<Address, ReviewerInfo> OrganizationList { get; set; }
         private Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>> ProposalList { get; set; }
-        private List<string> ReleaseProposalList { get; set; }
+        private Dictionary<string, string> ReleaseProposalList { get; set; }
         private List<ReviewerInfo> ReviewerInfos { get; set; }
         private AssociationAuthContract Association { get; }
         private TokenContract Token { get; }
@@ -123,12 +123,14 @@ namespace AElf.Automation.ProposalTest
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
-
+                    var amount = (100 * organizationAddress.Value.MaxWeight) != 0
+                        ? (100 * organizationAddress.Value.MaxWeight)
+                        : 100;
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = 100,
+                        Amount = amount,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -141,8 +143,11 @@ namespace AElf.Automation.ProposalTest
                         Params = transferInput.ToByteString()
                     };
 
+                    var sender = organizationAddress.Value.Reviewers.FirstOrDefault();
+                    Association.SetAccount(sender.Address.GetFormatted());
                     var txId = Association.ExecuteMethodWithTxId(AssociationMethod.CreateProposal,
                         createProposalInput);
+                    Logger.Info($"transfer amount {amount}");
                     txIdList.Add(txId);
                 }
 
@@ -185,7 +190,7 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("Approve proposal: ");
             var proposalApproveList =
                 new Dictionary<KeyValuePair<Address, ReviewerInfo>, Dictionary<string, Dictionary<Reviewer, string>>>();
-            ReleaseProposalList = new List<string>();
+            ReleaseProposalList = new Dictionary<string,string>();
             foreach (var proposal in ProposalList)
             {
                 Logger.Info($"Organization address: {proposal.Key.Key}: ");
@@ -249,7 +254,8 @@ namespace AElf.Automation.ProposalTest
                         continue;
                     }
 
-                    ReleaseProposalList.Add(proposalApprove.Key);
+                    var sender = key.Value.Reviewers.FirstOrDefault();
+                    ReleaseProposalList.Add(proposalApprove.Key,sender.Address.GetFormatted());
                 }
             }
         }
@@ -260,9 +266,10 @@ namespace AElf.Automation.ProposalTest
             var releaseTxIds = new List<string>();
             foreach (var proposalId in ReleaseProposalList)
             {
-                Association.SetAccount(InitAccount);
+                var sender = proposalId.Value;
+                Association.SetAccount(sender);
                 var txId = Association.ExecuteMethodWithTxId(AssociationMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
+                    HashHelper.HexStringToHash(proposalId.Key));
                 releaseTxIds.Add(txId);
             }
 
@@ -307,9 +314,8 @@ namespace AElf.Automation.ProposalTest
                     });
 
                     balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                    Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
                 }
-
-                Logger.Info($"{organization.Key} balance is {balance}");
             }
         }
 

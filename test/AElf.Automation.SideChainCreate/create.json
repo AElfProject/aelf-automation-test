@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Online",
+    "TestEnvironment": "Other",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -29,13 +29,13 @@
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
             "IsPrivilegePreserved": true,
-            "TokenSymbol": "SAELF"
+            "NativeSymbol": "SAELF"
         },
         {
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
             "IsPrivilegePreserved": true,
-            "TokenSymbol": "SBELF"
+            "NativeSymbol": "SBELF"
         }
     ]
 }
