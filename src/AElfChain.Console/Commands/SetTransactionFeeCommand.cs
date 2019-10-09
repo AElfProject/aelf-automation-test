@@ -48,9 +48,13 @@ namespace AElfChain.Console.Commands
             Logger.Info($"MethodFee: {tokenResult}");
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Set transaction method fee";
+            return new CommandInfo
+            {
+                Name = "tx-fee",
+                Description = "Set transaction method fee"
+            };
         }
 
         public override string[] InputParameters()

@@ -30,26 +30,6 @@ namespace AElf.Automation.Common.Contracts
         GetDeployedContractAddressList
     }
 
-    public enum NameProvider
-    {
-        GenesisName,
-        ElectionName,
-        ProfitName,
-        VoteName,
-        TreasuryName,
-        TokenName,
-        TokenConverterName,
-        FeeReceiverName,
-        ConsensusName,
-        ParliamentName,
-        CrossChainName,
-        AssociationName,
-        Configuration,
-        ReferendumName,
-
-        BasicFunction
-    }
-
     public class GenesisContract : BaseContract<GenesisMethod>
     {
         private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
@@ -98,7 +78,7 @@ namespace AElf.Automation.Common.Contracts
             if (_systemContractAddresses.Keys.Contains(name))
                 return _systemContractAddresses[name];
 
-            if (name == NameProvider.GenesisName)
+            if (name == NameProvider.Genesis)
             {
                 _systemContractAddresses[name] = Contract;
                 return Contract;
@@ -108,7 +88,7 @@ namespace AElf.Automation.Common.Contracts
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             _systemContractAddresses[name] = address;
             var addString = address != new Address() ? address.GetFormatted() : "null";
-            Logger.Info($"{name.ToString().Replace("Name", "")} contract address: {addString}");
+            Logger.Info($"{name} contract address: {addString}");
 
             return address;
         }
@@ -151,19 +131,18 @@ namespace AElf.Automation.Common.Contracts
         {
             var dic = new Dictionary<NameProvider, Hash>
             {
-                {NameProvider.ElectionName, Hash.FromString("AElf.ContractNames.Election")},
-                {NameProvider.ProfitName, Hash.FromString("AElf.ContractNames.Profit")},
-                {NameProvider.VoteName, Hash.FromString("AElf.ContractNames.Vote")},
-                {NameProvider.TreasuryName, Hash.FromString("AElf.ContractNames.Treasury")},
-                {NameProvider.TokenName, Hash.FromString("AElf.ContractNames.Token")},
-                {NameProvider.TokenConverterName, Hash.FromString("AElf.ContractNames.TokenConverter")},
-                {NameProvider.FeeReceiverName, Hash.FromString("AElf.ContractNames.FeeReceiver")},
-                {NameProvider.ConsensusName, Hash.FromString("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentName, Hash.FromString("AElf.ContractNames.Parliament")},
-                {NameProvider.CrossChainName, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationName, Hash.FromString("AElf.ContractNames.AssociationAuth")},
+                {NameProvider.Election, Hash.FromString("AElf.ContractNames.Election")},
+                {NameProvider.Profit, Hash.FromString("AElf.ContractNames.Profit")},
+                {NameProvider.Vote, Hash.FromString("AElf.ContractNames.Vote")},
+                {NameProvider.Treasury, Hash.FromString("AElf.ContractNames.Treasury")},
+                {NameProvider.Token, Hash.FromString("AElf.ContractNames.Token")},
+                {NameProvider.TokenConverter, Hash.FromString("AElf.ContractNames.TokenConverter")},
+                {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
+                {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},
+                {NameProvider.CrossChain, Hash.FromString("AElf.ContractNames.CrossChain")},
+                {NameProvider.AssociationAuth, Hash.FromString("AElf.ContractNames.AssociationAuth")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
-                {NameProvider.ReferendumName, Hash.FromString("AElf.ContractNames.ReferendumAuth")}
+                {NameProvider.ReferendumAuth, Hash.FromString("AElf.ContractNames.ReferendumAuth")}
             };
 
             return dic;

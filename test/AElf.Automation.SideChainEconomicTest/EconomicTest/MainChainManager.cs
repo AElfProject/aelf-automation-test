@@ -40,7 +40,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public async Task BuyResources(string account, long amount)
         {
-            var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverterName);
+            var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverter);
             var tokenContract = new TokenConverterContract(NodeManager, account, tokenConverter.GetFormatted());
             var converter =
                 tokenContract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(
@@ -69,7 +69,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 new ValidateSystemContractAddressInput
                 {
                     Address = Token.Contract,
-                    SystemContractHashName = GenesisContract.NameProviderInfos[NameProvider.TokenName]
+                    SystemContractHashName = GenesisContract.NameProviderInfos[NameProvider.Token]
                 });
             validateResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             

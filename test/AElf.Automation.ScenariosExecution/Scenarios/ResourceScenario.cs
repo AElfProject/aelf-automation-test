@@ -15,7 +15,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class ResourceScenario : BaseScenario
     {
         public TokenContract Token { get; set; }
-        public FeeReceiverContract FeeReceiver { get; set; }
+        
+        public TreasuryContract Treasury { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
 
@@ -26,7 +27,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             InitializeScenario();
 
             Token = Services.TokenService;
-            FeeReceiver = ContractServices.FeeReceiverService;
+            Treasury = Services.TreasuryService;
             Testers = AllTesters.GetRange(5, 20);
 
             InitializeTokenConverter();
@@ -177,7 +178,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 FeeRate = "0.01",
                 ManagerAddress = AddressHelper.Base58StringToAddress(Testers[0]),
                 TokenContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
-                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiver.ContractAddress),
+                FeeReceiverAddress = AddressHelper.Base58StringToAddress(Treasury.ContractAddress),
                 Connectors = {ElfConnector, RamConnector, CpuConnector, NetConnector}
             });
 

@@ -78,7 +78,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in txIdList)
             {
                 var checkTime = 5;
-                var result = Referendum.CheckTransactionResult(value);
+                var result = Referendum.NodeManager.CheckTransactionResult(value);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
@@ -101,7 +101,7 @@ namespace AElf.Automation.ProposalTest
 
             foreach (var (key, value) in OrganizationList)
             {
-                Logger.Info($"Referendum organization : {key}, ReleaseThreshold is {value}");
+                Logger.Info($"ReferendumAuth organization : {key}, ReleaseThreshold is {value}");
             }
         }
 
@@ -148,7 +148,7 @@ namespace AElf.Automation.ProposalTest
                 foreach (var txId in value)
                 {
                     var checkTime = 5;
-                    var result = Referendum.CheckTransactionResult(txId);
+                    var result = Referendum.NodeManager.CheckTransactionResult(txId);
                     var status = result.Status.ConvertTransactionResultStatus();
                     while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
@@ -218,7 +218,7 @@ namespace AElf.Automation.ProposalTest
                     foreach (var txInfo in proposalApprove.Value)
                     {
                         var checkTime = 5;
-                        var result = Referendum.CheckTransactionResult(txInfo.Key);
+                        var result = Referendum.NodeManager.CheckTransactionResult(txInfo.Key);
                         var status = result.Status.ConvertTransactionResultStatus();
                         while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                         {
@@ -261,7 +261,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var txInfo in releaseTxInfos)
             {
                 var checkTime = 5;
-                var result = Referendum.CheckTransactionResult(txInfo.Value);
+                var result = Referendum.NodeManager.CheckTransactionResult(txInfo.Value);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
@@ -313,7 +313,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var txInfo in txInfos)
             {
                 var checkTime = 5;
-                var result = Referendum.CheckTransactionResult(txInfo.Value);
+                var result = Referendum.NodeManager.CheckTransactionResult(txInfo.Value);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {

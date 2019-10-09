@@ -72,8 +72,8 @@ namespace AElf.Automation.ScenariosExecution
             var nodeManager = new NodeManager(url, AccountDir);
 
             GetConfigNodesPublicKey(nodeManager);
-
-            Services = new ContractServices(nodeManager, ConfigInfoHelper.Config.InitAccount);
+            var bpAccount = ConfigInfoHelper.Config.BpNodes.First().Account;
+            Services = new ContractServices(nodeManager, bpAccount);
 
             return Services;
         }

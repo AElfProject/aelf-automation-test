@@ -23,9 +23,13 @@ namespace AElfChain.Console.Commands
             Logger.Info($"Account: {parameters[1]}, Symbol: {parameters[2]}, Before={beforeBalance}, After={afterBalance}");
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Transfer token to tester";
+            return new CommandInfo
+            {
+                Name = "token-transfer",
+                Description = "Transfer token to tester"
+            };
         }
 
         public override string[] InputParameters()

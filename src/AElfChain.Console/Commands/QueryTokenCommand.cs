@@ -20,9 +20,13 @@ namespace AElfChain.Console.Commands
             Logger.Info($"Account: {parameters[0]}, {parameters[1]}={balance}");            
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query token balance info";
+            return new CommandInfo
+            {
+                Name = "token-balance",
+                Description = "Query token balance info"
+            };
         }
 
         public override string[] InputParameters()

@@ -13,6 +13,13 @@
             "db_no": 2,
             "api_port": 8200,
             "net_port": 6820
+        },
+        {
+            "name": "bp3",
+            "ip": "127.0.0.1",
+            "db_no": 3,
+            "api_port": 8300,
+            "net_port": 6830
         }
     ],
     "FullNodes": [

@@ -26,9 +26,9 @@ namespace AElf.Automation.ProposalTest
 
             registry.Schedule(() => proposalParliament.ParliamentJob()).WithName("Parliament")
                 .ToRunEvery(30).Seconds();
-            registry.Schedule(() => proposalAssociation.AssociationJob()).WithName("Association")
+            registry.Schedule(() => proposalAssociation.AssociationJob()).WithName("AssociationAuth")
                 .ToRunEvery(60).Seconds();
-//            registry.Schedule(() => proposalReferendum.ReferendumJob()).WithName("Referendum")
+//            registry.Schedule(() => proposalReferendum.ReferendumJob()).WithName("ReferendumAuth")
 //                .ToRunEvery(600).Seconds();
 
 

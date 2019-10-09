@@ -77,7 +77,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in txIdList)
             {
                 var checkTime = 5;
-                var result = Parliament.CheckTransactionResult(value);
+                var result = Parliament.NodeManager.CheckTransactionResult(value);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {
@@ -146,7 +146,7 @@ namespace AElf.Automation.ProposalTest
                 foreach (var txId in value)
                 {
                     var checkTime = 5;
-                    var result = Parliament.CheckTransactionResult(txId);
+                    var result = Parliament.NodeManager.CheckTransactionResult(txId);
                     var status = result.Status.ConvertTransactionResultStatus();
                     while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
@@ -211,7 +211,7 @@ namespace AElf.Automation.ProposalTest
                     foreach (var txInfo in proposalApprove.Value)
                     {
                         var checkTime = 5;
-                        var result = Parliament.CheckTransactionResult(txInfo.Value);
+                        var result = Parliament.NodeManager.CheckTransactionResult(txInfo.Value);
                         var status = result.Status.ConvertTransactionResultStatus();
                         while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                         {
@@ -254,7 +254,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var txId in releaseTxIds)
             {
                 var checkTime = 5;
-                var result = Parliament.CheckTransactionResult(txId);
+                var result = Parliament.NodeManager.CheckTransactionResult(txId);
                 var status = result.Status.ConvertTransactionResultStatus();
                 while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                 {

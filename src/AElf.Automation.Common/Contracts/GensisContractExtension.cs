@@ -7,20 +7,9 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var consensus = genesis.GetContractAddressByName(NameProvider.ConsensusName);
+            var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
             return new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
-        }
-
-        public static FeeReceiverContract GetFeeReceiverContract(
-            this GenesisContract genesis, string caller = "")
-        {
-            if (caller == "")
-                caller = genesis.CallAddress;
-            
-            var feeReceiver = genesis.GetContractAddressByName(NameProvider.FeeReceiverName);
-
-            return new FeeReceiverContract(genesis.NodeManager, caller, feeReceiver.GetFormatted());
         }
 
         public static ParliamentAuthContract GetParliamentAuthContract(
@@ -29,7 +18,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentName);
+            var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
             return new ParliamentAuthContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
         }
@@ -39,7 +28,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var profit = genesis.GetContractAddressByName(NameProvider.ProfitName);
+            var profit = genesis.GetContractAddressByName(NameProvider.Profit);
 
             return new ProfitContract(genesis.NodeManager, caller, profit.GetFormatted());
         }
@@ -49,7 +38,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var token = genesis.GetContractAddressByName(NameProvider.TokenName);
+            var token = genesis.GetContractAddressByName(NameProvider.Token);
 
             return new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
         }
@@ -60,7 +49,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverterName);
+            var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
 
             return new TokenConverterContract(genesis.NodeManager, caller, tokenConverter.GetFormatted());
         }
@@ -70,7 +59,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var treasury = genesis.GetContractAddressByName(NameProvider.TreasuryName);
+            var treasury = genesis.GetContractAddressByName(NameProvider.Treasury);
 
             return new TreasuryContract(genesis.NodeManager, caller, treasury.GetFormatted());
         }
@@ -80,7 +69,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var vote = genesis.GetContractAddressByName(NameProvider.VoteName);
+            var vote = genesis.GetContractAddressByName(NameProvider.Vote);
 
             return new VoteContract(genesis.NodeManager, caller, vote.GetFormatted());
         }
@@ -90,7 +79,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var election = genesis.GetContractAddressByName(NameProvider.ElectionName);
+            var election = genesis.GetContractAddressByName(NameProvider.Election);
 
             return new ElectionContract(genesis.NodeManager, caller, election.GetFormatted());
         }
@@ -100,7 +89,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var cross = genesis.GetContractAddressByName(NameProvider.CrossChainName);
+            var cross = genesis.GetContractAddressByName(NameProvider.CrossChain);
 
             return new CrossChainContract(genesis.NodeManager, caller, cross.GetFormatted());
         }
@@ -111,7 +100,7 @@ namespace AElf.Automation.Common.Contracts
             if (caller == "")
                 caller = genesis.CallAddress;
             
-            var association = genesis.GetContractAddressByName(NameProvider.AssociationName);
+            var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
             return new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
         }

@@ -8,14 +8,14 @@ namespace AElfChain.Console.InputOption
 {
     public class ConsoleReader
     {
-        private readonly ICompletionEngine _completionEngine;
+        public ICompletionEngine CompletionEngine { get; set; }
         private readonly char[] _tokenDelimiters;
 
         public ConsoleReader() : this(new EmptyCompletionEngine()) { }
         public ConsoleReader(ICompletionEngine completionEngine)
         {
             if (completionEngine == null) throw new ArgumentNullException("completionEngine");
-            _completionEngine = completionEngine;
+            CompletionEngine = completionEngine;
             _tokenDelimiters = completionEngine.GetTokenDelimiters();
         }
 
@@ -39,6 +39,7 @@ namespace AElfChain.Console.InputOption
                 {
                     switch (keyInfo.Key)
                     {
+                        //delete handler
                         case ConsoleKey.Escape:
                         case ConsoleKey.Backspace:
                         case ConsoleKey.Delete:
@@ -46,6 +47,7 @@ namespace AElfChain.Console.InputOption
                             completionIndex = -1;
                             Delete(startLeft, startTop, buffer, selection, bufferIndex, keyInfo);
                             break;
+                        //tab handler
                         case ConsoleKey.Tab:
                             if (completionCandidates.Length < 2) break;
                             completionIndex++;
@@ -76,8 +78,8 @@ namespace AElfChain.Console.InputOption
                         console.WriteLine();
                         return buffer.ToString();
                     }
-                    if (keyInfo.Key == _completionEngine.Trigger.Key
-                        && keyInfo.Modifiers == _completionEngine.Trigger.Modifiers)
+                    if (keyInfo.Key == CompletionEngine.Trigger.Key
+                        && keyInfo.Modifiers == CompletionEngine.Trigger.Modifiers)
                     {
                         completionIndex = 0;
                         completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection, completionIndex, ref bufferIndex);
@@ -247,7 +249,7 @@ namespace AElfChain.Console.InputOption
                 index--;
             }
             var partial = new string(stack.ToArray());
-            completionCandidates = _completionEngine.GetCompletions(partial);
+            completionCandidates = CompletionEngine.GetCompletions(partial);
             if (completionCandidates == null || completionCandidates.Length == 0)
             {
                 completionCandidates = null;

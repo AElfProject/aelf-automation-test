@@ -20,7 +20,6 @@ namespace AElf.Automation.ScenariosExecution
         public TokenContract TokenService { get; set; }
         public TreasuryContract TreasuryService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
-        public static FeeReceiverContract FeeReceiverService { get; set; }
         public VoteContract VoteService { get; set; }
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
@@ -75,56 +74,8 @@ namespace AElf.Automation.ScenariosExecution
             ElectionService = GenesisService.GetElectionContract();
 
             //Get or deploy other contracts
-            GetOrDeployFeeReceiverContract();
             GetOrDeployFunctionContract();
             GetOrDeployPerformanceContract();
-        }
-
-        private void GetOrDeployFeeReceiverContract()
-        {
-            var contractsInfo = ConfigInfoHelper.Config.ContractsInfo;
-            var autoEnable = contractsInfo.AutoUpdate;
-            if (autoEnable)
-            {
-                var contractItem = contractsInfo.Contracts.First(o => o.Name == "FeeReceiver");
-                var queryResult = QueryContractItem(ref contractItem, out _);
-                if (queryResult)
-                {
-                    FeeReceiverService =
-                        new FeeReceiverContract(NodeManager, CallAddress, contractItem.Address);
-                }
-                else
-                {
-                    FeeReceiverService = new FeeReceiverContract(NodeManager, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(
-                        AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
-                        CallAccount);
-
-                    //update configInfo
-                    contractItem.Address = FeeReceiverService.ContractAddress;
-                    contractItem.CodeHash = contractItem.CodeHash;
-                    contractItem.Owner = CallAddress;
-                }
-
-                //write to config file
-                ConfigInfoHelper.UpdateConfig(contractsInfo);
-            }
-            else
-            {
-                //FeeReceiver contract
-                var feeReceiverAddress = GenesisService.GetContractAddressByName(NameProvider.FeeReceiverName);
-                if (feeReceiverAddress == new Address())
-                {
-                    FeeReceiverService = new FeeReceiverContract(NodeManager, CallAddress);
-                    FeeReceiverService.InitializeFeeReceiver(
-                        AddressHelper.Base58StringToAddress(TokenService.ContractAddress), CallAccount);
-                }
-                else
-                {
-                    FeeReceiverService =
-                        new FeeReceiverContract(NodeManager, CallAddress, feeReceiverAddress.GetFormatted());
-                }
-            }
         }
 
         private void GetOrDeployTokenConverterContract()

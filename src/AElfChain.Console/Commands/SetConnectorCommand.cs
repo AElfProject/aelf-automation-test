@@ -44,9 +44,13 @@ namespace AElfChain.Console.Commands
             AsyncHelper.RunSync(()=>GetTokenConnector(parameters[0]));
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Set token connector";
+            return new CommandInfo
+            {
+                Name = "connector",
+                Description = "Set token connector"
+            };
         }
 
         public override string[] InputParameters()

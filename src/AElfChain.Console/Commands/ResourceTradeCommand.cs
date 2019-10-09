@@ -49,11 +49,16 @@ namespace AElfChain.Console.Commands
             var afterResourceToken = Services.Token.GetUserBalance(parameters[0], parameters[2]);
             
             Logger.Info($"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={afterNativeToken}, {parameters[2]}={afterResourceToken}");
+            Logger.Info($"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float)(beforeNativeToken-afterNativeToken)/(float)(afterResourceToken - beforeResourceToken)}");
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Resource buy and sell";
+            return new CommandInfo
+            {
+                Name = "resource",
+                Description = "Resource buy and sell"
+            };
         }
 
         public override string[] InputParameters()

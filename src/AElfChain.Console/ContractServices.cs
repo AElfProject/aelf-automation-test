@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -43,6 +44,14 @@ namespace AElfChain.Console
             Genesis = nodeManager.GetGenesisContract(caller);
         }
 
+        public string GetContractAddress(string name)
+        {
+            if (SystemContracts.Keys.Contains(name))
+                return SystemContracts[name];
+            
+            return null;
+        }
+
         private AuthorityManager GetAuthority()
         {
             if(_authorityManager == null)
@@ -62,7 +71,7 @@ namespace AElfChain.Console
                 foreach (var key in contracts.Keys)
                 {
                     if(contracts[key].Equals(new Address())) continue;
-                    _systemContracts.Add(key.ToString().Replace("Name", "").ToLower(), contracts[key].GetFormatted());
+                    _systemContracts.Add(key.ToString(), contracts[key].GetFormatted());
                 }
             }
 

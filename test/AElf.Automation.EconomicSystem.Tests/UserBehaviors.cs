@@ -127,7 +127,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {
                     BaseTokenSymbol = NodeOption.NativeTokenSymbol,
                     ManagerAddress = AddressHelper.Base58StringToAddress(initAccount),
-                    FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverService.ContractAddress),
+                    FeeReceiverAddress = AddressHelper.Base58StringToAddress(Treasury.ContractAddress),
                     FeeRate = "0.05",
                     TokenContractAddress = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
                     Connectors = {ramConnector, cpuConnector, netConnector, stoConnector, elfConnector}

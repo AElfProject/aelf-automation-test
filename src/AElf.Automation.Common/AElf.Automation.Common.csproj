@@ -26,6 +26,9 @@
         <ProtoMessage Include="..\AElf\protobuf\acs1.proto">
             <Link>Protobuf\Proto\stub\acs1.proto</Link>
         </ProtoMessage>
+        <ProtoMessage Include="..\AElf\protobuf\acs2.proto">
+            <Link>Protobuf\Proto\stub\acs2.proto</Link>
+        </ProtoMessage>
         <ProtoMessage Include="..\AElf\protobuf\acs3.proto">
             <Link>Protobuf\Proto\stub\acs3.proto</Link>
         </ProtoMessage>
@@ -47,6 +50,9 @@
         <ProtoContract Include="..\AElf\protobuf\test_basic_function_contract.proto">
             <Link>Protobuf\Proto\stub\test_basic_function_contract.proto</Link>
         </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\test_basic_function_with_parallel_contract.proto">
+            <Link>Protobuf\Proto\stub\test_basic_function_with_parallel_contract.proto</Link>
+        </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\test_basic_update_contract.proto">
             <Link>Protobuf\Proto\stub\test_basic_update_contract.proto</Link>
         </ProtoContract>
@@ -58,9 +64,6 @@
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\treasury_contract.proto">
             <Link>Protobuf\Proto\stub\treasury_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\fee_receiver_contract.proto">
-            <Link>Protobuf\Proto\stub\fee_receiver_contract.proto</Link>
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
             <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>

@@ -24,9 +24,13 @@ namespace AElfChain.Console.Commands
             JsonConvert.SerializeObject(proposalInfo).WriteSuccessLine();
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query Proposal info by Id";
+            return new CommandInfo
+            {
+                Name = "proposal",
+                Description = "Query Proposal info by Id"
+            };
         }
 
         public override string[] InputParameters()

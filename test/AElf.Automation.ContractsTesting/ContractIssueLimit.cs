@@ -35,7 +35,7 @@ namespace AElf.Automation.ContractsTesting
 
         public async Task PrepareUserToken()
         {
-            var systemToken = _genesisContract.GetContractAddressByName(NameProvider.TokenName);
+            var systemToken = _genesisContract.GetContractAddressByName(NameProvider.Token);
             var systemStub = _stub.Create<TokenContractContainer.TokenContractStub>(
                 systemToken, _bpAccount);
             var transferBalance = await systemStub.Transfer.SendAsync(new TransferInput

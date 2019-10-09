@@ -25,7 +25,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         //Contract service List
         public TokenContract tokenService { get; set; }
-        public FeeReceiverContract feeReceiverService { get; set; }
         public TokenConverterContract tokenConverterService { get; set; }
 
         [TestInitialize]
@@ -53,8 +52,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init services
             PrepareUserTokens();
-
-            PrepareFeeReceiverContract();
 
             tokenConverterService = new TokenConverterContract(NodeManager, InitAccount);
 
@@ -134,19 +131,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     });
                 Logger.Info($"Account: {acc}, Balance: {queryResult.Balance}");
             }
-        }
-
-        private void PrepareFeeReceiverContract()
-        {
-            feeReceiverService = new FeeReceiverContract(NodeManager, InitAccount);
-            feeReceiverService.ExecuteMethodWithResult(FeeReceiverMethod.Initialize, new InitializeInput
-            {
-                TokenContractAddress = AddressHelper.Base58StringToAddress(TokenContract),
-                BaseTokenSymbol = TokenSymbol,
-                FeeRate = "0.05",
-                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverAccount),
-                ManagerAddress = AddressHelper.Base58StringToAddress(ManagerAccount)
-            });
         }
 
         private void PrepareResourceToken()

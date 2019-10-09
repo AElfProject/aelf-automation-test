@@ -18,13 +18,17 @@ namespace AElfChain.Console.Commands
             foreach (var key in contracts.Keys)
             {
                 var address = contracts[key] == new Address() ? "None" : contracts[key].GetFormatted();
-                $"Contract name: {key.ToString().Replace("Name", "").PadRight(16)} Address: {address}".WriteSuccessLine();
+                $"Contract name: {key.ToString().PadRight(16)} Address: {address}".WriteSuccessLine();
             }
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query all system contracts";
+            return new CommandInfo
+            {
+                Name = "system-contracts",
+                Description = "Query all system contracts"
+            };
         }
 
         public override string[] InputParameters()

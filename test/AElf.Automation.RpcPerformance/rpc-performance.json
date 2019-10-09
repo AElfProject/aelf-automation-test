@@ -1,6 +1,6 @@
 {
     "GroupCount": 4,
-    "TransactionCount": 30,
+    "TransactionCount": 10,
     "EnableRandomTransaction": true,
     "ServiceUrl": "192.168.197.43:8100",
     "SentTxLimit": 300,
@@ -13,7 +13,7 @@
         "token_symbol": "ELF"
     },
     "NodeTransactionLimit": {
-        "enable_limit": true,
+        "enable_limit": false,
         "max_transactions_select": 50
     },
     "RequestRandomEndpoint": {
@@ -22,7 +22,6 @@
             "192.168.197.43:8100",
             "192.168.197.15:8100",
             "192.168.197.52:8100"
-            
         ]
     }
 }
