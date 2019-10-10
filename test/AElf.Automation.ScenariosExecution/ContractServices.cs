@@ -72,6 +72,9 @@ namespace AElf.Automation.ScenariosExecution
 
             //ElectionService contract
             ElectionService = GenesisService.GetElectionContract();
+            
+            //TokenConverter contract
+            TokenConverterService = GenesisService.GetTokenConverterContract();
 
             //Get or deploy other contracts
             GetOrDeployFunctionContract();

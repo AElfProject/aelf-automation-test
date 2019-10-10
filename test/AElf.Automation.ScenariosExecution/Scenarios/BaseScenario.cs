@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -110,7 +111,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;
             FullNodes = configInfo.FullNodes;
-            NativeToken = configInfo.NativeToken;
+            NativeToken = NodeOption.NativeTokenSymbol;
         }
 
         protected static int GenerateRandomNumber(int min, int max)

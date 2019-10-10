@@ -72,18 +72,6 @@
         "AutoUpdate": false,
         "Contracts": [
             {
-                "name": "FeeReceiver",
-                "address": "RnQLF2SnJL9HLzBPtpzuPkDeLK34b9su7gtZ5TzVFvKP26DHw",
-                "code_hash": "5fdcf01450817cf58dbc3885eb1f33405c99c1c8fa07c4d39fab42f8d46b8e95",
-                "owner": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8"
-            },
-            {
-                "name": "TokenConverter",
-                "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
-                "code_hash": "f32216e083efaa5a583ca814940ae6a6a629387d07089a7335f17f16d53e52aa",
-                "owner": "eCU8ih8w7Hozja3K61JZuVMCnc2kzHJMViadHCokwXgiwrgFS"
-            },
-            {
                 "name": "BasicFunction",
                 "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
                 "code_hash": "38122a009d4d1c83432a322da39b9d55d2f0d60a537e6dadcbb160679829264b",
@@ -96,7 +84,5 @@
                 "owner": ""
             }
         ]
-    },
-    "NativeToken": "TELF",
-    "InitAccount": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D"
+    }
 }
