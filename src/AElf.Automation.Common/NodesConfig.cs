@@ -29,7 +29,7 @@ namespace AElf.Automation.Common
         [JsonProperty("NativeTokenSymbol")] public string NativeTokenSymbol { get; set; }
         [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
-
+        
         public void CheckNodesAccount()
         {
             var keyStore = AElfKeyStore.GetKeyStore();

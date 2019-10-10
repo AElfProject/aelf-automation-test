@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,6 +15,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected List<string> AllTesters { get; set; }
         protected List<Node> BpNodes { get; set; }
         protected List<Node> FullNodes { get; set; }
+        protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
         protected void ExecuteContinuousTasks(IEnumerable<Action> actions, bool interrupted = true,
@@ -109,6 +111,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var configInfo = ConfigInfoHelper.Config;
             BpNodes = configInfo.BpNodes;
             FullNodes = configInfo.FullNodes;
+            NativeToken = NodeOption.NativeTokenSymbol;
         }
 
         protected static int GenerateRandomNumber(int min, int max)

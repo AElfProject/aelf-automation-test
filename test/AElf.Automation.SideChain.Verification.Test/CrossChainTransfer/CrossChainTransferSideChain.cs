@@ -99,11 +99,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var mainRawTxInfo in mainResultTxInfos)
                 {
                     Logger.Info("Check the index:");
-                    while (!CheckParentChainBlockIndex(sideChainService, mainRawTxInfo))
-                    {
-                        Logger.Info("Block is not recorded ");
-                        Thread.Sleep(10000);
-                    }
+                    CheckSideChainBlockIndexParentChainHeight(sideChainService, mainRawTxInfo);
 
                     Logger.Info($"Receive CrossTransfer Transaction id is :{mainRawTxInfo.TxId}");
                     var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, mainRawTxInfo);
@@ -133,11 +129,15 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Logger.Info($"Side chain received Token {symbol}");
                 foreach (var receiveSideChain in SideChainServices)
                 {
-                    Logger.Info($"Side chain {receiveSideChain.ChainId} receive token {symbol}");
                     if (receiveSideChain == sideChainService) continue;
+                    
+                    Logger.Info($"Side chain {receiveSideChain.ChainId} receive token {symbol}");
                     var sideChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                     foreach (var sideRawTxInfo in sideRawTxInfos[receiveSideChain.ChainId])
                     {
+                        Logger.Info("Check the index:");
+                        SideChainCheckSideChainBlockIndex(sideChainService, receiveSideChain,sideRawTxInfo);
+                            
                         Logger.Info($"Receive CrossTransfer Transaction id is :{sideRawTxInfo.TxId}");
 
                         var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, sideRawTxInfo);

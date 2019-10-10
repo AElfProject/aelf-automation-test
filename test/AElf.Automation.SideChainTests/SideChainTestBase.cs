@@ -17,16 +17,16 @@ namespace AElf.Automation.SideChainTests
     {
         private static int Timeout { get; set; }
         public ContractTester MainContracts;
-        public ContractTester SideAContracts;
-        public ContractTester SideBContracts;
+        public ContractServices sideAServices;
+        public ContractServices sideBServices;
 
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
-        public static string MainChainUrl { get; } = "http://192.168.197.14:8000";
-        public static string SideAChainUrl { get; } = "http://192.168.197.14:8001";
-        public static string SideBChainUrl { get; } = "http://192.168.197.14:8002";
+        public static string MainChainUrl { get; } = "http://35.183.35.159:8000";
+        public static string SideAChainUrl { get; } = "http://54.154.233.225:8000";
+        public static string SideBChainUrl { get; } = "http://54.92.109.42:8000";
 
-        public string InitAccount { get; } = "2boUmCEXvK9BamvsQTr9VQ5bXPZSvd5utzB9nz3fwPmbJtoySh";
+        public string InitAccount { get; } = "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D";
 
         public List<string> BpNodeAddress { get; set; }
 
@@ -34,15 +34,13 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            var chainId = ChainHelper.ConvertBase58ToChainId("AELF");
-            var mainServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, chainId);
+            var chainId = ChainHelper.ConvertBase58ToChainId("TELF");
+            var mainServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, "TELF");
             MainContracts = new ContractTester(mainServices);
 
-            var sideAServices = new ContractServices(SideAChainUrl, InitAccount, Account.DefaultPassword, 2112);
-            SideAContracts = new ContractTester(sideAServices);
-
-            var sideBServices = new ContractServices(SideBChainUrl, InitAccount, Account.DefaultPassword, 2113);
-            SideAContracts = new ContractTester(sideBServices);
+             sideAServices = new ContractServices(SideAChainUrl, InitAccount, Account.DefaultPassword, "2112");
+            
+             sideBServices = new ContractServices(SideBChainUrl, InitAccount, Account.DefaultPassword, "2112");
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
@@ -61,13 +59,12 @@ namespace AElf.Automation.SideChainTests
         protected ContractTester GetSideChain(string url, string initAccount, string chainId)
         {
             var keyStore = CommonHelper.GetCurrentDataDir();
-            var chain = ChainHelper.ConvertBase58ToChainId(chainId);
-            var contractServices = new ContractServices(url, initAccount, Account.DefaultPassword, chain);
+            var contractServices = new ContractServices(url, initAccount, Account.DefaultPassword, chainId);
             var tester = new ContractTester(contractServices);
             return tester;
         }
 
-        protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractTester tester)
+        protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractServices tester)
         {
             var index = 0;
             var blockInfoResult =

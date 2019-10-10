@@ -78,8 +78,14 @@ namespace AElf.Automation.RpcPerformance
             GetTestAccounts(userCount);
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
-            //Prepare basic token for test - Disable now
-            TransferTokenFromBp(true);
+            
+            if (NodeInfoHelper.Config.ChainTypeInfo.IsMainChain)
+                //Prepare basic token for test - Disable now
+                TransferTokenFromBp();
+            else
+                //Prepare token for side chain 
+                TransferTokenForSideChain();
+            
             //Set select limit transaction
             var setAccount = GetSetConfigurationLimitAccount();
             var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
@@ -619,10 +625,9 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
         }
-
-        private void TransferTokenFromBp(bool enable)
+        
+        private void TransferTokenFromBp()
         {
-            if (!enable) return;
             try
             {
                 var genesis = GenesisContract.GetGenesisContract(NodeManager);
@@ -642,6 +647,37 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
+        private void TransferTokenForSideChain()
+        {
+            try
+            {
+                var nodeConfig = NodeInfoHelper.Config;
+                var config = ConfigInfoHelper.Config;
+                var account = nodeConfig.Nodes.First().Account;
+                var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
+                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
+                var systemToken = genesis.GetTokenContract();
+                
+                for (var i = 0; i < ThreadCount; i++)
+                {
+                    systemToken.IssueBalance(account, AccountList[i].Account, 10000,sideChainTokenSymbol);
+                }
+
+                var nodes = nodeConfig.Nodes;
+
+                foreach (var node in nodes)
+                {
+                    if (node.Account == account) continue;
+                    systemToken.IssueBalance(account, node.Account, 10000,sideChainTokenSymbol);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Issue side chain token got exception.");
+                Logger.Error(e);
+            }
+        }
+        
         private string GetSetConfigurationLimitAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
