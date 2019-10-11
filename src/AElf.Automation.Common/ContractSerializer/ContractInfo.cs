@@ -7,16 +7,16 @@ namespace AElf.Automation.Common.ContractSerializer
 {
     public class ContractInfo
     {
-        private ServiceDescriptor Descriptor { get; set; }
+        private List<ServiceDescriptor> Descriptors { get; set; }
 
         public List<ContractMethod> Methods { get; set; }
         public List<string> ActionMethodNames { get; set; }
 
         public List<string> ViewMethodNames { get; set; }
 
-        public ContractInfo(ServiceDescriptor serviceDescriptor)
+        public ContractInfo(List<ServiceDescriptor> serviceDescriptors)
         {
-            Descriptor = serviceDescriptor;
+            Descriptors = serviceDescriptors;
             Methods = new List<ContractMethod>();
             ActionMethodNames = new List<string>();
             ViewMethodNames = new List<string>();
@@ -59,13 +59,21 @@ namespace AElf.Automation.Common.ContractSerializer
 
         private void GetContractMethods()
         {
-            foreach (var method in Descriptor.Methods)
+            foreach (var descriptor in Descriptors)
             {
-                Methods.Add(new ContractMethod(method));
-                ActionMethodNames.Add(method.Name);
-                if (method.OutputType.Name != "Empty")
-                    ViewMethodNames.Add(method.Name);
+                foreach (var method in descriptor.Methods)
+                {
+                    Methods.Add(new ContractMethod(method));
+                    ActionMethodNames.Add(method.Name);
+                    if (method.OutputType.Name != "Empty")
+                        ViewMethodNames.Add(method.Name);
+                } 
             }
+            
+            //sort
+            Methods.Sort();
+            ActionMethodNames.Sort();
+            ViewMethodNames.Sort();
         }
     }
 }

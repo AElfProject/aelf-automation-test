@@ -20,30 +20,33 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProtoMessage Include="..\AElf\protobuf\acs0.proto">
+        <ProtoContract Include="..\AElf\protobuf\acs0.proto">
             <Link>Protobuf\Proto\stub\acs0.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs1.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs1.proto">
             <Link>Protobuf\Proto\stub\acs1.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs2.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs2.proto">
             <Link>Protobuf\Proto\stub\acs2.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs3.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs3.proto">
             <Link>Protobuf\Proto\stub\acs3.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs4.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs4.proto">
             <Link>Protobuf\Proto\stub\acs4.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs6.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs5.proto">
+            <Link>Protobuf\Proto\stub\acs5.proto</Link>
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs6.proto">
             <Link>Protobuf\Proto\stub\acs6.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs7.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs7.proto">
             <Link>Protobuf\Proto\stub\acs7.proto</Link>
-        </ProtoMessage>
-        <ProtoMessage Include="..\AElf\protobuf\acs8.proto">
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs8.proto">
             <Link>Protobuf\Proto\stub\acs8.proto</Link>
-        </ProtoMessage>
+        </ProtoContract>
         <ProtoMessage Include="..\AElf\protobuf\descriptor_equivalent.proto">
             <Link>Protobuf\Proto\stub\descriptor_equivalent.proto</Link>
         </ProtoMessage>
@@ -62,8 +65,14 @@
         <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
             <Link>Protobuf\Proto\stub\token_contract.proto</Link>
         </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\token_contract_impl.proto">
+            <Link>Protobuf\Proto\stub\token_contract_impl.proto</Link>
+        </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\treasury_contract.proto">
             <Link>Protobuf\Proto\stub\treasury_contract.proto</Link>
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs0.proto">
+            <Link>Protobuf\Proto\stub\acs0.proto</Link>
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
             <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
@@ -100,6 +109,9 @@
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\referendum_auth_contract.proto">
             <Link>Protobuf\Proto\stub\referendum_auth_contract.proto</Link>
+        </ProtoContract>
+        <ProtoContract Include="..\AElf\protobuf\acs5_plugin_test_contract.proto">
+            <Link>Protobuf\Proto\stub\acs5_plugin_test_contract.proto</Link>
         </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\acs8_plugin_test_contract.proto">
             <Link>Protobuf\Proto\stub\acs8_plugin_test_contract.proto</Link>
