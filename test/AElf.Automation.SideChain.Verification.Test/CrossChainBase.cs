@@ -286,7 +286,7 @@ namespace AElf.Automation.SideChain.Verification
                 Logger.Info("Check the transaction again.");
                 txResult = CheckTransactionResult(services, info.TxId);
                 status = txResult.Status.ConvertTransactionResultStatus();
-                if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
+                if (status != TransactionResultStatus.Mined)
                     return null;
             }
 
