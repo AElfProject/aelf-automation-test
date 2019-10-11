@@ -20,6 +20,19 @@ namespace AElf.Automation.SetTransactionFees
         private string ContractAddress { get; set; }
         
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        
+        private List<string> NoFeeMethods = new List<string>
+        {
+            "InitialAElfConsensusContract",
+            "FirstRound",
+            "NextRound",
+            "AEDPoSContractStub.NextTerm",
+            "UpdateValue",
+            "UpdateTinyBlockInformation",
+            "ClaimTransactionFees",
+            "DonateResourceToken",
+            "RecordCrossChainData"
+        };
 
         public ContractMethodFee(INodeManager nodeManager, AuthorityManager authority, ContractInfo contract, string contractAddress)
         {
@@ -33,12 +46,18 @@ namespace AElf.Automation.SetTransactionFees
         {
             foreach (var method in Contract.Methods)
             {
+               if (NoFeeMethods.Contains(method.Name))
+               {
+                   Logger.Info($"No need to set method fee for: {method.Name}");
+                   continue;
+               }
+               
                Logger.Info($"Set method fee: {method.Name}");
                //before query
                var beforeFee = QueryTransactionFee(caller, ContractAddress, method.Name);
                if (beforeFee.Amounts.Count > 0)
                {
-                   var tokenAmount = beforeFee.Amounts.First(o=>o.Symbol == NodeOption.NativeTokenSymbol);
+                   var tokenAmount = beforeFee.Amounts.First(o=>o.Symbol == NodeOption.ChainToken);
                    if (tokenAmount?.Amount == amount)
                    {
                        Logger.Info($"{method.Name} transaction fee is {amount}, no need to reset again.");
