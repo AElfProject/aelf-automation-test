@@ -21,31 +21,51 @@ namespace AElfChain.Console.Commands
             var parameters = InputParameters();
             if (parameters == null)
                 return;
-
-            var input = new TokenAmounts
-            {
-                Method = parameters[1],
-                Amounts = { new TokenAmount
-                {
-                    Symbol = parameters[2],
-                    Amount = long.Parse(parameters[3])
-                }}
-            };
-            var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
-            var miners = Services.Authority.GetCurrentMiners();
-            var caller = Services.Token.CallAddress;
-            var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0], "SetMethodFee",
-                input, genesisOwner, miners, caller);
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
-            //query result
-            var methodInput = new MethodName
+            var caller = Services.Token.CallAddress;
+            switch (parameters.Length)
             {
-                Name = parameters[1]
-            };
-            var tokenResult = NodeManager.QueryView<TokenAmounts>(caller, parameters[0], "GetMethodFee",
-                methodInput);
-            Logger.Info($"MethodFee: {tokenResult}");
+                case 2:
+                {
+                    var feeResult = NodeManager.QueryView<TokenAmounts>(Services.Genesis.CallAddress, parameters[0],
+                        "GetMethodFee", new MethodName
+                        {
+                            Name = parameters[1]
+                        });
+                    Logger.Info(JsonConvert.SerializeObject(feeResult, Formatting.Indented));
+                    break;
+                }
+                case 4:
+                {
+                    var input = new TokenAmounts
+                    {
+                        Method = parameters[1],
+                        Amounts = { new TokenAmount
+                        {
+                            Symbol = parameters[2],
+                            Amount = long.Parse(parameters[3])
+                        }}
+                    };
+                    var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
+                    var miners = Services.Authority.GetCurrentMiners();
+                    var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0], "SetMethodFee",
+                        input, genesisOwner, miners, caller);
+                    transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                
+                    //query result
+                    var methodInput = new MethodName
+                    {
+                        Name = parameters[1]
+                    };
+                    var tokenResult = NodeManager.QueryView<TokenAmounts>(caller, parameters[0], "GetMethodFee",
+                        methodInput);
+                    Logger.Info($"MethodFee: {tokenResult}");
+                    break;
+                }
+                default:
+                    Logger.Error("Wrong input parameters.");
+                    return;
+            }
         }
 
         public override CommandInfo GetCommandInfo()
@@ -53,7 +73,7 @@ namespace AElfChain.Console.Commands
             return new CommandInfo
             {
                 Name = "tx-fee",
-                Description = "Set transaction method fee"
+                Description = "Get/Set transaction method fee"
             };
         }
 
@@ -65,9 +85,10 @@ namespace AElfChain.Console.Commands
             var amount = 1000;
             
             "Parameter: [ContractAddress] [Method] [Symbol] [Amount]".WriteSuccessLine();
-            $"eg: {contract} {method} {symbol} {amount}".WriteSuccessLine();
+            $"eg-[GET]: {contract} {method}".WriteSuccessLine();
+            $"eg-[SET]: {contract} {method} {symbol} {amount}".WriteSuccessLine();
             var reader = new ConsoleReader(new ContractsCompletionEngine(Services.SystemContracts));
-            return CommandOption.InputParameters(4, reader);
+            return CommandOption.InputParameters(2, reader);
         }
     }
 }

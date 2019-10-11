@@ -31,7 +31,7 @@ namespace AElfChain.Console.Commands
         public override string[] InputParameters()
         {
             string from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-            string filename = "AElf.Contract.MultiToken";
+            string filename = "AElf.Contracts.MultiToken";
             
             "Parameter: [From] [ContractFileName]".WriteSuccessLine();
             $"eg: {from} {filename}".WriteSuccessLine();

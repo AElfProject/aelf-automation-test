@@ -83,6 +83,10 @@ namespace AElfChain.Console
                 {
                     command.RunCommand();
                 }
+                catch (TimeoutException e)
+                {
+                    Logger.Error(e.Message);
+                }
                 catch (Exception e)
                 {
                     Logger.Error(e);

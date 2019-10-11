@@ -20,7 +20,8 @@ namespace AElfChain.Console.InputOption
             "TaskQueueStatus",
             "TransactionResult",
             "TransactionResults",
-            "TransactionPoolStatus"
+            "TransactionPoolStatus",
+            "ListAccounts"
         };
 
         public ApiCompletionEngine()

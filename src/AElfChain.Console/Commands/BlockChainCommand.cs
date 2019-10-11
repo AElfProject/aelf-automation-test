@@ -58,6 +58,9 @@ namespace AElfChain.Console.Commands
                 case "TransactionResults":
                     GetTransactionResults();
                     break;
+                case "ListAccounts":
+                    ListAllAccounts();
+                    break;
                 default:
                     Logger.Error("Not supported api method.");
                     var subCommands = GetSubCommands();
@@ -145,6 +148,21 @@ namespace AElfChain.Console.Commands
             Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
         }
 
+        private void ListAllAccounts()
+        {
+            var accounts = NodeManager.ListAccounts();
+            "Accounts List:".WriteSuccessLine();
+            for (var i = 0; i < accounts.Count; i++)
+            {
+                $"{accounts[i].PadRight(54)}".WriteSuccessLine(changeLine: false);
+                if (i % 3 == 2)
+                    System.Console.WriteLine();
+            }
+
+            if (accounts.Count % 2 != 0)
+                System.Console.WriteLine();
+        }
+
         public override CommandInfo GetCommandInfo()
         {
             return new CommandInfo
@@ -167,7 +185,8 @@ namespace AElfChain.Console.Commands
                 "TaskQueueStatus",
                 "TransactionResult",
                 "TransactionResults",
-                "TransactionPoolStatus"
+                "TransactionPoolStatus",
+                "ListAccounts"
             };
         }
 
