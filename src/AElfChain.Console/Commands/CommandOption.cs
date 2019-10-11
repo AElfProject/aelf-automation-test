@@ -9,7 +9,8 @@ namespace AElfChain.Console.Commands
     {
         public static bool TryParseParameters(string input, int length, out string[] parameters)
         {
-            parameters = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            //parameters = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            parameters = ParseArguments(input);
             var result = parameters.Length >= length;
             
             if(!result)
@@ -50,6 +51,25 @@ namespace AElfChain.Console.Commands
                 
                 return parameters;
             }
+        }
+        
+        private static string[] ParseArguments(string input)
+        {
+            var paramChars = input.ToCharArray();
+            var inQuote = false;
+            for (var index = 0; index < paramChars.Length; index++)
+            {
+                if (paramChars[index] == '"')
+                    inQuote = !inQuote;
+                if (!inQuote && paramChars[index] == ' ')
+                    paramChars[index] = '\n';
+            }
+            var array = new string(paramChars).Split('\n');
+            for (var i=0; i<array.Length; i++)
+            {
+                array[i] = array[i].Replace("\"", "");
+            }
+            return array.ToArray();
         }
     }
 }

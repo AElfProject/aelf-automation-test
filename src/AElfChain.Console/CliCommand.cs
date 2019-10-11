@@ -7,6 +7,7 @@ using AElf.Automation.Common.Managers;
 using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
 using log4net;
+using Shouldly;
 
 namespace AElfChain.Console
 {
@@ -84,6 +85,10 @@ namespace AElfChain.Console
                     command.RunCommand();
                 }
                 catch (TimeoutException e)
+                {
+                    Logger.Error(e.Message);
+                }
+                catch (ShouldAssertException e)
                 {
                     Logger.Error(e.Message);
                 }

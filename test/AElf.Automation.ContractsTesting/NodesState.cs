@@ -32,7 +32,7 @@ namespace AElf.Automation.ContractsTesting
                     //message = $"Node: {name}, Height: {currentHeight}, TxPool Count: {txPoolCount}";
                     //Log.Info(message);
                     var chainStatus = AsyncHelper.RunSync(nodeManager.ApiService.GetChainStatusAsync);
-                    Log.Info($"Chain Status: {JsonConvert.SerializeObject(chainStatus)}");
+                    Log.Info($"Chain Status: {JsonConvert.SerializeObject(chainStatus, Formatting.Indented)}");
                     var blockInfo = nodeStatus.GetBlockInfo(height);
                     var blockMessage =
                         $"Node: {name}, Height: {blockInfo.Header.Height}, BlockHash: {blockInfo.BlockHash}, Transaction Count: {blockInfo.Body.TransactionsCount}";

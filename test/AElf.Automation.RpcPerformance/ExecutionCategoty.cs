@@ -136,14 +136,14 @@ namespace AElf.Automation.RpcPerformance
                             break;
                         }
                         case TransactionResultStatus.Failed:
-                        case TransactionResultStatus.NotExisted:
-                        case TransactionResultStatus.Unexecutable:
                             var message =
                                 $"Transaction {item.TxId} execution status: {status}." +
-                                $"\r\nDetail Message: {JsonConvert.SerializeObject(transactionResult)}";
+                                $"\r\nDetail Message: {JsonConvert.SerializeObject(transactionResult, Formatting.Indented)}";
                             Logger.Error(message);
                             break;
                         case TransactionResultStatus.Pending:
+                        case TransactionResultStatus.NotExisted:
+                        case TransactionResultStatus.Unexecutable:
                             Logger.Warn($"Transaction {item.TxId} execution status: {status}.");
                             continue;
                         default:
