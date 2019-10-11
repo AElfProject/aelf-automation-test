@@ -102,11 +102,11 @@ namespace AElf.Automation.Common.Managers
         {
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
-            foreach (var bp in bps.Skip(0))
+            foreach (var bp in bps.Skip(1))
             {
                 var balance = _token.GetUserBalance(bp);
-                if (balance < 2000000_00000000)
-                    _token.TransferBalance(bps[0], bp, 2000000_00000000 - balance);
+                if (balance < 100000_00000000)
+                    _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, NodeOption.ChainToken);
             }
         }
     }

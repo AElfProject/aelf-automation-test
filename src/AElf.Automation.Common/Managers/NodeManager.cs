@@ -229,7 +229,6 @@ namespace AElf.Automation.Common.Managers
                         Console.WriteLine();
                         Logger.Info($"Transaction {txId} status: {status}", true);
                         return transactionResult;
-                    case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.Failed:
                     {
                         var message = $"Transaction {txId} status: {status}";
@@ -264,6 +263,8 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.NotExisted:
+                    case TransactionResultStatus.Unexecutable:
                         Console.Write($"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
@@ -272,8 +273,6 @@ namespace AElf.Automation.Common.Managers
                         Logger.Info($"TransactionId: {id}, Status: {status}", true);
                         break;
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
-                    case TransactionResultStatus.NotExisted:
                         Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transactionResult.Error}", true);
                         break;
                 }

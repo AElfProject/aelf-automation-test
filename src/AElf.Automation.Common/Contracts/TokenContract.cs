@@ -67,7 +67,7 @@ namespace AElf.Automation.Common.Contracts
             return result;
         }
         
-        public TransactionResultDto IssueBalance(string from, string to, long amount, string symbol = "ELF")
+        public TransactionResultDto IssueBalance(string from, string to, long amount, string symbol = "")
         {
             var tester = GetNewTester(from);
             tester.SetAccount(from);

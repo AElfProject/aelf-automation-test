@@ -171,9 +171,7 @@ namespace AElf.Automation.Common.Contracts
                 {
                     case TransactionResultStatus.Mined:
                         continue;
-                    case TransactionResultStatus.NotExisted:
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
                     {
                         Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;

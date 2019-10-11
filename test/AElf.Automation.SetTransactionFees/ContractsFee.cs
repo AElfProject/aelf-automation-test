@@ -6,6 +6,7 @@ using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Types;
 using log4net;
 
 namespace AElf.Automation.SetTransactionFees
@@ -41,9 +42,14 @@ namespace AElf.Automation.SetTransactionFees
                 Logger.Info($"Begin set contract: {provider}");
                 var contractInfo = ContractHandler.GetContractInfo(provider);
                 var contractAddress = systemContracts[provider];
+                if (contractAddress == new Address())
+                {
+                    Logger.Warn($"Contract {provider} not deployed.");
+                    continue;
+                }
                 
                 var contractFee = new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.GetFormatted());
-                contractFee.SetContractFees(NodeOption.NativeTokenSymbol, amount, genesisOwner, miners, Caller);
+                contractFee.SetContractFees(NodeOption.ChainToken, amount, genesisOwner, miners, Caller);
             }
         }
 
@@ -55,6 +61,12 @@ namespace AElf.Automation.SetTransactionFees
                 Logger.Info($"Query contract fees: {provider}");
                 var contractInfo = ContractHandler.GetContractInfo(provider);
                 var contractAddress = systemContracts[provider];
+                if (contractAddress == new Address())
+                {
+                    Logger.Warn($"Contract {provider} not deployed.");
+                    Console.WriteLine();
+                    continue;
+                }
                 foreach (var method in contractInfo.ActionMethodNames)
                 {
                     var feeResult = NodeManager.QueryView<TokenAmounts>(Caller, contractAddress.GetFormatted(),
@@ -69,7 +81,7 @@ namespace AElf.Automation.SetTransactionFees
                     }
                     else
                     {
-                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {NodeOption.NativeTokenSymbol}   Amount: 0");
+                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {NodeOption.ChainToken}   Amount: 0");
                     }
                 }
                 Console.WriteLine();

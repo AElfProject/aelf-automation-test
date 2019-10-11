@@ -4,6 +4,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
+using Shouldly;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -100,6 +101,10 @@ namespace AElf.Automation.RpcPerformance
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (TimeoutException e)
+            {
+                Logger.Error(e.Message);
+            }
+            catch (ShouldAssertException e)
             {
                 Logger.Error(e.Message);
             }
