@@ -248,7 +248,7 @@ namespace AElf.Automation.Common.Managers
             }
             
             Console.Write("\r\n");
-            throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
+            throw new TimeoutException("Transaction execution status cannot be 'Mined' after five minutes.");
         }
         
         public void CheckTransactionListResult(List<string> transactionIds)

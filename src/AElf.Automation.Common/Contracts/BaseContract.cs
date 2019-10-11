@@ -195,7 +195,7 @@ namespace AElf.Automation.Common.Contracts
 
                 queueLength = _txResultList.Count;
                 if (queueSameTimes == 300)
-                    Assert.IsTrue(false, "Transaction result check failed due to pending results in 5 minutes.");
+                    throw new TimeoutException("Transaction result check failed due to pending results in 5 minutes.");
             }
         }
 

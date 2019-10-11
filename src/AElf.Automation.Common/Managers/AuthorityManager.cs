@@ -16,6 +16,7 @@ namespace AElf.Automation.Common.Managers
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConsensusContract _consensus;
+        private readonly TokenContract _token;
         private readonly GenesisContract _genesis;
         private readonly ParliamentAuthContract _parliament;
         private NodesInfo _info;
@@ -25,7 +26,10 @@ namespace AElf.Automation.Common.Managers
             GetConfigNodeInfo();
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
+            _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
+            
+            CheckBpBalance();
         }
 
         public Address DeployContractWithAuthority(string caller, string contractName)
@@ -92,6 +96,18 @@ namespace AElf.Automation.Common.Managers
             nodes.CheckNodesAccount();
 
             _info = nodes;
+        }
+
+        private void CheckBpBalance()
+        {
+            Logger.Info("Check bp balance and transfer for authority.");
+            var bps = GetCurrentMiners();
+            foreach (var bp in bps.Skip(0))
+            {
+                var balance = _token.GetUserBalance(bp);
+                if (balance < 2000000_00000000)
+                    _token.TransferBalance(bps[0], bp, 2000000_00000000 - balance);
+            }
         }
     }
 }

@@ -19,7 +19,9 @@ namespace AElf.Automation.Common.Contracts
         ReferendumAuth,
 
         TestBasicFunction,
-        TestPerformance
+        TestPerformance,
+        ExecutionAcs5,
+        ExecutionAcs8
     }
 
     public static class NameProviderExtension

@@ -73,7 +73,7 @@ namespace AElf.Automation.Common.Contracts
                     if (checkTimes == 360) //max wait time 3 minutes
                     {
                         Console.Write("\r\n");
-                        throw new Exception(
+                        throw new TimeoutException(
                             $"Transaction {resultDto.TransactionId} in '{status}' status more than three minutes.");
                     }
 

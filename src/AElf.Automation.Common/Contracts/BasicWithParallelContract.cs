@@ -29,6 +29,9 @@ namespace AElf.Automation.Common.Contracts
         RemoveAfterSetValue,
         SetAfterRemoveValue,
         RemoveValueParallel,
+        ComplexChangeWithDeleteValue1,
+        ComplexChangeWithDeleteValue2,
+        ComplexChangeWithDeleteValue3,
         
         QueryWinMoney,
         QueryRewardMoney,

@@ -80,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
-                
+
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = NodeOption.IsMainChain;
@@ -98,6 +98,10 @@ namespace AElf.Automation.RpcPerformance
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
+            }
+            catch (TimeoutException e)
+            {
+                Logger.Error(e.Message);
             }
             catch (Exception e)
             {

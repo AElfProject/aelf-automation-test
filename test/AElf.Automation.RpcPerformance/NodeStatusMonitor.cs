@@ -144,7 +144,7 @@ namespace AElf.Automation.RpcPerformance
                 if (checkTimes != 3000) continue;
                 
                 Console.Write("\r\n");
-                Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
+                throw new TimeoutException("Node block exception, block height not changed 5 minutes later.");
             }
         }
 
