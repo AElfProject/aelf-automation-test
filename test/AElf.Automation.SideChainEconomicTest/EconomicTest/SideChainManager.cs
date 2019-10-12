@@ -26,7 +26,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public ContractServices InitializeSideChain(string serviceUrl, string account, int chainId)
         {
-            var contractServices = new ContractServices(serviceUrl, account, Account.DefaultPassword);
+            var contractServices = new ContractServices(serviceUrl, account, NodeOption.DefaultPassword);
             
             SideChains.Add(chainId, contractServices);
 

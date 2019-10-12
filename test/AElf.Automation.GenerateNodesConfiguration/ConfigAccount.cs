@@ -1,4 +1,5 @@
 using System.IO;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
@@ -10,8 +11,8 @@ namespace AElf.Automation.GenerateNodesConfiguration
     {
         private string _keyPath;
         private IKeyStore _keyStore;
-        private NodeOption _node;
-        public ConfigAccount(NodeOption node)
+        private NodeInfo _node;
+        public ConfigAccount(NodeInfo node)
         {
             var dataPath = CommonHelper.GetCurrentDataDir();
             _keyPath = Path.Combine(dataPath, "keys");
@@ -21,7 +22,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
         public string GenerateAccount()
         {
-            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(Account.DefaultPassword));
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateAccountKeyPairAsync(NodeOption.DefaultPassword));
             var pubKey = keypair.PublicKey;
             _node.PublicKey = pubKey.ToHex();
 

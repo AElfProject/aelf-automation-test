@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -58,10 +59,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var accountManager = new AccountManager(keyStore);
             for (var i = 0; i < 10; i++)
             {
-                var accountInfo = accountManager.NewAccount(Account.DefaultPassword);
+                var accountInfo = accountManager.NewAccount(NodeOption.DefaultPassword);
                 Console.WriteLine($"Account: {accountInfo}");
 
-                var publicKey = accountManager.GetPublicKey(accountInfo, Account.DefaultPassword);
+                var publicKey = accountManager.GetPublicKey(accountInfo, NodeOption.DefaultPassword);
                 Console.WriteLine($"Public Key: {publicKey}");
 
                 Console.WriteLine();

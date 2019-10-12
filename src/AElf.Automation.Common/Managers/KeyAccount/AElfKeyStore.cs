@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Managers
             var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
             if (kp == null)
             {
-                AsyncHelper.RunSync(() => UnlockAccountAsync(address, Account.DefaultPassword));
+                AsyncHelper.RunSync(() => UnlockAccountAsync(address, NodeOption.DefaultPassword));
                 kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
             }
 

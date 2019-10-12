@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace AElf.Automation.Common
 {
-    public class NodeOption
+    public static class NodeOption
     {
         public static string NativeTokenSymbol => NodeInfoHelper.Config.NativeTokenSymbol;
         public static bool IsMainChain => NodeInfoHelper.Config.ChainTypeInfo.IsMainChain;
