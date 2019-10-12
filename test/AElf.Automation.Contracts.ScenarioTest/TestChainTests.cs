@@ -194,15 +194,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = MainNode.GetGenesisContract(BpAccount);
             var token = genesis.GetTokenContract();
 
-            var input = new TokenAmounts
+            var input = new MethodFees
             {
-                Method = "Approve",
-                Amounts =
+                MethodName = "Approve",
+                Fees =
                 {
-                    new TokenAmount
+                    new MethodFee
                     {
                         Symbol = NodeOption.NativeTokenSymbol,
-                        Amount = 1000
+                        BasicFee = 1000
                     }
                 }
             };
@@ -314,9 +314,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var genesis = nodeManager.GetGenesisContract();
                 var token = genesis.GetTokenContract();
 
-                var tokenAmount = token.CallViewMethod<TokenAmounts>(TokenMethod.GetMethodFee, new MethodName
+                var tokenAmount = token.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
                 {
-                    Name = "Transfer"
+                    Value = "Transfer"
                 });
                 Logger.Info(tokenAmount);
             }

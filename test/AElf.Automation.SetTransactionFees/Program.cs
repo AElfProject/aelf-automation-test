@@ -37,7 +37,11 @@ namespace AElf.Automation.SetTransactionFees
 
             var nm = new NodeManager(Endpoint);
             var contractsFee = new ContractsFee(nm);
+            //before
+            contractsFee.QueryAllContractsMethodFee();
+            //set fee
             contractsFee.SetAllContractsMethodFee(Amount);
+            //after
             contractsFee.QueryAllContractsMethodFee();
             
             Logger.Info("All contract methods fee set completed.");

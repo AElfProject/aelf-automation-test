@@ -4,6 +4,7 @@ using AElf.Automation.Common.Managers;
 using AElf.Types;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Shouldly;
 
@@ -27,23 +28,23 @@ namespace AElfChain.Console.Commands
             {
                 case 2:
                 {
-                    var feeResult = NodeManager.QueryView<TokenAmounts>(Services.Genesis.CallAddress, parameters[0],
-                        "GetMethodFee", new MethodName
+                    var feeResult = NodeManager.QueryView<MethodFees>(Services.Genesis.CallAddress, parameters[0],
+                        "GetMethodFee", new StringValue
                         {
-                            Name = parameters[1]
+                            Value = parameters[1]
                         });
                     Logger.Info(JsonConvert.SerializeObject(feeResult, Formatting.Indented));
                     break;
                 }
                 case 4:
                 {
-                    var input = new TokenAmounts
+                    var input = new MethodFees
                     {
-                        Method = parameters[1],
-                        Amounts = { new TokenAmount
+                        MethodName = parameters[1],
+                        Fees = { new MethodFee
                         {
                             Symbol = parameters[2],
-                            Amount = long.Parse(parameters[3])
+                            BasicFee = long.Parse(parameters[3])
                         }}
                     };
                     var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
@@ -53,11 +54,11 @@ namespace AElfChain.Console.Commands
                     transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 
                     //query result
-                    var methodInput = new MethodName
+                    var methodInput = new StringValue
                     {
-                        Name = parameters[1]
+                        Value = parameters[1]
                     };
-                    var tokenResult = NodeManager.QueryView<TokenAmounts>(caller, parameters[0], "GetMethodFee",
+                    var tokenResult = NodeManager.QueryView<MethodFees>(caller, parameters[0], "GetMethodFee",
                         methodInput);
                     Logger.Info($"MethodFee: {tokenResult}");
                     break;

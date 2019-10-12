@@ -11,6 +11,7 @@ using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
