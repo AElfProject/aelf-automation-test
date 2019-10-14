@@ -1,16 +1,16 @@
 {
-    "TestEnvironment": "Other",
+    "TestEnvironment": "Offline",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
-            "Url": "http://3.94.106.10:8000",
+            "Url": "http://52.90.147.175:8000",
             "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123",
-            "NativeSymbol": "TELF"
+            "NativeSymbol": "ELF"
         },
         {
             "Environment": "Offline",
-            "Url": "http://192.168.197.40:8000",
+            "Url": "http://192.168.197.14:8000",
             "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123",
             "NativeSymbol": "ELF"
@@ -29,13 +29,13 @@
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
             "IsPrivilegePreserved": true,
-            "NativeSymbol": "SAELF"
+            "NativeSymbol": "STA"
         },
         {
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
             "IsPrivilegePreserved": true,
-            "NativeSymbol": "SBELF"
+            "NativeSymbol": "STB"
         }
     ]
 }
