@@ -25,8 +25,11 @@ namespace AElfChain.Console.Commands
             "Current bp account info:".WriteSuccessLine();
             foreach (var node in NodeOption.AllNodes)
             {
-                if(pubKeys.Contains(node.PublicKey))
-                    $"{++count}. {node.Account}".WriteSuccessLine();
+                if (pubKeys.Contains(node.PublicKey))
+                {
+                    $"{++count:00}. Account: {node.Account}".WriteSuccessLine();
+                    $"    PubKey: {node.PublicKey}".WriteSuccessLine();
+                }
             }
         }
 
