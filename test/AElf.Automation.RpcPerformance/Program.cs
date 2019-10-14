@@ -2,6 +2,7 @@
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElfChain.SDK;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Shouldly;
@@ -101,6 +102,10 @@ namespace AElf.Automation.RpcPerformance
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (TimeoutException e)
+            {
+                Logger.Error(e.Message);
+            }
+            catch (AElfChainApiException e)
             {
                 Logger.Error(e.Message);
             }
