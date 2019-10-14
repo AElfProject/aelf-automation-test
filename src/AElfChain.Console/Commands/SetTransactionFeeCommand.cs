@@ -60,11 +60,11 @@ namespace AElfChain.Console.Commands
                     };
                     var tokenResult = NodeManager.QueryView<MethodFees>(caller, parameters[0], "GetMethodFee",
                         methodInput);
-                    Logger.Info($"MethodFee: {tokenResult}");
+                    $"MethodFee: {tokenResult}".WriteSuccessLine();
                     break;
                 }
                 default:
-                    Logger.Error("Wrong input parameters.");
+                    "Wrong input parameters.".WriteErrorLine();
                     return;
             }
         }

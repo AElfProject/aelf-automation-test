@@ -26,7 +26,7 @@ namespace AElfChain.Console.Commands
 
             var limitResult =
                 AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
-            Logger.Info($"Block transaction limit: {limitResult.Value}");
+            $"Block transaction limit: {limitResult.Value}".WriteSuccessLine();
 
             if (parameters.Length == 1)
                 return;
@@ -48,7 +48,7 @@ namespace AElfChain.Console.Commands
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
             var queryResult = AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
-            Logger.Info($"New block transaction limit: {queryResult.Value}");
+            $"New block transaction limit: {queryResult.Value}".WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()

@@ -72,7 +72,7 @@ namespace AElfChain.Console.Commands
         private void GetBlockHeight()
         {
             var height = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
-            Logger.Info($"Current chain height: {height}");
+            $"Current chain height: {height}".WriteSuccessLine();
         }
 
         private void GetBlockByHash()
@@ -82,7 +82,7 @@ namespace AElfChain.Console.Commands
             var hash = input[0];
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockAsync(hash, includeTransaction));
-            Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
+            JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetBlockByHeight()
@@ -92,19 +92,19 @@ namespace AElfChain.Console.Commands
             var height = long.Parse(input[0]);
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height, includeTransaction));
-            Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
+            JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetCurrentRoundInformation()
         {
             var roundInformation = AsyncHelper.RunSync(ApiService.GetCurrentRoundInformationAsync);
-            Logger.Info(JsonConvert.SerializeObject(roundInformation, Formatting.Indented));
+            JsonConvert.SerializeObject(roundInformation, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionPoolStatus()
         {
             var transactionPoolStatusInfo = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetBlockState()
@@ -113,19 +113,19 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var hash = input[0];
             var blockState = AsyncHelper.RunSync(() => ApiService.GetBlockStateAsync(hash));
-            Logger.Info(JsonConvert.SerializeObject(blockState, Formatting.Indented));
+            JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetChainStatus()
         {
             var chainInfo = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(chainInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(chainInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTaskQueueStatus()
         {
             var taskQueueInfo = AsyncHelper.RunSync(ApiService.GetTaskQueueStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(taskQueueInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(taskQueueInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionResult()
@@ -134,7 +134,7 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var transactionId = input[0];
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(transactionId));
-            Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
+            JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionResults()
@@ -145,7 +145,7 @@ namespace AElfChain.Console.Commands
             var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(blockHash, offset, limit));
-            Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
+            JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 
         private void ListAllAccounts()

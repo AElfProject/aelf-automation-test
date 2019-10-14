@@ -39,11 +39,7 @@ namespace AElfChain.Console.Commands
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
             //contract info
-            var contractAddress = Services.GetContractAddress(input[0]);
-            if (contractAddress == null)
-            {
-                contractAddress = CommandOption.InputParameters(1)[0];
-            }
+            var contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractMethodsInfo();
@@ -73,7 +69,7 @@ namespace AElfChain.Console.Commands
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
                     methodInput[0], inputMessage);
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);
-                Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+                JsonConvert.SerializeObject(transactionResult, Formatting.Indented).WriteSuccessLine();
             }
         }
 

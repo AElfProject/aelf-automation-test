@@ -6,6 +6,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
+using Newtonsoft.Json;
 
 namespace AElfChain.Console.Commands
 {
@@ -62,7 +63,7 @@ namespace AElfChain.Console.Commands
                     methodInput[0],
                     inputMessage);
                 var message = methodInfo.OutputType.Parser.ParseFrom(byteString);
-                Logger.Info(JsonFormatter.ToDiagnosticString(message), Format.Json);
+                Log4NetHelper.ConvertJsonString(JsonFormatter.ToDiagnosticString(message)).WriteSuccessLine();
             }
         }
 

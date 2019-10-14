@@ -72,7 +72,7 @@ namespace AElfChain.Console
                     var result = int.TryParse(input, out var select);
                     if (!result || select > Commands.Count)
                     {
-                        Logger.Error("Wrong input selection, please refer following command list.");
+                        "[ERROR]: Wrong input selection, please refer following command list.".WriteErrorLine();
                         GetUsageInfo();
                         continue;
                     }
@@ -84,6 +84,10 @@ namespace AElfChain.Console
                 try
                 {
                     command.RunCommand();
+                }
+                catch (ArgumentException e)
+                {
+                    Logger.Error(e.Message);
                 }
                 catch (TimeoutException e)
                 {

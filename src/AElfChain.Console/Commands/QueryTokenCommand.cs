@@ -17,7 +17,7 @@ namespace AElfChain.Console.Commands
                 return;
 
             var balance = Services.Token.GetUserBalance(parameters[0], parameters[1]);
-            Logger.Info($"Account: {parameters[0]}, {parameters[1]}={balance}");            
+            $"Account: {parameters[0]}, {parameters[1]}={balance}".WriteSuccessLine();            
         }
 
         public override CommandInfo GetCommandInfo()
