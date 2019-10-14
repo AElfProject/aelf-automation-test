@@ -1,15 +1,11 @@
 using System;
 using System.Linq;
-using AElf;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
-using Google.Protobuf.Reflection;
-using Newtonsoft.Json.Linq;
 
 namespace AElfChain.Console.Commands
 {
@@ -60,30 +56,8 @@ namespace AElfChain.Console.Commands
 
                 var parameterInput = methodInfo.InputType.Name == "Empty" ? new[] {""} : 
                     CommandOption.InputParameters(methodInfo.InputFields.Count);
-                var jsonObject = new JObject();
-                for (var i = 0; i < methodInfo.InputFields.Count; i++)
-                {
-                    var type = methodInfo.InputFields[i];
-                    if (type.FieldType == FieldType.Message && type.MessageType.Name == "Address")
-                    {
-                        if (type.MessageType.Name == "Address")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = parameterInput[i].ConvertAddress().Value.ToBase64()
-                            };
-                        else if (type.MessageType.Name == "Hash")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
-                            };
-                    }
-                    else
-                    {
-                        jsonObject[methodInfo.InputFields[i].Name] = parameterInput[i];
-                    }
-                }
-            
-                var inputMessage = JsonParser.Default.Parse(jsonObject.ToString(), methodInfo.InputType);
+                var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
+                var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var byteString = NodeManager.QueryView(Services.Genesis.CallAddress, contractAddress,
                     methodInput[0],
                     inputMessage);

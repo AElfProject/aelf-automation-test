@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Acs1;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
@@ -13,10 +14,12 @@ using AElf.Contracts.TokenConverter;
 using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.Reflection;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -42,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             SideNode1 = new NodeManager("3.84.143.239:8000");
             SideNode2 = new NodeManager("34.224.27.242:8000");
 
-            BpAccount = "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D";
+            BpAccount = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
         }
 
         [TestMethod]
@@ -320,6 +323,29 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
                 Logger.Info(tokenAmount);
             }
+        }
+
+        [TestMethod]
+        public void QueryTransaction_Fee()
+        {
+            var genesis = MainNode.GetGenesisContract(BpAccount);
+            var token = genesis.GetTokenContract();
+            var transactionResultDto = token.ExecuteMethodWithResult("GetMethodFee", new StringValue
+            {
+                Value = "Transfer"
+            });
+            Logger.Info(JsonConvert.SerializeObject(transactionResultDto, Formatting.Indented));
+        }
+
+        [TestMethod]
+        public void ContractMethodTest()
+        {
+            var contractHandler = new ContractHandler();
+            var tokenInfo = contractHandler.GetContractInfo(NameProvider.Genesis);
+            var method = tokenInfo.GetContractMethod("GetContractInfo");
+
+            var address = "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8".ConvertAddress();
+            var output = JsonFormatter.Default.Format(address);
         }
 
         [TestMethod]
