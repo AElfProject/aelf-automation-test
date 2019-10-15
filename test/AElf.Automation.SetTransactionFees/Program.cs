@@ -1,4 +1,5 @@
-﻿using AElf.Automation.Common.Helpers;
+﻿using System;
+using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
@@ -37,9 +38,21 @@ namespace AElf.Automation.SetTransactionFees
 
             var nm = new NodeManager(Endpoint);
             var contractsFee = new ContractsFee(nm);
-            contractsFee.SetAllContractsMethodFee(Amount);
-            contractsFee.QueryAllContractsMethodFee();
+            while (true)
+            {
+                try
+                {
+                    "Begin set transaction fee".WriteSuccessLine();
+                    contractsFee.SetAllContractsMethodFee(Amount);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    e.Message.WriteErrorLine();
+                }
+            }
             
+            contractsFee.QueryAllContractsMethodFee();
             Logger.Info("All contract methods fee set completed.");
         }
     }
