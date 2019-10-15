@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Contracts;
 using AElf.Contracts.TestContract.BasicFunctionWithParallel;
+using Google.Protobuf;
 using Shouldly;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -21,19 +22,22 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
 
+        
         public void RunDeleteValueScenarioJob()
         {
-            ExecuteStandaloneTask(new Action[]
-            {
-                DeleteValueAction,
-                IncreaseValueAction,
-                DeleteValueParallelAction,
-                IncreaseValueParallelAction,
-                DeleteValueAfterSetAction,
-                SetValueAfterDeleteAction
-            });
+//            ExecuteStandaloneTask(new Action[]
+//            {
+//                DeleteValueAction,
+//                IncreaseValueAction,
+//                DeleteValueParallelAction,
+//                IncreaseValueParallelAction,
+//                DeleteValueAfterSetAction,
+//                SetValueAfterDeleteAction,
+//                ComplexDeleteAndChangeAction
+//            });
         }
-
+        
+        /*
         private void IncreaseValueAction()
         {
             foreach (var contract in _contracts)
@@ -88,6 +92,30 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Key = contract.CallAddress
                 });
                 output.Int64Value.ShouldBe(value);
+            }
+        }
+
+        private void CheckValue(string value)
+        {
+            foreach (var contract in _contracts)
+            {
+                var output = contract.CallViewMethod<GetValueOutput>(BasicParallelMethod.GetValue, new GetValueInput
+                {
+                    Key = contract.CallAddress
+                });
+                output.StringValue.ShouldBe(value);
+            }
+        }
+
+        private void CheckValue(MessageValue value)
+        {
+            foreach (var contract in _contracts)
+            {
+                var output = contract.CallViewMethod<GetValueOutput>(BasicParallelMethod.GetValue, new GetValueInput
+                {
+                    Key = contract.CallAddress
+                });
+                output.MessageValue.ShouldBe(value);
             }
         }
 
@@ -172,5 +200,67 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             CheckValue(10);
         }
+
+        private void ComplexDeleteAndChangeAction()
+        {
+            //test ComplexChangeWithDeleteValue1
+            foreach (var contract in _contracts)
+            {
+                contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue1, new ComplexChangeInput
+                {
+                    Key = contract.CallAddress,
+                    Int64Value = 100,
+                    StringValue = "new-info1",
+                    MessageValue = new MessageValue
+                    {
+                        StringValue = Guid.NewGuid().ToString()
+                    }
+                });
+            }
+            
+            _contracts.ForEach(c => c.CheckTransactionResultList());
+            CheckValue(100);
+            CheckValue("new-info1");
+            CheckValue((MessageValue)null);
+            
+            //test ComplexChangeWithDeleteValue2
+            var message = new MessageValue
+            {
+                Int64Value = 200,
+                StringValue = "test2"
+            };
+            foreach (var contract in _contracts)
+            {
+                contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue2, new ComplexChangeInput
+                {
+                    Key = contract.CallAddress,
+                    Int64Value = Guid.NewGuid().GetHashCode(),
+                    StringValue = "new-info2",
+                    MessageValue = message
+                });
+            }
+            
+            _contracts.ForEach(c => c.CheckTransactionResultList());
+            CheckValue(0);
+            CheckValue("new-info2");
+            CheckValue(message);
+            
+            //test ComplexChangeWithDeleteValue3
+            foreach (var contract in _contracts)
+            {
+                contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue3, new ComplexChangeInput
+                {
+                    Key = contract.CallAddress,
+                    Int64Value = 300,
+                    StringValue = Guid.NewGuid().ToString(),
+                });
+            }
+            
+            _contracts.ForEach(c => c.CheckTransactionResultList());
+            CheckValue(300);
+            CheckValue("");
+            CheckValue((MessageValue)null);
+        }
+        */
     }
 }
