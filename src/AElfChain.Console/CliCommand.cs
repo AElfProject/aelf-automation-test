@@ -89,6 +89,10 @@ namespace AElfChain.Console
                 {
                     Logger.Error(e.Message);
                 }
+                catch (FormatException e)
+                {
+                    Logger.Error(e.Message);
+                }
                 catch (TimeoutException e)
                 {
                     Logger.Error(e.Message);
