@@ -13,9 +13,10 @@ jobs:
     - name: Checkout latest build
       run: 
         git checkout dev && git pull
-        ls
-        cd src/AElf && git checkout dev && git pull
+        
     - name: Run a multi-line script
-      run: 
+      run: |
+        ls
         dotnet restore
         dotnet build
+      shell: bash 
