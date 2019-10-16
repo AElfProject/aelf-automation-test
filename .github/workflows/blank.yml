@@ -1,0 +1,20 @@
+name: CI
+
+on: 
+    push:
+        branches: 
+            - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Checkout latest build
+      run: 
+        git checkout dev && git pull
+        cd src/AElf && git checkout dev && git pull
+    - name: Run a multi-line script
+      run: 
+        dotnet restore
+        dotnet build
