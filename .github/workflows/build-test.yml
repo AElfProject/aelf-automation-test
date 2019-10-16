@@ -16,7 +16,7 @@ jobs:
         
     - name: Run a multi-line script
       run: |
-        ls
+        cd src/AElf && ls
         dotnet restore
         dotnet build
       shell: bash 
