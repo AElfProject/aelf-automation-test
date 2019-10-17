@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -12,74 +13,94 @@ namespace AElf.Automation.CheckTxStatus
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
         private readonly INodeManager _nodeManager;
         private readonly long _verifyBlock;
-        
+        private readonly long _startBlock;
 
         public TransactionCheck()
         {
-            _nodeManager = new NodeManager(Url,AccountDir);
+            _nodeManager = new NodeManager(Url, AccountDir);
             _verifyBlock = VerifyBlockNumber;
+            _startBlock = StartBlock;
         }
 
         public void CheckTxStatus()
         {
-            long startBlock = 900;
+            var startBlock = _startBlock;
             var blockHeight = _nodeManager.ApiService.GetBlockHeightAsync().Result;
             Logger.Info($"Chain block height is {blockHeight}");
             var verifyBlock = blockHeight > _verifyBlock ? _verifyBlock : blockHeight;
-            
+            var notExistTransactionList = new Dictionary<long, Dictionary<string, TransactionInfo>>();
+            var transactionInfos = new Dictionary<string, TransactionInfo>();
+
             while (true)
             {
                 var currentBlock = _nodeManager.ApiService.GetBlockHeightAsync().Result;
                 if (startBlock > currentBlock)
                     return;
-
-                var transactionList = new Dictionary<long,Dictionary<string, TransactionInfo>>();
-                var notExistTransactionList = new Dictionary<long,Dictionary<string, TransactionInfo>>();
+                var transactionList = new Dictionary<long, List<string>>();
 
                 //Get transactions
-                for (var i = startBlock; i < _verifyBlock+startBlock; i++)
+                for (var i = startBlock; i < verifyBlock + startBlock; i++)
                 {
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
                         _nodeManager.ApiService.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
-                    var transactionInfos = new Dictionary<string, TransactionInfo>();
-                    var notExistTransaction = new Dictionary<string,TransactionInfo>();
-                    foreach (var txId in txIds)
+
+                    transactionList.Add(i, txIds);
+                }
+
+                foreach (var txs in transactionList)
+                {
+                    var notExistTransaction = new Dictionary<string, TransactionInfo>();
+                    var transactionPreBlock = new Dictionary<string, TransactionInfo>();
+                    Logger.Info($"Transaction account in {txs.Key} block is {txs.Value.Count}");
+
+                    foreach (var txId in txs.Value)
                     {
                         var txResult = _nodeManager.ApiService.GetTransactionResultAsync(txId).Result;
                         var status = txResult.Status;
                         var transaction = txResult.Transaction;
-                        var txInfo = new TransactionInfo(transaction,status);
+                        var txInfo = new TransactionInfo(transaction, status);
                         if (status.Equals("NotExisted"))
-                            notExistTransaction.Add(txId,txInfo);
-                        transactionInfos.Add(txId,txInfo);
+                            notExistTransaction.Add(txId, txInfo);
+                        else
+                        {
+                            transactionPreBlock.Add(txId, txInfo);
+                        }
+
+                        try
+                        {
+                            transactionInfos.Add(txId, txInfo);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            throw;
+                        }
                     }
-                
-                    transactionList.Add(i, transactionInfos);
+
                     if (notExistTransaction.Count != 0)
                     {
-                        notExistTransactionList.Add(i,notExistTransaction);
-                        Logger.Info($"Block {i} has NotExisted transaction");
+                        notExistTransactionList.Add(txs.Key, notExistTransaction);
+                        Logger.Info($"Block {txs.Key} has NotExisted transaction");
                         foreach (var transaction in notExistTransaction)
                         {
-                            var info = $"Block {i}, Transaction {transaction.Key} status: {transaction.Value.Status}";
+                            var info =
+                                $"Block {txs.Key}, Transaction {transaction.Key} status: {transaction.Value.Status}";
                             info +=
                                 $"\r\n From:{transaction.Value.From},\n To:{transaction.Value.To},\n RefBlockNumber: {transaction.Value.RefBlockNumber},\n RefBlockPrefix: {transaction.Value.RefBlockPrefix},\n MethodName: {transaction.Value.MethodName}";
                             Logger.Error(info);
                         }
                     }
-                    
-                    foreach (var transaction in transactionInfos)
-                    {
-                        var info = $"Block {i}, Transaction {transaction.Key} status: {transaction.Value.Status}";
-                        info +=
-                            $"\r\n From:{transaction.Value.From},\n To:{transaction.Value.To},\n RefBlockNumber: {transaction.Value.RefBlockNumber},\n RefBlockPrefix: {transaction.Value.RefBlockPrefix},\n MethodName: {transaction.Value.MethodName}";
 
+                    foreach (var transaction in transactionPreBlock)
+                    {
+                        var info = $"Block {txs.Key}, Transaction {transaction.Key} status: {transaction.Value.Status}";
                         Logger.Info(info);
                     }
                 }
-                startBlock = _verifyBlock+startBlock;
+
+                startBlock = verifyBlock + startBlock;
             }
         }
     }

@@ -7,9 +7,8 @@ namespace AElf.Automation.CheckTxStatus
 {
     public class NodeServices
     {
-        protected static string InitAccount;
-        protected static string Password;
         protected readonly int VerifyBlockNumber;
+        protected readonly int StartBlock;
         protected static string Url;
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -17,8 +16,7 @@ namespace AElf.Automation.CheckTxStatus
         {
             var config = ConfigInfoHelper.Config;
             VerifyBlockNumber = config.VerifyBlockNumber;
-            InitAccount = config.Account;
-            Password = config.Password;
+            StartBlock = config.StartBlock;
             Url = config.Url;
         }
     }
