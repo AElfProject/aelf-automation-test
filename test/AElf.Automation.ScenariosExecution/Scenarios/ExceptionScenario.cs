@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Acs0;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 using log4net;

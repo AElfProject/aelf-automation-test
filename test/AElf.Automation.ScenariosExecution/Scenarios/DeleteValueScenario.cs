@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using Google.Protobuf;
 using Shouldly;

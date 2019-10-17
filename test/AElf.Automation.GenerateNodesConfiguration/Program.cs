@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {

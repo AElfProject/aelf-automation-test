@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;

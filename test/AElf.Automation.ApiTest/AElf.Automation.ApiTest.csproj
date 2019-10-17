@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+      <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
       <ProjectReference Include="..\..\src\AElfChain.SDK\AElfChain.SDK.csproj" />
     </ItemGroup>
 

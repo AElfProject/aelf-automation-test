@@ -1,4 +1,4 @@
-using AElf.Automation.Common;
+using AElfChain.Common;
 using AElf.Contracts.CrossChain;
 using AElfChain.SDK.Models;
 using Google.Protobuf;

@@ -1,6 +1,6 @@
 using AElf;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 

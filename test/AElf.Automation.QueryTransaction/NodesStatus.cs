@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using log4net;

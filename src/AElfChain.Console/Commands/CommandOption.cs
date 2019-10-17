@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElfChain.Console.InputOption;
 
 namespace AElfChain.Console.Commands

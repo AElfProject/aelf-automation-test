@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

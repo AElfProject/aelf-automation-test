@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.SideChainEconomicTest
 {

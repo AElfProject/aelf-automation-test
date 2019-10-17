@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK;
 using Newtonsoft.Json;
 

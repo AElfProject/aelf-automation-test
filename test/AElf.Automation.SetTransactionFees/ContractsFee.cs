@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using Acs1;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.ContractSerializer;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
 using log4net;
 

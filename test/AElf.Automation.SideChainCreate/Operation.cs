@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Acs3;
 using Acs7;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;

@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Kernel.Types", "src\AE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Core", "src\AElf\src\AElf.Core\AElf.Core.csproj", "{021F71F6-04DD-44DD-898E-E3C38E43430A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.Common", "src\AElf.Automation.Common\AElf.Automation.Common.csproj", "{4F187890-48EB-42E8-A382-220A6F320868}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Common", "src\AElfChain.Common\AElfChain.Common.csproj", "{4F187890-48EB-42E8-A382-220A6F320868}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Cryptography", "src\AElf\src\AElf.Cryptography\AElf.Cryptography.csproj", "{A50A2794-0AD4-4F0D-9D7A-0CC7A2460321}"
 EndProject

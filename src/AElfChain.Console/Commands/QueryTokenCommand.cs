@@ -1,5 +1,5 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 
 namespace AElfChain.Console.Commands
 {

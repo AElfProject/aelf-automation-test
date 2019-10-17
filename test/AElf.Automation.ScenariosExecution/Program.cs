@@ -1,5 +1,5 @@
 ﻿using System;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution

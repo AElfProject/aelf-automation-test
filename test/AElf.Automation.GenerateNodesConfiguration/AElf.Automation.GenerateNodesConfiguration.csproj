@@ -14,10 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Update="templates\appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -27,6 +23,10 @@
       <None Update="templates\log4net.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>
 
 </Project>

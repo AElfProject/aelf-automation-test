@@ -1,5 +1,5 @@
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;

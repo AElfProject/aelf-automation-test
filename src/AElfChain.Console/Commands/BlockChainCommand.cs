@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using Newtonsoft.Json;

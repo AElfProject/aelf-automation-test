@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
 using FluentScheduler;
 using log4net;

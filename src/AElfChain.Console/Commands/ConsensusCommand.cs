@@ -1,7 +1,7 @@
 using System.Linq;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Volo.Abp.Threading;

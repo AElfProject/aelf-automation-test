@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Acs3;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
 using Google.Protobuf;

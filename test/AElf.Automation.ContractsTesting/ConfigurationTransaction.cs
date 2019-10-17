@@ -1,8 +1,8 @@
 using System.IO;
 using Acs0;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.Configuration;
 using AElf.Types;
 using Google.Protobuf;

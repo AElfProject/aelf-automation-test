@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using AElf;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.ContractSerializer;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;

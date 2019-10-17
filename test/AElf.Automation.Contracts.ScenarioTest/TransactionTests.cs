@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common.Utils;
 using AElf.Cryptography;
 using AElf.Kernel;
 using AElf.Types;

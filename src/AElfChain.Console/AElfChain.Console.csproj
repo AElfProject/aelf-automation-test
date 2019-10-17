@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+        <ProjectReference Include="..\AElfChain.Common\AElfChain.Common.csproj" />
         <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
         <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;

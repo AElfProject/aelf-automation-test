@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK;
 using log4net;
 using Volo.Abp.Threading;
