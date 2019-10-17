@@ -80,7 +80,11 @@ namespace AElf.Automation.SideChainCreate
                 IndexingPrice = indexingPrice,
                 LockedTokenAmount = lockedTokenAmount,
                 IsPrivilegePreserved = isPrivilegePreserved,
-                SideChainTokenInfo = tokenInfo
+                SideChainTokenDecimals = tokenInfo.Decimals,
+                SideChainTokenName = tokenInfo.TokenName,
+                SideChainTokenSymbol = tokenInfo.Symbol,
+                SideChainTokenTotalSupply = tokenInfo.TotalSupply,
+                IsSideChainTokenBurnable = tokenInfo.IsBurnable
             };
             ParliamentService.SetAccount(InitAccount,Password);
             var result =
