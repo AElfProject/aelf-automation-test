@@ -11,6 +11,7 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.Common.Contracts
@@ -171,9 +172,8 @@ namespace AElf.Automation.Common.Contracts
                     case TransactionResultStatus.Mined:
                         continue;
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
                     {
-                        Logger.Error(transactionResult);
+                        Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;
                     }
                     default:
@@ -193,7 +193,7 @@ namespace AElf.Automation.Common.Contracts
 
                 queueLength = _txResultList.Count;
                 if (queueSameTimes == 300)
-                    Assert.IsTrue(false, "Transaction result check failed due to pending results in 5 minutes.");
+                    throw new TimeoutException("Transaction result check failed due to pending results in 5 minutes.");
             }
         }
 

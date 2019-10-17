@@ -52,5 +52,6 @@ namespace AElfChain.SDK
         Task<bool> RemovePeerAsync(string address);
 
         Task<List<PeerDto>> GetPeersAsync();
+        void SetFailReTryTimes(int times);
     }
 }

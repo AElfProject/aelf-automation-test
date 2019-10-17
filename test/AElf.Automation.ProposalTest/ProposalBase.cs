@@ -136,7 +136,7 @@ namespace AElf.Automation.ProposalTest
         {
             Logger.Info("Create token for test: ");
 
-            Symbol = $"ELF{CommonHelper.RandomString(4, false)}";
+            Symbol = $"TEST{CommonHelper.RandomString(4, false)}";
             var createTransactionInput = new CreateInput
             {
                 Symbol = Symbol,
@@ -168,6 +168,7 @@ namespace AElf.Automation.ProposalTest
 
         private void TransferToTester()
         {
+            GetMiners();
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
@@ -175,13 +176,30 @@ namespace AElf.Automation.ProposalTest
                 {
                     Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
-                        Symbol = NodeOption.NativeTokenSymbol,
+                        Symbol = NativeToken,
                         To = AddressHelper.Base58StringToAddress(tester),
                         Amount = 1000,
                         Memo = "Transfer to organization address"
                     });
 
                     balance = Services.TokenService.GetUserBalance(tester);
+                }
+            }
+            
+            foreach (var miner in Miners)
+            {
+                var balance = Services.TokenService.GetUserBalance(miner);
+                while (balance == 0)
+                {
+                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                    {
+                        Symbol = NativeToken,
+                        To = AddressHelper.Base58StringToAddress(miner),
+                        Amount = 1000,
+                        Memo = "Transfer to organization address"
+                    });
+
+                    balance = Services.TokenService.GetUserBalance(miner);
                 }
             }
         }

@@ -74,6 +74,11 @@
             "case_name": "PerformanceScenario",
             "enable": true,
             "time_interval": 20
+        },
+        {
+            "case_name": "DeleteValueScenario",
+            "enable": true,
+            "time_interval": 10
         }
     ],
     "UserCount": 100,

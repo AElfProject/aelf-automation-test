@@ -57,14 +57,16 @@ namespace AElf.Automation.Common.Contracts
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
-                    if (status != TransactionResultStatus.Pending && status != TransactionResultStatus.NotExisted)
+                    if (status != TransactionResultStatus.Pending
+                        && status != TransactionResultStatus.NotExisted
+                        && status != TransactionResultStatus.Unexecutable)
                     {
                         if (status == TransactionResultStatus.Mined)
                             Logger.Info(
                                 $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}", true);
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto)}", true);
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}", true);
                         break;
                     }
 
@@ -73,7 +75,7 @@ namespace AElf.Automation.Common.Contracts
                     if (checkTimes == 360) //max wait time 3 minutes
                     {
                         Console.Write("\r\n");
-                        throw new Exception(
+                        throw new TimeoutException(
                             $"Transaction {resultDto.TransactionId} in '{status}' status more than three minutes.");
                     }
 
@@ -89,7 +91,7 @@ namespace AElf.Automation.Common.Contracts
                             ? null
                             : Hash.FromString(resultDto.BlockHash),
                         BlockNumber = resultDto.BlockNumber,
-                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""

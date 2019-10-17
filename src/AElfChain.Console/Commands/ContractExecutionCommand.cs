@@ -46,52 +46,68 @@ namespace AElfChain.Console.Commands
             }
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
-            contractInfo.GetContractViewMethodsInfo();
+            contractInfo.GetContractMethodsInfo();
 
             var methodEngine = new CommandsCompletionEngine(contractInfo.ActionMethodNames);
             var methodReader = new ConsoleReader(methodEngine);
-            var methodInput = CommandOption.InputParameters(1, methodReader);
-
-            //method info
-            var methodInfo = contractInfo.GetContractMethod(methodInput[0]);
-            methodInfo.GetMethodDescriptionInfo();
-            methodInfo.GetInputParameters();
-            methodInfo.GetOutputParameters();
-
-            var parameterInput = CommandOption.InputParameters(methodInfo.InputFields.Count);
-            var jsonObject = new JObject();
-            for (var i = 0; i < methodInfo.InputFields.Count; i++)
+            var sender = Services.Genesis.CallAddress;
+            while (true)
             {
-                var type = methodInfo.InputFields[i];
-                if (type.FieldType == FieldType.Message && type.MessageType.Name == "Address")
-                {
-                    if (type.MessageType.Name == "Address")
-                        jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                        {
-                            ["value"] = parameterInput[i].ConvertAddress().Value.ToBase64()
-                        };
-                    else if (type.MessageType.Name == "Hash")
-                        jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                        {
-                            ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
-                        };
-                }
-                else
-                {
-                    jsonObject[methodInfo.InputFields[i].Name] = parameterInput[i];
-                }
-            }
+                var methodInput = CommandOption.InputParameters(1, methodReader);
+                if(methodInput[0] == "exit") break;
+                //set sender
+                if(methodInput.Length == 2)
+                    sender = methodInput[1];
+                $"Sender: {sender}".WriteWarningLine();
+                
+                //method info
+                var methodInfo = contractInfo.GetContractMethod(methodInput[0]);
+                methodInfo.GetMethodDescriptionInfo();
+                methodInfo.GetInputParameters();
+                methodInfo.GetOutputParameters();
 
-            var inputMessage = JsonParser.Default.Parse(jsonObject.ToString(), methodInfo.InputType);
-            var transactionId = NodeManager.SendTransaction(Services.Genesis.CallAddress, contractAddress,
-                methodInput[0], inputMessage);
-            var transactionResult = NodeManager.CheckTransactionResult(transactionId);
-            Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+                var parameterInput = methodInfo.InputType.Name == "Empty"
+                    ? new[] {""}
+                    : CommandOption.InputParameters(methodInfo.InputFields.Count);
+
+                var jsonObject = new JObject();
+                for (var i = 0; i < methodInfo.InputFields.Count; i++)
+                {
+                    var type = methodInfo.InputFields[i];
+                    if (type.FieldType == FieldType.Message && type.MessageType.Name == "Address")
+                    {
+                        if (type.MessageType.Name == "Address")
+                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
+                            {
+                                ["value"] = parameterInput[i].ConvertAddress().Value.ToBase64()
+                            };
+                        else if (type.MessageType.Name == "Hash")
+                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
+                            {
+                                ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
+                            };
+                    }
+                    else
+                    {
+                        jsonObject[methodInfo.InputFields[i].Name] = parameterInput[i];
+                    }
+                }
+
+                var inputMessage = JsonParser.Default.Parse(jsonObject.ToString(), methodInfo.InputType);
+                var transactionId = NodeManager.SendTransaction(sender, contractAddress,
+                    methodInput[0], inputMessage);
+                var transactionResult = NodeManager.CheckTransactionResult(transactionId);
+                Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+            }
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Execute contract action methods";
+            return new CommandInfo
+            {
+                Name = "send",
+                Description = "Execute contract action methods"
+            };
         }
 
         public override string[] InputParameters()

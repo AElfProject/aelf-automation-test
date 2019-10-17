@@ -19,15 +19,19 @@ namespace AElfChain.Console.Commands
             Services.Authority.DeployContractWithAuthority(parameters[0], parameters[1]);
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Deploy contract";
+            return new CommandInfo
+            {
+                Name = "deploy",
+                Description = "Deploy contract with authority permission"
+            };
         }
 
         public override string[] InputParameters()
         {
             string from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-            string filename = "AElf.Contract.MultiToken";
+            string filename = "AElf.Contracts.MultiToken";
             
             "Parameter: [From] [ContractFileName]".WriteSuccessLine();
             $"eg: {from} {filename}".WriteSuccessLine();

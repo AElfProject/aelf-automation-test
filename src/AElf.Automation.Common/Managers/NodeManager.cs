@@ -226,12 +226,12 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}", true);
+                        Console.WriteLine();
+                        Logger.Info($"Transaction {txId} status: {status}", true);
                         return transactionResult;
-                    case TransactionResultStatus.Unexecutable:
                     case TransactionResultStatus.Failed:
                     {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}";
+                        var message = $"Transaction {txId} status: {status}";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";
@@ -240,14 +240,14 @@ namespace AElf.Automation.Common.Managers
                     }
                 }
                 
-                Console.Write($"\rTransaction {txId} status: {transactionResult.Status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                Console.Write($"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                 
                 checkTimes++;
                 Thread.Sleep(500);
             }
             
             Console.Write("\r\n");
-            throw new Exception("Transaction execution status cannot be 'Mined' after five minutes.");
+            throw new TimeoutException("Transaction execution status cannot be 'Mined' after five minutes.");
         }
         
         public void CheckTransactionListResult(List<string> transactionIds)
@@ -263,6 +263,8 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.NotExisted:
+                    case TransactionResultStatus.Unexecutable:
                         Console.Write($"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
@@ -271,8 +273,6 @@ namespace AElf.Automation.Common.Managers
                         Logger.Info($"TransactionId: {id}, Status: {status}", true);
                         break;
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
-                    case TransactionResultStatus.NotExisted:
                         Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transactionResult.Error}", true);
                         break;
                 }

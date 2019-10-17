@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.Console.InputOption;
@@ -12,8 +13,9 @@ namespace AElfChain.Console.Commands
         private ConsoleReader Reader { get; set; }
         private ApiCompletionEngine AutoEngine { get; set; }
         public IApiService ApiService => NodeManager.ApiService;
-        
-        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager, contractServices)
+
+        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager,
+            contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
             AutoEngine = new ApiCompletionEngine();
@@ -26,39 +28,44 @@ namespace AElfChain.Console.Commands
             var command = input[0].Trim();
             switch (command)
             {
-                 case "BlockHeight":
-                     GetBlockHeight();
-                     break;
-                 case "BlockByHash":
-                     GetBlockByHash();
-                     break;
-                 case "BlockByHeight":
-                     GetBlockByHeight();
-                     break;
-                 case "TransactionPoolStatus":
-                     GetTransactionPoolStatus();
-                     break;
-                 case "BlockState":
-                     GetBlockState();
-                     break;
-                 case "CurrentRoundInformation":
-                     GetCurrentRoundInformation();
-                     break;
-                 case "ChainStatus":
-                     GetChainStatus();
-                     break;
-                 case "TaskQueueStatus":
-                     GetTaskQueueStatus();
-                     break;
-                 case "TransactionResult":
-                     GetTransactionResult();
-                     break;
-                 case "TransactionResults":
-                     GetTransactionResults();
-                     break;
-                 default:
-                     Logger.Error("Not supported api method.");
-                     break;
+                case "BlockHeight":
+                    GetBlockHeight();
+                    break;
+                case "BlockByHash":
+                    GetBlockByHash();
+                    break;
+                case "BlockByHeight":
+                    GetBlockByHeight();
+                    break;
+                case "TransactionPoolStatus":
+                    GetTransactionPoolStatus();
+                    break;
+                case "BlockState":
+                    GetBlockState();
+                    break;
+                case "CurrentRoundInformation":
+                    GetCurrentRoundInformation();
+                    break;
+                case "ChainStatus":
+                    GetChainStatus();
+                    break;
+                case "TaskQueueStatus":
+                    GetTaskQueueStatus();
+                    break;
+                case "TransactionResult":
+                    GetTransactionResult();
+                    break;
+                case "TransactionResults":
+                    GetTransactionResults();
+                    break;
+                case "ListAccounts":
+                    ListAllAccounts();
+                    break;
+                default:
+                    Logger.Error("Not supported api method.");
+                    var subCommands = GetSubCommands();
+                    string.Join("\r\n", subCommands).WriteSuccessLine();
+                    break;
             }
         }
 
@@ -77,7 +84,7 @@ namespace AElfChain.Console.Commands
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockAsync(hash, includeTransaction));
             Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
-        
+
         private void GetBlockByHeight()
         {
             "Parameter: [Height] [IncludeTransaction]=false".WriteSuccessLine();
@@ -108,7 +115,7 @@ namespace AElfChain.Console.Commands
             var blockState = AsyncHelper.RunSync(() => ApiService.GetBlockStateAsync(hash));
             Logger.Info(JsonConvert.SerializeObject(blockState, Formatting.Indented));
         }
-        
+
         private void GetChainStatus()
         {
             var chainInfo = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
@@ -135,15 +142,52 @@ namespace AElfChain.Console.Commands
             "Parameter: [BlockHash] [Offset]=0 [Limit]=10".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var blockHash = input[0];
-            var offset = input.Length>=2 ? int.Parse(input[1]) : 0;
+            var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(blockHash, offset, limit));
             Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
         }
 
-        public override string GetCommandInfo()
+        private void ListAllAccounts()
         {
-            return "Query block chain api";
+            var accounts = NodeManager.ListAccounts();
+            "Accounts List:".WriteSuccessLine();
+            for (var i = 0; i < accounts.Count; i++)
+            {
+                $"{accounts[i].PadRight(54)}".WriteSuccessLine(changeLine: false);
+                if (i % 3 == 2)
+                    System.Console.WriteLine();
+            }
+
+            if (accounts.Count % 2 != 0)
+                System.Console.WriteLine();
+        }
+
+        public override CommandInfo GetCommandInfo()
+        {
+            return new CommandInfo
+            {
+                Name = "chain",
+                Description = "Query block chain api"
+            };
+        }
+
+        public List<string> GetSubCommands()
+        {
+            return new List<string>
+            {
+                "BlockHeight",
+                "BlockByHash",
+                "BlockByHeight",
+                "BlockState",
+                "ChainStatus",
+                "CurrentRoundInformation",
+                "TaskQueueStatus",
+                "TransactionResult",
+                "TransactionResults",
+                "TransactionPoolStatus",
+                "ListAccounts"
+            };
         }
 
         public override string[] InputParameters()

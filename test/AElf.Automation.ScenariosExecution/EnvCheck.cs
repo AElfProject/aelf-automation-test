@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.SDK;
@@ -71,8 +72,8 @@ namespace AElf.Automation.ScenariosExecution
             var nodeManager = new NodeManager(url, AccountDir);
 
             GetConfigNodesPublicKey(nodeManager);
-
-            Services = new ContractServices(nodeManager, GenerateOrGetTestUsers().First());
+            var bpAccount = ConfigInfoHelper.Config.BpNodes.First().Account;
+            Services = new ContractServices(nodeManager, bpAccount);
 
             return Services;
         }

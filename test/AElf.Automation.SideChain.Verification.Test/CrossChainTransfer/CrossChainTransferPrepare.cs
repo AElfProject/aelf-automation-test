@@ -43,6 +43,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var initRawTxInfos = new Dictionary<int, CrossChainTransactionInfo>();
             foreach (var sideChainService in SideChainServices)
             {
+                var balance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
+                if (balance >= 200000)
+                {
+                    Logger.Info($"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress} {symbol} token balance is {balance}");
+                    continue;
+                }
+                
                 CrossChainTransactionInfo rawTxInfo = null;
                 var transferTimes = 3;
                 while (rawTxInfo == null && transferTimes > 0)
@@ -60,78 +67,87 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     $"the transactions block is:{rawTxInfo.BlockHeight},transaction id is: {rawTxInfo.TxId}");
             }
 
-            Logger.Info("Waiting for the index");
-            Thread.Sleep(200000);
-
-            foreach (var sideChainService in SideChainServices)
+            if (initRawTxInfos.Count != 0)
             {
-                Logger.Info($"Side chain {sideChainService.ChainId} received token");
-                Logger.Info(
-                    $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
-
-                TransactionResultDto result = null;
-                var transferTimes = 5;
-                while (result == null && transferTimes > 0)
+                Logger.Info("Waiting for the index");
+                Thread.Sleep(200000);
+                
+                foreach (var sideChainService in SideChainServices)
                 {
-                    transferTimes--;
-                    var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
-                    result = sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken,
-                        input);
-                }
-
-                if (result == null)
-                {
-                    Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                    Assert.IsTrue(false, "The first receive transfer failed, please start over.");
-                }
-
-                var status = result.Status.ConvertTransactionResultStatus();
-                if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
-                {
-                    Thread.Sleep(1000);
-                    var checkTime = 3;
-                    while (checkTime > 0)
+                    Logger.Info($"Side chain {sideChainService.ChainId} received token");
+                    Logger.Info(
+                        $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
+                
+                    Logger.Info("Check the index:");
+                    while (!CheckSideChainBlockIndex(sideChainService, initRawTxInfos[sideChainService.ChainId]))
                     {
-                        Logger.Info($"Receive {4 - checkTime} time");
-                        checkTime--;
-                        var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
-                        var reResult = sideChainService.TokenService.ExecuteMethodWithResult(
-                            TokenMethod.CrossChainReceiveToken,
-                            input);
-                        if (reResult == null) continue;
-                        var reStatus = reResult.Status.ConvertTransactionResultStatus();
-                        if (reStatus == TransactionResultStatus.Mined)
-                            goto GetBalance;
-                        if (reResult.Error.Contains("Token already claimed"))
-                            goto GetBalance;
-                        Thread.Sleep(2000);
+                        Logger.Info("Block is not recorded ");
+                        Thread.Sleep(10000);
                     }
 
-                    Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                    Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                    TransactionResultDto result = null;
+                    var transferTimes = 5;
+                    while (result == null && transferTimes > 0)
+                    {
+                        transferTimes--;
+                        var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
+                        result = sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken,
+                            input);
+                    }
+
+                    if (result == null)
+                    {
+                        Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
+                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                    }
+
+                    var status = result.Status.ConvertTransactionResultStatus();
+                    if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
+                    {
+                        Thread.Sleep(1000);
+                        var checkTime = 3;
+                        while (checkTime > 0)
+                        {
+                            Logger.Info($"Receive {4 - checkTime} time");
+                            checkTime--;
+                            var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
+                            var reResult = sideChainService.TokenService.ExecuteMethodWithResult(
+                                TokenMethod.CrossChainReceiveToken,
+                                input);
+                            if (reResult == null) continue;
+                            var reStatus = reResult.Status.ConvertTransactionResultStatus();
+                            if (reStatus == TransactionResultStatus.Mined)
+                                goto GetBalance;
+                            Thread.Sleep(2000);
+                        }
+
+                        Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
+                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                    }
+
+                    GetBalance:
+                    Logger.Info($"check the balance on the side chain {sideChainService.ChainId}");
+                    var accountBalance = GetBalance(sideChainService, InitAccount, symbol);
+
+                    Logger.Info(
+                        $"On side chain {sideChainService.ChainId}, InitAccount:{InitAccount}, {symbol} balance is {accountBalance}");
                 }
-
-                GetBalance:
-                Logger.Info($"check the balance on the side chain {sideChainService.ChainId}");
-                var accountBalance = GetBalance(sideChainService, InitAccount, symbol);
-
-                Logger.Info(
-                    $"On side chain {sideChainService.ChainId}, InitAccount:{InitAccount}, {symbol} balance is {accountBalance}");
             }
         }
 
         private void InitCrossChainTransfer(string symbol)
         {
             AccountList = new Dictionary<int, List<string>>();
+            var count = ConfigInfoHelper.Config.TransferAccount;
             Logger.Info("Create account on main chain:");
-            var mainAccounts = NewAccount(MainChainService, 10);
+            var mainAccounts = NewAccount(MainChainService, count);
             AccountList.Add(MainChainService.ChainId, mainAccounts);
 
             Logger.Info("Create account on each side chain:");
             foreach (var sideChainService in SideChainServices)
             {
                 Logger.Info($"Create account on chain {sideChainService.ChainId} :");
-                var accounts = NewAccount(sideChainService, 10);
+                var accounts = NewAccount(sideChainService, count);
                 AccountList.Add(sideChainService.ChainId, accounts);
             }
 
@@ -139,7 +155,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var accountList in AccountList)
             {
                 UnlockAccounts(MainChainService, accountList.Value.Count, accountList.Value);
-                UnlockAccounts(MainChainService, mainAccounts.Count, mainAccounts);
             }
 
             // Unlock account on side chain
@@ -154,6 +169,48 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
             }
 
+            foreach (var sideChain in SideChainServices)
+            {
+                Logger.Info("Issue side chain token: ");
+                foreach (var account in AccountList)
+                {
+                    foreach (var acc in account.Value)
+                    {
+                        IssueSideChainToken(sideChain, acc);
+                    }
+                }
+                
+                Logger.Info("Check the balance:");
+
+                foreach (var account in AccountList)
+                {
+                    foreach (var acc in account.Value)
+                    {
+                        var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
+                        Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
+                    }
+                }
+            }
+            
+            foreach (var account in AccountList)
+            {
+                foreach (var acc in account.Value)
+                {
+                    if(acc.Equals(InitAccount)) continue;
+                    MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
+                        MainChainService.DefaultToken);
+                }
+            }
+            
+            foreach (var account in AccountList)
+            {
+                foreach (var acc in account.Value)
+                {
+                    var accountBalance = GetBalance(MainChainService, acc, MainChainService.DefaultToken);
+                    Logger.Info($"Account:{acc}, {MainChainService.DefaultToken} balance is: {accountBalance}");
+                }
+            }
+            
             Logger.Info("Transfer token to each account :");
 
             var mainTransferTxIds = new List<CrossChainTransactionInfo>();

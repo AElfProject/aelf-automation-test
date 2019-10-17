@@ -47,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         [TestMethod]
         [DataRow("", "TELF", 100_00000000)]
-        public async Task TransferToken_Main(string to, string symbol, long amount)
+        public void TransferToken_Main(string to, string symbol, long amount)
         {
             var gensis = GenesisContract.GetGenesisContract(MainNode);
             var token = gensis.GetTokenContract();
@@ -163,30 +163,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"After {NodeOption.NativeTokenSymbol}: {token.GetUserBalance(BpAccount)}");
             Logger.Info($"After {TestSymbol}: {token.GetUserBalance(BpAccount, TestSymbol)}");
             Logger.Info($"Token converter token balance: {token.GetUserBalance(tokenConverterAddress, TestSymbol)}");
-        }
-
-        [TestMethod]
-        [DataRow("TELF", 100_0000)]
-        public async Task Transfer_From_Main_To_Side(string symbol, long amount)
-        {
-        }
-
-        [TestMethod]
-        [DataRow("")]
-        public async Task SideChain_Accept_MainTransfer(string rawTransaction)
-        {
-        }
-
-        [TestMethod]
-        [DataRow("STA", 100_0000)]
-        public async Task Transfer_From_Side_To_Main(string symbol, long amount)
-        {
-        }
-
-        [TestMethod]
-        [DataRow("")]
-        public async Task MainChain_Accept_SideTransfer(string rawTransaction)
-        {
         }
 
         [TestMethod]
@@ -315,7 +291,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task CheckTransaction_Fee()
+        public void CheckTransaction_Fee()
         {
             var nodeUrls = new List<string>
             {
@@ -347,7 +323,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task TransferToken_Test()
+        public void TransferToken_Test()
         {
             var token = MainNode.GetGenesisContract().GetTokenContract();
             var accounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
@@ -372,7 +348,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task SendTwoTransaction_Test()
+        public void SendTwoTransaction_Test()
         {
             var accounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
             var otherAccounts = MainNode.ListAccounts();

@@ -76,10 +76,10 @@ namespace AElf.Automation.RpcPerformance
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.Unexecutable:
                         Console.Write($"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         break;
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
                         Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
@@ -103,7 +103,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (txResult)
                 {
                     case TransactionResultStatus.Pending:
-                    case TransactionResultStatus.NotExisted:
+                    case TransactionResultStatus.Unexecutable:
                         CheckTransactionsStatus(transactionIds, checkTimes);
                         Thread.Sleep(500);
                         break;
@@ -144,7 +144,7 @@ namespace AElf.Automation.RpcPerformance
                 if (checkTimes != 3000) continue;
                 
                 Console.Write("\r\n");
-                Assert.IsTrue(false, "Node block exception, block height not changed 5 minutes later.");
+                throw new TimeoutException("Node block exception, block height not changed 5 minutes later.");
             }
         }
 

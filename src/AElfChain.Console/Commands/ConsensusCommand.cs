@@ -30,9 +30,13 @@ namespace AElfChain.Console.Commands
             }
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query current consensus miners";
+            return new CommandInfo
+            {
+                Name = "consensus",
+                Description = "Query current consensus miners"
+            };
         }
 
         public override string[] InputParameters()

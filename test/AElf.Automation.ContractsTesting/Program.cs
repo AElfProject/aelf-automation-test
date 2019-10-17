@@ -28,7 +28,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = Account.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://18.163.40.216:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.43:8100";
 
         #endregion
 
@@ -55,6 +55,11 @@ namespace AElf.Automation.ContractsTesting
 
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
+            
+            //code remark test
+            var codeRemark = new CodeRemarkTest(nm);
+            codeRemark.ExecuteContractMethodTest();
+            Console.ReadLine();
             
             //proto file serialize
             var serialize = new ProtoFileTest(nm);

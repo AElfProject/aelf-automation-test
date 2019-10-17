@@ -29,7 +29,7 @@ namespace AElf.Automation.Common
         [JsonProperty("NativeTokenSymbol")] public string NativeTokenSymbol { get; set; }
         [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
-
+        
         public void CheckNodesAccount()
         {
             var keyStore = AElfKeyStore.GetKeyStore();
@@ -64,7 +64,7 @@ namespace AElf.Automation.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes-sidechain.json");
+        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
 
         public static NodesInfo Config => GetConfigInfo();
 

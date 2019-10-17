@@ -60,12 +60,16 @@ namespace AElf.Automation.ScenariosExecution
                         var performanceScenario = new PerformanceScenario();
                         _taskCollection.Add(RunContinueJobWithInterval(performanceScenario.RunPerformanceScenarioJob, scenario.TimeInterval));
                         break;
+                    case "DeleteValueScenario":
+                        var deleteValueScenario = new DeleteValueScenario();
+                        _taskCollection.Add(RunContinueJobWithInterval(deleteValueScenario.RunDeleteValueScenarioJob, scenario.TimeInterval));
+                        break;
                 }
             }
             
             //node status monitor
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeTransactionAction));
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeStatusAction));
+            _taskCollection.Add(Task.Run((Action) nodeScenario.CheckNodeTransactionAction));
+            _taskCollection.Add(Task.Run((Action) nodeScenario.CheckNodeStatusAction));
 
             Task.WaitAll(_taskCollection.ToArray());
         }
@@ -112,6 +116,10 @@ namespace AElf.Automation.ScenariosExecution
                         var performanceScenario = new PerformanceScenario();
                         RegisterAction(registry, scenario, performanceScenario.RunPerformanceScenarioJob);
                         break;
+                    case "DeleteValueScenario":
+                        var deleteValueScenario = new DeleteValueScenario();
+                        RegisterAction(registry, scenario, deleteValueScenario.RunDeleteValueScenarioJob);
+                        break;
                 }
             }
 
@@ -143,13 +151,13 @@ namespace AElf.Automation.ScenariosExecution
                 }
             }
 
-            return Task.Run(NewAction);
+            return Task.Run((Action) NewAction);
         }
         
         private static void RegisterAction(Registry registry, TestCase scenario, Action action)
         {
             Logger.Info($"Register {scenario.CaseName} with time interval: {scenario.TimeInterval} seconds.");
-            registry.Schedule(action.Invoke).WithName(scenario.CaseName)
+            registry.Schedule((Action) action.Invoke).WithName(scenario.CaseName)
                 .ToRunEvery(scenario.TimeInterval).Seconds();
         }
     }

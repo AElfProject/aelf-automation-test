@@ -14,12 +14,14 @@ namespace AElf.Automation.SideChainTests
         public CrossChainContract CrossChainService { get; set; }
         public ParliamentAuthContract ParliamentService { get; set; }
 
+//        public TokenConverterContract TokenConverterService { get; set; }
+
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
-        public ContractServices(string url, string callAddress, string password, int chainId)
+        public ContractServices(string url, string callAddress, string password, string chainId)
         {
-            ChainId = chainId;
+            ChainId = ChainHelper.ConvertBase58ToChainId(chainId);
             NodeManager = new NodeManager(url);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
@@ -48,6 +50,9 @@ namespace AElf.Automation.SideChainTests
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
                 new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
+//
+//            var tokenConverterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
+//            TokenConverterService = new TokenConverterContract(NodeManager, CallAddress, tokenConverterAddress.GetFormatted());
         }
     }
 }

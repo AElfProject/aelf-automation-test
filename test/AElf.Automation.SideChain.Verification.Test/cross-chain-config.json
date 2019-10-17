@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Offline2",
+    "TestEnvironment": "Online",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -7,17 +7,20 @@
             {
                 "MainChainUrl": "http://13.52.177.95:8000",
                 "MainChainId": "AELF",
-                "Account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+                "NativeToken": "ELF",
+                "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
-                    "SideChainUrl": "http://99.79.48.179:8000",
-                    "SideChainId": "2112"
+                    "SideChainUrl": "http://18.196.46.174:8000",
+                    "SideChainId": "2112",
+                    "SideChainTokenSymbol": "SAELF"
                 },
                 {
-                    "SideChainUrl": "http://35.180.203.249:8000",
-                    "SideChainId": "2113"
+                    "SideChainUrl": "http://34.252.106.106:8000",
+                    "SideChainId": "2113",
+                    "SideChainTokenSymbol": "SBELF"
                 }
             ]
         },
@@ -27,17 +30,20 @@
             {
                 "MainChainUrl": "http://192.168.197.14:8000",
                 "MainChainId": "AELF",
+                "NativeToken": "ELF",
                 "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
                     "SideChainUrl": "http://192.168.197.32:8001",
-                    "SideChainId": "2112"
+                    "SideChainId": "2112",
+                    "SideChainTokenSymbol": "SAELF"
                 },
                 {
                     "SideChainUrl": "http://192.168.197.11:8002",
-                    "SideChainId": "2113"
+                    "SideChainId": "2113",
+                    "SideChainTokenSymbol": "SBELF"
                 }
             ]
         },
@@ -47,17 +53,20 @@
             {
                 "MainChainUrl": "http://192.168.197.29:8000",
                 "MainChainId": "AELF",
+                "NativeToken": "ELF",
                 "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
                     "SideChainUrl": "http://192.168.197.22:8001",
-                    "SideChainId": "2112"
+                    "SideChainId": "2112",
+                    "SideChainTokenSymbol": "SAELF"
                 },
                 {
                     "SideChainUrl": "http://192.168.197.37:8002",
-                    "SideChainId": "2113"
+                    "SideChainId": "2113",
+                    "SideChainTokenSymbol": "SBELF"
                 }
             ]
         },
@@ -67,24 +76,28 @@
             {
                 "MainChainUrl": "http://192.168.197.56:8001",
                 "MainChainId": "AELF",
+                "NativeToken": "ELF",
                 "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
                     "SideChainUrl": "http://192.168.197.56:8011",
-                    "SideChainId": "2112"
+                    "SideChainId": "2112",
+                    "SideChainTokenSymbol": "SAELF"
                 },
                 {
                     "SideChainUrl": "http://192.168.197.56:8021",
-                    "SideChainId": "2113"
+                    "SideChainId": "2113",
+                    "SideChainTokenSymbol": "SBELF"
                 }
             ]
         }
     ],
     "CreateTokenNumber": 1,
     "VerifySideChainNumber": 1,
-    "VerifyBlockNumber": 5,
+    "VerifyBlockNumber": 10,
+    "TransferAccount":5,
     "TestCases": [
         {
             "name": "CrossChainVerifyMainChain",

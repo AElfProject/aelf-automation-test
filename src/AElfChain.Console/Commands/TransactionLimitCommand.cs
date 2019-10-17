@@ -51,9 +51,13 @@ namespace AElfChain.Console.Commands
             Logger.Info($"New block transaction limit: {queryResult.Value}");
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Get/Set transaction execution limit";
+            return new CommandInfo
+            {
+                Name = "tx-limit",
+                Description = "Get/Set transaction execution limit"
+            };
         }
 
         public override string[] InputParameters()

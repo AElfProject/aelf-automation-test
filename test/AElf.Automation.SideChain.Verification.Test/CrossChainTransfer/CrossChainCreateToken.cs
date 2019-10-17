@@ -21,7 +21,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             MainChainService = InitMainChainServices();
             SideChainServices = InitSideChainServices();
-            TokenSymbols = new List<string>(){"CPU", "NET", "STO"};
+            TokenSymbols = new List<string>();
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
 

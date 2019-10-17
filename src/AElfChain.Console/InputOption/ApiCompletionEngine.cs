@@ -8,24 +8,31 @@ namespace AElfChain.Console.InputOption
     {
         public readonly char[] _tokenDelimiters = {' '};
         public ConsoleKeyInfo Trigger { get; } = new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false);
+
         public List<string> ApiCommands => new List<string>
         {
             "BlockHeight",
             "BlockByHash",
             "BlockByHeight",
-            "TransactionPoolStatus",
             "BlockState",
-            "CurrentRoundInformation",
             "ChainStatus",
+            "CurrentRoundInformation",
             "TaskQueueStatus",
             "TransactionResult",
-            "TransactionResults"
+            "TransactionResults",
+            "TransactionPoolStatus",
+            "ListAccounts"
         };
 
         public ApiCompletionEngine()
         {
         }
-        
+
+        public string[] GetAllSelections()
+        {
+            return ApiCommands.ToArray();
+        }
+
         public string[] GetCompletions(string partial)
         {
             return ApiCommands.Where(o => o.ToLower().StartsWith(partial.ToLower())).ToArray();

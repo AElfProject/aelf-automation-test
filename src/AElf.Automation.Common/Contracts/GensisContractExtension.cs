@@ -104,6 +104,17 @@ namespace AElf.Automation.Common.Contracts
 
             return new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
         }
+        
+        public static ReferendumAuthContract GetReferendumAuthContract(
+            this GenesisContract genesis, string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+            
+            var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
+
+            return new ReferendumAuthContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+        }
 
         public static ConfigurationContract GetConfigurationContract(this GenesisContract genesis, string caller = "")
         {

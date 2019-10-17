@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Acs7;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
@@ -24,7 +25,7 @@ namespace AElf.Automation.SideChain.Verification
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly EnvironmentInfo _environmentInfo;
         private static int Timeout { get; set; }
-        protected readonly string NativeToken = NodeOption.NativeTokenSymbol;
+        protected readonly string NativeToken;
         protected static string InitAccount;
         protected readonly int CreateTokenNumber;
         protected readonly int VerifySideChainNumber;
@@ -43,6 +44,7 @@ namespace AElf.Automation.SideChain.Verification
             CreateTokenNumber = ConfigInfoHelper.Config.CreateTokenNumber;
             VerifySideChainNumber = ConfigInfoHelper.Config.VerifySideChainNumber;
             VerifyBlockNumber = ConfigInfoHelper.Config.VerifyBlockNumber;
+            NativeToken = _environmentInfo.MainChainInfos.NativeToken;
         }
 
         protected ContractServices InitMainChainServices()
@@ -52,8 +54,10 @@ namespace AElf.Automation.SideChain.Verification
             var mainChainUrl = _environmentInfo.MainChainInfos.MainChainUrl;
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
+            var defaultToken = _environmentInfo.MainChainInfos.NativeToken;
             var mainChainId = ChainHelper.ConvertBase58ToChainId(_environmentInfo.MainChainInfos.MainChainId);
-            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId);
+            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId,defaultToken);
+            MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
 
             return MainChainService;
         }
@@ -69,13 +73,29 @@ namespace AElf.Automation.SideChain.Verification
             {
                 var url = info.SideChainUrl;
                 var chainId = ChainHelper.ConvertBase58ToChainId(info.SideChainId);
+                var defaultToken = info.SideChainTokenSymbol;
                 sideChainIds.Add(chainId);
-                var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId);
+                var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId,defaultToken);
                 SideChainServices.Add(sideService);
+                sideService.NodeManager.ApiService.SetFailReTryTimes(10);
             }
-
             return SideChainServices;
         }
+        
+        protected void IssueSideChainToken(ContractServices services,string account)
+        {
+
+            Logger.Info($"Issue side chain {services.ChainId} token {services.DefaultToken} to {account}");
+            services.TokenService.SetAccount(services.CallAddress);
+            services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
+            {
+                Symbol = services.DefaultToken,
+                Amount = 1000000,
+                Memo = "Issue side chain token",
+                To = AddressHelper.Base58StringToAddress(account)
+            });
+        }
+        
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
@@ -266,7 +286,7 @@ namespace AElf.Automation.SideChain.Verification
                 Logger.Info("Check the transaction again.");
                 txResult = CheckTransactionResult(services, info.TxId);
                 status = txResult.Status.ConvertTransactionResultStatus();
-                if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
+                if (status != TransactionResultStatus.Mined)
                     return null;
             }
 
@@ -283,7 +303,7 @@ namespace AElf.Automation.SideChain.Verification
                 return null;
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
-                FromChainId = 9992731,
+                FromChainId = MainChainService.ChainId,
                 ParentChainHeight = rawTxInfo.BlockHeight,
                 MerklePath = merklePath
             };
@@ -378,14 +398,37 @@ namespace AElf.Automation.SideChain.Verification
             return TransactionResultList;
         }
 
-        protected bool CheckParentChainBlockIndex(ContractServices services, CrossChainTransactionInfo infos)
+        private async Task<long> GetParentChainBlockIndexAsync(ContractServices services, CrossChainTransactionInfo infos)
         {
             var transactionHeight = infos.BlockHeight;
-            var indexSideBlock =
-                MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId});
+            long indexSideBlock = 0;
+            
+            while (indexSideBlock < transactionHeight)
+            {
+                Logger.Info("Block is not recorded ");
+                Thread.Sleep(10000);
+                
+                indexSideBlock =
+                    MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                        CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+            }
 
-            return indexSideBlock.Value > transactionHeight;
+            return await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
+        }
+
+        protected void CheckSideChainBlockIndexParentChainHeight(ContractServices services, CrossChainTransactionInfo infos)
+        {
+            var mainHeight = GetParentChainBlockIndexAsync(services,infos).Result;
+            long indexParentBlock = 0;
+            while (indexParentBlock < mainHeight)
+            {
+                Logger.Info("Block is not recorded ");
+                Thread.Sleep(10000);
+                
+                indexParentBlock =
+                    services.CrossChainService.CallViewMethod<SInt64Value>(
+                        CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
+            }
         }
 
         protected bool CheckSideChainBlockIndex(ContractServices services, CrossChainTransactionInfo infos)
@@ -397,6 +440,30 @@ namespace AElf.Automation.SideChain.Verification
             return indexParentBlock.Value > transactionHeight;
         }
 
+        protected async void SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,
+            ContractServices servicesTo, CrossChainTransactionInfo infos)
+        {
+            var mainHeight = await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
+            var checkResult = false;
+
+            while (!checkResult)
+            {
+                var indexSideChainBlock = MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = servicesFrom.ChainId});
+                var indexParentBlock =
+                    servicesTo.CrossChainService.CallViewMethod<SInt64Value>(
+                        CrossChainContractMethod.GetParentChainHeight, new Empty());
+                var transactionHeight = infos.BlockHeight;
+
+                if (indexSideChainBlock.Value > transactionHeight && indexParentBlock.Value > mainHeight)
+                    checkResult = true;
+                else
+                {
+                    Logger.Info("Block is not recorded ");
+                    Thread.Sleep(10000);
+                }
+            }
+        }
 
         protected long GetBalance(ContractServices services, string address, string symbol)
         {
@@ -423,6 +490,7 @@ namespace AElf.Automation.SideChain.Verification
 
         protected void UnlockAccounts(ContractServices services, int count, List<string> accountList)
         {
+            services.NodeManager.ListAccounts();
             for (var i = 0; i < count; i++)
             {
                 var result = services.NodeManager.UnlockAccount(accountList[i]);

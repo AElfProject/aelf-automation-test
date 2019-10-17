@@ -14,11 +14,16 @@ namespace AElfChain.Console.InputOption
         {
             SystemContracts = systemContracts;
         }
-        
+
+        public string[] GetAllSelections()
+        {
+            return SystemContracts.Keys.ToArray();
+        }
+
         public string[] GetCompletions(string partial)
         {
             var keys = SystemContracts.Keys.Where(o => o.ToLower().StartsWith(partial)).ToList();
-            var contracts = new List<string>{};
+            var contracts = new List<string>();
             foreach (var key in keys)
             {
                 contracts.Add(SystemContracts[key]);

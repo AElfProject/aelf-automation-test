@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
@@ -5,7 +6,7 @@ using Google.Protobuf.Reflection;
 
 namespace AElf.Automation.Common.ContractSerializer
 {
-    public class ContractMethod
+    public class ContractMethod : IComparable
     {
         public MethodDescriptor Descriptor { get; set; }
         public string Name { get; set; }
@@ -55,6 +56,12 @@ namespace AElf.Automation.Common.ContractSerializer
                 else
                     $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.FieldType}".WriteWarningLine();    
             }
+        }
+
+        public int CompareTo(object obj)
+        {
+            ContractMethod info = obj as ContractMethod;
+            return string.CompareOrdinal(this.Name, info.Name) > 0 ? 0 : 1;
         }
     }
 }

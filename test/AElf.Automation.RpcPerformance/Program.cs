@@ -4,6 +4,7 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
+using Shouldly;
 
 namespace AElf.Automation.RpcPerformance
 {
@@ -80,7 +81,7 @@ namespace AElf.Automation.RpcPerformance
                     nodeSummary.ContinuousCheckTransactionPerformance();
                     return;
                 }
-                
+
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = NodeOption.IsMainChain;
@@ -98,6 +99,14 @@ namespace AElf.Automation.RpcPerformance
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
+            }
+            catch (TimeoutException e)
+            {
+                Logger.Error(e.Message);
+            }
+            catch (ShouldAssertException e)
+            {
+                Logger.Error(e.Message);
             }
             catch (Exception e)
             {

@@ -21,12 +21,16 @@ namespace AElfChain.Console.Commands
             var proposalInfo = AsyncHelper.RunSync(()=>Services.ParliamentAuthStub.GetProposal.CallAsync(hash));
             
             $"ProposalId: {parameters[0]} info".WriteSuccessLine();
-            JsonConvert.SerializeObject(proposalInfo).WriteSuccessLine();
+            JsonConvert.SerializeObject(proposalInfo, Formatting.Indented).WriteSuccessLine();
         }
 
-        public override string GetCommandInfo()
+        public override CommandInfo GetCommandInfo()
         {
-            return "Query Proposal info by Id";
+            return new CommandInfo
+            {
+                Name = "proposal",
+                Description = "Query Proposal info by Id"
+            };
         }
 
         public override string[] InputParameters()

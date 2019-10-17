@@ -2,55 +2,55 @@
     "BpNodes": [
         {
             "name": "bp1-美国东部(弗吉尼亚北部)",
-            "service_url": "http://3.94.106.10:8000",
+            "service_url": "http://52.90.147.175:8000",
             "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "password": "123"
         },
         {
             "name": "bp2-美国东部(弗吉尼亚北部)",
-            "service_url": "http://13.58.239.190:8000",
+            "service_url": "http://18.223.158.83:8000",
             "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
             "password": "123"
         },
         {
             "name": "bp3-美国西部(加利福尼亚北部)",
-            "service_url": "http://52.53.166.137:8000",
+            "service_url": "http://13.52.177.95:8000",
             "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
             "password": "123"
         },
         {
             "name": "bp4-美国西部(俄勒冈)",
-            "service_url": "http://34.220.238.41:8000",
+            "service_url": "http://54.202.235.179:8000",
             "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
             "password": "123"
         },
         {
             "name": "bp5-亚太区域(香港)",
-            "service_url": "http://18.162.147.32:8000",
+            "service_url": "http://18.162.41.20:8000",
             "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
             "password": "123"
         },
         {
             "name": "bp6-亚太区域(孟买)",
-            "service_url": "http://13.235.23.221:8000",
+            "service_url": "http://52.66.209.107:8000",
             "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
             "password": "123"
         },
         {
             "name": "bp7-亚太区域(首尔)",
-            "service_url": "http://54.180.134.242:8000",
+            "service_url": "http://52.78.196.168:8000",
             "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
             "password": "123"
         },
         {
             "name": "bp8-亚太区域(新加坡)",
-            "service_url": "http://18.136.101.221:8000",
+            "service_url": "http://54.169.99.49:8000",
             "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
             "password": "123"
         },
         {
             "name": "bp9-亚太区域(悉尼)",
-            "service_url": "http://52.62.246.72:8000",
+            "service_url": "http://13.236.178.147:8000",
             "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
             "password": "123"
         }
@@ -58,50 +58,38 @@
     "FullNodes": [
         {
             "name": "full2-亚太区域(东京)",
-            "service_url": "http://13.231.68.213:8000",
+            "service_url": "http://52.195.10.165:8000",
             "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
             "password": "123"
         },
         {
             "name": "full3-加拿大(中部)",
-            "service_url": "http://35.183.243.107:8000",
+            "service_url": "http://35.182.252.147:8000",
             "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
             "password": "123"
         },
         {
             "name": "full4-欧洲(法兰克福)",
-            "service_url": "http://3.122.94.153:8000",
+            "service_url": "http://52.57.232.61:8000",
             "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
             "password": "123"
         },
         {
             "name": "full5-欧洲(爱尔兰)",
-            "service_url": "http://34.255.181.36:8000",
+            "service_url": "http://34.240.183.26:8000",
             "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
             "password": "123"
         },
         {
-            "name": "full6-欧洲(伦敦)",
-            "service_url": "http://3.8.119.238:8000",
-            "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
-            "password": "123"
-        },
-        {
             "name": "full7-欧洲(巴黎)",
-            "service_url": "http://35.180.255.217:8000",
+            "service_url": "http://15.188.27.177:8000",
             "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
             "password": "123"
         },
         {
             "name": "full8-欧洲(斯德哥尔摩)",
-            "service_url": "http://13.53.124.106:8000",
+            "service_url": "http://13.53.125.186:8000",
             "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
-            "password": "123"
-        },
-        {
-            "name": "full10-南美洲(圣保罗)",
-            "service_url": "http://54.94.165.249:8000",
-            "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
             "password": "123"
         },
         {
@@ -114,6 +102,12 @@
             "name": "full12-阿里吉隆坡",
             "service_url": "http://47.254.233.45:8000",
             "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
+            "password": "123"
+        },
+        {
+            "name": "full13-华为非洲",
+            "service_url": "http://159.138.165.51:8000",
+            "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
             "password": "123"
         }
     ],
@@ -152,26 +146,25 @@
             "case_name": "PerformanceScenario",
             "enable": true,
             "time_interval": 30
+        },
+        {
+            "case_name": "DeleteValueScenario",
+            "enable": true,
+            "time_interval": 10
         }
     ],
     "ContractsInfo": {
         "AutoUpdate": true,
         "Contracts": [
             {
-                "name": "FeeReceiver",
-                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
-                "code_hash": "",
-                "owner": ""
-            },
-            {
-                "name": "TokenConverter",
-                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
-                "code_hash": "",
-                "owner": ""
-            },
-            {
                 "name": "BasicFunction",
-                "address": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp0",
+                "address": "SkMGjviAAs9bnYvv6cKcafbhf6tbRGQGK93WgKvZoCoS5amMK",
+                "code_hash": "38122a009d4d1c83432a322da39b9d55d2f0d60a537e6dadcbb160679829264b",
+                "owner": "2gaQh4uxg6tzyH1ADLoDxvHA14FMpzEiMqsQ6sDG5iHT8cmjp8"
+            },
+            {
+                "name": "Performance",
+                "address": "",
                 "code_hash": "",
                 "owner": ""
             }
@@ -181,6 +174,6 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": true,
-        "service_url": "http://3.94.106.10:8000"
+        "service_url": "http://52.90.147.175:8000"
     }
 }

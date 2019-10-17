@@ -75,7 +75,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractAddressByName(NameProvider name)
         {
-            if (_systemContractAddresses.Keys.Contains(name))
+            if (_systemContractAddresses.ContainsKey(name))
                 return _systemContractAddresses[name];
 
             if (name == NameProvider.Genesis)
@@ -131,6 +131,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var dic = new Dictionary<NameProvider, Hash>
             {
+                {NameProvider.Genesis, Hash.Empty},
                 {NameProvider.Election, Hash.FromString("AElf.ContractNames.Election")},
                 {NameProvider.Profit, Hash.FromString("AElf.ContractNames.Profit")},
                 {NameProvider.Vote, Hash.FromString("AElf.ContractNames.Vote")},
