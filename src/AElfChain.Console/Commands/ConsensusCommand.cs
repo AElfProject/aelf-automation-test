@@ -23,10 +23,15 @@ namespace AElfChain.Console.Commands
             NodeInfoHelper.Config.CheckNodesAccount();
             
             "Current bp account info:".WriteSuccessLine();
+            var token = Services.Token;
             foreach (var node in NodeOption.AllNodes)
             {
-                if(pubKeys.Contains(node.PublicKey))
-                    $"{++count}. {node.Account}".WriteSuccessLine();
+                if (pubKeys.Contains(node.PublicKey))
+                {
+                    var balance = token.GetUserBalance(node.Account);
+                    $"{++count:00}. Account: {node.Account.PadRight(54)} {NodeOption.ChainToken}: {balance}".WriteSuccessLine();
+                    $"    PubKey:  {node.PublicKey}".WriteSuccessLine();
+                }
             }
         }
 

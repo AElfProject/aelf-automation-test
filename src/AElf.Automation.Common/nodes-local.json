@@ -1,0 +1,16 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "bp1",
+      "account": "G6eX2WYjeUXptQXs24QDSMiRHTMFG23PLKVFhLU1zek6SYjut",
+      "password": "123"
+    }
+  ],
+  "ChainType": {
+    "is_main_chain": true,
+    "token_symbol": "ELF"
+  },
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "123"
+}
