@@ -7,10 +7,12 @@ using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -22,12 +24,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
         public List<string> UserList { get; set; }
+        public string Symbol = NodeOption.NativeTokenSymbol;
 
-        public string InitAccount { get; } = "2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs";
+        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
 
-        public string ReviewAccount1 { get; } = "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV";
-        public string ReviewAccount2 { get; } = "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX";
-        public string ReviewAccount3 { get; } = "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P";
+        public string ReviewAccount1 { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string ReviewAccount2 { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
+        public string ReviewAccount3 { get; } = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
         public List<Reviewer> ReviewerList { get; set; }
 
         private static string RpcUrl { get; } = "http://192.168.197.56:8001";
@@ -48,11 +51,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             
             ReviewerList = new List<Reviewer>();
             var review1 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 1};
-            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 2};
-            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 3};
+            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount2), Weight = 2};
+            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount3), Weight = 3};
             ReviewerList.Add(review1);
             ReviewerList.Add(review2);
             ReviewerList.Add(review3);
+
+            foreach (var reviewer in ReviewerList)
+            {
+                var symbol = NodeOption.NativeTokenSymbol;
+                var balance = Tester.TokenService.GetUserBalance(reviewer.Address.GetFormatted(), symbol);
+                if (balance > 0) continue;
+                Tester.TokenService.TransferBalance(InitAccount, reviewer.Address.GetFormatted(), 100, symbol);
+            }
+            
         }
 
         [TestMethod]
@@ -79,7 +91,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Tester.TokenService.SetAccount(InitAccount);
             var transfer = Tester.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
-                Symbol = NodeOption.NativeTokenSymbol,
+                Symbol = Symbol,
                 Amount = 1000,
                 Memo = "transfer to Organization",
                 To = AddressHelper.Base58StringToAddress(organizationAddress)
@@ -87,7 +99,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("")]
+        [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
         public void GetOrganization(string organizationAddress)
         {
             var organization =
@@ -100,36 +112,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("2876Vk2deM5ZnaXr1Ns9eySMSjpuvd53XatHTc37JXeW6HjiPs",
-            "tospBuj9P6GAoutVZHnxVe8BqYmRFxgcumjwPncB1fTvAPvpu")]
-        public void CreateProposal(string account, string organizationAddress)
+        [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
+        public void CreateProposal(string organizationAddress)
         {
-            var _transferInput = new TransferInput()
+            var transferInput = new TransferInput()
             {
-                Symbol = NodeOption.NativeTokenSymbol,
+                Symbol = Symbol,
                 Amount = 100,
-                To = AddressHelper.Base58StringToAddress(account),
+                To = AddressHelper.Base58StringToAddress(ReviewAccount1),
                 Memo = "Transfer"
             };
-            var _createProposalInput = new CreateProposalInput
+            var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
                 ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
-                Params = _transferInput.ToByteString(),
+                Params = transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                 OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
             };
 
-
+            Tester.AssociationService.SetAccount(ReviewAccount1);
             var result =
                 Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateProposal,
-                    _createProposalInput);
+                    createProposalInput);
             var proposal = result.ReadableReturnValue;
             _logger.Info($"Proposal is : {proposal}");
         }
 
         [TestMethod]
-        [DataRow("81a350581513bb60219b178ff7b8ecf52398deaf460b46949c6a8fc45fb27e27")]
+        [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
         public void GetProposal(string proposalId)
         {
             var result =
@@ -141,7 +152,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("81a350581513bb60219b178ff7b8ecf52398deaf460b46949c6a8fc45fb27e27")]
+        [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
         public void Approve(string proposalId)
         {
             Tester.AssociationService.SetAccount(ReviewAccount1);
@@ -151,6 +162,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposalId = HashHelper.HexStringToHash(proposalId)
                 });
             _logger.Info($"Approve is {result.ReadableReturnValue}");
+        }
+
+        [TestMethod]
+        [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
+        public void Release(string proposalId)
+        {
+            Tester.AssociationService.SetAccount(ReviewAccount1);
+            var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Release, HashHelper.HexStringToHash(proposalId));
+            result.Status.ShouldBe("MINED");
+        }
+
+        [TestMethod]
+        [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
+        public void GetBalance(string account)
+        {
+            var balance = Tester.TokenService.GetUserBalance(account, Symbol);
+            _logger.Info($"{account} balance is {balance}");
         }
     }
 }
