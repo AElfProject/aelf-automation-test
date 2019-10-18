@@ -80,7 +80,7 @@ namespace AElf.Automation.SideChainCreate
                 IndexingPrice = indexingPrice,
                 LockedTokenAmount = lockedTokenAmount,
                 IsPrivilegePreserved = isPrivilegePreserved,
-                SideChainTokenInfo = tokenInfo
+                //SideChainTokenInfo = tokenInfo
             };
             ParliamentService.SetAccount(InitAccount,Password);
             var result =

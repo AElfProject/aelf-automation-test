@@ -109,7 +109,7 @@ namespace AElfChain.SDK
             {
                 retryTimes++;
                 if (retryTimes > FailRetryTimes) throw new AElfChainApiException(ex.Message);
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
                 return await GetResponseAsync(url, version, expectedStatusCode, retryTimes);
             }
         }
@@ -204,7 +204,7 @@ namespace AElfChain.SDK
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
-            Client.DefaultRequestHeaders.Add("Connection", "close");
+            //Client.DefaultRequestHeaders.Add("Connection", "close");
             return Client;
         }
     }
