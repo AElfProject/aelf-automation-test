@@ -104,6 +104,7 @@ namespace AElfChain.Console
             Commands.Add(new BlockChainCommand(NodeManager, Contracts));
             Commands.Add(new ContractQueryCommand(NodeManager, Contracts));
             Commands.Add(new ContractExecutionCommand(NodeManager, Contracts));
+            Commands.Add(new UpdateCommand(NodeManager, Contracts));
             Commands.Add(new QueryContractCommand(NodeManager, Contracts));
             Commands.Add(new QueryTokenCommand(NodeManager, Contracts));
             Commands.Add(new QueryProposalCommand(NodeManager, Contracts));
