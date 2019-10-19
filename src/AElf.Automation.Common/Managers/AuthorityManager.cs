@@ -5,10 +5,12 @@ using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using log4net;
+using Shouldly;
 
 namespace AElf.Automation.Common.Managers
 {
@@ -43,6 +45,18 @@ namespace AElf.Automation.Common.Managers
 
             return DeployContractWithAuthority(caller, code);
         }
+        
+        public void UpdateContractWithAuthority(string caller, string address, string contractName)
+        {
+            Logger.Info($"Update contract: {contractName}");
+            var fileName = contractName.Contains(".dll") ? contractName : $"{contractName}.dll";
+            var contractPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "aelf", "contracts");
+            var code = File.ReadAllBytes(Path.Combine(contractPath, fileName));
+
+            UpdateContractWithAuthority(caller, address, code);
+        }
 
         private Address DeployContractWithAuthority(string caller, byte[] code)
         {
@@ -63,6 +77,23 @@ namespace AElf.Automation.Common.Managers
 
             return address;
         }
+        
+        private void UpdateContractWithAuthority(string caller, string address, byte[] code)
+        {
+            var input = new ContractUpdateInput
+            {
+                Address = address.ConvertAddress(),
+                Code = ByteString.CopyFrom(code)
+            };
+            var organizationAddress = _parliament.GetGenesisOwnerAddress();
+            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
+
+            var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
+                nameof(GenesisMethod.UpdateSmartContract),
+                input, organizationAddress, currentMiners, caller);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+
 
         public List<string> GetCurrentMiners()
         {

@@ -100,6 +100,10 @@ namespace AElf.Automation.Common.ContractSerializer
                                     ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
                                 };
                         }
+                        else if (type.FieldType == FieldType.Bytes)
+                        {
+                            inputJson[InputFields[i].Name] = Convert.ToBase64String(inputs[i].GetBytes());
+                        }
                         else
                         {
                             inputJson[InputFields[i].Name] = inputs[i];

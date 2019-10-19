@@ -122,6 +122,7 @@ namespace AElfChain.Console
             Commands.Add(new QueryProposalCommand(NodeManager, Contracts));
             Commands.Add(new ConsensusCommand(NodeManager, Contracts));
             Commands.Add(new DeployCommand(NodeManager, Contracts));
+            Commands.Add(new UpdateCommand(NodeManager, Contracts));
             Commands.Add(new TransferCommand(NodeManager, Contracts));
             Commands.Add(new ResourceTradeCommand(NodeManager, Contracts));
             Commands.Add(new SetConnectorCommand(NodeManager, Contracts));
