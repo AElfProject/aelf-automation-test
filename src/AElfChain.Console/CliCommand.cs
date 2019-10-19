@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
@@ -98,6 +99,10 @@ namespace AElfChain.Console
                     Logger.Error(e.Message);
                 }
                 catch (ShouldAssertException e)
+                {
+                    Logger.Error(e.Message);
+                }
+                catch (FileNotFoundException e)
                 {
                     Logger.Error(e.Message);
                 }
