@@ -1,7 +1,9 @@
 using System.Linq;
 using AElf.Automation.Common;
+using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Contracts.MultiToken;
 using Google.Protobuf.WellKnownTypes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Volo.Abp.Threading;
@@ -24,12 +26,13 @@ namespace AElfChain.Console.Commands
             
             "Current bp account info:".WriteSuccessLine();
             var token = Services.Token;
+            var tokenInfo = token.CallViewMethod<TokenInfo>(TokenMethod.GetNativeTokenInfo, new Empty());
             foreach (var node in NodeOption.AllNodes)
             {
                 if (pubKeys.Contains(node.PublicKey))
                 {
-                    var balance = token.GetUserBalance(node.Account);
-                    $"{++count:00}. Account: {node.Account.PadRight(54)} {NodeOption.ChainToken}: {balance}".WriteSuccessLine();
+                    var balance = token.GetUserBalance(node.Account, tokenInfo.Symbol);
+                    $"{++count:00}. Account: {node.Account.PadRight(54)} {tokenInfo.Symbol}: {balance}".WriteSuccessLine();
                     $"    PubKey:  {node.PublicKey}".WriteSuccessLine();
                 }
             }
