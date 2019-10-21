@@ -38,8 +38,10 @@ namespace AElf.Automation.CheckTxStatus
                     return;
                 var transactionList = new Dictionary<long, List<string>>();
 
+                var amount = verifyBlock + startBlock > currentBlock ? currentBlock : verifyBlock + startBlock;
+
                 //Get transactions
-                for (var i = startBlock; i < verifyBlock + startBlock; i++)
+                for (var i = startBlock; i < amount; i++)
                 {
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
@@ -74,7 +76,12 @@ namespace AElf.Automation.CheckTxStatus
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            var info =
+                                $"Block {txs.Key}, Transaction {txId} status: {txInfo.Status}";
+                            info +=
+                                $"\r\n From:{txInfo.From},\n To:{txInfo.To},\n RefBlockNumber: {txInfo.RefBlockNumber},\n RefBlockPrefix: {txInfo.RefBlockPrefix},\n MethodName: {txInfo.MethodName}";
+                            Logger.Error(info);
+                            Console.WriteLine($"{info}");
                             throw;
                         }
                     }
