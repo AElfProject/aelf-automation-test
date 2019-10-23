@@ -57,8 +57,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Parliament contract
             ParliamentService = GenesisService.GetParliamentAuthContract();
 
-            //AssociationAuth contract
-            //AssociationAuthService = GenesisService.GetAssociationAuthContract();
+//            AssociationAuth contract
+            AssociationAuthService = GenesisService.GetAssociationAuthContract();
         }
     }
 }

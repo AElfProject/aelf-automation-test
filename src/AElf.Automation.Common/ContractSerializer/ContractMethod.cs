@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using Google.Protobuf.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Common.ContractSerializer
 {
@@ -13,7 +15,7 @@ namespace AElf.Automation.Common.ContractSerializer
         public string Input => InputType.Name;
         public MessageDescriptor InputType { get; set; }
         public List<FieldDescriptor> InputFields { get; set; }
-        public string Output => OutputType.Name; 
+        public string Output => OutputType.Name;
         public MessageDescriptor OutputType { get; set; }
         public List<FieldDescriptor> OutputFields { get; set; }
 
@@ -38,10 +40,12 @@ namespace AElf.Automation.Common.ContractSerializer
             foreach (var parameter in InputFields)
             {
                 if (parameter.Name == "value") continue;
-                if(parameter.FieldType == FieldType.Message)
-                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.MessageType.Name}".WriteWarningLine();
+                if (parameter.FieldType == FieldType.Message)
+                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.MessageType.Name}"
+                        .WriteWarningLine();
                 else
-                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.FieldType}".WriteWarningLine();    
+                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.FieldType}"
+                        .WriteWarningLine();
             }
         }
 
@@ -51,10 +55,12 @@ namespace AElf.Automation.Common.ContractSerializer
             foreach (var parameter in OutputFields)
             {
                 if (parameter.Name == "value") continue;
-                if(parameter.FieldType == FieldType.Message)
-                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.MessageType.Name}".WriteWarningLine(); 
+                if (parameter.FieldType == FieldType.Message)
+                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.MessageType.Name}"
+                        .WriteWarningLine();
                 else
-                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.FieldType}".WriteWarningLine();    
+                    $"Index: {parameter.Index}  Name: {parameter.Name.PadRight(24)} Field: {parameter.FieldType}"
+                        .WriteWarningLine();
             }
         }
 
@@ -62,6 +68,47 @@ namespace AElf.Automation.Common.ContractSerializer
         {
             ContractMethod info = obj as ContractMethod;
             return string.CompareOrdinal(this.Name, info.Name) > 0 ? 0 : 1;
+        }
+
+        public string ParseMethodInputJsonInfo(string[] inputs)
+        {
+            var inputJson = new JObject();
+            switch (Input)
+            {
+                case "StringValue":
+                    return $"\"{inputs[0]}\"";
+                case "Address":
+                    inputJson["value"] = inputs[0].ConvertAddress().Value.ToBase64();
+                    return inputJson.ToString();
+                case "Hash":
+                    inputJson["value"] = HashHelper.HexStringToHash(inputs[0]).Value.ToBase64();
+                    return inputJson.ToString();
+                default:
+                    for (var i = 0; i < InputFields.Count; i++)
+                    {
+                        var type = InputFields[i];
+                        if (type.FieldType == FieldType.Message)
+                        {
+                            if (type.MessageType.Name == "Address")
+                                inputJson[InputFields[i].Name] = new JObject
+                                {
+                                    ["value"] = inputs[i].ConvertAddress().Value.ToBase64()
+                                };
+                            else if (type.MessageType.Name == "Hash")
+                                inputJson[InputFields[i].Name] = new JObject
+                                {
+                                    ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
+                                };
+                        }
+                        else
+                        {
+                            inputJson[InputFields[i].Name] = inputs[i];
+                        }
+                    }
+                    break;
+            }
+
+            return inputJson.ToString();
         }
     }
 }

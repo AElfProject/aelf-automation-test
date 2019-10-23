@@ -31,7 +31,12 @@ namespace AElf.Automation.SetTransactionFees
             "UpdateTinyBlockInformation",
             "ClaimTransactionFees",
             "DonateResourceToken",
-            "RecordCrossChainData"
+            "RecordCrossChainData",
+            "ChargeTransactionFees",
+            "CheckThreshold",
+            "CheckResourceToken",
+            "ChargeResourceToken"
+                
         };
 
         public ContractMethodFee(INodeManager nodeManager, AuthorityManager authority, ContractInfo contract, string contractAddress)
