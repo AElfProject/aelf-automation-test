@@ -25,7 +25,7 @@ namespace AElf.Automation.Common.Managers
         public string NewAccount(string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
             if (password == "")
                 password = AskInvisible("password:");
@@ -70,9 +70,9 @@ namespace AElf.Automation.Common.Managers
         public bool UnlockAccount(string address, string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
-            if (Account.DefaultPassword == "")
+            if (NodeOption.DefaultPassword == "")
                 password = AskInvisible("password:");
 
             if (_accounts == null || _accounts.Count == 0)
@@ -113,7 +113,7 @@ namespace AElf.Automation.Common.Managers
         public string GetPublicKey(string address, string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);

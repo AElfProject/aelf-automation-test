@@ -23,8 +23,8 @@
         }
     ],
     "ChainType": {
-        "is_main_chain": false,
-        "token_symbol": "SAELF"
+        "is_main_chain": true,
+        "token_symbol": "ELF"
     },
     "NativeTokenSymbol" : "ELF",
     "DefaultPassword": "123"

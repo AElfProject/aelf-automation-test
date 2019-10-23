@@ -14,8 +14,7 @@ namespace AElfChain.Console.InputOption
         public ConsoleReader() : this(new EmptyCompletionEngine()) { }
         public ConsoleReader(ICompletionEngine completionEngine)
         {
-            if (completionEngine == null) throw new ArgumentNullException("completionEngine");
-            CompletionEngine = completionEngine;
+            CompletionEngine = completionEngine ?? throw new ArgumentNullException(nameof(completionEngine));
             _tokenDelimiters = completionEngine.GetTokenDelimiters();
         }
 
@@ -28,7 +27,7 @@ namespace AElfChain.Console.InputOption
             var selection = new Selection(buffer, startLeft, startTop);
 
             string[] completionCandidates = null;
-            int completionIndex = -1;
+            var completionIndex = -1;
 
             while (true)
             {
@@ -404,8 +403,7 @@ namespace AElfChain.Console.InputOption
 
         private static void SetCursorPosition(int bufferIndex, int startLeft, int startTop)
         {
-            int left, top;
-            GetCursorPosition(bufferIndex, startLeft, startTop, out left, out top);
+            GetCursorPosition(bufferIndex, startLeft, startTop, out var left, out var top);
             console.SetCursorPosition(left, top);
         }
 
@@ -460,8 +458,8 @@ namespace AElfChain.Console.InputOption
                 var index = IsExpandingToRight(bufferIndex) ? Beginning : bufferIndex;
                 SetCursorPosition(index, _startLeft, _startTop);
 
-                // Swap the console's foreground and background colors.
-                ConsoleColor originalForegroundColor = console.ForegroundColor;
+                // Swap the console foreground and background colors.
+                var originalForegroundColor = console.ForegroundColor;
                 console.ForegroundColor = console.BackgroundColor;
                 console.BackgroundColor = originalForegroundColor;
 

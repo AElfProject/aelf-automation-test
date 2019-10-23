@@ -26,7 +26,8 @@ namespace AElf.Automation.Common.Contracts
         GetTermSnapshot,
         GetMinersCount,
         GetVotesInformationWithRecords,
-        GetElectorVoteWithAllRecords
+        GetElectorVoteWithAllRecords,
+        GetNextElectCountDown
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>

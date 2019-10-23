@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Check port parameter ..."
 PORT=$1
-if [ ! -n "$PORT" ]
+if [[ ! -n "$PORT" ]]
 then
     PORT=8000
     echo "  >> Use default port value: 8000"
@@ -17,7 +17,7 @@ sudo docker pull aelf/node:test
 
 echo "Delete container if exist ..."
 process=`sudo docker ps -a | grep aelf-node-cli | grep -v grep | grep -v sudo | wc -l`
-if [ $process -eq 1 ]
+if [[ ${process} -eq 1 ]]
 then
     echo "  >> Stop container ..."
     sudo docker stop aelf-node-cli
@@ -27,7 +27,7 @@ then
 fi
 
 process=`sudo docker ps | grep aelf-node-launcher | grep -v grep | grep -v sudo | wc -l`
-if [ $process -eq 1 ]
+if [[ ${process} -eq 1 ]]
 then
     echo "Start cli & connect to aelf node .."
     echo "Execute docker command: sudo docker exec -it aelf-node-launcher dotnet AElf.CLI.dll http://127.0.0.1:$PORT"

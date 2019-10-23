@@ -151,7 +151,7 @@ namespace AElf.Automation.Common.Helpers
             logger.Error(message);
         }
         
-        private static string ConvertJsonString(string str)
+        public static string ConvertJsonString(string str)
         {
             //格式化json字符串
             var serializer = new JsonSerializer();

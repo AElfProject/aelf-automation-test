@@ -39,11 +39,7 @@ namespace AElfChain.Console.Commands
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
             //contract info
-            var contractAddress = Services.GetContractAddress(input[0]);
-            if (contractAddress == null)
-            {
-                contractAddress = CommandOption.InputParameters(1)[0];
-            }
+            var contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractMethodsInfo();
@@ -66,34 +62,10 @@ namespace AElfChain.Console.Commands
                 methodInfo.GetInputParameters();
                 methodInfo.GetOutputParameters();
 
-                var parameterInput = methodInfo.InputType.Name == "Empty"
-                    ? new[] {""}
-                    : CommandOption.InputParameters(methodInfo.InputFields.Count);
-
-                var jsonObject = new JObject();
-                for (var i = 0; i < methodInfo.InputFields.Count; i++)
-                {
-                    var type = methodInfo.InputFields[i];
-                    if (type.FieldType == FieldType.Message && type.MessageType.Name == "Address")
-                    {
-                        if (type.MessageType.Name == "Address")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = parameterInput[i].ConvertAddress().Value.ToBase64()
-                            };
-                        else if (type.MessageType.Name == "Hash")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
-                            };
-                    }
-                    else
-                    {
-                        jsonObject[methodInfo.InputFields[i].Name] = parameterInput[i];
-                    }
-                }
-
-                var inputMessage = JsonParser.Default.Parse(jsonObject.ToString(), methodInfo.InputType);
+                var parameterInput = methodInfo.InputType.Name == "Empty" ? new[] {""} : 
+                    CommandOption.InputParameters(methodInfo.InputFields.Count);
+                var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
+                var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
                     methodInput[0], inputMessage);
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);

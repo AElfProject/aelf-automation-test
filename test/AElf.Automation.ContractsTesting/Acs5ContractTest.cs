@@ -15,7 +15,7 @@ namespace AElf.Automation.ContractsTesting
 
         public Acs5ContractTest(INodeManager nodeManager)
         {
-            nodeManager = nodeManager;
+            NodeManager = nodeManager;
         }
     }
 }
