@@ -76,13 +76,13 @@ namespace AElf.Automation.CheckTxStatus
                         }
                         catch (Exception e)
                         {
+                            Console.WriteLine(e.Message);
                             var info =
                                 $"Block {txs.Key}, Transaction {txId} status: {txInfo.Status}";
                             info +=
                                 $"\r\n From:{txInfo.From},\n To:{txInfo.To},\n RefBlockNumber: {txInfo.RefBlockNumber},\n RefBlockPrefix: {txInfo.RefBlockPrefix},\n MethodName: {txInfo.MethodName}";
                             Logger.Error(info);
-                            Console.WriteLine($"{info}");
-                            throw;
+                            return;
                         }
                     }
 
