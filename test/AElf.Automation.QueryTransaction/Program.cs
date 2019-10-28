@@ -41,7 +41,6 @@ namespace AElf.Automation.QueryTransaction
             "2. RunNodeStatusCheck".WriteSuccessLine();
             "3. RunStressTest".WriteSuccessLine();
             "4. RunQueryConfigurationLimit".WriteSuccessLine();
-            "5. GetContractFileDescriptorInfo".WriteSuccessLine();
             var runType = Console.ReadLine();
             var check = int.TryParse(runType, out var selection);
 
@@ -67,10 +66,6 @@ namespace AElf.Automation.QueryTransaction
                     break;
                 case 4:
                     RunQueryConfigurationLimit();
-                    break;
-                case 5:
-                    var contractDescriptor = new ContractAnalyze(new NodeManager(Endpoint));
-                    AsyncHelper.RunSync(contractDescriptor.AnalyzeContractFileDescriptors);
                     break;
             }
 

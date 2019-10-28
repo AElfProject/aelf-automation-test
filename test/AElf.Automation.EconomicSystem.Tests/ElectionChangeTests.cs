@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -22,8 +23,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         public TokenContractContainer.TokenContractStub TokenContractStub { get; set; }
         public ElectionContract Election { get; set; }
         public ElectionContractContainer.ElectionContractStub ElectionContractStub { get; set; }
+        
+        public AEDPoSContractContainer.AEDPoSContractStub AEDPoSContractStub { get; set; }
 
         public string Tester = "2sYnepXzmsyxkoDZfAkJxDa8SpC5kgW5jiBNneNpVTb97anhSt";
+
+        public string TesterPubkey =
+            "04b93b99d44808ffce06e36fbcdd21f007e7b60999c954ebd7e3a9f7b52daf9fa2bd7110e9c8850c6c3ef0c4f6dfd431f9ed9254cc11f3b97cad6efaea283ef950";
 
         public string FullUser1 = "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D";
         public string FullUserPubKey1 = "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4";
@@ -77,7 +83,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow(200)]
+        [DataRow(500)]
         public async Task UserVote(long amount)
         {
             var genesis = NodeManager.GetGenesisContract();
@@ -86,7 +92,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             {
                 Amount = amount,
                 CandidatePubkey = FullUserPubKey1,
-                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(180)).ToTimestamp()
+                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(600)).ToTimestamp()
             });
 
             var result = await ElectionContractStub.GetCandidateVoteWithRecords.CallAsync(new StringInput
@@ -97,7 +103,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow("e3a84ab3e433f4a43a51f98927c82e8ff2d10987ddf7e3703d15bca39a3b2c97")]
+        [DataRow("dd3493b88d87654ddcb3a16a1f2fa40a4d26fdb59e05276b2e225a51f97999a1")]
         public async Task ChangeUserVote(string hash)
         {
             var genesis = NodeManager.GetGenesisContract();
@@ -110,7 +116,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
-        [DataRow("e3a84ab3e433f4a43a51f98927c82e8ff2d10987ddf7e3703d15bca39a3b2c97")]
+        [DataRow("4c756bbc64046e8961965ec6479ae2417483aa778851ffd2cbf591f91c0e58aa")]
         public async Task WithdrawToken(string hash)
         {
             var genesis = NodeManager.GetGenesisContract();
@@ -122,15 +128,15 @@ namespace AElf.Automation.EconomicSystem.Tests
             Logger.Info($"Balance change: {before} => {after}");
         }
 
-//        [TestMethod]
-//        public async Task GetNextElectCountDown()
-//        {
-//            var result = await ElectionContractStub.GetNextElectCountDown.CallAsync(new Empty());
-//            Logger.Info(JsonConvert.SerializeObject(result, Formatting.Indented));
-//        }
+        [TestMethod]
+        public async Task GetNextElectCountDown()
+        {
+            var result = await AEDPoSContractStub.GetNextElectCountDown.CallAsync(new Empty());
+            Logger.Info(JsonConvert.SerializeObject(result, Formatting.Indented));
+        }
         
         [TestMethod]
-        public async Task GetUSerPublicKey()
+        public void GetUserPublicKey()
         {
             var publicKey = NodeManager.GetAccountPublicKey(Tester);
             Logger.Info($"PubKey: {publicKey}");
