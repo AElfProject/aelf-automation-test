@@ -29,7 +29,7 @@ namespace AElf.Automation.CheckTxStatus
             Logger.Info($"Chain block height is {blockHeight}");
             var verifyBlock = blockHeight > _verifyBlock ? _verifyBlock : blockHeight;
             var notExistTransactionList = new Dictionary<long, Dictionary<string, TransactionInfo>>();
-            var transactionInfos = new Dictionary<string, TransactionInfo>();
+            var transactionInfos = new HashSet<string>();
 
             while (true)
             {
@@ -69,22 +69,15 @@ namespace AElf.Automation.CheckTxStatus
                         {
                             transactionPreBlock.Add(txId, txInfo);
                         }
-
-                        try
-                        {
-                            transactionInfos.Add(txId, txInfo);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            var info =
-                                $"Block {txs.Key}, Transaction {txId} status: {txInfo.Status}";
-                            info +=
-                                $"\r\n From:{txInfo.From},\n To:{txInfo.To},\n RefBlockNumber: {txInfo.RefBlockNumber},\n RefBlockPrefix: {txInfo.RefBlockPrefix},\n MethodName: {txInfo.MethodName}";
-                            Logger.Error(info);
-                            return;
-                        }
+                        
+                        if (transactionInfos.Add(txId)) continue;
+                        var info =
+                            $"Block {txs.Key}, Transaction {txId} status: {txInfo.Status}";
+                        info +=
+                            $"\r\n From:{txInfo.From},\n To:{txInfo.To},\n RefBlockNumber: {txInfo.RefBlockNumber},\n RefBlockPrefix: {txInfo.RefBlockPrefix},\n MethodName: {txInfo.MethodName}";
+                        Logger.Error(info);
                     }
+                    
 
                     if (notExistTransaction.Count != 0)
                     {

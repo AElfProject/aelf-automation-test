@@ -32,7 +32,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string Creator { get; } = "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo";
         public string OtherAccount { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
-        private static string MainRpcUrl { get; } = "http://127.0.0.1:9000";
+        private static string MainRpcUrl { get; } = "http://192.168.197.56:8001";
         private static string SideRpcUrl { get; } = "http://127.0.0.1:9001";
         private static string SideRpcUrl2 { get; } = "http://127.0.0.1:9002";
 

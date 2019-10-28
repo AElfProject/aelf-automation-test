@@ -15,6 +15,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ElectionContract ElectionService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public AssociationAuthContract AssociationAuthService { get; set; }
+        public ReferendumAuthContract ReferendumAuthService { get; set; }
         public ParliamentAuthContract ParliamentService { get; set; }
 
         public string CallAddress { get; set; }
@@ -57,8 +58,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Parliament contract
             ParliamentService = GenesisService.GetParliamentAuthContract();
 
-//            AssociationAuth contract
+            //AssociationAuth contract
             AssociationAuthService = GenesisService.GetAssociationAuthContract();
+            
+            //Referendum contract
+            ReferendumAuthService = GenesisService.GetReferendumAuthContract();
         }
     }
 }

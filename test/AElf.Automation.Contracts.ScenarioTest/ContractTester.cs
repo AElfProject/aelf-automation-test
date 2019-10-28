@@ -17,6 +17,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly ConsensusContract ConsensusService;
         public readonly AssociationAuthContract AssociationService;
         public readonly ParliamentAuthContract ParliamentService;
+        public readonly ReferendumAuthContract ReferendumService;
+
 
         public ContractTester(ContractServices contractServices)
         {
@@ -31,6 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ConsensusService = ContractServices.ConsensusService;
             AssociationService = ContractServices.AssociationAuthService;
             ParliamentService = ContractServices.ParliamentService;
+            ReferendumService = ContractServices.ReferendumAuthService;
         }
     }
 }
