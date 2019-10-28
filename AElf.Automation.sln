@@ -82,6 +82,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Console", "src\AE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SetTransactionFees", "test\AElf.Automation.SetTransactionFees\AElf.Automation.SetTransactionFees.csproj", "{6BF812E7-3DB1-4CC4-9108-83BC5A38C929}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.CheckTxStatus", "test\AElf.Automation.CheckTxStatus\AElf.Automation.CheckTxStatus.csproj", "{35EF1397-27BE-423B-AF4A-B1039974C99D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -192,6 +194,10 @@ Global
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,6 +230,7 @@ Global
 		{4028C6E8-AE07-4C1E-9437-662997C17BF3} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{D6A81E91-CE4A-4B71-BBE8-44F0F1F13812} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{35EF1397-27BE-423B-AF4A-B1039974C99D} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

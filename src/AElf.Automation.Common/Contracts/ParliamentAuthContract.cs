@@ -15,6 +15,7 @@ namespace AElf.Automation.Common.Contracts
     public enum ParliamentMethod
     {
         //Action
+        Initialize,
         Approve,
         CreateProposal,
         GetProposal,

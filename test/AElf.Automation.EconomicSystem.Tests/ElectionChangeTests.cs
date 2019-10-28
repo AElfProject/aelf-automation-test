@@ -122,12 +122,12 @@ namespace AElf.Automation.EconomicSystem.Tests
             Logger.Info($"Balance change: {before} => {after}");
         }
 
-        [TestMethod]
-        public async Task GetNextElectCountDown()
-        {
-            var result = await ElectionContractStub.GetNextElectCountDown.CallAsync(new Empty());
-            Logger.Info(JsonConvert.SerializeObject(result, Formatting.Indented));
-        }
+//        [TestMethod]
+//        public async Task GetNextElectCountDown()
+//        {
+//            var result = await ElectionContractStub.GetNextElectCountDown.CallAsync(new Empty());
+//            Logger.Info(JsonConvert.SerializeObject(result, Formatting.Indented));
+//        }
         
         [TestMethod]
         public async Task GetUSerPublicKey()

@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChainCreate
             var sideChainInfos = ConfigHelper.Config.SideChainInfos;
             var approveTokenAmount = ConfigHelper.Config.ApproveTokenAmount;
 
-            operation.TransferToken(1000);
+            operation.TransferToken(1000_00000000);
             operation.ApproveToken(approveTokenAmount);
             foreach (var sideChainInfo in sideChainInfos)
             {

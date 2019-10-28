@@ -660,7 +660,7 @@ namespace AElf.Automation.RpcPerformance
                 
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    systemToken.IssueBalance(account, AccountList[i].Account, 10000,sideChainTokenSymbol);
+                    systemToken.IssueBalance(account, AccountList[i].Account, 10000_00000000,sideChainTokenSymbol);
                 }
 
                 var nodes = nodeConfig.Nodes;
@@ -668,7 +668,7 @@ namespace AElf.Automation.RpcPerformance
                 foreach (var node in nodes)
                 {
                     if (node.Account == account) continue;
-                    systemToken.IssueBalance(account, node.Account, 10000,sideChainTokenSymbol);
+                    systemToken.IssueBalance(account, node.Account, 10000_00000000,sideChainTokenSymbol);
                 }
             }
             catch (Exception e)
