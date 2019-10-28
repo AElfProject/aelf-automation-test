@@ -15,6 +15,7 @@ using Google.Protobuf.Reflection;
 using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using FileDescriptorSet = AElf.Runtime.CSharp.FileDescriptorSet;
 
 namespace AElf.Automation.ContractsTesting
 {
