@@ -37,6 +37,7 @@ namespace AElfChain.Console
 
         public void ExecuteTransactionCommand()
         {
+            CommandNames.Add("config");
             InputReader = new ConsoleReader(new CommandsCompletionEngine(CommandNames));
             GetUsageInfo();
             while (true)
@@ -56,6 +57,20 @@ namespace AElfChain.Console
                 if (input.ToLower().Trim() == "clear")
                 {
                     System.Console.Clear();
+                    continue;
+                }
+                
+                //config info
+                if (input.ToLower().Trim() == "config")
+                {
+                    $"Endpoint: {NodeManager.GetApiUrl()}".WriteSuccessLine();
+                    $"ConfigFile: {NodeInfoHelper.ConfigFile}".WriteSuccessLine();
+                    foreach (var bp in NodeInfoHelper.Config.Nodes)
+                    {
+                        $"Name: {bp.Name}:  Account: {bp.Account}".WriteSuccessLine();
+                        $"PublicKey: {NodeManager.GetAccountPublicKey(bp.Account, bp.Password)}".WriteSuccessLine();
+                    }
+                    
                     continue;
                 }
                 
@@ -139,7 +154,6 @@ namespace AElfChain.Console
                 $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}".WriteSuccessLine();
                 count++;
             }
-
             "=======================================================".WriteSuccessLine();
         }
     }
