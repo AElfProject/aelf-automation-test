@@ -14,6 +14,9 @@ namespace AElf.Automation.RpcPerformance
     {
         #region Parameter Option
 
+        [Option("-c|--config", Description = "Config file about bp node setting")]
+        private static string ConfigFile { get; set; }
+        
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
         private int GroupCount { get; } = ConfigInfoHelper.Config.GroupCount;
@@ -58,7 +61,8 @@ namespace AElf.Automation.RpcPerformance
                 app.ShowHelp();
                 return;
             }
-
+            if(ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
+            
             //Init Logger
             var fileName = $"RpcPerformance_GC_{GroupCount}_TC_{TransactionCount}";
             Log4NetHelper.LogInit(fileName);

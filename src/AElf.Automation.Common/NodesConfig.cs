@@ -64,10 +64,17 @@ namespace AElf.Automation.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        private static readonly string ConfigFile = CommonHelper.MapPath("nodes.json");
+        public static string ConfigFile = CommonHelper.MapPath("nodes.json");
 
         public static NodesInfo Config => GetConfigInfo();
 
+        public static void SetConfig(string name)
+        {
+            if (!name.Contains(".json"))
+                name += ".json";
+            ConfigFile = CommonHelper.MapPath(name);
+        }
+        
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)

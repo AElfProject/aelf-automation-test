@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
-using Google.Protobuf.Reflection;
 using ProtoBuf;
 using FileDescriptorSet = Google.Protobuf.Reflection.FileDescriptorSet;
 

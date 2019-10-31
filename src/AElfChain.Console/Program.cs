@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.SDK;
@@ -15,6 +16,9 @@ namespace AElfChain.Console
     {
         [Option("-e|--endpoint", Description = "Service endpoint url of node. It's required parameter.")]
         private static string Endpoint { get; set; }
+        
+        [Option("-c|--config", Description = "Config file about bp node setting")]
+        private static string ConfigFile { get; set; }
         
         private static INodeManager NodeManager;
         private static IApiService ApiService => NodeManager.ApiService;
@@ -35,6 +39,7 @@ namespace AElfChain.Console
                 "Please input endpoint address(eg: 127.0.0.1:8000): ".WriteSuccessLine(changeLine: false);
                 Endpoint = System.Console.ReadLine();
             }
+            if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
             
             try
             {
