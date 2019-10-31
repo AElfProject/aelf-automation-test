@@ -67,7 +67,7 @@ namespace AElfChain.Console
                     $"ConfigFile: {NodeInfoHelper.ConfigFile}".WriteSuccessLine();
                     foreach (var bp in NodeInfoHelper.Config.Nodes)
                     {
-                        $"Name: {bp.Name}:  Account: {bp.Account}".WriteSuccessLine();
+                        $"Name: {bp.Name}  Account: {bp.Account}".WriteSuccessLine();
                         $"PublicKey: {NodeManager.GetAccountPublicKey(bp.Account, bp.Password)}".WriteSuccessLine();
                     }
                     

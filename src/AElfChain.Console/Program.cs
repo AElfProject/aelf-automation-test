@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -10,14 +9,14 @@ using Volo.Abp.Threading;
 
 namespace AElfChain.Console
 {
-    [Command(Name = "Transaction Client", Description = "Transaction CLI client tool.")]
+    [Command(Name = "AElf CLI Tool", Description = "AElf console client test tool for transaction testing.")]
     [HelpOption("-?")]
     class Program
     {
         [Option("-e|--endpoint", Description = "Service endpoint url of node. It's required parameter.")]
         private static string Endpoint { get; set; }
         
-        [Option("-c|--config", Description = "Config file about bp node setting")]
+        [Option("-c|--config", Description = "Config file about bp nodes setting")]
         private static string ConfigFile { get; set; }
         
         private static INodeManager NodeManager;
