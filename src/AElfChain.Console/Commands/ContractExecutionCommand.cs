@@ -39,7 +39,13 @@ namespace AElfChain.Console.Commands
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
             //contract info
-            var contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
+            string contractAddress;
+            if (input.Length == 2)
+                contractAddress = input[1];
+            else
+            {
+                contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
+            }
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractMethodsInfo();

@@ -35,7 +35,7 @@ namespace AElfChain.Console.Commands
                 return;
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
-            string contractAddress = null;
+            string contractAddress;
             if (input.Length == 2)
                 contractAddress = input[1];
             else
