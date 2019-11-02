@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Acs0;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -35,7 +36,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public MainChainManager(string serviceUrl, string account)
         {
-            MainChain = new ContractServices(serviceUrl, account, Account.DefaultPassword);
+            MainChain = new ContractServices(serviceUrl, account, NodeOption.DefaultPassword);
         }
 
         public async Task BuyResources(string account, long amount)

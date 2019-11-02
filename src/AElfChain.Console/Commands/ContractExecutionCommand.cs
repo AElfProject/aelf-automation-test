@@ -69,7 +69,7 @@ namespace AElfChain.Console.Commands
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
                     methodInput[0], inputMessage);
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);
-                Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+                JsonConvert.SerializeObject(transactionResult, Formatting.Indented).WriteSuccessLine();
             }
         }
 

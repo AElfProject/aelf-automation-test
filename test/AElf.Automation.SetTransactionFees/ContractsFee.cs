@@ -7,6 +7,7 @@ using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.SetTransactionFees
@@ -69,15 +70,15 @@ namespace AElf.Automation.SetTransactionFees
                 }
                 foreach (var method in contractInfo.ActionMethodNames)
                 {
-                    var feeResult = NodeManager.QueryView<TokenAmounts>(Caller, contractAddress.GetFormatted(),
-                        "GetMethodFee", new MethodName
+                    var feeResult = NodeManager.QueryView<MethodFees>(Caller, contractAddress.GetFormatted(),
+                        "GetMethodFee", new StringValue
                         {
-                            Name = method
+                            Value = method
                         });
-                    if (feeResult.Amounts.Count > 0)
+                    if (feeResult.Fees.Count > 0)
                     {
-                        var amountInfo = feeResult.Amounts.First();
-                        Logger.Info($"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.Amount}");
+                        var amountInfo = feeResult.Fees.First();
+                        Logger.Info($"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.BasicFee}");
                     }
                     else
                     {

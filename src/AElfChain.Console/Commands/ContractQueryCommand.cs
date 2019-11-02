@@ -9,7 +9,6 @@ using AElf.Automation.Common.Utils;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace AElfChain.Console.Commands
@@ -68,9 +67,7 @@ namespace AElfChain.Console.Commands
                     methodInput[0],
                     inputMessage);
                 var message = methodInfo.OutputType.Parser.ParseFrom(byteString);
-                var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
-                //Logger.Info(jsonFormatter.Format(message), Format.Json);
-                Logger.Info(JsonConvert.SerializeObject(message, JsonSerializerHelper.SerializerSettings), Format.Json);
+                Logger.Info(JsonFormatter.ToDiagnosticString(message), Format.Json);
             }
         }
 

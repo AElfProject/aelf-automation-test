@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
@@ -154,6 +155,7 @@ namespace AElfChain.Console
                 $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}".WriteSuccessLine();
                 count++;
             }
+
             "=======================================================".WriteSuccessLine();
         }
     }

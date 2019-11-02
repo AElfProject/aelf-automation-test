@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -52,7 +53,7 @@ namespace AElf.Automation.ApiTest
         private TokenContract DeployTokenContract()
         {
             _nodeManager = new NodeManager(ServiceUrl);
-            var account = _nodeManager.AccountManager.NewAccount(Account.DefaultPassword);
+            var account = _nodeManager.AccountManager.NewAccount(NodeOption.DefaultPassword);
             
             return new TokenContract(_nodeManager,account);
         }

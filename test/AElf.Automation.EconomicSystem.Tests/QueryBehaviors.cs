@@ -6,6 +6,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {

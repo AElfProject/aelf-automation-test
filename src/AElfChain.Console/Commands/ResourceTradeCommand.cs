@@ -22,7 +22,7 @@ namespace AElfChain.Console.Commands
 
             var beforeNativeToken = Services.Token.GetUserBalance(parameters[0]);
             var beforeResourceToken = Services.Token.GetUserBalance(parameters[0], parameters[2]);
-            Logger.Info($"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={beforeNativeToken}, {parameters[2]}={beforeResourceToken}");
+            $"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={beforeNativeToken}, {parameters[2]}={beforeResourceToken}".WriteSuccessLine();
             
             var tokenConverter = Services.Genesis.GetTokenConverterStub(parameters[0]);
             if (parameters[1].Equals("buy"))
@@ -48,8 +48,8 @@ namespace AElfChain.Console.Commands
             var afterNativeToken = Services.Token.GetUserBalance(parameters[0]);
             var afterResourceToken = Services.Token.GetUserBalance(parameters[0], parameters[2]);
             
-            Logger.Info($"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={afterNativeToken}, {parameters[2]}={afterResourceToken}");
-            Logger.Info($"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float)(beforeNativeToken-afterNativeToken)/(float)(afterResourceToken - beforeResourceToken)}");
+            $"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={afterNativeToken}, {parameters[2]}={afterResourceToken}".WriteSuccessLine();
+            $"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float)(beforeNativeToken-afterNativeToken)/(float)(afterResourceToken - beforeResourceToken)}".WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()

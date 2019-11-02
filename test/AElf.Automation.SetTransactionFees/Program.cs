@@ -38,6 +38,8 @@ namespace AElf.Automation.SetTransactionFees
 
             var nm = new NodeManager(Endpoint);
             var contractsFee = new ContractsFee(nm);
+            //before
+            contractsFee.QueryAllContractsMethodFee();
             while (true)
             {
                 try

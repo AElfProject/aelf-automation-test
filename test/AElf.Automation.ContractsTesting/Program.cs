@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using log4net;
@@ -25,7 +26,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpAccount { get; set; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         [Option("-bp|--bp.password", Description = "Bp account password info")]
-        public string BpPassword { get; set; } = Account.DefaultPassword;
+        public string BpPassword { get; set; } = NodeOption.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.43:8100";

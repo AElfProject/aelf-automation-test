@@ -6,6 +6,7 @@ using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Newtonsoft.Json;
 using Shouldly;
@@ -60,10 +61,10 @@ namespace AElf.Automation.SetTransactionFees
                Logger.Info($"Set method fee: {method.Name}");
                //before query
                var beforeFee = QueryTransactionFee(caller, ContractAddress, method.Name);
-               if (beforeFee.Amounts.Count > 0)
+               if (beforeFee.Fees.Count > 0)
                {
-                   var tokenAmount = beforeFee.Amounts.First(o=>o.Symbol == NodeOption.ChainToken);
-                   if (tokenAmount?.Amount == amount)
+                   var tokenAmount = beforeFee.Fees.First(o=>o.Symbol == NodeOption.ChainToken);
+                   if (tokenAmount?.BasicFee == amount)
                    {
                        Logger.Info($"{method.Name} transaction fee is {amount}, no need to reset again.");
                        continue;
@@ -71,13 +72,13 @@ namespace AElf.Automation.SetTransactionFees
                }
                
                //set transaction fee
-               var input = new TokenAmounts
+               var input = new MethodFees
                {
-                   Method = method.Name,
-                   Amounts = { new TokenAmount
+                   MethodName = method.Name,
+                   Fees = { new MethodFee
                    {
                        Symbol = symbol,
-                       Amount = amount
+                       BasicFee = amount
                    }}
                };
                var transactionResult = Authority.ExecuteTransactionWithAuthority(ContractAddress, "SetMethodFee", input, organizationAddress,
@@ -87,17 +88,16 @@ namespace AElf.Automation.SetTransactionFees
                //query result
                var afterFee = QueryTransactionFee(caller, ContractAddress, method.Name);
                Logger.Info(JsonConvert.SerializeObject(afterFee, Formatting.Indented));
-               afterFee.Amounts.First().Amount.ShouldBe(amount);
             }
         }
 
-        private TokenAmounts QueryTransactionFee(string caller, string contract, string method)
+        private MethodFees QueryTransactionFee(string caller, string contract, string method)
         {
-            var methodName = new MethodName
+            var methodName = new StringValue
             {
-                Name = method
+                Value = method
             };
-            var feeResult = NodeManager.QueryView<TokenAmounts>(caller, contract, "GetMethodFee", methodName);
+            var feeResult = NodeManager.QueryView<MethodFees>(caller, contract, "GetMethodFee", methodName);
 
             return feeResult;
         }

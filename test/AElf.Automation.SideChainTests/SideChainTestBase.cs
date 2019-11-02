@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.CSharp.Core.Utils;
@@ -35,12 +36,12 @@ namespace AElf.Automation.SideChainTests
             //Init Logger
             Log4NetHelper.LogInit();
             var chainId = ChainHelper.ConvertBase58ToChainId("TELF");
-            var mainServices = new ContractServices(MainChainUrl, InitAccount, Account.DefaultPassword, "TELF");
+            var mainServices = new ContractServices(MainChainUrl, InitAccount, NodeOption.DefaultPassword, "TELF");
             MainContracts = new ContractTester(mainServices);
 
-             sideAServices = new ContractServices(SideAChainUrl, InitAccount, Account.DefaultPassword, "2112");
+             sideAServices = new ContractServices(SideAChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
             
-             sideBServices = new ContractServices(SideBChainUrl, InitAccount, Account.DefaultPassword, "2112");
+             sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
@@ -59,7 +60,7 @@ namespace AElf.Automation.SideChainTests
         protected ContractTester GetSideChain(string url, string initAccount, string chainId)
         {
             var keyStore = CommonHelper.GetCurrentDataDir();
-            var contractServices = new ContractServices(url, initAccount, Account.DefaultPassword, chainId);
+            var contractServices = new ContractServices(url, initAccount, NodeOption.DefaultPassword, chainId);
             var tester = new ContractTester(contractServices);
             return tester;
         }

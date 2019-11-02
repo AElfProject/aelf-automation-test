@@ -16,7 +16,8 @@ namespace AElfChain.Console.Commands
             if (parameters == null)
                 return;
 
-            Services.Authority.DeployContractWithAuthority(parameters[0], parameters[1]);
+            var address = Services.Authority.DeployContractWithAuthority(parameters[0], parameters[1]);
+            $"Deployed contract address: {address}".WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()

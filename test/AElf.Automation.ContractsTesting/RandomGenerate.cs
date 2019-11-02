@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Acs6;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -51,10 +50,7 @@ namespace AElf.Automation.ContractsTesting
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
             var height = await _nodeManager.ApiService.GetBlockHeightAsync();
             Logger.Info($"Current round info: {roundInfo.Value}");
-            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new RequestRandomNumberInput
-            {
-                MinimumBlockHeight = CommonHelper.GenerateRandomNumber((int)height - 100, (int)height + 100)
-            });
+            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Empty());
             hashQueue.Enqueue(randomOrder.Output.TokenHash);
             Logger.Info($"Random token info: {randomOrder.Output}");
 

@@ -9,7 +9,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
         private NodesInformation _nodes;
-        private List<NodeOption> _allNodes;
+        private List<NodeInfo> _allNodes;
 
         public ConfigCheck()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AElf.Types;
 
 namespace AElfChain.SDK.Models
@@ -21,8 +22,10 @@ namespace AElfChain.SDK.Models
 
         public string ReturnValue { get; set; }
         public string ReadableReturnValue { get; set; }
-
+        
         public string Error { get; set; }
+        
+        public TransactionFeeDto TransactionFee { get; set; }
     }
 
     public static class TransactionResultStatusExtension

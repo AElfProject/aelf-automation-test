@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 
@@ -17,7 +18,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             _bootNodes = GetAllBootNodes();
         }
 
-        public string GenerateBootNodeInfo(NodeOption node)
+        public string GenerateBootNodeInfo(NodeInfo node)
         {
             var array = _bootNodes.FindAll(o => o != $"\"{node.IpAddress}:{node.NetPort}\"");
             return string.Join(",", array);
@@ -51,9 +52,9 @@ namespace AElf.Automation.GenerateNodesConfiguration
         private const string MainNetFile = "appsettings.MainChain.MainNet.json";
         private const string SettingFile = "appsettings.json";
 
-        private readonly NodeOption _node;
+        private readonly NodeInfo _node;
 
-        public ConfigFiles(NodeOption node)
+        public ConfigFiles(NodeInfo node)
         {
             _node = node;
         }
@@ -82,7 +83,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             
             //update account
             content = content.Replace("[ACCOUNT]", _node.Account);
-            content = content.Replace("[PASSWORD]", Account.DefaultPassword);
+            content = content.Replace("[PASSWORD]", NodeOption.DefaultPassword);
             
             //update api port
             content = content.Replace("[API_PORT]", _node.ApiPort.ToString());
