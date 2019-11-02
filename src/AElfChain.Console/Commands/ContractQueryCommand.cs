@@ -9,6 +9,7 @@ using AElf.Automation.Common.Utils;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace AElfChain.Console.Commands
@@ -35,11 +36,12 @@ namespace AElfChain.Console.Commands
                 return;
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
-            //contract info
-            var contractAddress = Services.GetContractAddress(input[0]);
-            if (contractAddress == null)
+            string contractAddress = null;
+            if (input.Length == 2)
+                contractAddress = input[1];
+            else
             {
-                contractAddress = CommandOption.InputParameters(1)[0];
+                contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
             }
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractViewMethodsInfo();
@@ -66,7 +68,9 @@ namespace AElfChain.Console.Commands
                     methodInput[0],
                     inputMessage);
                 var message = methodInfo.OutputType.Parser.ParseFrom(byteString);
-                Logger.Info(JsonFormatter.ToDiagnosticString(message), Format.Json);
+                var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
+                //Logger.Info(jsonFormatter.Format(message), Format.Json);
+                Logger.Info(JsonConvert.SerializeObject(message, JsonSerializerHelper.SerializerSettings), Format.Json);
             }
         }
 
