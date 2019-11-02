@@ -107,12 +107,12 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         private void UpdateTransactionHub()
         {
-            TransactionHub = new ConcurrentDictionary<Hash, TransactionReceipt>();
+            TransactionHub = new ConcurrentDictionary<Hash, QueuedTransaction>();
 
             for (var i = 0; i < 1000_000; i++)
             {
                 if (TransactionHub.Count > 10000) return;
-                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new TransactionReceipt
+                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new QueuedTransaction
                 {
                     TransactionId = Hash.FromString(Guid.NewGuid().ToString()),
                     Transaction = new Transaction
@@ -131,7 +131,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             }
         }
 
-        public ConcurrentDictionary<Hash, TransactionReceipt> TransactionHub { get; set; }
+        public ConcurrentDictionary<Hash, QueuedTransaction> TransactionHub { get; set; }
         public int TestCount { get; set; } = 1000;
 
         [TestMethod]
