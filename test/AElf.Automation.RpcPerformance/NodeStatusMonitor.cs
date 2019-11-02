@@ -72,7 +72,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
+                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
@@ -80,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
                         Console.Write($"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         break;
                     case TransactionResultStatus.Failed:
-                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
+                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;

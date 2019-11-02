@@ -226,12 +226,11 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
-                        Console.WriteLine();
-                        Logger.Info($"Transaction {txId} status: {status}-[{transactionResult.TransactionFee.GetTransactionFeeInfo()}]", true);
+                        Logger.Info($"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     {
-                        var message = $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee.GetTransactionFeeInfo()}]";
+                        var message = $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";

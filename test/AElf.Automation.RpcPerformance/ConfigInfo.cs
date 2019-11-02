@@ -38,7 +38,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("Conflict")] public bool Conflict { get; set; }
-        [JsonProperty("ReadOnlyTransaction")] public bool ReadOnlyTransaction { get; set; }
+        [JsonProperty("RandomSenderTransaction")] public bool RandomSenderTransaction { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
         [JsonProperty("RequestRandomEndpoint")]
         public RandomTransactionOption RandomEndpointOption { get; set; }

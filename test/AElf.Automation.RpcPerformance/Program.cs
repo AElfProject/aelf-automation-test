@@ -69,9 +69,9 @@ namespace AElf.Automation.RpcPerformance
             Log4NetHelper.LogInit(fileName);
             Logger = Log4NetHelper.GetLogger();
 
-            var transactionType = ConfigInfoHelper.Config.ReadOnlyTransaction;
+            var transactionType = ConfigInfoHelper.Config.RandomSenderTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new ReadOnlyCategory(GroupCount, TransactionCount, RpcUrl,
+                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,
                     limitTransaction: LimitTransaction)
                 : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
 
