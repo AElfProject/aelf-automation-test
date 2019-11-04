@@ -386,9 +386,9 @@ namespace AElf.Automation.RpcPerformance
                 var token = genesis.GetTokenContract();
                 var symbol = NodeOption.NativeTokenSymbol;
 
-                for (var i = 0; i < ThreadCount; i++)
+                foreach (var acc in AccountList)
                 {
-                    token.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000, symbol);
+                    token.TransferBalance(bpNode.Account, acc.Account, 10_0000_0000, symbol);
                 }
             }
             catch (Exception e)
