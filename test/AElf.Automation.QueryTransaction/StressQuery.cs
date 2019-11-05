@@ -58,7 +58,7 @@ namespace AElf.Automation.QueryTransaction
         private async Task GetTransactionPoolStatus()
         {
             var queueInfo = await _apiService.GetTransactionPoolStatusAsync();
-            Logger.Info($"Queue info: {queueInfo.Queued}");
+            Logger.Info($"Queue info: {queueInfo}");
         }
 
         private async Task GetBlockStateAsync()

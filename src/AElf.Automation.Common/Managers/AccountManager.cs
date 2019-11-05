@@ -15,7 +15,7 @@ namespace AElf.Automation.Common.Managers
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly AElfKeyStore _keyStore;
         private List<string> _accounts;
-
+        
         public AccountManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
@@ -97,7 +97,7 @@ namespace AElf.Automation.Common.Managers
                 case KeyStoreErrors.AccountAlreadyUnlocked:
                     return true;
                 case KeyStoreErrors.None:
-                    Logger.Info($"Account '{address}' successfully unlocked!");
+                    Logger.Info("Account '{0}' successfully unlocked!", address);
                     return true;
                 case KeyStoreErrors.WrongAccountFormat:
                     break;

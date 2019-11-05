@@ -87,6 +87,7 @@ namespace AElf.Automation.Common.Helpers
         /// <param name="parameters"></param>
         public static void Info(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Info(message);
         }
@@ -94,7 +95,7 @@ namespace AElf.Automation.Common.Helpers
         public static void Info(this ILog logger, string message, bool checkCursorLeft)
         {
             if(checkCursorLeft && Console.CursorLeft !=0)
-                Console.Write("\r\n");
+                Console.WriteLine();
             
             logger.Info(message);
         }
@@ -107,7 +108,7 @@ namespace AElf.Automation.Common.Helpers
                 logger.Info(info);
                 return;
             }
-            
+            CommonHelper.ConsoleChangeLine();
             logger.Info(message);
         }
 
@@ -119,6 +120,7 @@ namespace AElf.Automation.Common.Helpers
         /// <param name="parameters"></param>
         public static void Warn(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Warn(message);
         }
@@ -139,6 +141,7 @@ namespace AElf.Automation.Common.Helpers
         /// <param name="parameters"></param>
         public static void Error(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Error(message);
         }
@@ -146,7 +149,7 @@ namespace AElf.Automation.Common.Helpers
         public static void Error(this ILog logger, string message, bool checkCursorLeft)
         {
             if(checkCursorLeft && Console.CursorLeft !=0)
-                Console.Write("\r\n");
+                Console.WriteLine();
             
             logger.Error(message);
         }

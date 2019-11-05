@@ -53,7 +53,7 @@ namespace AElf.Automation.ContractsTesting
 
             //Init Logger
             Log4NetHelper.LogInit("ContractTest");
-
+            
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
             

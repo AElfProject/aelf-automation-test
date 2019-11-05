@@ -119,5 +119,12 @@ namespace AElf.Automation.Common.Helpers
         {
             return AppRoot + virtualPath.TrimStart('~');
         }
+
+        public static void ConsoleChangeLine()
+        {
+            var cursorPosition = Console.CursorLeft;
+            if(cursorPosition !=0)
+                Console.WriteLine();
+        }
     }
 }
