@@ -153,7 +153,7 @@ namespace AElf.Automation.RpcPerformance
             var transactionPoolStatusOutput =
                 AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync);
 
-            return transactionPoolStatusOutput.Queued;
+            return transactionPoolStatusOutput.Validated;
         }
 
         private static string SpinInfo(int number)

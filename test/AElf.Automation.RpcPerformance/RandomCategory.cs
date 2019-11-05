@@ -5,12 +5,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK;
 using log4net;
@@ -350,6 +352,7 @@ namespace AElf.Automation.RpcPerformance
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
             if (!randomTransactionOption.EnableRandom) return;
+            var exceptionTimes = 120; 
             while (true)
             {
                 var serviceUrl = randomTransactionOption.GetRandomEndpoint();
@@ -359,7 +362,7 @@ namespace AElf.Automation.RpcPerformance
                 try
                 {
                     var transactionPoolCount =
-                        AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync).Queued;
+                        AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync).Validated;
                     if (transactionPoolCount > maxLimit)
                     {
                         Thread.Sleep(1000);
@@ -372,7 +375,12 @@ namespace AElf.Automation.RpcPerformance
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"Query transaction pool status got exception : {ex.Message}");
+                    if (exceptionTimes == 0)
+                        throw new HttpRequestException(ex.Message);
+                    
+                    Logger.Error($"Query transaction pool status got exception : {ex}");
+                    Thread.Sleep(1000);
+                    exceptionTimes--;
                 }
             }
         }
@@ -383,13 +391,21 @@ namespace AElf.Automation.RpcPerformance
             {
                 var genesis = GenesisContract.GetGenesisContract(NodeManager);
                 var bpNode = NodeInfoHelper.Config.Nodes.First();
-                var token = genesis.GetTokenContract();
+                var token = genesis.GetTokenContract(bpNode.Account);
                 var symbol = NodeOption.NativeTokenSymbol;
 
                 foreach (var acc in AccountList)
                 {
-                    token.TransferBalance(bpNode.Account, acc.Account, 10_0000_0000, symbol);
+                    //token.TransferBalance(bpNode.Account, acc.Account, 10_0000_0000, symbol);
+                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        To = acc.Account.ConvertAddress(),
+                        Amount = 10_0000_0000,
+                        Symbol = symbol,
+                        Memo = $"transfer native token to {acc.Account} - {Guid.NewGuid()}"
+                    });
                 }
+                token.CheckTransactionResultList();
             }
             catch (Exception e)
             {
@@ -403,7 +419,6 @@ namespace AElf.Automation.RpcPerformance
             try
             {
                 var nodeConfig = NodeInfoHelper.Config;
-                var config = ConfigInfoHelper.Config;
                 var account = nodeConfig.Nodes.First().Account;
                 var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
                 var genesis = GenesisContract.GetGenesisContract(NodeManager, account);

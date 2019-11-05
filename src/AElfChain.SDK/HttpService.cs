@@ -204,7 +204,7 @@ namespace AElfChain.SDK
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(
                 MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
-            //Client.DefaultRequestHeaders.Add("Connection", "close");
+            Client.DefaultRequestHeaders.Add("Connection", "close");
             return Client;
         }
     }

@@ -170,6 +170,7 @@ namespace AElf.Automation.Common.Contracts
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
+                        Logger.Info($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
                         continue;
                     case TransactionResultStatus.Failed:
                     {
