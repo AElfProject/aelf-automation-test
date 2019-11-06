@@ -110,12 +110,13 @@ namespace AElf.Automation.Common.ContractSerializer
         public void GetAllMethodsInfo()
         {
             var methods = GetContractMethods();
+            var count = 0;
             foreach (var method in methods)
             {
-                $"ServiceMethod: {method}".WriteSuccessLine();
+                $"{count++: 00}. {method}".WriteSuccessLine();
                 GetParameters(method);
-                Console.WriteLine();
             }
+            Console.WriteLine();
         }
 
         public void GetParameters(string methodName)

@@ -40,5 +40,6 @@ namespace AElf.Automation.Common.Managers
         List<PeerDto> NetGetPeers();
         bool NetAddPeer(string address);
         bool NetRemovePeer(string address);
+        NetworkInfoOutput NetworkInfo();
     }
 }

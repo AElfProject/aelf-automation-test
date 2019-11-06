@@ -346,6 +346,11 @@ namespace AElf.Automation.Common.Managers
             return AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(address));
         }
 
+        public NetworkInfoOutput NetworkInfo()
+        {
+            return AsyncHelper.RunSync(ApiService.NetworkInfo);
+        }
+
         #endregion
     }
 }
