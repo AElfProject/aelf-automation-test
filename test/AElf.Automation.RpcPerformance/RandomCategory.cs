@@ -400,7 +400,7 @@ namespace AElf.Automation.RpcPerformance
                     token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         To = acc.Account.ConvertAddress(),
-                        Amount = 10_0000_0000,
+                        Amount = 10_0000_0000_0000,
                         Symbol = symbol,
                         Memo = $"transfer native token to {acc.Account} - {Guid.NewGuid()}"
                     });
@@ -547,7 +547,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 var fromId = RandomGen.Next(0, AccountList.Count);
                 var balance = token.GetUserBalance(AccountList[fromId].Account, symbol);
-                if (balance < 50000_00000000) continue;
+                if (balance < 1000_00000000) continue;
                 var from = AccountList[fromId].Account;
 
                 string to;

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
 using AElfChain.Console.InputOption;
+using Sharprompt;
 
 namespace AElfChain.Console.Commands
 {
@@ -23,8 +24,9 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
-                "[Input parameter]: ".WriteSuccessLine(changeLine:false);
-                var input = System.Console.ReadLine();
+                //"[Input parameter]: ".WriteSuccessLine(changeLine:false);
+                //var input = System.Console.ReadLine();
+                var input = Prompt.Input<string>("Input parameter", validators: new[] { Validators.Required()});
                 var result = TryParseParameters(input, length, out var parameters);
 
                 if(!result) continue;

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using Newtonsoft.Json;
+using Sharprompt;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
@@ -23,9 +25,12 @@ namespace AElfChain.Console.Commands
 
         public override void RunCommand()
         {
+            /*
             Reader = new ConsoleReader(AutoEngine);
             var input = CommandOption.InputParameters(1, Reader);
             var command = input[0].Trim();
+            */
+            var command = Prompt.Select("Select api command", GetSubCommands());
             switch (command)
             {
                 case "BlockHeight":
@@ -49,6 +54,9 @@ namespace AElfChain.Console.Commands
                 case "ChainStatus":
                     GetChainStatus();
                     break;
+                case "ContractFileDescriptor":
+                    ContractFileDescriptor();
+                    break;
                 case "TaskQueueStatus":
                     GetTaskQueueStatus();
                     break;
@@ -58,8 +66,26 @@ namespace AElfChain.Console.Commands
                 case "TransactionResults":
                     GetTransactionResults();
                     break;
+                case "GetRoundFromBase64":
+                    GetRoundFromBase64();
+                    break;
+                case "GetMiningSequences":
+                    GetMiningSequences();
+                    break;
                 case "ListAccounts":
                     ListAllAccounts();
+                    break;
+                case "GetPeers":
+                    GetPeers();
+                    break;
+                case "AddPeer":
+                    AddPeer();
+                    break;
+                case "RemovePeer":
+                    RemovePeer();
+                    break;
+                case "NetworkInfo":
+                    NetworkInfo();
                     break;
                 default:
                     Logger.Error("Not supported api method.");
@@ -122,6 +148,15 @@ namespace AElfChain.Console.Commands
             JsonConvert.SerializeObject(chainInfo, Formatting.Indented).WriteSuccessLine();
         }
 
+        private void ContractFileDescriptor()
+        {
+            "Parameter: [ContractAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
+            var customContract = new CustomContractHandler(descriptorSet);
+            customContract.GetAllMethodsInfo();
+        }
+
         private void GetTaskQueueStatus()
         {
             var taskQueueInfo = AsyncHelper.RunSync(ApiService.GetTaskQueueStatusAsync);
@@ -148,6 +183,23 @@ namespace AElfChain.Console.Commands
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 
+        private void GetRoundFromBase64()
+        {
+            "Parameter: [base64Info]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var roundInfo = AsyncHelper.RunSync(() => ApiService.GetRoundFromBase64Async(input[0]));
+            JsonConvert.SerializeObject(roundInfo, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void GetMiningSequences()
+        {
+            "Parameter: [Count]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            int.TryParse(input[0], out var count);
+            var sequences = AsyncHelper.RunSync(() => ApiService.GetMiningSequencesAsync(count));
+            JsonConvert.SerializeObject(sequences, Formatting.Indented).WriteSuccessLine();
+        }
+
         private void ListAllAccounts()
         {
             var accounts = NodeManager.ListAccounts();
@@ -161,6 +213,34 @@ namespace AElfChain.Console.Commands
 
             if (accounts.Count % 2 != 0)
                 System.Console.WriteLine();
+        }
+
+        private void GetPeers()
+        {
+            var peers = NodeManager.NetGetPeers();
+            JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void AddPeer()
+        {
+            "Parameter: [NetServiceAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var result = NodeManager.NetAddPeer(input[0]);
+            $"AddResult: {result}".WriteSuccessLine();
+        }
+
+        private void RemovePeer()
+        {
+            "Parameter: [NetServiceAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var result = NodeManager.NetRemovePeer(input[0]);
+            $"RemoveResult: {result}".WriteSuccessLine();
+        }
+
+        private void NetworkInfo()
+        {
+            var networkInfo = NodeManager.NetworkInfo();
+            JsonConvert.SerializeObject(networkInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()
@@ -181,12 +261,19 @@ namespace AElfChain.Console.Commands
                 "BlockByHeight",
                 "BlockState",
                 "ChainStatus",
+                "ContractFileDescriptor",
                 "CurrentRoundInformation",
                 "TaskQueueStatus",
                 "TransactionResult",
                 "TransactionResults",
                 "TransactionPoolStatus",
-                "ListAccounts"
+                "GetRoundFromBase64",
+                "GetMiningSequences",
+                "ListAccounts",
+                "GetPeers",
+                "AddPeer",
+                "RemovePeer",
+                "NetworkInfo"
             };
         }
 

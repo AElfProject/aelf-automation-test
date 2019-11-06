@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Sharprompt" Version="1.0.3" />
         <ProjectReference Include="..\AElf.Automation.Common\AElf.Automation.Common.csproj" />
         <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Helpers;
@@ -9,6 +8,7 @@ using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using log4net;
+using Sharprompt;
 using Shouldly;
 
 namespace AElfChain.Console
@@ -45,6 +45,7 @@ namespace AElfChain.Console
             {
                 "[Input command order/name]=> ".WriteWarningLine(changeLine: false);
                 var input = InputReader.ReadLine();
+                //var input = Prompt.Select("[Input command order/name]", GetCommandList());
                 
                 //quit command
                 var quitCommand = new List<string>{"quit", "exit", "close"};
@@ -157,6 +158,22 @@ namespace AElfChain.Console
             }
 
             "=======================================================".WriteSuccessLine();
+        }
+
+        private List<string> GetCommandList()
+        {
+            var commands = new List<string>();
+            foreach (var command in Commands)
+            {
+                commands.Add(command.GetCommandInfo().Name);
+            }
+            commands.Add("help");
+            commands.Add("config");
+            commands.Add("list");
+            commands.Add("clear");
+            commands.Add("exit");
+
+            return commands;
         }
     }
 }
