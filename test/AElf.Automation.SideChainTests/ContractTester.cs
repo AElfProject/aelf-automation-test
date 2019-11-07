@@ -57,21 +57,6 @@ namespace AElf.Automation.SideChainTests
 
         #region side chain create method
 
-        public TransactionResultDto RequestSideChain(string account, long lockToken)
-        {
-            ByteString code = ByteString.FromBase64("4d5a90000300");
-
-            CrossChainService.SetAccount(account);
-            var result = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestChainCreation,
-                new SideChainCreationRequest
-                {
-                    LockedTokenAmount = lockToken,
-                    IndexingPrice = 1,
-                    ContractCode = code,
-                });
-            return result;
-        }
-
 
         public Address GetOrganizationAddress(string account)
         {
@@ -88,7 +73,6 @@ namespace AElf.Automation.SideChainTests
             ByteString code = ByteString.FromBase64("4d5a90000300");
             var createProposalInput = new SideChainCreationRequest
             {
-                ContractCode = code,
                 IndexingPrice = indexingPrice,
                 LockedTokenAmount = lockedTokenAmount,
 //                IsPrivilegePreserved = isPrivilegePreserved
