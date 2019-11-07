@@ -82,7 +82,8 @@ namespace AElf.Automation.Common.ContractSerializer
                 //resolve message info
                 foreach (var message in messages)
                 {
-                    var messageInfo = new MessageInfo(message.Name, message.Fields.Select(o => o.Name).ToList());
+                    var messageInfo = new MessageInfo(message.Name,
+                        message.Fields.Select(o => ConvertNameToJsonName(o.Name)).ToList());
                     _descriptor.MessageInfos.Add(messageInfo);
                 }
 
@@ -116,6 +117,7 @@ namespace AElf.Automation.Common.ContractSerializer
                 $"{count++: 00}. {method}".WriteSuccessLine();
                 GetParameters(method);
             }
+
             Console.WriteLine();
         }
 
@@ -144,9 +146,11 @@ namespace AElf.Automation.Common.ContractSerializer
             foreach (var methodInfo in _descriptor.Methods)
             {
                 methodInfo.InputMessage.Fields =
-                    messageInfos.FirstOrDefault(o => o.Name == methodInfo.InputMessage.Name)?.Fields ?? new List<string>();
+                    messageInfos.FirstOrDefault(o => o.Name == methodInfo.InputMessage.Name)?.Fields ??
+                    new List<string>();
                 methodInfo.OutputMessage.Fields =
-                    messageInfos.FirstOrDefault(o => o.Name == methodInfo.OutputMessage.Name)?.Fields ?? new List<string>();
+                    messageInfos.FirstOrDefault(o => o.Name == methodInfo.OutputMessage.Name)?.Fields ??
+                    new List<string>();
             }
 
             return _descriptor;
@@ -158,5 +162,18 @@ namespace AElf.Automation.Common.ContractSerializer
             "google/protobuf/empty.proto",
             "google/protobuf/wrappers.proto"
         };
+
+        private static string ConvertNameToJsonName(string name)
+        {
+            if (!name.Contains("_")) return name;
+            var array = name.Split("_");
+            var jsonName = array[0];
+            for (var i = 1; i < array.Length; i++)
+            {
+                jsonName += array[i].Substring(0, 1).ToUpper() + array[i].Substring(1);
+            }
+
+            return jsonName;
+        }
     }
 }

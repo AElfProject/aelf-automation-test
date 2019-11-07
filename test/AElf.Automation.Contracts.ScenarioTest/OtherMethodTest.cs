@@ -114,5 +114,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = bool.Parse("true");
             var result1 = bool.Parse("false");
         }
+
+        [TestMethod]
+        public void ContractMethodSerialize()
+        {
+            var nodeManager = new NodeManager("192.168.197.14:8000");
+            var genesis = nodeManager.GetGenesisContract();
+            var token = genesis.GetTokenContract();
+            var byteInfo = nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
+            var customContractHander = new CustomContractHandler(byteInfo);
+            customContractHander.GetAllMethodsInfo();
+            customContractHander.GetParameters("Create");
+        }
     }
 }
