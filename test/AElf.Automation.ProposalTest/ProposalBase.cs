@@ -144,7 +144,7 @@ namespace AElf.Automation.ProposalTest
                 IsBurnable = true,
                 Issuer = Services.CallAccount,
                 TokenName = "Token of test",
-                TotalSupply = 5_0000_0000
+                TotalSupply = 10_0000_0000_00000000
             };
             var result =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
@@ -158,7 +158,7 @@ namespace AElf.Automation.ProposalTest
             {
                 Symbol = Symbol,
                 To = Services.CallAccount,
-                Amount = 400000000
+                Amount = 10_0000_0000_00000000
             };
             var issueResult =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
@@ -172,35 +172,33 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
-                while (balance == 0)
+                if (balance >= 1_00000000) continue;
+                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = NativeToken,
-                        To = AddressHelper.Base58StringToAddress(tester),
-                        Amount = 1000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = NativeToken,
+                    To = AddressHelper.Base58StringToAddress(tester),
+                    Amount = 1000_00000000,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Services.TokenService.GetUserBalance(tester);
-                }
+                balance = Services.TokenService.GetUserBalance(tester);
+                Logger.Info($"Tester {tester} {NativeToken} balance is {balance}");
             }
-            
+
             foreach (var miner in Miners)
             {
                 var balance = Services.TokenService.GetUserBalance(miner);
-                while (balance == 0)
+                if (balance >= 1_00000000) continue;
+                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = NativeToken,
-                        To = AddressHelper.Base58StringToAddress(miner),
-                        Amount = 1000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = NativeToken,
+                    To = AddressHelper.Base58StringToAddress(miner),
+                    Amount = 1000_00000000,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Services.TokenService.GetUserBalance(miner);
-                }
+                balance = Services.TokenService.GetUserBalance(miner);
+                Logger.Info($"Miner {miner} {NativeToken} balance is {balance}");
             }
         }
     }

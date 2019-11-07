@@ -29,11 +29,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ReferendumAuthContract Referendum;
         public ReferendumAuthContract NewReferendum;
 
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string TestAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
-        private static string RpcUrl { get; } = "http://192.168.197.56:8001";
-        
+        private static string RpcUrl { get; } = "http://192.168.197.40:8000";        
         [TestInitialize]
         public void Initialize()
         {
@@ -49,7 +48,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             Referendum = Tester.ReferendumService;
-//            DeployAndInitialize();
+            DeployAndInitialize();
         }
         
         [TestMethod]

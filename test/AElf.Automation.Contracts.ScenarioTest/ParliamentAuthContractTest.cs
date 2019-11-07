@@ -33,11 +33,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
 
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string TestAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
-        public string Full { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
+        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
 
-        private static string RpcUrl { get; } = "http://192.168.197.56:8001";
+        private static string RpcUrl { get; } = "http://192.168.197.40:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -84,12 +84,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
         }
 
-        // new Parliament 2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9
-        // organization 236ZzzR3otu8jxhCgdxSuRWSoKid8rzbKPx3Bws86rM3PC1qEZ
+        // new Parliament ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm
+        // organization 4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm
 
         [TestMethod]
-        [DataRow("236ZzzR3otu8jxhCgdxSuRWSoKid8rzbKPx3Bws86rM3PC1qEZ",
-            "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9")]
+        [DataRow("4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm",
+            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
         public void CreateProposal(string organizationAddress, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
@@ -105,7 +105,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractMethodName = nameof(TokenMethod.Transfer),
                 ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
                 Params = transferInput.ToByteString(),
-                ExpiredTime = DateTime.UtcNow.AddMinutes(60).ToTimestamp(),
+                ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                 OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
             };
 
@@ -118,8 +118,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("4c2dbb930af2895ad5736e87c3c4bda2a95b5590d8dde105c4ff44ca12384aef",
-            "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9")]
+        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
+            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
         public void GetProposal(string proposalId, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
@@ -127,15 +127,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 NewParliament.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                     HashHelper.HexStringToHash(proposalId));
             var toBeRelease = result.ToBeReleased;
+            var proposalParams = result.Params.ToStringUtf8();
             var time = result.ExpiredTime;
+            var organizationAddress = result.OrganizationAddress;
+            var contractMethodName = result.ContractMethodName;
+            var toAddress = result.ToAddress;
 
             _logger.Info($"proposal is {toBeRelease}");
             _logger.Info($"proposal expired time is {time} ");
+            _logger.Info($"proposal params is {proposalParams} ");
+            _logger.Info($"proposal organization is {organizationAddress}");
+            _logger.Info($"proposal method name is {contractMethodName}");
+            _logger.Info($"proposal to address is {toAddress}");
         }
 
         [TestMethod]
-        [DataRow("4c2dbb930af2895ad5736e87c3c4bda2a95b5590d8dde105c4ff44ca12384aef",
-            "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9")]
+        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
+            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
         public void Approve(string proposalId, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
@@ -161,7 +169,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         
         [TestMethod]
         [DataRow("daa3215f3832e61b4360caebd976c97419644bae4af647645b0b8e33033fca5b",
-            "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9")]
+            "F5d3S7YJhSLvcBWtGw6nJ6Rx64MBgK4RpdMt6EAEDcns36qYs")]
         public void ApproveWithFullNode(string proposalId, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
@@ -182,8 +190,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("639b015531cb04ac71544d37286abce40e57955ec5b6625ca55e1d58889bc9ce",
-            "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9")]
+        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
+            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
         public void Release(string proposalId, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);

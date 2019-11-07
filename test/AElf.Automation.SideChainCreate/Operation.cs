@@ -119,7 +119,7 @@ namespace AElf.Automation.SideChainCreate
             ParliamentService.SetAccount(InitAccount,Password);
             var result
                 = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
-            var creationRequested = result.Logs[0].NonIndexed;
+            var creationRequested = result.Logs[1].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             return chainId;

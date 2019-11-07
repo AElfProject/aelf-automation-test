@@ -39,7 +39,8 @@ namespace AElf.Automation.ProposalTest
                 TransferToVirtualAccount,
                 CreateProposal,
                 ApproveProposal,
-                ReleaseProposal
+                ReleaseProposal,
+                CheckTheBalance
             });
         }
 
@@ -123,14 +124,11 @@ namespace AElf.Automation.ProposalTest
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
-                    var amount = (100 * organizationAddress.Value.MaxWeight) != 0
-                        ? (100 * organizationAddress.Value.MaxWeight)
-                        : 100;
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = amount,
+                        Amount = 10,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -147,7 +145,6 @@ namespace AElf.Automation.ProposalTest
                     Association.SetAccount(sender.Address.GetFormatted());
                     var txId = Association.ExecuteMethodWithTxId(AssociationMethod.CreateProposal,
                         createProposalInput);
-                    Logger.Info($"transfer amount {amount}");
                     txIdList.Add(txId);
                 }
 
@@ -289,12 +286,21 @@ namespace AElf.Automation.ProposalTest
                     Logger.Error("Release proposal Failed.");
                 }
             }
-
-            Logger.Info("Check the balance of organization address:");
+        }
+        
+        private void CheckTheBalance()
+        {
+            Logger.Info("After Association test, check the balance of organization address:");
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                Logger.Info($"{organization.Key} balance is {balance}");
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+            }
+            Logger.Info("After Association test, check the balance of tester:");
+            foreach (var tester in Tester)
+            {
+                var balance = Token.GetUserBalance(tester, NativeToken);
+                Logger.Info($"{tester} {NativeToken} balance is {balance}");
             }
         }
 
@@ -303,19 +309,17 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                while (balance == 0)
+                if (balance > 10) continue;
+                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = Symbol,
-                        To = organization.Key,
-                        Amount = 10000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = Symbol,
+                    To = organization.Key,
+                    Amount = 10000_00,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                    Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
-                }
+                balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
             }
         }
 

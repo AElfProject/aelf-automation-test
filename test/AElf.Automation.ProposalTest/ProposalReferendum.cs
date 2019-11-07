@@ -46,7 +46,8 @@ namespace AElf.Automation.ProposalTest
                 CreateProposal,
                 ApproveProposal,
                 ReleaseProposal,
-                ReclaimVoteToken
+                ReclaimVoteToken,
+                CheckTheBalance
             });
         }
 
@@ -117,14 +118,11 @@ namespace AElf.Automation.ProposalTest
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
 
-                    var threshold = organizationAddress.Value;
-                    var balance = Token.GetUserBalance(organizationAddress.Key.GetFormatted(), Symbol);
-                    var amount = balance > threshold ? threshold : balance / 2;
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = amount,
+                        Amount = 10,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -133,13 +131,12 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress.Key,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(3),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
                         Params = transferInput.ToByteString()
                     };
 
                     Referendum.SetAccount(InitAccount);
                     var txId = Referendum.ExecuteMethodWithTxId(ReferendumMethod.CreateProposal, createProposalInput);
-                    Logger.Info($"transfer amount {amount}");
                     txIdList.Add(txId);
                 }
 
@@ -238,7 +235,8 @@ namespace AElf.Automation.ProposalTest
                         else
                         {
                             approveMinedCount += txInfo.Value.Quantity;
-                            Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
+                            var balance = Token.GetUserBalance(txInfo.Value.Voter);
+                            Logger.Info($"{txInfo.Value.Voter} approve proposal {proposalApprove.Key} successful,\n {NativeToken} balance is {balance}\n vote amount is {txInfo.Value.Quantity}");
                         }
                     }
 
@@ -283,19 +281,10 @@ namespace AElf.Automation.ProposalTest
 
                 ReleaseMinedProposal.Add(txInfo.Key);
             }
-
-            Logger.Info("Check the balance of organization address:");
-            foreach (var organization in OrganizationList)
-            {
-                var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                Logger.Info($"{organization.Key} balance is {balance}");
-            }
         }
 
         private void ReclaimVoteToken()
         {
-            Logger.Info("Waiting for reclaim:");
-            Thread.Sleep(300000);
             Logger.Info("Reclaim token: ");
 
             var oldBalance = new Dictionary<string, long>();
@@ -305,7 +294,7 @@ namespace AElf.Automation.ProposalTest
                 var balance = Token.GetUserBalance(voter.Voter, NativeToken);
                 if (oldBalance.ContainsKey(voter.Voter)) continue;
                 oldBalance.Add(voter.Voter, balance);
-                Logger.Info($"{voter.Voter} {NativeToken} token balance is {balance}");
+                Logger.Info($"{voter.Voter} {NativeToken} reclaim token balance is {balance}");
             }
 
             var txInfos = new Dictionary<string, string>();
@@ -335,7 +324,17 @@ namespace AElf.Automation.ProposalTest
                     Logger.Error("Reclaim token failed");
                 }
             }
+        }
 
+        private void CheckTheBalance()
+        {
+            Logger.Info("After Referendum test, check the balance of organization address:");
+            foreach (var organization in OrganizationList)
+            {
+                var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+            }
+            Logger.Info("After Referendum reclaim, check the balance of tester:");
             foreach (var tester in Tester)
             {
                 var balance = Token.GetUserBalance(tester, NativeToken);
@@ -348,20 +347,18 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(),Symbol);
-                while (balance == 0)
+                if (balance > 10) continue;
+                Token.SetAccount(InitAccount);
+                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Token.SetAccount(InitAccount);
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = Symbol,
-                        To = organization.Key,
-                        Amount = 10000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = Symbol,
+                    To = organization.Key,
+                    Amount = 10000_00,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Token.GetUserBalance(organization.Key.GetFormatted(),Symbol);
-                    Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
-                }
+                balance = Token.GetUserBalance(organization.Key.GetFormatted(),Symbol);
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
             }
         }
 
@@ -370,7 +367,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Token.GetUserBalance(tester);
-                while (balance < 10000)
+                if (balance < 10000)
                 {
                     Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                     {
