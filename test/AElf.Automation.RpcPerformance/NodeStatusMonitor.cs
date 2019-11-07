@@ -72,7 +72,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                        Logger.Info($"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:

@@ -50,7 +50,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         NodeMonitor.CheckTransactionPoolStatus(true);
                         count++;
-                        var rawTx = NodeManager.GenerateRawTransaction(contract.Owner, contract.ContractPath,
+                        var rawTx = NodeManager.GenerateRawTransaction(contract.Owner, contract.ContractAddress,
                             TokenMethod.Transfer.ToString(),
                             new TransferInput
                             {
@@ -101,7 +101,7 @@ namespace AElf.Automation.RpcPerformance
                 var tasks = new List<Task>();
                 foreach (var contract in Contracts)
                 {
-                    tasks.Add(Task.Run(() => GenerateRawTransactions(contract.ContractPath, contract.Symbol)));
+                    tasks.Add(Task.Run(() => GenerateRawTransactions(contract.ContractAddress, contract.Symbol)));
                 }
 
                 Task.WaitAll(tasks.ToArray());

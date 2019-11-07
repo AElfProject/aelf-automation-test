@@ -108,7 +108,7 @@ namespace AElf.Automation.RpcPerformance
             foreach (var contract in contracts)
             {
                 var account = contract.Owner;
-                var contractPath = contract.ContractPath;
+                var contractPath = contract.ContractAddress;
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
                 

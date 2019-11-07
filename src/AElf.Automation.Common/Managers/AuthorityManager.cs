@@ -137,7 +137,7 @@ namespace AElf.Automation.Common.Managers
                 foreach (var bp in bps.Skip(1))
                 {
                     var balance = _token.GetUserBalance(bp);
-                    if (balance < 100000_00000000)
+                    if (balance < 10000_00000000)
                         _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, NodeOption.ChainToken);
                 }
             }
