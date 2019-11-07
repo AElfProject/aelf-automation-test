@@ -147,7 +147,7 @@ namespace AElf.Automation.Common.Managers
                 {
                     var issuer = NodeInfoHelper.Config.Nodes.First().Account;
                     var balance = _token.GetUserBalance(bp);
-                    if (balance < 100000_00000000)
+                    if (balance < 10000_00000000)
                         _token.IssueBalance(issuer, bp, 100000_00000000 - balance, NodeOption.ChainToken);
                 }
             }

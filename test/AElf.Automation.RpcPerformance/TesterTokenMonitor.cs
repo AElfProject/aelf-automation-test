@@ -16,7 +16,7 @@ namespace AElf.Automation.RpcPerformance
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public TokenContract SystemToken { get; set; }
-        
+
         public TesterTokenMonitor(INodeManager nodeManager)
         {
             var genesis = GenesisContract.GetGenesisContract(nodeManager);
@@ -46,6 +46,12 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info("Prepare basic token for tester.");
             TransferTokenToTester(testers);
         }
+        
+        public void IssueTokenForTest(List<string> testers)
+        {
+            Logger.Info("Prepare basic token for tester.");
+            IssueTokenForSideChain(testers);
+        }
 
         private void TransferTokenToTester(List<string> testers)
         {
@@ -67,6 +73,34 @@ namespace AElf.Automation.RpcPerformance
                             Amount = 1_0000_00000000,
                             Symbol = NodeOption.ChainToken,
                             Memo = $"Transfer token for test {Guid.NewGuid()}"
+                        });
+                    }
+                }
+
+                SystemToken.CheckTransactionResultList();
+            }
+        }
+
+        private void IssueTokenForSideChain(List<string> testers)
+        {
+            var bps = NodeInfoHelper.Config.Nodes;
+            foreach (var bp in bps)
+            {
+                var balance = SystemToken.GetUserBalance(bp.Account);
+                if (balance < 200_0000_00000000) continue;
+                SystemToken.SetAccount(bp.Account, bp.Password);
+                foreach (var tester in testers)
+                {
+                    if (tester == bp.Account) continue;
+                    var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
+                    if (userBalance < 1_0000_00000000)
+                    {
+                        SystemToken.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
+                        {
+                            To = tester.ConvertAddress(),
+                            Amount = 1_0000_00000000,
+                            Symbol = NodeOption.ChainToken,
+                            Memo = $"Issue token for test {Guid.NewGuid()}"
                         });
                     }
                 }

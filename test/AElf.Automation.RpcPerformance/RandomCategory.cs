@@ -92,7 +92,7 @@ namespace AElf.Automation.RpcPerformance
                 TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
             else
                 //Prepare token for side chain 
-                TransferTokenForSideChain();
+                TokenMonitor.IssueTokenForTest(AccountList.Select(o => o.Account).ToList());
 
             //Set select limit transaction
             var setAccount = GetSetConfigurationLimitAccount();
