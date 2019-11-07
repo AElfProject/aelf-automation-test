@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
+using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -81,6 +83,36 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractList = await genesisStub.GetDeployedContractAddressList.CallAsync(new Empty());
             Console.WriteLine($"Total deployed contracts: {contractList.Value.Count}");
             Console.WriteLine(contractList.Value);
+        }
+
+        [TestMethod]
+        public void ProtoTypeConvertTest()
+        {
+            var create = new CreateInput
+            {
+                Symbol = "TELF",
+                TokenName = "token test name",
+                TotalSupply = 8000_00000000,
+                Decimals = 8,
+                Issuer = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK".ConvertAddress(),
+                IsBurnable = true,
+                IsTransferDisabled = false,
+                IssueChainId = 9992731
+            };
+            var output = JsonFormatter.Default.Format(create);
+            Console.WriteLine(output);
+            var output1 = JsonFormatter.ToDiagnosticString(create);
+            Console.WriteLine(output1);
+        }
+
+        [TestMethod]
+        public void ConvertProtoMethod()
+        {
+            var handler = new ContractHandler();
+            var tokenInfo = handler.GetContractInfo(NameProvider.Token);
+            var createMethod = tokenInfo.GetContractMethod("Create");
+            var result = bool.Parse("true");
+            var result1 = bool.Parse("false");
         }
     }
 }

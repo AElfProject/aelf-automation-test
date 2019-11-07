@@ -86,23 +86,29 @@ namespace AElf.Automation.Common.ContractSerializer
                 default:
                     for (var i = 0; i < InputFields.Count; i++)
                     {
+                        //ignore null parameter
+                        if(inputs[i] == "null") continue;
                         var type = InputFields[i];
                         if (type.FieldType == FieldType.Message)
                         {
                             if (type.MessageType.Name == "Address")
-                                inputJson[InputFields[i].Name] = new JObject
+                                inputJson[InputFields[i].JsonName] = new JObject
                                 {
                                     ["value"] = inputs[i].ConvertAddress().Value.ToBase64()
                                 };
                             else if (type.MessageType.Name == "Hash")
-                                inputJson[InputFields[i].Name] = new JObject
+                                inputJson[InputFields[i].JsonName] = new JObject
                                 {
                                     ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
                                 };
                         }
+                        else if (type.FieldType == FieldType.Bool)
+                        {
+                            inputJson[InputFields[i].JsonName] = bool.Parse(inputs[i]);
+                        }
                         else
                         {
-                            inputJson[InputFields[i].Name] = inputs[i];
+                            inputJson[InputFields[i].JsonName] = inputs[i];
                         }
                     }
                     break;
