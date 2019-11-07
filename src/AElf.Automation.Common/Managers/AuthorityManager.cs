@@ -71,8 +71,7 @@ namespace AElf.Automation.Common.Managers
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
                 nameof(GenesisMethod.DeploySmartContract),
                 input, organizationAddress, currentMiners, caller);
-            var logsCount = transactionResult.Logs.Count;
-            var byteString = transactionResult.Logs[logsCount - 1].NonIndexed;
+            var byteString = transactionResult.Logs.Last().NonIndexed;
             var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract deploy passed authority, contract address: {address}");
 
