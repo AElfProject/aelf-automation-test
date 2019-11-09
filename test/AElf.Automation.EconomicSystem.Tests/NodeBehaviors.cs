@@ -25,7 +25,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public CandidateVote GetCandidateVote(string publicKey)
         {
             var candidateVote = ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
-                new StringInput
+                new StringValue
                 {
                     Value = publicKey
                 });

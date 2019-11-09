@@ -264,7 +264,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var fullNode in FullNodes)
             {
                 var candidateVote = Election.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
-                    new StringInput
+                    new StringValue
                     {
                         Value = fullNode.PublicKey
                     });

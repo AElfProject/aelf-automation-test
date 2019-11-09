@@ -1,5 +1,6 @@
 using AElf.Automation.Common.Managers;
 using AElf.Contracts.Election;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.Common.Contracts
 {
@@ -49,7 +50,7 @@ namespace AElf.Automation.Common.Contracts
         {
             var result =
                 CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
-                    new StringInput
+                    new StringValue
                     {
                         Value = NodeManager.GetAccountPublicKey(account)
                     });

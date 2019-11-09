@@ -95,7 +95,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(600)).ToTimestamp()
             });
 
-            var result = await ElectionContractStub.GetCandidateVoteWithRecords.CallAsync(new StringInput
+            var result = await ElectionContractStub.GetCandidateVoteWithRecords.CallAsync(new StringValue
             {
                 Value = FullUserPubKey1
             });
