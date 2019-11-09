@@ -91,7 +91,7 @@ namespace AElf.Automation.RpcPerformance
                 TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
             else
                 //Prepare token for side chain 
-                TransferTokenForSideChain();
+                TokenMonitor.IssueTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
 
             //Set select limit transaction
             var setAccount = GetSetConfigurationLimitAccount();
@@ -636,58 +636,6 @@ namespace AElf.Automation.RpcPerformance
                     Thread.Sleep(1000);
                     exceptionTimes--;
                 }
-            }
-        }
-
-        private void TransferTokenFromBp()
-        {
-            try
-            {
-                var genesis = GenesisContract.GetGenesisContract(NodeManager);
-                var bpNode = NodeInfoHelper.Config.Nodes.First();
-                var token = genesis.GetTokenContract();
-                var symbol = NodeOption.NativeTokenSymbol;
-
-                for (var i = 0; i < ThreadCount; i++)
-                {
-                    token.TransferBalance(bpNode.Account, AccountList[i].Account, 10_0000_0000, symbol);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Prepare basic token got exception.");
-                Logger.Error(e);
-            }
-        }
-
-        private void TransferTokenForSideChain()
-        {
-            try
-            {
-                var nodeConfig = NodeInfoHelper.Config;
-                var config = ConfigInfoHelper.Config;
-                var account = nodeConfig.Nodes.First().Account;
-                var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
-                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                var systemToken = genesis.GetTokenContract();
-
-                for (var i = 0; i < ThreadCount; i++)
-                {
-                    systemToken.IssueBalance(account, AccountList[i].Account, 10000_00000000, sideChainTokenSymbol);
-                }
-
-                var nodes = nodeConfig.Nodes;
-
-                foreach (var node in nodes)
-                {
-                    if (node.Account == account) continue;
-                    systemToken.IssueBalance(account, node.Account, 10000_00000000, sideChainTokenSymbol);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Issue side chain token got exception.");
-                Logger.Error(e);
             }
         }
 
