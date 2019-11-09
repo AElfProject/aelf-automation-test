@@ -52,7 +52,7 @@ namespace AElf.Automation.ProposalTest
                 }
             }
 
-            return Task.Run(NewAction);
+            return Task.Run((Action)NewAction);
         }
     }
 }
