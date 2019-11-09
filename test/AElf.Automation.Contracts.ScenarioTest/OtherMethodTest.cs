@@ -8,11 +8,16 @@ using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
 using AElf.Automation.Common.Utils;
+using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Kernel;
+using AElf.Sdk.CSharp;
 using AElf.Types;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -49,9 +54,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var stream = new MemoryStream();
             address.WriteTo(stream);
 
-            var info = new Address();
-            info.MergeFrom(stream);
-            var value = info.GetFormatted();
+            var value = address.GetFormatted();
+
+            var hash = HashHelper.HexStringToHash("a6d05b63cb36687116e8d2ed791e9806652c370d40184f43a7e4fda08f5e29b1");
+            var jsonInfo = JsonFormatter.Default.Format(hash);
+
+            var convertHash = JsonParser.Default.Parse(jsonInfo, Hash.Descriptor);
+
+            var voteInput = new VoteMinerInput
+            {
+                CandidatePubkey =
+                    "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
+                Amount = 100_00000000,
+                EndTimestamp = TimestampHelper.GetUtcNow().AddDays(120)
+            };
+            var voteOutput = JsonFormatter.Default.Format(voteInput);
         }
 
         [TestMethod]
@@ -125,6 +142,43 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var customContractHander = new CustomContractHandler(byteInfo);
             customContractHander.GetAllMethodsInfo();
             customContractHander.GetParameters("Create");
+        }
+
+        [TestMethod]
+        public async Task SendRawTransaction()
+        {
+            var nodeManager = new NodeManager("192.168.197.43:8100");
+            var genesis = nodeManager.GetGenesisContract();
+            var token = genesis.GetTokenContract();
+            var height = await nodeManager.ApiService.GetBlockHeightAsync();
+            var block = await nodeManager.ApiService.GetBlockByHeightAsync(height);
+            var createRaw = await nodeManager.ApiService.CreateRawTransactionAsync(new CreateRawTransactionInput
+            {
+                From = token.CallAddress,
+                To = token.ContractAddress,
+                MethodName = "GetBalance",
+                Params = new JObject
+                {
+                    ["symbol"] = "ELF",
+                    ["owner"] = new JObject
+                    {
+                        ["value"] = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK".ConvertAddress().Value
+                            .ToBase64()
+                    }
+                }.ToString(),
+                RefBlockNumber = height,
+                RefBlockHash = block.BlockHash
+            });
+            var transactionId =
+                Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(createRaw.RawTransaction));
+            var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray()).ToByteArray().ToHex();
+            var rawTransactionResult =
+                await nodeManager.ApiService.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
+                {
+                    RawTransaction = createRaw.RawTransaction,
+                    Signature = signature
+                });
+            Console.WriteLine(rawTransactionResult);
         }
     }
 }

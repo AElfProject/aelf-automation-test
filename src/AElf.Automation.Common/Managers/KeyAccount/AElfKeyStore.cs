@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
-using AElf.Cryptography.ECDSA.Exceptions;
+using AElf.Cryptography.Exceptions;
 using AElf.Types;
 using log4net;
 using Nethereum.KeyStore;

@@ -72,17 +72,19 @@ namespace AElf.Automation.Common.ContractSerializer
 
         public string ParseMethodInputJsonInfo(string[] inputs)
         {
+            var output = "";
             var inputJson = new JObject();
             switch (Input)
             {
                 case "StringValue":
-                    return $"\"{inputs[0]}\"";
+                    output = $"\"{inputs[0]}\"";
+                    break;
                 case "Address":
                     inputJson["value"] = inputs[0].ConvertAddress().Value.ToBase64();
-                    return inputJson.ToString();
+                    break;
                 case "Hash":
                     inputJson["value"] = HashHelper.HexStringToHash(inputs[0]).Value.ToBase64();
-                    return inputJson.ToString();
+                    break;
                 default:
                     for (var i = 0; i < InputFields.Count; i++)
                     {
@@ -101,6 +103,10 @@ namespace AElf.Automation.Common.ContractSerializer
                                 {
                                     ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
                                 };
+                            else
+                            {
+                                inputJson[InputFields[i].JsonName] = inputs[i];
+                            }
                         }
                         else if (type.FieldType == FieldType.Bool)
                         {
@@ -114,7 +120,10 @@ namespace AElf.Automation.Common.ContractSerializer
                     break;
             }
 
-            return inputJson.ToString();
+            if (inputJson == new JObject()) return output;
+            Log4NetHelper.ConvertJsonString(inputJson.ToString()).WriteWarningLine();
+            output = inputJson.ToString();
+            return output;
         }
     }
 }

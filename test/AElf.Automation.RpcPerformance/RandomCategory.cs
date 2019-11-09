@@ -80,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
             Task.Run(() => UnlockAllAccounts(userCount));
-
+            Logger.Info("Start other testing");
             //Init other services
             Summary = new ExecutionSummary(NodeManager);
             Monitor = new NodeStatusMonitor(NodeManager);
@@ -277,7 +277,7 @@ namespace AElf.Automation.RpcPerformance
                         }
                         catch (AggregateException exception)
                         {
-                            Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception.Message}");
+                            Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
                         }
                         catch (Exception e)
                         {
@@ -334,11 +334,19 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
+            /*
             for (var i = 0; i < count; i++)
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
                 Assert.IsTrue(result);
             }
+            */
+
+            Parallel.For(0, count, i =>
+            {
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                Assert.IsTrue(result);
+            });
         }
 
         private void UpdateRandomEndpoint()

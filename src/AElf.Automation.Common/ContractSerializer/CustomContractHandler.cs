@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
+using AElf.Types;
+using Newtonsoft.Json.Linq;
 using ProtoBuf;
 using FileDescriptorSet = Google.Protobuf.Reflection.FileDescriptorSet;
 
@@ -140,6 +143,55 @@ namespace AElf.Automation.Common.ContractSerializer
             }
         }
 
+        public string ParseMethodInputJsonInfo(MethodInfo method, string[] inputs)
+        {
+            var inputJson = new JObject();
+            switch (method.InputMessage.Name)
+            {
+                case "StringValue":
+                    return $"\"{inputs[0]}\"";
+                case "Address":
+                    inputJson["value"] = inputs[0].ConvertAddress().Value.ToBase64();
+                    return inputJson.ToString();
+                case "Hash":
+                    inputJson["value"] = HashHelper.HexStringToHash(inputs[0]).Value.ToBase64();
+                    return inputJson.ToString();
+                default:
+                    var fields = method.InputMessage.Fields;
+                    for (var i = 0; i < fields.Count; i++)
+                    {
+                        //ignore null parameter
+                        if (inputs[i] == "null") continue;
+                        var type = fields[i];
+                        if (inputs[i].Trim().Length == 50 && IsAddressInfo(inputs[i], out var address))
+                        {
+                            inputJson[fields[i]] = new JObject
+                            {
+                                ["value"] = address.Value.ToBase64()
+                            };
+                        }
+                        else if (inputs[i].Trim().Length == 64 && IsHashInfo(inputs[i], out var hash))
+                        {
+                            inputJson[fields[i]] = new JObject
+                            {
+                                ["value"] = hash.Value.ToBase64()
+                            };
+                        }
+                        else if (inputs[i] == "true" || inputs[i] == "false")
+                        {
+                            inputJson[fields[i]] = bool.Parse(inputs[i]);
+                        }
+                        else
+                        {
+                            inputJson[fields[i]] = inputs[i];
+                        }
+                    }
+                    break;
+            }
+
+            return inputJson.ToString();
+        }
+
         private ContractDescriptor UpdateContractDescriptor()
         {
             var messageInfos = _descriptor.MessageInfos;
@@ -174,6 +226,34 @@ namespace AElf.Automation.Common.ContractSerializer
             }
 
             return jsonName;
+        }
+
+        private bool IsAddressInfo(string info, out Address address)
+        {
+            address = new Address();
+            try
+            {
+                address = info.ConvertAddress();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private bool IsHashInfo(string info, out Hash hash)
+        {
+            hash = new Hash();
+            try
+            {
+                hash = HashHelper.HexStringToHash(info);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

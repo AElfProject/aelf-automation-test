@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using AElf.Automation.Common;
 using AElf.Automation.Common.ContractSerializer;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
@@ -47,6 +49,9 @@ namespace AElfChain.Console.Commands
                     break;
                 case "BlockState":
                     GetBlockState();
+                    break;
+                case "BlockAnalyze":
+                    BlockAnalyze();
                     break;
                 case "CurrentRoundInformation":
                     GetCurrentRoundInformation();
@@ -140,6 +145,44 @@ namespace AElfChain.Console.Commands
             var hash = input[0];
             var blockState = AsyncHelper.RunSync(() => ApiService.GetBlockStateAsync(hash));
             JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void BlockAnalyze()
+        {
+            "Parameter: [StartHeight] [EndHeight]=null".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var startHeight = long.Parse(input[0]);
+            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            if(blockHeight < startHeight)
+                Logger.Error("Wrong block height");
+            var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
+            Node minerNode = null;
+            var minerKey = "";
+            NodeInfoHelper.Config.CheckNodesAccount();
+            var nodes = NodeInfoHelper.Config.Nodes;
+            Logger.Info("Begin analyze block generate and transactions information:");
+            for (var i = startHeight; i <= endHeight; i++)
+            {
+                var height = i;
+                var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
+                var signerKey = block.Header.SignerPubkey;
+                if (minerKey == "")
+                {
+                    minerKey = signerKey;
+                    minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
+                }
+                else
+                {
+                    if (minerKey != signerKey)
+                    {
+                        System.Console.WriteLine();
+                        minerKey = signerKey;
+                        minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
+                    }
+                }
+                var minerInfo = minerNode == null ? minerKey.Substring(0, 10) : minerNode.Name;
+                Logger.Info($"Time: {block.Header.Time:O}  Height: {height.ToString().PadRight(8)} Miner: {minerInfo.PadRight(10)} TxCount: {block.Body.TransactionsCount:000}");
+            }
         }
 
         private void GetChainStatus()
@@ -260,6 +303,7 @@ namespace AElfChain.Console.Commands
                 "BlockByHash",
                 "BlockByHeight",
                 "BlockState",
+                "BlockAnalyze",
                 "ChainStatus",
                 "ContractFileDescriptor",
                 "CurrentRoundInformation",

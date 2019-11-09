@@ -104,23 +104,23 @@ namespace AElfChain.Console
                 }
                 catch (ArgumentException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (FormatException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (TimeoutException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (ShouldAssertException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (AElfChainApiException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (Exception e)
                 {
