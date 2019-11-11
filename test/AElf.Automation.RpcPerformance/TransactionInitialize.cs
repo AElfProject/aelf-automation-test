@@ -6,6 +6,7 @@ using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Shouldly;
@@ -69,7 +70,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = tokenSymbol,
                     Amount = 100_00000000,
-                    To = AddressHelper.Base58StringToAddress(user.Account),
+                    To = user.Account.ConvertAddress(),
                     Memo = "Prepare token for user testing"
                 });
             }
@@ -121,7 +122,7 @@ namespace AElf.Automation.RpcPerformance
                     TokenName = $"elf token {symbol}",
                     TotalSupply = long.MaxValue,
                     Decimals = 2,
-                    Issuer = AddressHelper.Base58StringToAddress(account),
+                    Issuer = account.ConvertAddress(),
                     IsBurnable = true
                 });
                 createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -132,7 +133,7 @@ namespace AElf.Automation.RpcPerformance
                     Amount = long.MaxValue,
                     Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
                     Symbol = symbol,
-                    To = AddressHelper.Base58StringToAddress(account)
+                    To = account.ConvertAddress()
                 });
                 issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }

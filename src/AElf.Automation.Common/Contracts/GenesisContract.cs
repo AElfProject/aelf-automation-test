@@ -3,6 +3,7 @@ using System.Linq;
 using Acs0;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -66,7 +67,7 @@ namespace AElf.Automation.Common.Contracts
             SetAccount(account);
             var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
             {
-                Address = AddressHelper.Base58StringToAddress(contractAddress),
+                Address = contractAddress.ConvertAddress(),
                 Code = ByteString.CopyFrom(codeArray)
             });
 
@@ -114,7 +115,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address GetContractAuthor(string contractAddress)
         {
-            return GetContractAuthor(AddressHelper.Base58StringToAddress(contractAddress));
+            return GetContractAuthor(contractAddress.ConvertAddress());
         }
 
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
@@ -123,7 +124,7 @@ namespace AElf.Automation.Common.Contracts
             var stub = new ContractTesterFactory(NodeManager);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
-                    AddressHelper.Base58StringToAddress(ContractAddress), caller);
+                    ContractAddress.ConvertAddress(), caller);
             return contractStub;
         }
 

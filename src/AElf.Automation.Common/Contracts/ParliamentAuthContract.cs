@@ -1,6 +1,7 @@
 using Acs3;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
@@ -43,7 +44,7 @@ namespace AElf.Automation.Common.Contracts
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = method,
-                ToAddress = AddressHelper.Base58StringToAddress(contractAddress),
+                ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
                 OrganizationAddress = organizationAddress

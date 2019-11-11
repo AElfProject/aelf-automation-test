@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Cryptography;
 using AElf.Types;
 using AElfChain.SDK;
@@ -29,8 +30,8 @@ namespace AElf.Automation.Common.Managers
             {
                 var transaction = new Transaction
                 {
-                    From = AddressHelper.Base58StringToAddress(from),
-                    To = AddressHelper.Base58StringToAddress(to),
+                    From = from.ConvertAddress(),
+                    To = to.ConvertAddress(),
                     MethodName = methodName,
                     Params = input ?? ByteString.Empty
                 };

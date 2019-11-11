@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -91,7 +92,7 @@ namespace AElf.Automation.Common.Contracts
                 CallViewMethod<ProfitDetails>(ProfitMethod.GetProfitDetails,
                     new GetProfitDetailsInput
                     {
-                        Beneficiary = AddressHelper.Base58StringToAddress(voteAddress),
+                        Beneficiary = voteAddress.ConvertAddress(),
                         SchemeId = profitId
                     });
             return result;

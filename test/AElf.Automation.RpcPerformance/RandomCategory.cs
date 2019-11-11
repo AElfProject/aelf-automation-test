@@ -80,7 +80,6 @@ namespace AElf.Automation.RpcPerformance
             //Unlock Account
             UnlockAllAccounts(ThreadCount);
             Task.Run(() => UnlockAllAccounts(userCount));
-            Logger.Info("Start other testing");
             //Init other services
             Summary = new ExecutionSummary(NodeManager);
             Monitor = new NodeStatusMonitor(NodeManager);
@@ -133,7 +132,7 @@ namespace AElf.Automation.RpcPerformance
                     TokenName = $"elf token {symbol}",
                     TotalSupply = long.MaxValue,
                     Decimals = 8,
-                    Issuer = AddressHelper.Base58StringToAddress(account),
+                    Issuer = account.ConvertAddress(),
                     IsBurnable = true
                 });
                 TxIdList.Add(transactionId);
@@ -157,7 +156,7 @@ namespace AElf.Automation.RpcPerformance
                         Amount = amount,
                         Memo = $"Issue balance - {Guid.NewGuid()}",
                         Symbol = symbol,
-                        To = AddressHelper.Base58StringToAddress(user.Account)
+                        To = user.Account.ConvertAddress()
                     });
                     TxIdList.Add(transactionId);
                 }
@@ -441,7 +440,7 @@ namespace AElf.Automation.RpcPerformance
                     Symbol = ContractList[threadNo].Symbol,
                     Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}",
-                    To = AddressHelper.Base58StringToAddress(to)
+                    To = to.ConvertAddress()
                 };
                 var transactionId = NodeManager.SendTransaction(from, contractPath, "Transfer", transferInput);
                 txIdList.Add(transactionId);
@@ -475,7 +474,7 @@ namespace AElf.Automation.RpcPerformance
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    To = AddressHelper.Base58StringToAddress(to),
+                    To = to.ConvertAddress(),
                     Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
@@ -565,7 +564,7 @@ namespace AElf.Automation.RpcPerformance
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    To = AddressHelper.Base58StringToAddress(to),
+                    To = to.ConvertAddress(),
                     Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };

@@ -1,4 +1,5 @@
 using System;
+using AElf.Automation.Common.Helpers;
 using AElf.Types;
 
 namespace AElf.Automation.Common.Utils
@@ -16,7 +17,15 @@ namespace AElf.Automation.Common.Utils
 
         public static Address ConvertAddress(this string address)
         {
-            return AddressHelper.Base58StringToAddress(address);
+            try
+            {
+                return AddressHelper.Base58StringToAddress(address);
+            }
+            catch (Exception e)
+            {
+                $"Convert '{address}' to Address type got error. Error: {e.Message}".WriteErrorLine();
+                throw;
+            }
         }
     }
 }

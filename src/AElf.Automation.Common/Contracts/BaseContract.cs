@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
@@ -228,9 +229,9 @@ namespace AElf.Automation.Common.Contracts
         public IApiService ApiService => NodeManager.ApiService;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
-        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
+        public Address CallAccount => CallAddress.ConvertAddress();
         public string ContractAddress { get; set; }
-        public Address Contract => AddressHelper.Base58StringToAddress(ContractAddress);
+        public Address Contract => ContractAddress.ConvertAddress();
 
         public static int Timeout { get; set; }
 

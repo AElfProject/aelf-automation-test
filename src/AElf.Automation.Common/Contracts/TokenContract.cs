@@ -1,6 +1,7 @@
 ﻿using System;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK.Models;
 
@@ -60,7 +61,7 @@ namespace AElf.Automation.Common.Contracts
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
-                To = AddressHelper.Base58StringToAddress(to),
+                To = to.ConvertAddress(),
                 Amount = amount,
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
             });
@@ -75,7 +76,7 @@ namespace AElf.Automation.Common.Contracts
             var result = tester.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = symbol,
-                To = AddressHelper.Base58StringToAddress(to),
+                To = to.ConvertAddress(),
                 Amount = amount,
                 Memo = "Issue amount"
             });
@@ -88,7 +89,7 @@ namespace AElf.Automation.Common.Contracts
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(account),
+                Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
         }

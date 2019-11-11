@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.SDK;
@@ -27,7 +28,7 @@ namespace AElf.Automation.Common.Contracts
 
         public Address Contract { private get; set; }
         public string SenderAddress { private get; set; }
-        public Address Sender => AddressHelper.Base58StringToAddress(SenderAddress);
+        public Address Sender => SenderAddress.ConvertAddress();
         public INodeManager NodeManager { get; }
         public IApiService ApiService => NodeManager.ApiService;
 
@@ -107,7 +108,7 @@ namespace AElf.Automation.Common.Contracts
                         {
                             resultDto.Logs.Select(o => new LogEvent
                             {
-                                Address = AddressHelper.Base58StringToAddress(o.Address),
+                                Address = o.Address.ConvertAddress(),
                                 Name = o.Name,
                                 NonIndexed = ByteString.FromBase64(o.NonIndexed)
                             }).ToArray()

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElfChain.SDK;
 using log4net;
@@ -55,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
                             new TransferInput
                             {
                                 Symbol = contract.Symbol,
-                                To = AddressHelper.Base58StringToAddress(user.Account),
+                                To = user.Account.ConvertAddress(),
                                 Amount = 10000,
                                 Memo = $"transfer test - {Guid.NewGuid()}"
                             });
@@ -134,7 +135,7 @@ namespace AElf.Automation.RpcPerformance
                     var input = new TransferInput
                     {
                         Symbol = symbol,
-                        To = AddressHelper.Base58StringToAddress(to.Account),
+                        To = to.Account.ConvertAddress(),
                         Amount = (i + 1) % 4 + 1,
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     };

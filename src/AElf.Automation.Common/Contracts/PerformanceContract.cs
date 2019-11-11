@@ -1,5 +1,6 @@
 using System;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
 using AElfChain.SDK.Models;
@@ -46,7 +47,7 @@ namespace AElf.Automation.Common.Contracts
                 new InitialPerformanceInput
                 {
                     ContractName = $"Performance_{Guid.NewGuid().ToString()}",
-                    Manager = AddressHelper.Base58StringToAddress(CallAddress)
+                    Manager = CallAddress.ConvertAddress()
                 });
             initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }

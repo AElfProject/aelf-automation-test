@@ -13,6 +13,7 @@ using AElf.Automation.Common;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
 using AElf.Automation.Common.Managers;
+using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK;
@@ -205,7 +206,7 @@ namespace AElf.Automation.RpcPerformance
                     TokenName = $"elf token {symbol}",
                     TotalSupply = long.MaxValue,
                     Decimals = 2,
-                    Issuer = AddressHelper.Base58StringToAddress(account),
+                    Issuer = account.ConvertAddress(),
                     IsBurnable = true
                 });
                 TxIdList.Add(transactionId);
@@ -226,7 +227,7 @@ namespace AElf.Automation.RpcPerformance
                     Amount = long.MaxValue,
                     Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
                     Symbol = symbol,
-                    To = AddressHelper.Base58StringToAddress(account)
+                    To = account.ConvertAddress()
                 });
                 TxIdList.Add(transactionId);
             }
@@ -426,7 +427,7 @@ namespace AElf.Automation.RpcPerformance
                     Symbol = ContractList[threadNo].Symbol,
                     Amount = (i + 1) % 4 + 1,
                     Memo = $"transfer test - {Guid.NewGuid()}",
-                    To = AddressHelper.Base58StringToAddress(toAccount)
+                    To = toAccount.ConvertAddress()
                 };
                 var transactionId = NodeManager.SendTransaction(account, abiPath, "Transfer", transferInput);
                 txIdList.Add(transactionId);
@@ -461,7 +462,7 @@ namespace AElf.Automation.RpcPerformance
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    To = AddressHelper.Base58StringToAddress(toAccount),
+                    To = toAccount.ConvertAddress(),
                     Amount = (i + 1) % 4 + 1,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
@@ -523,7 +524,7 @@ namespace AElf.Automation.RpcPerformance
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    To = AddressHelper.Base58StringToAddress(toAccount),
+                    To = toAccount.ConvertAddress(),
                     Amount = (i + 1) % 4 + 1,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };

@@ -80,6 +80,9 @@ namespace AElfChain.Console.Commands
                 case "ListAccounts":
                     ListAllAccounts();
                     break;
+                case "GetAccountPubicKey":
+                    GetAccountPublicKey();
+                    break;
                 case "GetPeers":
                     GetPeers();
                     break;
@@ -258,6 +261,16 @@ namespace AElfChain.Console.Commands
                 System.Console.WriteLine();
         }
 
+        private void GetAccountPublicKey()
+        {
+            $"Parameter: [Account] [Password]={NodeOption.DefaultPassword}".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var account = input[0];
+            var password = input.Length == 2 ? input[1] : NodeOption.DefaultPassword;
+            var publicKey = NodeManager.GetAccountPublicKey(account, password);
+            $"PublicKey: {publicKey}".WriteSuccessLine();
+        }
+
         private void GetPeers()
         {
             var peers = NodeManager.NetGetPeers();
@@ -314,6 +327,7 @@ namespace AElfChain.Console.Commands
                 "GetRoundFromBase64",
                 "GetMiningSequences",
                 "ListAccounts",
+                "GetAccountPubicKey",
                 "GetPeers",
                 "AddPeer",
                 "RemovePeer",

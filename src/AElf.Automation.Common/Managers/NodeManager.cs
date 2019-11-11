@@ -7,6 +7,7 @@ using System.Threading;
 using Acs0;
 using AElf.Automation.Common.Contracts;
 using AElf.Automation.Common.Helpers;
+using AElf.Automation.Common.Utils;
 using AElf.Kernel;
 using AElf.Types;
 using AElfChain.SDK;
@@ -194,8 +195,8 @@ namespace AElf.Automation.Common.Managers
         {
             var tr = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName
             };
 
@@ -283,8 +284,8 @@ namespace AElf.Automation.Common.Managers
         {
             var transaction = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
@@ -309,8 +310,8 @@ namespace AElf.Automation.Common.Managers
         {
             var transaction = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
