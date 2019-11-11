@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
+      <Folder Include="logs" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="logs" />
+      <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>
 
 </Project>

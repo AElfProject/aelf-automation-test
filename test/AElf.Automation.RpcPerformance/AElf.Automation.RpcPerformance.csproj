@@ -14,14 +14,14 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AElf.Automation.Common\AElf.Automation.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="rpc-performance.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="logs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
   </ItemGroup>
 </Project>
