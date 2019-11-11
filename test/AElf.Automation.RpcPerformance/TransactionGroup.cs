@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using log4net;
@@ -17,17 +17,7 @@ namespace AElf.Automation.RpcPerformance
 {
     public class TransactionGroup
     {
-        private List<AccountInfo> TestUsers { get; }
-        private List<ContractInfo> Contracts { get; }
-
-        private INodeManager NodeManager { get; }
-
-        private IApiService ApiService => NodeManager.ApiService;
-        private ConcurrentQueue<List<string>> TransactionsQueue { get; }
-
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        private NodeStatusMonitor NodeMonitor { get; }
 
         public TransactionGroup(INodeManager nodeManager, List<AccountInfo> users, List<ContractInfo> contracts)
         {
@@ -38,11 +28,20 @@ namespace AElf.Automation.RpcPerformance
             NodeMonitor = new NodeStatusMonitor(nodeManager);
         }
 
+        private List<AccountInfo> TestUsers { get; }
+        private List<ContractInfo> Contracts { get; }
+
+        private INodeManager NodeManager { get; }
+
+        private IApiService ApiService => NodeManager.ApiService;
+        private ConcurrentQueue<List<string>> TransactionsQueue { get; }
+
+        private NodeStatusMonitor NodeMonitor { get; }
+
         public void InitializeAllUsersToken()
         {
             var tasks = new List<Task>();
             foreach (var contract in Contracts)
-            {
                 tasks.Add(Task.Run(() =>
                 {
                     var count = 0;
@@ -73,7 +72,6 @@ namespace AElf.Automation.RpcPerformance
                         rawTransactions = new List<string>();
                     }
                 }));
-            }
 
             Task.WaitAll(tasks.ToArray());
         }
@@ -81,10 +79,7 @@ namespace AElf.Automation.RpcPerformance
         public List<string> GetRawTransactions()
         {
             List<string> rawTransactions;
-            while (!TransactionsQueue.TryDequeue(out rawTransactions))
-            {
-                Thread.Sleep(50);
-            }
+            while (!TransactionsQueue.TryDequeue(out rawTransactions)) Thread.Sleep(50);
 
             return rawTransactions;
         }
@@ -101,9 +96,7 @@ namespace AElf.Automation.RpcPerformance
 
                 var tasks = new List<Task>();
                 foreach (var contract in Contracts)
-                {
                     tasks.Add(Task.Run(() => GenerateRawTransactions(contract.ContractAddress, contract.Symbol)));
-                }
 
                 Task.WaitAll(tasks.ToArray());
             }

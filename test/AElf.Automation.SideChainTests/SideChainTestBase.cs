@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
@@ -17,12 +13,11 @@ namespace AElf.Automation.SideChainTests
 {
     public class SideChainTestBase
     {
-        private static int Timeout { get; set; }
+        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
         public ContractTester MainContracts;
         public ContractServices sideAServices;
         public ContractServices sideBServices;
-
-        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        private static int Timeout { get; set; }
 
         public static string MainChainUrl { get; } = "http://35.183.35.159:8000";
         public static string SideAChainUrl { get; } = "http://54.154.233.225:8000";
@@ -40,9 +35,9 @@ namespace AElf.Automation.SideChainTests
             var mainServices = new ContractServices(MainChainUrl, InitAccount, NodeOption.DefaultPassword, "TELF");
             MainContracts = new ContractTester(mainServices);
 
-             sideAServices = new ContractServices(SideAChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
-            
-             sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
+            sideAServices = new ContractServices(SideAChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
+
+            sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "2112");
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
@@ -70,7 +65,8 @@ namespace AElf.Automation.SideChainTests
         {
             var index = 0;
             var blockInfoResult =
-                AsyncHelper.RunSync(() => tester.NodeManager.ApiService.GetBlockByHeightAsync(long.Parse(blockNumber), true));
+                AsyncHelper.RunSync(() =>
+                    tester.NodeManager.ApiService.GetBlockByHeightAsync(long.Parse(blockNumber), true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
@@ -85,16 +81,13 @@ namespace AElf.Automation.SideChainTests
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var txId = HashHelper.HexStringToHash(transactionIds[num].ToString());
-                string txRes = transactionStatus[num];
+                var txId = HashHelper.HexStringToHash(transactionIds[num]);
+                var txRes = transactionStatus[num];
                 var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
-                if (transactionIds[num] == TxId)
-                {
-                    index = num;
-                }
+                if (transactionIds[num] == TxId) index = num;
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
@@ -106,16 +99,14 @@ namespace AElf.Automation.SideChainTests
 
         protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
         {
-            if (maxTimes == -1)
-            {
-                maxTimes = Timeout == 0 ? 600 : Timeout;
-            }
+            if (maxTimes == -1) maxTimes = Timeout == 0 ? 600 : Timeout;
 
             TransactionResultDto transactionResult = null;
             var checkTimes = 1;
             while (checkTimes <= maxTimes)
             {
-                transactionResult = AsyncHelper.RunSync(()=> services.NodeManager.ApiService.GetTransactionResultAsync(txId));
+                transactionResult =
+                    AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {

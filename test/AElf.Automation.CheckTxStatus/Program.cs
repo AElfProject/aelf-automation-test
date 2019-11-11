@@ -1,11 +1,10 @@
-﻿using System;
-using AElfChain.Common.Helpers;
+﻿using AElfChain.Common.Helpers;
 
 namespace AElf.Automation.CheckTxStatus
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             #region Basic Preparation
 
@@ -13,7 +12,7 @@ namespace AElf.Automation.CheckTxStatus
             Log4NetHelper.LogInit("CheckTransaction_");
 
             #endregion
-            
+
             var transactionCheck = new TransactionCheck();
             transactionCheck.CheckTxStatus();
         }

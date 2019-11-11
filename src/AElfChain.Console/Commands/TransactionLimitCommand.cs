@@ -1,7 +1,6 @@
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -38,17 +37,18 @@ namespace AElfChain.Console.Commands
                 Logger.Info("No need to set limit, same number.");
                 return;
             }
-            
+
             var configuration = Services.Genesis.GetConfigurationContract();
             var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
             var miners = Services.Authority.GetCurrentMiners();
-            var input = new Int32Value{ Value = limit };
+            var input = new Int32Value {Value = limit};
             var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(configuration.ContractAddress,
                 "SetBlockTransactionLimit", input,
                 genesisOwner, miners, configuration.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
-            var queryResult = AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
+
+            var queryResult =
+                AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
             $"New block transaction limit: {queryResult.Value}".WriteSuccessLine();
         }
 

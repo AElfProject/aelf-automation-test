@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,9 +9,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class TokenTests
     {
         protected readonly ILog _logger = Log4NetHelper.GetLogger();
-        protected static string RpcUrl { get; } = "http://192.168.197.70:8000";
 
         protected Behaviors Behaviors;
+        protected static string RpcUrl { get; } = "http://192.168.197.70:8000";
 
         //protected RpcApiHelper CH { get; set; }   
         protected INodeManager CH { get; set; }
@@ -21,21 +20,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected List<string> UserList { get; set; }
         protected List<string> IssuerList { get; set; }
         protected List<TokenInfo> TokenInfos { get; set; }
-
-
-        protected class TokenInfo
-        {
-            public string Symbol { get; set; }
-            public string TokenName { get; set; }
-            public string Issuer { get; set; }
-
-            public TokenInfo(string symbol, string tokenName, string issuer)
-            {
-                Symbol = symbol;
-                TokenName = tokenName;
-                Issuer = issuer;
-            }
-        }
 
 
         protected void Initialize()
@@ -101,6 +85,21 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var result = Behaviors.NodeManager.UnlockAccount(IssuerList[i]);
                 Assert.IsTrue(result);
             }
+        }
+
+
+        protected class TokenInfo
+        {
+            public TokenInfo(string symbol, string tokenName, string issuer)
+            {
+                Symbol = symbol;
+                TokenName = tokenName;
+                Issuer = issuer;
+            }
+
+            public string Symbol { get; set; }
+            public string TokenName { get; set; }
+            public string Issuer { get; set; }
         }
     }
 }

@@ -13,17 +13,14 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ExecutionSummary
     {
+        private const int Phase = 120;
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly IApiService ApiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        private const int Phase = 120;
-
-        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.SentTxLimit;
 
         /// <summary>
-        /// 统计出块信息
+        ///     统计出块信息
         /// </summary>
         /// <param name="nodeManager"></param>
         /// <param name="fromStart">是否从高度为1开始检测</param>
@@ -33,6 +30,8 @@ namespace AElf.Automation.RpcPerformance
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
+
+        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.SentTxLimit;
 
         public void ContinuousCheckTransactionPerformance()
         {
@@ -61,7 +60,7 @@ namespace AElf.Automation.RpcPerformance
                     MaxTransactionLimit = MaxTransactionLimit > block.Body.TransactionsCount
                         ? MaxTransactionLimit
                         : block.Body.TransactionsCount;
-                    NodeStatusMonitor.MaxLimit = MaxTransactionLimit;
+                    NodeStatusMonitor.MaxValidateLimit = MaxTransactionLimit;
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
                 }

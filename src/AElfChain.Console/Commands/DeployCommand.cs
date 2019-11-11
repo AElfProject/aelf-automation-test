@@ -1,12 +1,11 @@
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 
 namespace AElfChain.Console.Commands
 {
     public class DeployCommand : BaseCommand
     {
-        public DeployCommand(INodeManager nodeManager, ContractServices contractServices) 
+        public DeployCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
         }
@@ -32,12 +31,12 @@ namespace AElfChain.Console.Commands
 
         public override string[] InputParameters()
         {
-            string from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-            string filename = "AElf.Contracts.MultiToken";
-            
+            var from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+            var filename = "AElf.Contracts.MultiToken";
+
             "Parameter: [From] [ContractFileName]".WriteSuccessLine();
             $"eg: {from} {filename}".WriteSuccessLine();
-            
+
             return CommandOption.InputParameters(2);
         }
     }

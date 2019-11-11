@@ -21,10 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
-            foreach (var tx in transactionList)
-            {
-                tx.VerifySignature();
-            }
+            foreach (var tx in transactionList) tx.VerifySignature();
 
             stopwatch.Stop();
 

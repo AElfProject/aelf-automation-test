@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
 namespace AElf.Automation.CheckTxStatus
-{ 
+{
     public class ConfigInfo
     {
         [JsonProperty("Url")] public string Url { get; set; }
@@ -11,9 +10,8 @@ namespace AElf.Automation.CheckTxStatus
         [JsonProperty("Password")] public string Password { get; set; }
         [JsonProperty("VerifyBlockNumber")] public int VerifyBlockNumber { get; set; }
         [JsonProperty("StartBlock")] public int StartBlock { get; set; }
-
     }
-    
+
     public static class ConfigInfoHelper
     {
         private static ConfigInfo _instance;

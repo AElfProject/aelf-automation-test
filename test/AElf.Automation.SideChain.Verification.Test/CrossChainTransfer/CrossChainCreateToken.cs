@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Shouldly;
@@ -15,8 +15,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
     public class CrossChainCreateToken : CrossChainBase
     {
-        public Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; set; }
-
         public CrossChainCreateToken()
         {
             MainChainService = InitMainChainServices();
@@ -24,6 +22,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             TokenSymbols = new List<string>();
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
+
+        public Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; set; }
 
         public void DoCrossChainCreateToken()
         {
@@ -45,7 +45,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 var createTransaction = MainChainService.TokenService.NodeManager.GenerateRawTransaction(
                     MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
-                    TokenMethod.Create.ToString(), new CreateInput()
+                    TokenMethod.Create.ToString(), new CreateInput
                     {
                         Symbol = symbol,
                         Decimals = 2,
@@ -141,10 +141,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Logger.Info("Prepare resources token.");
             var genesis = MainChainService.GenesisService;
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
-            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress, tokenConverter.GetFormatted());
-            var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
-            
-            var symbols = new List<string>{"CPU", "NET", "STO"};
+            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress,
+                tokenConverter.GetFormatted());
+            var testStub =
+                converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService
+                    .CallAddress);
+
+            var symbols = new List<string> {"CPU", "NET", "STO"};
             foreach (var symbol in symbols)
             {
                 var transactionResult = await testStub.Buy.SendAsync(new BuyInput

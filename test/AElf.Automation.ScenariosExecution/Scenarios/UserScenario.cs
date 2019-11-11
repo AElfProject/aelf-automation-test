@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -19,14 +18,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class UserScenario : BaseScenario
     {
-        public TreasuryContract Treasury { get; }
-        public ElectionContract Election { get; }
-        public ConsensusContract Consensus { get; }
-        public ProfitContract Profit { get; }
-        public TokenContract Token { get; }
-        public List<string> Testers { get; }
-        public Dictionary<SchemeType, Scheme> Schemes { get; }
-
         private static List<string> _candidates;
         private static List<string> _candidatesExcludeMiners;
 
@@ -47,6 +38,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Testers = AllTesters.GetRange(50, 30);
         }
+
+        public TreasuryContract Treasury { get; }
+        public ElectionContract Election { get; }
+        public ConsensusContract Consensus { get; }
+        public ProfitContract Profit { get; }
+        public TokenContract Token { get; }
+        public List<string> Testers { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         public void RunUserScenario()
         {
@@ -189,10 +188,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             _candidatesExcludeMiners = new List<string>();
             _candidates.ForEach(o =>
             {
-                if (!minersPublicKeys.Contains(o))
-                {
-                    _candidatesExcludeMiners.Add(o);
-                }
+                if (!minersPublicKeys.Contains(o)) _candidatesExcludeMiners.Add(o);
             });
         }
     }

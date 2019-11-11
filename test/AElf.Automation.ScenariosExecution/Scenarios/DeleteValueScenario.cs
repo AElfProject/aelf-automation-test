@@ -6,9 +6,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class DeleteValueScenario : BaseScenario
     {
-        private List<BasicWithParallelContract> _contracts;
         private const int IncreaseActionCount = 10;
-        
+        private List<BasicWithParallelContract> _contracts;
+
         public DeleteValueScenario()
         {
             InitializeScenario();
@@ -18,7 +18,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
 
-        
+
         public void RunDeleteValueScenarioJob()
         {
 //            ExecuteStandaloneTask(new Action[]
@@ -32,7 +32,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 //                ComplexDeleteAndChangeAction
 //            });
         }
-        
+
         /*
         private void IncreaseValueAction()
         {

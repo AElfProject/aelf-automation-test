@@ -1,10 +1,8 @@
 using Acs1;
+using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
-using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
-using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Shouldly;
@@ -13,7 +11,7 @@ namespace AElfChain.Console.Commands
 {
     public class SetTransactionFeeCommand : BaseCommand
     {
-        public SetTransactionFeeCommand(INodeManager nodeManager, ContractServices contractServices) 
+        public SetTransactionFeeCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
         }
@@ -23,7 +21,7 @@ namespace AElfChain.Console.Commands
             var parameters = InputParameters();
             if (parameters == null)
                 return;
-            
+
             var caller = Services.Token.CallAddress;
             switch (parameters.Length)
             {
@@ -42,18 +40,22 @@ namespace AElfChain.Console.Commands
                     var input = new MethodFees
                     {
                         MethodName = parameters[1],
-                        Fees = { new MethodFee
+                        Fees =
                         {
-                            Symbol = parameters[2],
-                            BasicFee = long.Parse(parameters[3])
-                        }}
+                            new MethodFee
+                            {
+                                Symbol = parameters[2],
+                                BasicFee = long.Parse(parameters[3])
+                            }
+                        }
                     };
                     var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
                     var miners = Services.Authority.GetCurrentMiners();
-                    var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0], "SetMethodFee",
+                    var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(parameters[0],
+                        "SetMethodFee",
                         input, genesisOwner, miners, caller);
                     transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                
+
                     //query result
                     var methodInput = new StringValue
                     {
@@ -85,7 +87,7 @@ namespace AElfChain.Console.Commands
             var method = "Approve";
             var symbol = "TELF";
             var amount = 1000;
-            
+
             "Parameter: [ContractAddress] [Method] [Symbol] [Amount]".WriteSuccessLine();
             $"eg-[GET]: {contract} {method}".WriteSuccessLine();
             $"eg-[SET]: {contract} {method} {symbol} {amount}".WriteSuccessLine();

@@ -15,12 +15,6 @@ namespace AElf.Automation.ScenariosExecution
         private static ConfigInfo _config;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private static readonly string AccountDir = CommonHelper.GetCurrentDataDir();
-        private static ContractServices Services { get; set; }
-
-        public static EnvCheck GetDefaultEnvCheck()
-        {
-            return Instance;
-        }
 
         private static readonly EnvCheck Instance = new EnvCheck();
 
@@ -31,11 +25,19 @@ namespace AElf.Automation.ScenariosExecution
             CheckInitialEnvironment();
         }
 
+        private static ContractServices Services { get; set; }
+
+        public static EnvCheck GetDefaultEnvCheck()
+        {
+            return Instance;
+        }
+
         private void CheckInitialEnvironment()
         {
             var allAccountsExist = CheckAllAccountsExist();
-            if(!allAccountsExist)
-                throw new Exception($"Node account file not found, should copy configured accounts to path: {AccountDir}");
+            if (!allAccountsExist)
+                throw new Exception(
+                    $"Node account file not found, should copy configured accounts to path: {AccountDir}");
 
             CheckAllNodesConnection();
         }

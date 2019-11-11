@@ -5,19 +5,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
 {
     public class ContractTester
     {
-        public readonly INodeManager NodeManager;
+        public readonly AssociationAuthContract AssociationService;
+        public readonly ConsensusContract ConsensusService;
         public readonly ContractServices ContractServices;
 
         public readonly ElectionContract ElectionService;
-        public readonly VoteContract VoteService;
-        public readonly ProfitContract ProfitService;
-        public readonly TokenContract TokenService;
         public readonly GenesisContract GenesisService;
-        public readonly TokenConverterContract TokenConverterService;
-        public readonly ConsensusContract ConsensusService;
-        public readonly AssociationAuthContract AssociationService;
+        public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
+        public readonly ProfitContract ProfitService;
         public readonly ReferendumAuthContract ReferendumService;
+        public readonly TokenConverterContract TokenConverterService;
+        public readonly TokenContract TokenService;
+        public readonly VoteContract VoteService;
 
 
         public ContractTester(ContractServices contractServices)

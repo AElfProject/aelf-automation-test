@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
 using AElfChain.Common.Utils;
 using Shouldly;
 
@@ -15,10 +15,10 @@ namespace AElf.Automation.RpcPerformance
 {
     public class TransactionInitialize
     {
-        private readonly INodeManager _nodeManager;
         private readonly GenesisContract _genesis;
+        private readonly INodeManager _nodeManager;
         private List<AccountInfo> _accounts;
-        
+
         public TransactionInitialize(INodeManager nodeManager)
         {
             _nodeManager = nodeManager;
@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcPerformance
         public List<AccountInfo> GetOrGenerateTestUsers(int count)
         {
             var testUsers = new List<AccountInfo>();
-            
+
             var accounts = _nodeManager.ListAccounts();
             if (accounts.Count >= count)
             {
@@ -50,22 +50,22 @@ namespace AElf.Automation.RpcPerformance
             _accounts = testUsers;
             return testUsers;
         }
-        
+
         public void TokenPreparation(IEnumerable<AccountInfo> testUsers)
         {
             var bpInfos = NodeInfoHelper.Config.Nodes;
             var tokenAddress = _genesis.GetContractAddressByName(NameProvider.Token);
-            if(tokenAddress == new Address())
+            if (tokenAddress == new Address())
                 throw new Exception("Token was not deployed.");
-            
+
             var bpTester = new TokenContract(_nodeManager, bpInfos.First().Account, tokenAddress.GetFormatted());
             var tokenSymbol = NodeOption.IsMainChain ? NodeOption.NativeTokenSymbol : NodeOption.ChainToken;
-            
+
             foreach (var user in testUsers)
             {
                 var balance = bpTester.GetUserBalance(user.Account, tokenSymbol);
-                if(balance != 0) continue;
-                
+                if (balance != 0) continue;
+
                 bpTester.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = tokenSymbol,
@@ -74,14 +74,14 @@ namespace AElf.Automation.RpcPerformance
                     Memo = "Prepare token for user testing"
                 });
             }
-            
+
             bpTester.CheckTransactionResultList();
         }
 
         public List<ContractInfo> DeployTestContracts(int groups)
         {
             var contracts = new List<ContractInfo>();
-            
+
             for (var i = 0; i < groups; i++)
             {
                 string account;
@@ -96,7 +96,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     account = _accounts[i].Account;
                 }
-                
+
                 var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
                 contracts.Add(new ContractInfo(account, contractAddress.GetFormatted()));
             }
@@ -112,7 +112,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
-                
+
                 //create
                 var tokenTester = new TokenContract(_nodeManager, account, contractPath);
                 var tokenStub = tokenTester.GetTestStub<TokenContractContainer.TokenContractStub>(account);
@@ -126,7 +126,7 @@ namespace AElf.Automation.RpcPerformance
                     IsBurnable = true
                 });
                 createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                
+
                 //issue
                 var issueResult = await tokenStub.Issue.SendAsync(new IssueInput
                 {

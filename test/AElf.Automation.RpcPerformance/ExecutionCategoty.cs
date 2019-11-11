@@ -9,12 +9,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
 using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
@@ -26,27 +26,6 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ExecutionCategory : IPerformanceCategory
     {
-        #region Public Property
-
-        public INodeManager NodeManager { get; private set; }
-        public IApiService ApiService => NodeManager.ApiService;
-        private ExecutionSummary Summary { get; set; }
-        private TransactionGroup Group { get; set; }
-        private NodeStatusMonitor Monitor { get; set; }
-        private TesterTokenMonitor TokenMonitor { get; set; }
-        public string BaseUrl { get; }
-        private List<AccountInfo> AccountList { get; }
-        private string KeyStorePath { get; }
-        private List<ContractInfo> ContractList { get; }
-        private List<string> TxIdList { get; }
-        public int ThreadCount { get; }
-        public int ExeTimes { get; }
-        public bool LimitTransaction { get; }
-        private ConcurrentQueue<string> GenerateTransactionQueue { get; }
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        #endregion
-
         public ExecutionCategory(int threadCount,
             int exeTimes,
             string baseUrl,
@@ -221,7 +200,7 @@ namespace AElf.Automation.RpcPerformance
                 var symbol = contract.Symbol;
 
                 var token = new TokenContract(NodeManager, account, contractPath);
-                var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput()
+                var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
                 {
                     Amount = long.MaxValue,
                     Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
@@ -237,17 +216,6 @@ namespace AElf.Automation.RpcPerformance
             var conflict = ConfigInfoHelper.Config.Conflict;
             if (!conflict)
                 InitializeTransactionGroup();
-        }
-
-        private void InitializeTransactionGroup()
-        {
-            var nodeManager = NodeManager;
-            var users = AccountList.Skip(ThreadCount).ToList();
-            var contracts = ContractList;
-
-            Group = new TransactionGroup(nodeManager, users, contracts);
-            Group.InitializeAllUsersToken();
-            Task.Run(() => Group.GenerateAllContractTransactions());
         }
 
         public void ExecuteOneRoundTransactionTask()
@@ -349,9 +317,7 @@ namespace AElf.Automation.RpcPerformance
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                     var txTasks = new List<Task>();
                                     for (var k = 0; k < ThreadCount; k++)
-                                    {
                                         txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
-                                    }
 
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
@@ -400,6 +366,38 @@ namespace AElf.Automation.RpcPerformance
                     item.ContractAddress);
             }
         }
+
+        private void InitializeTransactionGroup()
+        {
+            var nodeManager = NodeManager;
+            var users = AccountList.Skip(ThreadCount).ToList();
+            var contracts = ContractList;
+
+            Group = new TransactionGroup(nodeManager, users, contracts);
+            Group.InitializeAllUsersToken();
+            Task.Run(() => Group.GenerateAllContractTransactions());
+        }
+
+        #region Public Property
+
+        public INodeManager NodeManager { get; private set; }
+        public IApiService ApiService => NodeManager.ApiService;
+        private ExecutionSummary Summary { get; set; }
+        private TransactionGroup Group { get; set; }
+        private NodeStatusMonitor Monitor { get; set; }
+        private TesterTokenMonitor TokenMonitor { get; set; }
+        public string BaseUrl { get; }
+        private List<AccountInfo> AccountList { get; }
+        private string KeyStorePath { get; }
+        private List<ContractInfo> ContractList { get; }
+        private List<string> TxIdList { get; }
+        public int ThreadCount { get; }
+        public int ExeTimes { get; }
+        public bool LimitTransaction { get; }
+        private ConcurrentQueue<string> GenerateTransactionQueue { get; }
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        #endregion
 
         #region Private Method
 
@@ -552,7 +550,7 @@ namespace AElf.Automation.RpcPerformance
             Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
-                if(!result)
+                if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
         }
@@ -562,17 +560,11 @@ namespace AElf.Automation.RpcPerformance
             var accounts = NodeManager.ListAccounts();
             if (accounts.Count >= count)
             {
-                foreach (var acc in accounts.Take(count))
-                {
-                    AccountList.Add(new AccountInfo(acc));
-                }
+                foreach (var acc in accounts.Take(count)) AccountList.Add(new AccountInfo(acc));
             }
             else
             {
-                foreach (var acc in accounts)
-                {
-                    AccountList.Add(new AccountInfo(acc));
-                }
+                foreach (var acc in accounts) AccountList.Add(new AccountInfo(acc));
 
                 var generateCount = count - accounts.Count;
                 for (var i = 0; i < generateCount; i++)

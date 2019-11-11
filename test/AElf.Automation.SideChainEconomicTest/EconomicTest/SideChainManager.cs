@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -18,7 +16,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
     public class SideChainManager
     {
-        public Dictionary<int, ContractServices> SideChains { get; set; }
         public static ILog Logger = Log4NetHelper.GetLogger();
 
         public SideChainManager()
@@ -26,10 +23,12 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             SideChains = new Dictionary<int, ContractServices>();
         }
 
+        public Dictionary<int, ContractServices> SideChains { get; set; }
+
         public ContractServices InitializeSideChain(string serviceUrl, string account, int chainId)
         {
             var contractServices = new ContractServices(serviceUrl, account, NodeOption.DefaultPassword);
-            
+
             SideChains.Add(chainId, contractServices);
 
             return contractServices;
@@ -50,10 +49,11 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 StoUnitPrice = 100
             };
             var miners = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
-            var transactionResult = authority.ExecuteTransactionWithAuthority(contract, method, input, ownerAddress, miners, services.CallAddress);
+            var transactionResult = authority.ExecuteTransactionWithAuthority(contract, method, input, ownerAddress,
+                miners, services.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
-        
+
         public async Task WaitMainChainIndex(ContractServices mainChain, long blockNumber)
         {
             Logger.Info($"Wait side chain index target height: {blockNumber}");
@@ -66,9 +66,9 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                     try
                     {
                         var indexHeight = await crossStub.GetParentChainHeight.CallAsync(new Empty());
-                        if(indexHeight.Value > blockNumber)
+                        if (indexHeight.Value > blockNumber)
                             break;
-                        
+
                         Logger.Info($"Current index height: {indexHeight.Value}");
                         await Task.Delay(4000);
                     }
@@ -93,7 +93,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 Symbol = tokenSymbol
             });
             Logger.Info($"Token info: {tokenInfo}");
-            
+
             //transfer some other owner
             var account = chain.NodeManager.AccountManager.GetRandomAccount();
             var address = AddressHelper.Base58StringToAddress(account);
@@ -110,14 +110,14 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 Symbol = tokenSymbol
             });
             Logger.Info($"Issuer token balance: {issuerBalance.Balance}");
-            
+
             var balance = await tokenTester.GetBalance.CallAsync(new GetBalanceInput
             {
                 Owner = address,
                 Symbol = tokenSymbol
             });
             Logger.Info($"Random owner token balance: {balance.Balance}");
-            
+
             tokenTester = chain.TokenService.GetTestStub<TokenContractContainer.TokenContractStub>(account);
             var transactionResult = await tokenTester.Approve.SendAsync(new ApproveInput
             {
@@ -126,7 +126,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 Spender = chain.CallAccount
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             account = chain.NodeManager.AccountManager.GetRandomAccount();
             tokenTester = chain.TokenService.GetTestStub<TokenContractContainer.TokenContractStub>(account);
             transactionResult = await tokenTester.Approve.SendAsync(new ApproveInput

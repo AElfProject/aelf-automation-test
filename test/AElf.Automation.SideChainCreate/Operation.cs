@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using Acs3;
 using Acs7;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
@@ -11,6 +8,7 @@ using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -20,17 +18,17 @@ namespace AElf.Automation.SideChainCreate
 {
     public class Operation
     {
-        public readonly INodeManager NodeManager;
-
-        public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
+        public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
 
-        public string Url;
+        public readonly TokenContract TokenService;
         public string InitAccount;
-        public string Password;
         public string NativeSymbol;
+        public string Password;
+
+        public string Url;
 
         public Operation()
         {
@@ -62,17 +60,18 @@ namespace AElf.Automation.SideChainCreate
         public void ApproveToken(long amount)
         {
             //token approve
-            TokenService.SetAccount(InitAccount,Password); 
+            TokenService.SetAccount(InitAccount, Password);
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
-                    Amount = amount,
+                    Amount = amount
                 });
         }
-        
-        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved, SideChainTokenInfo tokenInfo)
+
+        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
+            SideChainTokenInfo tokenInfo)
         {
             var organizationAddress = GetGenesisOwnerAddress();
             var createProposalInput = new SideChainCreationRequest
@@ -86,7 +85,7 @@ namespace AElf.Automation.SideChainCreate
                 SideChainTokenTotalSupply = tokenInfo.TotalSupply,
                 IsSideChainTokenBurnable = tokenInfo.IsBurnable
             };
-            ParliamentService.SetAccount(InitAccount,Password);
+            ParliamentService.SetAccount(InitAccount, Password);
             var result =
                 ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     new CreateProposalInput
@@ -97,16 +96,16 @@ namespace AElf.Automation.SideChainCreate
                         ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
                         OrganizationAddress = organizationAddress
                     });
-            var proposalId = result.ReadableReturnValue.Replace("\"","");
+            var proposalId = result.ReadableReturnValue.Replace("\"", "");
             return proposalId;
         }
-        
+
         public void ApproveProposal(string proposalId)
         {
             var miners = GetMiners();
             foreach (var miner in miners)
             {
-                ParliamentService.SetAccount(miner.GetFormatted(),"123");
+                ParliamentService.SetAccount(miner.GetFormatted(), "123");
                 var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput
                 {
                     ProposalId = HashHelper.HexStringToHash(proposalId)
@@ -116,16 +115,17 @@ namespace AElf.Automation.SideChainCreate
 
         public int ReleaseProposal(string proposalId)
         {
-            ParliamentService.SetAccount(InitAccount,Password);
+            ParliamentService.SetAccount(InitAccount, Password);
             var result
-                = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
+                = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    HashHelper.HexStringToHash(proposalId));
             var creationRequested = result.Logs[1].NonIndexed;
             var byteString = ByteString.FromBase64(creationRequested);
             var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
             return chainId;
         }
 
-        
+
         private ContractServices GetContractServices()
         {
             var testEnvironment = ConfigHelper.Config.TestEnvironment;
@@ -136,7 +136,7 @@ namespace AElf.Automation.SideChainCreate
             Url = environmentInfo.Url;
             Password = environmentInfo.Password;
             NativeSymbol = environmentInfo.NativeSymbol;
-            var contractService = new ContractServices(Url,InitAccount,Password);
+            var contractService = new ContractServices(Url, InitAccount, Password);
             return contractService;
         }
 
@@ -155,7 +155,7 @@ namespace AElf.Automation.SideChainCreate
 
         private Address GetGenesisOwnerAddress()
         {
-            ParliamentService.SetAccount(InitAccount,Password);
+            ParliamentService.SetAccount(InitAccount, Password);
             var address =
                 ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
 

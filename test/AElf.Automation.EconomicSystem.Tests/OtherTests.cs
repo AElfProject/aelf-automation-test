@@ -6,15 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
-using AElf.Kernel;
-using AElfChain.Common.Utils;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -22,6 +22,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class OtherTests
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
+
+        public ConcurrentDictionary<Hash, QueuedTransaction> TransactionHub { get; set; }
+        public int TestCount { get; set; } = 1000;
 
         [TestInitialize]
         public void InitTest()
@@ -130,9 +133,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Thread.Sleep(1);
             }
         }
-
-        public ConcurrentDictionary<Hash, QueuedTransaction> TransactionHub { get; set; }
-        public int TestCount { get; set; } = 1000;
 
         [TestMethod]
         public void ComputeFibonacci_Test()

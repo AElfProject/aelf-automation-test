@@ -1,12 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -18,34 +16,29 @@ namespace AElf.Automation.EconomicSystem.Tests
     [TestClass]
     public class ElectionChangeTests
     {
-        public ILog Logger { get; set; } 
-        public INodeManager NodeManager { get; set; }
-        public TokenContract Token { get; set; }
-        public TokenContractContainer.TokenContractStub TokenContractStub { get; set; }
-        public ElectionContract Election { get; set; }
-        public ElectionContractContainer.ElectionContractStub ElectionContractStub { get; set; }
-        
-        public AEDPoSContractContainer.AEDPoSContractStub AEDPoSContractStub { get; set; }
+        public string BpUser = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+
+        public string FullUser1 = "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D";
+
+        public string FullUser2 = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
+
+        public string FullUserPubKey1 =
+            "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4";
+
+        public string FullUserPubKey2 =
+            "0433414d92934ef08a1b31ce2117dbb8be484657ec5e2fbd27058b3260587325e5f467778f22957af79af783306729fbaff0cd7f75eff61e5ce198531986d2af23";
 
         public string Tester = "2sYnepXzmsyxkoDZfAkJxDa8SpC5kgW5jiBNneNpVTb97anhSt";
 
         public string TesterPubkey =
             "04b93b99d44808ffce06e36fbcdd21f007e7b60999c954ebd7e3a9f7b52daf9fa2bd7110e9c8850c6c3ef0c4f6dfd431f9ed9254cc11f3b97cad6efaea283ef950";
 
-        public string FullUser1 = "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D";
-        public string FullUserPubKey1 = "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4";
-
-        public string FullUser2 = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
-        public string FullUserPubKey2 = "0433414d92934ef08a1b31ce2117dbb8be484657ec5e2fbd27058b3260587325e5f467778f22957af79af783306729fbaff0cd7f75eff61e5ce198531986d2af23";
-        
-        public string BpUser = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        
         public ElectionChangeTests()
         {
             //Init Logger
             Log4NetHelper.LogInit("ElectionChangeTest");
             Logger = Log4NetHelper.GetLogger();
-            
+
             const string endpoint = "http://192.168.197.40:8000";
             NodeManager = new NodeManager(endpoint);
 
@@ -56,13 +49,22 @@ namespace AElf.Automation.EconomicSystem.Tests
             ElectionContractStub = genesis.GetElectionStub();
         }
 
+        public ILog Logger { get; set; }
+        public INodeManager NodeManager { get; set; }
+        public TokenContract Token { get; set; }
+        public TokenContractContainer.TokenContractStub TokenContractStub { get; set; }
+        public ElectionContract Election { get; set; }
+        public ElectionContractContainer.ElectionContractStub ElectionContractStub { get; set; }
+
+        public AEDPoSContractContainer.AEDPoSContractStub AEDPoSContractStub { get; set; }
+
         [TestMethod]
         public void PrepareTokenForUser()
         {
             Token.TransferBalance(BpUser, FullUser1, 200000_00000000);
             Token.TransferBalance(BpUser, FullUser2, 200000_00000000);
             Token.TransferBalance(BpUser, Tester, 100000_00000000);
-            
+
             Logger.Info($"FullUser1 balance: {Token.GetUserBalance(FullUser1)}");
             Logger.Info($"FullUser2 balance: {Token.GetUserBalance(FullUser2)}");
             Logger.Info($"Tester balance: {Token.GetUserBalance(Tester)}");
@@ -72,10 +74,10 @@ namespace AElf.Automation.EconomicSystem.Tests
         public async Task AttendElection()
         {
             var genesis = NodeManager.GetGenesisContract();
-            
+
             ElectionContractStub = genesis.GetElectionStub(FullUser1);
             await ElectionContractStub.AnnounceElection.SendAsync(new Empty());
-            
+
             ElectionContractStub = genesis.GetElectionStub(FullUser2);
             await ElectionContractStub.AnnounceElection.SendAsync(new Empty());
 
@@ -135,7 +137,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var result = await AEDPoSContractStub.GetNextElectCountDown.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(result, Formatting.Indented));
         }
-        
+
         [TestMethod]
         public void GetUserPublicKey()
         {

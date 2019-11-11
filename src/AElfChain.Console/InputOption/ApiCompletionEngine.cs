@@ -7,7 +7,6 @@ namespace AElfChain.Console.InputOption
     public class ApiCompletionEngine : ICompletionEngine
     {
         public readonly char[] _tokenDelimiters = {' '};
-        public ConsoleKeyInfo Trigger { get; } = new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false);
 
         public List<string> ApiCommands => new List<string>
         {
@@ -24,9 +23,7 @@ namespace AElfChain.Console.InputOption
             "ListAccounts"
         };
 
-        public ApiCompletionEngine()
-        {
-        }
+        public ConsoleKeyInfo Trigger { get; } = new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false);
 
         public string[] GetAllSelections()
         {
@@ -38,6 +35,9 @@ namespace AElfChain.Console.InputOption
             return ApiCommands.Where(o => o.ToLower().StartsWith(partial.ToLower())).ToArray();
         }
 
-        public char[] GetTokenDelimiters() => _tokenDelimiters;
+        public char[] GetTokenDelimiters()
+        {
+            return _tokenDelimiters;
+        }
     }
 }

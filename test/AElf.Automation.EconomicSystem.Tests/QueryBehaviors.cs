@@ -1,11 +1,10 @@
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using Google.Protobuf.WellKnownTypes;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
@@ -13,6 +12,35 @@ namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
+        #region ProfitService View Method
+
+        // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
+        public CreatedSchemeIds GetCreatedProfitItems()
+        {
+            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
+                new GetManagingSchemeIdsInput
+                {
+                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.Treasury)
+                });
+            return result;
+        }
+
+        #endregion
+
+        #region TokenService Method
+
+        public GetBalanceOutput GetBalance(string account, string symbol = "")
+        {
+            var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = AddressHelper.Base58StringToAddress(account),
+                Symbol = NodeOption.GetTokenSymbol(symbol)
+            });
+            return balance;
+        }
+
+        #endregion
+
         #region Election View Methods
 
         public PubkeyList GetVictories()
@@ -93,35 +121,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         #endregion
 
         #region VoteService Method
-
-        #endregion
-
-        #region ProfitService View Method
-
-        // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
-        public CreatedSchemeIds GetCreatedProfitItems()
-        {
-            var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
-                new GetManagingSchemeIdsInput
-                {
-                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.Treasury)
-                });
-            return result;
-        }
-
-        #endregion
-
-        #region TokenService Method
-
-        public GetBalanceOutput GetBalance(string account, string symbol = "")
-        {
-            var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
-            {
-                Owner = AddressHelper.Base58StringToAddress(account),
-                Symbol = NodeOption.GetTokenSymbol(symbol)
-            });
-            return balance;
-        }
 
         #endregion
 

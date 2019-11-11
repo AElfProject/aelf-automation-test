@@ -4,16 +4,16 @@ namespace AElf.Automation.CheckTxStatus
 {
     public class TransactionInfo
     {
-        public readonly TransactionDto TransactionDto;
-        public readonly string Status;
         public readonly string From;
-        public string To;
+        public readonly string Status;
+        public readonly TransactionDto TransactionDto;
         public string MethodName;
+        public string Params;
         public long RefBlockNumber;
         public string RefBlockPrefix;
-        public string Params;
-        
-        
+        public string To;
+
+
         public TransactionInfo(TransactionDto tx, string status)
         {
             Status = status;

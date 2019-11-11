@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using Acs3;
 using Acs7;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -25,7 +24,89 @@ namespace AElf.Automation.SideChainTests
         public void InitializeNodeTests()
         {
             Initialize();
-            
+        }
+
+        private void ValidateChainTokenAddress(ContractTester tester)
+        {
+            var rawTx = tester.ValidateTokenAddress();
+            var txId = tester.ExecuteMethodWithTxId(rawTx);
+            var txResult = CheckTransactionResult(tester.ContractServices, txId);
+            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                Assert.IsTrue(false, $"Validate chain {tester.ContractServices.ChainId} token contract failed");
+            _logger.Info($"Validate Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId}");
+            _logger.Info(
+                $"Validate chain {tester.ContractServices.ChainId} token address {tester.TokenService.ContractAddress}");
+        }
+
+        private void Proposal(ContractServices services, IMessage input)
+        {
+            //get default organization
+            var organizationAddress =
+                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            //create proposal
+            var createProposalInput = new CreateProposalInput
+            {
+                OrganizationAddress = organizationAddress,
+                ToAddress = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
+                ContractMethodName = TokenMethod.RegisterCrossChainTokenContractAddress.ToString(),
+                ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
+                Params = input.ToByteString()
+            };
+            var createProposalResult =
+                services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                    createProposalInput);
+            if (createProposalResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
+
+            //approve
+            var miners = GetMiners(services);
+            foreach (var miner in miners)
+            {
+                services.ParliamentService.SetAccount(miner.GetFormatted());
+                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
+                    new ApproveInput
+                    {
+                        ProposalId = HashHelper.HexStringToHash(proposalId)
+                    });
+                if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+            }
+
+            services.ParliamentService.SetAccount(InitAccount);
+            var releaseResult
+                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    HashHelper.HexStringToHash(proposalId));
+            if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                Assert.IsTrue(false,
+                    $"Release proposal failed, token address can't register on chain {services.ChainId}");
+        }
+
+        // get miners
+        private IEnumerable<Address> GetMiners(ContractServices services)
+        {
+            var minerList = new List<Address>();
+            var miners =
+                services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            foreach (var publicKey in miners.Pubkeys)
+            {
+                var address = Address.FromPublicKey(publicKey.ToByteArray());
+                minerList.Add(address);
+            }
+
+            return minerList;
+        }
+
+        protected CrossChainMerkleProofContext GetCrossChainMerkleProofContext(ContractServices services,
+            long blockHeight)
+        {
+            var crossChainMerkleProofContext =
+                services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
+                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                    {
+                        Value = blockHeight
+                    });
+            _logger.Info("Get CrossChain Merkle Proof");
+            return crossChainMerkleProofContext;
         }
 
         #region register
@@ -34,10 +115,7 @@ namespace AElf.Automation.SideChainTests
         public void RegisterTokenAddress()
         {
             ValidateChainTokenAddress(MainContracts);
-            foreach (var sideTester in SideTester)
-            {
-                ValidateChainTokenAddress(sideTester);
-            }
+            foreach (var sideTester in SideTester) ValidateChainTokenAddress(sideTester);
         }
 
         [TestMethod]
@@ -134,14 +212,14 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void MainChainCrossChainTransferSideChain()
         {
-            var crossChainTransferInput = new CrossChainTransferInput()
+            var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = NodeOption.NativeTokenSymbol,
                 IssueChainId = MainContracts.ContractServices.ChainId,
                 Amount = 10000,
                 Memo = "cross chain transfer",
                 To = AddressHelper.Base58StringToAddress(InitAccount),
-                ToChainId = SideTester[0].ContractServices.ChainId,
+                ToChainId = SideTester[0].ContractServices.ChainId
             };
             // execute cross chain transfer
             var rawTx = MainContracts.NodeManager.GenerateRawTransaction(InitAccount,
@@ -181,11 +259,10 @@ namespace AElf.Automation.SideChainTests
 //            _logger.Info($"balance: {balance}");
 //        }
 
-        
+
         [TestMethod]
         public void SideChainCrossChainTransferMainChain()
         {
-
 //            var issue = sideAServices.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
 //            {
 //                Symbol = "STA",
@@ -194,19 +271,19 @@ namespace AElf.Automation.SideChainTests
 //                To = AddressHelper.Base58StringToAddress(InitAccount)
 //            });
 
-            var crossChainTransferInput = new CrossChainTransferInput()
+            var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = "STA",
                 IssueChainId = sideAServices.ChainId,
                 Amount = 100_0000,
                 Memo = "cross chain transfer",
                 To = AddressHelper.Base58StringToAddress("oqBFyjdWqZF6QKhVfBGmxA5Xz2mVJdC6jERdyC11EELjGSp5x"),
-                ToChainId = MainContracts.ContractServices.ChainId,
+                ToChainId = MainContracts.ContractServices.ChainId
             };
 
             var sideChainTokenContracts = sideAServices.TokenService.ContractAddress;
             _logger.Info($"{sideChainTokenContracts}");
-            
+
             // execute cross chain transfer
             var rawTx = sideAServices.NodeManager.GenerateRawTransaction(InitAccount,
                 sideChainTokenContracts, nameof(TokenMethod.CrossChainTransfer),
@@ -240,7 +317,7 @@ namespace AElf.Automation.SideChainTests
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
-            
+
 
             var result = MainContracts.CrossChainReceive(InitAccount, crossChainReceiveToken);
 
@@ -249,20 +326,19 @@ namespace AElf.Automation.SideChainTests
             _logger.Info($"balance: {balance}");
         }
 
-        
-        
+
         [TestMethod]
         public void SideChainACrossChainTransferSideChainB()
         {
             //Transfer
-            var crossChainTransferInput = new CrossChainTransferInput()
+            var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = "ELF",
                 IssueChainId = MainContracts.ContractServices.ChainId,
                 Amount = 1000,
                 Memo = "cross chain transfer",
                 To = AddressHelper.Base58StringToAddress(InitAccount),
-                ToChainId = SideTester[1].ContractServices.ChainId,
+                ToChainId = SideTester[1].ContractServices.ChainId
             };
             // execute cross chain transfer
             var rawTx = SideTester[0].NodeManager.GenerateRawTransaction(InitAccount,
@@ -279,88 +355,5 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-
-        private void ValidateChainTokenAddress(ContractTester tester)
-        {
-            var rawTx = tester.ValidateTokenAddress();
-            var txId = tester.ExecuteMethodWithTxId(rawTx);
-            var txResult = CheckTransactionResult(tester.ContractServices, txId);
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                Assert.IsTrue(false, $"Validate chain {tester.ContractServices.ChainId} token contract failed");
-            _logger.Info($"Validate Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId}");
-            _logger.Info(
-                $"Validate chain {tester.ContractServices.ChainId} token address {tester.TokenService.ContractAddress}");
-        }
-
-        private void Proposal(ContractServices services, IMessage input)
-        {
-            //get default organization
-            var organizationAddress =
-                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            //create proposal
-            var createProposalInput = new CreateProposalInput
-            {
-                OrganizationAddress = organizationAddress,
-                ToAddress = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
-                ContractMethodName = TokenMethod.RegisterCrossChainTokenContractAddress.ToString(),
-                ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                Params = input.ToByteString()
-            };
-            var createProposalResult =
-                services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                    createProposalInput);
-            if (createProposalResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
-
-            //approve
-            var miners = GetMiners(services);
-            foreach (var miner in miners)
-            {
-                services.ParliamentService.SetAccount(miner.GetFormatted());
-                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                    new ApproveInput
-                    {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
-                    });
-                if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-            }
-
-            services.ParliamentService.SetAccount(InitAccount);
-            var releaseResult
-                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
-            if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                Assert.IsTrue(false,
-                    $"Release proposal failed, token address can't register on chain {services.ChainId}");
-        }
-
-        // get miners
-        private IEnumerable<Address> GetMiners(ContractServices services)
-        {
-            var minerList = new List<Address>();
-            var miners =
-                services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            foreach (var publicKey in miners.Pubkeys)
-            {
-                var address = Address.FromPublicKey(publicKey.ToByteArray());
-                minerList.Add(address);
-            }
-
-            return minerList;
-        }
-        
-        protected CrossChainMerkleProofContext GetCrossChainMerkleProofContext(ContractServices services,
-            long blockHeight)
-        {
-            var crossChainMerkleProofContext =
-                services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
-                    {
-                        Value = blockHeight
-                    });
-            _logger.Info("Get CrossChain Merkle Proof");
-            return crossChainMerkleProofContext;
-        }
     }
 }

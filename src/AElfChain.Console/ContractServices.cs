@@ -1,20 +1,27 @@
 using System.Collections.Generic;
-using System.Linq;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 
 namespace AElfChain.Console
 {
     public class ContractServices
     {
-        public INodeManager NodeManager;
+        private AuthorityManager _authorityManager;
+
+        private Dictionary<string, string> _systemContracts;
         public GenesisContract Genesis;
+        public INodeManager NodeManager;
+
+        public ContractServices(INodeManager nodeManager, string caller = "")
+        {
+            NodeManager = nodeManager;
+            Genesis = nodeManager.GetGenesisContract(caller);
+        }
 
         public AuthorityManager Authority => GetAuthority();
 
@@ -38,30 +45,22 @@ namespace AElfChain.Console
 
         public ParliamentAuthContractContainer.ParliamentAuthContractStub ParliamentAuthStub =>
             Genesis.GetParliamentAuthStub();
-        
-        public ContractServices(INodeManager nodeManager, string caller = "")
-        {
-            NodeManager = nodeManager;
-            Genesis = nodeManager.GetGenesisContract(caller);
-        }
 
         public string GetContractAddress(string name)
         {
             if (SystemContracts.ContainsKey(name))
                 return SystemContracts[name];
-            
+
             return null;
         }
 
         private AuthorityManager GetAuthority()
         {
-            if(_authorityManager == null)
+            if (_authorityManager == null)
                 _authorityManager = new AuthorityManager(NodeManager, Genesis.CallAddress);
 
             return _authorityManager;
         }
-
-        private AuthorityManager _authorityManager;
 
         private Dictionary<string, string> GetSystemContracts()
         {
@@ -71,14 +70,12 @@ namespace AElfChain.Console
                 _systemContracts = new Dictionary<string, string>();
                 foreach (var key in contracts.Keys)
                 {
-                    if(contracts[key].Equals(new Address())) continue;
+                    if (contracts[key].Equals(new Address())) continue;
                     _systemContracts.Add(key.ToString(), contracts[key].GetFormatted());
                 }
             }
 
             return _systemContracts;
         }
-
-        private Dictionary<string, string> _systemContracts;
     }
 }

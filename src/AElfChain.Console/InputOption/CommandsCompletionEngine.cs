@@ -7,13 +7,14 @@ namespace AElfChain.Console.InputOption
     public class CommandsCompletionEngine : ICompletionEngine
     {
         private readonly char[] _tokenDelimiters = {' '};
-        private List<string> _commands;
-        public ConsoleKeyInfo Trigger { get; } = new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false);
+        private readonly List<string> _commands;
 
         public CommandsCompletionEngine(List<string> commands)
         {
             _commands = commands;
         }
+
+        public ConsoleKeyInfo Trigger { get; } = new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false);
 
         public string[] GetAllSelections()
         {
@@ -25,6 +26,9 @@ namespace AElfChain.Console.InputOption
             return _commands.Where(cmd => cmd.ToLower().StartsWith(partial.ToLower())).ToArray();
         }
 
-        public char[] GetTokenDelimiters() => _tokenDelimiters;
+        public char[] GetTokenDelimiters()
+        {
+            return _tokenDelimiters;
+        }
     }
 }

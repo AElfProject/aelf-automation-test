@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acs0;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Automation.ScenariosExecution.Scenarios;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
 
@@ -17,6 +16,17 @@ namespace AElf.Automation.ScenariosExecution
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public readonly INodeManager NodeManager;
+
+        public ContractServices(INodeManager nodeManager, string callAddress)
+        {
+            NodeManager = nodeManager;
+            CallAddress = callAddress;
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+
+            //get all contract services
+            GetAllContractServices();
+        }
+
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TreasuryContract TreasuryService { get; set; }
@@ -33,16 +43,6 @@ namespace AElf.Automation.ScenariosExecution
         public Address CallAccount { get; set; }
 
         public static List<Node> CurrentBpNodes { get; set; }
-
-        public ContractServices(INodeManager nodeManager, string callAddress)
-        {
-            NodeManager = nodeManager;
-            CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-
-            //get all contract services
-            GetAllContractServices();
-        }
 
         private void GetAllContractServices()
         {
@@ -73,7 +73,7 @@ namespace AElf.Automation.ScenariosExecution
 
             //ElectionService contract
             ElectionService = GenesisService.GetElectionContract();
-            
+
             //TokenConverter contract
             TokenConverterService = GenesisService.GetTokenConverterContract();
 

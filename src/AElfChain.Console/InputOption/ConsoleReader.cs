@@ -8,15 +8,19 @@ namespace AElfChain.Console.InputOption
 {
     public class ConsoleReader
     {
-        public ICompletionEngine CompletionEngine { get; set; }
         private readonly char[] _tokenDelimiters;
 
-        public ConsoleReader() : this(new EmptyCompletionEngine()) { }
+        public ConsoleReader() : this(new EmptyCompletionEngine())
+        {
+        }
+
         public ConsoleReader(ICompletionEngine completionEngine)
         {
             CompletionEngine = completionEngine ?? throw new ArgumentNullException(nameof(completionEngine));
             _tokenDelimiters = completionEngine.GetTokenDelimiters();
         }
+
+        public ICompletionEngine CompletionEngine { get; set; }
 
         public string ReadLine()
         {
@@ -52,7 +56,8 @@ namespace AElfChain.Console.InputOption
                             completionIndex++;
                             if (completionIndex == completionCandidates.Length) completionIndex = 0;
                             bufferIndex = Delete(startLeft, startTop, buffer, selection, bufferIndex, keyInfo);
-                            completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection, completionIndex, ref bufferIndex);
+                            completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection,
+                                completionIndex, ref bufferIndex);
                             break;
                         case ConsoleKey.Spacebar:
                             completionCandidates = null;
@@ -65,8 +70,10 @@ namespace AElfChain.Console.InputOption
                             return buffer.ToString();
                         default:
                             bufferIndex = Delete(startLeft, startTop, buffer, selection, bufferIndex, keyInfo);
-                            bufferIndex = Insert(keyInfo.KeyChar.ToString(), startLeft, startTop, buffer, selection, bufferIndex);
-                            completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection, completionIndex, ref bufferIndex);
+                            bufferIndex = Insert(keyInfo.KeyChar.ToString(), startLeft, startTop, buffer, selection,
+                                bufferIndex);
+                            completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection,
+                                completionIndex, ref bufferIndex);
                             break;
                     }
                 }
@@ -77,11 +84,13 @@ namespace AElfChain.Console.InputOption
                         console.WriteLine();
                         return buffer.ToString();
                     }
+
                     if (keyInfo.Key == CompletionEngine.Trigger.Key
                         && keyInfo.Modifiers == CompletionEngine.Trigger.Modifiers)
                     {
                         completionIndex = 0;
-                        completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection, completionIndex, ref bufferIndex);
+                        completionCandidates = DisplayCompletion(startLeft, startTop, buffer, selection,
+                            completionIndex, ref bufferIndex);
                     }
                     else
                     {
@@ -94,6 +103,7 @@ namespace AElfChain.Console.InputOption
                                         selection.Reset(bufferIndex);
                                     break;
                                 }
+
                                 if (keyInfo.Modifiers == ConsoleModifiers.Control)
                                 {
                                     bufferIndex = GetPreviousWordBufferIndex(buffer, bufferIndex);
@@ -114,6 +124,7 @@ namespace AElfChain.Console.InputOption
                                     bufferIndex--;
                                     selection.Reset(bufferIndex);
                                 }
+
                                 SetCursorPosition(bufferIndex, startLeft, startTop);
                                 break;
                             case ConsoleKey.RightArrow:
@@ -123,6 +134,7 @@ namespace AElfChain.Console.InputOption
                                         selection.Reset(bufferIndex);
                                     break;
                                 }
+
                                 if (keyInfo.Modifiers == ConsoleModifiers.Control)
                                 {
                                     bufferIndex = GetNextWordBufferIndex(buffer, bufferIndex);
@@ -143,6 +155,7 @@ namespace AElfChain.Console.InputOption
                                     bufferIndex++;
                                     selection.Reset(bufferIndex);
                                 }
+
                                 SetCursorPosition(bufferIndex, startLeft, startTop);
                                 break;
                             case ConsoleKey.Backspace:
@@ -178,11 +191,13 @@ namespace AElfChain.Console.InputOption
                                         bufferIndex--;
                                         buffer.Remove(bufferIndex, 1);
                                     }
+
                                     console.SetCursorPosition(startLeft, startTop);
                                     console.Write(buffer.ToString());
                                     SetCursorPosition(bufferIndex, startLeft, startTop);
                                     selection.Reset(bufferIndex);
                                 }
+
                                 break;
                             case ConsoleKey.Delete:
                                 if (bufferIndex == buffer.Length) break;
@@ -230,6 +245,7 @@ namespace AElfChain.Console.InputOption
                                     selection.Reset(bufferIndex);
                                     SetCursorPosition(bufferIndex, startLeft, startTop);
                                 }
+
                                 break;
                         }
                     }
@@ -237,7 +253,8 @@ namespace AElfChain.Console.InputOption
             }
         }
 
-        private string[] DisplayCompletion(int startLeft, int startTop, StringBuilder buffer, Selection selection, int completionIndex, ref int bufferIndex)
+        private string[] DisplayCompletion(int startLeft, int startTop, StringBuilder buffer, Selection selection,
+            int completionIndex, ref int bufferIndex)
         {
             string[] completionCandidates;
             var stack = new Stack<char>();
@@ -247,6 +264,7 @@ namespace AElfChain.Console.InputOption
                 stack.Push(buffer[index - 1]);
                 index--;
             }
+
             var partial = new string(stack.ToArray());
             completionCandidates = CompletionEngine.GetCompletions(partial);
             if (completionCandidates == null || completionCandidates.Length == 0)
@@ -269,7 +287,8 @@ namespace AElfChain.Console.InputOption
             return completionCandidates;
         }
 
-        private static int Insert(string value, int startLeft, int startTop, StringBuilder buffer, Selection selection, int bufferIndex)
+        private static int Insert(string value, int startLeft, int startTop, StringBuilder buffer, Selection selection,
+            int bufferIndex)
         {
             if (selection.Length > 0)
             {
@@ -302,7 +321,8 @@ namespace AElfChain.Console.InputOption
             return bufferIndex;
         }
 
-        private static int Delete(int startLeft, int startTop, StringBuilder buffer, Selection selection, int bufferIndex, ConsoleKeyInfo keyInfo)
+        private static int Delete(int startLeft, int startTop, StringBuilder buffer, Selection selection,
+            int bufferIndex, ConsoleKeyInfo keyInfo)
         {
             if (selection.Length > 0)
             {
@@ -324,12 +344,13 @@ namespace AElfChain.Console.InputOption
                 if (keyInfo.Modifiers == ConsoleModifiers.Control)
                 {
                     var sizeToDelete = GetNextWordBufferIndex(buffer, bufferIndex) - bufferIndex;
-                    for (int i = 0; i < sizeToDelete; i++)
-                    {
-                        buffer.Remove(bufferIndex, 1);
-                    }
+                    for (var i = 0; i < sizeToDelete; i++) buffer.Remove(bufferIndex, 1);
                 }
-                else buffer.Remove(bufferIndex, 1);
+                else
+                {
+                    buffer.Remove(bufferIndex, 1);
+                }
+
                 console.SetCursorPosition(startLeft, startTop);
                 console.Write(buffer.ToString());
                 SetCursorPosition(bufferIndex, startLeft, startTop);
@@ -342,20 +363,15 @@ namespace AElfChain.Console.InputOption
         private static int GetPreviousWordBufferIndex(StringBuilder buffer, int bufferIndex)
         {
             // If spaces are to the left, go past them first.
-            while (bufferIndex > 0 && buffer[bufferIndex - 1] == ' ')
-            {
-                bufferIndex = Math.Max(bufferIndex - 2, 0);
-            }
+            while (bufferIndex > 0 && buffer[bufferIndex - 1] == ' ') bufferIndex = Math.Max(bufferIndex - 2, 0);
 
             // Go left past any non-spaces until the char to the left is a space.
             for (bufferIndex--; bufferIndex >= 0; bufferIndex--)
-            {
                 if (buffer[bufferIndex] == ' ')
                 {
                     bufferIndex++;
                     break;
                 }
-            }
 
             return Math.Max(bufferIndex, 0);
         }
@@ -364,18 +380,12 @@ namespace AElfChain.Console.InputOption
         {
             // If there are any non-spaces to the right, go past them first.
             while (bufferIndex < buffer.Length - 1 && buffer[bufferIndex + 1] != ' ')
-            {
                 bufferIndex = Math.Min(bufferIndex + 1, buffer.Length);
-            }
 
             // Go right past any spaces until the char to the right is a non-space.
             for (bufferIndex++; bufferIndex < buffer.Length; bufferIndex++)
-            {
                 if (buffer[bufferIndex] != ' ')
-                {
                     break;
-                }
-            }
 
             return bufferIndex;
         }
@@ -387,8 +397,8 @@ namespace AElfChain.Console.InputOption
             int bufferIndex;
             var sanityCheck = console.WindowWidth * console.WindowHeight;
             for (bufferIndex = 0;
-                 (left != console.CursorLeft || top != console.CursorTop)
-                    && bufferIndex <= sanityCheck;
+                (left != console.CursorLeft || top != console.CursorTop)
+                && bufferIndex <= sanityCheck;
                 bufferIndex++)
             {
                 left++;
@@ -398,6 +408,7 @@ namespace AElfChain.Console.InputOption
                     top++;
                 }
             }
+
             return bufferIndex;
         }
 
@@ -412,7 +423,7 @@ namespace AElfChain.Console.InputOption
             left = startLeft;
             top = startTop;
 
-            for (int i = 0; i < bufferIndex; i++)
+            for (var i = 0; i < bufferIndex; i++)
             {
                 left++;
                 if (left >= console.WindowWidth)
@@ -436,6 +447,11 @@ namespace AElfChain.Console.InputOption
                 _startTop = startTop;
             }
 
+            public int Beginning { get; set; }
+            public int End { get; set; }
+            public int Start => Beginning < End ? Beginning : End;
+            public int Length => Math.Abs(End - Beginning);
+
             public void Reset(int bufferIndex)
             {
                 if (Beginning != End)
@@ -444,6 +460,7 @@ namespace AElfChain.Console.InputOption
                     console.Write(_buffer.ToString());
                     SetCursorPosition(End, _startLeft, _startTop);
                 }
+
                 Beginning = bufferIndex;
                 End = Beginning;
             }
@@ -473,11 +490,10 @@ namespace AElfChain.Console.InputOption
                 SetCursorPosition(bufferIndex, _startLeft, _startTop);
             }
 
-            public int Beginning { get; set; }
-            public int End { get; set; }
-            public int Start => Beginning < End ? Beginning : End;
-            public int Length => Math.Abs(End - Beginning);
-            public bool IsExpandingToRight(int bufferIndex) => (Beginning == End && bufferIndex > End) || Beginning < End;
+            public bool IsExpandingToRight(int bufferIndex)
+            {
+                return Beginning == End && bufferIndex > End || Beginning < End;
+            }
         }
     }
 }

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
 using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
@@ -13,26 +13,28 @@ namespace AElf.Automation.RpcPerformance
     public class NodeStatusMonitor
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private INodeManager NodeManager { get; }
-        private long BlockHeight { get; set; } = 1;
-        public static int MaxLimit { private get; set; }
+        public static int MaxQueueLimit = 5012;
+
+        private static int _checkCount;
+        private readonly object _checkObj = new object();
 
         public NodeStatusMonitor(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            MaxLimit = ConfigInfoHelper.Config.SentTxLimit;
+            MaxValidateLimit = ConfigInfoHelper.Config.SentTxLimit;
         }
 
-        private static int _checkCount;
-        private readonly object _checkObj = new object();
+        private INodeManager NodeManager { get; }
+        private long BlockHeight { get; set; } = 1;
+        public static int MaxValidateLimit { private get; set; }
 
         public void CheckTransactionPoolStatus(bool enable)
         {
             if (!enable) return;
             while (true)
             {
-                var txCount = GetTransactionPoolTxCount();
-                if (txCount < MaxLimit)
+                var poolStatus = GetTransactionPoolTxCount();
+                if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
                 {
                     lock (_checkObj)
                     {
@@ -49,7 +51,8 @@ namespace AElf.Automation.RpcPerformance
 
                 Thread.Sleep(200);
                 if (_checkCount % 10 == 0)
-                    $"TxHub transaction count:{txCount}, transaction limit number: {MaxLimit}".WriteWarningLine();
+                    $"TxHub transaction count: QueuedCount={poolStatus.Queued} ValidatedCount={poolStatus.Validated}. Transaction limit: {MaxValidateLimit}"
+                        .WriteWarningLine();
             }
         }
 
@@ -71,15 +74,20 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                        Logger.Info(
+                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.Unexecutable:
-                        Console.Write($"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
+                        Console.Write(
+                            $"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         break;
                     case TransactionResultStatus.Failed:
-                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                        Logger.Error(
+                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
@@ -138,21 +146,21 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(100);
                 if (checkTimes % 10 == 0)
                     Console.Write(
-                        $"\rCurrent block height {currentHeight}, not changed in {checkTimes / 10 : 000} seconds.");
+                        $"\rCurrent block height {currentHeight}, not changed in {checkTimes / 10: 000} seconds.");
 
                 if (checkTimes != 3000) continue;
-                
+
                 Console.Write("\r\n");
                 throw new TimeoutException("Node block exception, block height not changed 5 minutes later.");
             }
         }
 
-        private int GetTransactionPoolTxCount()
+        private TransactionPoolStatusOutput GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =
                 AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync);
 
-            return transactionPoolStatusOutput.Validated;
+            return transactionPoolStatusOutput;
         }
 
         private static string SpinInfo(int number)

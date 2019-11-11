@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common.Utils;
 using log4net;
 
@@ -14,13 +14,14 @@ namespace AElf.Automation.RpcPerformance
     public class TesterTokenMonitor
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public TokenContract SystemToken { get; set; }
 
         public TesterTokenMonitor(INodeManager nodeManager)
         {
             var genesis = GenesisContract.GetGenesisContract(nodeManager);
             SystemToken = genesis.GetTokenContract();
         }
+
+        public TokenContract SystemToken { get; set; }
 
         public void ExecuteTokenCheckTask(List<string> testers)
         {
@@ -45,7 +46,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info("Prepare basic token for tester.");
             TransferTokenToTester(testers);
         }
-        
+
         public void IssueTokenForTest(List<string> testers)
         {
             Logger.Info("Prepare basic token for tester.");
@@ -65,7 +66,6 @@ namespace AElf.Automation.RpcPerformance
                     if (tester == bp.Account) continue;
                     var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
                     if (userBalance < 1_0000_00000000)
-                    {
                         SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                         {
                             To = tester.ConvertAddress(),
@@ -73,7 +73,6 @@ namespace AElf.Automation.RpcPerformance
                             Symbol = NodeOption.ChainToken,
                             Memo = $"Transfer token for test {Guid.NewGuid()}"
                         });
-                    }
                 }
 
                 SystemToken.CheckTransactionResultList();
@@ -93,7 +92,6 @@ namespace AElf.Automation.RpcPerformance
                     if (tester == bp.Account) continue;
                     var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
                     if (userBalance < 1_0000_00000000)
-                    {
                         SystemToken.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
                         {
                             To = tester.ConvertAddress(),
@@ -101,8 +99,8 @@ namespace AElf.Automation.RpcPerformance
                             Symbol = NodeOption.ChainToken,
                             Memo = $"Issue token for test {Guid.NewGuid()}"
                         });
-                    }
                 }
+
                 SystemToken.CheckTransactionResultList();
             }
         }

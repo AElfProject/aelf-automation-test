@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -15,9 +15,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class PerformanceScenario : BaseScenario
     {
-        public PerformanceContract Performance { get; set; }
-        public List<string> Testers { get; }
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        private static readonly List<int> ByteSizeArray = new List<int> {1000, 2000, 5000, 10000};
 
         public PerformanceScenario()
         {
@@ -26,6 +26,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Performance = Services.PerformanceService;
             Testers = AllTesters.GetRange(0, 50);
         }
+
+        public PerformanceContract Performance { get; set; }
+        public List<string> Testers { get; }
 
         public void RunPerformanceScenarioJob()
         {
@@ -43,7 +46,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var list = ByteSizeArray.OrderBy(x => rd.Next()).Take(2);
             foreach (var item in list)
             {
-                PerformanceMethod method = PerformanceMethod.Write1KContentByte;
+                var method = PerformanceMethod.Write1KContentByte;
                 switch (item)
                 {
                     case 1000:
@@ -74,7 +77,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var list = ByteSizeArray.OrderBy(x => rd.Next()).Take(2);
             foreach (var item in list)
             {
-                PerformanceMethod method = PerformanceMethod.ComputeLevel1;
+                var method = PerformanceMethod.ComputeLevel1;
                 switch (item)
                 {
                     case 1000:
@@ -113,7 +116,5 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
             Logger.Info($"Fibonacci query, number: {result2.Number}, result: {result2.Result}");
         }
-
-        private static readonly List<int> ByteSizeArray = new List<int> {1000, 2000, 5000, 10000};
     }
 }

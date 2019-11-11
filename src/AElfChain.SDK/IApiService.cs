@@ -35,7 +35,7 @@ namespace AElfChain.SDK
 
         Task<BlockDto> GetBlockByHeightAsync(long blockHeight, bool includeTransactions = false);
 
-        Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatusAsync();
+        Task<TransactionPoolStatusOutput> GetTransactionPoolStatusAsync();
 
         Task<ChainStatusDto> GetChainStatusAsync();
 

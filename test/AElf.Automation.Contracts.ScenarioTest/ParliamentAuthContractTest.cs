@@ -2,20 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Acs3;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -23,13 +24,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ParliamentAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        public ParliamentAuthContract NewParliament;
+        public ParliamentAuthContract Parliament;
+        public string Symbol = NodeOption.NativeTokenSymbol;
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
         public IApiService ApiService { get; set; }
         public List<string> UserList { get; set; }
-        public string Symbol = NodeOption.NativeTokenSymbol;
-        public ParliamentAuthContract Parliament;
-        public ParliamentAuthContract NewParliament;
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
 
@@ -93,7 +94,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void CreateProposal(string organizationAddress, string contractAddress)
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
-            var transferInput = new TransferInput()
+            var transferInput = new TransferInput
             {
                 Symbol = Symbol,
                 Amount = 100,
@@ -157,16 +158,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Tester.TokenService.SetAccount(InitAccount);
                     Tester.TokenService.TransferBalance(InitAccount, miner, 1000_0000000, Symbol);
                 }
+
                 NewParliament.SetAccount(miner);
                 var result =
-                    NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput()
+                    NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
                     {
                         ProposalId = HashHelper.HexStringToHash(proposalId)
                     });
                 _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
-        
+
         [TestMethod]
         [DataRow("daa3215f3832e61b4360caebd976c97419644bae4af647645b0b8e33033fca5b",
             "F5d3S7YJhSLvcBWtGw6nJ6Rx64MBgK4RpdMt6EAEDcns36qYs")]
@@ -174,19 +176,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             NewParliament = new ParliamentAuthContract(NodeManager, InitAccount, contractAddress);
             var balance = Tester.TokenService.GetUserBalance(Full, Symbol);
-                if (balance <= 0)
-                {
-                    Tester.TokenService.SetAccount(InitAccount);
-                    Tester.TokenService.TransferBalance(InitAccount, Full, 1000_0000000, Symbol);
-                }
+            if (balance <= 0)
+            {
+                Tester.TokenService.SetAccount(InitAccount);
+                Tester.TokenService.TransferBalance(InitAccount, Full, 1000_0000000, Symbol);
+            }
 
-                NewParliament.SetAccount(Full);
-                var result =
-                    NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput()
-                    {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
-                    });
-                _logger.Info($"Approve is {result.ReadableReturnValue}");
+            NewParliament.SetAccount(Full);
+            var result =
+                NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
+                });
+            _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
 
         [TestMethod]

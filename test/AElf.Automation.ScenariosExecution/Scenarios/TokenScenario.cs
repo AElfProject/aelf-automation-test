@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -19,10 +18,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class TokenScenario : BaseScenario
     {
-        public TokenContract Token { get; set; }
-        public ElectionContract Election { get; set; }
-        public List<string> Testers { get; }
-
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TokenScenario()
@@ -33,6 +28,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Election = Services.ElectionService;
             Testers = AllTesters.GetRange(25, 25);
         }
+
+        public TokenContract Token { get; set; }
+        public ElectionContract Election { get; set; }
+        public List<string> Testers { get; }
 
         public void RunTokenScenario()
         {
@@ -216,7 +215,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(bp.Account, bp.Password);
                 Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = balance/2,
+                    Amount = balance / 2,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect half tokens from other bps."
@@ -239,7 +238,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 accountFrom = acc;
                 accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
                 amount = (long) randomNo % 10 + 1;
-                
+
                 return;
             }
         }

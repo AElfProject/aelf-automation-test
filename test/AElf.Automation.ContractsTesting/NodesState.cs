@@ -1,7 +1,6 @@
 using System.Threading;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 

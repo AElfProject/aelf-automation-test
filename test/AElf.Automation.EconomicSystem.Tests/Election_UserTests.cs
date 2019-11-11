@@ -1,7 +1,7 @@
 using System.Linq;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,9 +56,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var miners = Behaviors.GetCurrentMiners();
             foreach (var publicKey in miners.Pubkeys)
-            {
                 _logger.Info($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
-            }
         }
 
 
@@ -66,7 +64,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCurrentRoundInformation()
         {
             var roundInformation =
-                Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+                Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation,
+                    new Empty());
             _logger.Info(roundInformation.ToString());
         }
     }

@@ -1,8 +1,7 @@
 using System.Linq;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Election;
-using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,19 +33,20 @@ namespace AElf.Automation.EconomicSystem.Tests
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
-        
+
         [TestMethod]
         public void NodeAnnounceElectionAction()
         {
-            var candidates = Behaviors.ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
+            var candidates =
+                Behaviors.ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
             foreach (var user in UserList)
             {
-                var election = Behaviors.ElectionService.GetNewTester(user,"123");
-                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty()); 
+                var election = Behaviors.ElectionService.GetNewTester(user, "123");
+                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
             }
-  
+
             Behaviors.GetCandidates();
         }
 
@@ -95,10 +95,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var candidates = Behaviors.GetCandidates();
             _logger.Info($"Candidate count: {candidates.Value.Count}");
-            foreach (var candidate in candidates.Value)
-            {
-                _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
-            }
+            foreach (var candidate in candidates.Value) _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
         }
 
         [TestMethod]

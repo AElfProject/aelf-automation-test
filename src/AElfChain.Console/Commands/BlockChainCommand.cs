@@ -1,10 +1,8 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElfChain.Common;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
@@ -16,10 +14,6 @@ namespace AElfChain.Console.Commands
 {
     public class BlockChainCommand : BaseCommand
     {
-        private ConsoleReader Reader { get; set; }
-        private ApiCompletionEngine AutoEngine { get; set; }
-        public IApiService ApiService => NodeManager.ApiService;
-
         public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager,
             contractServices)
         {
@@ -27,13 +21,11 @@ namespace AElfChain.Console.Commands
             AutoEngine = new ApiCompletionEngine();
         }
 
+        private ApiCompletionEngine AutoEngine { get; }
+        public IApiService ApiService => NodeManager.ApiService;
+
         public override void RunCommand()
         {
-            /*
-            Reader = new ConsoleReader(AutoEngine);
-            var input = CommandOption.InputParameters(1, Reader);
-            var command = input[0].Trim();
-            */
             var command = Prompt.Select("Select api command", GetSubCommands());
             switch (command)
             {
@@ -51,9 +43,6 @@ namespace AElfChain.Console.Commands
                     break;
                 case "BlockState":
                     GetBlockState();
-                    break;
-                case "BlockAnalyze":
-                    BlockAnalyze();
                     break;
                 case "CurrentRoundInformation":
                     GetCurrentRoundInformation();
@@ -152,43 +141,6 @@ namespace AElfChain.Console.Commands
             JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
         }
 
-        private void BlockAnalyze()
-        {
-            "Parameter: [StartHeight] [EndHeight]=null".WriteSuccessLine();
-            var input = CommandOption.InputParameters(1);
-            var startHeight = long.Parse(input[0]);
-            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
-            if(blockHeight < startHeight)
-                Logger.Error("Wrong block height");
-            var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
-            Node minerNode = null;
-            var minerKey = "";
-            NodeInfoHelper.Config.CheckNodesAccount();
-            var nodes = NodeInfoHelper.Config.Nodes;
-            Logger.Info("Begin analyze block generate and transactions information:");
-            for (var i = startHeight; i <= endHeight; i++)
-            {
-                var height = i;
-                var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
-                var signerKey = block.Header.SignerPubkey;
-                if (minerKey == "")
-                {
-                    minerKey = signerKey;
-                    minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
-                }
-                else
-                {
-                    if (minerKey != signerKey)
-                    {
-                        System.Console.WriteLine();
-                        minerKey = signerKey;
-                        minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
-                    }
-                }
-                var minerInfo = minerNode == null ? minerKey.Substring(0, 10) : minerNode.Name;
-                Logger.Info($"Time: {block.Header.Time:O}  Height: {height.ToString().PadRight(8)} Miner: {minerInfo.PadRight(10)} TxCount: {block.Body.TransactionsCount:000}");
-            }
-        }
 
         private void GetChainStatus()
         {
@@ -318,7 +270,6 @@ namespace AElfChain.Console.Commands
                 "BlockByHash",
                 "BlockByHeight",
                 "BlockState",
-                "BlockAnalyze",
                 "ChainStatus",
                 "ContractFileDescriptor",
                 "CurrentRoundInformation",
@@ -339,7 +290,7 @@ namespace AElfChain.Console.Commands
 
         public override string[] InputParameters()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

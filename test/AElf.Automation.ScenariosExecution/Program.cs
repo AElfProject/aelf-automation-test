@@ -4,7 +4,7 @@ using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
-    class Program
+    internal class Program
     {
         #region Private Properties
 
@@ -12,7 +12,7 @@ namespace AElf.Automation.ScenariosExecution
 
         #endregion
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Log4NetHelper.LogInit("ScenarioTest");
 

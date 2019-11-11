@@ -1,21 +1,17 @@
 using Acs0;
 using Acs3;
 using Acs7;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 using ApproveInput = Acs3.ApproveInput;
 
@@ -23,12 +19,12 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractTester
     {
-        public readonly INodeManager NodeManager;
-        public readonly ContractServices ContractServices;
-        public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
+        public readonly ContractServices ContractServices;
         public readonly CrossChainContract CrossChainService;
+        public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
+        public readonly TokenContract TokenService;
 
         public ContractTester(ContractServices contractServices)
         {
@@ -57,8 +53,19 @@ namespace AElf.Automation.SideChainTests
 
         #endregion
 
-        #region side chain create method
+        #region Other Method
 
+        public string ExecuteMethodWithTxId(string rawTx)
+        {
+            var transactionOutput =
+                AsyncHelper.RunSync(() => NodeManager.ApiService.SendTransactionAsync(rawTx));
+
+            return transactionOutput.TransactionId;
+        }
+
+        #endregion
+
+        #region side chain create method
 
         public Address GetOrganizationAddress(string account)
         {
@@ -69,14 +76,15 @@ namespace AElf.Automation.SideChainTests
             return address;
         }
 
-        public TransactionResultDto CreateSideChainProposal(Address organizationAddress, string account, int indexingPrice,
+        public TransactionResultDto CreateSideChainProposal(Address organizationAddress, string account,
+            int indexingPrice,
             long lockedTokenAmount, bool isPrivilegePreserved)
         {
-            ByteString code = ByteString.FromBase64("4d5a90000300");
+            var code = ByteString.FromBase64("4d5a90000300");
             var createProposalInput = new SideChainCreationRequest
             {
                 IndexingPrice = indexingPrice,
-                LockedTokenAmount = lockedTokenAmount,
+                LockedTokenAmount = lockedTokenAmount
 //                IsPrivilegePreserved = isPrivilegePreserved
             };
             ParliamentService.SetAccount(account);
@@ -238,7 +246,7 @@ namespace AElf.Automation.SideChainTests
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
-                    Amount = amount,
+                    Amount = amount
                 });
 
             return result;
@@ -254,7 +262,7 @@ namespace AElf.Automation.SideChainTests
                     Amount = amount,
                     Memo = "transfer to side chain",
                     To = AddressHelper.Base58StringToAddress(toAccount),
-                    ToChainId = toChainId,
+                    ToChainId = toChainId
                 });
 
             return result;
@@ -286,18 +294,6 @@ namespace AElf.Automation.SideChainTests
             });
 
             return tokenInfo;
-        }
-
-        #endregion
-
-        #region Other Method
-
-        public string ExecuteMethodWithTxId(string rawTx)
-        {
-            var transactionOutput =
-                AsyncHelper.RunSync(() => NodeManager.ApiService.SendTransactionAsync(rawTx));
-
-            return transactionOutput.TransactionId;
         }
 
         #endregion

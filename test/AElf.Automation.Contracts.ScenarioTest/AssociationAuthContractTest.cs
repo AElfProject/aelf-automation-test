@@ -19,10 +19,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class AssociationAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        public string Symbol = NodeOption.NativeTokenSymbol;
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
         public List<string> UserList { get; set; }
-        public string Symbol = NodeOption.NativeTokenSymbol;
 
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
 
@@ -42,11 +42,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit("AssociationTest_");
 
             #endregion
-            
+
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
-            
+
             ReviewerList = new List<Reviewer>();
             var review1 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 1};
             var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount2), Weight = 2};
@@ -62,7 +62,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 if (balance > 0) continue;
                 Tester.TokenService.TransferBalance(InitAccount, reviewer.Address.GetFormatted(), 100, symbol);
             }
-            
         }
 
         [TestMethod]
@@ -81,10 +80,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
-            foreach (var reviewer in organization.Reviewers)
-            {
-                _logger.Info($"organization review is : {reviewer}");
-            }
+            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
 
             Tester.TokenService.SetAccount(InitAccount);
             var transfer = Tester.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -103,17 +99,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
-            foreach (var reviewer in organization.Reviewers)
-            {
-                _logger.Info($"organization review is : {reviewer}");
-            }
+            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
         }
 
         [TestMethod]
         [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
         public void CreateProposal(string organizationAddress)
         {
-            var transferInput = new TransferInput()
+            var transferInput = new TransferInput
             {
                 Symbol = Symbol,
                 Amount = 100,
@@ -167,7 +160,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Release(string proposalId)
         {
             Tester.AssociationService.SetAccount(ReviewAccount1);
-            var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Release, HashHelper.HexStringToHash(proposalId));
+            var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Release,
+                HashHelper.HexStringToHash(proposalId));
             Assert.AreSame(result.Status, "MINED");
         }
 

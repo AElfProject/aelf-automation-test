@@ -12,8 +12,8 @@ namespace AElf.Automation.QueryTransaction
     public class TransactionQuery
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private readonly IApiService _apiService;
+        private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private long _blockHeight = 1;
         private bool _completeQuery;
 
@@ -24,14 +24,12 @@ namespace AElf.Automation.QueryTransaction
 
         public void ExecuteMultipleTasks(int threadCount = 1)
         {
-            var tasks = new List<Task>()
+            var tasks = new List<Task>
             {
-                Task.Run(() => AsyncHelper.RunSync(QueryBlockWithHeight)),
+                Task.Run(() => AsyncHelper.RunSync(QueryBlockWithHeight))
             };
             for (var i = 0; i < threadCount; i++)
-            {
                 tasks.Add(Task.Run(() => AsyncHelper.RunSync(QueryTransactionWithTxId)));
-            }
 
             Task.WaitAll(tasks.ToArray());
         }

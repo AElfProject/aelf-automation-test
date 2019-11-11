@@ -1,11 +1,9 @@
 using System.Threading.Tasks;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Newtonsoft.Json;
@@ -16,7 +14,15 @@ namespace AElf.Automation.ApiTest
     public partial class ChainApiTests
     {
         private INodeManager _nodeManager;
-        
+
+        private TokenContract DeployTokenContract()
+        {
+            _nodeManager = new NodeManager(ServiceUrl);
+            var account = _nodeManager.AccountManager.NewAccount(NodeOption.DefaultPassword);
+
+            return new TokenContract(_nodeManager, account);
+        }
+
         [Fact]
         public async Task SendTransactions_Test()
         {
@@ -24,7 +30,7 @@ namespace AElf.Automation.ApiTest
             var token = DeployTokenContract();
             var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
             var chainStatus = await _client.GetChainStatusAsync();
-            var rawTransactionOutput = await  _client.CreateRawTransactionAsync(new CreateRawTransactionInput
+            var rawTransactionOutput = await _client.CreateRawTransactionAsync(new CreateRawTransactionInput
             {
                 From = token.CallAddress,
                 To = token.ContractAddress,
@@ -41,7 +47,7 @@ namespace AElf.Automation.ApiTest
                 RefBlockHash = chainStatus.BestChainHash,
                 RefBlockNumber = chainStatus.BestChainHeight
             });
-            
+
             var transactionId =
                 Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(rawTransactionOutput.RawTransaction));
             var signature = _nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray());
@@ -50,14 +56,6 @@ namespace AElf.Automation.ApiTest
                 RawTransaction = rawTransactionOutput.RawTransaction,
                 Signature = signature.ToHex()
             });
-        }
-
-        private TokenContract DeployTokenContract()
-        {
-            _nodeManager = new NodeManager(ServiceUrl);
-            var account = _nodeManager.AccountManager.NewAccount(NodeOption.DefaultPassword);
-            
-            return new TokenContract(_nodeManager,account);
         }
     }
 }

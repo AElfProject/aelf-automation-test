@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,9 +14,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class ElectionTests
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        protected static string RpcUrl { get; } = "http://192.168.197.40:8000";
 
         protected Behaviors Behaviors;
+        protected static string RpcUrl { get; } = "http://192.168.197.40:8000";
 
         //protected RpcApiHelper CH { get; set; }   
         protected INodeManager CH { get; set; }
@@ -29,13 +27,6 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected List<string> NodesPublicKeys { get; set; }
         protected List<CandidateInfo> CandidateInfos { get; set; }
         protected Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
-
-        protected class CandidateInfo
-        {
-            public string Name { get; set; }
-            public string Account { get; set; }
-            public string PublicKey { get; set; }
-        }
 
         protected void Initialize()
         {
@@ -72,7 +63,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
                 "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
                 "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
-                "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+                "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"
             };
 
             //Get BpNode Info
@@ -94,7 +85,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
+                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
             }
 
             for (var i = 0; i < FullNodeAddress.Count; i++)
@@ -104,7 +95,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var pubKey = CH.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
+                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
             }
 
             //Transfer candidate 200_000
@@ -112,7 +103,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             if (balance.Balance == 0)
             {
                 foreach (var account in FullNodeAddress)
-                {
                     Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         Symbol = NodeOption.NativeTokenSymbol,
@@ -120,7 +110,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                         To = AddressHelper.Base58StringToAddress(account),
                         Memo = "Transfer token for announcement."
                     });
-                }
 
                 Behaviors.TokenService.CheckTransactionResultList();
             }
@@ -156,7 +145,6 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             Behaviors.TokenService.SetAccount(BpNodeAddress[0]);
             foreach (var acc in UserList)
-            {
                 Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = 20_0000_00000000,
@@ -164,7 +152,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(acc)
                 });
-            }
 
             Behaviors.TokenService.CheckTransactionResultList();
 
@@ -202,6 +189,13 @@ namespace AElf.Automation.EconomicSystem.Tests
                 var result = services.NodeManager.UnlockAccount(accountList[i]);
                 Assert.IsTrue(result);
             }
+        }
+
+        protected class CandidateInfo
+        {
+            public string Name { get; set; }
+            public string Account { get; set; }
+            public string PublicKey { get; set; }
         }
     }
 }

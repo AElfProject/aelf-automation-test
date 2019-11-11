@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -11,11 +11,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
     public class Acs8ContractTest
     {
-        public string Contract { get; set; }
-
-        public ExecutionPluginForAcs8Contract PluginAcs8Contract { get; set; }
-        public ContractServices Chain { get; set; }
-
         public static ILog Logger = Log4NetHelper.GetLogger();
 
         public Acs8ContractTest(ContractServices chain, string contract)
@@ -25,16 +20,21 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             PluginAcs8Contract = new ExecutionPluginForAcs8Contract(Chain.NodeManager, Chain.CallAddress, Contract);
         }
 
+        public string Contract { get; set; }
+
+        public ExecutionPluginForAcs8Contract PluginAcs8Contract { get; set; }
+        public ContractServices Chain { get; set; }
+
         public async Task ExecutionTest()
         {
-            var tester =  PluginAcs8Contract.GetTestStub<ContractContainer.ContractStub>(Chain.CallAddress);
+            var tester = PluginAcs8Contract.GetTestStub<ContractContainer.ContractStub>(Chain.CallAddress);
 
             try
             {
                 //cpu
                 var cpuResult = await tester.CpuConsumingMethod.SendAsync(new Empty());
                 Logger.Info(cpuResult.TransactionResult);
-           
+
                 //net
                 var randomBytes = CommonHelper.GenerateRandombytes(10240);
                 var netResult = await tester.NetConsumingMethod.SendAsync(new NetConsumingMethodInput
@@ -50,7 +50,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 //few
                 var fewResult = await tester.FewConsumingMethod.SendAsync(new Empty());
                 Logger.Info(fewResult.TransactionResult);
-
             }
             catch (Exception e)
             {

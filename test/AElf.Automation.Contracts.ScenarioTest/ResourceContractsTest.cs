@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 //unlock
                 NodeManager.UnlockAccount(account);
             }
-            
+
             NodeManager.UnlockAccount(InitAccount);
 
             //Init services
@@ -111,7 +109,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
 
             foreach (var acc in AccList)
-            {
                 tokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = TokenSymbol,
@@ -119,7 +116,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "transfer for resource trade.",
                     To = AddressHelper.Base58StringToAddress(acc)
                 });
-            }
 
             tokenService.CheckTransactionResultList();
 

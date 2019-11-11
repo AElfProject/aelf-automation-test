@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using Acs0;
 using Acs3;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -62,6 +61,203 @@ namespace AElf.Automation.Contracts.ScenarioTest
             SideTester2 = new ContractTester(sideContractServices2);
         }
 
+
+//        side-2: 2pNhc2Yz7eUPeD7EKE9QZh7c2XfURryZdLF8gW3giVLgprpcJB
+//        side-1: mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s
+        [TestMethod]
+        public void SideChangeOwner()
+        {
+            var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract owner is {address}");
+
+            SideTester.GenesisService.SetAccount(InitAccount);
+            var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                new ChangeContractAuthorInput
+                {
+                    ContractAddress =
+                        AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
+                    NewAuthor =
+                        AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")
+                });
+            var address1 = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract new owner is {address1}");
+        }
+
+        [TestMethod]
+        public void SideChangeOwnerThroughProposal()
+        {
+            var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
+            _logger.Info($"contract owner is {address}");
+            var organizationAddress = CreateOrganization(SideTester, false, address);
+
+            var changeContractAuthorInput = new ChangeContractAuthorInput
+            {
+                ContractAddress =
+                    AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
+                NewAuthor = AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")
+            };
+
+            SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
+            var proposal = SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                new CreateProposalInput
+                {
+                    ContractMethodName = nameof(GenesisMethod.ChangeContractAuthor),
+                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
+                    Params = changeContractAuthorInput.ToByteString(),
+                    ToAddress = AddressHelper.Base58StringToAddress(SideTester.GenesisService.ContractAddress),
+                    OrganizationAddress = organizationAddress
+                });
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
+            SideTester.GenesisService.SetAccount(InitAccount);
+            var approve =
+                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
+                });
+            var approveResult = approve.ReadableReturnValue;
+
+            approveResult.ShouldBe("true");
+
+            SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
+            var result =
+                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    HashHelper.HexStringToHash(proposalId));
+            result.Status.ShouldBe("FAILED");
+        }
+
+
+        [TestMethod]
+        public void MainChangeContractOwner()
+        {
+            var contractOwnerAddress =
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
+
+            var organizationAddress =
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {organizationAddress} ");
+
+            var result =
+                MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
+                    AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
+        }
+
+        [TestMethod]
+        public void MainChangeZeroOwner()
+        {
+            var input = AddressHelper.Base58StringToAddress(InitAccount);
+            var organizationAddress =
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {organizationAddress} ");
+
+            var contractOwnerAddress =
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
+
+
+            var proposal = MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                new CreateProposalInput
+                {
+                    ContractMethodName = nameof(GenesisMethod.ChangeGenesisOwner),
+                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
+                    Params = input.ToByteString(),
+                    ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
+                    OrganizationAddress = organizationAddress
+                });
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
+
+            MainTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
+            var approve =
+                MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
+                });
+            var approveResult = approve.ReadableReturnValue;
+
+            approveResult.ShouldBe("true");
+
+            MainTester.GenesisService.SetAccount(InitAccount);
+            var result =
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {result} ");
+        }
+
+
+        [TestMethod]
+        public void MainChangeZeroOwnerByUser()
+        {
+            ;
+            var organizationAddress =
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {organizationAddress} ");
+            var input = organizationAddress;
+
+            var contractOwnerAddress =
+                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
+
+
+            var result = MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner, input);
+            var account =
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {account} ");
+        }
+
+
+        [TestMethod]
+        public void SideChangeZeroOwner()
+        {
+            var input = AddressHelper.Base58StringToAddress(InitAccount);
+            var organizationAddress =
+                SideTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                    new Empty());
+            _logger.Info($"organization address is {organizationAddress} ");
+
+            var contractOwnerAddress =
+                SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
+                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
+            _logger.Info($"contract owner address is {contractOwnerAddress}");
+
+
+            var proposal = SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
+                new CreateProposalInput
+                {
+                    ContractMethodName = nameof(TokenMethod.Transfer),
+                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
+                    Params = input.ToByteString(),
+                    ToAddress =
+                        AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"),
+                    OrganizationAddress = organizationAddress
+                });
+            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
+
+            SideTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
+            var approve =
+                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = HashHelper.HexStringToHash(proposalId)
+                });
+            var approveResult = approve.ReadableReturnValue;
+
+            approveResult.ShouldBe("true");
+
+            SideTester.GenesisService.SetAccount(InitAccount);
+            var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner,
+                AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
+            result.Status.ShouldBe("MINED");
+        }
+
         #region SideChain2 IsAuthoiryRequired == true; IsPrivilegePreserved == true;
 
         // Deploy contract should use create proposal through GenesisOwnerAddress;
@@ -74,7 +270,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var codeArray = contractReader.Read("AElf.Contracts.MultiToken");
 
             var result = SideTester2.GenesisService.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
-                new SystemContractDeploymentInput()
+                new SystemContractDeploymentInput
                 {
                     Code = ByteString.CopyFrom(codeArray),
                     Category = KernelConstants.DefaultRunnerCategory,
@@ -237,7 +433,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var codeArray = contractReader.Read("AElf.Contracts.MultiToken");
 
             var result = MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
-                new SystemContractDeploymentInput()
+                new SystemContractDeploymentInput
                 {
                     Code = ByteString.CopyFrom(codeArray),
                     Category = KernelConstants.DefaultRunnerCategory,
@@ -296,203 +492,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         #endregion
-
-
-//        side-2: 2pNhc2Yz7eUPeD7EKE9QZh7c2XfURryZdLF8gW3giVLgprpcJB
-//        side-1: mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s
-        [TestMethod]
-        public void SideChangeOwner()
-        {
-            var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.Info($"contract owner is {address}");
-
-            SideTester.GenesisService.SetAccount(InitAccount);
-            var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
-                new ChangeContractAuthorInput()
-                {
-                    ContractAddress =
-                        AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
-                    NewAuthor =
-                        AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
-                });
-            var address1 = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.Info($"contract new owner is {address1}");
-        }
-
-        [TestMethod]
-        public void SideChangeOwnerThroughProposal()
-        {
-            var address = SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"));
-            _logger.Info($"contract owner is {address}");
-            var organizationAddress = CreateOrganization(SideTester, false, address);
-
-            var changeContractAuthorInput = new ChangeContractAuthorInput()
-            {
-                ContractAddress =
-                    AddressHelper.Base58StringToAddress("mkGKKat9jBFQa75Ty9QYiUnhssHJifYs9wPNafKZedx1TZx4s"),
-                NewAuthor = AddressHelper.Base58StringToAddress("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo"),
-            };
-
-            SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
-            var proposal = SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                new CreateProposalInput
-                {
-                    ContractMethodName = nameof(GenesisMethod.ChangeContractAuthor),
-                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                    Params = changeContractAuthorInput.ToByteString(),
-                    ToAddress = AddressHelper.Base58StringToAddress(SideTester.GenesisService.ContractAddress),
-                    OrganizationAddress = organizationAddress
-                });
-            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
-            SideTester.GenesisService.SetAccount(InitAccount);
-            var approve =
-                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
-                });
-            var approveResult = approve.ReadableReturnValue;
-
-            approveResult.ShouldBe("true");
-
-            SideTester.GenesisService.SetAccount("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
-            var result =
-                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
-            result.Status.ShouldBe("FAILED");
-        }
-
-
-        [TestMethod]
-        public void MainChangeContractOwner()
-        {
-            var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.Info($"contract owner address is {contractOwnerAddress}");
-
-            var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {organizationAddress} ");
-
-            var result =
-                MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
-                    AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
-        }
-
-        [TestMethod]
-        public void MainChangeZeroOwner()
-        {
-            var input = AddressHelper.Base58StringToAddress(InitAccount);
-            var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {organizationAddress} ");
-
-            var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.Info($"contract owner address is {contractOwnerAddress}");
-
-
-            var proposal = MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                new CreateProposalInput
-                {
-                    ContractMethodName = nameof(GenesisMethod.ChangeGenesisOwner),
-                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                    Params = input.ToByteString(),
-                    ToAddress = AddressHelper.Base58StringToAddress(MainTester.GenesisService.ContractAddress),
-                    OrganizationAddress = organizationAddress
-                });
-            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
-
-            MainTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
-            var approve =
-                MainTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
-                });
-            var approveResult = approve.ReadableReturnValue;
-
-            approveResult.ShouldBe("true");
-
-            MainTester.GenesisService.SetAccount(InitAccount);
-            var result =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {result} ");
-        }
-
-
-        [TestMethod]
-        public void MainChangeZeroOwnerByUser()
-        {
-            ;
-            var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {organizationAddress} ");
-            var input = organizationAddress;
-
-            var contractOwnerAddress =
-                MainTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.Info($"contract owner address is {contractOwnerAddress}");
-
-
-            var result = MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner, input);
-            var account =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {account} ");
-        }
-
-
-        [TestMethod]
-        public void SideChangeZeroOwner()
-        {
-            var input = AddressHelper.Base58StringToAddress(InitAccount);
-            var organizationAddress =
-                SideTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
-                    new Empty());
-            _logger.Info($"organization address is {organizationAddress} ");
-
-            var contractOwnerAddress =
-                SideTester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                    AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"));
-            _logger.Info($"contract owner address is {contractOwnerAddress}");
-
-
-            var proposal = SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                new CreateProposalInput
-                {
-                    ContractMethodName = nameof(TokenMethod.Transfer),
-                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                    Params = input.ToByteString(),
-                    ToAddress =
-                        AddressHelper.Base58StringToAddress("x7G7VYqqeVAH8aeAsb7gYuTQ12YS1zKuxur9YES3cUj72QMxJ"),
-                    OrganizationAddress = organizationAddress
-                });
-            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
-
-            SideTester.ParliamentService.SetAccount("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
-            var approve =
-                SideTester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
-                });
-            var approveResult = approve.ReadableReturnValue;
-
-            approveResult.ShouldBe("true");
-
-            SideTester.GenesisService.SetAccount(InitAccount);
-            var result = SideTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner,
-                AddressHelper.Base58StringToAddress("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6"));
-            result.Status.ShouldBe("MINED");
-        }
 
         #region private method
 
@@ -562,7 +561,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var input = new ContractDeploymentInput
             {
                 Category = KernelConstants.DefaultRunnerCategory,
-                Code = ByteString.CopyFrom(codeArray),
+                Code = ByteString.CopyFrom(codeArray)
             };
             return input;
         }
@@ -572,7 +571,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractReader = new SmartContractReader();
             var codeArray = contractReader.Read(name);
 
-            var input = new ContractUpdateInput()
+            var input = new ContractUpdateInput
             {
                 Address = AddressHelper.Base58StringToAddress(contractAddress),
                 Code = ByteString.CopyFrom(codeArray)

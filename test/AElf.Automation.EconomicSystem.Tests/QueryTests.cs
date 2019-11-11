@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,8 +12,8 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class QueryTests
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
-        private static string RpcUrl { get; } = "http://34.212.171.27:8000";
         private Behaviors Behaviors;
+        private static string RpcUrl { get; } = "http://34.212.171.27:8000";
         private string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
         private INodeManager CH { get; set; }
         private Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
@@ -37,7 +36,7 @@ namespace AElf.Automation.EconomicSystem.Tests
                 {Behaviors.ProfitType.CitizenWelfare, schemeIds[3]},
                 {Behaviors.ProfitType.BasicMinerReward, schemeIds[4]},
                 {Behaviors.ProfitType.VotesWeightReward, schemeIds[5]},
-                {Behaviors.ProfitType.ReElectionReward, schemeIds[6]},
+                {Behaviors.ProfitType.ReElectionReward, schemeIds[6]}
             };
 
             #endregion
@@ -45,8 +44,8 @@ namespace AElf.Automation.EconomicSystem.Tests
             #region Basic Preparation
 
             //Init Logger
-            string logName = "QueryTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
+            var logName = "QueryTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             #endregion
@@ -57,9 +56,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var miners = Behaviors.GetCurrentMiners();
             foreach (var publicKey in miners.Pubkeys)
-            {
                 _logger.Info($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
-            }
         }
 
         [TestMethod]
