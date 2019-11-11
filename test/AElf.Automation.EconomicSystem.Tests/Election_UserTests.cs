@@ -1,5 +1,5 @@
 using System.Linq;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
 using AElfChain.SDK.Models;

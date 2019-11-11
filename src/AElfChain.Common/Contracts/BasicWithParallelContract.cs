@@ -1,6 +1,6 @@
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Managers;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum BasicParallelMethod
     {
@@ -32,7 +32,7 @@ namespace AElf.Automation.Common.Contracts
         ComplexChangeWithDeleteValue1,
         ComplexChangeWithDeleteValue2,
         ComplexChangeWithDeleteValue3,
-        
+
         QueryWinMoney,
         QueryRewardMoney,
         QueryUserWinMoney,
@@ -40,19 +40,20 @@ namespace AElf.Automation.Common.Contracts
         QueryTwoUserWinMoney,
         GetValue
     }
+
     public class BasicWithParallelContract : BaseContract<BasicParallelMethod>
     {
-        public BasicWithParallelContract(INodeManager nodeManager, string callAddress, string contractAddress) 
+        public BasicWithParallelContract(INodeManager nodeManager, string callAddress, string contractAddress)
             : base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
         }
 
-        public BasicWithParallelContract(INodeManager nodeManager, string callAddress) 
+        public BasicWithParallelContract(INodeManager nodeManager, string callAddress)
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
         public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunctionWithParallel";
     }
 }

@@ -1,17 +1,18 @@
 using Acs3;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElf;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum ParliamentMethod
     {

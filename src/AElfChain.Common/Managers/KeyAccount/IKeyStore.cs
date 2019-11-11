@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf.Cryptography.ECDSA;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public interface IKeyStore
     {

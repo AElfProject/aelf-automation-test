@@ -1,5 +1,6 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Managers;
 using log4net;
 
 namespace AElfChain.Console.Commands

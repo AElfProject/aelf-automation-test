@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Acs0;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
 using Google.Protobuf;
 using log4net;
 using Shouldly;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public class AuthorityManager
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConsensusContract _consensus;
-        private readonly TokenContract _token;
         private readonly GenesisContract _genesis;
         private readonly ParliamentAuthContract _parliament;
+        private readonly TokenContract _token;
         private NodesInfo _info;
 
         public AuthorityManager(INodeManager nodeManager, string caller = "")
@@ -30,7 +30,7 @@ namespace AElf.Automation.Common.Managers
             _consensus = _genesis.GetConsensusContract();
             _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
-            
+
             CheckBpBalance();
         }
 
@@ -45,7 +45,7 @@ namespace AElf.Automation.Common.Managers
 
             return DeployContractWithAuthority(caller, code);
         }
-        
+
         public void UpdateContractWithAuthority(string caller, string address, string contractName)
         {
             Logger.Info($"Update contract: {contractName}");
@@ -77,7 +77,7 @@ namespace AElf.Automation.Common.Managers
 
             return address;
         }
-        
+
         private void UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
             var input = new ContractUpdateInput
@@ -133,16 +133,13 @@ namespace AElf.Automation.Common.Managers
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             if (NodeOption.IsMainChain)
-            {
                 foreach (var bp in bps.Skip(1))
                 {
                     var balance = _token.GetUserBalance(bp);
                     if (balance < 10000_00000000)
                         _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, NodeOption.ChainToken);
                 }
-            }
             else
-            {
                 foreach (var bp in bps)
                 {
                     var issuer = NodeInfoHelper.Config.Nodes.First().Account;
@@ -150,7 +147,6 @@ namespace AElf.Automation.Common.Managers
                     if (balance < 10000_00000000)
                         _token.IssueBalance(issuer, bp, 100000_00000000 - balance, NodeOption.ChainToken);
                 }
-            }
         }
     }
 }

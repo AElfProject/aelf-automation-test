@@ -3,11 +3,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElf;
 using AElf.CSharp.Core;
 using AElf.Types;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -15,7 +16,7 @@ using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public class MethodStubFactory : IMethodStubFactory, ITransientDependency
     {
@@ -64,14 +65,17 @@ namespace AElf.Automation.Common.Contracts
                     {
                         if (status == TransactionResultStatus.Mined)
                             Logger.Info(
-                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
+                                true);
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}", true);
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
+                                true);
                         break;
                     }
 
-                    Console.Write($"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                    Console.Write(
+                        $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
 
                     if (checkTimes == 360) //max wait time 3 minutes
                     {
@@ -82,8 +86,9 @@ namespace AElf.Automation.Common.Contracts
 
                     Thread.Sleep(500);
                 }
+
                 stopwatch.Stop();
-                
+
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
@@ -118,9 +123,10 @@ namespace AElf.Automation.Common.Contracts
                         Status = status,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
-                
-                var returnByte = resultDto.ReturnValue == null ? 
-                    new byte[]{} : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
+
+                var returnByte = resultDto.ReturnValue == null
+                    ? new byte[] { }
+                    : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
                 return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,

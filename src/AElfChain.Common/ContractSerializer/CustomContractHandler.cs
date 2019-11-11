@@ -2,20 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
+using AElf;
 using AElf.Types;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
+using Google.Protobuf.Reflection;
 using Newtonsoft.Json.Linq;
 using ProtoBuf;
-using FileDescriptorSet = Google.Protobuf.Reflection.FileDescriptorSet;
 
-namespace AElf.Automation.Common.ContractSerializer
+namespace AElfChain.Common.ContractSerializer
 {
     public class MessageInfo
     {
-        public string Name { get; set; }
-        public List<string> Fields { get; set; }
-
         public MessageInfo(string name)
         {
             Name = name;
@@ -27,44 +25,54 @@ namespace AElf.Automation.Common.ContractSerializer
             Name = name;
             Fields = fields;
         }
+
+        public string Name { get; set; }
+        public List<string> Fields { get; set; }
     }
 
     public class MethodInfo
     {
-        public string MethodName { get; set; }
-        public MessageInfo InputMessage { get; set; }
-        public MessageInfo OutputMessage { get; set; }
-
         public MethodInfo(string methodName)
         {
             MethodName = methodName;
         }
+
+        public string MethodName { get; set; }
+        public MessageInfo InputMessage { get; set; }
+        public MessageInfo OutputMessage { get; set; }
     }
 
     public class ContractDescriptor
     {
-        public List<MessageInfo> MessageInfos { get; set; }
-        public List<MethodInfo> Methods { get; set; }
-
         public ContractDescriptor()
         {
             MessageInfos = new List<MessageInfo>();
             Methods = new List<MethodInfo>();
         }
+
+        public List<MessageInfo> MessageInfos { get; set; }
+        public List<MethodInfo> Methods { get; set; }
     }
 
     public class CustomContractHandler
     {
         private readonly byte[] _fileDescriptorBytes;
 
-        public ContractDescriptor Descriptor => AnalyzeContractDescriptor();
+        private readonly List<string> _ignoreProtoFiles = new List<string>
+        {
+            "google/protobuf/descriptor.proto",
+            "google/protobuf/empty.proto",
+            "google/protobuf/wrappers.proto"
+        };
+
+        private ContractDescriptor _descriptor;
 
         public CustomContractHandler(byte[] fileDescriptorBytes)
         {
             _fileDescriptorBytes = fileDescriptorBytes;
         }
 
-        private ContractDescriptor _descriptor;
+        public ContractDescriptor Descriptor => AnalyzeContractDescriptor();
 
         public ContractDescriptor AnalyzeContractDescriptor()
         {
@@ -131,16 +139,12 @@ namespace AElf.Automation.Common.ContractSerializer
             $"[Input]: {method.InputMessage.Name}".WriteWarningLine();
             var inputIndex = 1;
             foreach (var parameter in method.InputMessage.Fields)
-            {
                 $"Index: {inputIndex++}  Name: {parameter.PadRight(24)}".WriteWarningLine();
-            }
 
             $"[Output]: {method.OutputMessage.Name}".WriteWarningLine();
             var outputIndex = 0;
             foreach (var parameter in method.OutputMessage.Fields)
-            {
                 $"Index: {outputIndex++}  Name: {parameter.PadRight(24)}".WriteWarningLine();
-            }
         }
 
         public string ParseMethodInputJsonInfo(MethodInfo method, string[] inputs)
@@ -164,28 +168,21 @@ namespace AElf.Automation.Common.ContractSerializer
                         if (inputs[i] == "null") continue;
                         var type = fields[i];
                         if (inputs[i].Trim().Length == 50 && IsAddressInfo(inputs[i], out var address))
-                        {
                             inputJson[fields[i]] = new JObject
                             {
                                 ["value"] = address.Value.ToBase64()
                             };
-                        }
                         else if (inputs[i].Trim().Length == 64 && IsHashInfo(inputs[i], out var hash))
-                        {
                             inputJson[fields[i]] = new JObject
                             {
                                 ["value"] = hash.Value.ToBase64()
                             };
-                        }
                         else if (inputs[i] == "true" || inputs[i] == "false")
-                        {
                             inputJson[fields[i]] = bool.Parse(inputs[i]);
-                        }
                         else
-                        {
                             inputJson[fields[i]] = inputs[i];
-                        }
                     }
+
                     break;
             }
 
@@ -208,22 +205,13 @@ namespace AElf.Automation.Common.ContractSerializer
             return _descriptor;
         }
 
-        private readonly List<string> _ignoreProtoFiles = new List<string>
-        {
-            "google/protobuf/descriptor.proto",
-            "google/protobuf/empty.proto",
-            "google/protobuf/wrappers.proto"
-        };
-
         private static string ConvertNameToJsonName(string name)
         {
             if (!name.Contains("_")) return name;
             var array = name.Split("_");
             var jsonName = array[0];
             for (var i = 1; i < array.Length; i++)
-            {
                 jsonName += array[i].Substring(0, 1).ToUpper() + array[i].Substring(1);
-            }
 
             return jsonName;
         }

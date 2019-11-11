@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public static class ConvertHelper
     {

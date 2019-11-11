@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acs7;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
@@ -14,7 +15,6 @@ using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification
@@ -494,7 +494,8 @@ namespace AElf.Automation.SideChain.Verification
             for (var i = 0; i < count; i++)
             {
                 var result = services.NodeManager.UnlockAccount(accountList[i]);
-                Assert.IsTrue(result);
+                if(!result)
+                    throw new Exception("Account unlock failed.");
             }
         }
     }

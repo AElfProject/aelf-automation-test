@@ -1,5 +1,6 @@
-using AElf.Automation.Common;
+using AElfChain.Common;
 using AElf.Contracts.CrossChain;
+using AElfChain.Common;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

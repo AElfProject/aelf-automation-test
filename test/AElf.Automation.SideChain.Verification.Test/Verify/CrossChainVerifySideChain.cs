@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.CrossChain;
 using Volo.Abp.Threading;
 

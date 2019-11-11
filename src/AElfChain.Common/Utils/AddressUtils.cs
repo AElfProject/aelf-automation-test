@@ -1,8 +1,9 @@
 using System;
-using AElf.Automation.Common.Helpers;
+using AElf;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 
-namespace AElf.Automation.Common.Utils
+namespace AElfChain.Common.Utils
 {
     public static class AddressUtils
     {

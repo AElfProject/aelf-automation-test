@@ -1,6 +1,7 @@
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.SideChainTests
 {

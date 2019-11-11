@@ -6,19 +6,19 @@ using log4net;
 using log4net.Config;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public enum Format
     {
         None,
         Json
     }
-    
+
     public static class Log4NetHelper
     {
         public static int LogInit()
         {
-            return LogInit(CommonHelper.MapPath("log4net.config"),"");
+            return LogInit(CommonHelper.MapPath("log4net.config"), "");
         }
 
         public static int LogInit(string fileName)
@@ -27,7 +27,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// log4net init
+        ///     log4net init
         /// </summary>
         /// <param name="configFilePath">log4net config file path</param>
         /// <param name="fileName"></param>
@@ -43,7 +43,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger<TCategory>()
         {
@@ -51,7 +51,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(Type type)
         {
@@ -59,7 +59,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger()
         {
@@ -72,7 +72,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(string loggerName)
         {
@@ -80,7 +80,7 @@ namespace AElf.Automation.Common.Helpers
         }
 
         /// <summary>
-        /// Info extension method
+        ///     Info extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -94,9 +94,9 @@ namespace AElf.Automation.Common.Helpers
 
         public static void Info(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
+            if (checkCursorLeft && Console.CursorLeft != 0)
                 Console.WriteLine();
-            
+
             logger.Info(message);
         }
 
@@ -108,12 +108,13 @@ namespace AElf.Automation.Common.Helpers
                 logger.Info(info);
                 return;
             }
+
             CommonHelper.ConsoleChangeLine();
             logger.Info(message);
         }
 
         /// <summary>
-        /// Warn extension method
+        ///     Warn extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -127,14 +128,14 @@ namespace AElf.Automation.Common.Helpers
 
         public static void Warn(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
+            if (checkCursorLeft && Console.CursorLeft != 0)
                 Console.Write("\r\n");
-            
+
             logger.Warn(message);
         }
 
         /// <summary>
-        /// Error extension method
+        ///     Error extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
@@ -148,12 +149,12 @@ namespace AElf.Automation.Common.Helpers
 
         public static void Error(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
+            if (checkCursorLeft && Console.CursorLeft != 0)
                 Console.WriteLine();
-            
+
             logger.Error(message);
         }
-        
+
         public static string ConvertJsonString(string str)
         {
             //格式化json字符串
@@ -173,10 +174,8 @@ namespace AElf.Automation.Common.Helpers
                 serializer.Serialize(jsonWriter, obj);
                 return textWriter.ToString();
             }
-            else
-            {
-                return str;
-            }         
-        } 
+
+            return str;
+        }
     }
 }

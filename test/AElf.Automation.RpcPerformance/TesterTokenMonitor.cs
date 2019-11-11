@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElfChain.Common.Utils;
 using log4net;
 
 namespace AElf.Automation.RpcPerformance

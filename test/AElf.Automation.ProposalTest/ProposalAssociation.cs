@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Acs3;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.AssociationAuth;
 using AElf.Kernel;

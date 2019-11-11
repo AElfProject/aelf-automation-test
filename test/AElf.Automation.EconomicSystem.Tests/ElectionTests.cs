@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

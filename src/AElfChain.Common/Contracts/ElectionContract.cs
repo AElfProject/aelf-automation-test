@@ -1,8 +1,8 @@
-using AElf.Automation.Common.Managers;
 using AElf.Contracts.Election;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum ElectionMethod
     {

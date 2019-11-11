@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;

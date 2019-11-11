@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public interface ILogHelper
     {
@@ -63,9 +63,7 @@ namespace AElf.Automation.Common.Helpers
         public void InitLogHelper(string logFileSavePath = "")
         {
             if (string.IsNullOrEmpty(logFileSavePath))
-            {
                 logFileSavePath = CommonHelper.MapPath($"/logs/{DateTime.Now:yyyy-M-d dddd}.log");
-            }
 
             try
             {

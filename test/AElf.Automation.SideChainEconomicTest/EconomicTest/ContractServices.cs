@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using log4net;
 

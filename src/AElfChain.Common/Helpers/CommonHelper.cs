@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public static class CommonHelper
     {
@@ -100,17 +100,17 @@ namespace AElf.Automation.Common.Helpers
 
         public static string ConvertMileSeconds(long elapsedMilliseconds)
         {
-            var minutes = elapsedMilliseconds / (60000);
-            var seconds = elapsedMilliseconds % (60000) / 1000;
+            var minutes = elapsedMilliseconds / 60000;
+            var seconds = elapsedMilliseconds % 60000 / 1000;
             var milliseconds = elapsedMilliseconds % 1000;
 
             var stamp = string.Empty;
 
             if (minutes != 0)
-                stamp += $"{minutes : 00}m:";
+                stamp += $"{minutes: 00}m:";
             if (minutes != 0 || seconds != 0)
-                stamp += $"{seconds : 00}s:";
-            stamp += $"{milliseconds : 000}ms";
+                stamp += $"{seconds: 00}s:";
+            stamp += $"{milliseconds: 000}ms";
 
             return stamp;
         }
@@ -123,7 +123,7 @@ namespace AElf.Automation.Common.Helpers
         public static void ConsoleChangeLine()
         {
             var cursorPosition = Console.CursorLeft;
-            if(cursorPosition !=0)
+            if (cursorPosition != 0)
                 Console.WriteLine();
         }
     }

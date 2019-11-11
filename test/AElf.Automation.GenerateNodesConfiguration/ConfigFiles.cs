@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {

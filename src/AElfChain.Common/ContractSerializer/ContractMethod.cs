@@ -1,15 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
+using AElf;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
 using Google.Protobuf.Reflection;
 using Newtonsoft.Json.Linq;
 
-namespace AElf.Automation.Common.ContractSerializer
+namespace AElfChain.Common.ContractSerializer
 {
     public class ContractMethod : IComparable
     {
+        public ContractMethod(MethodDescriptor method)
+        {
+            Descriptor = method;
+            Name = method.Name;
+            InputType = method.InputType;
+            OutputType = method.OutputType;
+            InputFields = InputType.Fields.InFieldNumberOrder().ToList();
+            OutputFields = OutputType.Fields.InFieldNumberOrder().ToList();
+        }
+
         public MethodDescriptor Descriptor { get; set; }
         public string Name { get; set; }
         public string Input => InputType.Name;
@@ -19,14 +30,10 @@ namespace AElf.Automation.Common.ContractSerializer
         public MessageDescriptor OutputType { get; set; }
         public List<FieldDescriptor> OutputFields { get; set; }
 
-        public ContractMethod(MethodDescriptor method)
+        public int CompareTo(object obj)
         {
-            Descriptor = method;
-            Name = method.Name;
-            InputType = method.InputType;
-            OutputType = method.OutputType;
-            InputFields = InputType.Fields.InFieldNumberOrder().ToList();
-            OutputFields = OutputType.Fields.InFieldNumberOrder().ToList();
+            var info = obj as ContractMethod;
+            return string.CompareOrdinal(Name, info.Name) > 0 ? 0 : 1;
         }
 
         public void GetMethodDescriptionInfo()
@@ -64,12 +71,6 @@ namespace AElf.Automation.Common.ContractSerializer
             }
         }
 
-        public int CompareTo(object obj)
-        {
-            ContractMethod info = obj as ContractMethod;
-            return string.CompareOrdinal(this.Name, info.Name) > 0 ? 0 : 1;
-        }
-
         public string ParseMethodInputJsonInfo(string[] inputs)
         {
             var output = "";
@@ -89,7 +90,7 @@ namespace AElf.Automation.Common.ContractSerializer
                     for (var i = 0; i < InputFields.Count; i++)
                     {
                         //ignore null parameter
-                        if(inputs[i] == "null") continue;
+                        if (inputs[i] == "null") continue;
                         var type = InputFields[i];
                         if (type.FieldType == FieldType.Message)
                         {
@@ -104,9 +105,7 @@ namespace AElf.Automation.Common.ContractSerializer
                                     ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
                                 };
                             else
-                            {
                                 inputJson[InputFields[i].JsonName] = inputs[i];
-                            }
                         }
                         else if (type.FieldType == FieldType.Bool)
                         {
@@ -117,6 +116,7 @@ namespace AElf.Automation.Common.ContractSerializer
                             inputJson[InputFields[i].JsonName] = inputs[i];
                         }
                     }
+
                     break;
             }
 

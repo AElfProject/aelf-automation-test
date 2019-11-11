@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -98,7 +97,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 }
             }
 
-            Assert.IsTrue(false, $"Node height not changed 1 minutes later.");
+            throw new Exception("Node height not changed 1 minutes later.");
         }
 
         protected void InitializeScenario()

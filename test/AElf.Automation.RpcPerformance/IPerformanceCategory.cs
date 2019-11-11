@@ -1,4 +1,4 @@
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.RpcPerformance
 {

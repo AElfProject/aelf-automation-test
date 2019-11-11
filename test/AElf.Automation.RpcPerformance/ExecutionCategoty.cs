@@ -9,17 +9,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
@@ -161,7 +160,7 @@ namespace AElf.Automation.RpcPerformance
                     return;
             }
 
-            Assert.IsFalse(true, "Deployed contract not executed successfully.");
+            throw new Exception("Deployed contract not executed successfully.");
         }
 
         public void DeployContractsWithAuthority()
@@ -550,11 +549,12 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
-            for (var i = 0; i < count; i++)
+            Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
-                Assert.IsTrue(result);
-            }
+                if(!result)
+                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+            });
         }
 
         private void GetTestAccounts(int count)

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.QueryTransaction
@@ -23,7 +20,7 @@ namespace AElf.Automation.QueryTransaction
             {
                 return CommandLineApplication.Execute<Program>(args);
             }
-            catch (AssertFailedException ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Execute failed: {ex.Message}");
             }

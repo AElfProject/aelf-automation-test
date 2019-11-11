@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -59,7 +58,7 @@ namespace AElf.Automation.RpcPerformance
             if (checkTimes == -1)
                 checkTimes = ConfigInfoHelper.Config.Timeout * 10;
             if (checkTimes == 0)
-                Assert.IsTrue(false, "Transaction status check is timeout.");
+                throw new TimeoutException("Transaction status check is timeout.");
             checkTimes--;
             var listCount = transactionIds.Count;
             var length = transactionIds.Count;
@@ -90,7 +89,7 @@ namespace AElf.Automation.RpcPerformance
             if (transactionIds.Count > 0 && transactionIds.Count != 1)
             {
                 if (listCount == transactionIds.Count && checkTimes == 0)
-                    Assert.IsTrue(false, "Transaction status always keep pending or not existed.");
+                    throw new TimeoutException("Transaction status always keep pending or not existed.");
                 CheckTransactionsStatus(transactionIds, checkTimes);
             }
 

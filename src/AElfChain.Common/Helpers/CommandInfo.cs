@@ -5,7 +5,7 @@ using System.Xml;
 using log4net;
 using Newtonsoft.Json.Linq;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public class CommandInfo
     {

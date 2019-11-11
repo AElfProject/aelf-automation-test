@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Managers;
+using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum ConsensusMethod
     {

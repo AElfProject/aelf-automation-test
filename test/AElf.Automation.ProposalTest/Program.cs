@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using FluentScheduler;
 using log4net;
 

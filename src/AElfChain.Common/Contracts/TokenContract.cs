@@ -1,11 +1,11 @@
 ﻿using System;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
 using AElf.Contracts.MultiToken;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum TokenMethod
     {
@@ -68,7 +68,7 @@ namespace AElf.Automation.Common.Contracts
 
             return result;
         }
-        
+
         public TransactionResultDto IssueBalance(string from, string to, long amount, string symbol = "")
         {
             var tester = GetNewTester(from);
@@ -83,7 +83,7 @@ namespace AElf.Automation.Common.Contracts
 
             return result;
         }
-        
+
 
         public long GetUserBalance(string account, string symbol = "")
         {

@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Acs0;
 using Acs3;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
@@ -109,7 +109,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
             var txResult = CheckTransactionResult(MainChainService, txId);
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false, $"Validate chain {MainChainService.ChainId} token contract failed");
+                throw new Exception($"Validate chain {MainChainService.ChainId} token contract failed");
             var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
             ChainValidateTxInfo.Add(MainChainService.ChainId, mainChainTx);
             Logger.Info($"Validate main chain token address {MainChainService.TokenService.ContractAddress}");
@@ -129,7 +129,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var sideTxId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
                 var txResult = CheckTransactionResult(sideChainService, sideTxId);
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                    Assert.IsTrue(false, $"Validate chain {sideChainService.ChainId} token contract failed");
+                    throw new Exception($"Validate chain {sideChainService.ChainId} token contract failed");
                 var sideChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, sideTxId, validateTransaction);
                 ChainValidateTxInfo.Add(sideChainService.ChainId, sideChainTx);
                 Logger.Info(
@@ -174,7 +174,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     GetCrossChainMerkleProofContext(sideChainService, chainTxInfo.BlockHeight);
                 var merklePath = GetMerklePath(sideChainService, chainTxInfo.BlockHeight, chainTxInfo.TxId);
                 if (merklePath == null)
-                    Assert.IsTrue(false, "Can't get the merkle path.");
+                    throw new Exception("Can't get the merkle path.");
 
                 var registerInput = new RegisterCrossChainTokenContractAddressInput
                 {
@@ -209,7 +209,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             var merklePath = GetMerklePath(MainChainService, mainChainTxInfo.BlockHeight, mainChainTxInfo.TxId);
             if (merklePath == null)
-                Assert.IsTrue(false, "Can't get the merkle path.");
+                throw new Exception("Can't get the merkle path.");
             var registerInput = new RegisterCrossChainTokenContractAddressInput
             {
                 FromChainId = MainChainService.ChainId,
@@ -239,7 +239,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var sideChainMerklePath =
                     GetMerklePath(sideChainService, chainTxInfo.BlockHeight, chainTxInfo.TxId);
                 if (sideChainMerklePath == null)
-                    Assert.IsTrue(false, "Can't get the merkle path.");
+                    throw new Exception("Can't get the merkle path.");
                 var sideChainRegisterInput = new RegisterCrossChainTokenContractAddressInput
                 {
                     FromChainId = sideChainService.ChainId,
@@ -283,8 +283,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
             if (createProposalResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false,
-                    $"Release proposal failed, token address can't register on chain {services.ChainId}");
+                throw new Exception($"Release proposal failed, token address can't register on chain {services.ChainId}");
             var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
 
             //approve
@@ -299,8 +298,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         ProposalId = HashHelper.HexStringToHash(proposalId)
                     });
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                    Assert.IsTrue(false,
-                        $"Approve proposal failed, token address can't register on chain {services.ChainId}");
+                    throw new Exception($"Approve proposal failed, token address can't register on chain {services.ChainId}");
             }
 
             services.ParliamentService.SetAccount(InitAccount);
@@ -308,8 +306,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
             if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                Assert.IsTrue(false,
-                    $"Release proposal failed, token address can't register on chain {services.ChainId}");
+                throw new Exception($"Release proposal failed, token address can't register on chain {services.ChainId}");
         }
 
         // get miners

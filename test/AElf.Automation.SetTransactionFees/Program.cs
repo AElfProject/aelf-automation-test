@@ -1,9 +1,8 @@
 ﻿using System;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SetTransactionFees
 {
@@ -23,7 +22,7 @@ namespace AElf.Automation.SetTransactionFees
             {
                 return CommandLineApplication.Execute<Program>(args);
             }
-            catch (AssertFailedException ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Execute failed: {ex.Message}");
             }

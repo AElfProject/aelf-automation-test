@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Kernel;
 using AElf.Types;
 using Volo.Abp.Threading;

@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -59,8 +59,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         sideChainService.ChainId, 200000);
                 }
 
-                Assert.IsTrue(transferTimes > 0 || rawTxInfo != null,
-                    "The first cross chain transfer failed, please start over.");
+                if(transferTimes == 0 && rawTxInfo == null)
+                    throw new Exception("The first cross chain transfer failed, please start over.");
 
                 initRawTxInfos.Add(sideChainService.ChainId, rawTxInfo);
                 Logger.Info(
@@ -98,7 +98,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     if (result == null)
                     {
                         Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                        throw new Exception("The first receive transfer failed, please start over.");
                     }
 
                     var status = result.Status.ConvertTransactionResultStatus();
@@ -122,7 +122,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         }
 
                         Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                        throw new Exception("The first receive transfer failed, please start over.");
                     }
 
                     GetBalance:

@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Security;
-using AElf.Automation.Common.Helpers;
+using AElf;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 using log4net;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public class AccountManager
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly AElfKeyStore _keyStore;
         private List<string> _accounts;
-        
+
         public AccountManager(AElfKeyStore keyStore)
         {
             _keyStore = keyStore;
@@ -53,7 +54,7 @@ namespace AElf.Automation.Common.Managers
                 var result = UnlockAccount(account);
                 if (result)
                     return account;
-                if(n==10)
+                if (n == 10)
                     throw new Exception("Cannot got random account with default password.");
                 n++;
             }

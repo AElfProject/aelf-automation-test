@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,6 +1,7 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
+using AElfChain.Common.Managers;
 using log4net;
 
 namespace AElf.Automation.SideChainEconomicTest

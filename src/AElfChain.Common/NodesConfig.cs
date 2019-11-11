@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.Common
+namespace AElfChain.Common
 {
     public class Node
     {
@@ -15,7 +15,7 @@ namespace AElf.Automation.Common
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
     }
-    
+
     public class ChainType
     {
         [JsonProperty("is_main_chain")] public bool IsMainChain { get; set; }
@@ -29,7 +29,7 @@ namespace AElf.Automation.Common
         [JsonProperty("NativeTokenSymbol")] public string NativeTokenSymbol { get; set; }
         [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
-        
+
         public void CheckNodesAccount()
         {
             var keyStore = AElfKeyStore.GetKeyStore();
@@ -74,7 +74,7 @@ namespace AElf.Automation.Common
                 name += ".json";
             ConfigFile = CommonHelper.MapPath(name);
         }
-        
+
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)

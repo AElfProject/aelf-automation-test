@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
 
 namespace AElf.Automation.SideChainEconomicTest

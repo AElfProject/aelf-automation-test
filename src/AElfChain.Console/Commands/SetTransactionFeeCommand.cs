@@ -1,7 +1,8 @@
 using Acs1;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;

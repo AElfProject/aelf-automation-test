@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Acs1;
-using AElf.Automation.Common;
-using AElf.Automation.Common.ContractSerializer;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Newtonsoft.Json;

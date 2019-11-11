@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -36,8 +34,8 @@ namespace AElf.Automation.ScenariosExecution
         private void CheckInitialEnvironment()
         {
             var allAccountsExist = CheckAllAccountsExist();
-            Assert.IsTrue(allAccountsExist,
-                $"Node account file not found, should copy configured accounts to path: {AccountDir}");
+            if(!allAccountsExist)
+                throw new Exception($"Node account file not found, should copy configured accounts to path: {AccountDir}");
 
             CheckAllNodesConnection();
         }

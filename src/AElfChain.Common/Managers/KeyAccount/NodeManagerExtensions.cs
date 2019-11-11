@@ -1,6 +1,6 @@
-using AElf.Automation.Common.Contracts;
+using AElfChain.Common.Contracts;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public static class NodeManagerExtensions
     {

@@ -4,17 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.Exceptions;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 using log4net;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public enum KeyStoreErrors
     {
@@ -101,7 +101,7 @@ namespace AElf.Automation.Common.Managers
         {
             if (dataDirectory == "")
                 dataDirectory = CommonHelper.GetCurrentDataDir();
-            
+
             if (_keyStore != null && _keyStore.DataDirectory == dataDirectory)
                 return _keyStore;
 

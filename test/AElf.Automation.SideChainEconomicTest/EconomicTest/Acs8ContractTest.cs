@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;

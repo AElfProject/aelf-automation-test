@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
 using Acs3;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -170,7 +168,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Tester.AssociationService.SetAccount(ReviewAccount1);
             var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Release, HashHelper.HexStringToHash(proposalId));
-            result.Status.ShouldBe("MINED");
+            Assert.AreSame(result.Status, "MINED");
         }
 
         [TestMethod]

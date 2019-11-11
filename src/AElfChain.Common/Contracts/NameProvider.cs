@@ -1,6 +1,6 @@
 using System;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum NameProvider
     {

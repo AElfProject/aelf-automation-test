@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using AElf.Types;
 using Xunit;
 

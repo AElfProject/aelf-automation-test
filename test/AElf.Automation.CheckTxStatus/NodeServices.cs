@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using log4net;
 
 namespace AElf.Automation.CheckTxStatus

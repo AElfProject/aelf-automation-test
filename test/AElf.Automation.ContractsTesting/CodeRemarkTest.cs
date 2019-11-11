@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using AElf.Cryptography;
 using AElf.Types;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using log4net;
 
 namespace AElf.Automation.ContractsTesting

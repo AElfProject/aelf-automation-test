@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace AElf.Automation.Common.Helpers
+namespace AElfChain.Common.Helpers
 {
     public class SmartContractReader
     {
@@ -45,7 +45,7 @@ namespace AElf.Automation.Common.Helpers
 
             if (contractName.Contains(ContractExtension))
                 return contractName;
-            
+
             var filePathWithExtension = filePath + ContractExtension;
             return filePathWithExtension;
         }

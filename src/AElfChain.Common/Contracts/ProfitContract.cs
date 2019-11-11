@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum ProfitMethod
     {

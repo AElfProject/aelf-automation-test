@@ -1,9 +1,9 @@
-using AElf.Automation.Common.Managers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
+using AElfChain.Common.Managers;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public interface IContractTesterFactory
     {

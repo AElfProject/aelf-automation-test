@@ -1,6 +1,6 @@
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Managers;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum PluginAcs5Method
     {
@@ -8,7 +8,7 @@ namespace AElf.Automation.Common.Contracts
         GetMethodCallingThreshold,
         DummyMethod
     }
-    
+
     public class ExecutionPluginForAcs5Contract : BaseContract<PluginAcs5Method>
     {
         public ExecutionPluginForAcs5Contract(INodeManager nodeManager, string callAddress, string contractAddress)

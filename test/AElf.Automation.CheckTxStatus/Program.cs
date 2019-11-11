@@ -1,5 +1,5 @@
 ﻿using System;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 
 namespace AElf.Automation.CheckTxStatus
 {

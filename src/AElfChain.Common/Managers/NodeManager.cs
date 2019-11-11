@@ -5,18 +5,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
+using AElf;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Common.Managers
+namespace AElfChain.Common.Managers
 {
     public class NodeManager : INodeManager
     {
@@ -60,7 +61,7 @@ namespace AElf.Automation.Common.Managers
 
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
-            
+
             return _genesisAddress;
         }
 
@@ -227,11 +228,14 @@ namespace AElf.Automation.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                        Logger.Info(
+                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     {
-                        var message = $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
+                        var message =
+                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";
@@ -239,17 +243,18 @@ namespace AElf.Automation.Common.Managers
                         return transactionResult;
                     }
                 }
-                
-                Console.Write($"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                
+
+                Console.Write(
+                    $"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+
                 checkTimes++;
                 Thread.Sleep(500);
             }
-            
+
             Console.Write("\r\n");
             throw new TimeoutException("Transaction execution status cannot be 'Mined' after five minutes.");
         }
-        
+
         public void CheckTransactionListResult(List<string> transactionIds)
         {
             var transactionQueue = new ConcurrentQueue<string>();
@@ -265,7 +270,8 @@ namespace AElf.Automation.Common.Managers
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.NotExisted:
                     case TransactionResultStatus.Unexecutable:
-                        Console.Write($"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                        Console.Write(
+                            $"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
                         break;
@@ -306,7 +312,7 @@ namespace AElf.Automation.Common.Managers
             return messageParser.ParseFrom(byteArray);
         }
 
-        public ByteString QueryView(string @from, string to, string methodName, IMessage inputParameter)
+        public ByteString QueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var transaction = new Transaction
             {
@@ -327,7 +333,7 @@ namespace AElf.Automation.Common.Managers
             }
 
             var byteArray = ByteArrayHelper.HexStringToByteArray(resp);
-            
+
             return ByteString.CopyFrom(byteArray);
         }
 

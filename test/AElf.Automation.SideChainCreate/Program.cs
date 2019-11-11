@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Acs7;
-using AElf.Automation.Common.Helpers;
+using AElfChain.Common.Helpers;
 using log4net;
 
 namespace AElf.Automation.SideChainCreate

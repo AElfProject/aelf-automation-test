@@ -1,10 +1,9 @@
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum ReferendumMethod
     {
@@ -33,14 +32,11 @@ namespace AElf.Automation.Common.Contracts
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }
-        
+
         public void InitializeReferendum()
         {
             var initializeResult = ExecuteMethodWithResult(ReferendumMethod.Initialize, new Empty());
-            if (initializeResult is TransactionResultDto txDto)
-            {
-                txDto.Status.ToLower().ShouldBe("mined");
-            }
+            if (initializeResult is TransactionResultDto txDto) txDto.Status.ToLower().ShouldBe("mined");
         }
     }
 }

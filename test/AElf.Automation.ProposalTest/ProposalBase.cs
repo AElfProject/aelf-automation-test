@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Contracts;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.ProposalTest
 {
@@ -149,7 +148,7 @@ namespace AElf.Automation.ProposalTest
             var result =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
             if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false, $"Create token {Symbol} Failed");
+                throw new Exception( $"Create token {Symbol} Failed");
 
             Logger.Info($"Create token {Symbol} success");
 
@@ -163,7 +162,7 @@ namespace AElf.Automation.ProposalTest
             var issueResult =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
             if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false, $"Issue token {Symbol} Failed");
+                throw new Exception($"Issue token {Symbol} Failed");
         }
 
         private void TransferToTester()

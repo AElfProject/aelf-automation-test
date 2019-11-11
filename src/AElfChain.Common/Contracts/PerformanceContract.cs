@@ -1,12 +1,12 @@
 using System;
-using AElf.Automation.Common.Managers;
-using AElf.Automation.Common.Utils;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
+using AElfChain.Common.Managers;
+using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Shouldly;
 
-namespace AElf.Automation.Common.Contracts
+namespace AElfChain.Common.Contracts
 {
     public enum PerformanceMethod
     {

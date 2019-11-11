@@ -1,8 +1,9 @@
 using System.IO;
-using AElf.Automation.Common;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Managers;
+using AElfChain.Common;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.GenerateNodesConfiguration

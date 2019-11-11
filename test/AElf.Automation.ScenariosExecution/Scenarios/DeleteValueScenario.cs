@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElf.Automation.Common.Contracts;
-using AElf.Contracts.TestContract.BasicFunctionWithParallel;
-using Google.Protobuf;
-using Shouldly;
+using AElfChain.Common.Contracts;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {

@@ -6,8 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Automation.Common.Helpers;
-using AElf.Automation.Common.Utils;
+using AElfChain.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
 using Google.Protobuf;
@@ -15,6 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
 using AElf.Kernel;
+using AElfChain.Common.Utils;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
