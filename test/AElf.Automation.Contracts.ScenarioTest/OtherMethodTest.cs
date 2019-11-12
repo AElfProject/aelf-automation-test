@@ -88,6 +88,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        public void StringValueParse()
+        {
+            var info = new StringValue
+            {
+                Value = "test info"
+            };
+            var jsonInfo = JsonFormatter.Default.Format(info);
+
+            var msg = JsonParser.Default.Parse(jsonInfo, StringValue.Descriptor);
+        }
+
+        [TestMethod]
         public async Task GetDeployedContracts()
         {
             const string endpoint = "18.162.41.20:8000";

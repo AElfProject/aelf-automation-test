@@ -82,41 +82,6 @@ namespace AElf.Automation.ScenariosExecution
             GetOrDeployPerformanceContract();
         }
 
-        private void GetOrDeployTokenConverterContract()
-        {
-            var contractsInfo = ConfigInfoHelper.Config.ContractsInfo;
-            var autoEnable = contractsInfo.AutoUpdate;
-            if (autoEnable)
-            {
-                //Token converter contract
-                {
-                    var contractItem = contractsInfo.Contracts.First(o => o.Name == "TokenConverter");
-                    var queryResult = QueryContractItem(ref contractItem, out _);
-                    if (queryResult)
-                    {
-                        TokenConverterService =
-                            new TokenConverterContract(NodeManager, CallAddress, contractItem.Address);
-                    }
-                    else
-                    {
-                        TokenConverterService = new TokenConverterContract(NodeManager, CallAddress);
-
-                        //update configInfo
-                        contractItem.Address = TokenConverterService.ContractAddress;
-                        contractItem.Owner = CallAddress;
-                    }
-                }
-
-                //write to config file
-                ConfigInfoHelper.UpdateConfig(contractsInfo);
-            }
-            else
-            {
-                //Token converter contract
-                TokenConverterService = new TokenConverterContract(NodeManager, CallAddress);
-            }
-        }
-
         private void GetOrDeployFunctionContract()
         {
             var contractsInfo = ConfigInfoHelper.Config.ContractsInfo;
