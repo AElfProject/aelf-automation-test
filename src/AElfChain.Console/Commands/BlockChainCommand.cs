@@ -14,8 +14,8 @@ namespace AElfChain.Console.Commands
 {
     public class BlockChainCommand : BaseCommand
     {
-        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager,
-            contractServices)
+        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices)
+            : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
             AutoEngine = new ApiCompletionEngine();
@@ -174,12 +174,22 @@ namespace AElfChain.Console.Commands
 
         private void GetTransactionResults()
         {
-            "Parameter: [BlockHash] [Offset]=0 [Limit]=10".WriteSuccessLine();
+            "Parameter: [BlockHash/BlockHeight] [Offset]=0 [Limit]=10".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
-            var blockHash = input[0];
+            var result = long.TryParse(input[0], out var height);
+            string hash;
+            if (result)
+            {
+                var block = AsyncHelper.RunSync(() => NodeManager.ApiService.GetBlockByHeightAsync(height));
+                hash = block.BlockHash;
+            }
+            else
+            {
+                hash = input[0];
+            }
             var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
-            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(blockHash, offset, limit));
+            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(hash, offset, limit));
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 

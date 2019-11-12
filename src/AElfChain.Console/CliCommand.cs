@@ -131,6 +131,7 @@ namespace AElfChain.Console
         private void InitializeCommands()
         {
             Commands.Add(new BlockChainCommand(NodeManager, Contracts));
+            Commands.Add(new CrossChainTxCommand(NodeManager, Contracts));
             Commands.Add(new AnalyzeCommand(NodeManager, Contracts));
             Commands.Add(new ContractQueryCommand(NodeManager, Contracts));
             Commands.Add(new ContractExecutionCommand(NodeManager, Contracts));
