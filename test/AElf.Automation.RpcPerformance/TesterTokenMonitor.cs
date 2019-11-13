@@ -106,7 +106,7 @@ namespace AElf.Automation.RpcPerformance
             //transfer to tester
             foreach (var bp in bps)
             {
-                var balance = SystemToken.GetUserBalance(bp.Account);
+                var balance = SystemToken.GetUserBalance(bp.Account, NodeOption.ChainToken);
                 if (balance < 200_0000_00000000) continue;
                 SystemToken.SetAccount(bp.Account, bp.Password);
                 foreach (var tester in testers)
