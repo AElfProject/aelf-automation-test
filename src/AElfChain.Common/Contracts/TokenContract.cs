@@ -34,6 +34,7 @@ namespace AElfChain.Common.Contracts
         GetTokenInfo,
         GetBalance,
         GetAllowance,
+        GetPrimaryTokenSymbol,
         IsInWhiteList,
         GetNativeTokenInfo,
         GetCrossChainTransferTokenContractAddress,

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common;
@@ -7,6 +8,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.RpcPerformance
@@ -43,13 +45,13 @@ namespace AElf.Automation.RpcPerformance
 
         public void TransferTokenForTest(List<string> testers)
         {
-            Logger.Info("Prepare basic token for tester.");
+            Logger.Info("Prepare main chain basic token for tester.");
             TransferTokenToTester(testers);
         }
 
         public void IssueTokenForTest(List<string> testers)
         {
-            Logger.Info("Prepare basic token for tester.");
+            Logger.Info("Prepare side chain basic token for tester.");
             IssueTokenForSideChain(testers);
         }
 
@@ -82,6 +84,26 @@ namespace AElf.Automation.RpcPerformance
         private void IssueTokenForSideChain(List<string> testers)
         {
             var bps = NodeInfoHelper.Config.Nodes;
+            //issue all token to first bp
+            var firstBp = bps.First();
+            SystemToken.SetAccount(firstBp.Account, firstBp.Password);
+            var primaryToken = SystemToken.CallViewMethod<StringValue>(TokenMethod.GetPrimaryTokenSymbol, new Empty());
+            var tokenInfo = SystemToken.CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
+            {
+                Symbol = primaryToken.Value
+            });
+            var issueBalance = tokenInfo.TotalSupply - tokenInfo.Supply - tokenInfo.Burned;
+            if (issueBalance >= 1000_00000000)
+            {
+                SystemToken.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
+                {
+                    To = SystemToken.CallAccount,
+                    Amount = issueBalance,
+                    Symbol = primaryToken.Value,
+                    Memo = $"Issue all token to bp {Guid.NewGuid()}"
+                });
+            }
+            //transfer to tester
             foreach (var bp in bps)
             {
                 var balance = SystemToken.GetUserBalance(bp.Account);
@@ -92,7 +114,7 @@ namespace AElf.Automation.RpcPerformance
                     if (tester == bp.Account) continue;
                     var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
                     if (userBalance < 1_0000_00000000)
-                        SystemToken.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
+                        SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                         {
                             To = tester.ConvertAddress(),
                             Amount = 1_0000_00000000,
