@@ -138,9 +138,9 @@ namespace AElfChain.Common.Managers
         {
             try
             {
-                var keyFilePath = GetKeyFileFullPath(address);
                 if (!CacheAccount.ReadCache(address, out var privateKey))
                 {
+                    var keyFilePath = GetKeyFileFullPath(address);
                     privateKey = await Task.Run(() =>
                     {
                         using (var textReader = File.OpenText(keyFilePath))
