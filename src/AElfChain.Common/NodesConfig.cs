@@ -16,18 +16,11 @@ namespace AElfChain.Common
         [JsonIgnore] public string PublicKey { get; set; }
     }
 
-    public class ChainType
-    {
-        [JsonProperty("is_main_chain")] public bool IsMainChain { get; set; }
-        [JsonProperty("token_symbol")] public string TokenSymbol { get; set; }
-    }
-
     public class NodesInfo
     {
         [JsonProperty("RequireAuthority")] public bool RequireAuthority { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
         [JsonProperty("NativeTokenSymbol")] public string NativeTokenSymbol { get; set; }
-        [JsonProperty("ChainType")] public ChainType ChainTypeInfo { get; set; }
         [JsonProperty("DefaultPassword")] public string DefaultPassword { get; set; }
 
         public void CheckNodesAccount()

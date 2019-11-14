@@ -4,6 +4,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
@@ -93,6 +94,24 @@ namespace AElfChain.Common.Contracts
                 Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
+        }
+
+        public string GetPrimaryTokenSymbol()
+        {
+            return CallViewMethod<StringValue>(TokenMethod.GetPrimaryTokenSymbol, new Empty()).Value;
+        }
+
+        public string GetNativeTokenSymbol()
+        {
+            return CallViewMethod<TokenInfo>(TokenMethod.GetNativeTokenInfo, new Empty()).Symbol;
+        }
+
+        public TokenInfo GetTokenInfo(string symbol)
+        {
+            return CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
+            {
+                Symbol = symbol
+            });
         }
     }
 }

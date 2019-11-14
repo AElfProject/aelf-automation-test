@@ -22,10 +22,13 @@ namespace AElfChain.Common.Managers
         private readonly ParliamentAuthContract _parliament;
         private readonly TokenContract _token;
         private NodesInfo _info;
+        
+        public INodeManager NodeManager { get; set; }
 
         public AuthorityManager(INodeManager nodeManager, string caller = "")
         {
             GetConfigNodeInfo();
+            NodeManager = nodeManager;
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
             _token = _genesis.GetTokenContract();
@@ -132,12 +135,14 @@ namespace AElfChain.Common.Managers
         {
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
-            if (NodeOption.IsMainChain)
+            var isMainChain = NodeManager.IsMainChain();
+            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            if (isMainChain)
                 foreach (var bp in bps.Skip(1))
                 {
                     var balance = _token.GetUserBalance(bp);
                     if (balance < 10000_00000000)
-                        _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, NodeOption.ChainToken);
+                        _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, primaryToken);
                 }
             else
                 foreach (var bp in bps)
@@ -145,7 +150,7 @@ namespace AElfChain.Common.Managers
                     var issuer = NodeInfoHelper.Config.Nodes.First().Account;
                     var balance = _token.GetUserBalance(bp);
                     if (balance < 10000_00000000)
-                        _token.IssueBalance(issuer, bp, 100000_00000000 - balance, NodeOption.ChainToken);
+                        _token.IssueBalance(issuer, bp, 100000_00000000 - balance, primaryToken);
                 }
         }
     }

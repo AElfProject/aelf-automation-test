@@ -65,12 +65,8 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(NodeManager);
             TokenMonitor = new TesterTokenMonitor(NodeManager);
 
-            if (NodeInfoHelper.Config.ChainTypeInfo.IsMainChain)
-                //TransferTokenFromBp();
-                TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
-            else
-                //Prepare token for side chain 
-                TokenMonitor.IssueTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
+            //Transfer token for transaction fee
+            TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
 
             //Set select limit transaction
             var setAccount = GetSetConfigurationLimitAccount();
@@ -635,7 +631,8 @@ namespace AElf.Automation.RpcPerformance
         private string GetSetConfigurationLimitAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
-            return NodeOption.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
+            var isMainChain = NodeManager.IsMainChain();
+            return isMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion
