@@ -45,6 +45,9 @@ namespace AElfChain.Console.Commands
                 case "NodeElectionAnalyze":
                     NodeElectionAnalyze();
                     break;
+                case "CheckAccountsToken":
+                    CheckAccountsToken();
+                    break;
                 default:
                     Logger.Error("Not supported api method.");
                     var subCommands = GetSubCommands();
@@ -180,12 +183,14 @@ namespace AElfChain.Console.Commands
                         {
                             bpCollection += $"{node.Name}  ";
                         }
+
                     $"Current bp account info: {bpCollection.Trim()}".WriteSuccessLine();
                 }
 
                 while (true)
                 {
-                    var nextTerm = AsyncHelper.RunSync(()=>Services.ConsensusStub.GetNextElectCountDown.CallAsync(new Empty()));
+                    var nextTerm = AsyncHelper.RunSync(() =>
+                        Services.ConsensusStub.GetNextElectCountDown.CallAsync(new Empty()));
                     if (nextTerm.Value <= 2)
                     {
                         Thread.Sleep(5);
@@ -209,17 +214,31 @@ namespace AElfChain.Console.Commands
                 var manager = new NodeManager(o);
                 nodeManagers.Add(manager);
             });
-            
+
             while (true)
             {
                 Parallel.ForEach(nodeManagers, manager =>
                 {
                     var transactionPoolStatus = AsyncHelper.RunSync(manager.ApiService.GetTransactionPoolStatusAsync);
-                    $"{DateTime.Now:HH:mm:ss} {manager.GetApiUrl()} QueuedTxs: {transactionPoolStatus.Queued} ValidatedTxs: {transactionPoolStatus.Validated}".WriteSuccessLine();
+                    $"{DateTime.Now:HH:mm:ss} {manager.GetApiUrl()} QueuedTxs: {transactionPoolStatus.Queued} ValidatedTxs: {transactionPoolStatus.Validated}"
+                        .WriteSuccessLine();
                 });
                 System.Console.WriteLine();
                 Thread.Sleep(500);
             }
+        }
+
+        private void CheckAccountsToken()
+        {
+            var accounts = NodeManager.ListAccounts();
+            _ = Services.Token.ContractAddress;
+            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            Parallel.ForEach(accounts, acc =>
+            {
+                var balance = Services.Token.GetUserBalance(acc, primaryToken);
+                if (balance != 0)
+                    $"Account: {acc}  {primaryToken}={balance}".WriteSuccessLine();
+            });
         }
 
         public override CommandInfo GetCommandInfo()
@@ -243,7 +262,8 @@ namespace AElfChain.Console.Commands
                 "BlockAnalyze",
                 "TransactionAnalyze",
                 "TransactionPoolAnalyze",
-                "NodeElectionAnalyze"
+                "NodeElectionAnalyze",
+                "CheckAccountsToken"
             };
         }
     }
