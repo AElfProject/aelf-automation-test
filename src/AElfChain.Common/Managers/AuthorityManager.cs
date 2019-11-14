@@ -22,7 +22,7 @@ namespace AElfChain.Common.Managers
         private readonly ParliamentAuthContract _parliament;
         private readonly TokenContract _token;
         private NodesInfo _info;
-        
+
         public INodeManager NodeManager { get; set; }
 
         public AuthorityManager(INodeManager nodeManager, string caller = "")
@@ -135,23 +135,13 @@ namespace AElfChain.Common.Managers
         {
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
-            var isMainChain = NodeManager.IsMainChain();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            if (isMainChain)
-                foreach (var bp in bps.Skip(1))
-                {
-                    var balance = _token.GetUserBalance(bp);
-                    if (balance < 10000_00000000)
-                        _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, primaryToken);
-                }
-            else
-                foreach (var bp in bps)
-                {
-                    var issuer = NodeInfoHelper.Config.Nodes.First().Account;
-                    var balance = _token.GetUserBalance(bp);
-                    if (balance < 10000_00000000)
-                        _token.IssueBalance(issuer, bp, 100000_00000000 - balance, primaryToken);
-                }
+            foreach (var bp in bps.Skip(1))
+            {
+                var balance = _token.GetUserBalance(bp);
+                if (balance < 10000_00000000)
+                    _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, primaryToken);
+            }
         }
     }
 }
