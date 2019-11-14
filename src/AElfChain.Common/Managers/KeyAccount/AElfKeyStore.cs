@@ -37,11 +37,13 @@ namespace AElfChain.Common.Managers
         private readonly List<Account> _unlockedAccounts;
 
         public readonly string DataDirectory;
+        public AccountInfoCache CacheAccount;
         public TimeSpan DefaultTimeoutToClose = TimeSpan.FromMinutes(10); //in order to customize time setting.
 
         private AElfKeyStore(string dataDirectory)
         {
             DataDirectory = dataDirectory;
+            CacheAccount = new AccountInfoCache();
             _unlockedAccounts = new List<Account>();
             _keyStoreService = new KeyStoreService();
         }
@@ -137,14 +139,19 @@ namespace AElfChain.Common.Managers
             try
             {
                 var keyFilePath = GetKeyFileFullPath(address);
-                var privateKey = await Task.Run(() =>
+                if (!CacheAccount.ReadCache(address, out var privateKey))
                 {
-                    using (var textReader = File.OpenText(keyFilePath))
+                    privateKey = await Task.Run(() =>
                     {
-                        var json = textReader.ReadToEnd();
-                        return _keyStoreService.DecryptKeyStoreFromJson(password, json);
-                    }
-                });
+                        using (var textReader = File.OpenText(keyFilePath))
+                        {
+                            var json = textReader.ReadToEnd();
+                            return _keyStoreService.DecryptKeyStoreFromJson(password, json);
+                        }
+                    });
+                    //save cache info
+                    await CacheAccount.WriteCache(address, privateKey);
+                }
 
                 return CryptoHelper.FromPrivateKey(privateKey);
             }
@@ -172,7 +179,9 @@ namespace AElfChain.Common.Managers
 
             var address = Address.FromPublicKey(keyPair.PublicKey);
             var fullPath = GetKeyFileFullPath(address.GetFormatted());
-
+            //save cache
+            await CacheAccount.WriteCache(address.GetFormatted(), keyPair.PrivateKey);
+            
             await Task.Run(() =>
             {
                 using (var writer = File.CreateText(fullPath))
