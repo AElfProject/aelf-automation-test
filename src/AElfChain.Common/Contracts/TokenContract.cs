@@ -80,7 +80,7 @@ namespace AElfChain.Common.Contracts
                 Symbol = symbol,
                 To = to.ConvertAddress(),
                 Amount = amount,
-                Memo = "Issue amount"
+                Memo = $"Issue amount {Guid.NewGuid()}"
             });
 
             return result;

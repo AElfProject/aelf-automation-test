@@ -84,13 +84,9 @@ namespace AElf.Automation.RpcPerformance
                 var issueBalance = tokenInfo.TotalSupply - tokenInfo.Supply - tokenInfo.Burned;
                 if (issueBalance >= 1000_00000000)
                 {
-                    SystemToken.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
-                    {
-                        To = SystemToken.CallAccount,
-                        Amount = issueBalance,
-                        Symbol = primaryToken,
-                        Memo = $"Issue all token to bp {Guid.NewGuid()}"
-                    });
+                    var account = SystemToken.CallAddress;
+                    SystemToken.IssueBalance(account, account, issueBalance,
+                        primaryToken);
                 }
             }
 
