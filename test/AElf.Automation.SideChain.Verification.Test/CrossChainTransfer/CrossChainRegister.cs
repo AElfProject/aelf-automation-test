@@ -185,8 +185,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(chainTxInfo.RawTx)),
                     MerklePath = merklePath
                 };
-                registerInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
-                    .MerklePathForParentChainRoot.MerklePathNodes);
+                registerInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathFromParentChain.MerklePathNodes);
                 Proposal(MainChainService, registerInput);
                 Logger.Info(
                     $"Main chain register chain {sideChainService.ChainId} token address {sideChainService.TokenService.ContractAddress}");
@@ -250,7 +249,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     MerklePath = sideChainMerklePath
                 };
                 sideChainRegisterInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
-                    .MerklePathForParentChainRoot
+                    .MerklePathFromParentChain
                     .MerklePathNodes);
 
                 foreach (var registerChain in SideChainServices)

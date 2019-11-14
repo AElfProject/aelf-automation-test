@@ -64,7 +64,7 @@ namespace AElf.Automation.SideChainTests
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx))
             };
             registerInput.MerklePath.MerklePathNodes.AddRange(merklePath.MerklePathNodes);
-            registerInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot
+            registerInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathFromParentChain
                 .MerklePathNodes);
             Proposal(MainContracts.ContractServices, registerInput);
             _logger.Info(
@@ -123,7 +123,7 @@ namespace AElf.Automation.SideChainTests
             };
             sideChainRegisterInputA.MerklePath.MerklePathNodes.AddRange(sideChainMerklePathA.MerklePathNodes);
             sideChainRegisterInputA.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContextA
-                .MerklePathForParentChainRoot
+                .MerklePathFromParentChain
                 .MerklePathNodes);
 
             Proposal(SideTester[registerSideNum].ContractServices, sideChainRegisterInputA);
@@ -236,7 +236,7 @@ namespace AElf.Automation.SideChainTests
             // verify side chain transaction
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(sideAServices, long.Parse(blockNumber));
             crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
-                .MerklePathForParentChainRoot.MerklePathNodes);
+                .MerklePathFromParentChain.MerklePathNodes);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));

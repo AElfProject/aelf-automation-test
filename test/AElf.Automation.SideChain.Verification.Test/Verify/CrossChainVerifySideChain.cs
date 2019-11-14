@@ -122,7 +122,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 Path = merklePath
             };
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(services, blockHeight);
-            verificationInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.MerklePathNodes);
+            verificationInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathFromParentChain.MerklePathNodes);
             verificationInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
 
             return verificationInput;
