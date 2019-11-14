@@ -297,12 +297,20 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
+            /*
             Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
                 if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
+            */
+            for (var i = 0; i < count; i++)
+            {
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                if (!result)
+                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+            }
         }
 
         private void UpdateRandomEndpoint()
