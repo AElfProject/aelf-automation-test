@@ -60,7 +60,7 @@ namespace AElfChain.Common.Managers
 
         private async Task WriteCache(AccountInfo info)
         {
-            var fullName = Path.Combine(KeyPath, $"{info.Account}.{KeyCacheExtension}");
+            var fullName = Path.Combine(KeyPath, $"{info.Account}{KeyCacheExtension}");
             await Task.Run(() =>
             {
                 using (var writer = File.CreateText(fullName))
@@ -75,7 +75,7 @@ namespace AElfChain.Common.Managers
         private bool TryGetCache(string account, out AccountInfo info)
         {
             info = null;
-            var fullName = Path.Combine(KeyPath, $"{account}.{KeyCacheExtension}");
+            var fullName = Path.Combine(KeyPath, $"{account}{KeyCacheExtension}");
             if (File.Exists(fullName))
             {
                 var content = File.ReadAllText(fullName);
