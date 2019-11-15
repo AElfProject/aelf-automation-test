@@ -41,6 +41,13 @@ namespace AElf.Automation.ContractsTesting
             //Init Logger
             Log4NetHelper.LogInit("ContractTest");
 
+            //check transaction fee
+            var transactionFee = new AnalyzeTransactionFee();
+            transactionFee.QueryBlocksInfo(277325, 284525); //298840
+            transactionFee.QueryTransactionsInfo();
+            transactionFee.CalculateTotalFee();
+            Console.ReadLine();
+            
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
 

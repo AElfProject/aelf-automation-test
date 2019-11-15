@@ -62,12 +62,8 @@ namespace AElf.Automation.RpcPerformance
             TokenMonitor = new TesterTokenMonitor(NodeManager);
             SystemTokenAddress = TokenMonitor.SystemToken.ContractAddress;
 
-            if (NodeInfoHelper.Config.ChainTypeInfo.IsMainChain)
-                //TransferTokenFromBp();
-                TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
-            else
-                //Prepare token for side chain 
-                TokenMonitor.IssueTokenForTest(AccountList.Select(o => o.Account).ToList());
+            //Transfer token for transaction fee
+            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
 
             //Set select limit transaction
             var setAccount = GetSetConfigurationLimitAccount();
@@ -301,12 +297,20 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
+            /*
             Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
                 if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
+            */
+            for (var i = 0; i < count; i++)
+            {
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                if (!result)
+                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+            }
         }
 
         private void UpdateRandomEndpoint()
@@ -347,38 +351,11 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private void TransferTokenForSideChain()
-        {
-            try
-            {
-                var nodeConfig = NodeInfoHelper.Config;
-                var account = nodeConfig.Nodes.First().Account;
-                var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
-                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                var systemToken = genesis.GetTokenContract();
-
-                for (var i = 0; i < ThreadCount; i++)
-                    systemToken.IssueBalance(account, AccountList[i].Account, 10000_00000000, sideChainTokenSymbol);
-
-                var nodes = nodeConfig.Nodes;
-
-                foreach (var node in nodes)
-                {
-                    if (node.Account == account) continue;
-                    systemToken.IssueBalance(account, node.Account, 10000_00000000, sideChainTokenSymbol);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Issue side chain token got exception.");
-                Logger.Error(e);
-            }
-        }
-
         private string GetSetConfigurationLimitAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
-            return NodeOption.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
+            var isMainChain = NodeManager.IsMainChain();
+            return isMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         private void ExecuteTransactionTask(int threadNo, int times)

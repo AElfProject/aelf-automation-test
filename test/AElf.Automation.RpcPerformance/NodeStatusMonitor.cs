@@ -83,6 +83,7 @@ namespace AElf.Automation.RpcPerformance
                     case TransactionResultStatus.Unexecutable:
                         Console.Write(
                             $"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
+                        Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Failed:
                         Logger.Error(
@@ -125,7 +126,7 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
         }
 
         public void CheckNodeHeightStatus(bool enable = true)

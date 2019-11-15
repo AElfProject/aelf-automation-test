@@ -60,7 +60,8 @@ namespace AElfChain.Common.Helpers
                 if (!Directory.Exists(desPath)) throw new DirectoryNotFoundException();
             }
 
-            File.Copy(originPath, desPath, true);
+            var fileName = Path.GetFileName(originPath);
+            File.Copy(originPath, Path.Combine(desPath, fileName), true);
         }
 
         public static bool DeleteDirectoryFiles(string path)

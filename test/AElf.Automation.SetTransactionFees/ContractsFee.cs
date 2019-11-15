@@ -51,7 +51,8 @@ namespace AElf.Automation.SetTransactionFees
 
                 var contractFee =
                     new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.GetFormatted());
-                contractFee.SetContractFees(NodeOption.ChainToken, amount, genesisOwner, miners, Caller);
+                var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                contractFee.SetContractFees(primaryToken, amount, genesisOwner, miners, Caller);
             }
         }
 
@@ -85,7 +86,8 @@ namespace AElf.Automation.SetTransactionFees
                     }
                     else
                     {
-                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {NodeOption.ChainToken}   Amount: 0");
+                        var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {primaryToken}   Amount: 0");
                     }
                 }
 

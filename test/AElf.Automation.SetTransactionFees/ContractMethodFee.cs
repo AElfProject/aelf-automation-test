@@ -64,7 +64,8 @@ namespace AElf.Automation.SetTransactionFees
                 var beforeFee = QueryTransactionFee(caller, ContractAddress, method.Name);
                 if (beforeFee.Fees.Count > 0)
                 {
-                    var tokenAmount = beforeFee.Fees.First(o => o.Symbol == NodeOption.ChainToken);
+                    var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                    var tokenAmount = beforeFee.Fees.First(o => o.Symbol == primaryToken);
                     if (tokenAmount?.BasicFee == amount)
                     {
                         Logger.Info($"{method.Name} transaction fee is {amount}, no need to reset again.");
