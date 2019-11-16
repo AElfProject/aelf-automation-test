@@ -65,14 +65,18 @@ namespace AElf.Automation.RpcPerformance
             Monitor = new NodeStatusMonitor(NodeManager);
             TokenMonitor = new TesterTokenMonitor(NodeManager);
 
-            //Transfer token for transaction fee
-            TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
-
+            //Transfer token for approve
+            var bps = NodeInfoHelper.Config.Nodes.Select(o=>o.Account);
+            TokenMonitor.TransferTokenForTest(bps.ToList());
+            
             //Set select limit transaction
-            var setAccount = GetSetConfigurationLimitAccount();
+            var setAccount = bps.First();
             var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+            
+            //Transfer token for transaction fee
+            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
         }
 
         public void DeployContracts()
@@ -207,11 +211,6 @@ namespace AElf.Automation.RpcPerformance
             }
 
             Monitor.CheckTransactionsStatus(TxIdList);
-
-            //prepare conflict environment
-            var conflict = ConfigInfoHelper.Config.Conflict;
-            if (!conflict)
-                InitializeTransactionGroup();
         }
 
         public void ExecuteOneRoundTransactionTask()
@@ -263,7 +262,7 @@ namespace AElf.Automation.RpcPerformance
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
-        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
+        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
@@ -293,9 +292,7 @@ namespace AElf.Automation.RpcPerformance
                                 for (var i = 0; i < ThreadCount; i++)
                                 {
                                     var j = i;
-                                    txsTasks.Add(conflict
-                                        ? Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes))
-                                        : Task.Run(() => ExecuteNonConflictBatchTransactionTask(j, exeTimes)));
+                                    txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes)));
                                 }
 
                                 Task.WaitAll(txsTasks.ToArray<Task>());
@@ -362,24 +359,12 @@ namespace AElf.Automation.RpcPerformance
                     item.ContractAddress);
             }
         }
-
-        private void InitializeTransactionGroup()
-        {
-            var nodeManager = NodeManager;
-            var users = AccountList.Skip(ThreadCount).ToList();
-            var contracts = ContractList;
-
-            Group = new TransactionGroup(nodeManager, users, contracts);
-            Group.InitializeAllUsersToken();
-            Task.Run(() => Group.GenerateAllContractTransactions());
-        }
-
+        
         #region Public Property
 
         public INodeManager NodeManager { get; private set; }
         public IApiService ApiService => NodeManager.ApiService;
         private ExecutionSummary Summary { get; set; }
-        private TransactionGroup Group { get; set; }
         private NodeStatusMonitor Monitor { get; set; }
         private TesterTokenMonitor TokenMonitor { get; set; }
         public string BaseUrl { get; }
@@ -397,7 +382,6 @@ namespace AElf.Automation.RpcPerformance
 
         #region Private Method
 
-        //Without conflict group category
         private void ExecuteTransactionTask(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
@@ -440,7 +424,12 @@ namespace AElf.Automation.RpcPerformance
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
@@ -480,32 +469,17 @@ namespace AElf.Automation.RpcPerformance
             Thread.Sleep(10);
         }
 
-        private void ExecuteNonConflictBatchTransactionTask(int threadNo, int times)
-        {
-            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var rawTransactionList = Group.GetRawTransactions();
-            stopwatch.Stop();
-            var generateRawInfoTime = stopwatch.ElapsedMilliseconds;
-
-            //Send batch transaction requests
-            stopwatch.Restart();
-            var rawTransactions = string.Join(",", rawTransactionList);
-            NodeManager.SendTransactions(rawTransactions);
-            stopwatch.Stop();
-            var requestTime = stopwatch.ElapsedMilliseconds;
-            Logger.Info(
-                $"Thread {threadNo} send transactions: {times}, generate time: {generateRawInfoTime}ms, execute time: {requestTime}ms");
-            Thread.Sleep(50);
-        }
-
         private void GenerateRawTransactionQueue(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             for (var i = 0; i < times; i++)
             {
@@ -543,12 +517,20 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
+            /*
             Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
                 if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
+            */
+            for (var i = 0; i < count; i++)
+            {
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                if (!result)
+                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+            }
         }
 
         private void GetTestAccounts(int count)
@@ -626,13 +608,6 @@ namespace AElf.Automation.RpcPerformance
                     exceptionTimes--;
                 }
             }
-        }
-
-        private string GetSetConfigurationLimitAccount()
-        {
-            var nodeConfig = NodeInfoHelper.Config;
-            var isMainChain = NodeManager.IsMainChain();
-            return isMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         #endregion

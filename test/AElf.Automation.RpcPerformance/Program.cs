@@ -69,7 +69,8 @@ namespace AElf.Automation.RpcPerformance
                     performance.SideChainDeployContractsWithAuthority();
                 else
                     performance.DeployContracts();
-
+                
+                nodeManager.WaitCurrentHeightToLib(); //contract execution need wait to lib
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
@@ -117,7 +118,6 @@ namespace AElf.Automation.RpcPerformance
             }
 
             var tm = (TestMode) execMode;
-            var conflict = ConfigInfoHelper.Config.Conflict;
             switch (tm)
             {
                 case TestMode.CommonTx:
@@ -134,7 +134,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 case TestMode.ContinuousTxs:
                     Logger.Info($"Run with continuous txs mode: {tm.ToString()}.");
-                    performance.ExecuteContinuousRoundsTransactionsTask(true, conflict);
+                    performance.ExecuteContinuousRoundsTransactionsTask(true);
                     break;
                 case TestMode.NotSet:
                     break;

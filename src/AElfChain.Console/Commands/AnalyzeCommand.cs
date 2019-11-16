@@ -13,6 +13,7 @@ using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
+using Newtonsoft.Json;
 using Sharprompt;
 using Volo.Abp.Threading;
 
@@ -33,6 +34,9 @@ namespace AElfChain.Console.Commands
             var command = Prompt.Select("Select api command", GetSubCommands());
             switch (command)
             {
+                case "ChainsStatus":
+                    ChainsStatus();
+                    break;
                 case "BlockAnalyze":
                     BlockAnalyze();
                     break;
@@ -56,6 +60,24 @@ namespace AElfChain.Console.Commands
             }
         }
 
+        private void ChainsStatus()
+        {
+            "Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var nodeManagers = new List<NodeManager>();
+            input.ToList().ForEach(o =>
+            {
+                var manager = new NodeManager(o);
+                nodeManagers.Add(manager);
+            });
+            foreach(var manager in nodeManagers)
+            {
+                var chainStatus = AsyncHelper.RunSync(manager.ApiService.GetChainStatusAsync);
+                $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
+                JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
+               System.Console.WriteLine();
+            }
+        }
         private void BlockAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
@@ -259,6 +281,7 @@ namespace AElfChain.Console.Commands
         {
             return new List<string>
             {
+                "ChainsStatus",
                 "BlockAnalyze",
                 "TransactionAnalyze",
                 "TransactionPoolAnalyze",

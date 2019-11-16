@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcPerformance
         {
             while (true)
             {
-                Thread.Sleep(5 * 60 * 1000);
+                Thread.Sleep(10 * 60 * 1000);
                 try
                 {
                     Logger.Info("Start check tester token balance job.");
@@ -57,7 +57,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     if (tester == bp.Account) continue;
                     var userBalance = SystemToken.GetUserBalance(tester, symbol);
-                    if (userBalance < 1_0000_00000000)
+                    if (userBalance < 1_000_00000000)
                         SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                         {
                             To = tester.ConvertAddress(),

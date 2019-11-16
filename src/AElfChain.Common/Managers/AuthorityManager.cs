@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Acs0;
 using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Shouldly;
@@ -139,8 +142,8 @@ namespace AElfChain.Common.Managers
             foreach (var bp in bps.Skip(1))
             {
                 var balance = _token.GetUserBalance(bp);
-                if (balance < 10000_00000000)
-                    _token.TransferBalance(bps[0], bp, 100000_00000000 - balance, primaryToken);
+                if (balance < 1000_00000000)
+                    _token.TransferBalance(bps[0], bp, 10000_00000000 - balance, primaryToken);
             }
         }
     }

@@ -62,14 +62,18 @@ namespace AElf.Automation.RpcPerformance
             TokenMonitor = new TesterTokenMonitor(NodeManager);
             SystemTokenAddress = TokenMonitor.SystemToken.ContractAddress;
 
-            //Transfer token for transaction fee
-            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
-
+            //Transfer token for approve
+            var bps = NodeInfoHelper.Config.Nodes.Select(o=>o.Account);
+            TokenMonitor.TransferTokenForTest(bps.ToList());
+            
             //Set select limit transaction
-            var setAccount = GetSetConfigurationLimitAccount();
+            var setAccount = bps.First();
             var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+            
+            //Transfer token for transaction fee
+            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
         }
 
         public void DeployContractsWithAuthority()
@@ -190,7 +194,7 @@ namespace AElf.Automation.RpcPerformance
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
-        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
+        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
@@ -351,13 +355,6 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private string GetSetConfigurationLimitAccount()
-        {
-            var nodeConfig = NodeInfoHelper.Config;
-            var isMainChain = NodeManager.IsMainChain();
-            return isMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
-        }
-
         private void ExecuteTransactionTask(int threadNo, int times)
         {
             var acc = ContractList[threadNo].Owner;
@@ -397,7 +394,12 @@ namespace AElf.Automation.RpcPerformance
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
@@ -491,7 +493,12 @@ namespace AElf.Automation.RpcPerformance
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, contractPath);
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             for (var i = 0; i < times; i++)
             {
@@ -527,7 +534,6 @@ namespace AElf.Automation.RpcPerformance
         public INodeManager NodeManager { get; private set; }
         public IApiService ApiService => NodeManager.ApiService;
         private ExecutionSummary Summary { get; set; }
-        private TransactionGroup Group { get; set; }
         private NodeStatusMonitor Monitor { get; set; }
         private TesterTokenMonitor TokenMonitor { get; set; }
         public string BaseUrl { get; }

@@ -40,7 +40,6 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("SentTxLimit")] public int SentTxLimit { get; set; }
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }
         [JsonProperty("Timeout")] public int Timeout { get; set; }
-        [JsonProperty("Conflict")] public bool Conflict { get; set; }
 
         [JsonProperty("RandomSenderTransaction")]
         public bool RandomSenderTransaction { get; set; }

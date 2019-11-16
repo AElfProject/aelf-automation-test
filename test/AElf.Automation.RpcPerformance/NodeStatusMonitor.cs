@@ -15,9 +15,6 @@ namespace AElf.Automation.RpcPerformance
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public static int MaxQueueLimit = 5012;
 
-        private static int _checkCount;
-        private readonly object _checkObj = new object();
-
         public NodeStatusMonitor(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
@@ -28,31 +25,22 @@ namespace AElf.Automation.RpcPerformance
         private long BlockHeight { get; set; } = 1;
         public static int MaxValidateLimit { private get; set; }
 
-        public void CheckTransactionPoolStatus(bool enable)
+        public bool CheckTransactionPoolStatus(bool enable)
         {
-            if (!enable) return;
+            if (!enable) return true;
+            var checkTimes = 0;
             while (true)
             {
+                if (checkTimes >= 150) return false;    //超过检查次数，退出当前轮交易执行            
                 var poolStatus = GetTransactionPoolTxCount();
                 if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
-                {
-                    lock (_checkObj)
-                    {
-                        _checkCount = 0;
-                    }
-
-                    break;
-                }
-
-                lock (_checkObj)
-                {
-                    _checkCount++;
-                }
-
-                Thread.Sleep(200);
-                if (_checkCount % 10 == 0)
+                    return true;
+                
+                checkTimes++;
+                if (checkTimes % 10 == 0)
                     $"TxHub transaction count: QueuedCount={poolStatus.Queued} ValidatedCount={poolStatus.Validated}. Transaction limit: {MaxValidateLimit}"
                         .WriteWarningLine();
+                Thread.Sleep(200);
             }
         }
 

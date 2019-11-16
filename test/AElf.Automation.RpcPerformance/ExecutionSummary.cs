@@ -31,8 +31,6 @@ namespace AElf.Automation.RpcPerformance
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
 
-        public int MaxTransactionLimit { get; private set; } = ConfigInfoHelper.Config.SentTxLimit;
-
         public void ContinuousCheckTransactionPerformance()
         {
             var checkTimes = 0;
@@ -57,10 +55,6 @@ namespace AElf.Automation.RpcPerformance
                     var j = i;
                     var block = GetBlockByHeight(j);
                     _blockMap.Add(j, block);
-                    MaxTransactionLimit = MaxTransactionLimit > block.Body.TransactionsCount
-                        ? MaxTransactionLimit
-                        : block.Body.TransactionsCount;
-                    NodeStatusMonitor.MaxValidateLimit = MaxTransactionLimit;
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
                 }

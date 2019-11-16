@@ -10,8 +10,8 @@ namespace AElf.Automation.ContractsTesting
 {
     public class AnalyzeTransactionFee
     {
-        private INodeManager NodeManager { get; set; }
-        private const string ENDPOINT = "18.163.40.216:8000";
+        private INodeManager NodeManager { get; }
+        private const string Endpoint = "18.163.40.216:8000";
 
         public List<BlockDto> Blocks;
         public List<TransactionResultDto> TransactionResultDtos;
@@ -19,7 +19,7 @@ namespace AElf.Automation.ContractsTesting
         public long TotalTransactions;
         public AnalyzeTransactionFee()
         {
-            NodeManager = new NodeManager(ENDPOINT);
+            NodeManager = new NodeManager(Endpoint);
             Blocks = new List<BlockDto>();
             TransactionResultDtos = new List<TransactionResultDto>();
             TotalBlocks = 0;
