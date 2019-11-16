@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -13,6 +14,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             InitializeScenario();
             var contract = new BasicWithParallelContract(Services.NodeManager, AllTesters[0]);
+            Services.NodeManager.WaitCurrentHeightToLib();
             var testers = AllTesters.GetRange(1, 2);
             _contracts = testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();

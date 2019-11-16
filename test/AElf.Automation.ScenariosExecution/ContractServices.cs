@@ -107,6 +107,7 @@ namespace AElf.Automation.ScenariosExecution
                 else
                 {
                     FunctionContractService = new BasicFunctionContract(NodeManager, CallAddress);
+                    NodeManager.WaitCurrentHeightToLib();
                     ContractScenario.IsUpdateContract = false;
                     ContractScenario.ContractOwner = CallAddress;
                     ContractScenario.ContractManager = CallAddress;
@@ -143,6 +144,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 //BasicFunction contract
                 FunctionContractService = new BasicFunctionContract(NodeManager, CallAddress);
+                NodeManager.WaitCurrentHeightToLib();
                 ContractScenario.IsUpdateContract = false;
                 ContractScenario.ContractOwner = CallAddress;
                 ContractScenario.ContractManager = CallAddress;
@@ -182,6 +184,7 @@ namespace AElf.Automation.ScenariosExecution
                 else
                 {
                     PerformanceService = new PerformanceContract(NodeManager, CallAddress);
+                    NodeManager.WaitCurrentHeightToLib();
                     PerformanceService.InitializePerformance();
 
                     //update configInfo
@@ -193,6 +196,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 //Performance contract
                 PerformanceService = new PerformanceContract(NodeManager, CallAddress);
+                NodeManager.WaitCurrentHeightToLib();
                 PerformanceService.InitializePerformance();
             }
         }

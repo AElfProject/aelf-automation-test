@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -57,7 +58,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             try
             {
                 var token = Token.GetNewTester(from);
-                var beforeA = Token.GetUserBalance(from);
                 var beforeB = Token.GetUserBalance(to);
                 var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
@@ -68,15 +68,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 tokenResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var afterA = Token.GetUserBalance(from);
                 var afterB = Token.GetUserBalance(to);
                 var result = true;
-                if (beforeA != afterA + amount)
-                {
-                    Logger.Error(
-                        $"Transfer failed, amount check not correct. From owner {NodeOption.NativeTokenSymbol}: {beforeA}/{afterA + amount}");
-                    result = false;
-                }
 
                 if (beforeB != afterB - amount)
                 {
@@ -134,9 +127,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
+                var transactionFee = transactionResult.TransactionResult.TransactionFee.Value?.Values.First() ?? 0;
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
-                if (beforeFrom - amount == afterFrom && beforeTo + amount == afterTo)
+                if (beforeFrom - amount == afterFrom && beforeTo - transactionFee + amount == afterTo)
                     Logger.Info($"TransferFrom success - from {from} to {to} with amount {amount}.");
                 else
                     Logger.Error(

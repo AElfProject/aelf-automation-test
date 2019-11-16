@@ -20,7 +20,7 @@
         <None Update="scenario-nodes.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="scenario-nodes-local.json">
+        <None Update="scenario-nodes-3bp.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="scenario-6-nodes.json">
