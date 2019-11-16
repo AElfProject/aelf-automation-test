@@ -38,7 +38,7 @@ namespace AElf.Automation.RpcPerformance
             if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
 
             //Init Logger
-            var fileName = $"RpcPerformance_GC_{GroupCount}_TC_{TransactionCount}";
+            var fileName = $"GC_{GroupCount}_TC_{TransactionCount}_Hour_{DateTime.Now.Hour:00}";
             Log4NetHelper.LogInit(fileName);
             Logger = Log4NetHelper.GetLogger();
 
@@ -69,7 +69,7 @@ namespace AElf.Automation.RpcPerformance
                     performance.SideChainDeployContractsWithAuthority();
                 else
                     performance.DeployContracts();
-                
+
                 nodeManager.WaitCurrentHeightToLib(); //contract execution need wait to lib
                 performance.InitializeContracts();
 

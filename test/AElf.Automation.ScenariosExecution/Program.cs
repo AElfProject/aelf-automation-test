@@ -14,7 +14,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private static void Main(string[] args)
         {
-            Log4NetHelper.LogInit("ScenarioTest");
+            Log4NetHelper.LogInit($"ScenarioTest_Hour_{DateTime.Now.Hour:00}");
 
             var multipleTasks = new MultipleTasks();
             multipleTasks.RunScenariosByTasks();
