@@ -1,18 +1,15 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.ContractSerializer;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
@@ -43,7 +40,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ConvertTest()
         {
-            string rpcMessage =
+            var rpcMessage =
                 "{\"result\":\"Mined\", \"message\":\"Test successful.\", \"return_code\":\"90000\", \"detail\":{\"info\":\"successful\"}}";
             var result1 = DataHelper.TryGetValueFromJson(out var message1, rpcMessage, "return_code");
             var result2 = DataHelper.TryGetValueFromJson(out var message2, rpcMessage, "detail", "info");
@@ -88,6 +85,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 Console.WriteLine();
             }
+        }
+
+        [TestMethod]
+        public void StringValueParse()
+        {
+            var info = new StringValue
+            {
+                Value = "test info"
+            };
+            var jsonInfo = JsonFormatter.Default.Format(info);
+
+            var msg = JsonParser.Default.Parse(jsonInfo, StringValue.Descriptor);
         }
 
         [TestMethod]
@@ -173,7 +182,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             var transactionId =
                 Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(createRaw.RawTransaction));
-            var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray()).ToByteArray().ToHex();
+            var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray())
+                .ToByteArray().ToHex();
             var rawTransactionResult =
                 await nodeManager.ApiService.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
                 {

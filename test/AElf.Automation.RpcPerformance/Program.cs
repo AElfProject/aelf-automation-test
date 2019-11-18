@@ -11,36 +11,8 @@ namespace AElf.Automation.RpcPerformance
 {
     [Command(Name = "Transaction Client", Description = "Monitor contract transaction testing client.")]
     [HelpOption("-?")]
-    class Program
+    internal class Program
     {
-        #region Parameter Option
-
-        [Option("-c|--config", Description = "Config file about bp node setting")]
-        private static string ConfigFile { get; set; }
-        
-        [Option("-tc|--thread.count", Description =
-            "Thread count to execute transactions. Default value is 4")]
-        private int GroupCount { get; } = ConfigInfoHelper.Config.GroupCount;
-
-        [Option("-tg|--transaction.group", Description =
-            "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionCount { get; } = ConfigInfoHelper.Config.TransactionCount;
-
-        [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
-
-        [Option("-em|--execute.mode", Description =
-            "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
-        private int ExecuteMode { get; } = ConfigInfoHelper.Config.ExecuteMode;
-
-        [Option("-lt|--limit.transaction", Description =
-            "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
-        private string LimitTransactionString { get; } = "true";
-
-        private bool LimitTransaction => LimitTransactionString.ToLower().Trim() == "true";
-
-        #endregion
-
         private static ILog Logger { get; set; }
 
         public static int Main(string[] args)
@@ -62,10 +34,11 @@ namespace AElf.Automation.RpcPerformance
                 app.ShowHelp();
                 return;
             }
-            if(ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
-            
+
+            if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
+
             //Init Logger
-            var fileName = $"RpcPerformance_GC_{GroupCount}_TC_{TransactionCount}";
+            var fileName = $"GC_{GroupCount}_TC_{TransactionCount}_Hour_{DateTime.Now.Hour:00}";
             Log4NetHelper.LogInit(fileName);
             Logger = Log4NetHelper.GetLogger();
 
@@ -89,18 +62,15 @@ namespace AElf.Automation.RpcPerformance
 
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
-                var isMainChain = NodeOption.IsMainChain;
+                var isMainChain = nodeManager.IsMainChain();
                 if (authority && isMainChain)
                     performance.DeployContractsWithAuthority();
                 else if (authority)
-                {
                     performance.SideChainDeployContractsWithAuthority();
-                }
                 else
-                {
                     performance.DeployContracts();
-                }
 
+                nodeManager.WaitCurrentHeightToLib(); //contract execution need wait to lib
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
@@ -124,7 +94,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             //Result summary
-            Logger.Info($"Complete performance testing.");
+            Logger.Info("Complete performance testing.");
         }
 
         private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)
@@ -148,7 +118,6 @@ namespace AElf.Automation.RpcPerformance
             }
 
             var tm = (TestMode) execMode;
-            var conflict = ConfigInfoHelper.Config.Conflict;
             switch (tm)
             {
                 case TestMode.CommonTx:
@@ -165,7 +134,7 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 case TestMode.ContinuousTxs:
                     Logger.Info($"Run with continuous txs mode: {tm.ToString()}.");
-                    performance.ExecuteContinuousRoundsTransactionsTask(true, conflict);
+                    performance.ExecuteContinuousRoundsTransactionsTask(true);
                     break;
                 case TestMode.NotSet:
                     break;
@@ -177,5 +146,33 @@ namespace AElf.Automation.RpcPerformance
 
             performance.PrintContractInfo();
         }
+
+        #region Parameter Option
+
+        [Option("-c|--config", Description = "Config file about bp node setting")]
+        private static string ConfigFile { get; set; }
+
+        [Option("-tc|--thread.count", Description =
+            "Thread count to execute transactions. Default value is 4")]
+        private int GroupCount { get; } = ConfigInfoHelper.Config.GroupCount;
+
+        [Option("-tg|--transaction.group", Description =
+            "Transaction count to execute of each round or one round. Default value is 10.")]
+        private int TransactionCount { get; } = ConfigInfoHelper.Config.TransactionCount;
+
+        [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
+        private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
+
+        [Option("-em|--execute.mode", Description =
+            "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
+        private int ExecuteMode { get; } = ConfigInfoHelper.Config.ExecuteMode;
+
+        [Option("-lt|--limit.transaction", Description =
+            "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
+        private string LimitTransactionString { get; } = "true";
+
+        private bool LimitTransaction => LimitTransactionString.ToLower().Trim() == "true";
+
+        #endregion
     }
 }

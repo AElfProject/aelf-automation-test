@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
 using Acs1;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElf.Types;
-using AElfChain.Common;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -16,22 +14,22 @@ namespace AElf.Automation.SetTransactionFees
 {
     public class ContractsFee
     {
-        private INodeManager NodeManager { get; set; }
-        private ContractHandler ContractHandler { get; set; }
-        
-        private GenesisContract Genesis { get; set; }
-        
-        private string Caller { get; set; }
-
-        private static ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ContractsFee(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
             ContractHandler = new ContractHandler();
             Caller = NodeOption.AllNodes.First().Account;
-            Genesis = nodeManager.GetGenesisContract(Caller); 
+            Genesis = nodeManager.GetGenesisContract(Caller);
         }
+
+        private INodeManager NodeManager { get; }
+        private ContractHandler ContractHandler { get; }
+
+        private GenesisContract Genesis { get; }
+
+        private string Caller { get; }
 
         public void SetAllContractsMethodFee(long amount)
         {
@@ -39,7 +37,7 @@ namespace AElf.Automation.SetTransactionFees
             var genesisOwner = authority.GetGenesisOwnerAddress();
             var miners = authority.GetCurrentMiners();
             var systemContracts = Genesis.GetAllSystemContracts();
-            
+
             foreach (var provider in GenesisContract.NameProviderInfos.Keys)
             {
                 Logger.Info($"Begin set contract: {provider}");
@@ -50,9 +48,11 @@ namespace AElf.Automation.SetTransactionFees
                     Logger.Warn($"Contract {provider} not deployed.");
                     continue;
                 }
-                
-                var contractFee = new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.GetFormatted());
-                contractFee.SetContractFees(NodeOption.ChainToken, amount, genesisOwner, miners, Caller);
+
+                var contractFee =
+                    new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.GetFormatted());
+                var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                contractFee.SetContractFees(primaryToken, amount, genesisOwner, miners, Caller);
             }
         }
 
@@ -70,6 +70,7 @@ namespace AElf.Automation.SetTransactionFees
                     Console.WriteLine();
                     continue;
                 }
+
                 foreach (var method in contractInfo.ActionMethodNames)
                 {
                     var feeResult = NodeManager.QueryView<MethodFees>(Caller, contractAddress.GetFormatted(),
@@ -80,13 +81,16 @@ namespace AElf.Automation.SetTransactionFees
                     if (feeResult.Fees.Count > 0)
                     {
                         var amountInfo = feeResult.Fees.First();
-                        Logger.Info($"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.BasicFee}");
+                        Logger.Info(
+                            $"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.BasicFee}");
                     }
                     else
                     {
-                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {NodeOption.ChainToken}   Amount: 0");
+                        var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {primaryToken}   Amount: 0");
                     }
                 }
+
                 Console.WriteLine();
             }
         }

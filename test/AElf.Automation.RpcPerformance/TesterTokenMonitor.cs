@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common.Utils;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.RpcPerformance
@@ -14,7 +16,6 @@ namespace AElf.Automation.RpcPerformance
     public class TesterTokenMonitor
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public TokenContract SystemToken { get; set; }
 
         public TesterTokenMonitor(INodeManager nodeManager)
         {
@@ -22,15 +23,17 @@ namespace AElf.Automation.RpcPerformance
             SystemToken = genesis.GetTokenContract();
         }
 
+        public TokenContract SystemToken { get; set; }
+
         public void ExecuteTokenCheckTask(List<string> testers)
         {
             while (true)
             {
-                Thread.Sleep(5 * 60 * 1000);
+                Thread.Sleep(10 * 60 * 1000);
                 try
                 {
                     Logger.Info("Start check tester token balance job.");
-                    TransferTokenToTester(testers);
+                    TransferTokenForTest(testers);
                 }
                 catch (Exception e)
                 {
@@ -42,69 +45,52 @@ namespace AElf.Automation.RpcPerformance
 
         public void TransferTokenForTest(List<string> testers)
         {
-            Logger.Info("Prepare basic token for tester.");
-            TransferTokenToTester(testers);
-        }
-        
-        public void IssueTokenForTest(List<string> testers)
-        {
-            Logger.Info("Prepare basic token for tester.");
-            IssueTokenForSideChain(testers);
-        }
-
-        private void TransferTokenToTester(List<string> testers)
-        {
+            Logger.Info("Prepare chain basic token for tester.");
             var bps = NodeInfoHelper.Config.Nodes;
+            var symbol = CheckTokenAndIssueBalance();
             foreach (var bp in bps)
             {
-                var balance = SystemToken.GetUserBalance(bp.Account);
+                var balance = SystemToken.GetUserBalance(bp.Account, symbol);
                 if (balance < 200_0000_00000000) continue;
                 SystemToken.SetAccount(bp.Account, bp.Password);
                 foreach (var tester in testers)
                 {
                     if (tester == bp.Account) continue;
-                    var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
-                    if (userBalance < 1_0000_00000000)
-                    {
+                    var userBalance = SystemToken.GetUserBalance(tester, symbol);
+                    if (userBalance < 1_000_00000000)
                         SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                         {
                             To = tester.ConvertAddress(),
                             Amount = 1_0000_00000000,
-                            Symbol = NodeOption.ChainToken,
+                            Symbol = symbol,
                             Memo = $"Transfer token for test {Guid.NewGuid()}"
                         });
-                    }
                 }
 
                 SystemToken.CheckTransactionResultList();
             }
         }
 
-        private void IssueTokenForSideChain(List<string> testers)
+        private string CheckTokenAndIssueBalance()
         {
             var bps = NodeInfoHelper.Config.Nodes;
-            foreach (var bp in bps)
+            //issue all token to first bp
+            var firstBp = bps.First();
+            SystemToken.SetAccount(firstBp.Account, firstBp.Password);
+            var primaryToken = SystemToken.GetPrimaryTokenSymbol();
+            if (primaryToken != NodeOption.NativeTokenSymbol)
             {
-                var balance = SystemToken.GetUserBalance(bp.Account);
-                if (balance < 200_0000_00000000) continue;
-                SystemToken.SetAccount(bp.Account, bp.Password);
-                foreach (var tester in testers)
+                var tokenInfo = SystemToken.GetTokenInfo(primaryToken);
+                var issueBalance = tokenInfo.TotalSupply - tokenInfo.Supply - tokenInfo.Burned;
+                if (issueBalance >= 1000_00000000)
                 {
-                    if (tester == bp.Account) continue;
-                    var userBalance = SystemToken.GetUserBalance(tester, NodeOption.ChainToken);
-                    if (userBalance < 1_0000_00000000)
-                    {
-                        SystemToken.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
-                        {
-                            To = tester.ConvertAddress(),
-                            Amount = 1_0000_00000000,
-                            Symbol = NodeOption.ChainToken,
-                            Memo = $"Issue token for test {Guid.NewGuid()}"
-                        });
-                    }
+                    var account = SystemToken.CallAddress;
+                    SystemToken.IssueBalance(account, account, issueBalance,
+                        primaryToken);
                 }
-                SystemToken.CheckTransactionResultList();
             }
+
+            return primaryToken;
         }
     }
 }

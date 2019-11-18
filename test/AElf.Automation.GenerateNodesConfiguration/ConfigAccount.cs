@@ -1,18 +1,18 @@
 using System.IO;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
-using AElfChain.Common;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {
     public class ConfigAccount
     {
-        private string _keyPath;
-        private IKeyStore _keyStore;
-        private NodeInfo _node;
+        private readonly string _keyPath;
+        private readonly IKeyStore _keyStore;
+        private readonly NodeInfo _node;
+
         public ConfigAccount(NodeInfo node)
         {
             var dataPath = CommonHelper.GetCurrentDataDir();
@@ -29,7 +29,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
             var addr = Address.FromPublicKey(pubKey);
             _node.Account = addr.GetFormatted();
-            
+
             return _node.Account;
         }
 
@@ -38,7 +38,7 @@ namespace AElf.Automation.GenerateNodesConfiguration
             var originPath = Path.Combine(_keyPath, $"{_node.Account}.json");
             var desPath = Path.Combine(CommonHelper.AppRoot, "results", _node.Name);
             var keysPath = Path.Combine(CommonHelper.AppRoot, "results", "keys");
-            
+
             CommonHelper.CopyFiles(originPath, desPath);
             CommonHelper.CopyFiles(originPath, keysPath);
         }

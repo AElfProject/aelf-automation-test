@@ -7,7 +7,7 @@ using Volo.Abp.Threading;
 
 namespace AElf.Automation.QueryTransaction
 {
-    class Program
+    internal class Program
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -113,7 +113,7 @@ namespace AElf.Automation.QueryTransaction
             query.QueryBlocksTask(height);
             Logger.Info("Complete blocks query result.");
         }
-        
+
         private void RunQueryTransaction()
         {
             var query = new TransactionQuery(Endpoint);

@@ -4,30 +4,19 @@ using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common;
-using AElfChain.Common.Managers;
 using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using log4net;
-using Sharprompt;
 using Shouldly;
 
 namespace AElfChain.Console
 {
     public class CliCommand
     {
-        private INodeManager NodeManager { get; set; }
-
-        private ContractServices Contracts { get; set; }
-
-        private ILog Logger = Log4NetHelper.GetLogger();
-
         public List<BaseCommand> Commands;
 
-        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo().Name).ToList();
-
-        public ConsoleReader InputReader { get; set; }
+        private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CliCommand(INodeManager nodeManager)
         {
@@ -37,6 +26,14 @@ namespace AElfChain.Console
             Commands = new List<BaseCommand>();
             InitializeCommands();
         }
+
+        private INodeManager NodeManager { get; }
+
+        private ContractServices Contracts { get; }
+
+        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo().Name).ToList();
+
+        public ConsoleReader InputReader { get; set; }
 
         public void ExecuteTransactionCommand()
         {
@@ -48,22 +45,22 @@ namespace AElfChain.Console
                 "[Input command order/name]=> ".WriteWarningLine(changeLine: false);
                 var input = InputReader.ReadLine();
                 //var input = Prompt.Select("[Input command order/name]", GetCommandList());
-                
+
                 //quit command
-                var quitCommand = new List<string>{"quit", "exit", "close"};
+                var quitCommand = new List<string> {"quit", "exit", "close"};
                 if (quitCommand.Contains(input.ToLower().Trim()))
                 {
                     "CLI was been closed.".WriteWarningLine();
                     break;
                 }
-                
+
                 //clear console
                 if (input.ToLower().Trim() == "clear")
                 {
                     System.Console.Clear();
                     continue;
                 }
-                
+
                 //config info
                 if (input.ToLower().Trim() == "config")
                 {
@@ -74,10 +71,10 @@ namespace AElfChain.Console
                         $"Name: {bp.Name}  Account: {bp.Account}".WriteSuccessLine();
                         $"PublicKey: {NodeManager.GetAccountPublicKey(bp.Account, bp.Password)}".WriteSuccessLine();
                     }
-                    
+
                     continue;
                 }
-                
+
                 //execute command
                 var command = Commands.FirstOrDefault(o => o.GetCommandInfo().Name.Equals(input));
                 if (command == null)
@@ -87,7 +84,7 @@ namespace AElfChain.Console
                         GetUsageInfo();
                         continue;
                     }
-                    
+
                     var result = int.TryParse(input, out var select);
                     if (!result || select > Commands.Count)
                     {
@@ -95,7 +92,7 @@ namespace AElfChain.Console
                         GetUsageInfo();
                         continue;
                     }
-                    
+
                     command = Commands[select - 1];
                 }
 
@@ -134,6 +131,8 @@ namespace AElfChain.Console
         private void InitializeCommands()
         {
             Commands.Add(new BlockChainCommand(NodeManager, Contracts));
+            Commands.Add(new CrossChainTxCommand(NodeManager, Contracts));
+            Commands.Add(new AnalyzeCommand(NodeManager, Contracts));
             Commands.Add(new ContractQueryCommand(NodeManager, Contracts));
             Commands.Add(new ContractExecutionCommand(NodeManager, Contracts));
             Commands.Add(new QueryContractCommand(NodeManager, Contracts));
@@ -155,7 +154,8 @@ namespace AElfChain.Console
             "======================= Command =======================".WriteSuccessLine();
             foreach (var command in Commands)
             {
-                $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}".WriteSuccessLine();
+                $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}"
+                    .WriteSuccessLine();
                 count++;
             }
 
@@ -165,10 +165,7 @@ namespace AElfChain.Console
         private List<string> GetCommandList()
         {
             var commands = new List<string>();
-            foreach (var command in Commands)
-            {
-                commands.Add(command.GetCommandInfo().Name);
-            }
+            foreach (var command in Commands) commands.Add(command.GetCommandInfo().Name);
             commands.Add("help");
             commands.Add("config");
             commands.Add("list");

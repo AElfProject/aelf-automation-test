@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -11,8 +10,8 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class Online_EnvTest
     {
         protected readonly ILogHelper _logger = LogHelper.GetLogger();
-        protected static string RpcUrl { get; } = "http://3.94.106.10:8000";
         protected Behaviors Behaviors;
+        protected static string RpcUrl { get; } = "http://3.94.106.10:8000";
         protected string InitAccount { get; } = "1DBGP5qXt5r6QAu2iufv4eXodWHYqJVwmz4qNHwtNyjuCoDEm";
         protected INodeManager CH { get; set; }
         public string Bp0 { get; set; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
@@ -23,8 +22,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void TestInitialize()
         {
             //Init Logger
-            string logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
+            var logName = "ElectionTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             #region Get services
@@ -50,10 +49,7 @@ namespace AElf.Automation.EconomicSystem.Tests
 
             var candidates = Behaviors.GetCandidates();
             _logger.Info($"Candidate count: {candidates.Value.Count}");
-            foreach (var candidate in candidates.Value)
-            {
-                _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
-            }
+            foreach (var candidate in candidates.Value) _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
 
             //Vote
             Behaviors.UserVote(InitAccount, Full1, 120, 50_0000);
@@ -84,10 +80,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var minerList = Behaviors.GetCurrentMiners();
             _logger.Info("Current miners:");
-            foreach (var pubkey in minerList.Pubkeys)
-            {
-                _logger.Info(pubkey.ToHex());
-            }
+            foreach (var pubkey in minerList.Pubkeys) _logger.Info(pubkey.ToHex());
         }
 
         [TestMethod]
@@ -95,10 +88,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var candidates = Behaviors.GetCandidates();
             _logger.Info("Current candidates:");
-            foreach (var pubkey in candidates.Value)
-            {
-                _logger.Info(pubkey.ToHex());
-            }
+            foreach (var pubkey in candidates.Value) _logger.Info(pubkey.ToHex());
         }
     }
 }

@@ -37,12 +37,12 @@ namespace AElfChain.Console.Commands
                 .Format((IMessage) value));
         }
     }
-    
+
     public static class JsonSerializerHelper
     {
+        private static JsonSerializerSettings _settings;
         public static JsonSerializerSettings SerializerSettings => GetSerializerSettings();
 
-        private static JsonSerializerSettings _settings;
         private static JsonSerializerSettings GetSerializerSettings()
         {
             if (_settings != null)
@@ -50,7 +50,7 @@ namespace AElfChain.Console.Commands
 
             _settings = new JsonSerializerSettings
             {
-                DefaultValueHandling = DefaultValueHandling.Include, 
+                DefaultValueHandling = DefaultValueHandling.Include,
                 NullValueHandling = NullValueHandling.Ignore
             };
 

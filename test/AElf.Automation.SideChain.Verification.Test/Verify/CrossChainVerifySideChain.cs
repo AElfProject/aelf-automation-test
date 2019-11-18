@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.CrossChain;
 using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
@@ -17,7 +16,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
         public void VerifySideChain()
         {
-            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber-1]);
+            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber - 1]);
         }
 
         private void VerifySideChainTransaction(ContractServices services)
@@ -82,14 +81,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     Logger.Info($"Verify on the side chain {sideChainService.ChainId}");
                     var verifyTxIds = new List<string>();
                     foreach (var verifyInput in verifyInputsValues)
+                    foreach (var input in verifyInput)
                     {
-                        foreach (var input in verifyInput)
-                        {
-                            var verifyTxId =
-                                sideChainService.CrossChainService.ExecuteMethodWithTxId(
-                                    CrossChainContractMethod.VerifyTransaction, input);
-                            verifyTxIds.Add(verifyTxId);
-                        }
+                        var verifyTxId =
+                            sideChainService.CrossChainService.ExecuteMethodWithTxId(
+                                CrossChainContractMethod.VerifyTransaction, input);
+                        verifyTxIds.Add(verifyTxId);
                     }
 
                     CheckoutVerifyResult(sideChainService, verifyTxIds);
@@ -98,13 +95,11 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 Logger.Info($"Verify on the main chain {MainChainService.ChainId}");
                 var mainVerifyTxIds = new List<string>();
                 foreach (var verifyInput in verifyInputsValues)
+                foreach (var input in verifyInput)
                 {
-                    foreach (var input in verifyInput)
-                    {
-                        var verifyTxId = MainChainService.CrossChainService.ExecuteMethodWithTxId(
-                            CrossChainContractMethod.VerifyTransaction, input);
-                        mainVerifyTxIds.Add(verifyTxId);
-                    }
+                    var verifyTxId = MainChainService.CrossChainService.ExecuteMethodWithTxId(
+                        CrossChainContractMethod.VerifyTransaction, input);
+                    mainVerifyTxIds.Add(verifyTxId);
                 }
 
                 CheckoutVerifyResult(MainChainService, mainVerifyTxIds);

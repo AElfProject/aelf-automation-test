@@ -7,19 +7,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ContractServices
     {
         public readonly INodeManager NodeManager;
-        public GenesisContract GenesisService { get; set; }
-        public TokenContract TokenService { get; set; }
-        public TokenConverterContract TokenConverterService { get; set; }
-        public VoteContract VoteService { get; set; }
-        public ProfitContract ProfitService { get; set; }
-        public ElectionContract ElectionService { get; set; }
-        public ConsensusContract ConsensusService { get; set; }
-        public AssociationAuthContract AssociationAuthService { get; set; }
-        public ReferendumAuthContract ReferendumAuthService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
-
-        public string CallAddress { get; set; }
-        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
 
         public ContractServices(INodeManager nodeManager, string callAddress, string type)
         {
@@ -42,6 +29,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
+        public GenesisContract GenesisService { get; set; }
+        public TokenContract TokenService { get; set; }
+        public TokenConverterContract TokenConverterService { get; set; }
+        public VoteContract VoteService { get; set; }
+        public ProfitContract ProfitService { get; set; }
+        public ElectionContract ElectionService { get; set; }
+        public ConsensusContract ConsensusService { get; set; }
+        public AssociationAuthContract AssociationAuthService { get; set; }
+        public ReferendumAuthContract ReferendumAuthService { get; set; }
+        public ParliamentAuthContract ParliamentService { get; set; }
+
+        public string CallAddress { get; set; }
+        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
+
         public void GetAllContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
@@ -60,7 +61,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //AssociationAuth contract
             AssociationAuthService = GenesisService.GetAssociationAuthContract();
-            
+
             //Referendum contract
             ReferendumAuthService = GenesisService.GetReferendumAuthContract();
         }

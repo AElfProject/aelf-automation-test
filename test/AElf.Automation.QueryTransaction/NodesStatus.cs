@@ -31,15 +31,9 @@ namespace AElf.Automation.QueryTransaction
             while (true)
             {
                 var currentHeight = await _apiServices.First().GetBlockHeightAsync();
-                if (currentHeight == _height)
-                {
-                    Thread.Sleep(1000);
-                }
+                if (currentHeight == _height) Thread.Sleep(1000);
 
-                for (var i = _height; i < currentHeight; i++)
-                {
-                    await CheckNodeHeight(i);
-                }
+                for (var i = _height; i < currentHeight; i++) await CheckNodeHeight(i);
 
                 _height = currentHeight;
             }

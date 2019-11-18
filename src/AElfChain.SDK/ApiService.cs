@@ -150,10 +150,10 @@ namespace AElfChain.SDK
             return await _httpService.GetResponseAsync<BlockDto>(url);
         }
 
-        public async Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatusAsync()
+        public async Task<TransactionPoolStatusOutput> GetTransactionPoolStatusAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionPoolStatus);
-            return await _httpService.GetResponseAsync<GetTransactionPoolStatusOutput>(url);
+            return await _httpService.GetResponseAsync<TransactionPoolStatusOutput>(url);
         }
 
         public async Task<ChainStatusDto> GetChainStatusAsync()

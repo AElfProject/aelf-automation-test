@@ -12,12 +12,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class ChainSummary
     {
+        private const int Phase = 120;
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly IApiService _apiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
-        private const int Phase = 120;
 
         public ChainSummary(string baseUrl)
         {

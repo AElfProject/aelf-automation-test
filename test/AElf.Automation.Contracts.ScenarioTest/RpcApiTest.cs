@@ -1,7 +1,6 @@
 ﻿using System.IO;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,16 +11,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class RpcApiTest
     {
+        private const string ServiceUrl = "http://192.168.197.15:8020";
         private readonly ILogHelper _logger = LogHelper.GetLogger();
         private INodeManager Ch { get; set; }
-        private const string ServiceUrl = "http://192.168.197.15:8020";
 
         [TestInitialize]
         public void InitTest()
         {
             //Init Logger
-            string logName = "RpcApiTest.log";
-            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
+            var logName = "RpcApiTest.log";
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             Ch = new NodeManager(ServiceUrl);
@@ -31,12 +30,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow(2441)]
         public void VerifyTransactionByHeight(int height)
         {
-            var blockDto = AsyncHelper.RunSync(()=>Ch.ApiService.GetBlockByHeightAsync(height, true));
+            var blockDto = AsyncHelper.RunSync(() => Ch.ApiService.GetBlockByHeightAsync(height, true));
             var txArray = blockDto.Body.Transactions;
 
             foreach (var txId in txArray)
             {
-                var transactionResult = AsyncHelper.RunSync(()=>Ch.ApiService.GetTransactionResultAsync(txId));
+                var transactionResult = AsyncHelper.RunSync(() => Ch.ApiService.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status;
                 if (status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     _logger.Info($"{txId}: mined");

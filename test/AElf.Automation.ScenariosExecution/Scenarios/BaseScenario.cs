@@ -21,7 +21,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             int sleepSeconds = 0)
         {
             while (true)
-            {
                 try
                 {
                     if (actions == null)
@@ -34,14 +33,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (interrupted)
                         break;
                 }
-            }
         }
 
         protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
             bool interrupted = false)
         {
             foreach (var action in actions)
-            {
                 try
                 {
                     action.Invoke();
@@ -52,7 +49,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (interrupted)
                         break;
                 }
-            }
 
             if (sleepSeconds != 0)
                 Thread.Sleep(1000 * sleepSeconds);

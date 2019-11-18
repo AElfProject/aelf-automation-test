@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
+using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElf.Contracts.TestContract.BasicFunctionWithParallel;
-using AElf.Cryptography;
-using AElf.Types;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using log4net;
@@ -14,30 +11,31 @@ namespace AElf.Automation.ContractsTesting
 {
     public class CodeRemarkTest
     {
-        public INodeManager NodeManager { get; set; }
-        public ILog Logger = Log4NetHelper.GetLogger();
-        public BasicWithParallelContract ParallelContract { get; set; }
-        public string Tester = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
         public string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
-        
+        public ILog Logger = Log4NetHelper.GetLogger();
+        public string Tester = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
+
         public CodeRemarkTest(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
             ParallelContract = new BasicWithParallelContract(NodeManager, Tester, ContractAddress);
         }
 
+        public INodeManager NodeManager { get; set; }
+        public BasicWithParallelContract ParallelContract { get; set; }
+
         public void ExecuteContractMethodTest()
         {
             //initialize
             ParallelContract.ExecuteMethodWithResult(BasicParallelMethod.InitialBasicFunctionWithParallelContract,
-                                   new InitialBasicFunctionWithParallelContractInput
-                                   {
-                                       ContractName = "Parallel testing",
-                                       Manager = Tester.ConvertAddress(),
-                                       MinValue = 100,
-                                       MaxValue = 100_000,
-                                       MortgageValue = 100_000_00000000
-                                   });
+                new InitialBasicFunctionWithParallelContractInput
+                {
+                    ContractName = "Parallel testing",
+                    Manager = Tester.ConvertAddress(),
+                    MinValue = 100,
+                    MaxValue = 100_000,
+                    MortgageValue = 100_000_00000000
+                });
             var toInfos = new List<string>();
             //execute some other transactions
             //transfer
@@ -50,20 +48,21 @@ namespace AElf.Automation.ContractsTesting
                 accounts.Add(acc);
                 token.TransferBalance(Tester, acc, 100);
             }
-            
+
             for (var i = 0; i < 100; i++)
             {
                 ParallelContract.SetAccount(accounts[i]);
                 var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.UserPlayBet, new BetInput
                 {
-                    Int64Value = (i+1) * 100
+                    Int64Value = (i + 1) * 100
                 });
-                
+
                 Logger.Info($"TransactionId: {transactionId}");
             }
+
             ParallelContract.CheckTransactionResultList();
             Console.ReadLine();
-            
+
 //            for (var i = 0; i < 100; i++)
 //            {
 //                var address = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
@@ -74,7 +73,7 @@ namespace AElf.Automation.ContractsTesting
 //                toInfos.Add(address.GetFormatted());
 //                Logger.Info($"TransactionId: {transactionId}, From:{Tester}, To: {address.GetFormatted()}");
 //            }
-            
+
             ParallelContract.CheckTransactionResultList();
 
             //query result

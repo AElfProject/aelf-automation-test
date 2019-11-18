@@ -2,18 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Acs3;
+using AElf.Contracts.MultiToken;
+using AElf.Contracts.ReferendumAuth;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
-using AElf.Contracts.ReferendumAuth;
 using AElfChain.SDK;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -21,18 +22,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ReferendumAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        public ReferendumAuthContract NewReferendum;
+        public ReferendumAuthContract Referendum;
+        public string Symbol = NodeOption.NativeTokenSymbol;
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
         public IApiService ApiService { get; set; }
         public List<string> UserList { get; set; }
-        public string Symbol = NodeOption.NativeTokenSymbol;
-        public ReferendumAuthContract Referendum;
-        public ReferendumAuthContract NewReferendum;
 
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
-        private static string RpcUrl { get; } = "http://192.168.197.40:8000";        
+        private static string RpcUrl { get; } = "http://192.168.197.40:8000";
+
         [TestInitialize]
         public void Initialize()
         {
@@ -50,7 +52,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Referendum = Tester.ReferendumService;
             DeployAndInitialize();
         }
-        
+
         [TestMethod]
         public void CreateOrganization()
         {
@@ -77,12 +79,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
         }
         //2pT1BzA5MRQ5oPzfH32WRWJXULgq5ZZB9yP9axh6sejPnw1dKd
-        
+
         [TestMethod]
         [DataRow("2pT1BzA5MRQ5oPzfH32WRWJXULgq5ZZB9yP9axh6sejPnw1dKd")]
         public void CreateProposal(string organizationAddress)
         {
-            var transferInput = new TransferInput()
+            var transferInput = new TransferInput
             {
                 Symbol = Symbol,
                 Amount = 100,
@@ -105,9 +107,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var proposal = result.ReadableReturnValue;
             _logger.Info($"Proposal is : {proposal}");
         }
-        
-        
-        
+
+
         [TestMethod]
         [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939")]
         public void GetProposal(string proposalId)
@@ -123,25 +124,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939","2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D")]
+        [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939",
+            "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D")]
         public void Approve(string proposalId, string account)
         {
             var beforeBalance = Tester.TokenService.GetUserBalance(account, Symbol);
             _logger.Info($"{account} token balance is {beforeBalance}");
-            
-            Referendum.SetAccount(account);
-                var result =
-                    Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, new Acs3.ApproveInput()
-                    {
-                        ProposalId = HashHelper.HexStringToHash(proposalId),
-                        Quantity = 6000_00000000
-                    });
-                _logger.Info($"Approve is {result.ReadableReturnValue}");
 
-                var balance = Tester.TokenService.GetUserBalance(account, Symbol);
-                _logger.Info($"{account} token balance is {balance}");
+            Referendum.SetAccount(account);
+            var result =
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, new ApproveInput
+                {
+                    ProposalId = HashHelper.HexStringToHash(proposalId),
+                    Quantity = 6000_00000000
+                });
+            _logger.Info($"Approve is {result.ReadableReturnValue}");
+
+            var balance = Tester.TokenService.GetUserBalance(account, Symbol);
+            _logger.Info($"{account} token balance is {balance}");
         }
-        
+
         [TestMethod]
         [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939")]
         public void Release(string proposalId)
@@ -153,17 +155,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939","2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D")]
-        public void ReclaimVoteToken(string proposalId,string account)
+        [DataRow("d04236479e2d4e881208316117ca349abdea66beb80f6d4ed55e8eac52ec4939",
+            "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D")]
+        public void ReclaimVoteToken(string proposalId, string account)
         {
             var beforeBalance = Tester.TokenService.GetUserBalance(account, Symbol);
             _logger.Info($"{account} token balance is {beforeBalance}");
-            
+
             Referendum.SetAccount(account);
             var result =
-                Referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken, HashHelper.HexStringToHash(proposalId));
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken,
+                    HashHelper.HexStringToHash(proposalId));
             result.Status.ShouldBe("MINED");
-            
+
             var balance = Tester.TokenService.GetUserBalance(account, Symbol);
             _logger.Info($"{account} token balance is {balance}");
         }
@@ -188,5 +192,4 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NewReferendum = new ReferendumAuthContract(NodeManager, InitAccount, contractAddress.GetFormatted());
         }
     }
-
 }

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using Google.Protobuf;
 using Shouldly;
 
@@ -15,7 +15,7 @@ namespace AElf.Automation.SideChainEconomicTest
         public void GetTokenInfo()
         {
             Logger.Info("Query main chain token info");
-            
+
             Main.GetTokenInfos();
             Main.GetTokenBalances(Main.CallAddress);
         }
@@ -24,7 +24,7 @@ namespace AElf.Automation.SideChainEconomicTest
         {
             Main.GetTokenBalances(Main.CallAddress);
             var mainToken = Main.GenesisService.GetTokenStub();
-            
+
             var transactionResults = new Dictionary<Transaction, TransactionResult>();
             //main chain transfer
             foreach (var symbol in Main.Symbols)
@@ -41,14 +41,15 @@ namespace AElf.Automation.SideChainEconomicTest
                 transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 transactionResults.Add(transactionResult.Transaction, transactionResult.TransactionResult);
             }
+
             Main.GetTokenBalances(Main.CallAddress);
 
             //wait index
             await MainManager.WaitSideChainIndex(SideA, transactionResults.Values.Last().BlockNumber);
-            
+
             //side chain accept
             SideA.GetTokenBalances(SideA.CallAddress);
-            
+
             var sideToken = SideA.GenesisService.GetTokenStub();
             foreach (var (transaction, transactionResult) in transactionResults)
             {
@@ -63,7 +64,7 @@ namespace AElf.Automation.SideChainEconomicTest
                 });
                 receiveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
-            
+
             SideA.GetTokenBalances(SideA.CallAddress);
         }
     }

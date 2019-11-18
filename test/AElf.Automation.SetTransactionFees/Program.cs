@@ -6,16 +6,16 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace AElf.Automation.SetTransactionFees
 {
-    class Program
+    internal class Program
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        
+
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.43:8100";
-        
+
         [Option("-a|--amount", Description = "Transaction method fee balance")]
         public long Amount { get; set; } = 1000_0000L;
-        
+
         public static int Main(string[] args)
         {
             try
@@ -29,7 +29,7 @@ namespace AElf.Automation.SetTransactionFees
 
             return 0;
         }
-        
+
         private void OnExecute()
         {
             //Init Logger
@@ -40,7 +40,6 @@ namespace AElf.Automation.SetTransactionFees
             //before
             contractsFee.QueryAllContractsMethodFee();
             while (true)
-            {
                 try
                 {
                     "Begin set transaction fee".WriteSuccessLine();
@@ -51,8 +50,7 @@ namespace AElf.Automation.SetTransactionFees
                 {
                     e.Message.WriteErrorLine();
                 }
-            }
-            
+
             contractsFee.QueryAllContractsMethodFee();
             Logger.Info("All contract methods fee set completed.");
         }

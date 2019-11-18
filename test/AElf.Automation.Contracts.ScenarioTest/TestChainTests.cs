@@ -3,25 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.ContractSerializer;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using Google.Protobuf;
-using Google.Protobuf.Reflection;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -29,14 +25,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TestChainTests
     {
-        public INodeManager MainNode { get; set; }
-        public INodeManager SideNode1 { get; set; }
-        public INodeManager SideNode2 { get; set; }
-
-        public string BpAccount { get; set; }
-
         public string TestSymbol = "STA";
-        public ILog Logger { get; set; }
 
         public TestChainTests()
         {
@@ -49,6 +38,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             BpAccount = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
         }
+
+        public INodeManager MainNode { get; set; }
+        public INodeManager SideNode1 { get; set; }
+        public INodeManager SideNode2 { get; set; }
+
+        public string BpAccount { get; set; }
+        public ILog Logger { get; set; }
 
         [TestMethod]
         [DataRow("", "TELF", 100_00000000)]
@@ -161,7 +157,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var transactionResult = await tokenConverter.Sell.SendAsync(new SellInput
             {
                 Symbol = TestSymbol,
-                Amount = amount,
+                Amount = amount
             });
             CheckTransactionResult(transactionResult.TransactionResult);
 
@@ -250,10 +246,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbols = new List<string> {"CPU", "NET", "STO", "RAM"};
             var genesis = MainNode.GetGenesisContract(BpAccount);
             var token = genesis.GetTokenContract();
-            foreach (var symbol in symbols)
-            {
-                token.TransferBalance(BpAccount, contract, 5000_00000000, symbol);
-            }
+            foreach (var symbol in symbols) token.TransferBalance(BpAccount, contract, 5000_00000000, symbol);
         }
 
         [TestMethod]
@@ -263,7 +256,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbols = new List<string> {"CPU", "NET", "STO", "RAM"};
             var genesis = MainNode.GetGenesisContract(BpAccount);
             var token = genesis.GetTokenContract();
-            
+
             foreach (var symbol in symbols)
             {
                 var balance = token.GetUserBalance(contract, symbol);
@@ -291,7 +284,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CheckTransactionResult(stoResult.TransactionResult);
 
             await Task.Delay(3000);
-            
+
             GetContractResource(contract);
         }
 
@@ -314,7 +307,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var url in nodeUrls)
             {
                 Logger.Info($"Test endpoint: {url}");
-                
+
                 var nodeManager = new NodeManager(url);
                 var genesis = nodeManager.GetGenesisContract();
                 var token = genesis.GetTokenContract();
@@ -360,7 +353,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var fromId = CommonHelper.GenerateRandomNumber(0, accounts.Count - 1);
                 var toId = CommonHelper.GenerateRandomNumber(0, accounts.Count - 1);
-                if(fromId == toId)
+                if (fromId == toId)
                     continue;
                 var tester = token.GetNewTester(accounts[fromId]);
                 var amount = CommonHelper.GenerateRandomNumber(5000, 10000);
@@ -371,7 +364,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = amount,
                     Memo = $"transfer - {Guid.NewGuid()}"
                 });
-                Logger.Info($"From: account{fromId}, To: account{toId}, Amount: {amount}, TransactionId: {transactionId}");
+                Logger.Info(
+                    $"From: account{fromId}, To: account{toId}, Amount: {amount}, TransactionId: {transactionId}");
             }
         }
 
@@ -382,29 +376,28 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var otherAccounts = MainNode.ListAccounts();
             var token = MainNode.GetGenesisContract().GetTokenContract();
 
-            var rawInfo1 = MainNode.GenerateRawTransaction(accounts[0], token.ContractAddress, "Transfer", new TransferInput
-            {
-                Symbol = "ELF",
-                To = otherAccounts[1].ConvertAddress(),
-                Amount = 1000,
-                Memo = $"transfer test - {Guid.NewGuid()}"
-            });
-            
-            var rawInfo2 = MainNode.GenerateRawTransaction(accounts[1], token.ContractAddress, "Transfer", new TransferInput
-            {
-                Symbol = "ELF",
-                To = otherAccounts[2].ConvertAddress(),
-                Amount = 1000,
-                Memo = $"transfer test - {Guid.NewGuid()}"
-            });
+            var rawInfo1 = MainNode.GenerateRawTransaction(accounts[0], token.ContractAddress, "Transfer",
+                new TransferInput
+                {
+                    Symbol = "ELF",
+                    To = otherAccounts[1].ConvertAddress(),
+                    Amount = 1000,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
+                });
+
+            var rawInfo2 = MainNode.GenerateRawTransaction(accounts[1], token.ContractAddress, "Transfer",
+                new TransferInput
+                {
+                    Symbol = "ELF",
+                    To = otherAccounts[2].ConvertAddress(),
+                    Amount = 1000,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
+                });
 
             var rawTransactions = $"{rawInfo1},{rawInfo2}";
             var transactions = MainNode.SendTransactions(rawTransactions);
-            foreach (var transaction in transactions)
-            {
-                Logger.Info($"TransactionId: {transaction}");
-            }
-            
+            foreach (var transaction in transactions) Logger.Info($"TransactionId: {transaction}");
+
             MainNode.CheckTransactionListResult(transactions);
         }
 

@@ -1,19 +1,15 @@
-using System;
 using System.Collections.Generic;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Kernel;
-using AElf.Types;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.CheckTxStatus
 {
     public class TransactionCheck : NodeServices
     {
-        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
         private readonly INodeManager _nodeManager;
-        private readonly long _verifyBlock;
         private readonly long _startBlock;
+        private readonly long _verifyBlock;
 
         public TransactionCheck()
         {
@@ -21,6 +17,8 @@ namespace AElf.Automation.CheckTxStatus
             _verifyBlock = VerifyBlockNumber;
             _startBlock = StartBlock;
         }
+
+        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
 
         public void CheckTxStatus()
         {
@@ -66,10 +64,8 @@ namespace AElf.Automation.CheckTxStatus
                         if (status.Equals("NotExisted"))
                             notExistTransaction.Add(txId, txInfo);
                         else
-                        {
                             transactionPreBlock.Add(txId, txInfo);
-                        }
-                        
+
                         if (transactionInfos.Add(txId)) continue;
                         var info =
                             $"Block {txs.Key}, Transaction {txId} status: {txInfo.Status}";
@@ -77,7 +73,7 @@ namespace AElf.Automation.CheckTxStatus
                             $"\r\n From:{txInfo.From},\n To:{txInfo.To},\n RefBlockNumber: {txInfo.RefBlockNumber},\n RefBlockPrefix: {txInfo.RefBlockPrefix},\n MethodName: {txInfo.MethodName}";
                         Logger.Error(info);
                     }
-                    
+
 
                     if (notExistTransaction.Count != 0)
                     {

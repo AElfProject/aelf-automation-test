@@ -17,15 +17,17 @@ namespace AElf.Automation.SideChainCreate
 {
     public class Operation
     {
-        public readonly TokenContract TokenService;
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
+        public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
 
-        public string Url;
+        public readonly TokenContract TokenService;
         public string InitAccount;
-        public string Password;
         public string NativeSymbol;
+        public string Password;
+
+        public string Url;
 
         public Operation()
         {

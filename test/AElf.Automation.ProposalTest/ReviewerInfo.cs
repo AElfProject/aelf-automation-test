@@ -5,10 +5,10 @@ namespace AElf.Automation.ProposalTest
 {
     public class ReviewerInfo
     {
-        public List<Reviewer> Reviewers;
-        public readonly int TotalWeight;
-        public readonly int MinWeight;
         public readonly int MaxWeight;
+        public readonly int MinWeight;
+        public readonly int TotalWeight;
+        public List<Reviewer> Reviewers;
 
         public ReviewerInfo(List<Reviewer> reviewers)
         {

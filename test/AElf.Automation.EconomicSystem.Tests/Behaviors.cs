@@ -1,21 +1,31 @@
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
-        public readonly INodeManager NodeManager;
+        public enum ProfitType
+        {
+            Treasury,
+            MinerReward,
+            BackSubsidy,
+            CitizenWelfare,
+            BasicMinerReward,
+            VotesWeightReward,
+            ReElectionReward
+        }
+
+        public readonly ConsensusContract ConsensusService;
         public readonly ContractServices ContractServices;
 
         public readonly ElectionContract ElectionService;
-        public readonly VoteContract VoteService;
+        public readonly INodeManager NodeManager;
         public readonly ProfitContract ProfitService;
+        public readonly TokenConverterContract TokenConverterService;
         public readonly TokenContract TokenService;
         public readonly TreasuryContract Treasury;
-        public readonly TokenConverterContract TokenConverterService;
-        public readonly ConsensusContract ConsensusService;
+        public readonly VoteContract VoteService;
 
         public Behaviors(ContractServices contractServices)
         {
@@ -28,17 +38,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             TokenService = ContractServices.TokenService;
             Treasury = ContractServices.TreasuryService;
             ConsensusService = ContractServices.ConsensusService;
-        }
-
-        public enum ProfitType
-        {
-            Treasury,
-            MinerReward,
-            BackSubsidy,
-            CitizenWelfare,
-            BasicMinerReward,
-            VotesWeightReward,
-            ReElectionReward
         }
     }
 }

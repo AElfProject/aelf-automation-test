@@ -1,6 +1,5 @@
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Managers;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 
 namespace AElf.Automation.EconomicSystem.Tests
@@ -8,6 +7,17 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class ContractServices
     {
         public readonly INodeManager NodeManager;
+
+        public ContractServices(INodeManager nodeManager, string callAddress)
+        {
+            NodeManager = nodeManager;
+            CallAddress = callAddress;
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+
+            //get all contract services
+            GetAllContractServices();
+        }
+
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TokenConverterContract TokenConverterService { get; set; }
@@ -19,16 +29,6 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-
-        public ContractServices(INodeManager nodeManager, string callAddress)
-        {
-            NodeManager = nodeManager;
-            CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-
-            //get all contract services
-            GetAllContractServices();
-        }
 
         public void GetAllContractServices()
         {
@@ -53,7 +53,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);
             ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
-            
+
             //Treasury contract
             TreasuryService = GenesisService.GetTreasuryContract();
         }

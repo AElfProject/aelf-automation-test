@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Contracts.Election;
+using AElf.Contracts.MultiToken;
+using AElf.Kernel;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElf.Contracts.Election;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
-using AElfChain.Common;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -19,10 +19,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class TokenScenario : BaseScenario
     {
-        public TokenContract Token { get; set; }
-        public ElectionContract Election { get; set; }
-        public List<string> Testers { get; }
-
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public TokenScenario()
@@ -33,6 +29,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Election = Services.ElectionService;
             Testers = AllTesters.GetRange(25, 25);
         }
+
+        public TokenContract Token { get; set; }
+        public ElectionContract Election { get; set; }
+        public List<string> Testers { get; }
 
         public void RunTokenScenario()
         {
@@ -58,7 +58,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             try
             {
                 var token = Token.GetNewTester(from);
-                var beforeA = Token.GetUserBalance(from);
                 var beforeB = Token.GetUserBalance(to);
                 var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
@@ -69,15 +68,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 });
                 tokenResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var afterA = Token.GetUserBalance(from);
                 var afterB = Token.GetUserBalance(to);
                 var result = true;
-                if (beforeA != afterA + amount)
-                {
-                    Logger.Error(
-                        $"Transfer failed, amount check not correct. From owner {NodeOption.NativeTokenSymbol}: {beforeA}/{afterA + amount}");
-                    result = false;
-                }
 
                 if (beforeB != afterB - amount)
                 {
@@ -135,9 +127,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
+                var transactionFee = transactionResult.TransactionResult.TransactionFee.Value?.Values.First() ?? 0;
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
-                if (beforeFrom - amount == afterFrom && beforeTo + amount == afterTo)
+                if (beforeFrom - amount == afterFrom && beforeTo - transactionFee + amount == afterTo)
                     Logger.Info($"TransferFrom success - from {from} to {to} with amount {amount}.");
                 else
                     Logger.Error(
@@ -216,7 +209,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(bp.Account, bp.Password);
                 Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = balance/2,
+                    Amount = balance / 2,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(bp0.Account),
                     Memo = "Collect half tokens from other bps."
@@ -239,7 +232,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 accountFrom = acc;
                 accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
                 amount = (long) randomNo % 10 + 1;
-                
+
                 return;
             }
         }

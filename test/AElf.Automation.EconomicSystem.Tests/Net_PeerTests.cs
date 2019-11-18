@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -13,6 +12,8 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class Net_PeerTests
     {
         public static string Bp1Url = "http://192.168.197.13:8000";
+
+        protected readonly ILogHelper _logger = LogHelper.GetLogger();
         public string Bp2Url = "http://192.168.197.28:8000";
         public string Bp3Url = "http://192.168.197.33:8000";
 
@@ -20,16 +21,14 @@ namespace AElf.Automation.EconomicSystem.Tests
         public string Full2Url = "http://192.168.199.205:8200";
         public string Full3Url = "http://192.168.199.205:8300";
         public string Full4Url = "http://192.168.199.205:8400";
-
-        protected readonly ILogHelper _logger = LogHelper.GetLogger();
         protected INodeManager CH { get; set; }
 
         [TestInitialize]
         public void InitializeTest()
         {
             //Init Logger
-            string logName = "NetPeersTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
+            var logName = "NetPeersTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
         }
 
@@ -40,10 +39,7 @@ namespace AElf.Automation.EconomicSystem.Tests
             var service = AElfChainClient.GetClient(url);
             var list = service.GetPeersAsync().Result;
             _logger.Info($"Peer {url} information");
-            foreach (var peer in list)
-            {
-                _logger.Info(JsonConvert.SerializeObject(peer));
-            }
+            foreach (var peer in list) _logger.Info(JsonConvert.SerializeObject(peer));
         }
 
         [TestMethod]

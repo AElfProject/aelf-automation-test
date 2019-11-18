@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.CrossChain;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
@@ -79,14 +78,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     var verifyInputsValues = verifyInputs.Values;
                     var verifyTxIds = new List<string>();
                     foreach (var verifyInput in verifyInputsValues)
+                    foreach (var input in verifyInput)
                     {
-                        foreach (var input in verifyInput)
-                        {
-                            var verifyTxId =
-                                sideChainService.CrossChainService.ExecuteMethodWithTxId(
-                                    CrossChainContractMethod.VerifyTransaction, input);
-                            verifyTxIds.Add(verifyTxId);
-                        }
+                        var verifyTxId =
+                            sideChainService.CrossChainService.ExecuteMethodWithTxId(
+                                CrossChainContractMethod.VerifyTransaction, input);
+                        verifyTxIds.Add(verifyTxId);
                     }
 
                     CheckoutVerifyResult(sideChainService, verifyTxIds);

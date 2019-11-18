@@ -52,10 +52,6 @@
             "password": "123"
         }
     ],
-    "ChainType": {
-        "is_main_chain": true,
-        "token_symbol": "TELF"
-    },
     "NativeTokenSymbol" : "TELF",
     "DefaultPassword": "123"
 }

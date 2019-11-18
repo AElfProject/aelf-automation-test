@@ -8,11 +8,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using log4net;
@@ -22,28 +22,6 @@ namespace AElf.Automation.RpcPerformance
 {
     public class RandomCategory : IPerformanceCategory
     {
-        #region Public Property
-        public INodeManager NodeManager { get; private set; }
-        public IApiService ApiService => NodeManager.ApiService;
-        private ExecutionSummary Summary { get; set; }
-        private TransactionGroup Group { get; set; }
-        private NodeStatusMonitor Monitor { get; set; }
-        private TesterTokenMonitor TokenMonitor { get; set; }
-        public string BaseUrl { get; }
-        private string SystemTokenAddress { get; set; }
-        private List<AccountInfo> AccountList { get; }
-        private string KeyStorePath { get; }
-        private List<ContractInfo> ContractList { get; }
-        private List<string> TxIdList { get; }
-        public int ThreadCount { get; }
-        public int ExeTimes { get; }
-        public bool LimitTransaction { get; }
-        private ConcurrentQueue<string> GenerateTransactionQueue { get; }
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private static Random RandomGen = new Random(DateTime.Now.Millisecond);
-
-        #endregion
-
         public RandomCategory(int threadCount,
             int exeTimes,
             string baseUrl,
@@ -84,18 +62,18 @@ namespace AElf.Automation.RpcPerformance
             TokenMonitor = new TesterTokenMonitor(NodeManager);
             SystemTokenAddress = TokenMonitor.SystemToken.ContractAddress;
 
-            if (NodeInfoHelper.Config.ChainTypeInfo.IsMainChain)
-                //TransferTokenFromBp();
-                TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
-            else
-                //Prepare token for side chain 
-                TokenMonitor.IssueTokenForTest(AccountList.Select(o => o.Account).ToList());
-
+            //Transfer token for approve
+            var bps = NodeInfoHelper.Config.Nodes.Select(o=>o.Account);
+            TokenMonitor.TransferTokenForTest(bps.ToList());
+            
             //Set select limit transaction
-            var setAccount = GetSetConfigurationLimitAccount();
+            var setAccount = bps.First();
             var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
+            
+            //Transfer token for transaction fee
+            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
         }
 
         public void DeployContractsWithAuthority()
@@ -108,15 +86,15 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContracts()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void InitializeContracts()
         {
             //create all token
-            for(var i=0; i<ThreadCount; i++)
+            for (var i = 0; i < ThreadCount; i++)
             {
-                var contract = new ContractInfo(AccountList[i].Account, SystemTokenAddress); 
+                var contract = new ContractInfo(AccountList[i].Account, SystemTokenAddress);
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
                 var symbol = $"{CommonHelper.RandomString(8, false)}";
@@ -149,7 +127,7 @@ namespace AElf.Automation.RpcPerformance
                 var token = new TokenContract(NodeManager, account, contractPath);
                 foreach (var user in AccountList)
                 {
-                    var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput()
+                    var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
                     {
                         Amount = amount,
                         Memo = $"Issue balance - {Guid.NewGuid()}",
@@ -216,7 +194,7 @@ namespace AElf.Automation.RpcPerformance
                 DateTime.Now.ToString(CultureInfo.InvariantCulture), exec.ElapsedMilliseconds);
         }
 
-        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true)
+        public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
@@ -264,9 +242,7 @@ namespace AElf.Automation.RpcPerformance
                                         $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                     var txTasks = new List<Task>();
                                     for (var k = 0; k < ThreadCount; k++)
-                                    {
                                         txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
-                                    }
 
                                     Task.WaitAll(txTasks.ToArray<Task>());
                                 }
@@ -308,17 +284,11 @@ namespace AElf.Automation.RpcPerformance
             var accounts = NodeManager.ListAccounts();
             if (accounts.Count >= count)
             {
-                foreach (var acc in accounts.Take(count))
-                {
-                    AccountList.Add(new AccountInfo(acc));
-                }
+                foreach (var acc in accounts.Take(count)) AccountList.Add(new AccountInfo(acc));
             }
             else
             {
-                foreach (var acc in accounts)
-                {
-                    AccountList.Add(new AccountInfo(acc));
-                }
+                foreach (var acc in accounts) AccountList.Add(new AccountInfo(acc));
 
                 var generateCount = count - accounts.Count;
                 for (var i = 0; i < generateCount; i++)
@@ -331,12 +301,20 @@ namespace AElf.Automation.RpcPerformance
 
         private void UnlockAllAccounts(int count)
         {
+            /*
             Parallel.For(0, count, i =>
             {
                 var result = NodeManager.UnlockAccount(AccountList[i].Account);
-                if(!result)
+                if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
+            */
+            for (var i = 0; i < count; i++)
+            {
+                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                if (!result)
+                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+            }
         }
 
         private void UpdateRandomEndpoint()
@@ -375,42 +353,6 @@ namespace AElf.Automation.RpcPerformance
                     exceptionTimes--;
                 }
             }
-        }
-
-        private void TransferTokenForSideChain()
-        {
-            try
-            {
-                var nodeConfig = NodeInfoHelper.Config;
-                var account = nodeConfig.Nodes.First().Account;
-                var sideChainTokenSymbol = nodeConfig.ChainTypeInfo.TokenSymbol;
-                var genesis = GenesisContract.GetGenesisContract(NodeManager, account);
-                var systemToken = genesis.GetTokenContract();
-
-                for (var i = 0; i < ThreadCount; i++)
-                {
-                    systemToken.IssueBalance(account, AccountList[i].Account, 10000_00000000, sideChainTokenSymbol);
-                }
-
-                var nodes = nodeConfig.Nodes;
-
-                foreach (var node in nodes)
-                {
-                    if (node.Account == account) continue;
-                    systemToken.IssueBalance(account, node.Account, 10000_00000000, sideChainTokenSymbol);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Issue side chain token got exception.");
-                Logger.Error(e);
-            }
-        }
-
-        private string GetSetConfigurationLimitAccount()
-        {
-            var nodeConfig = NodeInfoHelper.Config;
-            return NodeOption.IsMainChain ? AccountList[0].Account : nodeConfig.Nodes.First().Account;
         }
 
         private void ExecuteTransactionTask(int threadNo, int times)
@@ -452,7 +394,12 @@ namespace AElf.Automation.RpcPerformance
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction); //check transaction pool first
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
@@ -515,6 +462,7 @@ namespace AElf.Automation.RpcPerformance
                     var balance = token.GetUserBalance(AccountList[fromId].Account, symbol);
                     if (balance < 1000_00000000) continue;
                 }
+
                 from = AccountList[fromId].Account;
                 break;
             }
@@ -522,7 +470,7 @@ namespace AElf.Automation.RpcPerformance
             while (true)
             {
                 var toId = RandomGen.Next(0, AccountList.Count);
-                if(AccountList[toId].Account == from) continue;
+                if (AccountList[toId].Account == from) continue;
                 to = AccountList[toId].Account;
                 break;
             }
@@ -545,7 +493,12 @@ namespace AElf.Automation.RpcPerformance
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, contractPath);
 
-            Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
+            if (!result)
+            {
+                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                return;
+            }
 
             for (var i = 0; i < times; i++)
             {
@@ -575,5 +528,27 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
+
+        #region Public Property
+
+        public INodeManager NodeManager { get; private set; }
+        public IApiService ApiService => NodeManager.ApiService;
+        private ExecutionSummary Summary { get; set; }
+        private NodeStatusMonitor Monitor { get; set; }
+        private TesterTokenMonitor TokenMonitor { get; set; }
+        public string BaseUrl { get; }
+        private string SystemTokenAddress { get; set; }
+        private List<AccountInfo> AccountList { get; }
+        private string KeyStorePath { get; }
+        private List<ContractInfo> ContractList { get; }
+        private List<string> TxIdList { get; }
+        public int ThreadCount { get; }
+        public int ExeTimes { get; }
+        public bool LimitTransaction { get; }
+        private ConcurrentQueue<string> GenerateTransactionQueue { get; }
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static readonly Random RandomGen = new Random(DateTime.Now.Millisecond);
+
+        #endregion
     }
 }

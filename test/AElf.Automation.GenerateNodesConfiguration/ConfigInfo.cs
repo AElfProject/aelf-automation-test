@@ -19,8 +19,8 @@ namespace AElf.Automation.GenerateNodesConfiguration
     {
         [JsonProperty("BpNodes")] public List<NodeInfo> BpNodes { get; set; }
         [JsonProperty("FullNodes")] public List<NodeInfo> FullNodes { get; set; }
-    } 
-        
+    }
+
     public static class ConfigInfoHelper
     {
         private static NodesInformation _instance;

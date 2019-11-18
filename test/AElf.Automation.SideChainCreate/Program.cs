@@ -5,15 +5,15 @@ using log4net;
 
 namespace AElf.Automation.SideChainCreate
 {
-    class Program
+    internal class Program
     {
         #region Private Properties
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
-        
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             #region Basic Preparation
 

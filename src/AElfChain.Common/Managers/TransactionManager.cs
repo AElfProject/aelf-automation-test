@@ -88,8 +88,9 @@ namespace AElfChain.Common.Managers
                 !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
-                _cachedHeight = GetBlkHeight(rpcAddress);
-                _cachedHash = GetBlkHash(rpcAddress, _cachedHeight);
+                //_cachedHeight = GetBlkHeight(rpcAddress);
+                //_cachedHash = GetBlkHash(rpcAddress, _cachedHeight);
+                (_cachedHeight, _cachedHash) = GetBlockReference(rpcAddress);
                 _refBlockTime = DateTime.Now;
             }
 
@@ -97,6 +98,38 @@ namespace AElfChain.Common.Managers
             transaction.RefBlockPrefix =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(_cachedHash).Where((b, i) => i < 4).ToArray());
             return transaction;
+        }
+
+        private static (long, string) GetBlockReference(string baseUrl, int requestTimes = 4)
+        {
+            while (true)
+            {
+                try
+                {
+                    
+                    var client = AElfChainClient.GetClient(baseUrl);
+                    var chainStatus = AsyncHelper.RunSync(client.GetChainStatusAsync);
+                    if (chainStatus.LongestChainHeight - chainStatus.LastIrreversibleBlockHeight > 400)
+                    {
+                        Thread.Sleep(5000);
+                        $"Warning: chain longest chain and lib interval {chainStatus.LastIrreversibleBlockHeight}=>{chainStatus.LongestChainHeight} over 400.".WriteWarningLine();
+                        continue;
+                    }
+
+                    return (chainStatus.LastIrreversibleBlockHeight, chainStatus.LastIrreversibleBlockHash);
+                    /*
+                    return chainStatus.LongestChainHeight - chainStatus.LastIrreversibleBlockHeight < 200
+                        ? (chainStatus.LastIrreversibleBlockHeight, chainStatus.LastIrreversibleBlockHash)
+                        : (chainStatus.LongestChainHeight, chainStatus.LongestChainHash);
+                    */
+                }
+                catch (Exception)
+                {
+                    requestTimes--;
+                    if (requestTimes < 0) throw new Exception("Get chain status got failed exception.");
+                    Thread.Sleep(500);
+                }
+            }
         }
 
         private static long GetBlkHeight(string baseUrl, int requestTimes = 4)

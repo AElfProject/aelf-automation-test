@@ -1,12 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Newtonsoft.Json;
 using Shouldly;
@@ -16,7 +14,7 @@ namespace AElfChain.Console.Commands
 {
     public class SetConnectorCommand : BaseCommand
     {
-        public SetConnectorCommand(INodeManager nodeManager, ContractServices contractServices) 
+        public SetConnectorCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
         }
@@ -26,7 +24,7 @@ namespace AElfChain.Console.Commands
             var parameters = InputParameters();
             if (parameters == null)
                 return;
-            
+
             var authority = Services.Authority;
             var orgAddress = authority.GetGenesisOwnerAddress();
             var miners = authority.GetCurrentMiners();
@@ -43,7 +41,7 @@ namespace AElfChain.Console.Commands
                 "SetConnector", connector, orgAddress, miners, bp);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            AsyncHelper.RunSync(()=>GetTokenConnector(parameters[0]));
+            AsyncHelper.RunSync(() => GetTokenConnector(parameters[0]));
         }
 
         public override CommandInfo GetCommandInfo()
@@ -62,13 +60,14 @@ namespace AElfChain.Console.Commands
             var isVirtualBalanceEnabled = "true";
             var weight = "0.5";
             var virtualBalance = "10000000000";
-            
-            "Parameter: [Symbol] [IsPurchaseEnabled] [IsVirtualBalanceEnabled] [Weight] [VirtualBalance]".WriteSuccessLine();
+
+            "Parameter: [Symbol] [IsPurchaseEnabled] [IsVirtualBalanceEnabled] [Weight] [VirtualBalance]"
+                .WriteSuccessLine();
             $"eg: {symbol} {isPurchaseEnabled} {isVirtualBalanceEnabled} {weight} {virtualBalance}".WriteSuccessLine();
-            
+
             return CommandOption.InputParameters(5);
         }
-        
+
         private async Task GetTokenConnector(string symbol)
         {
             var tokenConverter = Services.Genesis.GetTokenConverterStub();

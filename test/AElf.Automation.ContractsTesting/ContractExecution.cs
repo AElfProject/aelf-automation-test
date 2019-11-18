@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -18,14 +17,14 @@ namespace AElf.Automation.ContractsTesting
     public class ContractExecution
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly INodeManager _nodeManager;
         private readonly string _account;
 
         private readonly GenesisContract _genesisContract;
+        private readonly INodeManager _nodeManager;
         private readonly ContractTesterFactory _stub;
-        private string _contractAddress;
         private BasicFunctionContractContainer.BasicFunctionContractStub _basicFunctionContractStub;
         private BasicUpdateContractContainer.BasicUpdateContractStub _basicUpdateContractStub;
+        private string _contractAddress;
 
         public ContractExecution(string serviceUrl)
         {

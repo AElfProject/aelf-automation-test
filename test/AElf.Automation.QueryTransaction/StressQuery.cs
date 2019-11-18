@@ -86,7 +86,7 @@ namespace AElf.Automation.QueryTransaction
             {
                 Logger.Error(e.Message);
             }
-           
+
             //query transactions
             var transactions = await _apiService.GetTransactionResultsAsync(block.BlockHash);
             Logger.Info($"Transactions: {transactions}");

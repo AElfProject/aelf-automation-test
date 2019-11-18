@@ -1,30 +1,26 @@
 using System;
 using System.Linq;
-using AElf;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
-using Google.Protobuf.Reflection;
-using Newtonsoft.Json.Linq;
 
 namespace AElfChain.Console.Commands
 {
     public class ContractQueryCommand : BaseCommand
     {
-        private ContractHandler ContractHandler { get; set; }
-
         public ContractQueryCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
             ContractHandler = new ContractHandler();
         }
-        
-         public override void RunCommand()
+
+        private ContractHandler ContractHandler { get; }
+
+        public override void RunCommand()
         {
             "Select system contract name: ".WriteSuccessLine();
             var contractEngine = new CommandsCompletionEngine(ContractHandler.SystemContractsDescriptors.Keys
@@ -39,9 +35,7 @@ namespace AElfChain.Console.Commands
             if (input.Length == 2)
                 contractAddress = input[1];
             else
-            {
                 contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
-            }
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractViewMethodsInfo();
 
@@ -50,17 +44,18 @@ namespace AElfChain.Console.Commands
             while (true)
             {
                 var methodInput = CommandOption.InputParameters(1, methodReader);
-                if(methodInput[0] == "exit")
+                if (methodInput[0] == "exit")
                     break;
-                
+
                 //method info
                 var methodInfo = contractInfo.GetContractMethod(methodInput[0]);
                 methodInfo.GetMethodDescriptionInfo();
                 methodInfo.GetInputParameters();
                 methodInfo.GetOutputParameters();
 
-                var parameterInput = methodInfo.InputType.Name == "Empty" ? new[] {""} : 
-                    CommandOption.InputParameters(methodInfo.InputFields.Count);
+                var parameterInput = methodInfo.InputType.Name == "Empty"
+                    ? new[] {""}
+                    : CommandOption.InputParameters(methodInfo.InputFields.Count);
                 var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
                 var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var byteString = NodeManager.QueryView(Services.Genesis.CallAddress, contractAddress,
