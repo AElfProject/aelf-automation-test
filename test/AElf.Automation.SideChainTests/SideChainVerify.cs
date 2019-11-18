@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Acs3;
 using Acs7;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
+using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -138,10 +139,10 @@ namespace AElf.Automation.SideChainTests
             {
                 Symbol = NodeOption.NativeTokenSymbol,
                 IssueChainId = MainContracts.ContractServices.ChainId,
-                Amount = 10000,
+                Amount = 100000_00000000,
                 Memo = "cross chain transfer",
                 To = AddressHelper.Base58StringToAddress(InitAccount),
-                ToChainId = SideTester[0].ContractServices.ChainId,
+                ToChainId = SideContractTester1.ContractServices.ChainId,
             };
             // execute cross chain transfer
             var rawTx = MainContracts.NodeManager.GenerateRawTransaction(InitAccount,
@@ -154,32 +155,83 @@ namespace AElf.Automation.SideChainTests
             var status = txResult.Status.ConvertTransactionResultStatus();
 
             _logger.Info(
-                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {SideTester[0].ContractServices.ChainId}");
+                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {SideContractTester1.ContractServices.ChainId}");
         }
 
-//        [TestMethod]
-//        [DataRow("2826", "deddcce68edf84a910fceb6acbd274f0c6a942065e23a2537ca7511343013767",
-//            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a2043a0f4a61fd597aee85d15e13bfa96e70b82a7071ca25e62c3176a80b8231ae21889162204c8768cca2a1243726f7373436861696e5472616e73666572324d0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618a09c01221463726f737320636861696e207472616e736665722882f4a701309bf4e10482f10441c13721edb8bd44856fe4e23e7bc82e58bc9ced26d215e0d1e9ccb269d832fd1216550b0462ba86b08facc5d0679fca4f61b6c05773c21a6f73089afa5c23bcf200")]
-//        public void SideChainReceivedMainChain(string blockNumber, string txid, string rawTx)
-//        {
-//            var merklePath = GetMerklePath(blockNumber, txid, MainContracts);
-//
-//            var crossChainReceiveToken = new CrossChainReceiveTokenInput
-//            {
-//                FromChainId = MainContracts.ContractServices.ChainId,
-//                ParentChainHeight = long.Parse(blockNumber)
-//            };
-//            crossChainReceiveToken.MerklePath.MerklePathNodes.Add(merklePath.MerklePathNodes);
-//            crossChainReceiveToken.TransferTransactionBytes =
-//                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
-//            ;
-//
-//            var result = SideAContracts.CrossChainReceive(InitAccount, crossChainReceiveToken);
-//
-//            //verify
-//            var balance = SideAContracts.GetBalance(InitAccount, "ELF");
-//            _logger.Info($"balance: {balance}");
-//        }
+        [TestMethod]
+        [DataRow("1756", "929ca16363a43cf0f3927a61d54f6c5b644a0b04da2e166254621d1d2475458b",
+            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718da0d22043c623c432a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f10441215e1a637efbb6cc650437574ebd665634040bafe9d78ec5500a3029b199518d236fd42e37f8ef22803f8c3fcb08def43d0a16228195fa7e047d7bccb69e23eb00")]
+        public void SideChainReceivedMainChain(string blockNumber, string txid, string rawTx)
+        {
+            var merklePath = GetMerklePath(blockNumber, txid, MainContracts.ContractServices);
+
+            var crossChainReceiveToken = new CrossChainReceiveTokenInput
+            {
+                FromChainId = MainContracts.ContractServices.ChainId,
+                ParentChainHeight = long.Parse(blockNumber),
+                MerklePath = merklePath
+            };
+            crossChainReceiveToken.TransferTransactionBytes =
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
+
+
+            var result = SideContractTester1.CrossChainReceive(InitAccount, crossChainReceiveToken);
+
+            //verify
+            var balance = SideContractTester1.GetBalance(InitAccount, "ELF");
+            _logger.Info($"balance: {balance}");
+        }
+        
+        
+        [TestMethod]
+        public void MainChaintDVVCrossChainTransferSideChain()
+        {
+            var crossChainTransferInput = new CrossChainTransferInput()
+            {
+                Symbol = "STA",
+                IssueChainId = SideContractTester1.ContractServices.ChainId,
+                Amount = 100000_00000000,
+                Memo = "cross chain transfer",
+                To = AddressHelper.Base58StringToAddress(InitAccount),
+                ToChainId = SideContractTester11.ContractServices.ChainId,
+            };
+            // execute cross chain transfer
+            var rawTx = SideContractTester1.NodeManager.GenerateRawTransaction(InitAccount,
+                SideContractTester1.ContractServices.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
+                crossChainTransferInput);
+            _logger.Info($"Transaction rawTx is: {rawTx}");
+            var txId = SideContractTester1.ExecuteMethodWithTxId(rawTx);
+            var txResult = CheckTransactionResult(SideContractTester1.ContractServices, txId);
+            // get transaction info            
+            var status = txResult.Status.ConvertTransactionResultStatus();
+
+            _logger.Info(
+                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {SideContractTester1.ContractServices.ChainId}");
+        }
+
+        [TestMethod]
+        [DataRow("1906", "8e9eaeaddde844e3d7a0b41ead22853da16d1ad62bf7bf47b68d6da96d0af547",
+            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718f00e2204049052f02a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f104417106decded4092633824de2875b8fb8d3b378967f3c906f1724e0decc508ab7b546cbad07e81a8ca6e207fb2df49ca7c166ff3d415ccfa847457aef098af7a4c00")]
+        public void SideChainAZcPReceivedMainChain(string blockNumber, string txid, string rawTx)
+        {
+            var merklePath = GetMerklePath(blockNumber, txid, MainContracts.ContractServices);
+
+            var crossChainReceiveToken = new CrossChainReceiveTokenInput
+            {
+                FromChainId = MainContracts.ContractServices.ChainId,
+                ParentChainHeight = long.Parse(blockNumber),
+                MerklePath = merklePath
+            };
+            crossChainReceiveToken.TransferTransactionBytes =
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
+
+
+            var result = SideContractTester1.CrossChainReceive(InitAccount, crossChainReceiveToken);
+
+            //verify
+            var balance = SideContractTester1.GetBalance(InitAccount, "ELF");
+            _logger.Info($"balance: {balance}");
+        }
 
         
         [TestMethod]
@@ -276,6 +328,34 @@ namespace AElf.Automation.SideChainTests
 
             _logger.Info(
                 $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {SideTester[1].ContractServices.ChainId}");
+        }
+        
+        [TestMethod]
+        public async Task CrossChainData()
+        {
+            var balance = MainContracts.TokenService.GetUserBalance(InitAccount);
+            _logger.Info($"{balance}");
+            var block = await SideContractTester1.NodeManager.ApiService.GetBlockByHeightAsync(26530);
+            var blockHeader = new BlockHeader(HashHelper.HexStringToHash(block.BlockHash));
+            var root = GetMerkleRoot("26531", "3294cdbf4faed8510ffaec34c56bb269cde563dffebed8b5a6c81515a77ce9ca",
+                SideContractTester1.ContractServices);
+            var sideChainBlockDate = new SideChainBlockData
+            {
+                ChainId = ChainHelper.ConvertBase58ToChainId("2112"),
+                BlockHeaderHash = Hash.FromMessage(blockHeader),
+                Height = 26531,
+                TransactionStatusMerkleTreeRoot = root
+            };
+            var result =
+                MainContracts.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,
+                    new CrossChainBlockData
+                    {
+                        SideChainBlockData = { sideChainBlockDate},
+                        PreviousBlockHeight = 36400
+                    });
+            
+            var afterbalance = MainContracts.TokenService.GetUserBalance(InitAccount);
+            _logger.Info($"{afterbalance}");
         }
 
         #endregion

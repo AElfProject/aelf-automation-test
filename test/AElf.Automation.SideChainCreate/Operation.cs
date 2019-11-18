@@ -42,7 +42,8 @@ namespace AElf.Automation.SideChainCreate
             var miners = GetMiners();
             foreach (var miner in miners)
             {
-                if (miner.GetFormatted().Equals(InitAccount)) continue;
+                var balance = TokenService.GetUserBalance(miner.GetFormatted());
+                if (miner.GetFormatted().Equals(InitAccount)|| balance > amount) continue;
                 TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeSymbol,

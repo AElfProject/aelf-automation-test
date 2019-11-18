@@ -370,6 +370,22 @@ namespace AElf.Automation.SideChain.Verification
                 }
             }
         }
+        
+        protected void GetVerifyResult(ContractServices services, Dictionary<string,bool> results)
+        {
+            foreach (var item in results)
+            {
+                switch (item.Value)
+                {
+                    case true:
+                        Logger.Info($"On chain {services.ChainId} transaction {item.Key} Verify successfully.");
+                        break;
+                    case false:
+                        Logger.Error($"On chain {services.ChainId}, transaction {item.Key} Verify failed.");
+                        break;
+                }
+            }
+        }
 
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> CheckoutTransferResult(
             ContractServices services, List<CrossChainTransactionInfo> lists)

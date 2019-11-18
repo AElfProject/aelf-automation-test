@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.CrossChain;
+using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify
@@ -48,12 +49,15 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     var blockResult =
                         AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
+                    var resultsAsync = services.NodeManager.ApiService
+                        .GetTransactionResultsAsync(blockResult.BlockHash, 0, 50).Result;
+
                     sideChainTransactions.Add(i, txIds);
 
-                    foreach (var txId in txIds)
+                    foreach (var result in resultsAsync)
                     {
                         Logger.Info(
-                            $"Block {i} has transaction {txId}");
+                            $"Block {i} has transaction {result.TransactionId} status {result.Status}");
                     }
                 }
 
@@ -107,6 +111,44 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
                 verifyBlock += VerifyBlockNumber;
             }
+
+//                    if (sideChainService == services) continue;
+//                    Logger.Info($"Verify on the side chain {sideChainService.ChainId}");
+//                    var verifyResult = new Dictionary<string, bool>();
+//                    var sideBlock = sideChainService.NodeManager.ApiService.GetBlockHeightAsync().Result;
+//                    Logger.Info($"On block height {sideBlock} get verify result: ");
+//                    foreach (var verifyInput in verifyInputsValues)
+//                    {
+//                        foreach (var input in verifyInput)
+//                        {
+//                            var result =
+//                                sideChainService.CrossChainService.CallViewMethod<BoolValue>(
+//                                    CrossChainContractMethod.VerifyTransaction, input);
+//                            verifyResult.Add(input.TransactionId.ToHex(), result.Value);
+//                        }
+//                    }
+//
+//                    GetVerifyResult(sideChainService, verifyResult);
+//                }
+//
+//                Logger.Info($"Verify on the main chain {MainChainService.ChainId}");
+//                var mainVerifyResult = new Dictionary<string, bool>();
+//                var mainBlock = MainChainService.NodeManager.ApiService.GetBlockHeightAsync().Result;
+//                Logger.Info($"On block height {mainBlock} get verify result: ");
+//                foreach (var verifyInput in verifyInputsValues)
+//                {
+//                    foreach (var input in verifyInput)
+//                    {
+//                        var result = MainChainService.CrossChainService.CallViewMethod<BoolValue>(
+//                            CrossChainContractMethod.VerifyTransaction, input);
+//                        mainVerifyResult.Add(input.TransactionId.ToHex(), result.Value);
+//                    }
+//                }
+//
+//                GetVerifyResult(MainChainService, mainVerifyResult);
+//
+//                verifyBlock += VerifyBlockNumber;
+//            }
         }
 
         private VerifyTransactionInput GetSideChainTransactionVerificationInput(ContractServices services,

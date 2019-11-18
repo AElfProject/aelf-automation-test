@@ -14,12 +14,12 @@
             "SideChainInfos": [
                 {
                     "SideChainUrl": "http://18.196.46.174:8000",
-                    "SideChainId": "2112",
+                    "SideChainId": "tDVV",
                     "SideChainTokenSymbol": "STA"
                 },
                 {
                     "SideChainUrl": "http://34.252.106.106:8000",
-                    "SideChainId": "2113",
+                    "SideChainId": "tDVW",
                     "SideChainTokenSymbol": "STB"
                 }
             ]
@@ -37,13 +37,13 @@
             "SideChainInfos": [
                 {
                     "SideChainUrl": "http://192.168.197.32:8001",
-                    "SideChainId": "2112",
-                    "SideChainTokenSymbol": "SAELF"
+                    "SideChainId": "tDVV",
+                    "SideChainTokenSymbol": "STA"
                 },
                 {
                     "SideChainUrl": "http://192.168.197.11:8002",
-                    "SideChainId": "2113",
-                    "SideChainTokenSymbol": "SBELF"
+                    "SideChainId": "tDVW",
+                    "SideChainTokenSymbol": "STB"
                 }
             ]
         },
@@ -74,29 +74,24 @@
             "Environment": "Other",
             "MainChainInfos":
             {
-                "MainChainUrl": "http://192.168.197.56:8001",
-                "MainChainId": "AELF",
-                "NativeToken": "ELF",
+                "MainChainUrl": "http://192.168.197.56:8011",
+                "MainChainId": "tDVV",
+                "NativeToken": "STA",
                 "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
-                    "SideChainUrl": "http://192.168.197.56:8011",
+                    "SideChainUrl": "http://192.168.197.56:8111",
                     "SideChainId": "tDVV",
-                    "SideChainTokenSymbol": "STA"
-                },
-                {
-                    "SideChainUrl": "http://192.168.197.56:8021",
-                    "SideChainId": "tDVW",
-                    "SideChainTokenSymbol": "STB"
+                    "SideChainTokenSymbol": "SSTA"
                 }
             ]
         }
     ],
-    "CreateTokenNumber": 1,
+    "CreateTokenNumber": 0,
     "VerifySideChainNumber": 1,
-    "VerifyBlockNumber": 10,
+    "VerifyBlockNumber": 1,
     "TransferAccount":5,
     "TestCases": [
         {
@@ -105,11 +100,11 @@
         },
         {
             "name": "CrossChainVerifySideChain",
-            "enable": false
+            "enable": true
         },
         {
             "name": "CrossChainTransfer",
-            "enable": true
+            "enable": false
         }
     ]
 }
