@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Contracts.CrossChain;
+using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;

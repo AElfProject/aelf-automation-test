@@ -7,6 +7,8 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -30,7 +32,7 @@ namespace AElf.Automation.SideChainTests
         {
             var rawTx = tester.ValidateTokenAddress();
             var txId = tester.ExecuteMethodWithTxId(rawTx);
-            var txResult = CheckTransactionResult(tester.ContractServices, txId);
+            var txResult = tester.NodeManager.CheckTransactionResult(txId);
             if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false, $"Validate chain {tester.ContractServices.ChainId} token contract failed");
             _logger.Info($"Validate Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId}");
@@ -227,7 +229,7 @@ namespace AElf.Automation.SideChainTests
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = MainContracts.ExecuteMethodWithTxId(rawTx);
-            var txResult = CheckTransactionResult(MainContracts.ContractServices, txId);
+            var txResult = MainContracts.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
 
@@ -278,7 +280,7 @@ namespace AElf.Automation.SideChainTests
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = SideContractTester1.ExecuteMethodWithTxId(rawTx);
-            var txResult = CheckTransactionResult(SideContractTester1.ContractServices, txId);
+            var txResult = SideContractTester1.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
 
@@ -341,7 +343,7 @@ namespace AElf.Automation.SideChainTests
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = sideAServices.NodeManager.ApiService.SendTransactionAsync(rawTx).Result.TransactionId;
-            var txResult = CheckTransactionResult(sideAServices, txId);
+            var txResult = sideAServices.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
 
@@ -389,15 +391,15 @@ namespace AElf.Automation.SideChainTests
                 Amount = 1000,
                 Memo = "cross chain transfer",
                 To = AddressHelper.Base58StringToAddress(InitAccount),
-                ToChainId = SideTester[1].ContractServices.ChainId
+                ToChainId = SideContractTester2.ContractServices.ChainId
             };
             // execute cross chain transfer
-            var rawTx = SideTester[0].NodeManager.GenerateRawTransaction(InitAccount,
-                SideTester[0].ContractServices.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
+            var rawTx = SideContractTester1.NodeManager.GenerateRawTransaction(InitAccount,
+                SideContractTester1.ContractServices.TokenService.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
-            var txId = SideTester[0].ExecuteMethodWithTxId(rawTx);
-            var txResult = CheckTransactionResult(SideTester[0].ContractServices, txId);
+            var txId = SideContractTester1.ExecuteMethodWithTxId(rawTx);
+            var txResult = SideContractTester1.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
 

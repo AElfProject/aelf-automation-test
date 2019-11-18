@@ -18,15 +18,12 @@ namespace AElf.Automation.SideChainTests
         public ContractTester SideContractTester1;
         public ContractTester SideContractTester2;
         public ContractTester SideContractTester11;
-
-
+        
         public ContractServices sideAServices;
         public ContractServices sideBServices;
         public ContractServices sideSideAServices;
 
-
-        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-
+        
         public static string MainChainUrl { get; } = "http://192.168.197.56:8001";
         public static string SideAChainUrl { get; } = "http://192.168.197.56:8011";
 //        public static string SideSideAChainUrl { get; } = "http://192.168.197.56:8111";
@@ -143,44 +140,6 @@ namespace AElf.Automation.SideChainTests
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
             var root = bmt.Root;
             return root;
-        }
-
-        protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
-        {
-            if (maxTimes == -1) maxTimes = Timeout == 0 ? 600 : Timeout;
-
-            TransactionResultDto transactionResult = null;
-            var checkTimes = 1;
-            while (checkTimes <= maxTimes)
-            {
-                transactionResult =
-                    AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetTransactionResultAsync(txId));
-                var status = transactionResult.Status.ConvertTransactionResultStatus();
-                switch (status)
-                {
-                    case TransactionResultStatus.Mined:
-                        _logger.Info($"Transaction {txId} status: {transactionResult.Status}");
-                        return transactionResult;
-                    case TransactionResultStatus.NotExisted:
-                        _logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                        return transactionResult;
-                    case TransactionResultStatus.Failed:
-                    {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}";
-                        message +=
-                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        message += $"\r\nError Message: {transactionResult.Error}";
-                        _logger.Error(message);
-                        return transactionResult;
-                    }
-                }
-
-                checkTimes++;
-                Thread.Sleep(500);
-            }
-
-            _logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
-            return transactionResult;
         }
     }
 }
