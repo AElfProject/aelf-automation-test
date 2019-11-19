@@ -12,6 +12,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
 
@@ -22,6 +23,7 @@ namespace AElfChain.Common.Managers
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConsensusContract _consensus;
         private readonly GenesisContract _genesis;
+        private readonly ElectionContract _election;
         private readonly ParliamentAuthContract _parliament;
         private readonly TokenContract _token;
         private NodesInfo _info;
@@ -34,6 +36,7 @@ namespace AElfChain.Common.Managers
             NodeManager = nodeManager;
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
+            _election = _genesis.GetElectionContract();
             _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
 
@@ -72,11 +75,11 @@ namespace AElfChain.Common.Managers
                 Category = KernelConstants.CodeCoverageRunnerCategory
             };
             var organizationAddress = _parliament.GetGenesisOwnerAddress();
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
+            var approveUsers = GetMinApproveMiners();
 
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
                 nameof(GenesisMethod.DeploySmartContract),
-                input, organizationAddress, currentMiners, caller);
+                input, organizationAddress, approveUsers, caller);
             var byteString = transactionResult.Logs.Last().NonIndexed;
             var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract deploy passed authority, contract address: {address}");
@@ -92,11 +95,11 @@ namespace AElfChain.Common.Managers
                 Code = ByteString.CopyFrom(code)
             };
             var organizationAddress = _parliament.GetGenesisOwnerAddress();
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
+            var approveUsers = GetMinApproveMiners();
 
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
                 nameof(GenesisMethod.UpdateSmartContract),
-                input, organizationAddress, currentMiners, caller);
+                input, organizationAddress, approveUsers, caller);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
@@ -104,6 +107,14 @@ namespace AElfChain.Common.Managers
         {
             var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
             return currentMiners;
+        }
+
+        public List<string> GetMinApproveMiners()
+        {
+            var minersCount = _election.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount, new Empty());
+            var minNumber = minersCount.Value * 2 / 3 + 1;
+            var currentMiners = GetCurrentMiners();
+            return currentMiners.Take(minNumber).ToList();
         }
 
         public Address GetGenesisOwnerAddress()
