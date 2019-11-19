@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -23,7 +24,6 @@ namespace AElfChain.Common.Managers
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConsensusContract _consensus;
         private readonly GenesisContract _genesis;
-        private readonly ElectionContract _election;
         private readonly ParliamentAuthContract _parliament;
         private readonly TokenContract _token;
         private NodesInfo _info;
@@ -36,7 +36,6 @@ namespace AElfChain.Common.Managers
             NodeManager = nodeManager;
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
-            _election = _genesis.GetElectionContract();
             _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
 
@@ -111,8 +110,9 @@ namespace AElfChain.Common.Managers
 
         public List<string> GetMinApproveMiners()
         {
-            var minersCount = _election.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount, new Empty());
-            var minNumber = minersCount.Value * 2 / 3 + 1;
+            var minersCount = _consensus.CallViewMethod<PubkeyList>(ConsensusMethod.GetTermSnapshot, new Empty())
+                .Pubkeys.Count;
+            var minNumber = minersCount * 2 / 3 + 1;
             var currentMiners = GetCurrentMiners();
             return currentMiners.Take(minNumber).ToList();
         }
