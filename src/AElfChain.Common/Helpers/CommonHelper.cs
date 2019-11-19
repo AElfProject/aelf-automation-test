@@ -60,7 +60,8 @@ namespace AElfChain.Common.Helpers
                 if (!Directory.Exists(desPath)) throw new DirectoryNotFoundException();
             }
 
-            File.Copy(originPath, desPath, true);
+            var fileName = Path.GetFileName(originPath);
+            File.Copy(originPath, Path.Combine(desPath, fileName), true);
         }
 
         public static bool DeleteDirectoryFiles(string path)
@@ -100,17 +101,17 @@ namespace AElfChain.Common.Helpers
 
         public static string ConvertMileSeconds(long elapsedMilliseconds)
         {
-            var minutes = elapsedMilliseconds / (60000);
-            var seconds = elapsedMilliseconds % (60000) / 1000;
+            var minutes = elapsedMilliseconds / 60000;
+            var seconds = elapsedMilliseconds % 60000 / 1000;
             var milliseconds = elapsedMilliseconds % 1000;
 
             var stamp = string.Empty;
 
             if (minutes != 0)
-                stamp += $"{minutes : 00}m:";
+                stamp += $"{minutes: 00}m:";
             if (minutes != 0 || seconds != 0)
-                stamp += $"{seconds : 00}s:";
-            stamp += $"{milliseconds : 000}ms";
+                stamp += $"{seconds: 00}s:";
+            stamp += $"{milliseconds: 000}ms";
 
             return stamp;
         }
@@ -118,6 +119,13 @@ namespace AElfChain.Common.Helpers
         public static string MapPath(string virtualPath)
         {
             return AppRoot + virtualPath.TrimStart('~');
+        }
+
+        public static void ConsoleChangeLine()
+        {
+            var cursorPosition = Console.CursorLeft;
+            if (cursorPosition != 0)
+                Console.WriteLine();
         }
     }
 }

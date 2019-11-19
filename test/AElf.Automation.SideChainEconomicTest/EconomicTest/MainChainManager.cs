@@ -8,6 +8,7 @@ using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.Common;
 using AElfChain.SDK;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -18,6 +19,16 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
     public class MainChainManager
     {
+        public static ILog Logger = Log4NetHelper.GetLogger();
+
+        public List<string> Symbols = new List<string> {"CPU", "RAM", "NET", "STO"};
+
+
+        public MainChainManager(string serviceUrl, string account)
+        {
+            MainChain = new ContractServices(serviceUrl, account, NodeOption.DefaultPassword);
+        }
+
         public ContractServices MainChain { get; set; }
 
         public GenesisContract Genesis => MainChain.GenesisService;
@@ -27,16 +38,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public INodeManager NodeManager => MainChain.NodeManager;
 
         public IApiService ApiService => MainChain.NodeManager.ApiService;
-
-        public static ILog Logger = Log4NetHelper.GetLogger();
-
-        public List<string> Symbols = new List<string> {"CPU", "RAM", "NET", "STO"};
-
-
-        public MainChainManager(string serviceUrl, string account)
-        {
-            MainChain = new ContractServices(serviceUrl, account, Account.DefaultPassword);
-        }
 
         public async Task BuyResources(string account, long amount)
         {
@@ -72,10 +73,10 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                     SystemContractHashName = GenesisContract.NameProviderInfos[NameProvider.Token]
                 });
             validateResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //wait to index
             await WaitSideChainIndex(sideServices, validateResult.TransactionResult.BlockNumber);
-            
+
             //verify
             var transaction = validateResult.Transaction;
             var merklePath = await MainChain.GetMerklePath(validateResult.TransactionResult.TransactionId.ToHex());
@@ -88,7 +89,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             });
             receiveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
-        
+
         public async Task WaitSideChainIndex(ContractServices sideChain, long blockNumber)
         {
             Logger.Info($"Wait side chain index target height: {blockNumber}");
@@ -101,9 +102,9 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                     try
                     {
                         var indexHeight = await crossStub.GetParentChainHeight.CallAsync(new Empty());
-                        if(indexHeight.Value > blockNumber)
+                        if (indexHeight.Value > blockNumber)
                             break;
-                        
+
                         Logger.Info($"Current index height: {indexHeight.Value}");
                         await Task.Delay(4000);
                     }

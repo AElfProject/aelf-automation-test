@@ -11,21 +11,16 @@ using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class NodeScenario : BaseScenario
     {
-        public TreasuryContract Treasury;
-        public ElectionContract Election { get; }
-        public ConsensusContract Consensus { get; }
-        public ProfitContract Profit { get; }
-        public TokenContract Token { get; }
-        public Dictionary<SchemeType, Scheme> Schemes { get; }
+        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         private long _termNumber = 1;
-
-        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public TreasuryContract Treasury;
 
         public NodeScenario()
         {
@@ -43,6 +38,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //Announcement
             NodeAnnounceElectionAction();
         }
+
+        public ElectionContract Election { get; }
+        public ConsensusContract Consensus { get; }
+        public ProfitContract Profit { get; }
+        public TokenContract Token { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; }
 
         public void RunNodeScenario()
         {
@@ -227,16 +228,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var minerArray = new List<string>();
             foreach (var bp in BpNodes)
-            {
                 if (minersPublicKeys.Contains(bp.PublicKey))
                     minerArray.Add(bp.Name);
-            }
 
             foreach (var full in FullNodes)
-            {
                 if (minersPublicKeys.Contains(full.PublicKey))
                     minerArray.Add(full.Name);
-            }
 
             //get voted candidates
             var votedCandidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetVotedCandidates, new Empty());
@@ -249,10 +246,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             foreach (var full in FullNodes)
-            {
                 if (candidatesKeysList.Contains(full.PublicKey))
                     candidateArray.Add(full.Name);
-            }
 
             Logger.Info($"TermNumber = {termNumber}, candidates are: [{string.Join(",", candidateArray)}]");
         }
@@ -263,7 +258,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             foreach (var fullNode in FullNodes)
             {
                 var candidateVote = Election.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
-                    new StringInput
+                    new StringValue
                     {
                         Value = fullNode.PublicKey
                     });
@@ -298,9 +293,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Logger.Info(
                     $"Profit success - node {account} get profit from Id: {schemeId}, value is: {afterBalance - beforeBalance}");
             else
-            {
                 Logger.Error($"Profit failed - node {account} get profit from Id: {schemeId} failed.");
-            }
         }
     }
 }

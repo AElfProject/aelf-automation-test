@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,15 +9,12 @@ using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
     public class CrossChainCreateToken : CrossChainBase
     {
-        public Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; set; }
-
         public CrossChainCreateToken()
         {
             MainChainService = InitMainChainServices();
@@ -24,6 +22,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             TokenSymbols = new List<string>();
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
+
+        public Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; set; }
 
         public void DoCrossChainCreateToken()
         {
@@ -45,7 +45,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 var createTransaction = MainChainService.TokenService.NodeManager.GenerateRawTransaction(
                     MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
-                    TokenMethod.Create.ToString(), new CreateInput()
+                    TokenMethod.Create.ToString(), new CreateInput
                     {
                         Symbol = symbol,
                         Decimals = 2,
@@ -65,7 +65,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
 
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                    Assert.IsTrue(false, $"Create token {symbol} Failed");
+                    throw new Exception($"Create token {symbol} Failed");
                 var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, createTransaction);
                 ChainCreateTxInfo.Add(symbol, mainChainTx);
                 Logger.Info($"Create token {symbol} success");
@@ -85,7 +85,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     To = MainChainService.CallAccount
                 });
                 if (issueToken.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                    Assert.IsTrue(false, $"Issue token {symbol} failed");
+                    throw new Exception($"Issue token {symbol} failed");
 
                 var balance =
                     MainChainService.TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
@@ -107,7 +107,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var merklePath = GetMerklePath(MainChainService, mainChainCreateTxInfo.BlockHeight,
                     mainChainCreateTxInfo.TxId);
                 if (merklePath == null)
-                    Assert.IsTrue(false, "Can't get the merkle path.");
+                    throw new Exception("Can't get the merkle path.");
                 var crossChainCreateInput = new CrossChainCreateTokenInput
                 {
                     FromChainId = MainChainService.ChainId,
@@ -130,7 +130,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
                             crossChainCreateInput);
                     if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                        Assert.IsTrue(false, $"Side chain {sideChainService.ChainId} create token Failed");
+                        throw new Exception($"Side chain {sideChainService.ChainId} create token Failed");
                     Logger.Info($"Chain {sideChainService.ChainId} create Token {symbol} success");
                 }
             }
@@ -141,10 +141,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Logger.Info("Prepare resources token.");
             var genesis = MainChainService.GenesisService;
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
-            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress, tokenConverter.GetFormatted());
-            var testStub = converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService.CallAddress);
-            
-            var symbols = new List<string>{"CPU", "NET", "STO"};
+            var converter = new TokenConverterContract(MainChainService.NodeManager, MainChainService.CallAddress,
+                tokenConverter.GetFormatted());
+            var testStub =
+                converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService
+                    .CallAddress);
+
+            var symbols = new List<string> {"CPU", "NET", "STO"};
             foreach (var symbol in symbols)
             {
                 var transactionResult = await testStub.Buy.SendAsync(new BuyInput

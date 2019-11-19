@@ -45,7 +45,7 @@ namespace AElfChain.Common.Helpers
 
             if (contractName.Contains(ContractExtension))
                 return contractName;
-            
+
             var filePathWithExtension = filePath + ContractExtension;
             return filePathWithExtension;
         }

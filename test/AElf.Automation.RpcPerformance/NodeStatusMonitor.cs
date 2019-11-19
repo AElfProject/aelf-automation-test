@@ -6,7 +6,6 @@ using AElfChain.Common.Managers;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -14,43 +13,34 @@ namespace AElf.Automation.RpcPerformance
     public class NodeStatusMonitor
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private INodeManager NodeManager { get; }
-        private long BlockHeight { get; set; } = 1;
-        public static int MaxLimit { private get; set; }
+        public static int MaxQueueLimit = 5012;
 
         public NodeStatusMonitor(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            MaxLimit = ConfigInfoHelper.Config.SentTxLimit;
+            MaxValidateLimit = ConfigInfoHelper.Config.SentTxLimit;
         }
 
-        private static int _checkCount;
-        private readonly object _checkObj = new object();
+        private INodeManager NodeManager { get; }
+        private long BlockHeight { get; set; } = 1;
+        public static int MaxValidateLimit { private get; set; }
 
-        public void CheckTransactionPoolStatus(bool enable)
+        public bool CheckTransactionPoolStatus(bool enable)
         {
-            if (!enable) return;
+            if (!enable) return true;
+            var checkTimes = 0;
             while (true)
             {
-                var txCount = GetTransactionPoolTxCount();
-                if (txCount < MaxLimit)
-                {
-                    lock (_checkObj)
-                    {
-                        _checkCount = 0;
-                    }
-
-                    break;
-                }
-
-                lock (_checkObj)
-                {
-                    _checkCount++;
-                }
-
+                if (checkTimes >= 150) return false;    //超过检查次数，退出当前轮交易执行            
+                var poolStatus = GetTransactionPoolTxCount();
+                if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
+                    return true;
+                
+                checkTimes++;
+                if (checkTimes % 10 == 0)
+                    $"TxHub transaction count: QueuedCount={poolStatus.Queued} ValidatedCount={poolStatus.Validated}. Transaction limit: {MaxValidateLimit}"
+                        .WriteWarningLine();
                 Thread.Sleep(200);
-                if (_checkCount % 10 == 0)
-                    $"TxHub transaction count:{txCount}, transaction limit number: {MaxLimit}".WriteWarningLine();
             }
         }
 
@@ -59,7 +49,7 @@ namespace AElf.Automation.RpcPerformance
             if (checkTimes == -1)
                 checkTimes = ConfigInfoHelper.Config.Timeout * 10;
             if (checkTimes == 0)
-                Assert.IsTrue(false, "Transaction status check is timeout.");
+                throw new TimeoutException("Transaction status check is timeout.");
             checkTimes--;
             var listCount = transactionIds.Count;
             var length = transactionIds.Count;
@@ -72,15 +62,21 @@ namespace AElf.Automation.RpcPerformance
                 switch (resultStatus)
                 {
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
+                        Logger.Info(
+                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.Unexecutable:
-                        Console.Write($"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
+                        Console.Write(
+                            $"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
+                        Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Failed:
-                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
+                        Logger.Error(
+                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
@@ -90,7 +86,7 @@ namespace AElf.Automation.RpcPerformance
             if (transactionIds.Count > 0 && transactionIds.Count != 1)
             {
                 if (listCount == transactionIds.Count && checkTimes == 0)
-                    Assert.IsTrue(false, "Transaction status always keep pending or not existed.");
+                    throw new TimeoutException("Transaction status always keep pending or not existed.");
                 CheckTransactionsStatus(transactionIds, checkTimes);
             }
 
@@ -118,7 +114,7 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
         }
 
         public void CheckNodeHeightStatus(bool enable = true)
@@ -139,21 +135,21 @@ namespace AElf.Automation.RpcPerformance
                 Thread.Sleep(100);
                 if (checkTimes % 10 == 0)
                     Console.Write(
-                        $"\rCurrent block height {currentHeight}, not changed in {checkTimes / 10 : 000} seconds.");
+                        $"\rCurrent block height {currentHeight}, not changed in {checkTimes / 10: 000} seconds.");
 
                 if (checkTimes != 3000) continue;
-                
+
                 Console.Write("\r\n");
                 throw new TimeoutException("Node block exception, block height not changed 5 minutes later.");
             }
         }
 
-        private int GetTransactionPoolTxCount()
+        private TransactionPoolStatusOutput GetTransactionPoolTxCount()
         {
             var transactionPoolStatusOutput =
                 AsyncHelper.RunSync(NodeManager.ApiService.GetTransactionPoolStatusAsync);
 
-            return transactionPoolStatusOutput.Queued;
+            return transactionPoolStatusOutput;
         }
 
         private static string SpinInfo(int number)

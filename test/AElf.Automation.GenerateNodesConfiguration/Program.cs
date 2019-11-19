@@ -5,11 +5,11 @@ using AElfChain.Common.Helpers;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {
-    class Program
+    internal class Program
     {
         private static readonly ILogHelper Logger = LogHelper.GetLogger();
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //Init Logger
             var logName = "GenerateConfig" +

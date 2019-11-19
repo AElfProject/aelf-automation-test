@@ -27,7 +27,7 @@ namespace AElfChain.Common.Contracts
             where T : ContractStubBase, new()
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
             var factory = new MethodStubFactory(_nodeManager)
             {

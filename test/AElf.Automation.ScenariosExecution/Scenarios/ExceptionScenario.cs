@@ -6,7 +6,6 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
 using AElf.Contracts.MultiToken;
-using AElfChain.SDK.Models;
 using log4net;
 using Shouldly;
 
@@ -14,10 +13,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class ExceptionScenario : BaseScenario
     {
-        public TokenContract Token { get; }
-        public GenesisContract Genesis { get; }
-        public List<string> Testers { get; }
-
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public ExceptionScenario()
@@ -28,6 +23,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Testers = AllTesters.GetRange(80, 20);
         }
+
+        public TokenContract Token { get; }
+        public GenesisContract Genesis { get; }
+        public List<string> Testers { get; }
 
         public void RunExceptionScenarioJob()
         {

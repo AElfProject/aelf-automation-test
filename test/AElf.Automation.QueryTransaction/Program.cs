@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.QueryTransaction
 {
-    class Program
+    internal class Program
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -23,7 +20,7 @@ namespace AElf.Automation.QueryTransaction
             {
                 return CommandLineApplication.Execute<Program>(args);
             }
-            catch (AssertFailedException ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Execute failed: {ex.Message}");
             }
@@ -41,7 +38,6 @@ namespace AElf.Automation.QueryTransaction
             "2. RunNodeStatusCheck".WriteSuccessLine();
             "3. RunStressTest".WriteSuccessLine();
             "4. RunQueryConfigurationLimit".WriteSuccessLine();
-            "5. GetContractFileDescriptorInfo".WriteSuccessLine();
             var runType = Console.ReadLine();
             var check = int.TryParse(runType, out var selection);
 
@@ -67,10 +63,6 @@ namespace AElf.Automation.QueryTransaction
                     break;
                 case 4:
                     RunQueryConfigurationLimit();
-                    break;
-                case 5:
-                    var contractDescriptor = new ContractAnalyze(new NodeManager(Endpoint));
-                    AsyncHelper.RunSync(contractDescriptor.AnalyzeContractFileDescriptors);
                     break;
             }
 
@@ -121,7 +113,7 @@ namespace AElf.Automation.QueryTransaction
             query.QueryBlocksTask(height);
             Logger.Info("Complete blocks query result.");
         }
-        
+
         private void RunQueryTransaction()
         {
             var query = new TransactionQuery(Endpoint);

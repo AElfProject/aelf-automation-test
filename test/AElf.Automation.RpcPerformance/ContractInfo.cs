@@ -2,14 +2,14 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ContractInfo
     {
-        public string ContractPath { get; }
-        public string Symbol { get; set; }
-        public string Owner { get; private set; }
-
-        public ContractInfo(string owner, string contractPath)
+        public ContractInfo(string owner, string contractAddress)
         {
             Owner = owner;
-            ContractPath = contractPath;
+            ContractAddress = contractAddress;
         }
+
+        public string ContractAddress { get; }
+        public string Symbol { get; set; }
+        public string Owner { get; }
     }
 }

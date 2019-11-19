@@ -1,6 +1,5 @@
 using AElfChain.Common;
 using AElf.Contracts.CrossChain;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +11,7 @@ namespace AElf.Automation.SideChainTests
         [TestInitialize]
         public void InitializeNodeTests()
         {
-            base.Initialize();
+            Initialize();
         }
 
 
@@ -108,7 +107,8 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
         public void CheckBalance(string account)
         {
-            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress, NodeOption.NativeTokenSymbol);
+            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress,
+                NodeOption.NativeTokenSymbol);
             _logger.Info($"side chain balance is {balance}");
 
             var userBalance = MainContracts.GetBalance(account, NodeOption.NativeTokenSymbol);

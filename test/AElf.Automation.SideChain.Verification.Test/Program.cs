@@ -6,7 +6,7 @@ using log4net;
 
 namespace AElf.Automation.SideChain.Verification
 {
-    class Program
+    internal class Program
     {
         #region Private Properties
 
@@ -28,7 +28,7 @@ namespace AElf.Automation.SideChain.Verification
             var register = new CrossChainRegister();
             var prepare = new CrossChainTransferPrepare();
             var create = new CrossChainCreateToken();
-            
+
             if (enableCases.Contains("CrossChainVerifyMainChain"))
             {
                 var mainVerify = new CrossChainVerifyMainChain();
@@ -43,10 +43,7 @@ namespace AElf.Automation.SideChain.Verification
 
             if (!enableCases.Contains("CrossChainTransfer")) return;
             register.DoCrossChainPrepare();
-            if (createTokenNumber >= 1)
-            {
-                create.DoCrossChainCreateToken();
-            }
+            if (createTokenNumber >= 1) create.DoCrossChainCreateToken();
             prepare.DoCrossChainTransferPrepare();
 
             var mainTransfer = new CrossChainTransferMainChain();
@@ -57,7 +54,6 @@ namespace AElf.Automation.SideChain.Verification
                 mainTransfer.CrossChainTransferMainChainJob();
                 sideTransfer.CrossChainTransferSideChainJob();
             }
-
         }
     }
 }

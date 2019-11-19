@@ -1,0 +1,12 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "bp1",
+      "account": "G6eX2WYjeUXptQXs24QDSMiRHTMFG23PLKVFhLU1zek6SYjut",
+      "password": "123"
+    }
+  ],
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "123"
+}

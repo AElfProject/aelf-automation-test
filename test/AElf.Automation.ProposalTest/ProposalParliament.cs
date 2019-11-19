@@ -11,20 +11,12 @@ using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.ProposalTest
 {
     public class ProposalParliament : ProposalBase
     {
-        private Dictionary<Address, int> OrganizationList { get; set; }
-        private Dictionary<KeyValuePair<Address, int>, List<string>> ProposalList { get; set; }
-        private List<string> ReleaseProposalList { get; set; }
-
-        private ParliamentAuthContract Parliament { get; }
-        private TokenContract Token { get; }
-
         public ProposalParliament()
         {
             Initialize();
@@ -32,6 +24,13 @@ namespace AElf.Automation.ProposalTest
             Parliament = Services.ParliamentService;
             Token = Services.TokenService;
         }
+
+        private Dictionary<Address, int> OrganizationList { get; set; }
+        private Dictionary<KeyValuePair<Address, int>, List<string>> ProposalList { get; set; }
+        private List<string> ReleaseProposalList { get; set; }
+
+        private ParliamentAuthContract Parliament { get; }
+        private TokenContract Token { get; }
 
         public void ParliamentJob()
         {
@@ -41,7 +40,8 @@ namespace AElf.Automation.ProposalTest
                 TransferToVirtualAccount,
                 CreateProposal,
                 ApproveProposal,
-                ReleaseProposal
+                ReleaseProposal,
+                CheckTheBalance
             });
         }
 
@@ -58,7 +58,7 @@ namespace AElf.Automation.ProposalTest
             var addressInfo = Parliament.CallViewMethod<Organization>(ParliamentMethod.GetOrganization, address);
             OrganizationList.Add(address, addressInfo.ReleaseThreshold);
 
-            for (int i = 1; i <= MinersCount; i++)
+            for (var i = 1; i <= MinersCount; i++)
             {
                 var createOrganizationInput = new CreateOrganizationInput
                 {
@@ -98,9 +98,7 @@ namespace AElf.Automation.ProposalTest
             }
 
             foreach (var (key, value) in OrganizationList)
-            {
                 Logger.Info($"Parliament Organization : {key}, ReleaseThreshold is {value}");
-            }
         }
 
         private void CreateProposal()
@@ -118,11 +116,11 @@ namespace AElf.Automation.ProposalTest
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = 1000,
+                        Amount = 10,
                         Memo = "virtual account transfer virtual account"
                     };
 
-                    var createProposalInput = new CreateProposalInput()
+                    var createProposalInput = new CreateProposalInput
                     {
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress.Key,
@@ -182,9 +180,9 @@ namespace AElf.Automation.ProposalTest
                 foreach (var proposalId in proposal.Value)
                 {
                     var txInfoList = new Dictionary<string, string>();
-                    var approveCount = Math.Ceiling((double)(MinersCount * proposal.Key.Value)/(double)10000);
-                    
-                    var miners = Miners.Take((int)approveCount).ToList();
+                    var approveCount = Math.Ceiling(MinersCount * proposal.Key.Value / (double) 10000);
+
+                    var miners = Miners.Take((int) approveCount).ToList();
 
                     foreach (var miner in miners)
                     {
@@ -204,38 +202,33 @@ namespace AElf.Automation.ProposalTest
             }
 
             foreach (var (key, value) in proposalApproveList)
+            foreach (var proposalApprove in value)
             {
-                foreach (var proposalApprove in value)
+                var approveMinedCount = 0;
+                foreach (var txInfo in proposalApprove.Value)
                 {
-                    var approveMinedCount = 0;
-                    foreach (var txInfo in proposalApprove.Value)
+                    var checkTime = 5;
+                    var result = Parliament.NodeManager.CheckTransactionResult(txInfo.Value);
+                    var status = result.Status.ConvertTransactionResultStatus();
+                    while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
-                        var checkTime = 5;
-                        var result = Parliament.NodeManager.CheckTransactionResult(txInfo.Value);
-                        var status = result.Status.ConvertTransactionResultStatus();
-                        while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                        {
-                            checkTime--;
-                            Thread.Sleep(2000);
-                        }
-
-                        if (status != TransactionResultStatus.Mined)
-                        {
-                            Logger.Error("Approve proposal Failed.");
-                        }
-                        else
-                        {
-                            approveMinedCount++;
-                            Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
-                        }
+                        checkTime--;
+                        Thread.Sleep(2000);
                     }
 
-                    var expectedCount = 10000 / key.Value;
-                    if (approveMinedCount >= expectedCount)
+                    if (status != TransactionResultStatus.Mined)
                     {
-                        ReleaseProposalList.Add(proposalApprove.Key);
+                        Logger.Error("Approve proposal Failed.");
+                    }
+                    else
+                    {
+                        approveMinedCount++;
+                        Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
                     }
                 }
+
+                var expectedCount = 10000 / key.Value;
+                if (approveMinedCount >= expectedCount) ReleaseProposalList.Add(proposalApprove.Key);
             }
         }
 
@@ -262,17 +255,24 @@ namespace AElf.Automation.ProposalTest
                     Thread.Sleep(2000);
                 }
 
-                if (status != TransactionResultStatus.Mined)
-                {
-                    Logger.Error("Release proposal Failed.");
-                }
+                if (status != TransactionResultStatus.Mined) Logger.Error("Release proposal Failed.");
             }
+        }
 
-            Logger.Info("Check the balance of organization address:");
+        private void CheckTheBalance()
+        {
+            Logger.Info("After Parliament test, check the balance of organization address:");
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
                 Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+            }
+
+            Logger.Info("After Parliament test, check the balance of tester:");
+            foreach (var tester in Tester)
+            {
+                var balance = Token.GetUserBalance(tester, NativeToken);
+                Logger.Info($"{tester} {NativeToken} balance is {balance}");
             }
         }
 
@@ -281,19 +281,17 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                while (balance == 0)
+                if (balance > 10) continue;
+                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = Symbol,
-                        To = organization.Key,
-                        Amount = 10000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = Symbol,
+                    To = organization.Key,
+                    Amount = 10000_00,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                    Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
-                }
+                balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
             }
         }
     }

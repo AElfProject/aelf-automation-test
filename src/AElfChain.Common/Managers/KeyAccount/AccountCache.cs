@@ -1,0 +1,91 @@
+using System.IO;
+using System.Threading.Tasks;
+using AElf;
+using AElf.Cryptography;
+using AElfChain.Common.Helpers;
+using log4net;
+
+namespace AElfChain.Common.Managers
+{
+    public class AccountInfo
+    {
+        public string Account { get; set; }
+        public string PrivateKey { get; set; }
+        public string PublicKey { get; set; }
+
+        public AccountInfo(string account, string privateKey, string publicKey)
+        {
+            Account = account;
+            PrivateKey = privateKey;
+            PublicKey = publicKey;
+        }
+    }
+
+    public class AccountInfoCache
+    {
+        private const string KeyCacheExtension = ".cache";
+        private const string KeyFolderName = "keys";
+
+        public string KeyPath { get; set; }
+        public static ILog Logger = Log4NetHelper.GetLogger();
+
+        public AccountInfoCache()
+        {
+            KeyPath = Path.Combine(CommonHelper.GetCurrentDataDir(), KeyFolderName);
+        }
+
+        public async Task WriteCache(string account, byte[] privateKeyBytes)
+        {
+            var privateKey = ByteExtensions.ToHex(privateKeyBytes);
+            var keyPair = CryptoHelper.FromPrivateKey(privateKeyBytes);
+            var publicKeyBytes = keyPair.PublicKey;
+            var publicKey = ByteExtensions.ToHex(publicKeyBytes);
+            
+            var accountInfo = new AccountInfo(account, privateKey, publicKey);
+            await WriteCache(accountInfo);
+        }
+
+        public bool ReadCache(string account, out byte[] privateKeyBytes)
+        {
+            privateKeyBytes = null;
+            var result = TryGetCache(account, out var info);
+            if (result)
+            {
+                privateKeyBytes = ByteArrayHelper.HexStringToByteArray(info.PrivateKey);
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task WriteCache(AccountInfo info)
+        {
+            var fullName = Path.Combine(KeyPath, $"{info.Account}{KeyCacheExtension}");
+            await Task.Run(() =>
+            {
+                using (var writer = File.CreateText(fullName))
+                {
+                    var content = $"{info.PrivateKey} {info.PublicKey}";
+                    writer.Write(content);
+                    writer.Flush();
+                }
+            });
+        }
+
+        private bool TryGetCache(string account, out AccountInfo info)
+        {
+            info = null;
+            var fullName = Path.Combine(KeyPath, $"{account}{KeyCacheExtension}");
+            if (File.Exists(fullName))
+            {
+                var content = File.ReadAllText(fullName);
+                var infoArray = content.Split(" ");
+                info = new AccountInfo(account, infoArray[0], infoArray[1]);
+                
+                return true;
+            }
+
+            return false;
+        }
+    }
+}

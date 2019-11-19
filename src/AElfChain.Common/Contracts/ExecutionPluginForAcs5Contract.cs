@@ -8,7 +8,7 @@ namespace AElfChain.Common.Contracts
         GetMethodCallingThreshold,
         DummyMethod
     }
-    
+
     public class ExecutionPluginForAcs5Contract : BaseContract<PluginAcs5Method>
     {
         public ExecutionPluginForAcs5Contract(INodeManager nodeManager, string callAddress, string contractAddress)

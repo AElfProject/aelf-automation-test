@@ -10,6 +10,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -60,7 +61,7 @@ namespace AElfChain.Common.Managers
 
             var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
-            
+
             return _genesisAddress;
         }
 
@@ -195,8 +196,8 @@ namespace AElfChain.Common.Managers
         {
             var tr = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName
             };
 
@@ -227,12 +228,14 @@ namespace AElfChain.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
-                        Console.WriteLine();
-                        Logger.Info($"Transaction {txId} status: {status}", true);
+                        Logger.Info(
+                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     {
-                        var message = $"Transaction {txId} status: {status}";
+                        var message =
+                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         message += $"\r\nError Message: {transactionResult.Error}";
@@ -240,17 +243,18 @@ namespace AElfChain.Common.Managers
                         return transactionResult;
                     }
                 }
-                
-                Console.Write($"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                
+
+                Console.Write(
+                    $"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+
                 checkTimes++;
                 Thread.Sleep(500);
             }
-            
+
             Console.Write("\r\n");
             throw new TimeoutException("Transaction execution status cannot be 'Mined' after five minutes.");
         }
-        
+
         public void CheckTransactionListResult(List<string> transactionIds)
         {
             var transactionQueue = new ConcurrentQueue<string>();
@@ -266,7 +270,8 @@ namespace AElfChain.Common.Managers
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.NotExisted:
                     case TransactionResultStatus.Unexecutable:
-                        Console.Write($"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                        Console.Write(
+                            $"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
                         break;
@@ -285,8 +290,8 @@ namespace AElfChain.Common.Managers
         {
             var transaction = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
@@ -307,12 +312,12 @@ namespace AElfChain.Common.Managers
             return messageParser.ParseFrom(byteArray);
         }
 
-        public ByteString QueryView(string @from, string to, string methodName, IMessage inputParameter)
+        public ByteString QueryView(string from, string to, string methodName, IMessage inputParameter)
         {
             var transaction = new Transaction
             {
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 MethodName = methodName,
                 Params = inputParameter == null ? ByteString.Empty : inputParameter.ToByteString()
             };
@@ -328,7 +333,7 @@ namespace AElfChain.Common.Managers
             }
 
             var byteArray = ByteArrayHelper.HexStringToByteArray(resp);
-            
+
             return ByteString.CopyFrom(byteArray);
         }
 
@@ -346,6 +351,11 @@ namespace AElfChain.Common.Managers
         public bool NetRemovePeer(string address)
         {
             return AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(address));
+        }
+
+        public NetworkInfoOutput NetworkInfo()
+        {
+            return AsyncHelper.RunSync(ApiService.NetworkInfo);
         }
 
         #endregion

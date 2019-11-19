@@ -65,14 +65,17 @@ namespace AElfChain.Common.Contracts
                     {
                         if (status == TransactionResultStatus.Mined)
                             Logger.Info(
-                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}", true);
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
+                                true);
                         else
                             Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}", true);
+                                $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
+                                true);
                         break;
                     }
 
-                    Console.Write($"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                    Console.Write(
+                        $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
 
                     if (checkTimes == 360) //max wait time 3 minutes
                     {
@@ -83,8 +86,9 @@ namespace AElfChain.Common.Contracts
 
                     Thread.Sleep(500);
                 }
+
                 stopwatch.Stop();
-                
+
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
@@ -109,7 +113,7 @@ namespace AElfChain.Common.Contracts
                         {
                             resultDto.Logs.Select(o => new LogEvent
                             {
-                                Address = AddressHelper.Base58StringToAddress(o.Address),
+                                Address = o.Address.ConvertAddress(),
                                 Name = o.Name,
                                 NonIndexed = ByteString.FromBase64(o.NonIndexed)
                             }).ToArray()
@@ -119,9 +123,10 @@ namespace AElfChain.Common.Contracts
                         Status = status,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
-                
-                var returnByte = resultDto.ReturnValue == null ? 
-                    new byte[]{} : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
+
+                var returnByte = resultDto.ReturnValue == null
+                    ? new byte[] { }
+                    : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
                 return new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,

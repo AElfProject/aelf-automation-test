@@ -47,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 //unlock
                 NodeManager.UnlockAccount(account);
             }
-            
+
             NodeManager.UnlockAccount(InitAccount);
 
             //Init services
@@ -109,7 +109,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
 
             foreach (var acc in AccList)
-            {
                 tokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = TokenSymbol,
@@ -117,7 +116,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "transfer for resource trade.",
                     To = AddressHelper.Base58StringToAddress(acc)
                 });
-            }
 
             tokenService.CheckTransactionResultList();
 

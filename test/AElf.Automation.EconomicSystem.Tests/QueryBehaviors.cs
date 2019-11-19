@@ -6,94 +6,12 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
+using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
     public partial class Behaviors
     {
-        #region Election View Methods
-
-        public PubkeyList GetVictories()
-        {
-            var result = ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetVictories,
-                new Empty());
-
-            return result;
-        }
-
-        public int GetMinersCount()
-        {
-            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount,
-                new Empty()).Value;
-        }
-
-        public CandidateInformation GetCandidateInformation(string account)
-        {
-            var result =
-                ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
-                    new StringInput
-                    {
-                        Value = NodeManager.GetAccountPublicKey(account)
-                    });
-            return result;
-        }
-
-        public PubkeyList GetCandidates()
-        {
-            var result =
-                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
-                    new Empty());
-
-            return result;
-        }
-
-        public ElectorVote GetVotesInformation(string voteAccount)
-        {
-            var result =
-                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringInput
-                {
-                    Value = NodeManager.GetAccountPublicKey(voteAccount)
-                });
-
-            return result;
-        }
-
-        public ElectorVote GetVotesInformationWithRecords(string voteAccount)
-        {
-            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformationWithRecords,
-                new StringInput
-                {
-                    Value = NodeManager.GetAccountPublicKey(voteAccount)
-                });
-            return result;
-        }
-
-        public ElectorVote GetElectorVoteWithAllRecords(string voteAccount)
-        {
-            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithAllRecords,
-                new StringInput
-                {
-                    Value = NodeManager.GetAccountPublicKey(voteAccount)
-                });
-            return result;
-        }
-
-        public TermSnapshot GetTermSnapshot(long termNumber)
-        {
-            var result = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
-                new GetTermSnapshotInput
-                {
-                    TermNumber = termNumber
-                });
-            return result;
-        }
-
-        #endregion
-
-        #region VoteService Method
-
-        #endregion
-
         #region ProfitService View Method
 
         // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
@@ -120,6 +38,89 @@ namespace AElf.Automation.EconomicSystem.Tests
             });
             return balance;
         }
+
+        #endregion
+
+        #region Election View Methods
+
+        public PubkeyList GetVictories()
+        {
+            var result = ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetVictories,
+                new Empty());
+
+            return result;
+        }
+
+        public int GetMinersCount()
+        {
+            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount,
+                new Empty()).Value;
+        }
+
+        public CandidateInformation GetCandidateInformation(string account)
+        {
+            var result =
+                ElectionService.CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
+                    new StringValue
+                    {
+                        Value = NodeManager.GetAccountPublicKey(account)
+                    });
+            return result;
+        }
+
+        public PubkeyList GetCandidates()
+        {
+            var result =
+                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
+                    new Empty());
+
+            return result;
+        }
+
+        public ElectorVote GetVotesInformation(string voteAccount)
+        {
+            var result =
+                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringValue
+                {
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
+                });
+
+            return result;
+        }
+
+        public ElectorVote GetVotesInformationWithRecords(string voteAccount)
+        {
+            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformationWithRecords,
+                new StringValue
+                {
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
+                });
+            return result;
+        }
+
+        public ElectorVote GetElectorVoteWithAllRecords(string voteAccount)
+        {
+            var result = ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithAllRecords,
+                new StringValue
+                {
+                    Value = NodeManager.GetAccountPublicKey(voteAccount)
+                });
+            return result;
+        }
+
+        public TermSnapshot GetTermSnapshot(long termNumber)
+        {
+            var result = ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
+                new GetTermSnapshotInput
+                {
+                    TermNumber = termNumber
+                });
+            return result;
+        }
+
+        #endregion
+
+        #region VoteService Method
 
         #endregion
 

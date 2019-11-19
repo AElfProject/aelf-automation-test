@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {
-    public class NodeOption
+    public class NodeInfo
     {
         [JsonProperty("name")] public string Name { get; set; }
         [JsonProperty("ip")] public string IpAddress { get; set; }
@@ -17,10 +17,10 @@ namespace AElf.Automation.GenerateNodesConfiguration
 
     public class NodesInformation
     {
-        [JsonProperty("BpNodes")] public List<NodeOption> BpNodes { get; set; }
-        [JsonProperty("FullNodes")] public List<NodeOption> FullNodes { get; set; }
-    } 
-        
+        [JsonProperty("BpNodes")] public List<NodeInfo> BpNodes { get; set; }
+        [JsonProperty("FullNodes")] public List<NodeInfo> FullNodes { get; set; }
+    }
+
     public static class ConfigInfoHelper
     {
         private static NodesInformation _instance;

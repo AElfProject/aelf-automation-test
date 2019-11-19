@@ -11,31 +11,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class VoteQueryTest
     {
-        #region Priority
-
-        public static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public string TokenAbi { get; set; }
-        public string ConsensusAbi { get; set; }
-        public string DividendsAbi { get; set; }
-
-        public List<string> UserList { get; set; }
-        public List<string> FullNodeAccounts { get; set; }
-        public List<string> BpNodeAccounts { get; set; }
-        public List<string> CandidatePublicKeys { get; set; }
-        public List<string> CurrentMinersKeys { get; set; }
-        public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
-        public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
-
-        //Contract service List
-        public static TokenContract tokenService { get; set; }
-        public static ConsensusContract consensusService { get; set; }
-        public static DividendsContract dividendsService { get; set; }
-
-        public string RpcUrl { get; } = "http://192.168.197.20:8010/chain";
-        public INodeManager CH { get; set; }
-
-        #endregion
-
         [TestInitialize]
         public void Initialize()
         {
@@ -74,10 +49,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Delete all account files created.");
             foreach (var item in UserList)
             {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
                 File.Delete(file);
             }
         }
+
+        #region Priority
+
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public string TokenAbi { get; set; }
+        public string ConsensusAbi { get; set; }
+        public string DividendsAbi { get; set; }
+
+        public List<string> UserList { get; set; }
+        public List<string> FullNodeAccounts { get; set; }
+        public List<string> BpNodeAccounts { get; set; }
+        public List<string> CandidatePublicKeys { get; set; }
+        public List<string> CurrentMinersKeys { get; set; }
+        public string InitAccount { get; } = "ELF_2GkD1q74HwBrFsHufmnCKHJvaGVBYkmYcdG3uebEsAWSspX";
+        public string FeeAccount { get; } = "ELF_1dVay78LmRRzP7ymunFsBJFT8frYK4hLNjUCBi4VWa2KmZ";
+
+        //Contract service List
+        public static TokenContract tokenService { get; set; }
+        public static ConsensusContract consensusService { get; set; }
+        public static DividendsContract dividendsService { get; set; }
+
+        public string RpcUrl { get; } = "http://192.168.197.20:8010/chain";
+        public INodeManager CH { get; set; }
+
+        #endregion
 
 //        #region Dividends Test
 //

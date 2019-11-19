@@ -14,14 +14,14 @@ namespace AElf.Automation.ContractsTesting
     public class ContractIssueLimit
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly INodeManager _nodeManager;
-        private readonly string _bpAccount;
         private readonly string _account;
+        private readonly string _bpAccount;
 
         private readonly GenesisContract _genesisContract;
+        private readonly INodeManager _nodeManager;
         private readonly ContractTesterFactory _stub;
         private string _contractAddress;
-        
+
         public ContractIssueLimit(string serviceUrl)
         {
             _nodeManager = new NodeManager(serviceUrl);
@@ -49,7 +49,7 @@ namespace AElf.Automation.ContractsTesting
 
             await GetUserBalance(systemStub, NodeOption.NativeTokenSymbol, _account);
         }
-        
+
         public void DeployTestContract()
         {
             var tokenContract = new TokenContract(_nodeManager, _account);
@@ -59,10 +59,10 @@ namespace AElf.Automation.ContractsTesting
         public async Task ExecuteMethodTest()
         {
             const string symbol = "CELF";
-            
+
             var tokenStub = _stub.Create<TokenContractContainer.TokenContractStub>(
                 AddressHelper.Base58StringToAddress(_contractAddress), _account);
-            
+
             //create
             var createResult = await tokenStub.Create.SendAsync(new CreateInput
             {
@@ -74,7 +74,7 @@ namespace AElf.Automation.ContractsTesting
                 IsBurnable = true
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //issue
             var issueResult = await tokenStub.Issue.SendAsync(new IssueInput
             {
@@ -84,7 +84,7 @@ namespace AElf.Automation.ContractsTesting
                 Memo = $"issue {Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var totalBurn = 0;
             await GetUserBalance(tokenStub, symbol, _account);
             for (var i = 1; i < 10; i++)
@@ -92,7 +92,7 @@ namespace AElf.Automation.ContractsTesting
                 Logger.Info($"Test times: {i}");
                 //get token info
                 await GetTokenInfo(tokenStub, symbol);
-                
+
                 //burn
                 totalBurn += 1000 * i;
                 var burnResult = await tokenStub.Burn.SendAsync(new BurnInput
@@ -104,8 +104,9 @@ namespace AElf.Automation.ContractsTesting
 
                 await GetTokenInfo(tokenStub, symbol);
             }
+
             await GetUserBalance(tokenStub, symbol, _account);
-            
+
             Logger.Info($"Issue another token: {totalBurn}");
             issueResult = await tokenStub.Issue.SendAsync(new IssueInput
             {
@@ -115,7 +116,7 @@ namespace AElf.Automation.ContractsTesting
                 Memo = $"issue {Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             await GetTokenInfo(tokenStub, symbol);
             await GetUserBalance(tokenStub, symbol, _account);
         }
@@ -128,8 +129,9 @@ namespace AElf.Automation.ContractsTesting
             });
             Logger.Info($"Token info: Total supply:{tokenInfo.TotalSupply}, Supply: {tokenInfo.Supply}");
         }
-        
-        private async Task GetUserBalance(TokenContractContainer.TokenContractStub tester, string symbol, string account)
+
+        private async Task GetUserBalance(TokenContractContainer.TokenContractStub tester, string symbol,
+            string account)
         {
             var balanceInfo = await tester.GetBalance.CallAsync(new GetBalanceInput
             {

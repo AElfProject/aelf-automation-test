@@ -15,12 +15,12 @@
                 {
                     "SideChainUrl": "http://18.196.46.174:8000",
                     "SideChainId": "2112",
-                    "SideChainTokenSymbol": "SAELF"
+                    "SideChainTokenSymbol": "STA"
                 },
                 {
                     "SideChainUrl": "http://34.252.106.106:8000",
                     "SideChainId": "2113",
-                    "SideChainTokenSymbol": "SBELF"
+                    "SideChainTokenSymbol": "STB"
                 }
             ]
         },

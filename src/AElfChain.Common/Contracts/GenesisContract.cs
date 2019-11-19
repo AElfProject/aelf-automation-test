@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Acs0;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -36,16 +35,6 @@ namespace AElfChain.Common.Contracts
         private readonly Dictionary<NameProvider, Address> _systemContractAddresses =
             new Dictionary<NameProvider, Address>();
 
-        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress = "")
-        {
-            if(callAddress == "")
-                callAddress = nm.GetRandomAccount();
-            
-            var genesisContract = nm.GetGenesisContractAddress();
-
-            return new GenesisContract(nm, callAddress, genesisContract);
-        }
-        
         private GenesisContract(INodeManager nodeManager, string callAddress, string genesisAddress)
             : base(nodeManager, genesisAddress)
         {
@@ -54,6 +43,16 @@ namespace AElfChain.Common.Contracts
         }
 
         public static Dictionary<NameProvider, Hash> NameProviderInfos => InitializeSystemContractsName();
+
+        public static GenesisContract GetGenesisContract(INodeManager nm, string callAddress = "")
+        {
+            if (callAddress == "")
+                callAddress = nm.GetRandomAccount();
+
+            var genesisContract = nm.GetGenesisContractAddress();
+
+            return new GenesisContract(nm, callAddress, genesisContract);
+        }
 
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {
@@ -84,7 +83,7 @@ namespace AElfChain.Common.Contracts
                 _systemContractAddresses[name] = Contract;
                 return Contract;
             }
-            
+
             var hash = NameProviderInfos[name];
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             _systemContractAddresses[name] = address;

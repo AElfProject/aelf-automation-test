@@ -2,13 +2,14 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="FluentScheduler" Version="5.3.0" />
       <PackageReference Include="Shouldly" Version="3.0.2" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,13 +21,16 @@
         <None Update="scenario-nodes.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="scenario-nodes-local.json">
+        <None Update="scenario-nodes-3bp.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="scenario-6-nodes.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="scenario-nodes-side.json">
+        <None Update="scenario-nodes-side1.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="scenario-nodes-side2.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

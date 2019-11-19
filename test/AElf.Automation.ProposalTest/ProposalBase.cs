@@ -13,26 +13,18 @@ using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.ProposalTest
 {
     public class ProposalBase
     {
-        private readonly EnvironmentInfo _environmentInfo;
         private static ConfigInfo _config;
-        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
 
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
-        protected static List<string> Tester { get; set; }
         protected static readonly string NativeToken = NodeOption.NativeTokenSymbol;
         protected static string InitAccount;
         protected static string Symbol;
-
-        protected static int MinersCount { get; set; }
-        protected List<string> Miners { get; set; }
-
-        protected static ContractServices Services { get; set; }
+        private readonly EnvironmentInfo _environmentInfo;
 
 
         protected ProposalBase()
@@ -43,11 +35,18 @@ namespace AElf.Automation.ProposalTest
                 ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
         }
 
+        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
+        protected static List<string> Tester { get; set; }
+
+        protected static int MinersCount { get; set; }
+        protected List<string> Miners { get; set; }
+
+        protected static ContractServices Services { get; set; }
+
         protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
             bool interrupted = false)
         {
             foreach (var action in actions)
-            {
                 try
                 {
                     action.Invoke();
@@ -58,7 +57,6 @@ namespace AElf.Automation.ProposalTest
                     if (interrupted)
                         break;
                 }
-            }
 
             if (sleepSeconds != 0)
                 Thread.Sleep(1000 * sleepSeconds);
@@ -144,12 +142,12 @@ namespace AElf.Automation.ProposalTest
                 IsBurnable = true,
                 Issuer = Services.CallAccount,
                 TokenName = "Token of test",
-                TotalSupply = 5_0000_0000
+                TotalSupply = 10_0000_0000_00000000
             };
             var result =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
             if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false, $"Create token {Symbol} Failed");
+                throw new Exception($"Create token {Symbol} Failed");
 
             Logger.Info($"Create token {Symbol} success");
 
@@ -158,12 +156,12 @@ namespace AElf.Automation.ProposalTest
             {
                 Symbol = Symbol,
                 To = Services.CallAccount,
-                Amount = 400000000
+                Amount = 10_0000_0000_00000000
             };
             var issueResult =
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
             if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                Assert.IsTrue(false, $"Issue token {Symbol} Failed");
+                throw new Exception($"Issue token {Symbol} Failed");
         }
 
         private void TransferToTester()
@@ -172,35 +170,33 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
-                while (balance == 0)
+                if (balance >= 1_00000000) continue;
+                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = NativeToken,
-                        To = AddressHelper.Base58StringToAddress(tester),
-                        Amount = 1000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = NativeToken,
+                    To = AddressHelper.Base58StringToAddress(tester),
+                    Amount = 1000_00000000,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Services.TokenService.GetUserBalance(tester);
-                }
+                balance = Services.TokenService.GetUserBalance(tester);
+                Logger.Info($"Tester {tester} {NativeToken} balance is {balance}");
             }
-            
+
             foreach (var miner in Miners)
             {
                 var balance = Services.TokenService.GetUserBalance(miner);
-                while (balance == 0)
+                if (balance >= 1_00000000) continue;
+                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = NativeToken,
-                        To = AddressHelper.Base58StringToAddress(miner),
-                        Amount = 1000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = NativeToken,
+                    To = AddressHelper.Base58StringToAddress(miner),
+                    Amount = 1000_00000000,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Services.TokenService.GetUserBalance(miner);
-                }
+                balance = Services.TokenService.GetUserBalance(miner);
+                Logger.Info($"Miner {miner} {NativeToken} balance is {balance}");
             }
         }
     }

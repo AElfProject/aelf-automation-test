@@ -63,9 +63,7 @@ namespace AElfChain.Common.Helpers
         public void InitLogHelper(string logFileSavePath = "")
         {
             if (string.IsNullOrEmpty(logFileSavePath))
-            {
                 logFileSavePath = CommonHelper.MapPath($"/logs/{DateTime.Now:yyyy-M-d dddd}.log");
-            }
 
             try
             {

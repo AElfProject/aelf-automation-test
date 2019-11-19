@@ -16,6 +16,6 @@ namespace AElf.Automation.RpcPerformance
         void PrintContractInfo();
         void ExecuteOneRoundTransactionTask();
         void ExecuteOneRoundTransactionsTask();
-        void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false, bool conflict = true);
+        void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false);
     }
 }

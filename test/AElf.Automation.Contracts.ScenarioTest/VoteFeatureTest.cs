@@ -19,6 +19,70 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class VoteFeatureTest
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            //Init log
+            Log4NetHelper.LogInit("VoteBP");
+            CandidatePublicKeys = new List<string>();
+            UserList = new List<string>();
+            CH = new NodeManager(RpcUrl);
+
+            //Get FullNode Info
+            FullNodeAccounts = new List<string>();
+            FullNodeAccounts.Add("4KTaV1zZSCx4tKiEreqBEsB9DJoU2LqwRugcjowQpeX6YhM");
+            FullNodeAccounts.Add("3dZLptQfoqUqFeSvJd8wZeKQ2bHZZXPyuJPFikFJ5Tvgt1F");
+            FullNodeAccounts.Add("4GG2yVjPqYJd2zefrDJJkBnNeyvjPpTSKNANc39k7Q4JQpL");
+
+            //Get BpNode Info
+            BpNodeAccounts = new List<string>();
+            BpNodeAccounts.Add("23my6hyVjXvHn4cS8i1CLgmCgtZDcNLAKKsgCXLuKrQvHzf");
+            BpNodeAccounts.Add("4LCeZkfBMUKs5LeZDzPtGHwpK3kC4SyU4F5rU3Jhfe51JEg");
+            BpNodeAccounts.Add("5KxGVgyXhSr3hYi6PFaJAmgknvFhrDcgG1fNe2EcUv3y3UY");
+
+            //Get candidate infos
+            NodesPublicKeys = new List<string>();
+            CandidateInfos = new List<CandidateInfo>();
+            for (var i = 0; i < BpNodeAccounts.Count; i++)
+            {
+                var name = $"Bp-{i + 1}";
+                var account = BpNodeAccounts[i];
+                var pubKey = CH.GetAccountPublicKey(account);
+                NodesPublicKeys.Add(pubKey);
+                Logger.Info($"{account}: {pubKey}");
+                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
+            }
+
+            for (var i = 0; i < FullNodeAccounts.Count; i++)
+            {
+                var name = $"Full-{i + 1}";
+                var account = FullNodeAccounts[i];
+                var pubKey = CH.GetAccountPublicKey(account);
+                NodesPublicKeys.Add(pubKey);
+                Logger.Info($"{account}: {pubKey}");
+                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
+            }
+
+            //Init service
+            tokenService = new TokenContract(CH, InitAccount, TokenContract);
+            consensusService = new ConsensusContract(CH, InitAccount, ConsensusContract);
+            dividendsService = new DividendsContract(CH, InitAccount, DividendsContract);
+            voteService = new VoteContract(CH, InitAccount, VoteContract);
+            electionService = new ElectionContract(CH, InitAccount, ElectionContract);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            if (UserList.Count == 0) return;
+            Logger.Info("Delete all account files created.");
+            foreach (var item in UserList)
+            {
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
+                File.Delete(file);
+            }
+        }
+
         #region Priority
 
         public ILog Logger = Log4NetHelper.GetLogger();
@@ -50,70 +114,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager CH { get; set; }
 
         #endregion
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            //Init log
-            Log4NetHelper.LogInit("VoteBP");
-            CandidatePublicKeys = new List<string>();
-            UserList = new List<string>();
-            CH = new NodeManager(RpcUrl);
-
-            //Get FullNode Info
-            FullNodeAccounts = new List<string>();
-            FullNodeAccounts.Add("4KTaV1zZSCx4tKiEreqBEsB9DJoU2LqwRugcjowQpeX6YhM");
-            FullNodeAccounts.Add("3dZLptQfoqUqFeSvJd8wZeKQ2bHZZXPyuJPFikFJ5Tvgt1F");
-            FullNodeAccounts.Add("4GG2yVjPqYJd2zefrDJJkBnNeyvjPpTSKNANc39k7Q4JQpL");
-
-            //Get BpNode Info
-            BpNodeAccounts = new List<string>();
-            BpNodeAccounts.Add("23my6hyVjXvHn4cS8i1CLgmCgtZDcNLAKKsgCXLuKrQvHzf");
-            BpNodeAccounts.Add("4LCeZkfBMUKs5LeZDzPtGHwpK3kC4SyU4F5rU3Jhfe51JEg");
-            BpNodeAccounts.Add("5KxGVgyXhSr3hYi6PFaJAmgknvFhrDcgG1fNe2EcUv3y3UY");
-
-            //Get candidate infos
-            NodesPublicKeys = new List<string>();
-            CandidateInfos = new List<CandidateInfo>();
-            for (int i = 0; i < BpNodeAccounts.Count; i++)
-            {
-                string name = $"Bp-{i + 1}";
-                string account = BpNodeAccounts[i];
-                string pubKey = CH.GetAccountPublicKey(account);
-                NodesPublicKeys.Add(pubKey);
-                Logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
-            }
-
-            for (int i = 0; i < FullNodeAccounts.Count; i++)
-            {
-                string name = $"Full-{i + 1}";
-                string account = FullNodeAccounts[i];
-                string pubKey = CH.GetAccountPublicKey(account);
-                NodesPublicKeys.Add(pubKey);
-                Logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
-            }
-
-            //Init service
-            tokenService = new TokenContract(CH, InitAccount, TokenContract);
-            consensusService = new ConsensusContract(CH, InitAccount, ConsensusContract);
-            dividendsService = new DividendsContract(CH, InitAccount, DividendsContract);
-            voteService = new VoteContract(CH, InitAccount, VoteContract);
-            electionService = new ElectionContract(CH, InitAccount, ElectionContract);
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (UserList.Count == 0) return;
-            Logger.Info("Delete all account files created.");
-            foreach (var item in UserList)
-            {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
-                File.Delete(file);
-            }
-        }
 
         /*
         private void QueryContractsBalance()

@@ -11,6 +11,50 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class StandaloneVoteFeatureTest
     {
+        [TestInitialize]
+        public void Initlize()
+        {
+            //Init log
+            Log4NetHelper.LogInit("VoteBP");
+            CandidatePublicKeys = new List<string>();
+            UserList = new List<string>();
+            CH = new NodeManager(RpcUrl);
+
+            //Get BpNode Info
+            BpNodeAccounts = new List<string>();
+            BpNodeAccounts.Add("ELF_36MNPfQt6KZJaRHKjjoMMxwuPffTSKjgve2RuBxpLHmCjVm");
+
+            //Get candidate infos
+            CandidateInfos = new List<CandidateInfo>();
+            for (var i = 0; i < BpNodeAccounts.Count; i++)
+            {
+                var name = $"Bp-{i + 1}";
+                var account = BpNodeAccounts[i];
+                var pubKey = CH.GetAccountPublicKey(account);
+                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
+            }
+
+            //Init service
+            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
+            consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
+            dividendsService = new DividendsContract(CH, InitAccount, DividendsAbi);
+
+            //Set Token Fee
+            //SetTokenFeeAccount();
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            if (UserList.Count == 0) return;
+            Logger.Info("Delete all account files created.");
+            foreach (var item in UserList)
+            {
+                var file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
+                File.Delete(file);
+            }
+        }
+
         #region Priority
 
         public ILog Logger = Log4NetHelper.GetLogger();
@@ -37,50 +81,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager CH { get; set; }
 
         #endregion
-
-        [TestInitialize]
-        public void Initlize()
-        {
-            //Init log
-            Log4NetHelper.LogInit("VoteBP");
-            CandidatePublicKeys = new List<string>();
-            UserList = new List<string>();
-            CH = new NodeManager(RpcUrl);
-
-            //Get BpNode Info
-            BpNodeAccounts = new List<string>();
-            BpNodeAccounts.Add("ELF_36MNPfQt6KZJaRHKjjoMMxwuPffTSKjgve2RuBxpLHmCjVm");
-
-            //Get candidate infos
-            CandidateInfos = new List<CandidateInfo>();
-            for (int i = 0; i < BpNodeAccounts.Count; i++)
-            {
-                string name = $"Bp-{i + 1}";
-                string account = BpNodeAccounts[i];
-                string pubKey = CH.GetAccountPublicKey(account);
-                CandidateInfos.Add(new CandidateInfo() {Name = name, Account = account, PublicKey = pubKey});
-            }
-
-            //Init service
-            tokenService = new TokenContract(CH, InitAccount, TokenAbi);
-            consensusService = new ConsensusContract(CH, InitAccount, ConsensusAbi);
-            dividendsService = new DividendsContract(CH, InitAccount, DividendsAbi);
-
-            //Set Token Fee
-            //SetTokenFeeAccount();
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (UserList.Count == 0) return;
-            Logger.Info("Delete all account files created.");
-            foreach (var item in UserList)
-            {
-                string file = Path.Combine(CommonHelper.GetCurrentDataDir(), $"{item}.json");
-                File.Delete(file);
-            }
-        }
 
         /*
         private void SetTokenFeeAddress()

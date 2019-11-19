@@ -56,9 +56,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             var miners = Behaviors.GetCurrentMiners();
             foreach (var publicKey in miners.Pubkeys)
-            {
                 _logger.Info($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
-            }
         }
 
 
@@ -66,7 +64,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetCurrentRoundInformation()
         {
             var roundInformation =
-                Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+                Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation,
+                    new Empty());
             _logger.Info(roundInformation.ToString());
         }
     }

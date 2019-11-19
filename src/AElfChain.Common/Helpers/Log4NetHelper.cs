@@ -13,12 +13,12 @@ namespace AElfChain.Common.Helpers
         None,
         Json
     }
-    
+
     public static class Log4NetHelper
     {
         public static int LogInit()
         {
-            return LogInit(CommonHelper.MapPath("log4net.config"),"");
+            return LogInit(CommonHelper.MapPath("log4net.config"), "");
         }
 
         public static int LogInit(string fileName)
@@ -27,7 +27,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// log4net init
+        ///     log4net init
         /// </summary>
         /// <param name="configFilePath">log4net config file path</param>
         /// <param name="fileName"></param>
@@ -43,7 +43,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger<TCategory>()
         {
@@ -51,7 +51,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(Type type)
         {
@@ -59,7 +59,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger()
         {
@@ -72,7 +72,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// Get a log4net logger
+        ///     Get a log4net logger
         /// </summary>
         public static ILog GetLogger(string loggerName)
         {
@@ -80,22 +80,23 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        /// Info extension method
+        ///     Info extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
         /// <param name="parameters"></param>
         public static void Info(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Info(message);
         }
 
         public static void Info(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
-                Console.Write("\r\n");
-            
+            if (checkCursorLeft && Console.CursorLeft != 0)
+                Console.WriteLine();
+
             logger.Info(message);
         }
 
@@ -107,51 +108,54 @@ namespace AElfChain.Common.Helpers
                 logger.Info(info);
                 return;
             }
-            
+
+            CommonHelper.ConsoleChangeLine();
             logger.Info(message);
         }
 
         /// <summary>
-        /// Warn extension method
+        ///     Warn extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
         /// <param name="parameters"></param>
         public static void Warn(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Warn(message);
         }
 
         public static void Warn(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
+            if (checkCursorLeft && Console.CursorLeft != 0)
                 Console.Write("\r\n");
-            
+
             logger.Warn(message);
         }
 
         /// <summary>
-        /// Error extension method
+        ///     Error extension method
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="format"></param>
         /// <param name="parameters"></param>
         public static void Error(this ILog logger, string format, params object[] parameters)
         {
+            CommonHelper.ConsoleChangeLine();
             var message = string.Format(format, parameters);
             logger.Error(message);
         }
 
         public static void Error(this ILog logger, string message, bool checkCursorLeft)
         {
-            if(checkCursorLeft && Console.CursorLeft !=0)
-                Console.Write("\r\n");
-            
+            if (checkCursorLeft && Console.CursorLeft != 0)
+                Console.WriteLine();
+
             logger.Error(message);
         }
-        
-        private static string ConvertJsonString(string str)
+
+        public static string ConvertJsonString(string str)
         {
             //格式化json字符串
             var serializer = new JsonSerializer();
@@ -170,10 +174,8 @@ namespace AElfChain.Common.Helpers
                 serializer.Serialize(jsonWriter, obj);
                 return textWriter.ToString();
             }
-            else
-            {
-                return str;
-            }         
-        } 
+
+            return str;
+        }
     }
 }

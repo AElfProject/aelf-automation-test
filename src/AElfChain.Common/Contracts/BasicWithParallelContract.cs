@@ -32,7 +32,7 @@ namespace AElfChain.Common.Contracts
         ComplexChangeWithDeleteValue1,
         ComplexChangeWithDeleteValue2,
         ComplexChangeWithDeleteValue3,
-        
+
         QueryWinMoney,
         QueryRewardMoney,
         QueryUserWinMoney,
@@ -40,19 +40,20 @@ namespace AElfChain.Common.Contracts
         QueryTwoUserWinMoney,
         GetValue
     }
+
     public class BasicWithParallelContract : BaseContract<BasicParallelMethod>
     {
-        public BasicWithParallelContract(INodeManager nodeManager, string callAddress, string contractAddress) 
+        public BasicWithParallelContract(INodeManager nodeManager, string callAddress, string contractAddress)
             : base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
         }
 
-        public BasicWithParallelContract(INodeManager nodeManager, string callAddress) 
+        public BasicWithParallelContract(INodeManager nodeManager, string callAddress)
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
         public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunctionWithParallel";
     }
 }

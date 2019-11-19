@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -17,17 +19,23 @@ namespace AElfChain.Console.Commands
 
         public override void RunCommand()
         {
-            var minerList = AsyncHelper.RunSync(()=> Services.ConsensusStub.GetCurrentMinerList.CallAsync(new Empty()));
+            var minerList =
+                AsyncHelper.RunSync(() => Services.ConsensusStub.GetCurrentMinerList.CallAsync(new Empty()));
             var pubKeys = minerList.Pubkeys.Select(item => item.ToByteArray().ToHex()).ToList();
             var count = 0;
             NodeInfoHelper.Config.CheckNodesAccount();
-            
+
             "Current bp account info:".WriteSuccessLine();
+            var token = Services.Token;
+            var tokenSymbol = token.CallViewMethod<StringValue>(TokenMethod.GetPrimaryTokenSymbol, new Empty());
             foreach (var node in NodeOption.AllNodes)
-            {
-                if(pubKeys.Contains(node.PublicKey))
-                    $"{++count}. {node.Account}".WriteSuccessLine();
-            }
+                if (pubKeys.Contains(node.PublicKey))
+                {
+                    var balance = token.GetUserBalance(node.Account, tokenSymbol.Value);
+                    $"{++count:00}. Name: {node.Name.PadRight(10)} Account: {node.Account.PadRight(54)} {tokenSymbol.Value}: {balance}"
+                        .WriteSuccessLine();
+                    $"    PubKey:  {node.PublicKey}".WriteSuccessLine();
+                }
         }
 
         public override CommandInfo GetCommandInfo()
@@ -41,7 +49,7 @@ namespace AElfChain.Console.Commands
 
         public override string[] InputParameters()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

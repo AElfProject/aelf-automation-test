@@ -13,12 +13,12 @@ namespace AElf.Automation.RpcPerformance
 {
     public class TransactionExecuteLimit
     {
-        private readonly INodeManager _nodeManager;
-        private readonly string _account;
-        private readonly NodeTransactionOption _nodeTransactionOption;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly string _account;
+        private readonly INodeManager _nodeManager;
+        private readonly NodeTransactionOption _nodeTransactionOption;
 
-        private Address _configurationContractAddress; 
+        private Address _configurationContractAddress;
 
         public TransactionExecuteLimit(INodeManager nodeManager, string account)
         {
@@ -45,7 +45,7 @@ namespace AElf.Automation.RpcPerformance
             var gensis = GenesisContract.GetGenesisContract(_nodeManager, _account);
 
             _configurationContractAddress = gensis.GetContractAddressByName(NameProvider.Configuration);
-            
+
             return gensis.GetConfigurationStub();
         }
 
@@ -61,7 +61,8 @@ namespace AElf.Automation.RpcPerformance
             var authorityManager = new AuthorityManager(_nodeManager, _account);
             var minersList = authorityManager.GetCurrentMiners();
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
-            var transactionResult = authorityManager.ExecuteTransactionWithAuthority(_configurationContractAddress.GetFormatted(),
+            var transactionResult = authorityManager.ExecuteTransactionWithAuthority(
+                _configurationContractAddress.GetFormatted(),
                 nameof(configurationStub.SetBlockTransactionLimit),
                 new Int32Value {Value = limitCount},
                 gensisOwner,
@@ -69,7 +70,7 @@ namespace AElf.Automation.RpcPerformance
                 _account
             );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var afterResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
             Logger.Info($"New transaction limit number: {afterResult.Value}");
             if (afterResult.Value == limitCount)

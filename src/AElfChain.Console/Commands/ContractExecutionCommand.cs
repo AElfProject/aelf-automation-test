@@ -1,31 +1,25 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using AElf;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
-using Google.Protobuf.Reflection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
 {
     public class ContractExecutionCommand : BaseCommand
     {
-        private ContractHandler ContractHandler { get; set; }
-
         public ContractExecutionCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
             ContractHandler = new ContractHandler();
         }
+
+        private ContractHandler ContractHandler { get; }
 
         public override void RunCommand()
         {
@@ -39,11 +33,11 @@ namespace AElfChain.Console.Commands
             var nameProvider = input[0].ConvertNameProvider();
             var contractInfo = ContractHandler.GetContractInfo(nameProvider);
             //contract info
-            var contractAddress = Services.GetContractAddress(input[0]);
-            if (contractAddress == null)
-            {
-                contractAddress = CommandOption.InputParameters(1)[0];
-            }
+            string contractAddress;
+            if (input.Length == 2)
+                contractAddress = input[1];
+            else
+                contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1)[0];
 
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractMethodsInfo();
@@ -54,12 +48,12 @@ namespace AElfChain.Console.Commands
             while (true)
             {
                 var methodInput = CommandOption.InputParameters(1, methodReader);
-                if(methodInput[0] == "exit") break;
+                if (methodInput[0] == "exit") break;
                 //set sender
-                if(methodInput.Length == 2)
+                if (methodInput.Length == 2)
                     sender = methodInput[1];
                 $"Sender: {sender}".WriteWarningLine();
-                
+
                 //method info
                 var methodInfo = contractInfo.GetContractMethod(methodInput[0]);
                 methodInfo.GetMethodDescriptionInfo();
@@ -69,35 +63,12 @@ namespace AElfChain.Console.Commands
                 var parameterInput = methodInfo.InputType.Name == "Empty"
                     ? new[] {""}
                     : CommandOption.InputParameters(methodInfo.InputFields.Count);
-
-                var jsonObject = new JObject();
-                for (var i = 0; i < methodInfo.InputFields.Count; i++)
-                {
-                    var type = methodInfo.InputFields[i];
-                    if (type.FieldType == FieldType.Message && type.MessageType.Name == "Address")
-                    {
-                        if (type.MessageType.Name == "Address")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = parameterInput[i].ConvertAddress().Value.ToBase64()
-                            };
-                        else if (type.MessageType.Name == "Hash")
-                            jsonObject[methodInfo.InputFields[i].Name] = new JObject
-                            {
-                                ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
-                            };
-                    }
-                    else
-                    {
-                        jsonObject[methodInfo.InputFields[i].Name] = parameterInput[i];
-                    }
-                }
-
-                var inputMessage = JsonParser.Default.Parse(jsonObject.ToString(), methodInfo.InputType);
+                var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
+                var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
                     methodInput[0], inputMessage);
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);
-                Logger.Info(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+                JsonConvert.SerializeObject(transactionResult, Formatting.Indented).WriteSuccessLine();
             }
         }
 

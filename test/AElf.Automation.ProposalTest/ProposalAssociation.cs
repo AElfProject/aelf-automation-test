@@ -17,19 +17,19 @@ namespace AElf.Automation.ProposalTest
 {
     public class ProposalAssociation : ProposalBase
     {
-        private Dictionary<Address, ReviewerInfo> OrganizationList { get; set; }
-        private Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>> ProposalList { get; set; }
-        private Dictionary<string, string> ReleaseProposalList { get; set; }
-        private List<ReviewerInfo> ReviewerInfos { get; set; }
-        private AssociationAuthContract Association { get; }
-        private TokenContract Token { get; }
-
         public ProposalAssociation()
         {
             Initialize();
             Association = Services.AssociationService;
             Token = Services.TokenService;
         }
+
+        private Dictionary<Address, ReviewerInfo> OrganizationList { get; set; }
+        private Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>> ProposalList { get; set; }
+        private Dictionary<string, string> ReleaseProposalList { get; set; }
+        private List<ReviewerInfo> ReviewerInfos { get; set; }
+        private AssociationAuthContract Association { get; }
+        private TokenContract Token { get; }
 
         public void AssociationJob()
         {
@@ -39,7 +39,8 @@ namespace AElf.Automation.ProposalTest
                 TransferToVirtualAccount,
                 CreateProposal,
                 ApproveProposal,
-                ReleaseProposal
+                ReleaseProposal,
+                CheckTheBalance
             });
         }
 
@@ -63,10 +64,7 @@ namespace AElf.Automation.ProposalTest
                     ProposerThreshold = 0,
                     ReleaseThreshold = releaseThreshold
                 };
-                foreach (var reviewer in reviewerList.Reviewers)
-                {
-                    createOrganizationInput.Reviewers.Add(reviewer);
-                }
+                foreach (var reviewer in reviewerList.Reviewers) createOrganizationInput.Reviewers.Add(reviewer);
 
                 inputList.Add(reviewerList, createOrganizationInput);
             }
@@ -105,10 +103,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in OrganizationList)
             {
                 Logger.Info($"AssociationAuth organization : {key}");
-                foreach (var reviewer in value.Reviewers)
-                {
-                    Logger.Info($"Reviewer is {reviewer}");
-                }
+                foreach (var reviewer in value.Reviewers) Logger.Info($"Reviewer is {reviewer}");
             }
         }
 
@@ -123,18 +118,15 @@ namespace AElf.Automation.ProposalTest
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
                     if (toOrganizationAddress.Equals(organizationAddress)) continue;
-                    var amount = (100 * organizationAddress.Value.MaxWeight) != 0
-                        ? (100 * organizationAddress.Value.MaxWeight)
-                        : 100;
                     var transferInput = new TransferInput
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = amount,
+                        Amount = 10,
                         Memo = "virtual account transfer virtual account"
                     };
 
-                    var createProposalInput = new CreateProposalInput()
+                    var createProposalInput = new CreateProposalInput
                     {
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress.Key,
@@ -147,7 +139,6 @@ namespace AElf.Automation.ProposalTest
                     Association.SetAccount(sender.Address.GetFormatted());
                     var txId = Association.ExecuteMethodWithTxId(AssociationMethod.CreateProposal,
                         createProposalInput);
-                    Logger.Info($"transfer amount {amount}");
                     txIdList.Add(txId);
                 }
 
@@ -190,7 +181,7 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("Approve proposal: ");
             var proposalApproveList =
                 new Dictionary<KeyValuePair<Address, ReviewerInfo>, Dictionary<string, Dictionary<Reviewer, string>>>();
-            ReleaseProposalList = new Dictionary<string,string>();
+            ReleaseProposalList = new Dictionary<string, string>();
             foreach (var proposal in ProposalList)
             {
                 Logger.Info($"Organization address: {proposal.Key.Key}: ");
@@ -199,7 +190,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     var txInfoList = new Dictionary<Reviewer, string>();
                     var approveCount = proposal.Key.Value.Reviewers.Count;
-                    for (int i = 0; i < approveCount; i++)
+                    for (var i = 0; i < approveCount; i++)
                     {
                         var reviewer = proposal.Key.Value.Reviewers[i].Address.GetFormatted();
                         Association.SetAccount(reviewer);
@@ -218,45 +209,43 @@ namespace AElf.Automation.ProposalTest
             }
 
             foreach (var (key, value) in proposalApproveList)
+            foreach (var proposalApprove in value)
             {
-                foreach (var proposalApprove in value)
+                var approveMinedCount = 0;
+                foreach (var txInfo in proposalApprove.Value)
                 {
-                    var approveMinedCount = 0;
-                    foreach (var txInfo in proposalApprove.Value)
+                    var checkTime = 5;
+                    var result = Association.NodeManager.CheckTransactionResult(txInfo.Value);
+                    var status = result.Status.ConvertTransactionResultStatus();
+                    while (status == TransactionResultStatus.NotExisted && checkTime > 0)
                     {
-                        var checkTime = 5;
-                        var result = Association.NodeManager.CheckTransactionResult(txInfo.Value);
-                        var status = result.Status.ConvertTransactionResultStatus();
-                        while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                        {
-                            checkTime--;
-                            Thread.Sleep(2000);
-                        }
-
-                        if (status != TransactionResultStatus.Mined)
-                        {
-                            Logger.Error("Approve proposal Failed.");
-                        }
-                        else
-                        {
-                            approveMinedCount += txInfo.Key.Weight;
-                            Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
-                        }
+                        checkTime--;
+                        Thread.Sleep(2000);
                     }
 
-                    var expectedReleaseThreshold = key.Value.TotalWeight - key.Value.MaxWeight;
-                    if (expectedReleaseThreshold == 0)
-                        expectedReleaseThreshold = key.Value.MaxWeight;
-
-                    if (approveMinedCount <= expectedReleaseThreshold)
+                    if (status != TransactionResultStatus.Mined)
                     {
-                        Logger.Info($"Approve is not enough. {proposalApprove.Key} ");
-                        continue;
+                        Logger.Error("Approve proposal Failed.");
                     }
-
-                    var sender = key.Value.Reviewers.FirstOrDefault();
-                    ReleaseProposalList.Add(proposalApprove.Key,sender.Address.GetFormatted());
+                    else
+                    {
+                        approveMinedCount += txInfo.Key.Weight;
+                        Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
+                    }
                 }
+
+                var expectedReleaseThreshold = key.Value.TotalWeight - key.Value.MaxWeight;
+                if (expectedReleaseThreshold == 0)
+                    expectedReleaseThreshold = key.Value.MaxWeight;
+
+                if (approveMinedCount <= expectedReleaseThreshold)
+                {
+                    Logger.Info($"Approve is not enough. {proposalApprove.Key} ");
+                    continue;
+                }
+
+                var sender = key.Value.Reviewers.FirstOrDefault();
+                ReleaseProposalList.Add(proposalApprove.Key, sender.Address.GetFormatted());
             }
         }
 
@@ -284,17 +273,24 @@ namespace AElf.Automation.ProposalTest
                     Thread.Sleep(2000);
                 }
 
-                if (status != TransactionResultStatus.Mined)
-                {
-                    Logger.Error("Release proposal Failed.");
-                }
+                if (status != TransactionResultStatus.Mined) Logger.Error("Release proposal Failed.");
             }
+        }
 
-            Logger.Info("Check the balance of organization address:");
+        private void CheckTheBalance()
+        {
+            Logger.Info("After Association test, check the balance of organization address:");
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                Logger.Info($"{organization.Key} balance is {balance}");
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+            }
+
+            Logger.Info("After Association test, check the balance of tester:");
+            foreach (var tester in Tester)
+            {
+                var balance = Token.GetUserBalance(tester, NativeToken);
+                Logger.Info($"{tester} {NativeToken} balance is {balance}");
             }
         }
 
@@ -303,19 +299,17 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                while (balance == 0)
+                if (balance > 10) continue;
+                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = Symbol,
-                        To = organization.Key,
-                        Amount = 10000,
-                        Memo = "Transfer to organization address"
-                    });
+                    Symbol = Symbol,
+                    To = organization.Key,
+                    Amount = 10000_00,
+                    Memo = "Transfer to organization address"
+                });
 
-                    balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                    Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
-                }
+                balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
             }
         }
 
@@ -355,9 +349,7 @@ namespace AElf.Automation.ProposalTest
 
                 var reviewerInfo = new ReviewerInfo(reviewers);
                 foreach (var reviewer in reviewerInfo.Reviewers)
-                {
                     Logger.Info($"Reviewers is {reviewer.Address} weight is {reviewer.Weight}");
-                }
 
                 reviewerInfos.Add(reviewerInfo);
             }

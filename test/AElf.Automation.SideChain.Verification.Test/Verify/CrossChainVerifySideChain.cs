@@ -16,7 +16,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
         public void VerifySideChain()
         {
-            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber-1]);
+            VerifySideChainTransaction(SideChainServices[VerifySideChainNumber - 1]);
         }
 
         private void VerifySideChainTransaction(ContractServices services)
@@ -51,10 +51,8 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     sideChainTransactions.Add(i, txIds);
 
                     foreach (var txId in txIds)
-                    {
                         Logger.Info(
                             $"Block {i} has transaction {txId}");
-                    }
                 }
 
                 foreach (var sideChainTransaction in sideChainTransactions)
@@ -78,14 +76,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     Logger.Info($"Verify on the side chain {sideChainService.ChainId}");
                     var verifyTxIds = new List<string>();
                     foreach (var verifyInput in verifyInputsValues)
+                    foreach (var input in verifyInput)
                     {
-                        foreach (var input in verifyInput)
-                        {
-                            var verifyTxId =
-                                sideChainService.CrossChainService.ExecuteMethodWithTxId(
-                                    CrossChainContractMethod.VerifyTransaction, input);
-                            verifyTxIds.Add(verifyTxId);
-                        }
+                        var verifyTxId =
+                            sideChainService.CrossChainService.ExecuteMethodWithTxId(
+                                CrossChainContractMethod.VerifyTransaction, input);
+                        verifyTxIds.Add(verifyTxId);
                     }
 
                     CheckoutVerifyResult(sideChainService, verifyTxIds);
@@ -94,13 +90,11 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 Logger.Info($"Verify on the main chain {MainChainService.ChainId}");
                 var mainVerifyTxIds = new List<string>();
                 foreach (var verifyInput in verifyInputsValues)
+                foreach (var input in verifyInput)
                 {
-                    foreach (var input in verifyInput)
-                    {
-                        var verifyTxId = MainChainService.CrossChainService.ExecuteMethodWithTxId(
-                            CrossChainContractMethod.VerifyTransaction, input);
-                        mainVerifyTxIds.Add(verifyTxId);
-                    }
+                    var verifyTxId = MainChainService.CrossChainService.ExecuteMethodWithTxId(
+                        CrossChainContractMethod.VerifyTransaction, input);
+                    mainVerifyTxIds.Add(verifyTxId);
                 }
 
                 CheckoutVerifyResult(MainChainService, mainVerifyTxIds);
@@ -122,7 +116,8 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 Path = merklePath
             };
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(services, blockHeight);
-            verificationInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot.MerklePathNodes);
+            verificationInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathForParentChainRoot
+                .MerklePathNodes);
             verificationInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
 
             return verificationInput;
