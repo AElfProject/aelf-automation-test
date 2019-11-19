@@ -110,7 +110,7 @@ namespace AElfChain.Common.Managers
 
         public List<string> GetMinApproveMiners()
         {
-            var minersCount = _consensus.CallViewMethod<PubkeyList>(ConsensusMethod.GetTermSnapshot, new Empty())
+            var minersCount = _consensus.CallViewMethod<PubkeyList>(ConsensusMethod.GetCurrentMinerPubkeyList, new Empty())
                 .Pubkeys.Count;
             var minNumber = minersCount * 2 / 3 + 1;
             var currentMiners = GetCurrentMiners();

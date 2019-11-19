@@ -76,7 +76,7 @@ namespace AElf.Automation.RpcPerformance
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
             
             //Transfer token for transaction fee
-            TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
+            TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
         }
 
         public void DeployContracts()
@@ -276,7 +276,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
-            var testers = AccountList.Select(o => o.Account).ToList();
+            var testers = AccountList.Take(ThreadCount).Select(o => o.Account).ToList();
             var taskList = new List<Task>
             {
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance()),
