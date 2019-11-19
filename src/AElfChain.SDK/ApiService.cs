@@ -150,10 +150,10 @@ namespace AElfChain.SDK
             return await _httpService.GetResponseAsync<BlockDto>(url);
         }
 
-        public async Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatusAsync()
+        public async Task<TransactionPoolStatusOutput> GetTransactionPoolStatusAsync()
         {
             var url = GetRequestUrl(ApiMethods.GetTransactionPoolStatus);
-            return await _httpService.GetResponseAsync<GetTransactionPoolStatusOutput>(url);
+            return await _httpService.GetResponseAsync<TransactionPoolStatusOutput>(url);
         }
 
         public async Task<ChainStatusDto> GetChainStatusAsync()
@@ -186,6 +186,18 @@ namespace AElfChain.SDK
             return await _httpService.GetResponseAsync<MerklePathDto>(url);
         }
 
+        public async Task<RoundDto> GetRoundFromBase64Async(string base64Info)
+        {
+            var url = GetRequestUrl(ApiMethods.GetRoundFromBase64, base64Info);
+            return await _httpService.GetResponseAsync<RoundDto>(url);
+        }
+
+        public async Task<List<MiningSequenceDto>> GetMiningSequencesAsync(int count)
+        {
+            var url = GetRequestUrl(ApiMethods.GetMiningSequences, count);
+            return await _httpService.GetResponseAsync<List<MiningSequenceDto>>(url);
+        }
+
         #endregion
 
         #region Net api
@@ -211,6 +223,12 @@ namespace AElfChain.SDK
         {
             var url = GetRequestUrl(ApiMethods.GetPeers);
             return await _httpService.GetResponseAsync<List<PeerDto>>(url);
+        }
+
+        public async Task<NetworkInfoOutput> NetworkInfo()
+        {
+            var url = GetRequestUrl(ApiMethods.NetworkInfo);
+            return await _httpService.GetResponseAsync<NetworkInfoOutput>(url);
         }
 
         public void SetFailReTryTimes(int times)
@@ -265,11 +283,14 @@ namespace AElfChain.SDK
                 },
                 {ApiMethods.TaskQueueStatus, "/api/blockChain/taskQueueStatus"},
                 {ApiMethods.GetMerklePathByTransactionId, "/api/blockChain/merklePathByTransactionId?transactionId={0}"},
+                {ApiMethods.GetRoundFromBase64, "/api/blockChain/roundFromBase64?str={0}"},
+                {ApiMethods.GetMiningSequences, "/api/blockChain/miningSequences?count={0}"},
 
                 //net route
                 {ApiMethods.GetPeers, "/api/net/peers"},
                 {ApiMethods.AddPeer, "/api/net/peer"},
-                {ApiMethods.RemovePeer, "/api/net/peer?address={0}"}
+                {ApiMethods.RemovePeer, "/api/net/peer?address={0}"},
+                {ApiMethods.NetworkInfo, "/api/net/networkInfo"}
             };
         }
     }

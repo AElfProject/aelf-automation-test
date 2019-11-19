@@ -14,13 +14,43 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class ResourceScenario : BaseScenario
     {
-        public TokenContract Token { get; set; }
-        
-        public TreasuryContract Treasury { get; set; }
-        public TokenConverterContract TokenConverter { get; set; }
-        public List<string> Testers { get; }
-
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        private readonly Connector CpuConnector = new Connector
+        {
+            Symbol = $"CPU{CommonHelper.RandomString(4, false)}",
+            VirtualBalance = 0,
+            Weight = "0.5",
+            IsPurchaseEnabled = true,
+            IsVirtualBalanceEnabled = false
+        };
+
+        private readonly Connector ElfConnector = new Connector
+        {
+            Symbol = NodeOption.NativeTokenSymbol,
+            VirtualBalance = 100_000_000,
+            Weight = "0.5",
+            IsPurchaseEnabled = true,
+            IsVirtualBalanceEnabled = true
+        };
+
+        private readonly Connector NetConnector = new Connector
+        {
+            Symbol = $"NET{CommonHelper.RandomString(4, false)}",
+            VirtualBalance = 0,
+            Weight = "0.5",
+            IsPurchaseEnabled = true,
+            IsVirtualBalanceEnabled = false
+        };
+
+        private readonly Connector RamConnector = new Connector
+        {
+            Symbol = $"RAM{CommonHelper.RandomString(4, false)}",
+            VirtualBalance = 0,
+            Weight = "0.5",
+            IsPurchaseEnabled = true,
+            IsVirtualBalanceEnabled = false
+        };
 
         public ResourceScenario()
         {
@@ -32,6 +62,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             InitializeTokenConverter();
         }
+
+        public TokenContract Token { get; set; }
+
+        public TreasuryContract Treasury { get; set; }
+        public TokenConverterContract TokenConverter { get; set; }
+        public List<string> Testers { get; }
+
+        private IEnumerable<Connector> Connectors => new List<Connector>
+        {
+            RamConnector,
+            CpuConnector,
+            NetConnector
+        };
 
         public void RunResourceScenario()
         {
@@ -83,7 +126,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var sellResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Sell, new SellInput
                 {
                     Amount = amount,
-                    Symbol = connector.Symbol,
+                    Symbol = connector.Symbol
                 });
                 if (sellResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     Logger.Info(
@@ -228,49 +271,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
             return tokenInfo;
         }
-
-        private Connector ElfConnector = new Connector
-        {
-            Symbol = NodeOption.NativeTokenSymbol,
-            VirtualBalance = 100_000_000,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = true
-        };
-
-        private Connector RamConnector = new Connector
-        {
-            Symbol = $"RAM{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
-        private Connector CpuConnector = new Connector
-        {
-            Symbol = $"CPU{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
-        private Connector NetConnector = new Connector
-        {
-            Symbol = $"NET{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
-        private IEnumerable<Connector> Connectors => new List<Connector>
-        {
-            RamConnector,
-            CpuConnector,
-            NetConnector
-        };
 
         private Connector GetRandomConnector()
         {

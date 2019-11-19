@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.ContractSerializer;
@@ -8,13 +7,11 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using AElf.Contracts.MultiToken;
-using AElf.Runtime.CSharp;
-using AElf.Sdk.CSharp.State;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
 using log4net;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using FileDescriptorSet = AElf.Runtime.CSharp.FileDescriptorSet;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -73,7 +70,7 @@ namespace AElf.Automation.ContractsTesting
             var contractInfo = contractHandler.GetContractInfo(NameProvider.Token);
             var methodInfo = contractInfo.GetContractMethod("GetBalance");
 
-            var parameterInput = new string[] {"TELF", "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK"};
+            var parameterInput = new[] {"TELF", "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK"};
             var jsonObject = new JObject();
             for (var i = 0; i < methodInfo.InputFields.Count; i++)
             {

@@ -26,8 +26,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             TokenInfos = new List<TokenInfo>();
             // create token
-            for (int i = 0; i < 10; i++)
-            {
+            for (var i = 0; i < 10; i++)
                 foreach (var user in IssuerList)
                 {
                     var symbol = $"ELF{RandomString(4, false)}";
@@ -36,49 +35,29 @@ namespace AElf.Automation.EconomicSystem.Tests
                     var tokenInfo = new TokenInfo(symbol, tokenName, user);
                     TokenInfos.Add(tokenInfo);
                 }
-            }
 
             // issue token
             foreach (var tokenInfo in TokenInfos)
-            {
-                foreach (var user in UserList)
-                {
-                    Behaviors.IssueToken(tokenInfo.Issuer, tokenInfo.Symbol, user);
-                }
-            }
+            foreach (var user in UserList)
+                Behaviors.IssueToken(tokenInfo.Issuer, tokenInfo.Symbol, user);
 
             Thread.Sleep(1000);
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
-                foreach (var user in UserList)
-                {
-                    Behaviors.TransferToken(InitAccount, user, 100);
-                }
+                foreach (var user in UserList) Behaviors.TransferToken(InitAccount, user, 100);
 
                 Thread.Sleep(1000);
-                foreach (var user in UserList)
-                {
-                    Behaviors.ApproveToken(InitAccount, user, 100);
-                }
+                foreach (var user in UserList) Behaviors.ApproveToken(InitAccount, user, 100);
 
                 Thread.Sleep(1000);
-                foreach (var user in UserList)
-                {
-                    Behaviors.UnApproveToken(InitAccount, user, 50);
-                }
+                foreach (var user in UserList) Behaviors.UnApproveToken(InitAccount, user, 50);
 
                 Thread.Sleep(1000);
-                foreach (var user in UserList)
-                {
-                    Behaviors.TransfterFromToken(InitAccount, user, 10);
-                }
+                foreach (var user in UserList) Behaviors.TransfterFromToken(InitAccount, user, 10);
 
                 Thread.Sleep(1000);
-                foreach (var user in UserList)
-                {
-                    Behaviors.BurnToken(10, user);
-                }
+                foreach (var user in UserList) Behaviors.BurnToken(10, user);
 
                 Thread.Sleep(1000);
             }

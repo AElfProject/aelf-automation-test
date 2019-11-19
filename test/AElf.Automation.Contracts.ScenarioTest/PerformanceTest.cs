@@ -7,7 +7,6 @@ using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -16,20 +15,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class PerformanceTest
     {
         public ILogHelper Logger = LogHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        
-        public string TestAccount { get; set; }
-        
-        public PerformanceContractContainer.PerformanceContractStub PerformanceStub { get; set; }
-        
+
         public PerformanceTest()
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            
+
             NodeManager = new NodeManager("192.168.197.40:8000");
             TestAccount = NodeManager.GetRandomAccount();
         }
+
+        public INodeManager NodeManager { get; set; }
+
+        public string TestAccount { get; set; }
+
+        public PerformanceContractContainer.PerformanceContractStub PerformanceStub { get; set; }
 
         [TestMethod]
         public void DeployContract_Test()
@@ -37,7 +37,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var token = NodeManager.GetGenesisContract().GetTokenContract();
             var bp = NodeOption.AllNodes.First().Account;
             token.TransferBalance(bp, TestAccount, 1000);
-            
+
             var contract = new PerformanceContract(NodeManager, TestAccount);
             Logger.Info($"Performance contract address: {contract.ContractAddress}");
         }
@@ -52,10 +52,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (var i = 1; i < 5; i++)
             {
                 var transactionResult = await PerformanceStub.ComputeLevel4.SendAsync(new Empty());
-                Logger.Info($"Test number: {i * 5}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
+                Logger.Info(
+                    $"Test number: {i * 5}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
             }
         }
-        
+
         [TestMethod]
         [DataRow("B2HK7R8HPDdR7t8J7U2ChN6NVYYA81ZmphhH8szavGX6WuybT")]
         public async Task ExecutePerformance_WriteTest(string contract)
@@ -69,7 +70,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Content = ByteString.CopyFrom(CommonHelper.GenerateRandombytes(1024 * i))
                 });
-                Logger.Info($"Test number: {i * 10}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
+                Logger.Info(
+                    $"Test number: {i * 10}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
             }
         }
 
@@ -86,7 +88,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Number = i
                 });
-                Logger.Info($"Test number: {i * 10}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
+                Logger.Info(
+                    $"Test number: {i * 10}, TransactionId: {transactionResult.TransactionResult.TransactionId}, Status: {transactionResult.TransactionResult.Status}");
             }
         }
     }

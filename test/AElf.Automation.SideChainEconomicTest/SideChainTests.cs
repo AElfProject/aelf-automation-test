@@ -6,12 +6,12 @@ namespace AElf.Automation.SideChainEconomicTest
     public class SideChainTests : TestBase
     {
         public const string Acs8ContractName = "AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract";
-        
+
         public void GetTokenInfo()
         {
             Logger.Info("Query side chain token info");
             SideA.GetTokenInfos();
-            
+
             SideA.GetTokenBalances(SideA.CallAddress);
         }
 

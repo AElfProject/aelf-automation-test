@@ -10,7 +10,6 @@ using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
 
@@ -170,6 +169,8 @@ namespace AElfChain.Common.Contracts
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
+                        Logger.Info(
+                            $"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
                         continue;
                     case TransactionResultStatus.Failed:
                     {
@@ -258,7 +259,8 @@ namespace AElfChain.Common.Contracts
             Logger.Info($"Transaction: DeploySmartContract, TxId: {txId}");
 
             var result = GetContractAddress(txId, out _);
-            Assert.IsTrue(result, "Get contract address failed.");
+            if (!result)
+                throw new Exception("Get contract address failed.");
         }
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)

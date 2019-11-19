@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.SDK.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -46,10 +46,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var balance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
                 if (balance >= 200000)
                 {
-                    Logger.Info($"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress} {symbol} token balance is {balance}");
+                    Logger.Info(
+                        $"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress} {symbol} token balance is {balance}");
                     continue;
                 }
-                
+
                 CrossChainTransactionInfo rawTxInfo = null;
                 var transferTimes = 3;
                 while (rawTxInfo == null && transferTimes > 0)
@@ -59,8 +60,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         sideChainService.ChainId, 200000);
                 }
 
-                Assert.IsTrue(transferTimes > 0 || rawTxInfo != null,
-                    "The first cross chain transfer failed, please start over.");
+                if (transferTimes == 0 && rawTxInfo == null)
+                    throw new Exception("The first cross chain transfer failed, please start over.");
 
                 initRawTxInfos.Add(sideChainService.ChainId, rawTxInfo);
                 Logger.Info(
@@ -71,13 +72,13 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 Logger.Info("Waiting for the index");
                 Thread.Sleep(200000);
-                
+
                 foreach (var sideChainService in SideChainServices)
                 {
                     Logger.Info($"Side chain {sideChainService.ChainId} received token");
                     Logger.Info(
                         $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
-                
+
                     Logger.Info("Check the index:");
                     while (!CheckSideChainBlockIndex(sideChainService, initRawTxInfos[sideChainService.ChainId]))
                     {
@@ -91,14 +92,15 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         transferTimes--;
                         var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
-                        result = sideChainService.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken,
+                        result = sideChainService.TokenService.ExecuteMethodWithResult(
+                            TokenMethod.CrossChainReceiveToken,
                             input);
                     }
 
                     if (result == null)
                     {
                         Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                        throw new Exception("The first receive transfer failed, please start over.");
                     }
 
                     var status = result.Status.ConvertTransactionResultStatus();
@@ -122,7 +124,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         }
 
                         Logger.Error($"Chain {sideChainService.ChainId} receive transaction is failed.");
-                        Assert.IsTrue(false, "The first receive transfer failed, please start over.");
+                        throw new Exception("The first receive transfer failed, please start over.");
                     }
 
                     GetBalance:
@@ -153,9 +155,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             // Unlock account on main chain 
             foreach (var accountList in AccountList)
-            {
                 UnlockAccounts(MainChainService, accountList.Value.Count, accountList.Value);
-            }
 
             // Unlock account on side chain
             foreach (var sideChainService in SideChainServices)
@@ -163,54 +163,42 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 UnlockAccounts(sideChainService, mainAccounts.Count, mainAccounts);
 
                 foreach (var sideChain in SideChainServices)
-                {
                     UnlockAccounts(sideChainService, AccountList[sideChain.ChainId].Count,
                         AccountList[sideChainService.ChainId]);
-                }
             }
 
             foreach (var sideChain in SideChainServices)
             {
                 Logger.Info("Issue side chain token: ");
                 foreach (var account in AccountList)
-                {
-                    foreach (var acc in account.Value)
-                    {
-                        IssueSideChainToken(sideChain, acc);
-                    }
-                }
-                
+                foreach (var acc in account.Value)
+                    IssueSideChainToken(sideChain, acc);
+
                 Logger.Info("Check the balance:");
 
                 foreach (var account in AccountList)
-                {
-                    foreach (var acc in account.Value)
-                    {
-                        var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
-                        Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
-                    }
-                }
-            }
-            
-            foreach (var account in AccountList)
-            {
                 foreach (var acc in account.Value)
                 {
-                    if(acc.Equals(InitAccount)) continue;
-                    MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
-                        MainChainService.DefaultToken);
+                    var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
+                    Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
                 }
             }
-            
+
             foreach (var account in AccountList)
+            foreach (var acc in account.Value)
             {
-                foreach (var acc in account.Value)
-                {
-                    var accountBalance = GetBalance(MainChainService, acc, MainChainService.DefaultToken);
-                    Logger.Info($"Account:{acc}, {MainChainService.DefaultToken} balance is: {accountBalance}");
-                }
+                if (acc.Equals(InitAccount)) continue;
+                MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
+                    MainChainService.DefaultToken);
             }
-            
+
+            foreach (var account in AccountList)
+            foreach (var acc in account.Value)
+            {
+                var accountBalance = GetBalance(MainChainService, acc, MainChainService.DefaultToken);
+                Logger.Info($"Account:{acc}, {MainChainService.DefaultToken} balance is: {accountBalance}");
+            }
+
             Logger.Info("Transfer token to each account :");
 
             var mainTransferTxIds = new List<CrossChainTransactionInfo>();
@@ -224,14 +212,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var mainResult = CheckoutTransferResult(MainChainService, mainTransferTxIds);
 
             if (mainResult[TransactionResultStatus.Failed].Count != 0)
-            {
                 foreach (var mainTxInfo in mainResult[TransactionResultStatus.Failed])
                 {
                     var account = mainTxInfo.ReceiveAccount;
                     Logger.Info($"Transfer on main chain again: account {account}");
                     Transfer(MainChainService, InitAccount, account, 10000, symbol);
                 }
-            }
 
             foreach (var sideChainService in SideChainServices)
             {
@@ -245,14 +231,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
                 var sideResult = CheckoutTransferResult(sideChainService, transferTxIds);
                 if (sideResult[TransactionResultStatus.Failed].Count != 0)
-                {
                     foreach (var sideTxInfo in sideResult[TransactionResultStatus.Failed])
                     {
                         var account = sideTxInfo.ReceiveAccount;
                         Logger.Info($"Transfer on side chain {sideChainService.ChainId} again: account {account}");
                         Transfer(sideChainService, InitAccount, account, 10000, symbol);
                     }
-                }
             }
 
             Logger.Info("Show the main chain account balance: ");
@@ -264,12 +248,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             Logger.Info("show the side chain account balance: ");
             foreach (var sideChainService in SideChainServices)
+            foreach (var sideAccount in AccountList[sideChainService.ChainId])
             {
-                foreach (var sideAccount in AccountList[sideChainService.ChainId])
-                {
-                    var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
-                    Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
-                }
+                var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
+                Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
             }
         }
 
@@ -289,14 +271,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var mainResult = CheckoutTransferResult(MainChainService, mainTransferTxIds);
 
             if (mainResult[TransactionResultStatus.Failed].Count != 0)
-            {
                 foreach (var mainTxInfo in mainResult[TransactionResultStatus.Failed])
                 {
                     var account = mainTxInfo.ReceiveAccount;
                     Logger.Info($"Transfer on main chain again: account {account}");
                     Transfer(MainChainService, InitAccount, account, 10000, symbol);
                 }
-            }
 
             foreach (var sideChainService in SideChainServices)
             {
@@ -310,14 +290,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
                 var sideResult = CheckoutTransferResult(sideChainService, transferTxIds);
                 if (sideResult[TransactionResultStatus.Failed].Count != 0)
-                {
                     foreach (var sideTxInfo in sideResult[TransactionResultStatus.Failed])
                     {
                         var account = sideTxInfo.ReceiveAccount;
                         Logger.Info($"Transfer on side chain {sideChainService.ChainId} again: account {account}");
                         Transfer(sideChainService, InitAccount, account, 10000, symbol);
                     }
-                }
             }
 
             Logger.Info("Show the main chain account balance: ");
@@ -329,12 +307,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             Logger.Info("show the side chain account balance: ");
             foreach (var sideChainService in SideChainServices)
+            foreach (var sideAccount in AccountList[sideChainService.ChainId])
             {
-                foreach (var sideAccount in AccountList[sideChainService.ChainId])
-                {
-                    var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
-                    Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
-                }
+                var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
+                Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
             }
         }
 

@@ -11,11 +11,11 @@ namespace AElf.Automation.QueryTransaction
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly INodeManager _nodeManager;
-        private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
-        private ConfigurationContainer.ConfigurationStub _configurationStub;
         private string _account;
-        
+        private ConfigurationContainer.ConfigurationStub _configurationStub;
+        private GenesisContract _genesisContract;
+
         public ConfigurationLimit(string serviceUrl)
         {
             var keyStorePath = CommonHelper.GetCurrentDataDir();
@@ -26,6 +26,7 @@ namespace AElf.Automation.QueryTransaction
             GetGenesisContract();
             GetConfigurationStub();
         }
+
         public int GetTransactionLimit()
         {
             var queryResult = _configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()).Result;
@@ -33,7 +34,7 @@ namespace AElf.Automation.QueryTransaction
 
             return queryResult.Value;
         }
-        
+
         private void GetOrCreateTestAccount()
         {
             _account = _nodeManager.NewAccount();

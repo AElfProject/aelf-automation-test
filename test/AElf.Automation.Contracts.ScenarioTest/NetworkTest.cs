@@ -9,7 +9,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class NetworkTest
     {
-        private ILogHelper _logger = LogHelper.GetLogger();
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
+
+        private readonly string MainChainAddress2 = "192.168.197.56:6802";
+        private readonly string MainChainAddress3 = "192.168.197.56:6803";
+        private readonly string MainChainAddress4 = "192.168.197.56:6804";
         private INodeManager _ch1 { get; set; }
         private INodeManager _ch2 { get; set; }
         private INodeManager _ch3 { get; set; }
@@ -25,16 +29,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private INodeManager _s2ch3 { get; set; }
         private INodeManager _s2ch4 { get; set; }
 
-        private string MainChainAddress2 = "192.168.197.56:6802";
-        private string MainChainAddress3 = "192.168.197.56:6803";
-        private string MainChainAddress4 = "192.168.197.56:6804";
-
         [TestInitialize]
         public void InitTest()
         {
             //Init Logger
-            string logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            string dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
+            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
+            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
             _logger.InitLogHelper(dir);
 
             _ch1 = new NodeManager("http://192.168.197.56:8001");
@@ -88,11 +88,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetPeer(INodeManager wa)
         {
             var peers = wa.NetGetPeers();
-            
-            foreach (var res in peers)
-            {
-                _logger.Info(res.IpAddress);
-            }
+
+            foreach (var res in peers) _logger.Info(res.IpAddress);
         }
 
 

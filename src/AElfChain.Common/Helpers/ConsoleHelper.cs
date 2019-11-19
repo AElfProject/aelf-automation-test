@@ -24,7 +24,8 @@ namespace AElfChain.Common.Helpers
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
         /// <param name="changeLine"></param>
-        public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red, bool changeLine = true)
+        public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red,
+            bool changeLine = true)
         {
             WriteColorLine(str, color, changeLine);
         }
@@ -35,7 +36,8 @@ namespace AElfChain.Common.Helpers
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
         /// <param name="changeLine"></param>
-        public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow, bool changeLine = true)
+        public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow,
+            bool changeLine = true)
         {
             WriteColorLine(str, color, changeLine);
         }
@@ -57,7 +59,8 @@ namespace AElfChain.Common.Helpers
         /// <param name="str">待打印的字符串</param>
         /// <param name="color">想要打印的颜色</param>
         /// <param name="changeLine"></param>
-        public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green, bool changeLine = true)
+        public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green,
+            bool changeLine = true)
         {
             WriteColorLine(str, color, changeLine);
         }

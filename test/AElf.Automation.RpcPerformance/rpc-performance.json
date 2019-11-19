@@ -1,20 +1,16 @@
 {
-    "GroupCount": 4,
-    "TransactionCount": 10,
+    "GroupCount": 2,
+    "TransactionCount": 50,
     "EnableRandomTransaction": true,
     "ServiceUrl": "192.168.197.43:8100",
-    "SentTxLimit": 300,
+    "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
     "Conflict": true,
-    "ReadOnlyTransaction": false,
-    "ChainType": {
-        "is_main_chain": true,
-        "token_symbol": "ELF"
-    },
+    "RandomSenderTransaction": true,
     "NodeTransactionLimit": {
-        "enable_limit": false,
-        "max_transactions_select": 50
+        "enable_limit": true,
+        "max_transactions_select": 20
     },
     "RequestRandomEndpoint": {
         "enable_random": true,

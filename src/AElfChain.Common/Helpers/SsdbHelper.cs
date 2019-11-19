@@ -689,10 +689,7 @@ namespace AElfChain.Common.Helpers
                 {
                     idx += 1; // if '\r', next time will skip '\n'
                     // ignore empty leading lines
-                    if (list.Count == 0)
-                    {
-                        continue;
-                    }
+                    if (list.Count == 0) continue;
 
                     var left = (int) recv_buf.Length - idx;
                     recv_buf = new MemoryStream(8192);

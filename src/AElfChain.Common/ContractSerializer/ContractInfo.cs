@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Helpers;
@@ -7,13 +8,6 @@ namespace AElfChain.Common.ContractSerializer
 {
     public class ContractInfo
     {
-        private List<ServiceDescriptor> Descriptors { get; set; }
-
-        public List<ContractMethod> Methods { get; set; }
-        public List<string> ActionMethodNames { get; set; }
-
-        public List<string> ViewMethodNames { get; set; }
-
         public ContractInfo(List<ServiceDescriptor> serviceDescriptors)
         {
             Descriptors = serviceDescriptors;
@@ -23,6 +17,13 @@ namespace AElfChain.Common.ContractSerializer
 
             GetContractMethods();
         }
+
+        private List<ServiceDescriptor> Descriptors { get; }
+
+        public List<ContractMethod> Methods { get; set; }
+        public List<string> ActionMethodNames { get; set; }
+
+        public List<string> ViewMethodNames { get; set; }
 
         public ContractMethod GetContractMethod(string name)
         {
@@ -36,11 +37,11 @@ namespace AElfChain.Common.ContractSerializer
             {
                 $"{ActionMethodNames[i].PadRight(40)}".WriteSuccessLine(changeLine: false);
                 if (i % 4 == 3)
-                    System.Console.WriteLine();
+                    Console.WriteLine();
             }
 
             if (ActionMethodNames.Count % 4 != 0)
-                System.Console.WriteLine();
+                Console.WriteLine();
         }
 
         public void GetContractViewMethodsInfo()
@@ -50,26 +51,24 @@ namespace AElfChain.Common.ContractSerializer
             {
                 $"{ViewMethodNames[i].PadRight(40)}".WriteSuccessLine(changeLine: false);
                 if (i % 4 == 3)
-                    System.Console.WriteLine();
+                    Console.WriteLine();
             }
 
             if (ViewMethodNames.Count % 4 != 0)
-                System.Console.WriteLine();
+                Console.WriteLine();
         }
 
         private void GetContractMethods()
         {
             foreach (var descriptor in Descriptors)
+            foreach (var method in descriptor.Methods)
             {
-                foreach (var method in descriptor.Methods)
-                {
-                    Methods.Add(new ContractMethod(method));
-                    ActionMethodNames.Add(method.Name);
-                    if (method.OutputType.Name != "Empty")
-                        ViewMethodNames.Add(method.Name);
-                } 
+                Methods.Add(new ContractMethod(method));
+                ActionMethodNames.Add(method.Name);
+                if (method.OutputType.Name != "Empty")
+                    ViewMethodNames.Add(method.Name);
             }
-            
+
             //sort
             Methods.Sort();
             ActionMethodNames.Sort();

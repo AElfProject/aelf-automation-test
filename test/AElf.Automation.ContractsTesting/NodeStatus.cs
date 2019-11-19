@@ -13,7 +13,6 @@ namespace AElf.Automation.ContractsTesting
     public class NodeStatus
     {
         private readonly INodeManager _nodeManager;
-        private IApiService _apiService => _nodeManager.ApiService;
 
         public ILog Logger = Log4NetHelper.GetLogger();
 
@@ -21,6 +20,8 @@ namespace AElf.Automation.ContractsTesting
         {
             _nodeManager = nodeManager;
         }
+
+        private IApiService _apiService => _nodeManager.ApiService;
 
         public long GetBlockHeight()
         {
@@ -36,7 +37,7 @@ namespace AElf.Automation.ContractsTesting
 
         public BlockDto GetBlockInfo(long height)
         {
-            return AsyncHelper.RunSync(()=>_apiService.GetBlockByHeightAsync(height));
+            return AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(height));
         }
 
         public void CheckConfigurationInfo()
@@ -44,7 +45,7 @@ namespace AElf.Automation.ContractsTesting
             var account = _nodeManager.AccountManager.GetRandomAccount();
             var genesis = GenesisContract.GetGenesisContract(_nodeManager, account);
             var configurationStub = genesis.GetConfigurationStub();
-            var limit = AsyncHelper.RunSync(()=>configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
+            var limit = AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
             Logger.Info($"Current transaction limit number is: {limit.Value}");
 
             var currentHeightBefore = AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);

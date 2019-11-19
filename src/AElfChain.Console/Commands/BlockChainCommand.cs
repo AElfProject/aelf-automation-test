@@ -1,31 +1,32 @@
+using System;
 using System.Collections.Generic;
+using AElfChain.Common;
+using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using AElfChain.SDK;
 using Newtonsoft.Json;
+using Sharprompt;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
 {
     public class BlockChainCommand : BaseCommand
     {
-        private ConsoleReader Reader { get; set; }
-        private ApiCompletionEngine AutoEngine { get; set; }
-        public IApiService ApiService => NodeManager.ApiService;
-
-        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager,
-            contractServices)
+        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices)
+            : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
             AutoEngine = new ApiCompletionEngine();
         }
 
+        private ApiCompletionEngine AutoEngine { get; }
+        public IApiService ApiService => NodeManager.ApiService;
+
         public override void RunCommand()
         {
-            Reader = new ConsoleReader(AutoEngine);
-            var input = CommandOption.InputParameters(1, Reader);
-            var command = input[0].Trim();
+            var command = Prompt.Select("Select api command", GetSubCommands());
             switch (command)
             {
                 case "BlockHeight":
@@ -49,6 +50,9 @@ namespace AElfChain.Console.Commands
                 case "ChainStatus":
                     GetChainStatus();
                     break;
+                case "ContractFileDescriptor":
+                    ContractFileDescriptor();
+                    break;
                 case "TaskQueueStatus":
                     GetTaskQueueStatus();
                     break;
@@ -58,8 +62,29 @@ namespace AElfChain.Console.Commands
                 case "TransactionResults":
                     GetTransactionResults();
                     break;
+                case "GetRoundFromBase64":
+                    GetRoundFromBase64();
+                    break;
+                case "GetMiningSequences":
+                    GetMiningSequences();
+                    break;
                 case "ListAccounts":
                     ListAllAccounts();
+                    break;
+                case "GetAccountPubicKey":
+                    GetAccountPublicKey();
+                    break;
+                case "GetPeers":
+                    GetPeers();
+                    break;
+                case "AddPeer":
+                    AddPeer();
+                    break;
+                case "RemovePeer":
+                    RemovePeer();
+                    break;
+                case "NetworkInfo":
+                    NetworkInfo();
                     break;
                 default:
                     Logger.Error("Not supported api method.");
@@ -72,7 +97,7 @@ namespace AElfChain.Console.Commands
         private void GetBlockHeight()
         {
             var height = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
-            Logger.Info($"Current chain height: {height}");
+            $"Current chain height: {height}".WriteSuccessLine();
         }
 
         private void GetBlockByHash()
@@ -82,7 +107,7 @@ namespace AElfChain.Console.Commands
             var hash = input[0];
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockAsync(hash, includeTransaction));
-            Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
+            JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetBlockByHeight()
@@ -92,19 +117,19 @@ namespace AElfChain.Console.Commands
             var height = long.Parse(input[0]);
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height, includeTransaction));
-            Logger.Info(JsonConvert.SerializeObject(block, Formatting.Indented));
+            JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetCurrentRoundInformation()
         {
             var roundInformation = AsyncHelper.RunSync(ApiService.GetCurrentRoundInformationAsync);
-            Logger.Info(JsonConvert.SerializeObject(roundInformation, Formatting.Indented));
+            JsonConvert.SerializeObject(roundInformation, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionPoolStatus()
         {
             var transactionPoolStatusInfo = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetBlockState()
@@ -113,19 +138,29 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var hash = input[0];
             var blockState = AsyncHelper.RunSync(() => ApiService.GetBlockStateAsync(hash));
-            Logger.Info(JsonConvert.SerializeObject(blockState, Formatting.Indented));
+            JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
         }
+
 
         private void GetChainStatus()
         {
             var chainInfo = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(chainInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(chainInfo, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void ContractFileDescriptor()
+        {
+            "Parameter: [ContractAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
+            var customContract = new CustomContractHandler(descriptorSet);
+            customContract.GetAllMethodsInfo();
         }
 
         private void GetTaskQueueStatus()
         {
             var taskQueueInfo = AsyncHelper.RunSync(ApiService.GetTaskQueueStatusAsync);
-            Logger.Info(JsonConvert.SerializeObject(taskQueueInfo, Formatting.Indented));
+            JsonConvert.SerializeObject(taskQueueInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionResult()
@@ -134,18 +169,45 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var transactionId = input[0];
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(transactionId));
-            Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
+            JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionResults()
         {
-            "Parameter: [BlockHash] [Offset]=0 [Limit]=10".WriteSuccessLine();
+            "Parameter: [BlockHash/BlockHeight] [Offset]=0 [Limit]=10".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
-            var blockHash = input[0];
+            var result = long.TryParse(input[0], out var height);
+            string hash;
+            if (result)
+            {
+                var block = AsyncHelper.RunSync(() => NodeManager.ApiService.GetBlockByHeightAsync(height));
+                hash = block.BlockHash;
+            }
+            else
+            {
+                hash = input[0];
+            }
             var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
-            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(blockHash, offset, limit));
-            Logger.Info(JsonConvert.SerializeObject(resultDto, Formatting.Indented));
+            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(hash, offset, limit));
+            JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void GetRoundFromBase64()
+        {
+            "Parameter: [base64Info]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var roundInfo = AsyncHelper.RunSync(() => ApiService.GetRoundFromBase64Async(input[0]));
+            JsonConvert.SerializeObject(roundInfo, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void GetMiningSequences()
+        {
+            "Parameter: [Count]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            int.TryParse(input[0], out var count);
+            var sequences = AsyncHelper.RunSync(() => ApiService.GetMiningSequencesAsync(count));
+            JsonConvert.SerializeObject(sequences, Formatting.Indented).WriteSuccessLine();
         }
 
         private void ListAllAccounts()
@@ -161,6 +223,44 @@ namespace AElfChain.Console.Commands
 
             if (accounts.Count % 2 != 0)
                 System.Console.WriteLine();
+        }
+
+        private void GetAccountPublicKey()
+        {
+            $"Parameter: [Account] [Password]={NodeOption.DefaultPassword}".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var account = input[0];
+            var password = input.Length == 2 ? input[1] : NodeOption.DefaultPassword;
+            var publicKey = NodeManager.GetAccountPublicKey(account, password);
+            $"PublicKey: {publicKey}".WriteSuccessLine();
+        }
+
+        private void GetPeers()
+        {
+            var peers = NodeManager.NetGetPeers();
+            JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+        }
+
+        private void AddPeer()
+        {
+            "Parameter: [NetServiceAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var result = NodeManager.NetAddPeer(input[0]);
+            $"AddResult: {result}".WriteSuccessLine();
+        }
+
+        private void RemovePeer()
+        {
+            "Parameter: [NetServiceAddress]".WriteSuccessLine();
+            var input = CommandOption.InputParameters(1);
+            var result = NodeManager.NetRemovePeer(input[0]);
+            $"RemoveResult: {result}".WriteSuccessLine();
+        }
+
+        private void NetworkInfo()
+        {
+            var networkInfo = NodeManager.NetworkInfo();
+            JsonConvert.SerializeObject(networkInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()
@@ -181,18 +281,26 @@ namespace AElfChain.Console.Commands
                 "BlockByHeight",
                 "BlockState",
                 "ChainStatus",
+                "ContractFileDescriptor",
                 "CurrentRoundInformation",
                 "TaskQueueStatus",
                 "TransactionResult",
                 "TransactionResults",
                 "TransactionPoolStatus",
-                "ListAccounts"
+                "GetRoundFromBase64",
+                "GetMiningSequences",
+                "ListAccounts",
+                "GetAccountPubicKey",
+                "GetPeers",
+                "AddPeer",
+                "RemovePeer",
+                "NetworkInfo"
             };
         }
 
         public override string[] InputParameters()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

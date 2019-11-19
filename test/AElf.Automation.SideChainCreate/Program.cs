@@ -5,15 +5,15 @@ using log4net;
 
 namespace AElf.Automation.SideChainCreate
 {
-    class Program
+    internal class Program
     {
         #region Private Properties
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         #endregion
-        
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             #region Basic Preparation
 
@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChainCreate
             var sideChainInfos = ConfigHelper.Config.SideChainInfos;
             var approveTokenAmount = ConfigHelper.Config.ApproveTokenAmount;
 
-            operation.TransferToken(1000);
+            operation.TransferToken(1000_00000000);
             operation.ApproveToken(approveTokenAmount);
             foreach (var sideChainInfo in sideChainInfos)
             {

@@ -10,27 +10,18 @@ namespace AElf.Automation.ApiTest
 {
     public partial class ChainApiTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-        private const string ServiceUrl = "192.168.197.15:8100";
-        private readonly IApiService _client;
-        private readonly AnalyzeListener _listener;
-        
         public ChainApiTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             _client = AElfChainClient.GetClient(ServiceUrl, 1);
             _listener = new AnalyzeListener(testOutputHelper);
         }
-        
-        [Fact]
-        public async Task GetBlockHeight_Test()
-        {
-            var (result, timeSpan) = await _listener.ExecuteApi(_client.GetBlockHeightAsync);
-            result.ShouldBeGreaterThan(1);
-            
-            _testOutputHelper.WriteLine($"block height: {result.ToString()}, execute time: {timeSpan}ms");
-        } 
-        
+
+        private readonly ITestOutputHelper _testOutputHelper;
+        private const string ServiceUrl = "192.168.197.15:8100";
+        private readonly IApiService _client;
+        private readonly AnalyzeListener _listener;
+
         [Fact]
         public async Task GetBlock_Test()
         {
@@ -44,7 +35,9 @@ namespace AElf.Automation.ApiTest
                 totalCount += timeSpan;
                 _testOutputHelper.WriteLine($"block hash: {hash}, execute time: {timeSpan}ms");
             }
-            _testOutputHelper.WriteLine($"Total blocks:{hashList.Count}, Total time span: {totalCount}ms, Average time: {totalCount/hashList.Count}ms");
+
+            _testOutputHelper.WriteLine(
+                $"Total blocks:{hashList.Count}, Total time span: {totalCount}ms, Average time: {totalCount / hashList.Count}ms");
         }
 
         [Fact]
@@ -64,9 +57,19 @@ namespace AElf.Automation.ApiTest
             }
 
             var totalBlocks = longestHeight - libHeight + 1;
-            _testOutputHelper.WriteLine($"Total blocks:{totalBlocks}, Total time span: {totalCount}ms, Average time: {totalCount/totalBlocks}ms");
+            _testOutputHelper.WriteLine(
+                $"Total blocks:{totalBlocks}, Total time span: {totalCount}ms, Average time: {totalCount / totalBlocks}ms");
 
             return hashList;
+        }
+
+        [Fact]
+        public async Task GetBlockHeight_Test()
+        {
+            var (result, timeSpan) = await _listener.ExecuteApi(_client.GetBlockHeightAsync);
+            result.ShouldBeGreaterThan(1);
+
+            _testOutputHelper.WriteLine($"block height: {result.ToString()}, execute time: {timeSpan}ms");
         }
 
         [Fact]
@@ -88,8 +91,8 @@ namespace AElf.Automation.ApiTest
                 _testOutputHelper.WriteLine($"Round info: {roundInfo.RoundNumber}, execute time: {timeSpan}ms");
                 Thread.Sleep(50);
             }
-            
-            _testOutputHelper.WriteLine($"Total time: {totalCount}ms, Average time: {totalCount/100}ms");
+
+            _testOutputHelper.WriteLine($"Total time: {totalCount}ms, Average time: {totalCount / 100}ms");
         }
     }
 }

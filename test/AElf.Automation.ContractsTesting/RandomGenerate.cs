@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Acs6;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -14,13 +13,13 @@ namespace AElf.Automation.ContractsTesting
 {
     public class RandomGenerate
     {
-        private readonly INodeManager _nodeManager;
         private readonly string _account;
+        private readonly INodeManager _nodeManager;
         private AEDPoSContractImplContainer.AEDPoSContractImplStub _consensusImplStub;
-        private ConcurrentQueue<Hash> hashQueue;
+        private readonly ConcurrentQueue<Hash> hashQueue;
 
         public ILog Logger = Log4NetHelper.GetLogger();
-        
+
         public RandomGenerate(INodeManager nodeManager, string account)
         {
             _nodeManager = nodeManager;
@@ -31,10 +30,7 @@ namespace AElf.Automation.ContractsTesting
         public async Task GenerateAndCheckRandomNumbers(int count)
         {
             GetConsensusStub();
-            for (var i = 0; i < count; i++)
-            {
-                await GenerateRandomHash();
-            }
+            for (var i = 0; i < count; i++) await GenerateRandomHash();
 
             await GetAllRandomHash();
         }
@@ -51,10 +47,7 @@ namespace AElf.Automation.ContractsTesting
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
             var height = await _nodeManager.ApiService.GetBlockHeightAsync();
             Logger.Info($"Current round info: {roundInfo.Value}");
-            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new RequestRandomNumberInput
-            {
-                MinimumBlockHeight = CommonHelper.GenerateRandomNumber((int)height - 100, (int)height + 100)
-            });
+            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Empty());
             hashQueue.Enqueue(randomOrder.Output.TokenHash);
             Logger.Info($"Random token info: {randomOrder.Output}");
 
@@ -72,7 +65,7 @@ namespace AElf.Automation.ContractsTesting
                     Logger.Info($"Random hash: {tokenHash}=>{randomResult}");
                     randomHashCollection.Add(randomResult);
                 }
-                
+
                 hashQueue.Enqueue(tokenHash);
                 var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
                 var height = await _nodeManager.ApiService.GetBlockHeightAsync();

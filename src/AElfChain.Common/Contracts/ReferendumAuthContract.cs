@@ -1,4 +1,3 @@
-using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
@@ -33,14 +32,11 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }
-        
+
         public void InitializeReferendum()
         {
             var initializeResult = ExecuteMethodWithResult(ReferendumMethod.Initialize, new Empty());
-            if (initializeResult is TransactionResultDto txDto)
-            {
-                txDto.Status.ToLower().ShouldBe("mined");
-            }
+            if (initializeResult is TransactionResultDto txDto) txDto.Status.ToLower().ShouldBe("mined");
         }
     }
 }

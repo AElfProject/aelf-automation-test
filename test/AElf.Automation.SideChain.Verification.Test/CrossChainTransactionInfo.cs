@@ -2,12 +2,6 @@ namespace AElf.Automation.SideChain.Verification
 {
     public class CrossChainTransactionInfo
     {
-        public string TxId { get; set; }
-        public long BlockHeight { get; set; }
-        public string RawTx { get; set; }
-        public string FromAccount { get; set; }
-        public string ReceiveAccount { get; set; }
-
         public CrossChainTransactionInfo(long blockHeight, string txId, string rawTx, string fromAccount,
             string receiveAccount)
         {
@@ -38,5 +32,11 @@ namespace AElf.Automation.SideChain.Verification
             FromAccount = fromAccount;
             ReceiveAccount = receiveAccount;
         }
+
+        public string TxId { get; set; }
+        public long BlockHeight { get; set; }
+        public string RawTx { get; set; }
+        public string FromAccount { get; set; }
+        public string ReceiveAccount { get; set; }
     }
 }

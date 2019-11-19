@@ -1,28 +1,26 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Contracts;
-using AElf.Contracts.TestContract.BasicFunctionWithParallel;
-using Google.Protobuf;
-using Shouldly;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class DeleteValueScenario : BaseScenario
     {
-        private List<BasicWithParallelContract> _contracts;
         private const int IncreaseActionCount = 10;
-        
+        private List<BasicWithParallelContract> _contracts;
+
         public DeleteValueScenario()
         {
             InitializeScenario();
             var contract = new BasicWithParallelContract(Services.NodeManager, AllTesters[0]);
+            Services.NodeManager.WaitCurrentHeightToLib();
             var testers = AllTesters.GetRange(1, 2);
             _contracts = testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
 
-        
+
         public void RunDeleteValueScenarioJob()
         {
 //            ExecuteStandaloneTask(new Action[]
@@ -36,7 +34,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 //                ComplexDeleteAndChangeAction
 //            });
         }
-        
+
         /*
         private void IncreaseValueAction()
         {

@@ -6,6 +6,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
+using AElfChain.SDK;
 using log4net;
 using Shouldly;
 
@@ -13,17 +14,9 @@ namespace AElfChain.Console
 {
     public class CliCommand
     {
-        private INodeManager NodeManager { get; set; }
-
-        private ContractServices Contracts { get; set; }
-
-        private ILog Logger = Log4NetHelper.GetLogger();
-
         public List<BaseCommand> Commands;
 
-        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo().Name).ToList();
-
-        public ConsoleReader InputReader { get; set; }
+        private readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public CliCommand(INodeManager nodeManager)
         {
@@ -34,30 +27,54 @@ namespace AElfChain.Console
             InitializeCommands();
         }
 
+        private INodeManager NodeManager { get; }
+
+        private ContractServices Contracts { get; }
+
+        public List<string> CommandNames => Commands.Select(o => o.GetCommandInfo().Name).ToList();
+
+        public ConsoleReader InputReader { get; set; }
+
         public void ExecuteTransactionCommand()
         {
+            CommandNames.Add("config");
             InputReader = new ConsoleReader(new CommandsCompletionEngine(CommandNames));
             GetUsageInfo();
             while (true)
             {
                 "[Input command order/name]=> ".WriteWarningLine(changeLine: false);
                 var input = InputReader.ReadLine();
-                
+                //var input = Prompt.Select("[Input command order/name]", GetCommandList());
+
                 //quit command
-                var quitCommand = new List<string>{"quit", "exit", "close"};
+                var quitCommand = new List<string> {"quit", "exit", "close"};
                 if (quitCommand.Contains(input.ToLower().Trim()))
                 {
                     "CLI was been closed.".WriteWarningLine();
                     break;
                 }
-                
+
                 //clear console
                 if (input.ToLower().Trim() == "clear")
                 {
                     System.Console.Clear();
                     continue;
                 }
-                
+
+                //config info
+                if (input.ToLower().Trim() == "config")
+                {
+                    $"Endpoint: {NodeManager.GetApiUrl()}".WriteSuccessLine();
+                    $"ConfigFile: {NodeInfoHelper.ConfigFile}".WriteSuccessLine();
+                    foreach (var bp in NodeInfoHelper.Config.Nodes)
+                    {
+                        $"Name: {bp.Name}  Account: {bp.Account}".WriteSuccessLine();
+                        $"PublicKey: {NodeManager.GetAccountPublicKey(bp.Account, bp.Password)}".WriteSuccessLine();
+                    }
+
+                    continue;
+                }
+
                 //execute command
                 var command = Commands.FirstOrDefault(o => o.GetCommandInfo().Name.Equals(input));
                 if (command == null)
@@ -67,7 +84,7 @@ namespace AElfChain.Console
                         GetUsageInfo();
                         continue;
                     }
-                    
+
                     var result = int.TryParse(input, out var select);
                     if (!result || select > Commands.Count)
                     {
@@ -75,7 +92,7 @@ namespace AElfChain.Console
                         GetUsageInfo();
                         continue;
                     }
-                    
+
                     command = Commands[select - 1];
                 }
 
@@ -84,13 +101,25 @@ namespace AElfChain.Console
                 {
                     command.RunCommand();
                 }
+                catch (ArgumentException e)
+                {
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
+                }
+                catch (FormatException e)
+                {
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
+                }
                 catch (TimeoutException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (ShouldAssertException e)
                 {
-                    Logger.Error(e.Message);
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
+                }
+                catch (AElfChainApiException e)
+                {
+                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (Exception e)
                 {
@@ -102,6 +131,8 @@ namespace AElfChain.Console
         private void InitializeCommands()
         {
             Commands.Add(new BlockChainCommand(NodeManager, Contracts));
+            Commands.Add(new CrossChainTxCommand(NodeManager, Contracts));
+            Commands.Add(new AnalyzeCommand(NodeManager, Contracts));
             Commands.Add(new ContractQueryCommand(NodeManager, Contracts));
             Commands.Add(new ContractExecutionCommand(NodeManager, Contracts));
             Commands.Add(new QueryContractCommand(NodeManager, Contracts));
@@ -109,6 +140,7 @@ namespace AElfChain.Console
             Commands.Add(new QueryProposalCommand(NodeManager, Contracts));
             Commands.Add(new ConsensusCommand(NodeManager, Contracts));
             Commands.Add(new DeployCommand(NodeManager, Contracts));
+            Commands.Add(new UpdateCommand(NodeManager, Contracts));
             Commands.Add(new TransferCommand(NodeManager, Contracts));
             Commands.Add(new ResourceTradeCommand(NodeManager, Contracts));
             Commands.Add(new SetConnectorCommand(NodeManager, Contracts));
@@ -122,11 +154,25 @@ namespace AElfChain.Console
             "======================= Command =======================".WriteSuccessLine();
             foreach (var command in Commands)
             {
-                $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}".WriteSuccessLine();
+                $"{count:00}. [{command.GetCommandInfo().Name}]-{command.GetCommandInfo().Description}"
+                    .WriteSuccessLine();
                 count++;
             }
 
             "=======================================================".WriteSuccessLine();
+        }
+
+        private List<string> GetCommandList()
+        {
+            var commands = new List<string>();
+            foreach (var command in Commands) commands.Add(command.GetCommandInfo().Name);
+            commands.Add("help");
+            commands.Add("config");
+            commands.Add("list");
+            commands.Add("clear");
+            commands.Add("exit");
+
+            return commands;
         }
     }
 }

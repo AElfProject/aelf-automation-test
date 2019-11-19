@@ -17,11 +17,12 @@ namespace AElf.Automation.ApiTest
                 var randomAddress = Address.FromPublicKey(bytes);
 
                 var (_, timeSpan) =
-                    await _listener.ExecuteApi(o => _client.GetContractFileDescriptorSetAsync(randomAddress.GetFormatted()));
+                    await _listener.ExecuteApi(o =>
+                        _client.GetContractFileDescriptorSetAsync(randomAddress.GetFormatted()));
 
                 _testOutputHelper.WriteLine($"Address: {randomAddress.GetFormatted()}, execute time: {timeSpan}ms");
             }
-            
+
             //exist one 
             var chainStatus = await _client.GetChainStatusAsync();
             var gensisContract = chainStatus.GenesisContractAddress;

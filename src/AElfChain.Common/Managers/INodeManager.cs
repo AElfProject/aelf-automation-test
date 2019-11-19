@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AElfChain.Common.Contracts;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
@@ -31,6 +30,7 @@ namespace AElfChain.Common.Managers
         string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter);
         TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1);
         void CheckTransactionListResult(List<string> transactionIds);
+
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
             where TResult : IMessage<TResult>, new();
 
@@ -40,5 +40,6 @@ namespace AElfChain.Common.Managers
         List<PeerDto> NetGetPeers();
         bool NetAddPeer(string address);
         bool NetRemovePeer(string address);
+        NetworkInfoOutput NetworkInfo();
     }
 }

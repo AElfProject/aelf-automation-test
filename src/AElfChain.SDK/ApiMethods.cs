@@ -23,10 +23,13 @@ namespace AElfChain.SDK
         CurrentRoundInformation,
         TaskQueueStatus,
         GetMerklePathByTransactionId,
+        GetRoundFromBase64,
+        GetMiningSequences,
 
         //Net
         GetPeers,
         AddPeer,
-        RemovePeer
+        RemovePeer,
+        NetworkInfo
     }
 }

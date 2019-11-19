@@ -18,6 +18,7 @@ namespace AElfChain.Common.Contracts
         GetCandidateHistoryInformation,
         GetCurrentMinerList,
         GetCurrentRoundInformation,
+        GetCurrentMinerPubkeyList,
         GetTicketsInfo,
         GetPageableElectionInfo,
         GetBlockchainAge,

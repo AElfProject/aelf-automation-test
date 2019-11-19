@@ -16,10 +16,10 @@ namespace AElf.Automation.ContractsTesting
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly INodeManager _nodeManager;
-        private GenesisContract _genesisContract;
         private readonly ContractTesterFactory _stub;
-        private ConfigurationContainer.ConfigurationStub _configurationStub;
         private string _account;
+        private ConfigurationContainer.ConfigurationStub _configurationStub;
+        private GenesisContract _genesisContract;
 
         public ConfigurationTransaction(string serviceUrl)
         {
@@ -54,7 +54,7 @@ namespace AElf.Automation.ContractsTesting
         private string DeployConfigurationContract()
         {
             var code = File.ReadAllBytes(
-                $"/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
+                "/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.Configuration.dll");
             var transactionResult = _genesisContract.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,
                 new SystemContractDeploymentInput
                 {

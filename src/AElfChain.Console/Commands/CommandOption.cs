@@ -1,7 +1,7 @@
-using System;
 using System.Linq;
 using AElfChain.Common.Helpers;
 using AElfChain.Console.InputOption;
+using Sharprompt;
 
 namespace AElfChain.Console.Commands
 {
@@ -12,8 +12,8 @@ namespace AElfChain.Console.Commands
             //parameters = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             parameters = ParseArguments(input);
             var result = parameters.Length >= length;
-            
-            if(!result)
+
+            if (!result)
                 $"Wrong input parameters, parameter needed {parameters.Length}/{length}.input again".WriteErrorLine();
 
             return result;
@@ -23,12 +23,13 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
-                "[Input parameter]: ".WriteSuccessLine(changeLine:false);
-                var input = System.Console.ReadLine();
+                //"[Input parameter]: ".WriteSuccessLine(changeLine:false);
+                //var input = System.Console.ReadLine();
+                var input = Prompt.Input<string>("Input parameter", validators: new[] {Validators.Required()});
                 var result = TryParseParameters(input, length, out var parameters);
 
-                if(!result) continue;
-                
+                if (!result) continue;
+
                 return parameters;
             }
         }
@@ -37,22 +38,22 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
-                "[Selection(Tab)]: ".WriteSuccessLine(changeLine:false);
+                "[Selection(Tab)]: ".WriteSuccessLine(changeLine: false);
                 var input = reader.ReadLine();
                 if (input == "list")
                 {
                     string.Join("\r\n", reader.CompletionEngine.GetAllSelections()).WriteSuccessLine();
                     continue;
                 }
-                
+
                 var result = TryParseParameters(input, length, out var parameters);
 
-                if(!result) continue;
-                
+                if (!result) continue;
+
                 return parameters;
             }
         }
-        
+
         private static string[] ParseArguments(string input)
         {
             var paramChars = input.ToCharArray();
@@ -64,11 +65,9 @@ namespace AElfChain.Console.Commands
                 if (!inQuote && paramChars[index] == ' ')
                     paramChars[index] = '\n';
             }
+
             var array = new string(paramChars).Split('\n');
-            for (var i=0; i<array.Length; i++)
-            {
-                array[i] = array[i].Replace("\"", "");
-            }
+            for (var i = 0; i < array.Length; i++) array[i] = array[i].Replace("\"", "");
             return array.ToArray();
         }
     }

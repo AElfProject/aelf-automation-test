@@ -7,7 +7,12 @@ namespace AElf.Automation.SideChainEconomicTest
 {
     public class TestBase
     {
+        public AccountManager AccountManager = new AccountManager(AElfKeyStore.GetKeyStore());
         public ILog Logger = Log4NetHelper.GetLogger();
+
+        public MainChainManager MainManager;
+
+        public SideChainManager SideManager;
 
         public TestBase()
         {
@@ -15,15 +20,10 @@ namespace AElf.Automation.SideChainEconomicTest
 
             SideManager = InitializeSideChainManager();
         }
-        
-        public MainChainManager MainManager;
+
         public ContractServices Main => MainManager.MainChain;
-        
-        public SideChainManager SideManager;
         public ContractServices SideA => SideManager.SideChains[ChainConstInfo.SideChainIdA];
         public ContractServices SideB => SideManager.SideChains[ChainConstInfo.SideChainIdB];
-        
-        public AccountManager AccountManager = new AccountManager(AElfKeyStore.GetKeyStore());
 
         private SideChainManager InitializeSideChainManager()
         {

@@ -1,5 +1,6 @@
 using AElfChain.Common.Managers;
 using AElf.Contracts.Election;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
@@ -26,7 +27,8 @@ namespace AElfChain.Common.Contracts
         GetTermSnapshot,
         GetMinersCount,
         GetVotesInformationWithRecords,
-        GetElectorVoteWithAllRecords
+        GetElectorVoteWithAllRecords,
+        GetNextElectCountDown
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>
@@ -48,7 +50,7 @@ namespace AElfChain.Common.Contracts
         {
             var result =
                 CallViewMethod<CandidateInformation>(ElectionMethod.GetCandidateInformation,
-                    new StringInput
+                    new StringValue
                     {
                         Value = NodeManager.GetAccountPublicKey(account)
                     });

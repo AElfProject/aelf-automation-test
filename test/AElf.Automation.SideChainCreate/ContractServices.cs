@@ -7,6 +7,17 @@ namespace AElf.Automation.SideChainCreate
     public class ContractServices
     {
         public readonly INodeManager NodeManager;
+
+        public ContractServices(string url, string callAddress, string password)
+        {
+            NodeManager = new NodeManager(url);
+            CallAddress = callAddress;
+            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+
+            NodeManager.UnlockAccount(CallAddress, password);
+            GetContractServices();
+        }
+
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -15,16 +26,6 @@ namespace AElf.Automation.SideChainCreate
 
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-
-        public ContractServices(string url, string callAddress,string password)
-        {
-            NodeManager = new NodeManager(url);
-            CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
-            
-            NodeManager.UnlockAccount(CallAddress, password);
-            GetContractServices();
-        }
 
         private void GetContractServices()
         {
@@ -38,7 +39,7 @@ namespace AElf.Automation.SideChainCreate
 
             //CrossChain contract
             CrossChainService = GenesisService.GetCrossChainContract();
-            
+
             //ParliamentAuth contract
             ParliamentService = GenesisService.GetParliamentAuthContract();
         }

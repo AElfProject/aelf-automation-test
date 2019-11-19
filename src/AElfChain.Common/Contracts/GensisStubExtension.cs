@@ -20,7 +20,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
             var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
@@ -33,7 +33,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
             var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
@@ -46,7 +46,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
             var contract =
@@ -61,7 +61,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var profit = genesis.GetContractAddressByName(NameProvider.Profit);
 
             var contract = new ProfitContract(genesis.NodeManager, caller, profit.GetFormatted());
@@ -74,10 +74,10 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var token = genesis.GetContractAddressByName(NameProvider.Token);
 
-            var contract = new TokenContract(genesis.NodeManager, caller,token.GetFormatted());
+            var contract = new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
@@ -87,7 +87,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
 
             var contract =
@@ -102,7 +102,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var treasury = genesis.GetContractAddressByName(NameProvider.Treasury);
 
             var contract = new TreasuryContract(genesis.NodeManager, caller, treasury.GetFormatted());
@@ -115,7 +115,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var vote = genesis.GetContractAddressByName(NameProvider.Vote);
 
             var contract = new VoteContract(genesis.NodeManager, caller, vote.GetFormatted());
@@ -128,7 +128,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var election = genesis.GetContractAddressByName(NameProvider.Election);
 
             var contract = new ElectionContract(genesis.NodeManager, caller, election.GetFormatted());
@@ -141,7 +141,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var cross = genesis.GetContractAddressByName(NameProvider.CrossChain);
 
             var contract = new CrossChainContract(genesis.NodeManager, caller, cross.GetFormatted());
@@ -154,7 +154,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
             var contract =
@@ -162,13 +162,13 @@ namespace AElfChain.Common.Contracts
 
             return contract.GetTestStub<AssociationAuthContractContainer.AssociationAuthContractStub>(caller);
         }
-        
+
         public static ReferendumAuthContractContainer.ReferendumAuthContractStub GetReferendumAuthStub(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
 
             var contract =
@@ -183,7 +183,7 @@ namespace AElfChain.Common.Contracts
         {
             if (caller == "")
                 caller = genesis.CallAddress;
-            
+
             var configuration = genesis.GetContractAddressByName(NameProvider.Configuration);
 
             var contract =

@@ -25,7 +25,6 @@ namespace AElf.Automation.SideChain.Verification
         [JsonProperty("SideChainUrl")] public string SideChainUrl { get; set; }
         [JsonProperty("SideChainId")] public string SideChainId { get; set; }
         [JsonProperty("SideChainTokenSymbol")] public string SideChainTokenSymbol { get; set; }
-
     }
 
     public class TestCase
@@ -33,18 +32,21 @@ namespace AElf.Automation.SideChain.Verification
         [JsonProperty("name")] public string Name { get; set; }
         [JsonProperty("enable")] public bool Enable { get; set; }
     }
-    
+
     public class ConfigInfo
     {
         [JsonProperty("TestEnvironment")] public string TestEnvironment { get; set; }
         [JsonProperty("EnvironmentInfo")] public List<EnvironmentInfo> EnvironmentInfos { get; set; }
         [JsonProperty("TestCases")] public List<TestCase> TestCases { get; set; }
         [JsonProperty("CreateTokenNumber")] public int CreateTokenNumber { get; set; }
-        [JsonProperty("VerifySideChainNumber")] public int VerifySideChainNumber { get; set; }
+
+        [JsonProperty("VerifySideChainNumber")]
+        public int VerifySideChainNumber { get; set; }
+
         [JsonProperty("VerifyBlockNumber")] public int VerifyBlockNumber { get; set; }
         [JsonProperty("TransferAccount")] public int TransferAccount { get; set; }
     }
-    
+
     public static class ConfigInfoHelper
     {
         private static ConfigInfo _instance;

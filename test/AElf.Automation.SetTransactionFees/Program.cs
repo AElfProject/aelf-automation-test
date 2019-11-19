@@ -3,34 +3,33 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.SetTransactionFees
 {
-    class Program
+    internal class Program
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        
+
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.43:8100";
-        
+
         [Option("-a|--amount", Description = "Transaction method fee balance")]
         public long Amount { get; set; } = 1000_0000L;
-        
+
         public static int Main(string[] args)
         {
             try
             {
                 return CommandLineApplication.Execute<Program>(args);
             }
-            catch (AssertFailedException ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Execute failed: {ex.Message}");
             }
 
             return 0;
         }
-        
+
         private void OnExecute()
         {
             //Init Logger
@@ -38,8 +37,9 @@ namespace AElf.Automation.SetTransactionFees
 
             var nm = new NodeManager(Endpoint);
             var contractsFee = new ContractsFee(nm);
+            //before
+            contractsFee.QueryAllContractsMethodFee();
             while (true)
-            {
                 try
                 {
                     "Begin set transaction fee".WriteSuccessLine();
@@ -50,8 +50,7 @@ namespace AElf.Automation.SetTransactionFees
                 {
                     e.Message.WriteErrorLine();
                 }
-            }
-            
+
             contractsFee.QueryAllContractsMethodFee();
             Logger.Info("All contract methods fee set completed.");
         }

@@ -1,9 +1,10 @@
 ﻿using System;
-using AElf;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
@@ -34,7 +35,9 @@ namespace AElfChain.Common.Contracts
         GetTokenInfo,
         GetBalance,
         GetAllowance,
+        GetPrimaryTokenSymbol,
         IsInWhiteList,
+        GetNativeTokenInfo,
         GetCrossChainTransferTokenContractAddress,
         GetMethodFee
     }
@@ -60,14 +63,14 @@ namespace AElfChain.Common.Contracts
             var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
-                To = AddressHelper.Base58StringToAddress(to),
+                To = to.ConvertAddress(),
                 Amount = amount,
                 Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
             });
 
             return result;
         }
-        
+
         public TransactionResultDto IssueBalance(string from, string to, long amount, string symbol = "")
         {
             var tester = GetNewTester(from);
@@ -75,22 +78,40 @@ namespace AElfChain.Common.Contracts
             var result = tester.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = symbol,
-                To = AddressHelper.Base58StringToAddress(to),
+                To = to.ConvertAddress(),
                 Amount = amount,
-                Memo = "Issue amount"
+                Memo = $"Issue amount {Guid.NewGuid()}"
             });
 
             return result;
         }
-        
+
 
         public long GetUserBalance(string account, string symbol = "")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(account),
+                Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
+        }
+
+        public string GetPrimaryTokenSymbol()
+        {
+            return CallViewMethod<StringValue>(TokenMethod.GetPrimaryTokenSymbol, new Empty()).Value;
+        }
+
+        public string GetNativeTokenSymbol()
+        {
+            return CallViewMethod<TokenInfo>(TokenMethod.GetNativeTokenInfo, new Empty()).Symbol;
+        }
+
+        public TokenInfo GetTokenInfo(string symbol)
+        {
+            return CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
+            {
+                Symbol = symbol
+            });
         }
     }
 }

@@ -35,7 +35,7 @@ namespace AElfChain.SDK
 
         Task<BlockDto> GetBlockByHeightAsync(long blockHeight, bool includeTransactions = false);
 
-        Task<GetTransactionPoolStatusOutput> GetTransactionPoolStatusAsync();
+        Task<TransactionPoolStatusOutput> GetTransactionPoolStatusAsync();
 
         Task<ChainStatusDto> GetChainStatusAsync();
 
@@ -47,11 +47,18 @@ namespace AElfChain.SDK
         
         Task<MerklePathDto> GetMerklePathByTransactionIdAsync(string transactionId);
 
+        Task<RoundDto> GetRoundFromBase64Async(string base64Info);
+        
+        Task<List<MiningSequenceDto>> GetMiningSequencesAsync(int count);
+
         Task<bool> AddPeerAsync(string address);
 
         Task<bool> RemovePeerAsync(string address);
 
         Task<List<PeerDto>> GetPeersAsync();
+
+        Task<NetworkInfoOutput> NetworkInfo();
+        
         void SetFailReTryTimes(int times);
     }
 }

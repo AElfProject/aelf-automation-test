@@ -5,7 +5,7 @@ namespace AElfChain.Console.Commands
 {
     public class QueryTokenCommand : BaseCommand
     {
-        public QueryTokenCommand(INodeManager nodeManager, ContractServices contractServices) 
+        public QueryTokenCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
         }
@@ -17,7 +17,7 @@ namespace AElfChain.Console.Commands
                 return;
 
             var balance = Services.Token.GetUserBalance(parameters[0], parameters[1]);
-            Logger.Info($"Account: {parameters[0]}, {parameters[1]}={balance}");            
+            $"Account: {parameters[0]}, {parameters[1]}={balance}".WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()
@@ -33,10 +33,10 @@ namespace AElfChain.Console.Commands
         {
             var owner = "mS8xMLs9SuWdNECkrfQPF8SuRXRuQzitpjzghi3en39C3SRvf";
             var symbol = "TELF";
-            
+
             "Parameter: [Owner] [Symbol]".WriteSuccessLine();
             $"eg1: {owner} {symbol}".WriteSuccessLine();
-            
+
             return CommandOption.InputParameters(2);
         }
     }

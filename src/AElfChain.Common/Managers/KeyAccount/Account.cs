@@ -5,8 +5,6 @@ namespace AElfChain.Common.Managers
 {
     public class Account
     {
-        public static readonly string DefaultPassword = NodeInfoHelper.Config.DefaultPassword;
-
         public Account(string address)
         {
             AccountName = address;

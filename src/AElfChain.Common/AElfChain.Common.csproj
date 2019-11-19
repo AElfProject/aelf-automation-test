@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <IsPackable>true</IsPackable>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup>
@@ -71,9 +71,6 @@
         <ProtoContract Include="..\AElf\protobuf\treasury_contract.proto">
             <Link>Protobuf\Proto\stub\treasury_contract.proto</Link>
         </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs0.proto">
-            <Link>Protobuf\Proto\stub\acs0.proto</Link>
-        </ProtoContract>
         <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
             <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
         </ProtoContract>
@@ -120,11 +117,12 @@
 
     <ItemGroup>
         <PackageReference Include="Nethereum.KeyStore" Version="3.4.0" />
-        <PackageReference Include="log4net" Version="2.0.8" />
-        <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+        <PackageReference Include="apache.log4net.Extensions.Logging" Version="2.0.0.12" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="protobuf-net" Version="2.4.0" />
         <PackageReference Include="Shouldly" Version="3.0.2" />
+        <PackageReference Include="protobuf-net" Version="2.4.0" />
+        <PackageReference Include="protobuf-net.Reflection" Version="3.0.0-alpha.103" />
     </ItemGroup>
 
     <ItemGroup>
@@ -142,6 +140,12 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="nodes-sidechain.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="nodes-local.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="nodes-sidechain2.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

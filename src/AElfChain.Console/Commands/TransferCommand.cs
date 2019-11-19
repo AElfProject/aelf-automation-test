@@ -5,7 +5,7 @@ namespace AElfChain.Console.Commands
 {
     public class TransferCommand : BaseCommand
     {
-        public TransferCommand(INodeManager nodeManager, ContractServices contractServices) 
+        public TransferCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
         }
@@ -19,8 +19,9 @@ namespace AElfChain.Console.Commands
             var beforeBalance = Services.Token.GetUserBalance(parameters[1], parameters[2]);
             Services.Token.TransferBalance(parameters[0], parameters[1], long.Parse(parameters[3]), parameters[2]);
             var afterBalance = Services.Token.GetUserBalance(parameters[1], parameters[2]);
-            
-            Logger.Info($"Account: {parameters[1]}, Symbol: {parameters[2]}, Before={beforeBalance}, After={afterBalance}");
+
+            $"Account: {parameters[1]}, Symbol: {parameters[2]}, Before={beforeBalance}, After={afterBalance}"
+                .WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()
@@ -40,7 +41,7 @@ namespace AElfChain.Console.Commands
             var amount = 1000;
             "Parameter: [From] [To] [Symbol] [Amount]".WriteSuccessLine();
             $"eg: {from} {to} {symbol} {amount}".WriteSuccessLine();
-            
+
             return CommandOption.InputParameters(4);
         }
     }

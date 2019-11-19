@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
-using AElf.Kernel;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {
@@ -22,6 +22,9 @@ namespace AElf.Automation.EconomicSystem.Tests
     public class OtherTests
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
+
+        public ConcurrentDictionary<Hash, QueuedTransaction> TransactionHub { get; set; }
+        public int TestCount { get; set; } = 1000;
 
         [TestInitialize]
         public void InitTest()
@@ -107,12 +110,12 @@ namespace AElf.Automation.EconomicSystem.Tests
 
         private void UpdateTransactionHub()
         {
-            TransactionHub = new ConcurrentDictionary<Hash, TransactionReceipt>();
+            TransactionHub = new ConcurrentDictionary<Hash, QueuedTransaction>();
 
             for (var i = 0; i < 1000_000; i++)
             {
                 if (TransactionHub.Count > 10000) return;
-                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new TransactionReceipt
+                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new QueuedTransaction
                 {
                     TransactionId = Hash.FromString(Guid.NewGuid().ToString()),
                     Transaction = new Transaction
@@ -130,9 +133,6 @@ namespace AElf.Automation.EconomicSystem.Tests
                     Thread.Sleep(1);
             }
         }
-
-        public ConcurrentDictionary<Hash, TransactionReceipt> TransactionHub { get; set; }
-        public int TestCount { get; set; } = 1000;
 
         [TestMethod]
         public void ComputeFibonacci_Test()

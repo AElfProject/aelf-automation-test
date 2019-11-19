@@ -26,7 +26,7 @@ namespace AElfChain.Common.Managers
         public string NewAccount(string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
             if (password == "")
                 password = AskInvisible("password:");
@@ -54,7 +54,7 @@ namespace AElfChain.Common.Managers
                 var result = UnlockAccount(account);
                 if (result)
                     return account;
-                if(n==10)
+                if (n == 10)
                     throw new Exception("Cannot got random account with default password.");
                 n++;
             }
@@ -71,9 +71,9 @@ namespace AElfChain.Common.Managers
         public bool UnlockAccount(string address, string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
-            if (Account.DefaultPassword == "")
+            if (NodeOption.DefaultPassword == "")
                 password = AskInvisible("password:");
 
             if (_accounts == null || _accounts.Count == 0)
@@ -98,7 +98,7 @@ namespace AElfChain.Common.Managers
                 case KeyStoreErrors.AccountAlreadyUnlocked:
                     return true;
                 case KeyStoreErrors.None:
-                    Logger.Info($"Account '{address}' successfully unlocked!");
+                    Logger.Info("Account '{0}' successfully unlocked!", address);
                     return true;
                 case KeyStoreErrors.WrongAccountFormat:
                     break;
@@ -114,7 +114,7 @@ namespace AElfChain.Common.Managers
         public string GetPublicKey(string address, string password = "")
         {
             if (password == "")
-                password = Account.DefaultPassword;
+                password = NodeOption.DefaultPassword;
 
             UnlockAccount(address, password);
             var keyPair = GetKeyPair(address);

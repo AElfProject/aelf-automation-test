@@ -44,10 +44,8 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     mainChainTransactions.Add(i, txIds);
 
                     foreach (var txId in txIds)
-                    {
                         Logger.Info(
                             $"Block {i} has transaction {txId}");
-                    }
                 }
 
                 foreach (var mainChainTransaction in mainChainTransactions)
@@ -70,14 +68,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     var verifyInputsValues = verifyInputs.Values;
                     var verifyTxIds = new List<string>();
                     foreach (var verifyInput in verifyInputsValues)
+                    foreach (var input in verifyInput)
                     {
-                        foreach (var input in verifyInput)
-                        {
-                            var verifyTxId =
-                                sideChainService.CrossChainService.ExecuteMethodWithTxId(
-                                    CrossChainContractMethod.VerifyTransaction, input);
-                            verifyTxIds.Add(verifyTxId);
-                        }
+                        var verifyTxId =
+                            sideChainService.CrossChainService.ExecuteMethodWithTxId(
+                                CrossChainContractMethod.VerifyTransaction, input);
+                        verifyTxIds.Add(verifyTxId);
                     }
 
                     CheckoutVerifyResult(sideChainService, verifyTxIds);

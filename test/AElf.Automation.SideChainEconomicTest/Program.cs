@@ -7,7 +7,7 @@ using AElf.Automation.SideChainEconomicTest.EconomicTest;
 
 namespace AElf.Automation.SideChainEconomicTest
 {
-    class Program
+    internal class Program
     {
         public static async Task Main(string[] args)
         {
@@ -19,7 +19,7 @@ namespace AElf.Automation.SideChainEconomicTest
             await sideTest.SideManager.RunCheckSideChainTokenInfo(sideTest.SideA, "SAELF");
 
             Console.ReadLine();
-            
+
             var mainTest = new MainChainTests();
             var acs8Contract = "";
             if (acs8Contract == "")
@@ -45,10 +45,7 @@ namespace AElf.Automation.SideChainEconomicTest
             //Query all main bp resources
             logger.Info("Get side chain bps resource tokens");
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
-            foreach (var bp in bps)
-            {
-                sideTest.SideA.GetTokenBalances(bp);
-            }
+            foreach (var bp in bps) sideTest.SideA.GetTokenBalances(bp);
         }
     }
 }

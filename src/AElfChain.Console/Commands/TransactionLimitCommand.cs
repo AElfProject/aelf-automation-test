@@ -26,7 +26,7 @@ namespace AElfChain.Console.Commands
 
             var limitResult =
                 AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
-            Logger.Info($"Block transaction limit: {limitResult.Value}");
+            $"Block transaction limit: {limitResult.Value}".WriteSuccessLine();
 
             if (parameters.Length == 1)
                 return;
@@ -37,18 +37,19 @@ namespace AElfChain.Console.Commands
                 Logger.Info("No need to set limit, same number.");
                 return;
             }
-            
+
             var configuration = Services.Genesis.GetConfigurationContract();
             var genesisOwner = Services.Authority.GetGenesisOwnerAddress();
             var miners = Services.Authority.GetCurrentMiners();
-            var input = new Int32Value{ Value = limit };
+            var input = new Int32Value {Value = limit};
             var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(configuration.ContractAddress,
                 "SetBlockTransactionLimit", input,
                 genesisOwner, miners, configuration.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
-            var queryResult = AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
-            Logger.Info($"New block transaction limit: {queryResult.Value}");
+
+            var queryResult =
+                AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
+            $"New block transaction limit: {queryResult.Value}".WriteSuccessLine();
         }
 
         public override CommandInfo GetCommandInfo()
