@@ -60,6 +60,19 @@ namespace AElfChain.Console.Commands
             }
         }
 
+        public override CommandInfo GetCommandInfo()
+        {
+            return new CommandInfo
+            {
+                Name = "analyze",
+                Description = "Analyze block chain blocks and transactions."
+            };
+        }
+
+        public override string[] InputParameters()
+        {
+            throw new NotImplementedException();
+        }
         private void ChainsStatus()
         {
             "Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
@@ -93,6 +106,7 @@ namespace AElfChain.Console.Commands
             NodeInfoHelper.Config.CheckNodesAccount();
             var nodes = NodeInfoHelper.Config.Nodes;
             Logger.Info("Begin analyze block generate and transactions information:");
+            var continueBlocks = 0;
             while (true)
             {
                 for (var i = startHeight; i <= endHeight; i++)
@@ -104,20 +118,25 @@ namespace AElfChain.Console.Commands
                     {
                         minerKey = signerKey;
                         minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
+                        continueBlocks++;
                     }
                     else
                     {
-                        if (minerKey != signerKey)
+                        if (minerKey == signerKey)
+                            continueBlocks++;
+                        else
                         {
+                            $"Continue blocks: {continueBlocks}".WriteSuccessLine();
                             System.Console.WriteLine();
                             minerKey = signerKey;
                             minerNode = nodes.FirstOrDefault(o => o.PublicKey == signerKey);
+                            continueBlocks = 1;
                         }
                     }
 
                     var minerInfo = minerNode == null ? minerKey.Substring(0, 10) : minerNode.Name;
                     Logger.Info(
-                        $"Time: {block.Header.Time:HH:mm:ss.fff}  Height: {height.ToString().PadRight(8)} Miner: {minerInfo.PadRight(10)} TxCount: {block.Body.TransactionsCount}");
+                        $"Time: {block.Header.Time:HH:mm:ss.fff}    Height: {height.ToString()}    Miner: {minerInfo}    TxCount: {block.Body.TransactionsCount}");
                 }
 
                 if (!continuous) break;
@@ -132,7 +151,6 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
-
         private void TransactionAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
@@ -163,9 +181,10 @@ namespace AElfChain.Console.Commands
                         }
                         else
                         {
+                            var errorMsg = transaction.Error.Split("\n")[1];
                             Logger.Error(
                                 $"{txId} {transaction.Transaction.MethodName} {transaction.Status} {transaction.TransactionFee.GetTransactionFeeInfo()}");
-                            Logger.Error(transaction.Error);
+                            Logger.Error($"Error: {errorMsg}");
                         }
                     }
 
@@ -184,7 +203,6 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
-
         private void NodeElectionAnalyze()
         {
             NodeInfoHelper.Config.CheckNodesAccount();
@@ -225,7 +243,6 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
-
         private void TransactionPoolAnalyze()
         {
             "Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
@@ -249,7 +266,6 @@ namespace AElfChain.Console.Commands
                 Thread.Sleep(500);
             }
         }
-
         private void CheckAccountsToken()
         {
             var accounts = NodeManager.ListAccounts();
@@ -262,21 +278,6 @@ namespace AElfChain.Console.Commands
                     $"Account: {acc}  {primaryToken}={balance}".WriteSuccessLine();
             });
         }
-
-        public override CommandInfo GetCommandInfo()
-        {
-            return new CommandInfo
-            {
-                Name = "analyze",
-                Description = "Analyze block chain blocks and transactions."
-            };
-        }
-
-        public override string[] InputParameters()
-        {
-            throw new NotImplementedException();
-        }
-
         private IEnumerable<string> GetSubCommands()
         {
             return new List<string>
