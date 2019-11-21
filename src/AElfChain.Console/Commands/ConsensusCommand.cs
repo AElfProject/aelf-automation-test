@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;

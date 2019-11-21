@@ -119,14 +119,15 @@ namespace AElfChain.Common.ContractSerializer
             return Descriptor.Methods.Select(o => o.MethodName).ToList();
         }
 
-        public void GetAllMethodsInfo()
+        public void GetAllMethodsInfo(bool withDetails = false)
         {
             var methods = GetContractMethods();
             var count = 0;
             foreach (var method in methods)
             {
                 $"{count++: 00}. {method}".WriteSuccessLine();
-                GetParameters(method);
+                if(withDetails)
+                    GetParameters(method);
             }
 
             Console.WriteLine();

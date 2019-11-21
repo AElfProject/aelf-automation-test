@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
@@ -150,9 +152,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
             var byteInfo = nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
-            var customContractHander = new CustomContractHandler(byteInfo);
-            customContractHander.GetAllMethodsInfo();
-            customContractHander.GetParameters("Create");
+            var customContractHandler = new CustomContractHandler(byteInfo);
+            customContractHandler.GetAllMethodsInfo(true);
+            customContractHandler.GetParameters("Create");
         }
 
         [TestMethod]

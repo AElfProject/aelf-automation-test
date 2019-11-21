@@ -150,11 +150,13 @@ namespace AElfChain.Console.Commands
 
         private void ContractFileDescriptor()
         {
-            "Parameter: [ContractAddress]".WriteSuccessLine();
+            "Parameter: [ContractAddress] [WithDetails]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
+            var withDetails = input.Length == 2 && bool.Parse(input[1]);
+                
             var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
             var customContract = new CustomContractHandler(descriptorSet);
-            customContract.GetAllMethodsInfo();
+            customContract.GetAllMethodsInfo(withDetails);
         }
 
         private void GetTaskQueueStatus()
