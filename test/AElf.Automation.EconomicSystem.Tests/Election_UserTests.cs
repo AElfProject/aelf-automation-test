@@ -35,6 +35,18 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
+        public void Vote_All_Candidates_ForBP()
+        {
+            foreach (var full in FullNodeAddress)
+            {
+                var voteResult = Behaviors.UserVote(InitAccount,full, 100, 2000);
+
+                voteResult.ShouldNotBeNull();
+                voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            }
+        }
+        
+        [TestMethod]
         [DataRow(0, 2, 4)]
         public void Query_Candidate_Victories(int no1, int no2, int no3)
         {

@@ -12,6 +12,7 @@ using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -20,7 +21,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class GenesisContractTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogger();
+        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        
         protected ContractTester MainTester;
         protected ContractTester SideTester;
         protected ContractTester SideTester2;
@@ -42,10 +44,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             #region Basic Preparation
 
             //Init Logger
-            var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
-            var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
-            _logger.InitLogHelper(dir);
-
+            Log4NetHelper.LogInit("ContractTest_");
+            
             #endregion
 
             MainCH = new NodeManager(MainRpcUrl);

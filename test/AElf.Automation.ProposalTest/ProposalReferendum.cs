@@ -333,13 +333,13 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                if (balance > 10) continue;
+                if (balance > 10_00000000) continue;
                 Token.SetAccount(InitAccount);
                 Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = Symbol,
                     To = organization.Key,
-                    Amount = 10000_00,
+                    Amount = 100_0000000,
                     Memo = "Transfer to organization address"
                 });
 
@@ -359,7 +359,7 @@ namespace AElf.Automation.ProposalTest
                     {
                         Symbol = NativeToken,
                         To = AddressHelper.Base58StringToAddress(tester),
-                        Amount = 10000,
+                        Amount = 20000,
                         Memo = "Transfer to organization address"
                     });
 

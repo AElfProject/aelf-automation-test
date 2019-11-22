@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Acs3;
 using Acs7;
@@ -238,8 +239,8 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("1756", "929ca16363a43cf0f3927a61d54f6c5b644a0b04da2e166254621d1d2475458b",
-            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718da0d22043c623c432a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f10441215e1a637efbb6cc650437574ebd665634040bafe9d78ec5500a3029b199518d236fd42e37f8ef22803f8c3fcb08def43d0a16228195fa7e047d7bccb69e23eb00")]
+        [DataRow("2405", "241745201b5edc926668b94bf8b7045c822e1f5e2575916de87b9f2129510fd0",
+            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718c21222041b45bd042a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f104419c489118cb41e361a11791edca6b923247ab2f4dd1d7e71336a45edf14e0ff9d0b870787fb7b6da3da752927a068ab3bf961b6ba5db8c42c0a03276654fc4d4000")]
         public void SideChainReceivedMainChain(string blockNumber, string txid, string rawTx)
         {
             var merklePath = GetMerklePath(blockNumber, txid, MainContracts.ContractServices);
@@ -412,24 +413,37 @@ namespace AElf.Automation.SideChainTests
         {
             var balance = MainContracts.TokenService.GetUserBalance(InitAccount);
             _logger.Info($"{balance}");
-            var block = await SideContractTester1.NodeManager.ApiService.GetBlockByHeightAsync(26530);
-            var blockHeader = new BlockHeader(HashHelper.HexStringToHash(block.BlockHash));
-            var root = GetMerkleRoot("26531", "3294cdbf4faed8510ffaec34c56bb269cde563dffebed8b5a6c81515a77ce9ca",
-                SideContractTester1.ContractServices);
-            var sideChainBlockDate = new SideChainBlockData
+            var blocks = new List<BlockDto>();
+            for (int i = 511; i < 521; i++)
             {
-                ChainId = ChainHelper.ConvertBase58ToChainId("2112"),
-                BlockHeaderHash = Hash.FromMessage(blockHeader),
-                Height = 26531,
-                TransactionStatusMerkleTreeRoot = root
-            };
+                
+                var block = await SideContractTester1.NodeManager.ApiService.GetBlockByHeightAsync(i,true);
+                blocks.Add(block);
+            }
+            
+            var crossChainData = new CrossChainBlockData();
+
+            for (int i = 1; i < blocks.Count; i++)
+            {
+                var blockHeader = new BlockHeader(HashHelper.HexStringToHash(blocks[i-1].BlockHash));
+                var height = blocks[i].Header.Height;
+                var txId = blocks[i].Body.Transactions.First();
+                var root = GetMerkleRoot(height.ToString(), txId,
+                    SideContractTester1.ContractServices);
+                var sideChainBlockDate = new SideChainBlockData
+                {
+                    ChainId = ChainHelper.ConvertBase58ToChainId("tDVV"),
+                    BlockHeaderHash = Hash.FromMessage(blockHeader),
+                    Height = height,
+                    TransactionStatusMerkleTreeRoot = root
+                };
+                crossChainData.SideChainBlockData.Add(sideChainBlockDate);
+            }
+
+            crossChainData.PreviousBlockHeight = 3900;
+           
             var result =
-                MainContracts.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,
-                    new CrossChainBlockData
-                    {
-                        SideChainBlockData = { sideChainBlockDate},
-                        PreviousBlockHeight = 36400
-                    });
+                MainContracts.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,crossChainData);
             
             var afterbalance = MainContracts.TokenService.GetUserBalance(InitAccount);
             _logger.Info($"{afterbalance}");

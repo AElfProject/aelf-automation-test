@@ -149,16 +149,16 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var node in nodes)
                 {
                     var balance =
-                        sideChainService.TokenService.GetUserBalance(node.Account, sideChainService.DefaultToken);
+                        sideChainService.TokenService.GetUserBalance(node.Account, sideChainService.PrimaryTokenSymbol);
                     if (node.Account == sideChainService.CallAddress || balance > 0) continue;
                     IssueSideChainToken(sideChainService, node.Account);
                 }
 
                 foreach (var node in nodes)
                 {
-                    var accountBalance = GetBalance(sideChainService, node.Account, sideChainService.DefaultToken);
+                    var accountBalance = GetBalance(sideChainService, node.Account, sideChainService.PrimaryTokenSymbol);
                     Logger.Info(
-                        $"Account:{node.Account}, {sideChainService.DefaultToken} balance is: {accountBalance}");
+                        $"Account:{node.Account}, {sideChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
                 }
             }
         }
