@@ -33,10 +33,10 @@ namespace AElf.Automation.SideChain.Verification
             ReceiveAccount = receiveAccount;
         }
 
-        public string TxId { get; set; }
-        public long BlockHeight { get; set; }
-        public string RawTx { get; set; }
-        public string FromAccount { get; set; }
-        public string ReceiveAccount { get; set; }
+        public string TxId { get; }
+        public long BlockHeight { get; }
+        public string RawTx { get; }
+        public string FromAccount { get; }
+        public string ReceiveAccount { get; }
     }
 }

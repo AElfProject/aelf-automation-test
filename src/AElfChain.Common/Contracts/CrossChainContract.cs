@@ -11,6 +11,7 @@ namespace AElfChain.Common.Contracts
         Recharge,
         RequestChainDisposal,
         DisposeSideChain,
+        RecordCrossChainData,
 
         //View
         GetChainStatus,

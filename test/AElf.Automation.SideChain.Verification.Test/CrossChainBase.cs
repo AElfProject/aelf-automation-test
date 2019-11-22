@@ -25,9 +25,9 @@ namespace AElf.Automation.SideChain.Verification
         protected static ContractServices MainChainService;
         protected static List<ContractServices> SideChainServices;
         protected static Dictionary<int, List<string>> AccountList;
+        protected static string NativeToken;
         private readonly EnvironmentInfo _environmentInfo;
         protected readonly int CreateTokenNumber;
-        protected readonly string NativeToken;
         protected readonly int VerifyBlockNumber;
         protected readonly int VerifySideChainNumber;
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> TransactionResultList;
@@ -40,7 +40,6 @@ namespace AElf.Automation.SideChain.Verification
             CreateTokenNumber = ConfigInfoHelper.Config.CreateTokenNumber;
             VerifySideChainNumber = ConfigInfoHelper.Config.VerifySideChainNumber;
             VerifyBlockNumber = ConfigInfoHelper.Config.VerifyBlockNumber;
-            NativeToken = _environmentInfo.MainChainInfos.NativeToken;
         }
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
@@ -54,29 +53,23 @@ namespace AElf.Automation.SideChain.Verification
             var mainChainUrl = _environmentInfo.MainChainInfos.MainChainUrl;
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
-            var defaultToken = _environmentInfo.MainChainInfos.NativeToken;
-            var mainChainId = ChainHelper.ConvertBase58ToChainId(_environmentInfo.MainChainInfos.MainChainId);
-            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password, mainChainId,
-                defaultToken);
+            MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
             MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
-
+            NativeToken = MainChainService.PrimaryTokenSymbol;
+            
             return MainChainService;
         }
 
         protected List<ContractServices> InitSideChainServices()
         {
             if (SideChainServices != null) return SideChainServices;
-            var sideChainIds = new List<int>();
             SideChainServices = new List<ContractServices>();
             var sideChainInfos = _environmentInfo.SideChainInfos;
             var password = _environmentInfo.MainChainInfos.Password;
             foreach (var info in sideChainInfos)
             {
                 var url = info.SideChainUrl;
-                var chainId = ChainHelper.ConvertBase58ToChainId(info.SideChainId);
-                var defaultToken = info.SideChainTokenSymbol;
-                sideChainIds.Add(chainId);
-                var sideService = new ContractServices(url, InitAccount, AccountDir, password, chainId, defaultToken);
+                var sideService = new ContractServices(url, InitAccount, AccountDir, password);
                 SideChainServices.Add(sideService);
                 sideService.NodeManager.ApiService.SetFailReTryTimes(10);
             }
@@ -86,11 +79,11 @@ namespace AElf.Automation.SideChain.Verification
 
         protected void IssueSideChainToken(ContractServices services, string account)
         {
-            Logger.Info($"Issue side chain {services.ChainId} token {services.DefaultToken} to {account}");
+            Logger.Info($"Issue side chain {services.ChainId} token {services.PrimaryTokenSymbol} to {account}");
             services.TokenService.SetAccount(services.CallAddress);
             services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
-                Symbol = services.DefaultToken,
+                Symbol = services.PrimaryTokenSymbol,
                 Amount = 1000000,
                 Memo = "Issue side chain token",
                 To = AddressHelper.Base58StringToAddress(account)
@@ -123,6 +116,7 @@ namespace AElf.Automation.SideChain.Verification
                         Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
                         return transactionResult;
                     case TransactionResultStatus.NotExisted:
+                        
                         Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
                         return transactionResult;
                     case TransactionResultStatus.Failed:
@@ -325,7 +319,7 @@ namespace AElf.Automation.SideChain.Verification
             // verify side chain transaction
             var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(fromServices, rawTxInfo.BlockHeight);
             crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
-                .MerklePathForParentChainRoot.MerklePathNodes);
+                .MerklePathFromParentChain.MerklePathNodes);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTxInfo.RawTx));
@@ -339,32 +333,31 @@ namespace AElf.Automation.SideChain.Verification
             return blockHeight;
         }
 
-        protected void CheckoutVerifyResult(ContractServices services, IEnumerable<string> txIds)
+        protected long GetIndexParentHeight(ContractServices services)
         {
-            var verifyResultList = new List<CrossChainTransactionVerifyResult>();
-            foreach (var txId in txIds)
-            {
-                var txResult = CheckTransactionResult(services, txId);
-                if (txResult == null) return;
-                var status = txResult.Status.ConvertTransactionResultStatus();
-                if (status != TransactionResultStatus.Mined) continue;
-                var verifyResult =
-                    new CrossChainTransactionVerifyResult(txResult.ReadableReturnValue, services.ChainId, txId);
-                verifyResultList.Add(verifyResult);
-            }
+            return services.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
+        }
 
-            foreach (var item in verifyResultList)
-                switch (item.Result)
+        protected long GetIndexSideHeight(ContractServices services)
+        {
+            return MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+        }
+        protected void GetVerifyResult(ContractServices services, Dictionary<string,bool> results)
+        {
+            foreach (var item in results)
+            {
+                switch (item.Value)
                 {
-                    case "true":
-                        Logger.Info($"On chain {item.ChainId}, transaction {item.TxId} Verify successfully.");
+                    case true:
+                        Logger.Info($"Transaction {item.Key} on chain {services.ChainId} verify successfully.");
                         break;
-                    case "false":
-                        Logger.Error($"On chain {item.ChainId}, transaction {item.TxId} Verify failed.");
+                    case false:
+                        Logger.Error($"Transaction {item.Key} on chain {services.ChainId} verify failed.");
                         break;
-                    default:
-                        continue;
                 }
+            }
         }
 
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> CheckoutTransferResult(
@@ -423,9 +416,7 @@ namespace AElf.Automation.SideChain.Verification
                 Logger.Info("Block is not recorded ");
                 Thread.Sleep(10000);
 
-                indexParentBlock =
-                    services.CrossChainService.CallViewMethod<SInt64Value>(
-                        CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
+                indexParentBlock = GetIndexParentHeight(services);
             }
         }
 

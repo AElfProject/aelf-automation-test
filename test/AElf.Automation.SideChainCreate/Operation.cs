@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using Acs3;
 using Acs7;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -33,7 +33,6 @@ namespace AElf.Automation.SideChainCreate
         public Operation()
         {
             var contractServices = GetContractServices();
-            NodeManager = contractServices.NodeManager;
             TokenService = contractServices.TokenService;
             CrossChainService = contractServices.CrossChainService;
             ParliamentService = contractServices.ParliamentService;
@@ -46,7 +45,8 @@ namespace AElf.Automation.SideChainCreate
             var miners = GetMiners();
             foreach (var miner in miners)
             {
-                if (miner.GetFormatted().Equals(InitAccount)) continue;
+                var balance = TokenService.GetUserBalance(miner.GetFormatted());
+                if (miner.GetFormatted().Equals(InitAccount)|| balance > amount) continue;
                 TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeSymbol,

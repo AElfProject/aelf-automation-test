@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChainCreate
             var sideChainInfos = ConfigHelper.Config.SideChainInfos;
             var approveTokenAmount = ConfigHelper.Config.ApproveTokenAmount;
 
-            operation.TransferToken(1000_00000000);
+            operation.TransferToken(1_000_000_00000000);
             operation.ApproveToken(approveTokenAmount);
             foreach (var sideChainInfo in sideChainInfos)
             {
@@ -38,7 +38,7 @@ namespace AElf.Automation.SideChainCreate
                     Decimals = 8,
                     IsBurnable = true,
                     Issuer = AddressHelper.Base58StringToAddress(operation.InitAccount),
-                    TotalSupply = 10_000_000_000_00000000
+                    TotalSupply = 10_00000000_00000000
                 };
                 var proposal = operation.CreateProposal(sideChainInfo.IndexingPrice, sideChainInfo.LockedTokenAmount,
                     sideChainInfo.IsPrivilegePreserved, tokenInfo);

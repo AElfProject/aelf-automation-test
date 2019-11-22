@@ -1,9 +1,9 @@
 {
-  "TestEnvironment": "Other",
+  "TestEnvironment": "Offline1",
   "EnvironmentInfo": [
     {
       "Environment": "Online",
-      "Url": "http://3.94.106.10:8000",
+      "Url": "http://18.162.41.20:8000",
       "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "Password": "123"
     },
