@@ -1,3 +1,6 @@
+using System;
+using System.Diagnostics;
+using System.Threading;
 using Acs3;
 using AElf;
 using AElf.Contracts.ParliamentAuth;
@@ -38,6 +41,11 @@ namespace AElfChain.Common.Contracts
             SetAccount(callAddress);
         }
 
+        public ProposalOutput GetProposal(Hash proposalId)
+        {
+            return CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal, proposalId);
+        }
+        
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
             string caller = null)
         {
@@ -81,6 +89,28 @@ namespace AElfChain.Common.Contracts
             return result.TransactionResult;
         }
 
+        public void CheckProposalCanBeReleased(Hash proposalId, int checkTimes = 60)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (true)
+            {
+                var proposal = GetProposal(proposalId);
+                if (proposal.ToBeReleased)
+                {
+                    Logger.Info(JsonFormatter.ToDiagnosticString(proposal), Format.Json);
+                    return;
+                }
+                Console.Write($"\rWait bp code check: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                if (checkTimes == 0)
+                {
+                    Console.WriteLine();
+                    throw new Exception("Proposal wait long time but status cannot to be released");
+                }
+                
+                checkTimes--;
+                Thread.Sleep(5000);
+            }
+        }
         public Address GetGenesisOwnerAddress()
         {
             return CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());

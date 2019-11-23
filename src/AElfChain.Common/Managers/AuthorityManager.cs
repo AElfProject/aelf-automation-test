@@ -9,6 +9,7 @@ using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
+using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -65,18 +66,10 @@ namespace AElfChain.Common.Managers
 
         private Address DeployContractWithAuthority(string caller, byte[] code)
         {
-            var input = new ContractDeploymentInput
-            {
-                Code = ByteString.CopyFrom(code),
-                Category = KernelConstants.CodeCoverageRunnerCategory
-            };
-            var organizationAddress = _parliament.GetGenesisOwnerAddress();
-            var approveUsers = GetMinApproveMiners();
-
-            var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
-                nameof(GenesisMethod.DeploySmartContract),
-                input, organizationAddress, approveUsers, caller);
-            var byteString = transactionResult.Logs.Last().NonIndexed;
+            var proposalId = _genesis.ProposeNewContract(caller, code);
+            _parliament.CheckProposalCanBeReleased(proposalId);
+            var releaseResult = _genesis.ReleaseApprovedContract(caller, proposalId);
+            var byteString = ByteString.FromBase64(releaseResult.Logs.First(o=>o.Name == "ContractDeployed").NonIndexed);
             var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract deploy passed authority, contract address: {address}");
 
@@ -85,18 +78,11 @@ namespace AElfChain.Common.Managers
 
         private void UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
-            var input = new ContractUpdateInput
-            {
-                Address = address.ConvertAddress(),
-                Code = ByteString.CopyFrom(code)
-            };
-            var organizationAddress = _parliament.GetGenesisOwnerAddress();
-            var approveUsers = GetMinApproveMiners();
+            var proposalId = _genesis.ProposeUpdateContract(caller, address, code);
+            _parliament.CheckProposalCanBeReleased(proposalId);
+            var releaseResult = _genesis.ReleaseApprovedContract(caller, proposalId);
 
-            var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
-                nameof(GenesisMethod.UpdateSmartContract),
-                input, organizationAddress, approveUsers, caller);
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            releaseResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         public List<string> GetCurrentMiners()

@@ -42,6 +42,11 @@ namespace AElf.Automation.ContractsTesting
             Log4NetHelper.LogInit("ContractTest");
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiService;
+            //contract test
+            var pc = new ProposeContract(nm);
+            var address = pc.DeployContract();
+            pc.ExecuteContractMethod(address.GetFormatted());
+            Console.ReadLine();
             
             //analyze size fee
             var feeProvider = new TransactionFeeProvider();

@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Contracts.Genesis;
+using AElf.Contracts.ParliamentAuth;
+using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -15,6 +19,9 @@ namespace AElfChain.Common.Contracts
         //action
         DeploySystemSmartContract,
         DeploySmartContract,
+        ProposeNewContract,
+        ProposeUpdateContract,
+        ReleaseApprovedContract,
         UpdateSmartContract,
         ChangeContractAuthor,
         ChangeGenesisOwner,
@@ -54,6 +61,66 @@ namespace AElfChain.Common.Contracts
             return new GenesisContract(nm, callAddress, genesisContract);
         }
 
+        public Hash ProposeNewContract(string account, string contractFileName)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            
+            return ProposeNewContract(account, codeArray);
+        }
+
+        public Hash ProposeNewContract(string account, byte[] code)
+        {
+            SetAccount(account);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.ProposeNewContract, new ContractDeploymentInput
+            {
+                Code = ByteString.CopyFrom(code),
+                Category = KernelConstants.DefaultRunnerCategory
+            });
+            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+            {
+                var logIndex = txResult.Logs.First(o => o.Name == "ProposalCreated").NonIndexed;
+                var proposal = ProposalCreated.Parser.ParseFrom(ByteString.FromBase64(logIndex));
+                Logger.Info($"ProposeNewContract Id: {proposal.ProposalId}");
+                return proposal.ProposalId;
+            }
+
+            throw new Exception("ProposeNewContract failed.");
+        }
+
+        public Hash ProposeUpdateContract(string account, string contractAddress, string contractFileName)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+
+            return ProposeUpdateContract(account, contractAddress, codeArray);
+        }
+
+        public Hash ProposeUpdateContract(string account, string contractAddress, byte[] code)
+        {
+            SetAccount(account);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.ProposeUpdateContract, new ContractUpdateInput
+            {
+                Code = ByteString.CopyFrom(code),
+                Address = contractAddress.ConvertAddress()
+            });
+            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+            {
+                var logIndex = txResult.Logs.First(o => o.Name == "ProposalCreated").NonIndexed;
+                var proposal = ProposalCreated.Parser.ParseFrom(ByteString.FromBase64(logIndex));
+                Logger.Info($"ProposeUpdateContract Id: {proposal.ProposalId}");
+                return proposal.ProposalId;
+            }
+
+            throw new Exception("ProposeUpdateContract failed.");
+        }
+        
+        public TransactionResultDto ReleaseApprovedContract(string account, Hash proposalId)
+        {
+            SetAccount(account);
+            return ExecuteMethodWithResult(GenesisMethod.ReleaseApprovedContract, proposalId);
+        }
+        
         public bool UpdateContract(string account, string contractAddress, string contractFileName)
         {
             var contractReader = new SmartContractReader();
