@@ -179,8 +179,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var account in AccountList)
                 foreach (var acc in account.Value)
                 {
-                    var accountBalance = GetBalance(sideChain, acc, sideChain.DefaultToken);
-                    Logger.Info($"Account:{acc}, {sideChain.DefaultToken} balance is: {accountBalance}");
+                    var accountBalance = GetBalance(sideChain, acc, sideChain.PrimaryTokenSymbol);
+                    Logger.Info($"Account:{acc}, {sideChain.PrimaryTokenSymbol} balance is: {accountBalance}");
                 }
             }
 
@@ -189,14 +189,14 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 if (acc.Equals(InitAccount)) continue;
                 MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
-                    MainChainService.DefaultToken);
+                    MainChainService.PrimaryTokenSymbol);
             }
 
             foreach (var account in AccountList)
             foreach (var acc in account.Value)
             {
-                var accountBalance = GetBalance(MainChainService, acc, MainChainService.DefaultToken);
-                Logger.Info($"Account:{acc}, {MainChainService.DefaultToken} balance is: {accountBalance}");
+                var accountBalance = GetBalance(MainChainService, acc, MainChainService.PrimaryTokenSymbol);
+                Logger.Info($"Account:{acc}, {MainChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
             }
 
             Logger.Info("Transfer token to each account :");

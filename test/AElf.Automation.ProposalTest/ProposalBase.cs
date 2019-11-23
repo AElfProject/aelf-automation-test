@@ -21,11 +21,15 @@ namespace AElf.Automation.ProposalTest
         private static ConfigInfo _config;
 
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
-        protected static readonly string NativeToken = NodeOption.NativeTokenSymbol;
         protected static string InitAccount;
         protected static string Symbol;
         private readonly EnvironmentInfo _environmentInfo;
-
+        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
+        protected static List<string> Tester { get; set; }
+        protected string NativeToken;
+        protected static int MinersCount { get; set; }
+        protected List<string> Miners { get; set; }
+        protected static ContractServices Services { get; set; }
 
         protected ProposalBase()
         {
@@ -34,14 +38,6 @@ namespace AElf.Automation.ProposalTest
             _environmentInfo =
                 ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
         }
-
-        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
-        protected static List<string> Tester { get; set; }
-
-        protected static int MinersCount { get; set; }
-        protected List<string> Miners { get; set; }
-
-        protected static ContractServices Services { get; set; }
 
         protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
             bool interrupted = false)
@@ -67,6 +63,7 @@ namespace AElf.Automation.ProposalTest
             if (Services == null)
                 Services = GetContractServices();
             Tester = GenerateOrGetTestUsers();
+            NativeToken = GetNativeToken();
             if (Symbol == null)
                 ProposalPrepare();
             TransferToTester();
@@ -116,6 +113,12 @@ namespace AElf.Automation.ProposalTest
             return accounts;
         }
 
+        private string GetNativeToken()
+        {
+            var token = Services.TokenService.GetPrimaryTokenSymbol();
+            return token;
+        }
+
         protected void GetMiners()
         {
             Miners = new List<string>();
@@ -138,7 +141,7 @@ namespace AElf.Automation.ProposalTest
             var createTransactionInput = new CreateInput
             {
                 Symbol = Symbol,
-                Decimals = 2,
+                Decimals = 8,
                 IsBurnable = true,
                 Issuer = Services.CallAccount,
                 TokenName = "Token of test",
@@ -170,7 +173,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
-                if (balance >= 1_00000000) continue;
+                if (balance >= 10_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeToken,
@@ -186,7 +189,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var miner in Miners)
             {
                 var balance = Services.TokenService.GetUserBalance(miner);
-                if (balance >= 1_00000000) continue;
+                if (balance >= 100_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeToken,

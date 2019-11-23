@@ -37,17 +37,15 @@ namespace AElf.Automation.EconomicSystem.Tests
         [TestMethod]
         public void NodeAnnounceElectionAction()
         {
-            var candidates =
-                Behaviors.ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
-            var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
-
-            foreach (var user in UserList)
+            foreach (var user in FullNodeAddress)
             {
                 var election = Behaviors.ElectionService.GetNewTester(user, "123");
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
             }
 
-            Behaviors.GetCandidates();
+            var candidateList = Behaviors.GetCandidates();
+            foreach (var publicKey in candidateList.Value)
+                _logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
         }
 
 

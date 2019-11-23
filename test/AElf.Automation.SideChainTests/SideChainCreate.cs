@@ -82,15 +82,26 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow(2750978)]
+        [DataRow("tDVW")]
 //        [DataRow(2816514)]
 //        [DataRow(2882050)]
 //        [DataRow(2947586)]
-        public void CheckStatus(int chainId)
+        public void CheckStatus(string chainId)
         {
-            var status = MainContracts.GetChainStatus(chainId);
+            var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
+            var status = MainContracts.GetChainStatus(intChainId);
             _logger.Info($"side chain is {status}");
         }
+        
+        [TestMethod]
+        [DataRow("tDVW")]
+        public void Recharge(string chainId)
+        {
+            var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
+            var status = MainContracts.Recharge(InitAccount,intChainId,200000);
+            _logger.Info($" Transaction is {status.Status}");
+        }
+        
 
         [TestMethod]
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2816514)]
@@ -104,7 +115,7 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo")]
+        [DataRow("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK")]
         public void CheckBalance(string account)
         {
             var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress,

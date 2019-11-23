@@ -9,9 +9,8 @@ namespace AElf.Automation.SideChain.Verification.Verify
             TxId = txId;
         }
 
-        public string Result { get; set; }
-        public CrossChainTransactionInfo TxInfo { get; set; }
-        public int ChainId { get; set; }
-        public string TxId { get; set; }
+        public string Result { get; }
+        public int ChainId { get; }
+        public string TxId { get; }
     }
 }
