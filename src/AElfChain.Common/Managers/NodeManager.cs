@@ -229,7 +229,7 @@ namespace AElfChain.Common.Managers
                 {
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
                             true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:

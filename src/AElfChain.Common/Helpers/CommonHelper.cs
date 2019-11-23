@@ -96,7 +96,8 @@ namespace AElfChain.Common.Helpers
         public static int GenerateRandomNumber(int min, int max)
         {
             var rd = new Random(Guid.NewGuid().GetHashCode());
-            return rd.Next(min, max);
+            var random = rd.Next(min, max);
+            return random;
         }
 
         public static string ConvertMileSeconds(long elapsedMilliseconds)
