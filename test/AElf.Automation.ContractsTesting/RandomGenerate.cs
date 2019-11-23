@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
@@ -29,10 +31,24 @@ namespace AElf.Automation.ContractsTesting
 
         public async Task GenerateAndCheckRandomNumbers(int count)
         {
+            var accounts = GetAvailableAccounts();
+            var genesis = _nodeManager.GetGenesisContract();
             GetConsensusStub();
-            for (var i = 0; i < count; i++) await GenerateRandomHash();
-
-            await GetAllRandomHash();
+            var tasks = new List<Task>
+            {
+                Task.Run(async () =>
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        var id = CommonHelper.GenerateRandomNumber(0, accounts.Count);
+                        _consensusImplStub = genesis.GetConsensusImplStub(accounts[id]);
+                        await GenerateRandomHash();
+                        await Task.Delay(500);
+                    }
+                }),
+                Task.Run(async ()=> await GetAllRandomHash())
+            };
+            Task.WaitAll(tasks.ToArray());
         }
 
         private void GetConsensusStub()
@@ -42,38 +58,62 @@ namespace AElf.Automation.ContractsTesting
             _consensusImplStub = genesis.GetConsensusImplStub();
         }
 
-        private async Task<Hash> GenerateRandomHash()
+        private async Task GenerateRandomHash()
         {
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
-            var height = await _nodeManager.ApiService.GetBlockHeightAsync();
             Logger.Info($"Current round info: {roundInfo.Value}");
             var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Empty());
-            hashQueue.Enqueue(randomOrder.Output.TokenHash);
-            Logger.Info($"Random token info: {randomOrder.Output}");
-
-            return randomOrder.Output.TokenHash;
+            if(!hashQueue.Contains(randomOrder.Output.TokenHash))
+                hashQueue.Enqueue(randomOrder.Output.TokenHash);
+            var blockHeight = randomOrder.Output.BlockHeight;
+            var tokenHash = randomOrder.Output.TokenHash;
+            Logger.Info($"Random token height: {blockHeight}, hash: {tokenHash}");
         }
 
-        private async Task<List<Hash>> GetAllRandomHash()
+        private async Task GetAllRandomHash()
         {
-            var randomHashCollection = new List<Hash>();
+            await Task.Delay(10 * 1000);
             while (hashQueue.TryDequeue(out var tokenHash))
             {
-                var randomResult = await _consensusImplStub.GetRandomNumber.CallAsync(tokenHash);
-                if (!randomResult.Equals(new Hash()))
+                try
                 {
-                    Logger.Info($"Random hash: {tokenHash}=>{randomResult}");
-                    randomHashCollection.Add(randomResult);
-                }
+                    var randomResult = await _consensusImplStub.GetRandomNumber.CallAsync(tokenHash);
+                    if (!randomResult.Equals(new Hash()))
+                    {
+                        Logger.Info($"Random hash: {tokenHash}=>{randomResult}");
+                        continue;
+                    }
 
-                hashQueue.Enqueue(tokenHash);
-                var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
-                var height = await _nodeManager.ApiService.GetBlockHeightAsync();
-                Logger.Info($"Current information: round={currentRound.Value}, height={height}");
-                await Task.Delay(1000);
+                    hashQueue.Enqueue(tokenHash);
+                    var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
+                    var height = await _nodeManager.ApiService.GetBlockHeightAsync();
+                    Logger.Info($"Current information: round={currentRound.Value}, height={height}");
+                    await Task.Delay(1000);
+                }
+                catch (Exception e)
+                {
+                    e.Message.WriteErrorLine();
+                    hashQueue.Enqueue(tokenHash);
+                    await Task.Delay(1000);
+                }
+            }
+        }
+
+        private List<string> GetAvailableAccounts()
+        {
+            var accounts = _nodeManager.ListAccounts();
+            var genesis = _nodeManager.GetGenesisContract();
+            var token = genesis.GetTokenContract();
+            var primaryToken = _nodeManager.GetPrimaryTokenSymbol();
+            var availableAccounts = new List<string>();
+            foreach (var acc in accounts)
+            {
+                var balance = token.GetUserBalance(acc, primaryToken);
+                if(balance > 10000_0000)
+                    availableAccounts.Add(acc);
             }
 
-            return randomHashCollection;
+            return availableAccounts;
         }
     }
 }
