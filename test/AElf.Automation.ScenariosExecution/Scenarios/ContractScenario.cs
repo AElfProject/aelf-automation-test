@@ -148,7 +148,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     BasicUpdateContract.ContractFileName);
                 if (!result) return;
                 IsUpdateContract = true;
-                Services.NodeManager.WaitCurrentHeightToLib();
                 UpdateContract = new BasicUpdateContract(Services.NodeManager, owner.GetFormatted(),
                     FunctionContract.ContractAddress);
                 Logger.Info("Update contract to UpdateContract successful.");
@@ -160,7 +159,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     BasicFunctionContract.ContractFileName);
                 if (!result) return;
                 IsUpdateContract = false;
-                Services.NodeManager.WaitCurrentHeightToLib();
                 FunctionContract = new BasicFunctionContract(Services.NodeManager, owner.GetFormatted(),
                     UpdateContract.ContractAddress);
                 Logger.Info("Update contract to BasicContract successful.");

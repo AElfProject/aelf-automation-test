@@ -14,7 +14,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             InitializeScenario();
             var contract = new BasicWithParallelContract(Services.NodeManager, AllTesters[0]);
-            Services.NodeManager.WaitCurrentHeightToLib();
             var testers = AllTesters.GetRange(1, 2);
             _contracts = testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();

@@ -69,8 +69,7 @@ namespace AElf.Automation.RpcPerformance
                     performance.SideChainDeployContractsWithAuthority();
                 else
                     performance.DeployContracts();
-
-                nodeManager.WaitCurrentHeightToLib(); //contract execution need wait to lib
+                
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
