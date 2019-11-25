@@ -1,5 +1,5 @@
-using AElf.Contracts.CrossChain;
 using AElfChain.Common;
+using AElf.Contracts.CrossChain;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

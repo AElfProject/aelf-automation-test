@@ -1,6 +1,6 @@
-using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
+using AElf.Types;
 
 namespace AElf.Automation.SideChainCreate
 {

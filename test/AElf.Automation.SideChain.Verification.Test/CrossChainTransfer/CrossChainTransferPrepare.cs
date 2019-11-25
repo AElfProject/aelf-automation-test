@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElf.Contracts.TestContract.Performance;
-using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
+using AElf.Contracts.TestContract.Performance;
+using AElf.Types;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;

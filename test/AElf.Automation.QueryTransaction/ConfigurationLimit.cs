@@ -1,7 +1,7 @@
-using AElf.Contracts.Configuration;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.Configuration;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 

@@ -1,11 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Contracts.TokenConverter;
-using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.TokenConverter;
+using AElf.Types;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;

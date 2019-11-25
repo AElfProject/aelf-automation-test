@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using AElf;
+using AElfChain.Common.Helpers;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
-using AElfChain.Common.Helpers;
 using log4net;
 using Volo.Abp.Threading;
 

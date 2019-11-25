@@ -5,6 +5,8 @@ using AElf.Sdk.CSharp;
 using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
+using AElfChain.Common.Contracts;
+using AElf.Contracts.CrossChain;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify

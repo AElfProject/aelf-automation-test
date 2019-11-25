@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using AElf.CSharp.Core;
-using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.CSharp.Core;
+using AElf.Types;
 using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using AElfChain.Common.Managers;
 using AElf.Contracts.Profit;
 using AElf.Types;
-using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 

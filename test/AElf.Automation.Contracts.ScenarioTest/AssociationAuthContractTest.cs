@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Acs3;
-using AElf.Contracts.AssociationAuth;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.MultiToken;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;

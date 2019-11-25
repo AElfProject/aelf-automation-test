@@ -1,6 +1,6 @@
 ﻿using System;
-using AElfChain.Common;
 using AElfChain.Common.Helpers;
+using AElfChain.Common;
 using McMaster.Extensions.CommandLineUtils;
 using log4net;
 

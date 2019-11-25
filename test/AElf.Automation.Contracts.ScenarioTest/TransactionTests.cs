@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using AElfChain.Common.Utils;
 using AElf.Cryptography;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common.Utils;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

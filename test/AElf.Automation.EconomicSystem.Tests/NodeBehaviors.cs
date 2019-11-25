@@ -1,5 +1,5 @@
-using AElf.Contracts.Election;
 using AElfChain.Common.Contracts;
+using AElf.Contracts.Election;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 

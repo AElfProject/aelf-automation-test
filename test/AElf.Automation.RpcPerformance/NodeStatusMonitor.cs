@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Types;
 using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;

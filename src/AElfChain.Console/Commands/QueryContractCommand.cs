@@ -1,7 +1,7 @@
-using System;
-using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using System;
+using AElf.Types;
 
 namespace AElfChain.Console.Commands
 {

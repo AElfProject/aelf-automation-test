@@ -1,7 +1,7 @@
 ﻿using System.Linq;
+using AElfChain.Common.Helpers;
 using AElf.Automation.SideChain.Verification.CrossChainTransfer;
 using AElf.Automation.SideChain.Verification.Verify;
-using AElfChain.Common.Helpers;
 using log4net;
 
 namespace AElf.Automation.SideChain.Verification

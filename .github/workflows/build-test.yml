@@ -1,0 +1,22 @@
+name: Automation build test
+
+on: 
+    push:
+        branches: 
+            - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Checkout latest build
+      run: 
+        git checkout dev && git pull
+        
+    - name: Run a multi-line script
+      run: |
+        cd src/AElf && ls
+        dotnet restore
+        dotnet build
+      shell: bash 

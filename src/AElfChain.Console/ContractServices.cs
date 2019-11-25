@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Managers;
 
 namespace AElfChain.Console
 {

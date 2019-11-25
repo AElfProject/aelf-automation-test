@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using AElf.Types;
 using AElfChain.Common.Helpers;
+using AElf.Types;
 using Xunit;
 
 namespace AElf.Automation.ApiTest

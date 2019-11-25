@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using AElf.Contracts.Configuration;
-using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.Configuration;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;

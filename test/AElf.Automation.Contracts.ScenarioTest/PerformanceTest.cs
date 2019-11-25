@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Contracts.TestContract.Performance;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.TestContract.Performance;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

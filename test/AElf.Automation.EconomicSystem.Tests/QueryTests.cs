@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AElf.Automation.EconomicSystem.Tests

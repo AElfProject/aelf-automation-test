@@ -1,8 +1,8 @@
-using AElf.Contracts.TokenConverter;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.TokenConverter;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands

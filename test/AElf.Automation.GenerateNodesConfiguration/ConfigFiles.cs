@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using AElfChain.Common;
 using AElfChain.Common.Helpers;
+using AElfChain.Common;
 
 namespace AElf.Automation.GenerateNodesConfiguration
 {

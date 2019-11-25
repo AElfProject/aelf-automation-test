@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElf.Types;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {

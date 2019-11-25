@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Acs0;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
+using AElf.Contracts.MultiToken;
 using log4net;
 using Shouldly;
 

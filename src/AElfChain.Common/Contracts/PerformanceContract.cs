@@ -1,7 +1,7 @@
 using System;
+using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
-using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Shouldly;

@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
+using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;

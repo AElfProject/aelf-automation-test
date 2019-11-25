@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
+using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using log4net;
 
 namespace AElf.Automation.ContractsTesting

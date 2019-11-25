@@ -1,7 +1,7 @@
 ﻿using System;
-using AElf.Contracts.MultiToken;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
