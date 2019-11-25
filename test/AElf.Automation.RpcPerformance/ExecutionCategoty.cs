@@ -144,6 +144,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContractsWithAuthority()
         {
+            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
@@ -155,6 +156,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void SideChainDeployContractsWithAuthority()
         {
+            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[0].Account;
@@ -170,10 +172,13 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             //create all token
+            var genesis = NodeManager.GetGenesisContract();
+            var tokenContract = genesis.GetTokenContract();
             foreach (var contract in ContractList)
             {
                 var account = contract.Owner;
-                var contractPath = contract.ContractAddress;
+                //var contractPath = contract.ContractAddress;
+                var contractPath = tokenContract.ContractAddress;
                 var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
 
