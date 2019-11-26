@@ -144,6 +144,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContractsWithAuthority()
         {
+            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
@@ -155,6 +156,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void SideChainDeployContractsWithAuthority()
         {
+            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[0].Account;
@@ -170,25 +172,18 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             //create all token
-            foreach (var contract in ContractList)
+            var genesis = NodeManager.GetGenesisContract();
+            var tokenContract = genesis.GetTokenContract();
+            for (var i = 0; i < ThreadCount; i++)
             {
+                var contract = new ContractInfo(AccountList[i].Account, tokenContract.ContractAddress);
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
-                var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
+                var symbol = $"{CommonHelper.RandomString(8, false)}";
                 contract.Symbol = symbol;
+                ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
-                //create fake elf token, just for transaction fee
-                var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-                token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-                {
-                    Symbol = primaryToken,
-                    TokenName = $"fake {primaryToken} token just for transaction fee",
-                    TotalSupply = 10_0000_0000_00000000L,
-                    Decimals = 8,
-                    Issuer = account.ConvertAddress(),
-                    IsBurnable = true
-                });
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,

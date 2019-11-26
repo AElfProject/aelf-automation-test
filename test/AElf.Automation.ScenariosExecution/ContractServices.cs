@@ -78,8 +78,8 @@ namespace AElf.Automation.ScenariosExecution
             TokenConverterService = GenesisService.GetTokenConverterContract();
 
             //Get or deploy other contracts
-            GetOrDeployFunctionContract();
-            GetOrDeployPerformanceContract();
+            //GetOrDeployFunctionContract();
+            //GetOrDeployPerformanceContract();
         }
 
         private void GetOrDeployFunctionContract()
