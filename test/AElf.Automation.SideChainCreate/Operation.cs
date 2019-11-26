@@ -157,7 +157,7 @@ namespace AElf.Automation.SideChainCreate
         {
             ParliamentService.SetAccount(InitAccount, Password);
             var address =
-                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
+                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
 
             return address;
         }

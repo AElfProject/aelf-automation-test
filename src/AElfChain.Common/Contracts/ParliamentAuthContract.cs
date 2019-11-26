@@ -25,7 +25,7 @@ namespace AElfChain.Common.Contracts
         CreateOrganization,
 
         //View
-        GetGenesisOwnerAddress,
+        GetDefaultOrganizationAddress,
         GetOrganization
     }
 
@@ -83,7 +83,7 @@ namespace AElfChain.Common.Contracts
 
         public Address GetGenesisOwnerAddress()
         {
-            return CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
+            return CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
         }
     }
 }

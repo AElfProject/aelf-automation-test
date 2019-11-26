@@ -138,7 +138,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"contract owner address is {contractOwnerAddress}");
 
             var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {organizationAddress} ");
 
@@ -152,7 +152,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = AddressHelper.Base58StringToAddress(InitAccount);
             var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {organizationAddress} ");
 
@@ -185,7 +185,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             MainTester.GenesisService.SetAccount(InitAccount);
             var result =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {result} ");
         }
@@ -196,7 +196,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             ;
             var organizationAddress =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {organizationAddress} ");
             var input = organizationAddress;
@@ -209,7 +209,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var result = MainTester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ChangeGenesisOwner, input);
             var account =
-                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                MainTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {account} ");
         }
@@ -220,7 +220,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = AddressHelper.Base58StringToAddress(InitAccount);
             var organizationAddress =
-                SideTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                SideTester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             _logger.Info($"organization address is {organizationAddress} ");
 
@@ -510,7 +510,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private Address GetGenesisOwnerAddress(ContractTester tester)
         {
-            return tester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+            return tester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                 new Empty());
         }
 

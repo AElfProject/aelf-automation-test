@@ -270,7 +270,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             //get default organization
             var organizationAddress =
-                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             //create proposal
             var createProposalInput = new CreateProposalInput
