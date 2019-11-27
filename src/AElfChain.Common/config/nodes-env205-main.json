@@ -3,6 +3,7 @@
     "Nodes": [
         {
             "name": "bp1",
+            "endpoint": "",
             "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "password": "123"
         },

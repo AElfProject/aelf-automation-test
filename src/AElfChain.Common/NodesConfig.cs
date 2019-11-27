@@ -11,6 +11,7 @@ namespace AElfChain.Common
     public class Node
     {
         [JsonProperty("name")] public string Name { get; set; }
+        [JsonProperty("endpoint")] public string Endpoint { get; set; }
         [JsonProperty("account")] public string Account { get; set; }
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
@@ -57,7 +58,7 @@ namespace AElfChain.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        public static string ConfigFile = CommonHelper.MapPath("nodes.json");
+        public static string ConfigFile = CommonHelper.MapPath("config/nodes.json");
 
         public static NodesInfo Config => GetConfigInfo();
 
@@ -65,7 +66,7 @@ namespace AElfChain.Common
         {
             if (!name.Contains(".json"))
                 name += ".json";
-            ConfigFile = CommonHelper.MapPath(name);
+            ConfigFile = CommonHelper.MapPath($"config/{name}");
         }
 
         private static NodesInfo GetConfigInfo()
@@ -73,7 +74,7 @@ namespace AElfChain.Common
             lock (LockObj)
             {
                 if (_instance != null) return _instance;
-
+                
                 _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }

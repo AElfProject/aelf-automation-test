@@ -1,0 +1,67 @@
+{
+    "RequireAuthority": true,
+    "Nodes": [
+        {
+            "name": "bp1",
+            "endpoint": "192.168.197.14:8000",
+            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "password": "123"
+        },
+        {
+            "name": "bp2",
+            "endpoint": "192.168.197.42:8000",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "password": "123"
+        },
+        {
+            "name": "bp3",
+            "endpoint": "192.168.197.24:8000",
+            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
+            "password": "123"
+        },
+        {
+            "name": "full1",
+            "endpoint": "192.168.197.23:8000",
+            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "password": "123"
+        },
+        {
+            "name": "full2",
+            "endpoint": "192.168.197.32:8000",
+            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
+            "password": "123"
+        },
+        {
+            "name": "full3",
+            "endpoint": "192.168.197.16:8000",
+            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+            "password": "123"
+        },
+        {
+            "name": "full4",
+            "endpoint": "192.168.197.11:8000",
+            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+            "password": "123"
+        },
+        {
+            "name": "full5",
+            "endpoint": "192.168.197.26:8000",
+            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+            "password": "123"
+        },
+        {
+            "name": "full6",
+            "endpoint": "192.168.197.34:8000",
+            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+            "password": "123"
+        },
+        {
+            "name": "full7",
+            "endpoint": "192.168.197.20:8000",
+            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "password": "123"
+        }
+    ],
+    "NativeTokenSymbol" : "ELF",
+    "DefaultPassword": "123"
+}

@@ -18,12 +18,12 @@ namespace AElfChain.Common.Helpers
     {
         public static int LogInit()
         {
-            return LogInit(CommonHelper.MapPath("log4net.config"), "");
+            return LogInit(CommonHelper.MapPath("config/log4net.config"), "");
         }
 
         public static int LogInit(string fileName)
         {
-            return LogInit(CommonHelper.MapPath("log4net.config"), fileName);
+            return LogInit(CommonHelper.MapPath("config/log4net.config"), fileName);
         }
 
         /// <summary>

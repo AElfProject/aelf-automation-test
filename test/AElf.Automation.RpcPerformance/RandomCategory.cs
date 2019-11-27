@@ -91,6 +91,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void InitializeContracts()
         {
+            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
             //create all token
             for (var i = 0; i < ThreadCount; i++)
             {
@@ -99,6 +100,12 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = $"{CommonHelper.RandomString(8, false)}";
                 contract.Symbol = symbol;
+                if (i == 0) //添加默认ELF转账组
+                {
+                    contract.Symbol = primaryToken;
+                    ContractList.Add(contract);
+                    continue;
+                }
                 ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
@@ -123,7 +130,7 @@ namespace AElf.Automation.RpcPerformance
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
                 var symbol = contract.Symbol;
-
+                if (symbol == primaryToken) continue;
                 var token = new TokenContract(NodeManager, account, contractPath);
                 foreach (var user in AccountList)
                 {
@@ -413,7 +420,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 10000,
+                    Amount = ((i + 1) % 4 + 1) * 1000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo =
@@ -433,7 +440,7 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
-                $"Thread {threadNo} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+                $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
             Thread.Sleep(10);
         }
 
@@ -509,7 +516,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 10000,
+                    Amount = ((i + 1) % 4 + 1) * 1000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo = NodeManager.GenerateRawTransaction(from, contractPath,
