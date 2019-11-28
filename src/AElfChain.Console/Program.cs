@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using log4net;
+using Sharprompt;
 using McMaster.Extensions.CommandLineUtils;
 using Volo.Abp.Threading;
+using Prompt = Sharprompt.Prompt;
 
 namespace AElfChain.Console
 {
@@ -34,14 +37,15 @@ namespace AElfChain.Console
             Log4NetHelper.LogInit();
             Logger = Log4NetHelper.GetLogger("Program");
 
-            if (Endpoint == null)
-            {
-                "Please input endpoint address(eg: 127.0.0.1:8000): ".WriteSuccessLine(changeLine: false);
-                Endpoint = System.Console.ReadLine();
-            }
-
             if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
 
+            if (Endpoint == null)
+            {
+                var nodes = NodeInfoHelper.Config.Nodes.Select(o => $"{o.Name} [{o.Endpoint}]").ToList();
+                var command = Prompt.Select("Select Endpoint", nodes);
+                Endpoint = command.Split("[").Last().Replace("]", "");
+            }
+            
             try
             {
                 NodeManager = new NodeManager(Endpoint);
