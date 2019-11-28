@@ -34,37 +34,37 @@
     {
       "name": "6.亚太区域(香港)",
       "endpoint": "18.163.40.216:8000",
-      "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
       "password": "123"
     },
     {
       "name": "7.亚太区域(新加坡)",
       "endpoint": "3.1.211.78:8000",
-      "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+      "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
       "password": "123"
     },
     {
       "name": "8.亚太区域(悉尼)",
       "endpoint": "13.210.243.191:8000",
-      "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+      "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
       "password": "123"
     },
     {
       "name": "9.南美洲(圣保罗)",
       "endpoint": "18.231.115.220:8000",
-      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+      "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
       "password": "123"
     },
     {
       "name": "10.欧洲(伦敦)",
       "endpoint": "35.177.181.31:8000",
-      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+      "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
       "password": "123"
     },
     {
       "name": "11.亚太区域(东京)-浏览器用",
       "endpoint": "13.231.179.27:8000",
-      "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
+      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
       "password": "123"
     }
   ],
