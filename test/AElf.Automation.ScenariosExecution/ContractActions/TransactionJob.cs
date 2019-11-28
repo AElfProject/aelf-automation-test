@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Types;
+using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
@@ -37,10 +38,8 @@ namespace AElf.Automation.ScenariosExecution.ContractActions
         public void InitializeJob()
         {
             //preparation
-            var bpNodes = ConfigInfoHelper.Config.BpNodes;
-            var fullNodes = ConfigInfoHelper.Config.FullNodes;
-            Endpoints = bpNodes.Select(o => o.ServiceUrl).ToList();
-            Endpoints.AddRange(fullNodes.Select(o => o.ServiceUrl));
+            var nodes = NodeInfoHelper.Config.Nodes;
+            Endpoints = nodes.Select(o => o.Endpoint).ToList();
             Endpoints.ForEach(CreateNodeManager);
 
             //init tester
@@ -50,7 +49,7 @@ namespace AElf.Automation.ScenariosExecution.ContractActions
             TesterJob.CheckTesterToken();
             
             //init contracts
-            var bp = bpNodes.Select(o => o.Account).First();
+            var bp = nodes.Select(o => o.Account).First();
             Services = new ContractServices(nodeManager, bp);
             NodeManagerQueue.Enqueue(nodeManager);
         }

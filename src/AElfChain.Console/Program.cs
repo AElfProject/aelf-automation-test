@@ -1,11 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using log4net;
-using Sharprompt;
 using McMaster.Extensions.CommandLineUtils;
 using Volo.Abp.Threading;
 using Prompt = Sharprompt.Prompt;
@@ -37,7 +37,15 @@ namespace AElfChain.Console
             Log4NetHelper.LogInit();
             Logger = Log4NetHelper.GetLogger("Program");
 
-            if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
+            if (ConfigFile == null)
+            {
+                var configPath = CommonHelper.MapPath("config");
+                var configFiles = Directory.GetFiles(configPath, "*.json")
+                    .Select(o => o.Split("/").Last()).ToList();
+                ConfigFile = Prompt.Select("Select env config", configFiles);
+            }
+
+            NodeInfoHelper.SetConfig(ConfigFile);
 
             if (Endpoint == null)
             {
@@ -45,7 +53,7 @@ namespace AElfChain.Console
                 var command = Prompt.Select("Select Endpoint", nodes);
                 Endpoint = command.Split("[").Last().Replace("]", "");
             }
-            
+
             try
             {
                 NodeManager = new NodeManager(Endpoint);

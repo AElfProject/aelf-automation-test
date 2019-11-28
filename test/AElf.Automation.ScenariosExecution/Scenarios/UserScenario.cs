@@ -144,7 +144,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var beforeVoteBalance = Token.GetUserBalance(account, "VOTE");
             if (beforeElfBalance < amount * 10000_0000) // balance not enough, bp transfer again
             {
-                var token = Token.GetNewTester(BpNodes.First().Account);
+                var token = Token.GetNewTester(AllNodes.First().Account);
                 token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,

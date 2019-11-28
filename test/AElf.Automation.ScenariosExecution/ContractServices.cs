@@ -8,6 +8,7 @@ using AElfChain.Common.Managers;
 using AElf.Automation.ScenariosExecution.Scenarios;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
+using AElfChain.Common;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution
@@ -56,7 +57,7 @@ namespace AElf.Automation.ScenariosExecution
             if (!specifyEndpoint.Enable) //随机选择bp执行
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                NodeManager.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].ServiceUrl);
+                NodeManager.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].Endpoint);
             }
 
             //Treasury contract
@@ -222,13 +223,9 @@ namespace AElf.Automation.ScenariosExecution
 
         private List<Node> GetCurrentBpNodes()
         {
-            var configInfo = ConfigInfoHelper.Config;
-            var bpNodes = configInfo.BpNodes;
-            var fullNodes = configInfo.FullNodes;
-
-            var minersPublicKeys = ConsensusService.GetCurrentMiners();
-            var currentBps = bpNodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
-            currentBps.AddRange(fullNodes.Where(full => minersPublicKeys.Contains(full.PublicKey)));
+            var nodes = NodeInfoHelper.Config.Nodes;
+            var minersPublicKeys = ConsensusService.GetCurrentMinersPubkey();
+            var currentBps = nodes.Where(bp => minersPublicKeys.Contains(bp.PublicKey)).ToList();
             Logger.Info($"Current miners are: {string.Join(",", currentBps.Select(o => o.Name))}");
 
             return currentBps;

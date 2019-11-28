@@ -4,6 +4,7 @@ using System.Linq;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElfChain.SDK;
 using Newtonsoft.Json;
 
 namespace AElfChain.Common
@@ -15,6 +16,8 @@ namespace AElfChain.Common
         [JsonProperty("account")] public string Account { get; set; }
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
+        [JsonIgnore] public bool Status { get; set; } = false;
+        [JsonIgnore] public IApiService ApiService { get; set; }
     }
 
     public class NodesInfo
@@ -47,7 +50,7 @@ namespace AElfChain.Common
 
         public List<Node> GetMinerNodes(ConsensusContract consensus)
         {
-            var miners = consensus.GetCurrentMiners();
+            var miners = consensus.GetCurrentMinersPubkey();
             return Nodes.Where(o => miners.Contains(o.PublicKey)).ToList();
         }
     }
@@ -68,7 +71,12 @@ namespace AElfChain.Common
                 name += ".json";
             ConfigFile = CommonHelper.MapPath($"config/{name}");
         }
-
+        
+        public static List<string> GetAccounts()
+        {
+            return _instance.Nodes.Select(o => o.Account).ToList();
+        }
+        
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)
