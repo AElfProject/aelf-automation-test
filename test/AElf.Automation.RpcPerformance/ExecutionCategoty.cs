@@ -583,7 +583,7 @@ namespace AElf.Automation.RpcPerformance
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             var maxLimit = ConfigInfoHelper.Config.SentTxLimit;
             if (!randomTransactionOption.EnableRandom) return;
-            var exceptionTimes = 120;
+            var exceptionTimes = 8;
             while (true)
             {
                 var serviceUrl = randomTransactionOption.GetRandomEndpoint();
