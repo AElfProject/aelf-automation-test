@@ -19,6 +19,9 @@ namespace AElfChain.Common.Contracts
         ChangeContractAuthor,
         ChangeGenesisOwner,
         ValidateSystemContractAddress,
+        ReleaseApprovedContract,
+        ProposeNewContract,
+        ProposeUpdateContract,
 
         //view
         CurrentContractSerialNumber,

@@ -47,7 +47,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Thread.Sleep(200000);
 
             Logger.Info("Transfer side chain token");
-            IssueSideTokenForBpAccount();
+//            IssueSideTokenForBpAccount();
             Logger.Info("Register address");
             SideChainRegisterMainChain();
             MainChainRegister();
