@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
@@ -74,6 +75,9 @@ namespace AElfChain.Console.Commands
                 case "GetAccountPubicKey":
                     GetAccountPublicKey();
                     break;
+                case "GetAllPeers":
+                    GetAllPeers();
+                    break;
                 case "GetPeers":
                     GetPeers();
                     break;
@@ -141,7 +145,6 @@ namespace AElfChain.Console.Commands
             JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
         }
 
-
         private void GetChainStatus()
         {
             var chainInfo = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
@@ -153,7 +156,7 @@ namespace AElfChain.Console.Commands
             "Parameter: [ContractAddress] [WithDetails]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var withDetails = input.Length == 2 && bool.Parse(input[1]);
-                
+
             var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
             var customContract = new CustomContractHandler(descriptorSet);
             customContract.GetAllMethodsInfo(withDetails);
@@ -189,6 +192,7 @@ namespace AElfChain.Console.Commands
             {
                 hash = input[0];
             }
+
             var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(hash, offset, limit));
@@ -237,10 +241,44 @@ namespace AElfChain.Console.Commands
             $"PublicKey: {publicKey}".WriteSuccessLine();
         }
 
+        private void GetAllPeers()
+        {
+            var nodes = NodeInfoHelper.Config.Nodes;
+            foreach (var node in nodes)
+            {
+                var nodeManager = new NodeManager(node.Endpoint);
+                var peers = nodeManager.NetGetPeers();
+                var count = peers.Count;
+                $"Name: {node.Name}  Address: {node.Endpoint}, PeerCount: {count}".WriteSuccessLine();
+                if (count == 0)
+                {
+                    System.Console.WriteLine();
+                    continue;
+                }
+                
+                var peerInfo = string.Join("  ", peers.Select(o => o.IpAddress));
+                $"Peers: {peerInfo}".WriteSuccessLine();
+                System.Console.WriteLine();
+            }
+        }
+        
         private void GetPeers()
         {
+            var input = Prompt.Select("With details", new[] {"yes", "no"});
             var peers = NodeManager.NetGetPeers();
-            JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+            if (input == "yes")
+                JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+            else
+            {
+                var count = peers.Count;
+                var peerInfo = peers.Select(o => o.IpAddress).ToList();
+                $"Total peers count: {count}".WriteSuccessLine();
+                if (count == 0) return;
+                for (var i = 0; i < peerInfo.Count; i++)
+                {
+                    $"{i + 1:00}. {peerInfo[i]}".WriteSuccessLine();
+                }
+            }
         }
 
         private void AddPeer()
@@ -293,6 +331,7 @@ namespace AElfChain.Console.Commands
                 "GetMiningSequences",
                 "ListAccounts",
                 "GetAccountPubicKey",
+                "GetAllPeers",
                 "GetPeers",
                 "AddPeer",
                 "RemovePeer",
