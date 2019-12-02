@@ -20,7 +20,6 @@ namespace AElf.Automation.SideChainCreate
     {
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
-        public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
 
         public readonly TokenContract TokenService;

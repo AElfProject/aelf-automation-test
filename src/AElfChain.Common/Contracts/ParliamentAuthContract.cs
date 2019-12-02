@@ -85,5 +85,11 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
         }
+
+        public ProposalOutput CheckProposal(Hash proposalId)
+        {
+            return CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
+                proposalId);
+        }
     }
 }

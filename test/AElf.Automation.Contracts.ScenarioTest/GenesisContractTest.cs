@@ -34,11 +34,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager MainCH { get; set; }
         public List<string> UserList { get; set; }
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        public string Creator { get; } = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+        public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        private static string MainRpcUrl { get; } = "http://192.168.197.14:8000";
-        private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
-        private static string SideRpcUrl2 { get; } = "http://192.168.197.14:8002";
+        private static string MainRpcUrl { get; } = "http://13.53.125.186:8000";
+        private static string SideRpcUrl { get; } = "http://13.53.127.35:8000";
+        private static string SideRpcUrl2 { get; } = "http://13.48.55.124:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -379,7 +379,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             SideTester.IssueTokenToMiner(Creator);
             SideTester.IssueToken(Creator,OtherAccount);
-            var input = ContractDeploymentInput("AElf.Contracts.AssociationAuth");
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var organization = GetGenesisOwnerAddress(SideTester);
             var proposal = CreateProposal(SideTester, Creator, GenesisMethod.ProposeNewContract, input,
                 organization);
@@ -400,10 +400,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             SideTester.IssueToken(Creator,OtherAccount);
             var input = ContractUpdateInput("AElf.Contracts.Election",SideTester.AssociationService.ContractAddress);
             var organization = GetGenesisOwnerAddress(SideTester);
-            var proposal = CreateProposal(SideTester, OtherAccount, GenesisMethod.ProposeUpdateContract, input,
+            var proposal = CreateProposal(SideTester, Creator, GenesisMethod.ProposeUpdateContract, input,
                 organization);
             Approve(SideTester, proposal);
-            var release = Release(SideTester, proposal, OtherAccount);
+            var release = Release(SideTester, proposal, Creator);
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs.Last().NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
@@ -413,7 +413,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
         
         [TestMethod]
-        [DataRow("761f779bfbbe0e4a58a8382f5051cb71fbf425de39edee61e97acc04823e5522","53c38d25cdf9f359af3c64e66b0c5de542011d8cb115f8415cf7f7564f99763c")]
+        [DataRow("4c163214134a39313dde81df9c77ed98583a2e1af8b9e6d5180d38da18514eed","edcd361ce28618d02a1bd33b8729010de6ff746b3548b7c699c32b1ad8e5a6ac")]
         public void SideReleaseApprovedContract(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -440,12 +440,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             SideTester2.IssueTokenToMiner(Creator);
             SideTester2.IssueToken(Creator,OtherAccount);
-            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            var input = ContractDeploymentInput("AElf.Contracts.Election");
             var organization = GetGenesisOwnerAddress(SideTester2);
-            var proposal = CreateProposal(SideTester2, Creator, GenesisMethod.ProposeNewContract, input,
+            var proposal = CreateProposal(SideTester2, OtherAccount, GenesisMethod.ProposeNewContract, input,
                 organization);
             Approve(SideTester2, proposal);
-            var release = Release(SideTester2, proposal, Creator);
+            var release = Release(SideTester2, proposal, OtherAccount);
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs.Last().NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
@@ -459,7 +459,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             SideTester2.IssueTokenToMiner(Creator);
             SideTester2.IssueToken(Creator,OtherAccount);
-            var input = ContractUpdateInput("AElf.Contracts.Election",SideTester2.AssociationService.ContractAddress);
+            var input = ContractUpdateInput("AElf.Contracts.ParliamentAuth","2RXWKnH1perc3pANSefCBGEMio6WihCqWQnX8Sx1NNVnVQSzJf");
             var organization = GetGenesisOwnerAddress(SideTester2);
             var proposal = CreateProposal(SideTester2, OtherAccount, GenesisMethod.ProposeUpdateContract, input,
                 organization);
@@ -474,7 +474,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("39d7f0453dff548ade5bc1acf198887c818237552b3f5ca357e57a8c5cc6472b","7e1a8d741463074576d1334e11e053e6fa8a913b5e2dde287bbf5bd70630aedb")]
+        [DataRow("c961fbc4ec8fc1c8c016c993153e106e67ff1d7d1b3e51b21ef9a217fd0ad4fe","edcd361ce28618d02a1bd33b8729010de6ff746b3548b7c699c32b1ad8e5a6ac")]
         public void Side2ReleaseApprovedContract(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -489,6 +489,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe("MINED");
             var byteString = ByteString.FromBase64(release.Logs.Last().NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            _logger.Info($"{deployAddress}");
+        }
+        
+        [TestMethod]
+        [DataRow("b35ae792214ff60afbb37a4c9764f58f82918b3cca3e5b1ea77535bdb3614a6f","8182e7e35e03cdff96ca958ffff69dbde8de8fe2ac8e8c40656cdec3682aaef5")]
+        public void Side2ReleaseUpdateApprovedContract(string proposal, string hash)
+        {
+            var proposalId = HashHelper.HexStringToHash(proposal);
+            var proposalHash = HashHelper.HexStringToHash(hash);
+            var releaseApprovedContractInput = new ReleaseApprovedContractInput()
+            {
+                ProposedContractInputHash = proposalHash,
+                ProposalId = proposalId
+            };
+
+            var release = ReleaseApprove(SideTester2,releaseApprovedContractInput, OtherAccount);
+            release.Status.ShouldBe("MINED");
+            var byteString = ByteString.FromBase64(release.Logs.Last().Indexed.First());
+            var deployAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             _logger.Info($"{deployAddress}");
         }
         
@@ -661,7 +680,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("fdbb287a2680a6c7aa0535a4afa527a58daacb8958bd6944e8267c3475018f76","53c38d25cdf9f359af3c64e66b0c5de542011d8cb115f8415cf7f7564f99763c")]
+        [DataRow("09f05afc7b3d94391afd7e3fd168ec592d562237451f1af142cbbc6e68d7192b","53c38d25cdf9f359af3c64e66b0c5de542011d8cb115f8415cf7f7564f99763c")]
         public void ReleaseApprovedContract(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -700,7 +719,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         
 
         [TestMethod]
-        [DataRow("b97c53b3f6d9e2c3b2ff507a177e865a5373ac3095ae076a529602e7d75ed6e0")]
+        [DataRow("09f05afc7b3d94391afd7e3fd168ec592d562237451f1af142cbbc6e68d7192b")]
         public void CheckProposal(string proposalId)
         {
             var proposal = HashHelper.HexStringToHash(proposalId);
@@ -710,6 +729,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"{result.ExpiredTime}");
         }
 
+        [TestMethod]
+        public void GetBalance()
+        {
+            var miners = MainTester.GetMiners();
+            foreach (var miner in miners)
+            {
+                var balance = MainTester.TokenService.GetUserBalance(miner);
+                _logger.Info($"{balance}");
+            }
+        }
 
         #endregion
 
@@ -763,6 +792,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var approveResult = approve.ReadableReturnValue;
 
                 approveResult.ShouldBe("true");
+                if (tester.ParliamentService.CheckProposal(proposalId).ToBeReleased) break;
             }
         }
 

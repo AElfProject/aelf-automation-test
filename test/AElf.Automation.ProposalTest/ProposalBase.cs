@@ -173,7 +173,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
-                if (balance >= 10_00000000) continue;
+                if (balance >= 100_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeToken,
