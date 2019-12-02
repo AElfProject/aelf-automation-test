@@ -144,7 +144,6 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContractsWithAuthority()
         {
-            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
@@ -156,7 +155,6 @@ namespace AElf.Automation.RpcPerformance
 
         public void SideChainDeployContractsWithAuthority()
         {
-            return;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[0].Account;
@@ -172,16 +170,13 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             //create all token
-            var genesis = NodeManager.GetGenesisContract();
-            var tokenContract = genesis.GetTokenContract();
             for (var i = 0; i < ThreadCount; i++)
             {
-                var contract = new ContractInfo(AccountList[i].Account, tokenContract.ContractAddress);
+                var contract = new ContractInfo(AccountList[i].Account, ContractList[i].ContractAddress);
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
                 var symbol = $"{CommonHelper.RandomString(8, false)}";
                 contract.Symbol = symbol;
-                ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
