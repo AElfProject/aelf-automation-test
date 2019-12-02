@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
     {
         private const int Phase = 120;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiService ApiService;
+        private readonly IApiService _apiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
 
@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcPerformance
         /// <param name="fromStart">是否从高度为1开始检测</param>
         public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
-            ApiService = nodeManager.ApiService;
+            _apiService = nodeManager.ApiService;
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
@@ -81,12 +81,12 @@ namespace AElf.Automation.RpcPerformance
 
         private long GetBlockHeight()
         {
-            return AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            return AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
         }
 
         private BlockDto GetBlockByHeight(long height)
         {
-            return AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
+            return AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

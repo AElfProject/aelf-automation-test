@@ -7,7 +7,6 @@ using AElf.Cryptography;
 using AElf.Types;
 using AElfChain.Common.Utils;
 using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -88,8 +87,6 @@ namespace AElfChain.Common.Managers
                 !_chainId.Equals(chainId))
             {
                 _chainId = chainId;
-                //_cachedHeight = GetBlkHeight(rpcAddress);
-                //_cachedHash = GetBlkHash(rpcAddress, _cachedHeight);
                 (_cachedHeight, _cachedHash) = GetBlockReference(rpcAddress);
                 _refBlockTime = DateTime.Now;
             }
@@ -106,7 +103,6 @@ namespace AElfChain.Common.Managers
             {
                 try
                 {
-                    
                     var client = AElfChainClient.GetClient(baseUrl);
                     var chainStatus = AsyncHelper.RunSync(client.GetChainStatusAsync);
                     if (chainStatus.LongestChainHeight - chainStatus.LastIrreversibleBlockHeight > 400)
@@ -129,34 +125,6 @@ namespace AElfChain.Common.Managers
                     if (requestTimes < 0) throw new Exception("Get chain status got failed exception.");
                     Thread.Sleep(500);
                 }
-            }
-        }
-
-        private static long GetBlkHeight(string baseUrl, int requestTimes = 4)
-        {
-            while (true)
-            {
-                requestTimes--;
-                var client = AElfChainClient.GetClient(baseUrl);
-                var height = AsyncHelper.RunSync(client.GetBlockHeightAsync);
-                if (height != 0) return height;
-
-                if (requestTimes < 0) throw new Exception("Get Block height failed exception.");
-                Thread.Sleep(500);
-            }
-        }
-
-        private static string GetBlkHash(string baseUrl, long height, int requestTimes = 4)
-        {
-            while (true)
-            {
-                requestTimes--;
-                var client = AElfChainClient.GetClient(baseUrl);
-                var blockInfo = AsyncHelper.RunSync(() => client.GetBlockByHeightAsync(height));
-                if (blockInfo != null && blockInfo != new BlockDto()) return blockInfo.BlockHash;
-
-                if (requestTimes < 0) throw new Exception("Get Block hash failed exception.");
-                Thread.Sleep(500);
             }
         }
     }
