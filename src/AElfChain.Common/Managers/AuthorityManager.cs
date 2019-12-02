@@ -196,7 +196,7 @@ namespace AElfChain.Common.Managers
             while (!proposal.ToBeReleased && !expired)
             {
                 Thread.Sleep(1000);
-                var dateTime = Timestamp.FromDateTime(DateTime.Now);
+                var dateTime = Timestamp.FromDateTime(DateTime.UtcNow);
                 proposal = _parliament.CheckProposal(proposalId);
                 if (proposal.ExpiredTime < dateTime) expired = true;
             }
