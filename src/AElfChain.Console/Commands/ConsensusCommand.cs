@@ -32,8 +32,8 @@ namespace AElfChain.Console.Commands
                 if (pubKeys.Contains(node.PublicKey))
                 {
                     var balance = token.GetUserBalance(node.Account, tokenSymbol.Value);
-                    $"{++count:00}. Name: {node.Name.PadRight(10)} Account: {node.Account.PadRight(54)} {tokenSymbol.Value}: {balance}"
-                        .WriteSuccessLine();
+                    $"{++count:00}. Name:    {node.Name.PadRight(10)}  Endpoint: {node.Endpoint}".WriteSuccessLine();
+                    $"    Account: {node.Account.PadRight(54)} {tokenSymbol.Value}: {balance}".WriteSuccessLine();
                     $"    PubKey:  {node.PublicKey}".WriteSuccessLine();
                 }
         }

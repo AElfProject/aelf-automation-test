@@ -145,17 +145,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             //prepare bp account token
             CollectHalfBpTokensToBp0();
-            Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(AllNodes.First().Account)}");
 
             var publicKeysList = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatePublicKeys = publicKeysList.Value.Select(o => o.ToByteArray().ToHex()).ToList();
 
-            var bp = BpNodes.First();
+            var bp = AllNodes.First();
             var token = Token.GetNewTester(bp.Account, bp.Password);
 
             //prepare full node token
             Logger.Info("Prepare token for all full nodes.");
-            foreach (var fullNode in FullNodes)
+            foreach (var fullNode in AllNodes)
             {
                 if (candidatePublicKeys.Contains(fullNode.PublicKey)) continue;
 
@@ -191,14 +191,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             token.CheckTransactionResultList();
-            Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(BpNodes.First().Account)}");
+            Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(AllNodes.First().Account)}");
         }
 
         private void CollectHalfBpTokensToBp0()
         {
             Logger.Info("Transfer all bps token to first bp for testing.");
-            var bp0 = BpNodes.First();
-            foreach (var bp in BpNodes.Skip(1))
+            var bp0 = AllNodes.First();
+            foreach (var bp in AllNodes.Skip(1))
             {
                 var balance = Token.GetUserBalance(bp.Account);
                 if (balance < 1000_00000000)

@@ -2,7 +2,8 @@
   "RequireAuthority": true,
   "Nodes": [
     {
-      "name": "bp1",
+      "name": "stand-alone-node",
+      "endpoint": "127.0.0.1:8000",
       "account": "G6eX2WYjeUXptQXs24QDSMiRHTMFG23PLKVFhLU1zek6SYjut",
       "password": "123"
     }

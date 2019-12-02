@@ -437,7 +437,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetGetCurrentMinersInfo()
         {
             Logger.Info("GetCurrentVictories Test");
-            var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMiners, new Empty());
+            var minersResult = consensusService.CallViewMethod<MinerListWithRoundNumber>(ConsensusMethod.GetCurrentMinersPubkey, new Empty());
             CurrentMinersKeys = minersResult.MinerList.PublicKeys.Select(o=>o.ToByteArray().ToHex()).ToList();
             var count = 1;
             foreach (var miner in CurrentMinersKeys)

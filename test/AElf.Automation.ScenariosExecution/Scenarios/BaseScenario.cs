@@ -12,8 +12,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
-        protected List<Node> BpNodes { get; set; }
-        protected List<Node> FullNodes { get; set; }
+        protected List<Node> AllNodes { get; set; }
         protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
@@ -98,14 +97,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected void InitializeScenario()
         {
+            var testerCount = ConfigInfoHelper.Config.UserCount;
             var envCheck = EnvCheck.GetDefaultEnvCheck();
-            AllTesters = envCheck.GenerateOrGetTestUsers();
+            AllTesters = envCheck.GenerateOrGetTestUsers(testerCount);
             if (Services == null)
-                Services = envCheck.GetContractServices();
+            {
+                var oldEnv = OldEnvCheck.GetDefaultEnvCheck();
+                Services = oldEnv.GetContractServices();
+            }
 
-            var configInfo = ConfigInfoHelper.Config;
-            BpNodes = configInfo.BpNodes;
-            FullNodes = configInfo.FullNodes;
+            var configInfo = NodeInfoHelper.Config;
+            AllNodes = configInfo.Nodes;
             NativeToken = NodeOption.NativeTokenSymbol;
         }
 

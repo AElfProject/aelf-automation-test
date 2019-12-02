@@ -3,13 +3,14 @@ using System.Linq;
 using AElf;
 using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
     public enum ConsensusMethod
     {
-        GetRoundInfo,
+        GetRoundInformation,
         GetCurrentTermNumber,
         IsCandidate,
         GetVotesCount,
@@ -54,10 +55,19 @@ namespace AElfChain.Common.Contracts
             return round.TermNumber;
         }
 
-        public List<string> GetCurrentMiners()
+        public List<string> GetCurrentMinersPubkey()
         {
             var miners = CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             return miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+        }
+
+        public List<string> GetInitialMinersPubkey()
+        {
+            var roundInfo = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new SInt64Value
+            {
+                Value = 1
+            });
+            return roundInfo.RealTimeMinersInformation.Keys.ToList();
         }
     }
 }

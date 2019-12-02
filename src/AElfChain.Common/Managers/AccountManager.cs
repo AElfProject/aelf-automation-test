@@ -23,6 +23,12 @@ namespace AElfChain.Common.Managers
             _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
         }
 
+        public AccountManager()
+        {
+            _keyStore = AElfKeyStore.GetKeyStore();
+            _accounts = AsyncHelper.RunSync(_keyStore.GetAccountsAsync);
+        }
+        
         public string NewAccount(string password = "")
         {
             if (password == "")

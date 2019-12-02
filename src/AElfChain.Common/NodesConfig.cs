@@ -4,6 +4,7 @@ using System.Linq;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElfChain.SDK;
 using Newtonsoft.Json;
 
 namespace AElfChain.Common
@@ -11,9 +12,12 @@ namespace AElfChain.Common
     public class Node
     {
         [JsonProperty("name")] public string Name { get; set; }
+        [JsonProperty("endpoint")] public string Endpoint { get; set; }
         [JsonProperty("account")] public string Account { get; set; }
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
+        [JsonIgnore] public bool Status { get; set; } = false;
+        [JsonIgnore] public IApiService ApiService { get; set; }
     }
 
     public class NodesInfo
@@ -46,7 +50,7 @@ namespace AElfChain.Common
 
         public List<Node> GetMinerNodes(ConsensusContract consensus)
         {
-            var miners = consensus.GetCurrentMiners();
+            var miners = consensus.GetCurrentMinersPubkey();
             return Nodes.Where(o => miners.Contains(o.PublicKey)).ToList();
         }
     }
@@ -57,7 +61,7 @@ namespace AElfChain.Common
         private static string _jsonContent;
         private static readonly object LockObj = new object();
 
-        public static string ConfigFile = CommonHelper.MapPath("nodes.json");
+        public static string ConfigFile = CommonHelper.MapPath("config/nodes.json");
 
         public static NodesInfo Config => GetConfigInfo();
 
@@ -65,15 +69,20 @@ namespace AElfChain.Common
         {
             if (!name.Contains(".json"))
                 name += ".json";
-            ConfigFile = CommonHelper.MapPath(name);
+            ConfigFile = CommonHelper.MapPath($"config/{name}");
         }
-
+        
+        public static List<string> GetAccounts()
+        {
+            return _instance.Nodes.Select(o => o.Account).ToList();
+        }
+        
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)
             {
                 if (_instance != null) return _instance;
-
+                
                 _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }

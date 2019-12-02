@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AElfChain.Common.Helpers;
 using Newtonsoft.Json;
 
 namespace AElf.Automation.RpcPerformance
@@ -63,7 +64,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (_instance != null) return _instance;
 
-                var configFile = Path.Combine(Directory.GetCurrentDirectory(), "rpc-performance.json");
+                var configFile = CommonHelper.MapPath("config/rpc-performance.json");
                 var content = File.ReadAllText(configFile);
                 _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
             }

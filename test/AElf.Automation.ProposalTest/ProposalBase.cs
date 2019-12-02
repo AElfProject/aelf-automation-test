@@ -83,7 +83,7 @@ namespace AElf.Automation.ProposalTest
 
             var accounts = nodeManager.ListAccounts();
 
-            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMiners().Contains(o));
+            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMinersPubkey().Contains(o));
             if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);

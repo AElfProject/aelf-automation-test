@@ -71,10 +71,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
+            var initialPubkeys = Consensus.GetInitialMinersPubkey();
             var count = 0;
-            foreach (var fullNode in FullNodes)
+            foreach (var fullNode in AllNodes)
             {
-                if (publicKeysList.Contains(fullNode.PublicKey))
+                if (publicKeysList.Concat(initialPubkeys).Contains(fullNode.PublicKey))
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
@@ -102,7 +103,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var currentMiners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minerKeysList = currentMiners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
-            foreach (var fullNode in FullNodes)
+            foreach (var fullNode in AllNodes)
             {
                 if (!candidatesKeysList.Contains(fullNode.PublicKey) || minerKeysList.Contains(fullNode.PublicKey))
                     continue;
@@ -120,8 +121,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var termNumber = Consensus.GetCurrentTermInformation();
             if (termNumber == _termNumber) return;
 
-            var id = GenerateRandomNumber(0, FullNodes.Count - 1);
-            var node = FullNodes[id];
+            var id = GenerateRandomNumber(0, AllNodes.Count - 1);
+            var node = AllNodes[id];
 
             var basicProfit =
                 Profit.GetProfitDetails(node.Account, Schemes[SchemeType.MinerBasicReward].SchemeId);
@@ -206,7 +207,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void GetCandidateHistoryInformation()
         {
-            foreach (var fullNode in FullNodes)
+            foreach (var fullNode in AllNodes)
             {
                 var candidateResult = Election.GetCandidateInformation(fullNode.Account);
                 if (candidateResult.AnnouncementTransactionId == Hash.Empty) continue;
@@ -227,13 +228,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var miners = Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             var minersPublicKeys = miners.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
             var minerArray = new List<string>();
-            foreach (var bp in BpNodes)
-                if (minersPublicKeys.Contains(bp.PublicKey))
-                    minerArray.Add(bp.Name);
-
-            foreach (var full in FullNodes)
-                if (minersPublicKeys.Contains(full.PublicKey))
-                    minerArray.Add(full.Name);
+            foreach (var node in AllNodes)
+                if (minersPublicKeys.Contains(node.PublicKey))
+                    minerArray.Add(node.Name);
 
             //get voted candidates
             var votedCandidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetVotedCandidates, new Empty());
@@ -245,7 +242,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var candidateArray = new List<string>();
             var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
             var candidatesKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
-            foreach (var full in FullNodes)
+            foreach (var full in AllNodes)
                 if (candidatesKeysList.Contains(full.PublicKey))
                     candidateArray.Add(full.Name);
 
@@ -255,7 +252,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void GetVoteStatus(long termNumber)
         {
             var voteMessage = $"TermNumber={termNumber}, candidates got vote keys info: \r\n";
-            foreach (var fullNode in FullNodes)
+            foreach (var fullNode in AllNodes)
             {
                 var candidateVote = Election.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
                     new StringValue

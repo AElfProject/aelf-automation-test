@@ -1,0 +1,25 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "bp1",
+      "endpoint": "192.168.197.43:8100",
+      "account": "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt",
+      "password": "123"
+    },
+    {
+      "name": "bp2",
+      "endpoint": "192.168.197.15:8100",
+      "account": "2pE19sCDT4DLAkU58GbwZbHZXbWcCDPxfAdvAhyaaznba38T6N",
+      "password": "123"
+    },
+    {
+      "name": "bp3",
+      "endpoint": "192.168.197.52:8100",
+      "account": "8NnkHHN4EBFtdpDa2d6LmN7kVNxdCyb9z8ieYX2stNpERDqra",
+      "password": "123"
+    }
+  ],
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "123"
+}

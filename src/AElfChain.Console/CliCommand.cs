@@ -66,10 +66,11 @@ namespace AElfChain.Console
                 {
                     $"Endpoint: {NodeManager.GetApiUrl()}".WriteSuccessLine();
                     $"ConfigFile: {NodeInfoHelper.ConfigFile}".WriteSuccessLine();
-                    foreach (var bp in NodeInfoHelper.Config.Nodes)
+                    foreach (var node in NodeInfoHelper.Config.Nodes)
                     {
-                        $"Name: {bp.Name}  Account: {bp.Account}".WriteSuccessLine();
-                        $"PublicKey: {NodeManager.GetAccountPublicKey(bp.Account, bp.Password)}".WriteSuccessLine();
+                        $"Name: {node.Name}  Endpoint: {node.Endpoint}".WriteSuccessLine();
+                        $"Account: {node.Account}".WriteSuccessLine();
+                        $"PublicKey: {NodeManager.GetAccountPublicKey(node.Account, node.Password)}".WriteSuccessLine();
                     }
 
                     continue;
@@ -160,19 +161,6 @@ namespace AElfChain.Console
             }
 
             "=======================================================".WriteSuccessLine();
-        }
-
-        private List<string> GetCommandList()
-        {
-            var commands = new List<string>();
-            foreach (var command in Commands) commands.Add(command.GetCommandInfo().Name);
-            commands.Add("help");
-            commands.Add("config");
-            commands.Add("list");
-            commands.Add("clear");
-            commands.Add("exit");
-
-            return commands;
         }
     }
 }
