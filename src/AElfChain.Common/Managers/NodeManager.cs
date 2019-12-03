@@ -242,17 +242,24 @@ namespace AElfChain.Common.Managers
                         Logger.Error(message, true);
                         return transactionResult;
                     }
+                    case TransactionResultStatus.Pending:
+                        checkTimes++;
+                        break;
+                    case TransactionResultStatus.NotExisted:
+                        checkTimes += 10;
+                        break;
+                    case TransactionResultStatus.Unexecutable:
+                        checkTimes += 20;
+                        break;
                 }
 
                 Console.Write(
                     $"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-
-                checkTimes++;
                 Thread.Sleep(500);
             }
 
             Console.Write("\r\n");
-            throw new TimeoutException("Transaction execution status cannot be 'Mined' after five minutes.");
+            throw new TimeoutException("Transaction execution status cannot be 'Mined' after long time.");
         }
 
         public void CheckTransactionListResult(List<string> transactionIds)
@@ -283,6 +290,7 @@ namespace AElfChain.Common.Managers
                         break;
                 }
             }
+            stopwatch.Stop();
         }
 
         public T QueryView<T>(string from, string to, string methodName, IMessage inputParameter)

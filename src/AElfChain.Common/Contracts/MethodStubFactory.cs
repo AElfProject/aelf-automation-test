@@ -59,34 +59,39 @@ namespace AElfChain.Common.Contracts
                     checkTimes++;
                     resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
-                    if (status != TransactionResultStatus.Pending
-                        && status != TransactionResultStatus.NotExisted
-                        && status != TransactionResultStatus.Unexecutable)
+                    if (status == TransactionResultStatus.Pending)
+                        checkTimes++;
+                    else if (status == TransactionResultStatus.NotExisted)
+                        checkTimes += 10;
+                    else if (status == TransactionResultStatus.Unexecutable)
+                        checkTimes += 20;
+                    else if (status == TransactionResultStatus.Mined)
                     {
-                        if (status == TransactionResultStatus.Mined)
-                            Logger.Info(
-                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
-                                true);
-                        else
-                            Logger.Error(
-                                $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
-                                true);
+                        Logger.Info(
+                            $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
+                        break;
+                    }
+                    else if (status == TransactionResultStatus.Failed)
+                    {
+                        Logger.Error(
+                            $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
+                            true);
                         break;
                     }
 
                     Console.Write(
                         $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
 
-                    if (checkTimes == 360) //max wait time 3 minutes
+                    if (checkTimes >= 360) //max wait time 3 minutes
                     {
                         Console.Write("\r\n");
                         throw new TimeoutException(
-                            $"Transaction {resultDto.TransactionId} in '{status}' status more than three minutes.");
+                            $"Transaction {resultDto.TransactionId} in '{status}' status long times.");
                     }
 
                     Thread.Sleep(500);
                 }
-
                 stopwatch.Stop();
 
                 var transactionResult = resultDto.Logs == null

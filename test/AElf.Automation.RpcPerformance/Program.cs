@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -56,7 +57,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Logger.Info("Check node transaction status information");
                     var nodeSummary = new ExecutionSummary(nodeManager, true);
-                    nodeSummary.ContinuousCheckTransactionPerformance();
+                    nodeSummary.ContinuousCheckTransactionPerformance(new CancellationToken());
                     return;
                 }
 
