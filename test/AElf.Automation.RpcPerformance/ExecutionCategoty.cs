@@ -170,9 +170,8 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             //create all token
-            for (var i = 0; i < ThreadCount; i++)
+            foreach (var contract in ContractList)
             {
-                var contract = new ContractInfo(AccountList[i].Account, ContractList[i].ContractAddress);
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
                 var symbol = $"{CommonHelper.RandomString(8, false)}";

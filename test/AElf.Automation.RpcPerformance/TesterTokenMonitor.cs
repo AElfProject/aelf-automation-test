@@ -38,7 +38,6 @@ namespace AElf.Automation.RpcPerformance
                 catch (Exception e)
                 {
                     Logger.Error(e);
-                    break;
                 }
             }
         }

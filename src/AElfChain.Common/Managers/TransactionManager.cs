@@ -112,12 +112,8 @@ namespace AElfChain.Common.Managers
                         continue;
                     }
 
-                    return (chainStatus.LastIrreversibleBlockHeight, chainStatus.LastIrreversibleBlockHash);
-                    /*
-                    return chainStatus.LongestChainHeight - chainStatus.LastIrreversibleBlockHeight < 200
-                        ? (chainStatus.LastIrreversibleBlockHeight, chainStatus.LastIrreversibleBlockHash)
-                        : (chainStatus.LongestChainHeight, chainStatus.LongestChainHash);
-                    */
+                    //return (chainStatus.LastIrreversibleBlockHeight, chainStatus.LastIrreversibleBlockHash);
+                    return (chainStatus.BestChainHeight, chainStatus.BestChainHash);
                 }
                 catch (Exception)
                 {
