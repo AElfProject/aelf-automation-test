@@ -25,10 +25,16 @@ namespace AElf.Automation.RpcPerformance
 
         public TokenContract SystemToken { get; set; }
 
-        public void ExecuteTokenCheckTask(List<string> testers)
+        public void ExecuteTokenCheckTask(List<string> testers, CancellationToken ct)
         {
             while (true)
             {
+                if (ct.IsCancellationRequested)
+                {
+                    Logger.Warn("ExecuteTokenCheckTask was been cancelled.");
+                    break;
+                }
+                
                 Thread.Sleep(10 * 60 * 1000);
                 try
                 {
@@ -37,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e);
+                    Logger.Error(e.Message);
                 }
             }
         }

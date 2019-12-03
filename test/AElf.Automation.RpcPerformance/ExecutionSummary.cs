@@ -31,14 +31,19 @@ namespace AElf.Automation.RpcPerformance
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }
 
-        public void ContinuousCheckTransactionPerformance()
+        public void ContinuousCheckTransactionPerformance(CancellationToken ct)
         {
             var checkTimes = 0;
             while (true)
             {
+                if (ct.IsCancellationRequested)
+                {
+                    Logger.Warn("ContinuousCheckTransactionPerformance task was been cancelled.");
+                    break;
+                }
+                
                 if (checkTimes == 60)
                     break;
-
                 var height = GetBlockHeight();
                 if (height == _blockHeight)
                 {
