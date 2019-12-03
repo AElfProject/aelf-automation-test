@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Acs0;
+using Acs3;
+using AElf;
+using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -74,16 +78,36 @@ namespace AElfChain.Common.Managers
             var approveUsers = GetMinApproveMiners();
 
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
-                nameof(GenesisMethod.DeploySmartContract),
+                nameof(GenesisMethod.ProposeNewContract),
                 input, organizationAddress, approveUsers, caller);
             var byteString = transactionResult.Logs.Last().NonIndexed;
-            var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
-            Logger.Info($"Contract deploy passed authority, contract address: {address}");
+            var byteString2 = transactionResult.Logs[1].NonIndexed;
+            var deployProposalId = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
+            var proposedContractInputHash = CodeCheckRequired.Parser.ParseFrom(byteString2).ProposedContractInputHash;
+            Logger.Info($"Deploy contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposedContractInputHash}");
 
-            return address;
+            if (!CheckProposalStatue(deployProposalId))
+            {
+                Logger.Info("Contract code didn't pass the code check");
+                return null;
+            } 
+            
+            var releaseApprovedContractInput = new ReleaseApprovedContractInput()
+            {
+                ProposedContractInputHash = proposedContractInputHash,
+                ProposalId = deployProposalId
+            };
+
+            var release = _genesis.ReleaseApprovedContract(releaseApprovedContractInput,caller);
+            release.Status.ShouldBe("MINED");
+            var byteString3 = ByteString.FromBase64(release.Logs.Last().NonIndexed);
+            var deployAddress = ContractDeployed.Parser.ParseFrom(byteString3).Address;
+            Logger.Info($"Contract deploy passed authority, contract address: {deployAddress}");
+            
+            return deployAddress;
         }
 
-        private void UpdateContractWithAuthority(string caller, string address, byte[] code)
+        private Address UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
             var input = new ContractUpdateInput
             {
@@ -94,9 +118,32 @@ namespace AElfChain.Common.Managers
             var approveUsers = GetMinApproveMiners();
 
             var transactionResult = ExecuteTransactionWithAuthority(_genesis.ContractAddress,
-                nameof(GenesisMethod.UpdateSmartContract),
+                nameof(GenesisMethod.ProposeUpdateContract),
                 input, organizationAddress, approveUsers, caller);
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var byteString = transactionResult.Logs.Last().NonIndexed;
+            var byteString2 = transactionResult.Logs[1].NonIndexed;
+            var deployProposalId = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
+            var proposedContractInputHash = CodeCheckRequired.Parser.ParseFrom(byteString2).ProposedContractInputHash;
+            Logger.Info($"Update contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposedContractInputHash}");
+
+            if (!CheckProposalStatue(deployProposalId))
+            {
+                Logger.Info("Contract code didn't pass the code check");
+                return null;
+            } 
+            
+            var releaseApprovedContractInput = new ReleaseApprovedContractInput()
+            {
+                ProposedContractInputHash = proposedContractInputHash,
+                ProposalId = deployProposalId
+            };
+
+            var release = _genesis.ReleaseApprovedContract(releaseApprovedContractInput,caller);
+            release.Status.ShouldBe("MINED");
+            var byteString3 = ByteString.FromBase64(release.Logs.Last().Indexed.First());
+            var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
+            Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
+            return updateAddress;
         }
 
         public List<string> GetCurrentMiners()
@@ -140,6 +187,21 @@ namespace AElfChain.Common.Managers
             nodes.CheckNodesAccount();
 
             _info = nodes;
+        }
+
+        private bool CheckProposalStatue(Hash proposalId)
+        {
+            var proposal = _parliament.CheckProposal(proposalId);
+            var expired = false;
+            while (!proposal.ToBeReleased && !expired)
+            {
+                Thread.Sleep(1000);
+                var dateTime = Timestamp.FromDateTime(DateTime.UtcNow);
+                proposal = _parliament.CheckProposal(proposalId);
+                if (proposal.ExpiredTime < dateTime) expired = true;
+            }
+
+            return proposal.ToBeReleased;
         }
 
         private void CheckBpBalance()

@@ -65,8 +65,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = NewParliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
-                    ReleaseThreshold = 10000,
-                    ProposerAuthorityRequired = false
+                    ReleaseThreshold = 10000
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
             _logger.Info($"organization address is : {organizationAddress}");

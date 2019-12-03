@@ -174,7 +174,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
-                var symbol = $"{CommonHelper.RandomString(8, false)}";
+                var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
                 contract.Symbol = symbol;
 
                 var token = new TokenContract(NodeManager, account, contractPath);

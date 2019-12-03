@@ -72,7 +72,7 @@ namespace AElf.Automation.SideChainTests
         {
             ParliamentService.SetAccount(account);
             var address =
-                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress, new Empty());
+                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
 
             return address;
         }

@@ -105,8 +105,8 @@
             "password": "123"
         },
         {
-            "name": "full13-华为非洲",
-            "service_url": "http://159.138.165.51:8000",
+            "name": "full13-加拿大",
+            "service_url": "http://35.182.249.243:8000",
             "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
             "password": "123"
         }
@@ -114,12 +114,12 @@
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": false,
+            "enable": true,
             "time_interval": 10
         },
         {
             "case_name": "ContractScenario",
-            "enable": false,
+            "enable": true,
             "time_interval": 180
         },
         {
@@ -129,12 +129,12 @@
         },
         {
             "case_name": "NodeScenario",
-            "enable": false,
+            "enable": true,
             "time_interval": 60
         },
         {
             "case_name": "UserScenario",
-            "enable": false,
+            "enable": true,
             "time_interval": 10
         },
         {
@@ -149,7 +149,7 @@
         },
         {
             "case_name": "DeleteValueScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         }
     ],

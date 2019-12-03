@@ -66,7 +66,6 @@ namespace AElf.Automation.ProposalTest
             NativeToken = GetNativeToken();
             if (Symbol == null)
                 ProposalPrepare();
-            TransferToTester();
         }
 
         protected static int GenerateRandomNumber(int min, int max)
@@ -167,19 +166,19 @@ namespace AElf.Automation.ProposalTest
                 throw new Exception($"Issue token {Symbol} Failed");
         }
 
-        private void TransferToTester()
+        protected void TransferToTester()
         {
             GetMiners();
             foreach (var tester in Tester)
             {
                 var balance = Services.TokenService.GetUserBalance(tester);
-                if (balance >= 10_00000000) continue;
+                if (balance >= 100_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeToken,
                     To = AddressHelper.Base58StringToAddress(tester),
                     Amount = 1000_00000000,
-                    Memo = "Transfer to organization address"
+                    Memo = "Transfer to tester"
                 });
 
                 balance = Services.TokenService.GetUserBalance(tester);
@@ -195,7 +194,7 @@ namespace AElf.Automation.ProposalTest
                     Symbol = NativeToken,
                     To = AddressHelper.Base58StringToAddress(miner),
                     Amount = 1000_00000000,
-                    Memo = "Transfer to organization address"
+                    Memo = "Transfer to miners"
                 });
 
                 balance = Services.TokenService.GetUserBalance(miner);

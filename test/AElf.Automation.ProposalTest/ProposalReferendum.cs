@@ -37,6 +37,7 @@ namespace AElf.Automation.ProposalTest
         {
             ExecuteStandaloneTask(new Action[]
             {
+                TransferToTester,
                 CreateOrganization,
                 TransferToVoter,
                 TransferToVirtualAccount,

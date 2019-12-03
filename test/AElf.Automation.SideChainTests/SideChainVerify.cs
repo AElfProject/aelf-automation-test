@@ -45,7 +45,7 @@ namespace AElf.Automation.SideChainTests
         {
             //get default organization
             var organizationAddress =
-                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetGenesisOwnerAddress,
+                services.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                     new Empty());
             //create proposal
             var createProposalInput = new CreateProposalInput

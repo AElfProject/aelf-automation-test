@@ -19,6 +19,9 @@ namespace AElfChain.Common.Contracts
         ChangeContractAuthor,
         ChangeGenesisOwner,
         ValidateSystemContractAddress,
+        ReleaseApprovedContract,
+        ProposeNewContract,
+        ProposeUpdateContract,
 
         //view
         CurrentContractSerialNumber,
@@ -93,6 +96,18 @@ namespace AElfChain.Common.Contracts
             return address;
         }
 
+        public TransactionResultDto ReleaseApprovedContract(ReleaseApprovedContractInput input,
+            string caller = null)
+        {
+            SetAccount(caller);
+            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseApprovedContract, new ReleaseApprovedContractInput
+            {
+                ProposalId = input.ProposalId,
+                ProposedContractInputHash = input.ProposedContractInputHash
+            });
+            return result;
+        }
+        
         public Dictionary<NameProvider, Address> GetAllSystemContracts()
         {
             var dic = new Dictionary<NameProvider, Address>();
