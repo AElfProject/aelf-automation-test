@@ -22,5 +22,10 @@ namespace AElfChain.SDK.Models
                 return feeInfo.Trim();
             }
         }
+
+        public long GetDefaultTransactionFee()
+        {
+            return Value?.Values.First() ?? 0;
+        }
     }
 }

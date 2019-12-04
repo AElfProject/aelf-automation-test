@@ -40,7 +40,7 @@ namespace AElfChain.Console
             if (ConfigFile == null)
             {
                 var configPath = CommonHelper.MapPath("config");
-                var configFiles = Directory.GetFiles(configPath, "*.json")
+                var configFiles = Directory.GetFiles(configPath, "nodes*.json")
                     .Select(o => o.Split("/").Last()).ToList();
                 ConfigFile = Prompt.Select("Select env config", configFiles);
             }

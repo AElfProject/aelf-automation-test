@@ -8,7 +8,6 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
-using Google.Protobuf.WellKnownTypes;
 using log4net;
 
 namespace AElf.Automation.RpcPerformance
@@ -27,6 +26,7 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteTokenCheckTask(List<string> testers, CancellationToken ct)
         {
+            var checkRound = 1;
             while (true)
             {
                 if (ct.IsCancellationRequested)
@@ -35,10 +35,10 @@ namespace AElf.Automation.RpcPerformance
                     break;
                 }
                 
-                Thread.Sleep(10 * 60 * 1000);
+                Thread.Sleep(3 * 60 * 1000);
                 try
                 {
-                    Logger.Info("Start check tester token balance job.");
+                    Logger.Info($"Start check tester token balance job round: {checkRound++}");
                     TransferTokenForTest(testers);
                 }
                 catch (Exception e)
@@ -73,6 +73,7 @@ namespace AElf.Automation.RpcPerformance
                 }
 
                 SystemToken.CheckTransactionResultList();
+                break;
             }
         }
 
