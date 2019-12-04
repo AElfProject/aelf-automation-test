@@ -1,44 +1,4 @@
 {
-    "BpNodes": [
-        {
-            "name": "bp1",
-            "service_url": "http://192.168.197.43:8100",
-            "account": "2okRiaFAuhgbVyy13ynDoPDfo5XQFx9ZnjbwN21naNbkad1Xvm",
-            "password": "123"
-        },
-        {
-            "name": "bp2",
-            "service_url": "http://192.168.197.15:8100",
-            "account": "2nVJ1tmErFok7G6Bm9RbkiJwnXYxeTzyu38u18rwN7wBMnEgot",
-            "password": "123"
-        },
-        {
-            "name": "bp3",
-            "service_url": "http://192.168.197.52:8100",
-            "account": "e6hxkKgTr6FhWSsFjLXMccwEme2GASu1K29n4ko6FYrNmqfaF",
-            "password": "123"
-        },
-        {
-            "name": "bp4",
-            "service_url": "http://192.168.197.43:8200",
-            "account": "BTNrWftsmADsXDpDcRSwSZPwzfh1hREgZhtca32YrYbjg4Ymw",
-            "password": "123"
-        },
-        {
-            "name": "bp5",
-            "service_url": "http://192.168.197.15:8200",
-            "account": "vz3xyZ3khdMf1svD7SHaEqRYckMRJqQavks4frrvsYcnkX9Xn",
-            "password": "123"
-        },
-        {
-            "name": "bp6",
-            "service_url": "http://192.168.197.52:8200",
-            "account": "zWVxzPi5AyB6zBkcKT7dNiGDtGnUcpe3s4Zr1ugEdbyBp5PTJ",
-            "password": "123"
-        }
-    ],
-    "FullNodes": [
-    ],
     "TestCases": [
         {
             "case_name": "TokenScenario",

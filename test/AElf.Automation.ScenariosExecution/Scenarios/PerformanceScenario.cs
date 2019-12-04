@@ -23,7 +23,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             InitializeScenario();
 
-            Performance = Services.PerformanceService;
+            Performance = PerformanceContract.GetOrDeployPerformanceContract(Services.NodeManager, Services.CallAddress);
             Testers = AllTesters.GetRange(0, 50);
         }
 
@@ -36,7 +36,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 WritePerformanceAction,
                 ComputePerformanceAction,
-                QueryPerformanceAction
+                QueryPerformanceAction,
+                UpdateEndpointAction
             });
         }
 

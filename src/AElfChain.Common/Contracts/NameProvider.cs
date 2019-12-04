@@ -19,6 +19,7 @@ namespace AElfChain.Common.Contracts
         ReferendumAuth,
 
         TestBasicFunction,
+        TestUpdateFunction,
         TestPerformance,
         ExecutionAcs5,
         ExecutionAcs8

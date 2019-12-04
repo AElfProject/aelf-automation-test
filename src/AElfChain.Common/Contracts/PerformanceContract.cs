@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
@@ -50,6 +51,20 @@ namespace AElfChain.Common.Contracts
                     Manager = CallAddress.ConvertAddress()
                 });
             initializeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        public static PerformanceContract GetOrDeployPerformanceContract(INodeManager nodeManager, string callAddress)
+        {
+            var genesis = nodeManager.GetGenesisContract();
+            var addressList = genesis.QueryCustomContractByMethodName("InitialPerformanceContract");
+            if (addressList.Count == 0)
+            {
+                var contract = new PerformanceContract(nodeManager, callAddress);
+                contract.InitializePerformance();
+                return contract;
+            }
+
+            return new PerformanceContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
     }
 }

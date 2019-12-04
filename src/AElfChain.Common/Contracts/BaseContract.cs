@@ -194,7 +194,7 @@ namespace AElfChain.Common.Contracts
 
                 queueLength = _txResultList.Count;
                 if (queueSameTimes == 300)
-                    throw new TimeoutException("Transaction result check failed due to pending results in 5 minutes.");
+                    throw new TimeoutException("Transaction result check failed due to pending results long time.");
             }
         }
 

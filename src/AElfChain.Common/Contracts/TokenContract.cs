@@ -96,6 +96,17 @@ namespace AElfChain.Common.Contracts
             }).Balance;
         }
 
+        public long GetAllowance(string from, string to, string symbol = "")
+        {
+            return CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
+                new GetAllowanceInput
+                {
+                    Owner = from.ConvertAddress(),
+                    Spender = to.ConvertAddress(),
+                    Symbol = NodeOption.GetTokenSymbol(symbol)
+                }).Allowance;
+        }
+
         public string GetPrimaryTokenSymbol()
         {
             return CallViewMethod<StringValue>(TokenMethod.GetPrimaryTokenSymbol, new Empty()).Value;

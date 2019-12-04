@@ -63,7 +63,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 ExecuteTestContractMethod,
                 ExecuteTestContractNewMethod,
                 UpdateTestContractCode,
-                UpdateTestContractAuthor
+                UpdateTestContractAuthor,
+                ExecuteTestContractNewMethod,
+                UpdateEndpointAction
             });
         }
 

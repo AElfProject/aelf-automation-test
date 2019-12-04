@@ -47,7 +47,6 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
-
                 var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
                 var checkTimes = 0;
@@ -93,7 +92,7 @@ namespace AElfChain.Common.Contracts
                     Thread.Sleep(500);
                 }
                 stopwatch.Stop();
-
+                var transactionFee = resultDto.TransactionFee.ConvertTransactionFeeDto();
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
@@ -105,6 +104,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
+                        TransactionFee = transactionFee,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     }
                     : new TransactionResult
@@ -126,6 +126,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
                         Error = resultDto.Error ?? "",
                         Status = status,
+                        TransactionFee = transactionFee,
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
 

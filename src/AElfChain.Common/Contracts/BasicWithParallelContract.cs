@@ -1,3 +1,4 @@
+using System.Linq;
 using AElfChain.Common.Managers;
 
 namespace AElfChain.Common.Contracts
@@ -52,6 +53,20 @@ namespace AElfChain.Common.Contracts
         public BasicWithParallelContract(INodeManager nodeManager, string callAddress)
             : base(nodeManager, ContractFileName, callAddress)
         {
+        }
+
+        public static BasicWithParallelContract GetOrDeployBasicWithParallelContract(INodeManager nodeManager,
+            string callAddress)
+        {
+            var genesis = nodeManager.GetGenesisContract();
+            var addressList = genesis.QueryCustomContractByMethodName("InitialBasicFunctionWithParallelContract");
+            if (addressList.Count == 0)
+            {
+                var contract = new BasicWithParallelContract(nodeManager, callAddress);
+                return contract;
+            }
+
+            return new BasicWithParallelContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
 
         public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunctionWithParallel";

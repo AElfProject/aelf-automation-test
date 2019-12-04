@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.Managers;
+using Shouldly;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -13,28 +15,27 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public DeleteValueScenario()
         {
             InitializeScenario();
-            var contract = new BasicWithParallelContract(Services.NodeManager, AllTesters[0]);
+            var contract = BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, AllTesters[0]);
             var testers = AllTesters.GetRange(1, 2);
             _contracts = testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
 
-
         public void RunDeleteValueScenarioJob()
         {
-//            ExecuteStandaloneTask(new Action[]
-//            {
-//                DeleteValueAction,
-//                IncreaseValueAction,
-//                DeleteValueParallelAction,
-//                IncreaseValueParallelAction,
-//                DeleteValueAfterSetAction,
-//                SetValueAfterDeleteAction,
-//                ComplexDeleteAndChangeAction
-//            });
+            ExecuteStandaloneTask(new Action[]
+            {
+                DeleteValueAction,
+                IncreaseValueAction,
+                DeleteValueParallelAction,
+                IncreaseValueParallelAction,
+                DeleteValueAfterSetAction,
+                SetValueAfterDeleteAction,
+                ComplexDeleteAndChangeAction,
+                UpdateEndpointAction
+            });
         }
 
-        /*
         private void IncreaseValueAction()
         {
             foreach (var contract in _contracts)
@@ -258,6 +259,5 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             CheckValue("");
             CheckValue((MessageValue)null);
         }
-        */
     }
 }

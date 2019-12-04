@@ -13,8 +13,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class ExceptionScenario : BaseScenario
     {
-        public new static readonly ILog Logger = Log4NetHelper.GetLogger();
-
         public ExceptionScenario()
         {
             InitializeScenario();
