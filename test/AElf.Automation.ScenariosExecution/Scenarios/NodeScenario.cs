@@ -63,7 +63,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 NodeAnnounceElectionAction,
                 NodeTakeProfitAction,
                 //NodeQuitElectionAction,
-                NodeQueryInformationAction
+                NodeQueryInformationAction,
+                UpdateEndpointAction
             });
         }
 

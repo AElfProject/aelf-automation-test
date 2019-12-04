@@ -8,6 +8,7 @@ using AElfChain.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -44,10 +45,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public void TokenScenarioJob()
         {
-            ExecuteStandaloneTask(new Action[]
+            ExecuteStandaloneTask(actions: new Action[]
             {
                 TransferAction,
-                ApproveTransferAction
+                ApproveTransferAction,
+                UpdateEndpointAction
             });
         }
 
@@ -73,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (beforeB != afterB - amount)
                 {
                     Logger.Error(
-                        $"Transfer failed, amount check not correct. To owner {NodeOption.NativeTokenSymbol}: {beforeB}/{afterB - amount}");
+                        $"Transfer failed, amount check failed. To owner {NodeOption.NativeTokenSymbol}: {beforeB}/{afterB - amount}");
                     result = false;
                 }
 
@@ -91,25 +93,31 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             GetTransferPair(out var from, out var to, out var amount);
             try
             {
-                var allowance = Token.CallViewMethod<GetAllowanceOutput>(TokenMethod.GetAllowance,
-                    new GetAllowanceInput
-                    {
-                        Owner = AddressHelper.Base58StringToAddress(from),
-                        Spender = AddressHelper.Base58StringToAddress(to),
-                        Symbol = NodeOption.NativeTokenSymbol
-                    }).Allowance;
-
+                var allowance = Token.GetAllowance(from, to);
                 var token = Token.GetNewTester(from);
                 if (allowance - amount < 0)
                 {
+                    //add approve
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
                         Amount = 1000_00000000,
                         Spender = AddressHelper.Base58StringToAddress(to),
                         Symbol = NodeOption.NativeTokenSymbol
                     });
+                    //check allowance
                     if (txResult1.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                        Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
+                    {
+                        var newAllowance = Token.GetAllowance(from, to);
+                        if (newAllowance == allowance + 1000_00000000)
+                        {
+                            Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
+                        }
+                        else
+                        {
+                            Logger.Error(
+                                $"Allowance check failed. {NodeOption.NativeTokenSymbol}: {allowance + 1000_00000000}/{newAllowance}");
+                        }
+                    }
                     else
                         return;
                 }
@@ -120,24 +128,36 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var transactionResult = AsyncHelper.RunSync(() => tokenStub.TransferFrom.SendAsync(new TransferFromInput
                 {
                     Amount = amount,
-                    From = AddressHelper.Base58StringToAddress(from),
-                    To = AddressHelper.Base58StringToAddress(to),
+                    From = from.ConvertAddress(),
+                    To = to.ConvertAddress(),
                     Symbol = NodeOption.NativeTokenSymbol,
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
-                var transactionFee = transactionResult.TransactionResult.TransactionFee.Value?.Values.First() ?? 0;
+                var transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
-                if (beforeFrom - amount == afterFrom && beforeTo - transactionFee + amount == afterTo)
-                    Logger.Info($"TransferFrom success - from {from} to {to} with amount {amount}.");
-                else
+                var checkResult = true;
+                if (beforeFrom - amount != afterFrom)
+                {
+                    Logger.Error($"TransferFrom from balance check failed: {beforeFrom - amount}/{afterFrom}");
+                    checkResult = false;
+                }
+
+                if (beforeTo - transactionFee + amount != afterTo)
+                {
                     Logger.Error(
-                        $"TransferFrom amount {amount} got some balance issue. From: {beforeFrom}/{afterFrom}, To:{beforeTo}/{afterTo}");
+                        $"TransferFrom to balance check failed: {beforeTo - transactionFee + amount}/{afterTo}.");
+                    checkResult = false;
+                }
+
+                if (checkResult)
+                    Logger.Info(
+                        $"TransferFrom {from}->{to} with amount {amount} success.");
             }
             catch (Exception e)
             {
-                Logger.Error($"ApproveTransferAction: {e.Message}");
+                Logger.Error($"ApproveTransferAction: {e}");
             }
         }
 
@@ -225,7 +245,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var randomNo = GenerateRandomNumber(0, Testers.Count - 1);
                 var acc = Testers[randomNo];
                 var balance = Token.GetUserBalance(acc);
-                if (balance < 100)
+                if (balance < 100_00000000)
                     continue;
 
                 accountFrom = acc;

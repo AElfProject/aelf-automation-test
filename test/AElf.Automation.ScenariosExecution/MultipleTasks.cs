@@ -15,10 +15,10 @@ namespace AElf.Automation.ScenariosExecution
 
         public MultipleTasks()
         {
-            _taskCollection = new List<Task>();
+            TaskCollection = new List<Task>();
         }
 
-        private List<Task> _taskCollection { get; }
+        private List<Task> TaskCollection { get; }
 
         public void RunScenariosByTasks()
         {
@@ -34,50 +34,50 @@ namespace AElf.Automation.ScenariosExecution
                 switch (scenario.CaseName)
                 {
                     case "TokenScenario":
-                        _taskCollection.Add(RunContinueJobWithInterval(tokenScenario.TokenScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(tokenScenario.TokenScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "ResourceScenario":
                         var resourceScenario = new ResourceScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(resourceScenario.RunResourceScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(resourceScenario.RunResourceScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "UserScenario":
                         var userScenario = new UserScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(userScenario.RunUserScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(userScenario.RunUserScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "NodeScenario":
-                        _taskCollection.Add(RunContinueJobWithInterval(nodeScenario.RunNodeScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(nodeScenario.RunNodeScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "ContractScenario":
                         var contractScenario = new ContractScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(contractScenario.RunContractScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(contractScenario.RunContractScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "ExceptionScenario":
                         var exceptionScenario = new ExceptionScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(exceptionScenario.RunExceptionScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(exceptionScenario.RunExceptionScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "PerformanceScenario":
                         var performanceScenario = new PerformanceScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(performanceScenario.RunPerformanceScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(performanceScenario.RunPerformanceScenarioJob,
                             scenario.TimeInterval));
                         break;
                     case "DeleteValueScenario":
                         var deleteValueScenario = new DeleteValueScenario();
-                        _taskCollection.Add(RunContinueJobWithInterval(deleteValueScenario.RunDeleteValueScenarioJob,
+                        TaskCollection.Add(RunContinueJobWithInterval(deleteValueScenario.RunDeleteValueScenarioJob,
                             scenario.TimeInterval));
                         break;
                 }
 
             //node status monitor
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeTransactionAction));
-            _taskCollection.Add(Task.Run(nodeScenario.CheckNodeStatusAction));
+            TaskCollection.Add(Task.Run(nodeScenario.CheckNodeTransactionAction));
+            TaskCollection.Add(Task.Run(nodeScenario.CheckNodeStatusAction));
 
-            Task.WaitAll(_taskCollection.ToArray());
+            Task.WaitAll(TaskCollection.ToArray());
         }
 
         public void RunScenariosByScheduler()

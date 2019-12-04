@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -16,65 +15,20 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        private readonly Connector CpuConnector = new Connector
-        {
-            Symbol = $"CPU{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
-        private readonly Connector ElfConnector = new Connector
-        {
-            Symbol = NodeOption.NativeTokenSymbol,
-            VirtualBalance = 100_000_000,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = true
-        };
-
-        private readonly Connector NetConnector = new Connector
-        {
-            Symbol = $"NET{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
-        private readonly Connector RamConnector = new Connector
-        {
-            Symbol = $"RAM{CommonHelper.RandomString(4, false)}",
-            VirtualBalance = 0,
-            Weight = "0.5",
-            IsPurchaseEnabled = true,
-            IsVirtualBalanceEnabled = false
-        };
-
         public ResourceScenario()
         {
             InitializeScenario();
 
             Token = Services.TokenService;
-            Treasury = Services.TreasuryService;
+            TokenConverter = Services.TokenConverterService;
             Testers = AllTesters.GetRange(5, 20);
 
-            InitializeTokenConverter();
+            SetAllowanceForResourceTest();
         }
 
         public TokenContract Token { get; set; }
-
-        public TreasuryContract Treasury { get; set; }
         public TokenConverterContract TokenConverter { get; set; }
         public List<string> Testers { get; }
-
-        private IEnumerable<Connector> Connectors => new List<Connector>
-        {
-            RamConnector,
-            CpuConnector,
-            NetConnector
-        };
 
         public void RunResourceScenario()
         {
@@ -90,76 +44,93 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             ExecuteStandaloneTask(new Action[]
             {
                 BuyResourceAction,
-                SellResourceAction
+                SellResourceAction,
+                UpdateEndpointAction
             });
         }
 
         private void BuyResourceAction()
         {
             const int testTimes = 3;
-            var connector = GetRandomConnector();
-            var tokenUsers = GetAvailableBuyUser(testTimes);
+            var resSymbol = GetRandomResSymbol();
+            var tokenUsers = GetAvailableTokenUser(NodeOption.NativeTokenSymbol, testTimes);
             foreach (var user in tokenUsers)
             {
-                var amount = GenerateRandomNumber(100, 200);
+                //before
+                var elfBeforeBalance = Token.GetUserBalance(user);
+                var resBeforeBalance = Token.GetUserBalance(user, resSymbol);
+                var amount = (long) GenerateRandomNumber(100, 200) * 100000000;
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var buyResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Buy, new BuyInput
                 {
                     Amount = amount,
-                    Symbol = connector.Symbol
+                    Symbol = resSymbol
                 });
                 if (buyResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.Info(
-                        $"Buy resource - {user} buy resource {connector.Symbol} cost token {amount}");
+                {
+                    var transactionFee = buyResult.TransactionFee.GetDefaultTransactionFee();
+                    var elfAfterBalance = Token.GetUserBalance(user);
+                    var resAfterBalance = Token.GetUserBalance(user, resSymbol);
+                    if (resBeforeBalance + amount == resAfterBalance)
+                    {
+                        var cost = elfBeforeBalance + transactionFee - elfAfterBalance;
+                        Logger.Info(
+                            $"Buy resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)cost / (double)amount}");
+                    }
+                    else
+                    {
+                        Logger.Error(
+                            $"Buy resource - verify failed. {resSymbol}: {resBeforeBalance + amount}/{resAfterBalance}");
+                    }
+                }
             }
         }
 
         private void SellResourceAction()
         {
             const int testTimes = 2;
-            var connector = GetRandomConnector();
-            var resourceUsers = GetAvailableSellUser(connector.Symbol, testTimes);
+            var resSymbol = GetRandomResSymbol();
+            var resourceUsers = GetAvailableTokenUser(resSymbol, testTimes);
             foreach (var user in resourceUsers)
             {
-                var amount = GenerateRandomNumber(100, 200);
+                //before
+                var elfBeforeBalance = Token.GetUserBalance(user);
+                var resBeforeBalance = Token.GetUserBalance(user, resSymbol);
+                var amount = (long) GenerateRandomNumber(100, 200) * 100000000;
                 var tokenConverter = TokenConverter.GetNewTester(user);
                 var sellResult = tokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Sell, new SellInput
                 {
                     Amount = amount,
-                    Symbol = connector.Symbol
+                    Symbol = resSymbol
                 });
                 if (sellResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.Info(
-                        $"Sell resource - {user} sell resource {connector.Symbol} with amount {amount}");
+                {
+                    var transactionFee = sellResult.TransactionFee.GetDefaultTransactionFee();
+                    var elfAfterBalance = Token.GetUserBalance(user);
+                    var resAfterBalance = Token.GetUserBalance(user, resSymbol);
+                    if (resAfterBalance == resBeforeBalance - amount)
+                    {
+                        var got = elfAfterBalance + transactionFee - elfBeforeBalance;
+                        Logger.Info(
+                            $"Sell resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)got / (double)amount}");
+                    }
+                    else
+                    {
+                        Logger.Error(
+                            $"Sell resource verify failed. {resSymbol}: {resBeforeBalance + amount}/{resAfterBalance}");
+                    }
+                }
             }
         }
 
-        private IEnumerable<string> GetAvailableBuyUser(int number)
-        {
-            var users = new List<string>();
-            var count = 0;
-            foreach (var user in Testers.GetRange(1, Testers.Count - 1))
-            {
-                var balance = Token.GetUserBalance(user);
-                if (balance < 1000)
-                    continue;
-                users.Add(user);
-                count++;
-                if (count == number)
-                    break;
-            }
-
-            return users;
-        }
-
-        private IEnumerable<string> GetAvailableSellUser(string symbol, int number)
+        private IEnumerable<string> GetAvailableTokenUser(string symbol, int number)
         {
             var users = new List<string>();
             var count = 0;
             foreach (var user in Testers.GetRange(1, Testers.Count - 1))
             {
                 var balance = Token.GetUserBalance(user, symbol);
-                if (balance < 500)
+                if (balance < 200_00000000)
                     continue;
                 users.Add(user);
                 count++;
@@ -168,65 +139,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             return users;
-        }
-
-        private void InitializeTokenConverter()
-        {
-            TokenConverter = new TokenConverterContract(Services.NodeManager, Services.CallAddress);
-
-            //Create and issue all resources token
-            var token = Token.GetNewTester(Testers[0]);
-            foreach (var connector in Connectors)
-            {
-                while (true)
-                {
-                    var tokenInfo = GetTokenInfo(connector.Symbol);
-                    if (tokenInfo.TotalSupply != 0)
-                    {
-                        connector.Symbol =
-                            $"{connector.Symbol.Replace(connector.Symbol.Substring(3), CommonHelper.RandomString(4, false))}";
-                        continue;
-                    }
-
-                    break;
-                }
-
-                var createResult = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-                {
-                    Symbol = connector.Symbol,
-                    Decimals = 2,
-                    IsBurnable = true,
-                    Issuer = token.CallAccount,
-                    TokenName = $"{connector.Symbol} Resource",
-                    TotalSupply = 100_000_000
-                });
-                if (createResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.Info($"Create resource {connector.Symbol} successful.");
-
-                var issueResult = token.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
-                {
-                    Symbol = connector.Symbol,
-                    Amount = 100_000_000,
-                    Memo = $"Issue {connector.Symbol} token",
-                    To = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress)
-                });
-                if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
-                    Logger.Info($"Issue total amount 100_0000 resource {connector.Symbol} successful.");
-            }
-
-            //initialize resources
-            TokenConverter.ExecuteMethodWithResult(TokenConverterMethod.Initialize, new InitializeInput
-            {
-                BaseTokenSymbol = NodeOption.NativeTokenSymbol,
-                FeeRate = "0.01",
-                ManagerAddress = AddressHelper.Base58StringToAddress(Testers[0]),
-                TokenContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
-                FeeReceiverAddress = AddressHelper.Base58StringToAddress(Treasury.ContractAddress),
-                Connectors = {ElfConnector, RamConnector, CpuConnector, NetConnector}
-            });
-
-            //set allowance for test
-            SetAllowanceForResourceTest();
         }
 
         private void SetAllowanceForResourceTest()
@@ -238,45 +150,43 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Amount = 100_000_000
+                    Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = RamConnector.Symbol,
-                    Amount = 100_000_000
+                    Symbol = "RAM",
+                    Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = CpuConnector.Symbol,
-                    Amount = 100_000_000
+                    Symbol = "CPU",
+                    Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = NetConnector.Symbol,
-                    Amount = 100_000_000
+                    Symbol = "NET",
+                    Amount = 100_000_00000000
+                });
+                Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
+                {
+                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Symbol = "STO",
+                    Amount = 100_000_00000000
                 });
             }
 
             Token.CheckTransactionResultList();
         }
 
-        private TokenInfo GetTokenInfo(string symbol)
+        private string GetRandomResSymbol()
         {
-            var tokenInfo = Token.CallViewMethod<TokenInfo>(TokenMethod.GetTokenInfo, new GetTokenInfoInput
-            {
-                Symbol = symbol
-            });
-            return tokenInfo;
-        }
+            var symbols = new[] {"CPU", "RAM", "NET", "STO"};
+            var id = GenerateRandomNumber(0, symbols.Length - 1);
 
-        private Connector GetRandomConnector()
-        {
-            var id = GenerateRandomNumber(0, Connectors.Count() - 1);
-
-            return Connectors.ToArray()[id];
+            return symbols[id];
         }
     }
 }

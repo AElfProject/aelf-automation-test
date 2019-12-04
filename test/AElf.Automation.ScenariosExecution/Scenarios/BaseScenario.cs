@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
+using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -38,19 +41,32 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             bool interrupted = false)
         {
             foreach (var action in actions)
+            {
                 try
                 {
                     action.Invoke();
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}", e);
+                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}");
                     if (interrupted)
                         break;
                 }
+            }
 
             if (sleepSeconds != 0)
                 Thread.Sleep(1000 * sleepSeconds);
+        }
+
+        public void UpdateEndpointAction()
+        {
+            var randomNumber = CommonHelper.GenerateRandomNumber(1, 10);
+
+            if (randomNumber == 5)
+            {
+                Console.WriteLine();
+                Services.UpdateRandomEndpoint();
+            }
         }
 
         public void CheckNodeTransactionAction()

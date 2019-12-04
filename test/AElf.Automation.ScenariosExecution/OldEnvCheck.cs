@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution
@@ -34,7 +29,7 @@ namespace AElf.Automation.ScenariosExecution
         public ContractServices GetContractServices()
         {
             if (Services != null)
-                return Services;
+                return Services.CloneServices();
 
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             var url = specifyEndpoint.Enable
@@ -46,7 +41,7 @@ namespace AElf.Automation.ScenariosExecution
             var bpAccount = _config.Nodes.First().Account;
             Services = new ContractServices(nodeManager, bpAccount);
 
-            return Services;
+            return Services.CloneServices();
         }
     }
 }

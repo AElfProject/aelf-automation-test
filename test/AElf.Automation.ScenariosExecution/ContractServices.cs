@@ -10,6 +10,7 @@ using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using AElfChain.Common;
 using log4net;
+using Volo.Abp;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -26,6 +27,25 @@ namespace AElf.Automation.ScenariosExecution
 
             //get all contract services
             GetAllContractServices();
+        }
+
+        public void UpdateRandomEndpoint()
+        {
+            while (true)
+            {
+                var nodes = NodeInfoHelper.Config.Nodes;
+                var randomId = CommonHelper.GenerateRandomNumber(0, nodes.Count);
+                if(nodes[randomId].Endpoint == NodeManager.GetApiUrl()) continue;
+
+                var updateUrl = nodes[randomId].Endpoint;
+                NodeManager.UpdateApiUrl(updateUrl);
+                break;
+            }
+        }
+
+        public ContractServices CloneServices()
+        {
+            return MemberwiseClone() as ContractServices;
         }
 
         public GenesisContract GenesisService { get; set; }
@@ -77,10 +97,6 @@ namespace AElf.Automation.ScenariosExecution
 
             //TokenConverter contract
             TokenConverterService = GenesisService.GetTokenConverterContract();
-
-            //Get or deploy other contracts
-            //GetOrDeployFunctionContract();
-            //GetOrDeployPerformanceContract();
         }
 
         private void GetOrDeployFunctionContract()
@@ -164,37 +180,6 @@ namespace AElf.Automation.ScenariosExecution
                     MinValue = 50,
                     MaxValue = 100
                 });
-            }
-        }
-
-        private void GetOrDeployPerformanceContract()
-        {
-            var contractsInfo = ConfigInfoHelper.Config.ContractsInfo;
-            var autoEnable = contractsInfo.AutoUpdate;
-            if (autoEnable)
-            {
-                var contractItem = contractsInfo.Contracts.First(o => o.Name == "Performance");
-                var queryResult = QueryContractItem(ref contractItem, out _);
-                if (queryResult)
-                {
-                    PerformanceService =
-                        new PerformanceContract(NodeManager, CallAddress, contractItem.Address);
-                }
-                else
-                {
-                    PerformanceService = new PerformanceContract(NodeManager, CallAddress);
-                    PerformanceService.InitializePerformance();
-
-                    //update configInfo
-                    contractItem.Address = PerformanceService.ContractAddress;
-                    contractItem.Owner = CallAddress;
-                }
-            }
-            else
-            {
-                //Performance contract
-                PerformanceService = new PerformanceContract(NodeManager, CallAddress);
-                PerformanceService.InitializePerformance();
             }
         }
 
