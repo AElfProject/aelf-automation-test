@@ -147,6 +147,30 @@ namespace AElf.Automation.RpcPerformance
             }
 
             Monitor.CheckTransactionsStatus(TxIdList);
+            
+            //随机检查用户token
+            foreach (var contract in ContractList)
+            {
+                var contractPath = contract.ContractAddress;
+                var symbol = contract.Symbol;
+                if (symbol == primaryToken) continue;
+                var token = new TokenContract(NodeManager, AccountList.First().Account, contractPath);
+                foreach (var user in AccountList)
+                {
+                    var rd = CommonHelper.GenerateRandomNumber(1, 6);
+                    if (rd != 5) continue;
+                    //verify token
+                    var balance = token.GetUserBalance(user.Account, symbol);
+                    if(balance == amount)
+                        Logger.Info($"Issue token {symbol} to '{user.Account}' with amount {amount} success.");
+                    else if(balance == 0)
+                        Logger.Warn($"User '{user.Account}' without any {symbol} token.");
+                    else
+                    {
+                        Logger.Error($"User {user.Account} {symbol} token balance not correct.");
+                    }
+                }
+            }
         }
 
         public void PrintContractInfo()
