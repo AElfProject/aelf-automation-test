@@ -34,7 +34,7 @@ namespace AElf.Automation.RpcPerformance
                     Logger.Warn("ExecuteTokenCheckTask was been cancelled.");
                     break;
                 }
-                
+
                 Thread.Sleep(3 * 60 * 1000);
                 try
                 {
@@ -56,7 +56,7 @@ namespace AElf.Automation.RpcPerformance
             foreach (var bp in bps)
             {
                 var balance = SystemToken.GetUserBalance(bp.Account, symbol);
-                if (balance < 200_0000_00000000) continue;
+                if (balance < 300_0000_00000000) continue;
                 SystemToken.SetAccount(bp.Account, bp.Password);
                 foreach (var tester in testers)
                 {
