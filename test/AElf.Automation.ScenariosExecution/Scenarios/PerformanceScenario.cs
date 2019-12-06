@@ -38,6 +38,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 WritePerformanceAction,
                 ComputePerformanceAction,
                 QueryPerformanceAction,
+                () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
         }
@@ -111,7 +112,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 result1.Content.WriteSuccessLine();
 
             //query fibonacci 
-            var randomNumber = GenerateRandomNumber(0, 50);
+            var randomNumber = GenerateRandomNumber(0, 40);
             var result2 = Performance.CallViewMethod<NumberOutput>(PerformanceMethod.QueryFibonacci, new NumberInput
             {
                 Number = randomNumber

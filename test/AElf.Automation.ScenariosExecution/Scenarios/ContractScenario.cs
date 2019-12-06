@@ -7,6 +7,7 @@ using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using log4net;
@@ -46,6 +47,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 ExecuteUpdateContractMethod,
                 UpdateBasicFunctionContract,
                 UpdateBasicUpdateContract,
+                () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
         }
@@ -54,19 +56,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             FunctionContract =
                 BasicFunctionContract.GetOrDeployBasicFunctionContract(Services.NodeManager, Services.CallAddress);
+            
             foreach (var account in Testers.GetRange(1, Testers.Count - 1))
             {
                 FunctionContract.SetAccount(account);
-                var winMoney =
-                    FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney,
+                FunctionContract.CallViewMethod<MoneyOutput>(FunctionMethod.QueryUserWinMoney,
                         account.ConvertAddress());
                 var txResult = FunctionContract.ExecuteMethodWithResult(FunctionMethod.UserPlayBet, new BetInput
                 {
-                    Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
+                    Int64Value = GenerateRandomNumber(120, 8000)
                 });
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
-                    Logger.Info($"Function contract 'UserPlayBet' execute successful.");
+                    Logger.Info("Function contract 'UserPlayBet' execute successful.");
                 }
 
                 Thread.Sleep(3 * 1000);
@@ -76,15 +78,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void ExecuteUpdateContractMethod()
         {
             UpdateContract = BasicUpdateContract.GetOrDeployBasicUpdateContract(Services.NodeManager, Services.CallAddress);
+            
             foreach (var account in Testers.GetRange(1, Testers.Count - 1))
             {
                 UpdateContract.SetAccount(account);
-                var winMoney =
-                    UpdateContract.CallViewMethod<MoneyOutput>(UpdateMethod.QueryUserWinMoney,
+                UpdateContract.CallViewMethod<MoneyOutput>(UpdateMethod.QueryUserWinMoney,
                         account.ConvertAddress());
                 var txResult = UpdateContract.ExecuteMethodWithResult(UpdateMethod.UserPlayBet, new BetInput
                 {
-                    Int64Value = GenerateRandomNumber(60, 99) + winMoney.Int64Value
+                    Int64Value = GenerateRandomNumber(120, 8000) 
                 });
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
@@ -107,7 +109,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             else
                 Logger.Error("Contract update from 'BasicFunctionContract' to 'BasicUpdateContract' failed.");
         }
-
         private void UpdateBasicUpdateContract()
         {
             var newOwner = UpdateTestContractAuthor(UpdateContract.Contract);
@@ -154,10 +155,16 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Genesis.SetAccount(ownerAddress);
             
             //update to update contract
-            var result = Genesis.UpdateContract(ownerAddress, contract.GetFormatted(),
-                contractName);
-            
-            return result;
+            var authority = new AuthorityManager(Services.NodeManager, ownerAddress);
+            try
+            {
+                authority.UpdateContractWithAuthority(ownerAddress, contract.GetFormatted(), contractName);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

@@ -50,6 +50,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 TransferAction,
                 ApproveTransferAction,
+                () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
         }
@@ -79,10 +80,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 //check balance process
                 if (beforeFrom != afterFrom + transferFee + amount)
                 {
-                    Logger.Error($"Transfer balance check failed. From owner {NodeOption.NativeTokenSymbol}: {beforeFrom}/{afterFrom + transferFee + amount}");
+                    Logger.Error(
+                        $"Transfer balance check failed. From owner {NodeOption.NativeTokenSymbol}: {beforeFrom}/{afterFrom + transferFee + amount}");
                     result = false;
                 }
-                
+
                 if (beforeTo != afterTo - amount)
                 {
                     Logger.Error(
@@ -147,12 +149,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }));
                 if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
+
                 var transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
                 var afterAllowance = Token.GetAllowance(from, to);
                 var checkResult = true;
-                
+
                 //check TransferFrom result process
                 if (beforeFrom - amount != afterFrom)
                 {
@@ -186,7 +189,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public void PrepareAccountBalance()
         {
             //prepare bp account token
-            CollectHalfBpTokensToBp0();
+            CollectPartBpTokensToBp0();
             Logger.Info($"BEGIN: bp1 token balance: {Token.GetUserBalance(AllNodes.First().Account)}");
 
             var publicKeysList = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
@@ -234,30 +237,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             token.CheckTransactionResultList();
             Logger.Info($"END: bp1 token balance: {Token.GetUserBalance(AllNodes.First().Account)}");
-        }
-
-        private void CollectHalfBpTokensToBp0()
-        {
-            Logger.Info("Transfer all bps token to first bp for testing.");
-            var bp0 = AllNodes.First();
-            foreach (var bp in AllNodes.Skip(1))
-            {
-                var balance = Token.GetUserBalance(bp.Account);
-                if (balance < 1000_00000000)
-                    continue;
-
-                //transfer
-                Token.SetAccount(bp.Account, bp.Password);
-                Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                {
-                    Amount = balance / 2,
-                    Symbol = NodeOption.NativeTokenSymbol,
-                    To = AddressHelper.Base58StringToAddress(bp0.Account),
-                    Memo = "Collect half tokens from other bps."
-                });
-            }
-
-            Token.CheckTransactionResultList();
         }
 
         private void GetTransferPair(out string accountFrom, out string accountTo, out long amount)

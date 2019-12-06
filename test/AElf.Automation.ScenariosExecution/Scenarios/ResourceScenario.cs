@@ -46,6 +46,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 BuyResourceAction,
                 SellResourceAction,
+                () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
         }
@@ -66,7 +67,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = amount,
                     Symbol = resSymbol
-                });
+                }, out var existed);
+                if (existed) continue;
                 if (buyResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
                     var transactionFee = buyResult.TransactionFee.GetDefaultTransactionFee();
@@ -103,7 +105,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = amount,
                     Symbol = resSymbol
-                });
+                }, out var existed);
+                if (existed) continue;
                 if (sellResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
                     var transactionFee = sellResult.TransactionFee.GetDefaultTransactionFee();

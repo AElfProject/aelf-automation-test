@@ -74,7 +74,7 @@ namespace AElfChain.Common.Contracts
                     else if (status == TransactionResultStatus.Failed)
                     {
                         Logger.Error(
-                            $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
+                            $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
                             true);
                         break;
                     }

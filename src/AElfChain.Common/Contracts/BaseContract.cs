@@ -9,6 +9,7 @@ using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
@@ -119,7 +120,35 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
+            //Check result
+            Thread.Sleep(100); //in case of 'NotExisted' issue
+            return NodeManager.CheckTransactionResult(txId);
+        }
+        
+        /// <summary>
+        /// 执行交易，如果已经存在，则不执行直接返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <param name="existed"></param>
+        /// <returns></returns>
+        public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter, out bool existed)
+        {
+            var rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            //check whether tx exist or not
+            var genTxId = TransactionUtil.CalculateTxId(rawTx);
+            var transactionResult = ApiService.GetTransactionResultAsync(genTxId).Result;
+            if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
+            {
+                Logger.Warn($"Found duplicate transaction.");
+                existed = true;
+                return transactionResult;
+            }
+
+            existed = false;
             var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
@@ -137,6 +166,18 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
             return ExecuteMethodWithResult(method.ToString(), inputParameter);
+        }
+        
+        /// <summary>
+        /// 执行交易，如果已经存在，则不执行直接返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <param name="existed"></param>
+        /// <returns></returns>
+        public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter, out bool existed)
+        {
+            return ExecuteMethodWithResult(method.ToString(), inputParameter, out existed);
         }
 
         /// <summary>
@@ -267,7 +308,7 @@ namespace AElfChain.Common.Contracts
         {
             return NodeManager.GenerateRawTransaction(CallAddress, ContractAddress, method, inputParameter);
         }
-
+        
         private bool GetContractAddress(string txId, out string contractAddress)
         {
             contractAddress = string.Empty;

@@ -1,6 +1,8 @@
 using System.Linq;
 using AElf.Contracts.TestContract.BasicUpdate;
+using AElf.Types;
 using AElfChain.Common.Managers;
+using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
@@ -36,7 +38,7 @@ namespace AElfChain.Common.Contracts
 
         public void InitialBasicUpdateContract()
         {
-            ExecuteMethodWithResult(UpdateMethod.InitialBasicUpdateContract,
+            var initializeResult = ExecuteMethodWithResult(UpdateMethod.InitialBasicUpdateContract,
                 new InitialBasicContractInput
                 {
                     ContractName = "Test Contract1",
@@ -45,13 +47,20 @@ namespace AElfChain.Common.Contracts
                     MortgageValue = 1000_000_000L,
                     Manager = CallAccount
                 });
+            if (initializeResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            {
+                Logger.Error($"Initialize execution of update function contract failed. Error: {initializeResult.Error}");
+            }
 
-            SetAccount(CallAccount.GetFormatted());
-            ExecuteMethodWithResult(UpdateMethod.UpdateBetLimit, new BetLimitInput
+            var setLimitResult = ExecuteMethodWithResult(UpdateMethod.UpdateBetLimit, new BetLimitInput
             {
                 MinValue = 50L,
                 MaxValue = 100_0000L
             });
+            if (setLimitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            {
+                Logger.Error($"UpdateBetLimit execution of update function contract failed. Error: {setLimitResult.Error}");
+            }
         }
         
         public string GetContractName()

@@ -283,19 +283,22 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 SchemeId = schemeId,
                 Symbol = NodeOption.NativeTokenSymbol
-            });
+            }, out var existed);
 
+            if (existed) return; //忽略已经存在交易
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             
             //check profit amount process
             var profitTransactionFee = profitResult.TransactionFee.GetDefaultTransactionFee();
             var afterBalance = Token.GetUserBalance(account);
             var checkResult = true;
+            /* ignore this check due to bp with other profit or send token to others
             if (beforeBalance + profitAmount != afterBalance + profitTransactionFee)
             {
                 Logger.Error($"Check profit balance failed. {beforeBalance + profitAmount}/{afterBalance + profitTransactionFee}");
                 checkResult = false;
             }
+            */
             
             if(checkResult)
                 Logger.Info(
