@@ -45,13 +45,16 @@ namespace AElfChain.Common.Contracts
                 if (SystemContractAddresses.ContainsValue(address)) continue;
                 if(CustomContracts == null)
                     CustomContracts = new Dictionary<Address, List<string>>();
-                if (CustomContracts.ContainsKey(address)) continue;
+                if (CustomContracts.ContainsKey(address))
+                {
+                    CustomContracts.Remove(address);
+                }
 
                 var contractDescriptor =
                     genesis.ApiService.GetContractFileDescriptorSetAsync(address.GetFormatted()).Result;
                 var customContractHandler = new CustomContractHandler(contractDescriptor);
                 var methods = customContractHandler.GetContractMethods();
-                CustomContracts.Add(address, methods);
+                CustomContracts.TryAdd(address, methods);
             }
         }
 

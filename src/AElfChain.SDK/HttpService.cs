@@ -97,7 +97,6 @@ namespace AElfChain.SDK
 
             var client = GetDefaultClient(version);
             try
-
             {
                 var response = await client.GetAsync(url);
                 if (response.StatusCode == expectedStatusCode)

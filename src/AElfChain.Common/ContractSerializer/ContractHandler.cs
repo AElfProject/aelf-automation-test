@@ -16,6 +16,8 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.Profit;
 using AElf.Contracts.ReferendumAuth;
+using AElf.Contracts.TestContract.BasicFunction;
+using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
@@ -126,7 +128,8 @@ namespace AElfChain.Common.ContractSerializer
                         ReferendumAuthContractContainer.Descriptor
                     }
                 },
-
+                {NameProvider.TestBasicFunction, new List<ServiceDescriptor>{BasicFunctionContractContainer.Descriptor}},
+                {NameProvider.TestUpdateFunction, new List<ServiceDescriptor>{BasicUpdateContractContainer.Descriptor}},
                 {NameProvider.TestPerformance, new List<ServiceDescriptor> {PerformanceContractContainer.Descriptor}},
                 {NameProvider.ExecutionAcs5, new List<ServiceDescriptor> {ExecutionAcs5.ContractContainer.Descriptor}},
                 {NameProvider.ExecutionAcs8, new List<ServiceDescriptor> {ExecutionAcs8.ContractContainer.Descriptor}}
