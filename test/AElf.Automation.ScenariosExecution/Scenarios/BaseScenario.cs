@@ -20,6 +20,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
         protected List<Node> AllNodes { get; set; }
+        
+        protected DateTime UpdateEndpointTime = DateTime.Now;
         protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
@@ -62,15 +64,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Thread.Sleep(1000 * sleepSeconds);
         }
 
-        public void UpdateEndpointAction()
+        protected void UpdateEndpointAction()
         {
-            var randomNumber = CommonHelper.GenerateRandomNumber(1, 10);
-
-            if (randomNumber == 5)
-            {
-                Console.WriteLine();
-                Services.UpdateRandomEndpoint();
-            }
+            var timeSpan = DateTime.Now - UpdateEndpointTime;
+            if (timeSpan.Minutes < 1) return;
+            
+            Console.WriteLine();
+            UpdateEndpointTime = DateTime.Now;
+            Services.UpdateRandomEndpoint();
         }
 
         public void CheckNodeTransactionAction()
@@ -117,8 +118,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected void PrepareTesterToken(List<string> testers)
         {
-            CollectPartBpTokensToBp0();
-            
             var bp = AllNodes.First();
             var token = Services.TokenService;
             token.SetAccount(bp.Account, bp.Password);
@@ -131,10 +130,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
         }
         
-        [MethodImpl(MethodImplOptions.Synchronized)]
         protected void CollectPartBpTokensToBp0()
         {
-            Logger.Info("Transfer half bps token to first bp for testing.");
+            Logger.Info("Transfer part bps token to first bp for testing.");
             var bp0 = AllNodes.First();
             foreach (var bp in AllNodes.Skip(1))
             {
@@ -146,7 +144,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Services.TokenService.SetAccount(bp.Account, bp.Password);
                 Services.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                 {
-                    Amount = balance / 5,
+                    Amount = balance / 2,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = bp0.Account.ConvertAddress(),
                     Memo = $"Collect part tokens-{Guid.NewGuid()}"

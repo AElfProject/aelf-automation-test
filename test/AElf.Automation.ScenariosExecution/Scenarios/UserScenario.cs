@@ -186,7 +186,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime))
                     .Add(TimeSpan.FromHours(1))
                     .ToTimestamp()
-            });
+            }, out var existed);
+            if (existed) return;
             if (voteResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             var afterElfBalance = Token.GetUserBalance(account);
             var afterVoteBalance = Token.GetUserBalance(account, "VOTE");
@@ -213,7 +214,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (beforeCandidateVote != afterCandidateVote - amount)
             {
                 Logger.Error(
-                    $"Candidate vote count check failed. Ticket: {beforeCandidateVote + amount}/{afterVoteBalance}");
+                    $"Candidate vote count check failed. Ticket: {beforeCandidateVote + amount}/{afterCandidateVote}");
                 checkResult = false;
             }
 
