@@ -194,5 +194,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             Console.WriteLine(rawTransactionResult);
         }
+
+        [TestMethod]
+        public void CreateTestAccount()
+        {
+            var keyPath = "/Users/ericshu/GitHub/Team/aelf-automation-test/test/AElf.Automation.ScenariosExecution/testers";
+            var keyStore = AElfKeyStore.GetKeyStore(keyPath);
+            var accManager = new AccountManager(keyStore);
+            for (var i = 0; i < 100; i++)
+            {
+                var acc = accManager.NewAccount();
+                accManager.UnlockAccount(acc);
+            }
+        }
     }
 }

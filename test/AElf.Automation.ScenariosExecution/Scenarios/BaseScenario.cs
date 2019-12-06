@@ -132,5 +132,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var random = new Random(Guid.NewGuid().GetHashCode());
             return random.Next(min, max + 1);
         }
+
+        protected void PrintTesters(string name, List<string> testers)
+        {
+            Logger.Info($"Scenario: {name}");
+            foreach (var tester in testers)
+            {
+                Logger.Info(tester);
+            }
+        }
     }
 }

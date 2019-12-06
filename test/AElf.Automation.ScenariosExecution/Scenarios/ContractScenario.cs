@@ -23,6 +23,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Genesis = Services.GenesisService;
             Testers = AllTesters.GetRange(0, 5);
+            PrintTesters(nameof(ContractScenario), Testers);
         }
         public BasicFunctionContract FunctionContract { get; set; }
         public BasicUpdateContract UpdateContract { get; set; }

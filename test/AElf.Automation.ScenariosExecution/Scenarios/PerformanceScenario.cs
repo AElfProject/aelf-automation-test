@@ -24,7 +24,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             InitializeScenario();
 
             Performance = PerformanceContract.GetOrDeployPerformanceContract(Services.NodeManager, Services.CallAddress);
-            Testers = AllTesters.GetRange(0, 50);
+            Testers = AllTesters.GetRange(15, 5);
+            PrintTesters(nameof(PerformanceScenario), Testers);
         }
 
         public PerformanceContract Performance { get; set; }

@@ -36,7 +36,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Profit.GetTreasurySchemes(Treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
 
-            Testers = AllTesters.GetRange(50, 30);
+            Testers = AllTesters.GetRange(80, 20);
+            PrintTesters(nameof(UserScenario), Testers);
         }
 
         public TreasuryContract Treasury { get; }
@@ -110,14 +111,27 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 return;
 
             Logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
+            var beforeBalance = Token.GetUserBalance(account);
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
                 Symbol = NodeOption.NativeTokenSymbol
             });
+            if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
-            if (profitResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+            var checkResult = true;
+            var profitTransactionFee = profitResult.TransactionFee.GetDefaultTransactionFee();
+            var afterBalance = Token.GetUserBalance(account);
+
+            if (afterBalance + profitTransactionFee != beforeBalance + profitAmount)
+            {
+                Logger.Error(
+                    $"Check profit balance failed: {afterBalance + profitTransactionFee}/{beforeBalance + profitAmount}");
+                checkResult = false;
+            }
+
+            if (checkResult)
                 Logger.Info(
                     $"Profit success - user {account} get vote profit from Id: {schemeId}, value is: {profitAmount}");
         }
@@ -125,12 +139,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void UserVote(string account)
         {
             var lockTime = GenerateRandomNumber(3, 30) * 30;
+
             var amount = GenerateRandomNumber(1, 5) * 5;
             if (_candidatesExcludeMiners.Count != 0)
             {
                 var id = GenerateRandomNumber(0, _candidatesExcludeMiners.Count - 1);
                 UserVote(account, _candidatesExcludeMiners[id], lockTime, amount);
             }
+
             else
             {
                 var id = GenerateRandomNumber(0, _candidates.Count - 1);
@@ -142,19 +158,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var beforeElfBalance = Token.GetUserBalance(account);
             var beforeVoteBalance = Token.GetUserBalance(account, "VOTE");
+
+            var beforeCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
             if (beforeElfBalance < amount * 10000_0000) // balance not enough, bp transfer again
             {
+                const long transferAmount = 1_0000_00000000L;
                 var token = Token.GetNewTester(AllNodes.First().Account);
-                token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                var transferTxResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Amount = 10_0000_00000000,
+                    Amount = transferAmount,
                     To = AddressHelper.Base58StringToAddress(account),
                     Memo = $"Transfer for voting = {Guid.NewGuid()}"
                 });
+                if (transferTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+                beforeElfBalance = Token.GetUserBalance(account);
             }
 
             var election = Election.GetNewTester(account);
+
             var voteResult = election.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
             {
                 CandidatePubkey = candidatePublicKey,
@@ -167,7 +189,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var afterElfBalance = Token.GetUserBalance(account);
             var afterVoteBalance = Token.GetUserBalance(account, "VOTE");
             var transactionFee = voteResult.TransactionFee.GetDefaultTransactionFee();
+            var afterCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
+
             var checkResult = true;
+
+            //check vote result process
             if (beforeElfBalance != afterElfBalance + amount * 10000_0000L + transactionFee)
             {
                 Logger.Error(
@@ -175,16 +201,24 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 checkResult = false;
             }
 
-            if (beforeVoteBalance != afterVoteBalance - amount)
+            if (afterVoteBalance != beforeVoteBalance + amount)
             {
                 Logger.Error(
                     $"User vote receive VOTE token balance check failed. VOTE: {beforeVoteBalance}/{afterVoteBalance - amount}");
                 checkResult = false;
             }
 
+            if (beforeCandidateVote != afterCandidateVote - amount)
+            {
+                Logger.Error(
+                    $"Candidate vote count check failed. Ticket: {beforeCandidateVote + amount}/{afterVoteBalance}");
+                checkResult = false;
+            }
+
             if (checkResult)
                 Logger.Info(
-                    $"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days.");
+                    $"Vote success - {account} vote candidate: {candidatePublicKey} with amount: {amount} lock time: {lockTime} days."
+                );
         }
 
         public static void GetCandidates(ElectionContract election)

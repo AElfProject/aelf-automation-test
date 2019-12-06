@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
@@ -42,6 +43,40 @@ namespace AElf.Automation.ScenariosExecution
             Services = new ContractServices(nodeManager, bpAccount);
 
             return Services.CloneServices();
+        }
+
+        public static void PrepareTestAccounts()
+        {
+            var keyPath = Path.Combine(CommonHelper.GetCurrentDataDir(), "keys");
+            var files = Directory.GetFiles(keyPath);
+
+            //clean old accounts exclude node accounts
+            var nodeAccounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file);
+                if (nodeAccounts.Contains(fileName)) continue;
+                File.Delete(file);
+                Logger.Info($"Delete account file: {file.Split('/').Last()}");
+            }
+            
+            //copy test accounts
+            var accountPath = CommonHelper.MapPath("test-data/keys");
+            foreach (var file in Directory.GetFiles(accountPath))
+            {
+                CommonHelper.CopyFiles(file, keyPath);
+                Logger.Info($"Copy tester account: {file.Split('/').Last()}");
+            }
+            
+            //copy test contract
+            var defaultDir = CommonHelper.GetDefaultDataDir();
+            var testContracts = CommonHelper.MapPath("test-data/contracts");
+            var contractPath = Path.Combine(defaultDir, "contracts");
+            foreach (var file in Directory.GetFiles(testContracts))
+            {
+                CommonHelper.CopyFiles(file, contractPath);
+                Logger.Info($"Copy tester contract: {file.Split('/').Last()}");         
+            }
         }
     }
 }

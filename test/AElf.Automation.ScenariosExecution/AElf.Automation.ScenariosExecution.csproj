@@ -6,24 +6,32 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentScheduler" Version="5.3.0" />
-      <PackageReference Include="Shouldly" Version="3.0.2" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-      <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
+        <PackageReference Include="FluentScheduler" Version="5.3.0" />
+        <PackageReference Include="Shouldly" Version="3.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="figures" />
-      <Folder Include="logs" />
+        <Folder Include="figures" />
+        <Folder Include="logs" />
+        <Folder Include="test-data\contracts" />
+        <Folder Include="test-data\keys" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
+        <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="config\*">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="config\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="test-data\keys\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="test-data\contracts\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>

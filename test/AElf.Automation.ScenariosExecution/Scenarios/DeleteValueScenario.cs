@@ -16,7 +16,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             InitializeScenario();
             var contract = BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, AllTesters[0]);
-            var testers = AllTesters.GetRange(1, 2);
+            var testers = AllTesters.GetRange(5, 5);
+            PrintTesters(nameof(DeleteValueScenario), testers);
+            
             _contracts = testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }

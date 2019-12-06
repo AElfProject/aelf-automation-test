@@ -21,7 +21,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Token = Services.TokenService;
             TokenConverter = Services.TokenConverterService;
-            Testers = AllTesters.GetRange(5, 20);
+            Testers = AllTesters.GetRange(20, 30);
+            PrintTesters(nameof(ResourceScenario), Testers);
 
             SetAllowanceForResourceTest();
         }
@@ -75,7 +76,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         var cost = elfBeforeBalance + transactionFee - elfAfterBalance;
                         Logger.Info(
-                            $"Buy resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)cost / (double)amount}");
+                            $"Buy resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)cost / (double)amount:0.0000}");
                     }
                     else
                     {
@@ -112,7 +113,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         var got = elfAfterBalance + transactionFee - elfBeforeBalance;
                         Logger.Info(
-                            $"Sell resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)got / (double)amount}");
+                            $"Sell resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)got / (double)amount:0.0000}");
                     }
                     else
                     {

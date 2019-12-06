@@ -28,6 +28,9 @@ namespace AElf.Automation.ScenariosExecution
             Log4NetHelper.LogInit($"ScenarioTest_Hour_{DateTime.Now.Hour:00}");
             Logger = Log4NetHelper.GetLogger();
             
+            //prepare account
+            OldEnvCheck.PrepareTestAccounts();
+            
             var multipleTasks = new MultipleTasks();
             multipleTasks.RunScenariosByTasks();
 

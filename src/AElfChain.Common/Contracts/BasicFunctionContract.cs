@@ -38,7 +38,7 @@ namespace AElfChain.Common.Contracts
                 {
                     ContractName = "Test Contract1",
                     MinValue = 10L,
-                    MaxValue = 1000L,
+                    MaxValue = 10_0000L,
                     MortgageValue = 1000_000_000L,
                     Manager = CallAccount
                 });

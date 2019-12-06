@@ -27,7 +27,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             Token = Services.TokenService;
             Election = Services.ElectionService;
-            Testers = AllTesters.GetRange(25, 25);
+            Testers = AllTesters.GetRange(50, 30);
+            PrintTesters(nameof(TokenScenario), Testers);
         }
 
         public TokenContract Token { get; set; }
@@ -59,23 +60,33 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             try
             {
                 var token = Token.GetNewTester(from);
-                var beforeB = Token.GetUserBalance(to);
-                var tokenResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+                var beforeFrom = Token.GetUserBalance(from);
+                var beforeTo = Token.GetUserBalance(to);
+                var transferTxResult = token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Amount = amount,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
                 });
-                tokenResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                transferTxResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var afterB = Token.GetUserBalance(to);
+                var transferFee = transferTxResult.TransactionFee.GetDefaultTransactionFee();
+                var afterFrom = Token.GetUserBalance(from);
+                var afterTo = Token.GetUserBalance(to);
                 var result = true;
 
-                if (beforeB != afterB - amount)
+                //check balance process
+                if (beforeFrom != afterFrom + transferFee + amount)
+                {
+                    Logger.Error($"Transfer balance check failed. From owner {NodeOption.NativeTokenSymbol}: {beforeFrom}/{afterFrom + transferFee + amount}");
+                    result = false;
+                }
+                
+                if (beforeTo != afterTo - amount)
                 {
                     Logger.Error(
-                        $"Transfer failed, amount check failed. To owner {NodeOption.NativeTokenSymbol}: {beforeB}/{afterB - amount}");
+                        $"Transfer balance check failed. To owner {NodeOption.NativeTokenSymbol}: {beforeTo}/{afterTo - amount}");
                     result = false;
                 }
 
@@ -117,6 +128,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                             Logger.Error(
                                 $"Allowance check failed. {NodeOption.NativeTokenSymbol}: {allowance + 1000_00000000}/{newAllowance}");
                         }
+
+                        allowance = newAllowance;
                     }
                     else
                         return;
@@ -137,7 +150,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
+                var afterAllowance = Token.GetAllowance(from, to);
                 var checkResult = true;
+                
+                //check TransferFrom result process
                 if (beforeFrom - amount != afterFrom)
                 {
                     Logger.Error($"TransferFrom from balance check failed: {beforeFrom - amount}/{afterFrom}");
@@ -148,6 +164,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Logger.Error(
                         $"TransferFrom to balance check failed: {beforeTo - transactionFee + amount}/{afterTo}.");
+                    checkResult = false;
+                }
+
+                if (afterAllowance != allowance - amount)
+                {
+                    Logger.Error($"TransferFrom allowance check failed: {afterAllowance}/{allowance - amount}");
                     checkResult = false;
                 }
 
@@ -250,7 +272,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 accountFrom = acc;
                 accountTo = randomNo == 0 ? Testers.Last() : Testers[randomNo - 1];
-                amount = (long) randomNo % 10 + 1;
+                amount = (randomNo % 10 + 1) * 10000;
 
                 return;
             }

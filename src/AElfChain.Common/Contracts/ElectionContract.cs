@@ -56,5 +56,15 @@ namespace AElfChain.Common.Contracts
                     });
             return result;
         }
+
+        public long GetCandidateVoteCount(string candidatePublicKey)
+        {
+            var candidateVote = CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote, new StringValue
+            {
+                Value = candidatePublicKey
+            });
+
+            return candidateVote.AllObtainedVotedVotesAmount;
+        }
     }
 }
