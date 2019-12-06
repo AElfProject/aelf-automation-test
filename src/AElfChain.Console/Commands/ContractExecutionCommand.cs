@@ -66,7 +66,13 @@ namespace AElfChain.Console.Commands
                 var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
                 var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
-                    methodInput[0], inputMessage);
+                    methodInput[0], inputMessage, out var existed);
+                if (existed)
+                {
+                    $"TransactionId: {transactionId}, Method: {methodInput[0]}".WriteSuccessLine();
+                    return;
+                }
+
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);
                 JsonConvert.SerializeObject(transactionResult, Formatting.Indented).WriteSuccessLine();
             }

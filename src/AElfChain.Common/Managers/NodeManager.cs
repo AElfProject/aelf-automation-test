@@ -177,6 +177,24 @@ namespace AElfChain.Common.Managers
 
             return transactionOutput.TransactionId;
         }
+        
+        public string SendTransaction(string from, string to, string methodName, IMessage inputParameter, out bool existed)
+        {
+            var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
+            //check whether tx exist or not
+            var genTxId = TransactionUtil.CalculateTxId(rawTransaction);
+            var transactionResult = ApiService.GetTransactionResultAsync(genTxId).Result;
+            if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
+            {
+                Logger.Warn("Found duplicate transaction.");
+                existed = true;
+                return transactionResult.TransactionId;
+            }
+
+            existed = false;
+            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
+            return transactionOutput.TransactionId;
+        }
 
         public string SendTransaction(string rawTransaction)
         {

@@ -25,6 +25,7 @@ namespace AElfChain.Common.Managers
         //chain
         string DeployContract(string from, string filename);
         string SendTransaction(string from, string to, string methodName, IMessage inputParameter);
+        string SendTransaction(string from, string to, string methodName, IMessage inputParameter, out bool existed);
         string SendTransaction(string rawTransaction);
         List<string> SendTransactions(string rawTransactions);
         string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter);
