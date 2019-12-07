@@ -2,14 +2,8 @@
 
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProtoBaseDir>..\AElf\protobuf</ProtoBaseDir>
+        <ProtoBaseDir>.\Protobuf</ProtoBaseDir>
     </PropertyGroup>
-
-    <ItemGroup>
-        <None Include="$(ProtoBaseDir)\aelf\*">
-            <Link>Protobuf/Proto/aelf/*</Link>
-        </None>
-    </ItemGroup>
 
     <Choose>
         <When Condition="!$([MSBuild]::IsOsPlatform(Windows))">

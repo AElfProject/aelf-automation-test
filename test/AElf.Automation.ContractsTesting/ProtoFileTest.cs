@@ -11,7 +11,6 @@ using Google.Protobuf;
 using Google.Protobuf.Reflection;
 using log4net;
 using Newtonsoft.Json.Linq;
-using FileDescriptorSet = AElf.Runtime.CSharp.FileDescriptorSet;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -27,18 +26,6 @@ namespace AElf.Automation.ContractsTesting
 
             //AnalyzeTokenContractInfo();
             AnalyzeTokenContract();
-        }
-
-        public async Task SerializeProtoFileInfo()
-        {
-            var genesis = _nodeManager.GetGenesisContract();
-            var token = genesis.GetTokenContract();
-
-            var fileDescriptorBytes =
-                await _nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress);
-            var descriptorSet = FileDescriptorSet.Parser.ParseFrom(fileDescriptorBytes);
-            var byteStrings = descriptorSet.File.ToList();
-            var descriptors = FileDescriptor.BuildFromByteStrings(byteStrings);
         }
 
         public void AnalyzeTokenContractInfo()

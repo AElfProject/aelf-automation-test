@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package acs2;
+
+import "aelf/core.proto";
+import "aelf/options.proto";
+
+option (aelf.identity) = "acs2";
+
+service ACS2Base {
+    // Views
+    rpc GetResourceInfo (aelf.Transaction) returns (ResourceInfo) {
+        option (aelf.is_view) = true;
+    }
+}
+
+message ResourceInfo {
+    repeated aelf.ScopedStatePath paths = 1;
+    bool non_parallelizable = 2;
+}

@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using Acs3;
-using AElf;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Contracts;
@@ -107,7 +105,7 @@ namespace AElfChain.Common.Managers
             return deployAddress;
         }
 
-        private Address UpdateContractWithAuthority(string caller, string address, byte[] code)
+        private void UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
             var input = new ContractUpdateInput
             {
@@ -128,8 +126,8 @@ namespace AElfChain.Common.Managers
 
             if (!CheckProposalStatue(deployProposalId))
             {
-                Logger.Info("Contract code didn't pass the code check");
-                return null;
+                Logger.Error("Contract code didn't pass the code check");
+                return;
             } 
             
             var releaseApprovedContractInput = new ReleaseApprovedContractInput()
@@ -140,10 +138,8 @@ namespace AElfChain.Common.Managers
 
             var release = _genesis.ReleaseApprovedContract(releaseApprovedContractInput,caller);
             release.Status.ShouldBe("MINED");
-            var byteString3 = ByteString.FromBase64(release.Logs.Last().Indexed.First());
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
-            return updateAddress;
         }
 
         public List<string> GetCurrentMiners()

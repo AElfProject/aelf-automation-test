@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using Acs0;
 using Acs3;
 using AElfChain.Common.Contracts;

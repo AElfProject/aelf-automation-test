@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK.Models;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ContractsTesting
 {
@@ -34,7 +35,7 @@ namespace AElf.Automation.ContractsTesting
                 var height = i;
                 try
                 {
-                    var blockInfo = NodeManager.ApiService.GetBlockByHeightAsync(height, true).Result;
+                    var blockInfo = AsyncHelper.RunSync(()=>NodeManager.ApiService.GetBlockByHeightAsync(height, true));
                     if (blockInfo.Body.TransactionsCount != 3)
                     {
                         $"Height: {height}, TxCount: {blockInfo.Body.TransactionsCount}".WriteSuccessLine();
@@ -61,7 +62,7 @@ namespace AElf.Automation.ContractsTesting
                 {
                     try
                     {
-                        var transactionResult = NodeManager.ApiService.GetTransactionResultAsync(txId).Result;
+                        var transactionResult = AsyncHelper.RunSync(()=>NodeManager.ApiService.GetTransactionResultAsync(txId));
                         if (transactionResult.TransactionFee.Value != null)
                         {
                             $"TxId: {txId}, Fee: {transactionResult.TransactionFee.Value.Values.First()}".WriteSuccessLine();

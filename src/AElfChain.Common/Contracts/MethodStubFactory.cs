@@ -15,6 +15,7 @@ using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -172,7 +173,7 @@ namespace AElfChain.Common.Contracts
         private bool CheckTransactionExisted(Transaction transaction, out TransactionResultDto transactionResult)
         {
             var txId = transaction.GetHash().ToHex();
-            transactionResult = ApiService.GetTransactionResultAsync(txId).Result;
+            transactionResult = AsyncHelper.RunSync(()=>ApiService.GetTransactionResultAsync(txId));
             return transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted;
         }
     }

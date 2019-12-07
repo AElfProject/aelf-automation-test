@@ -1,3 +1,4 @@
+using System;
 using AElf;
 using AElf.Types;
 
@@ -12,4 +13,12 @@ namespace AElfChain.Common.Utils
             return transaction.GetHash().ToHex();
         }
     }
+    
+//    public static class TransactionResultStatusExtension
+//    {
+//        public static TransactionResultStatus ConvertTransactionResultStatus(this string status)
+//        {
+//            return (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), status, true);
+//        }
+//    }
 }

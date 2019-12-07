@@ -7,6 +7,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.SDK;
 using log4net;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common
 {
@@ -93,10 +94,10 @@ namespace AElfChain.Common
             try
             {
                 node.ApiService = service;
-                var chainStatus = service.GetChainStatusAsync().Result;
+                var chainStatus = AsyncHelper.RunSync(service.GetChainStatusAsync);
                 if (chainStatus == null) return;
                 node.Status = true;
-                var height = service.GetBlockHeightAsync().Result;
+                var height = AsyncHelper.RunSync(service.GetBlockHeightAsync);
                 Logger.Info($"Node {node.Name} [{node.Endpoint}] connection success, block height: {height}");
             }
             catch (Exception ex)

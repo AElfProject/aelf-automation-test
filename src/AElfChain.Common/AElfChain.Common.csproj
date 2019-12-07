@@ -1,125 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup>
         <NoWarn>0436</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Core\AElf.Core.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Cryptography\AElf.Cryptography.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.CSharp.Core\AElf.CSharp.Core.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Kernel.Core\AElf.Kernel.Core.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Kernel.Types\AElf.Kernel.Types.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Sdk.CSharp\AElf.Sdk.CSharp.csproj" />
-        <ProjectReference Include="..\AElf\src\AElf.Types\AElf.Types.csproj" />
+        <ProtoContract Include="Protobuf\Proto\acs0.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs1.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs2.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs3.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs4.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs5.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs6.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs7.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs8.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_basic_function_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_basic_function_with_parallel_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_basic_update_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_performance_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\token_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\token_contract_impl.proto" />
+        <ProtoContract Include="Protobuf\Proto\treasury_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\basic_contract_zero.proto" />
+        <ProtoContract Include="Protobuf\Proto\election_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\profit_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\aedpos_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\aedpos_contract_impl.proto" />
+        <ProtoContract Include="Protobuf\Proto\parliament_auth_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\association_auth_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\vote_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\token_converter_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\cross_chain_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\configuration_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\referendum_auth_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs5_plugin_test_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProtoContract Include="..\AElf\protobuf\acs0.proto">
-            <Link>Protobuf\Proto\stub\acs0.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs1.proto">
-            <Link>Protobuf\Proto\stub\acs1.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs2.proto">
-            <Link>Protobuf\Proto\stub\acs2.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs3.proto">
-            <Link>Protobuf\Proto\stub\acs3.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs4.proto">
-            <Link>Protobuf\Proto\stub\acs4.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs5.proto">
-            <Link>Protobuf\Proto\stub\acs5.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs6.proto">
-            <Link>Protobuf\Proto\stub\acs6.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs7.proto">
-            <Link>Protobuf\Proto\stub\acs7.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs8.proto">
-            <Link>Protobuf\Proto\stub\acs8.proto</Link>
-        </ProtoContract>
-        <ProtoMessage Include="..\AElf\protobuf\descriptor_equivalent.proto">
-            <Link>Protobuf\Proto\stub\descriptor_equivalent.proto</Link>
-        </ProtoMessage>
-        <ProtoContract Include="..\AElf\protobuf\test_basic_function_contract.proto">
-            <Link>Protobuf\Proto\stub\test_basic_function_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\test_basic_function_with_parallel_contract.proto">
-            <Link>Protobuf\Proto\stub\test_basic_function_with_parallel_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\test_basic_update_contract.proto">
-            <Link>Protobuf\Proto\stub\test_basic_update_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\test_performance_contract.proto">
-            <Link>Protobuf\Proto\stub\test_performance_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\token_contract.proto">
-            <Link>Protobuf\Proto\stub\token_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\token_contract_impl.proto">
-            <Link>Protobuf\Proto\stub\token_contract_impl.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\treasury_contract.proto">
-            <Link>Protobuf\Proto\stub\treasury_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\basic_contract_zero.proto">
-            <Link>Protobuf\Proto\stub\basic_contract_zero.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\election_contract.proto">
-            <Link>Protobuf\Proto\stub\election_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\profit_contract.proto">
-            <Link>Protobuf\Proto\stub\profit_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\aedpos_contract.proto">
-            <Link>Protobuf\Proto\stub\aedpos_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\aedpos_contract_impl.proto">
-            <Link>Protobuf\Proto\stub\aedpos_contract_impl.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\parliament_auth_contract.proto">
-            <Link>Protobuf\Proto\stub\parliament_auth_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\association_auth_contract.proto">
-            <Link>Protobuf\Proto\stub\association_auth_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\vote_contract.proto">
-            <Link>Protobuf\Proto\stub\vote_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\token_converter_contract.proto">
-            <Link>Protobuf\Proto\stub\token_converter_contract.protot</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\cross_chain_contract.proto">
-            <Link>Protobuf\Proto\stub\cross_chain_contract.protot</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\configuration_contract.proto">
-            <Link>Protobuf\Proto\stub\configuration_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\referendum_auth_contract.proto">
-            <Link>Protobuf\Proto\stub\referendum_auth_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs5_plugin_test_contract.proto">
-            <Link>Protobuf\Proto\stub\acs5_plugin_test_contract.proto</Link>
-        </ProtoContract>
-        <ProtoContract Include="..\AElf\protobuf\acs8_plugin_test_contract.proto">
-            <Link>Protobuf\Proto\stub\acs8_plugin_test_contract.proto</Link>
-        </ProtoContract>
-    </ItemGroup>
-
-    <ItemGroup>
+        <!--AElf packages-->
+        <PackageReference Include="AElf.Types" Version="0.8.3" />
+        <PackageReference Include="AElf.Kernel" Version="0.8.3" />
+        <PackageReference Include="AElf.CSharp.Core" Version="0.8.3" />
+        <PackageReference Include="AElf.Cryptography" Version="0.8.3" />
+        <!--end packages-->
+        <PackageReference Include="Volo.Abp.Core" Version="1.1.0" />
         <PackageReference Include="Nethereum.KeyStore" Version="3.4.0" />
         <PackageReference Include="apache.log4net.Extensions.Logging" Version="2.0.0.12" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="protobuf-net" Version="2.4.0" />
         <PackageReference Include="Shouldly" Version="3.0.2" />
         <PackageReference Include="protobuf-net" Version="2.4.0" />
         <PackageReference Include="protobuf-net.Reflection" Version="3.0.0-alpha.103" />
@@ -133,6 +64,10 @@
         <None Update="config\*">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
     </ItemGroup>
 
 </Project>

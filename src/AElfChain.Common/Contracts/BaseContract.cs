@@ -9,7 +9,6 @@ using AElfChain.Common.Utils;
 using AElfChain.SDK;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
@@ -140,7 +139,7 @@ namespace AElfChain.Common.Contracts
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
             //check whether tx exist or not
             var genTxId = TransactionUtil.CalculateTxId(rawTx);
-            var transactionResult = ApiService.GetTransactionResultAsync(genTxId).Result;
+            var transactionResult = AsyncHelper.RunSync(()=>ApiService.GetTransactionResultAsync(genTxId));
             if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
             {
                 Logger.Warn($"Found duplicate transaction.");
@@ -313,7 +312,7 @@ namespace AElfChain.Common.Contracts
         {
             contractAddress = string.Empty;
             var transactionResult = NodeManager.CheckTransactionResult(txId);
-            if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            if (TransactionResultStatusExtension.ConvertTransactionResultStatus(transactionResult?.Status) != TransactionResultStatus.Mined)
                 return false;
 
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
