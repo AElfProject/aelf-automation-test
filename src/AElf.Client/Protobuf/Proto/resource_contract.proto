@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.Resource";
+
+message ResourceId {
+    ResourceType type = 1;
+}
+
+enum ResourceType {
+    UNDEFINED_RESOURCE_TYPE = 0;
+    RAM = 1;
+    CPU = 2;
+    NET = 3;
+    STO = 4;
+}
+
+message Converter {
+    sint64 res_balance = 1;
+    sint64 elf_balance = 2;
+    sint64 res_weight = 3; // Weight based on MAX of 1,000,000
+    sint64 elf_weight = 4; // Weight based on MAX of 1,000,000
+    ResourceType type = 5;
+}
+
+message UserResourceId {
+    client.Address address = 1;
+    ResourceType type = 2;
+}

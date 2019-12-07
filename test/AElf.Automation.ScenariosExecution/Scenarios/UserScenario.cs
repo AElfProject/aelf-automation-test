@@ -10,7 +10,8 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.ClientDtoExtension;
+using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 

@@ -2,7 +2,7 @@ using System.Linq;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using AElfChain.Common.Managers;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts

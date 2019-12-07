@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using Google.Protobuf;
 
 namespace AElfChain.Common.Managers
 {
     public interface INodeManager
     {
-        IApiService ApiService { get; set; }
+        AElfClient ApiService { get; set; }
         AccountManager AccountManager { get; }
         TransactionManager TransactionManager { get; }
         string GetApiUrl();

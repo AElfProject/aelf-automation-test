@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.Common.Utils;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            var txId = ApiService.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             _txResultList.Enqueue(txId);
 
@@ -119,7 +119,7 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
-            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            var txId = ApiService.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -148,7 +148,7 @@ namespace AElfChain.Common.Contracts
             }
 
             existed = false;
-            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            var txId = ApiService.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -265,14 +265,12 @@ namespace AElfChain.Common.Contracts
         #region Priority
 
         public INodeManager NodeManager { get; set; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiService => NodeManager.ApiService;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount => CallAddress.ConvertAddress();
         public string ContractAddress { get; set; }
         public Address Contract => ContractAddress.ConvertAddress();
-
-        public static int Timeout { get; set; }
 
         public static ILog Logger = Log4NetHelper.GetLogger();
 

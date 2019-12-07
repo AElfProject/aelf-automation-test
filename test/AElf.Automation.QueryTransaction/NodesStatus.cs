@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using log4net;
 using Nito.AsyncEx;
 
@@ -13,12 +14,12 @@ namespace AElf.Automation.QueryTransaction
     public class NodesStatus
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly List<IApiService> _apiServices;
+        private readonly List<AElfClient> _apiServices;
         private long _height = 1;
 
         public NodesStatus(IEnumerable<string> urls)
         {
-            _apiServices = new List<IApiService>();
+            _apiServices = new List<AElfClient>();
             foreach (var url in urls)
             {
                 var nodeManager = AElfChainClient.GetClient(url);
@@ -41,7 +42,7 @@ namespace AElf.Automation.QueryTransaction
 
         private async Task CheckNodeHeight(long height)
         {
-            var collection = new List<(IApiService, BlockDto)>();
+            var collection = new List<(AElfClient, BlockDto)>();
             await _apiServices.AsParallel().Select(async api =>
             {
                 var block = await api.GetBlockByHeightAsync(height);
@@ -52,7 +53,7 @@ namespace AElf.Automation.QueryTransaction
             var (webApiService, blockDto) = collection.First();
             Logger.Info($"Check height: {height}");
             Logger.Info(
-                $"Node: {webApiService.GetServiceUrl()}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
+                $"Node: {webApiService.BaseUrl}, Block hash: {blockDto.BlockHash}, Transaction count:{blockDto.Body.TransactionsCount}");
             var forked = false;
 
             Parallel.ForEach(collection.Skip(0), item =>
@@ -67,7 +68,7 @@ namespace AElf.Automation.QueryTransaction
                 if (item2.BlockHash == blockDto.BlockHash) return;
                 forked = true;
                 Logger.Info(
-                    $"Node: {item1.GetServiceUrl()}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
+                    $"Node: {item1.BaseUrl}, Block hash: {item2.BlockHash}, Transaction count:{item2.Body.TransactionsCount}");
             });
 
             if (forked)

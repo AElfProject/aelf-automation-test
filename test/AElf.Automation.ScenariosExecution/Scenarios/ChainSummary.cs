@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -14,7 +15,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         private const int Phase = 120;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiService _apiService;
+        private readonly AElfClient _apiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
 

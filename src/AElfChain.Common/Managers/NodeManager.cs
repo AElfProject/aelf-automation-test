@@ -6,13 +6,14 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using AElf;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.ClientDtoExtension;
 using AElfChain.Common.Utils;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -68,7 +69,7 @@ namespace AElfChain.Common.Managers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return AsyncHelper.RunSync(() => ApiService.ExecuteTransactionAsync(rawTxString));
+            return ApiService.ExecuteTransaction(rawTxString);
         }
 
         private TransactionManager GetTransactionManager()
@@ -102,7 +103,7 @@ namespace AElfChain.Common.Managers
 
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
-        public IApiService ApiService { get; set; }
+        public AElfClient ApiService { get; set; }
 
         #endregion
 
@@ -165,17 +166,17 @@ namespace AElfChain.Common.Managers
             tx = tx.AddBlockReference(_baseUrl, _chainId);
             tx = TransactionManager.SignTransaction(tx);
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTxString));
+            var transactionId = ApiService.SendTransaction(rawTxString);
 
-            return transactionOutput.TransactionId;
+            return transactionId;
         }
 
         public string SendTransaction(string from, string to, string methodName, IMessage inputParameter)
         {
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
+            var transactionId = ApiService.SendTransaction(rawTransaction);
 
-            return transactionOutput.TransactionId;
+            return transactionId;
         }
         
         public string SendTransaction(string from, string to, string methodName, IMessage inputParameter, out bool existed)
@@ -192,20 +193,24 @@ namespace AElfChain.Common.Managers
             }
 
             existed = false;
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
-            return transactionOutput.TransactionId;
+            var transactionId = ApiService.SendTransaction(rawTransaction);
+            return transactionId;
         }
 
         public string SendTransaction(string rawTransaction)
         {
-            var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
-
-            return transactionOutput.TransactionId;
+            return AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(new SendTransactionInput
+            {
+                RawTransaction = rawTransaction
+            })).TransactionId;
         }
 
         public List<string> SendTransactions(string rawTransactions)
         {
-            var transactions = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(rawTransactions));
+            var transactions = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(new SendTransactionsInput
+            {
+                RawTransactions = rawTransactions
+            }));
 
             return transactions.ToList();
         }
@@ -366,7 +371,7 @@ namespace AElfChain.Common.Managers
         //Net Api
         public List<PeerDto> NetGetPeers()
         {
-            return AsyncHelper.RunSync(ApiService.GetPeersAsync);
+            return AsyncHelper.RunSync(()=>ApiService.GetPeersAsync(true));
         }
 
         public bool NetAddPeer(string address)
@@ -381,7 +386,7 @@ namespace AElfChain.Common.Managers
 
         public NetworkInfoOutput NetworkInfo()
         {
-            return AsyncHelper.RunSync(ApiService.NetworkInfo);
+            return AsyncHelper.RunSync(ApiService.GetNetworkInfoAsync);
         }
 
         #endregion

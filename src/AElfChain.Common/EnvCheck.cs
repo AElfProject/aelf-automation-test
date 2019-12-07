@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
+using AElfChain.Common.Utils;
 using log4net;
 using Volo.Abp.Threading;
 

@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.MultiToken";
+
+//tokenContract
+message TokenInfo {
+    string symbol = 1;
+    string tokenName = 2;
+    sint64 supply = 3;
+    sint64 totalSupply = 4;
+    sint32 decimals = 5;
+    client.Address issuer = 6;
+    bool is_burnable = 7;
+    bool is_transfer_disabled = 8;
+    sint32 issue_chain_id = 9;
+    sint64 burned = 10;
+}
+
+message GetTokenInfoInput {
+    string symbol = 1;
+}
+
+message TokenInfoList {
+    repeated TokenInfo value = 1;
+}
+
+message GetBalanceInput {
+    string symbol = 1;
+    client.Address owner = 2;
+}
+
+message GetBalanceOutput {
+    string symbol = 1;
+    client.Address owner = 2;
+    sint64 balance = 3;
+}
+
+message GetAllowanceInput {
+    string symbol = 1;
+    client.Address owner = 2;
+    client.Address spender = 3;
+}
+
+message GetAllowanceOutput {
+    string symbol = 1;
+    client.Address owner = 2;
+    client.Address spender = 3;
+    sint64 allowance = 4;
+}
+
+message IsInWhiteListInput {
+    string symbol = 1;
+    client.Address address = 2;
+}
+
+message ProfitReceivingInformation {
+    client.Address contract_address = 1;
+    client.Address profit_receiver_address = 2;
+    sint32 donation_parts_per_hundred = 3;
+}
+
+message GetLockedAmountInput {
+    client.Address address = 1;
+    string symbol = 3;
+    client.Hash lock_id = 4;
+}
+
+message GetLockedAmountOutput {
+    client.Address address = 1;
+    string symbol = 3;
+    client.Hash lock_id = 4;
+    sint64 amount = 5;
+}
+
+message GetVirtualAddressForLockingInput {
+    client.Address address = 1;
+    client.Hash lock_id = 3;
+}
+
+message GetCrossChainTransferTokenContractAddressInput {
+    int32 chainId = 1;
+}
+
+

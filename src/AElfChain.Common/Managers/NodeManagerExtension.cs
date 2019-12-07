@@ -3,7 +3,7 @@ using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 
 namespace AElfChain.Common.Managers
 {

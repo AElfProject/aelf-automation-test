@@ -47,6 +47,7 @@
         <PackageReference Include="AElf.CSharp.Core" Version="0.8.3" />
         <PackageReference Include="AElf.Cryptography" Version="0.8.3" />
         <!--end packages-->
+        
         <PackageReference Include="Volo.Abp.Core" Version="1.1.0" />
         <PackageReference Include="Nethereum.KeyStore" Version="3.4.0" />
         <PackageReference Include="apache.log4net.Extensions.Logging" Version="2.0.0.12" />
@@ -67,7 +68,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AElfChain.SDK\AElfChain.SDK.csproj" />
+      <ProjectReference Include="..\AElf.Client\AElf.Client.csproj" />
     </ItemGroup>
-
+    
+    
 </Project>

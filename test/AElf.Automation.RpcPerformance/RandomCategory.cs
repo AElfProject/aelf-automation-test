@@ -8,13 +8,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Common.Utils;
-using AElfChain.SDK;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -480,9 +480,9 @@ namespace AElf.Automation.RpcPerformance
                 if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
                     break;
 
-                var transactionOutput = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTransaction));
+                var transactionId = ApiService.SendTransaction(rawTransaction);
                 Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
-                    GenerateTransactionQueue.Count, transactionOutput.TransactionId);
+                    GenerateTransactionQueue.Count, transactionId);
                 Thread.Sleep(10);
             }
         }
@@ -568,7 +568,7 @@ namespace AElf.Automation.RpcPerformance
         #region Public Property
 
         public INodeManager NodeManager { get; private set; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiService => NodeManager.ApiService;
         private ExecutionSummary Summary { get; set; }
         private NodeStatusMonitor Monitor { get; set; }
         private TesterTokenMonitor TokenMonitor { get; set; }

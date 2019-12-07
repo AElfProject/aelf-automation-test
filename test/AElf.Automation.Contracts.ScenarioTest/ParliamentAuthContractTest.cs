@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Acs3;
+using AElf.Client.Service;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
@@ -10,7 +11,6 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -29,7 +29,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string Symbol = NodeOption.NativeTokenSymbol;
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
-        public IApiService ApiService { get; set; }
+        public AElfClient ApiService { get; set; }
         public List<string> UserList { get; set; }
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }

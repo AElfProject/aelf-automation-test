@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
-using AElfChain.SDK;
+using AElfChain.Common.Utils;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
@@ -12,7 +13,7 @@ namespace AElf.Automation.QueryTransaction
     public class StressQuery
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiService _apiService;
+        private readonly AElfClient _apiService;
 
         public StressQuery(string url)
         {
@@ -72,7 +73,7 @@ namespace AElf.Automation.QueryTransaction
             Logger.Info($"BlockHash: {block.BlockHash}");
 
             //block by hash
-            var block1 = await _apiService.GetBlockAsync(block.BlockHash, true);
+            var block1 = await _apiService.GetBlockByHashAsync(block.BlockHash, true);
             Logger.Info($"Block info: {JsonConvert.SerializeObject(block1)}");
 
             //query transaction
@@ -92,7 +93,7 @@ namespace AElf.Automation.QueryTransaction
             Logger.Info($"Transactions: {transactions}");
 
             //get blockState
-            var blockState = await _apiService.GetBlockStateAsync(block.BlockHash);
+            var blockState = await _apiService.GetBlockByHashAsync(block.BlockHash);
             Logger.Info($"BlockState: {blockState}");
         }
     }

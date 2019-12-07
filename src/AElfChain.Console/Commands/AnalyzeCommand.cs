@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Client.Service;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.ClientDtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Sharprompt;
@@ -25,7 +26,7 @@ namespace AElfChain.Console.Commands
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiService => NodeManager.ApiService;
 
         public override void RunCommand()
         {

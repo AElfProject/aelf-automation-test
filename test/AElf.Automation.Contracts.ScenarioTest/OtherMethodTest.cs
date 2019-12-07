@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -14,7 +13,6 @@ using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.ContractSerializer;
-using AElfChain.SDK.Models;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

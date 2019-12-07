@@ -6,7 +6,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
-using AElfChain.SDK;
 using log4net;
 using Shouldly;
 
@@ -115,10 +114,6 @@ namespace AElfChain.Console
                     Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
                 catch (ShouldAssertException e)
-                {
-                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
-                }
-                catch (AElfChainApiException e)
                 {
                     Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }

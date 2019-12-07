@@ -6,7 +6,6 @@ using AElfChain.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Types;
 using AElfChain.Common.Utils;
-using AElfChain.SDK;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;

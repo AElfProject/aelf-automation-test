@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.SDK;
 using log4net;
 
 namespace AElf.Automation.SideChainEconomicTest.EconomicTest
@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             GetContractServices();
         }
 
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiService => NodeManager.ApiService;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -87,7 +87,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         private void GetContractServices()
         {
-            Logger.Info($"Get contract service from: {ApiService.GetServiceUrl()}");
+            Logger.Info($"Get contract service from: {ApiService.BaseUrl}");
 
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 

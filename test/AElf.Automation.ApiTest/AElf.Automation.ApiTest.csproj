@@ -15,7 +15,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
-      <ProjectReference Include="..\..\src\AElfChain.SDK\AElfChain.SDK.csproj" />
     </ItemGroup>
 
 </Project>

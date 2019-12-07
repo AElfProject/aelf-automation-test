@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option csharp_namespace = "AElf.Client.CrossChain";
+
+import "client.proto";
+
+//cross_chain_contract
+message VerifyTransactionInput {
+    client.Hash transaction_id = 1;
+    client.MerklePath path = 2;
+    sint64 parent_chain_height = 3;
+    int32 verified_chain_id = 4;
+}

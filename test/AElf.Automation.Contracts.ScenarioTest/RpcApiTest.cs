@@ -2,7 +2,7 @@
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 

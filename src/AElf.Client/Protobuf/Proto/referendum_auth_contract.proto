@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.ReferendumAuth";
+
+message Organization {
+    int64 release_threshold = 1;
+    string token_symbol = 2;
+    client.Address organization_address = 3;
+    client.Hash organization_hash = 4;
+}

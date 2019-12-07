@@ -1,9 +1,9 @@
 using System.Threading;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Volo.Abp.Threading;
@@ -21,7 +21,7 @@ namespace AElf.Automation.ContractsTesting
             _nodeManager = nodeManager;
         }
 
-        private IApiService _apiService => _nodeManager.ApiService;
+        private AElfClient _apiService => _nodeManager.ApiService;
 
         public long GetBlockHeight()
         {

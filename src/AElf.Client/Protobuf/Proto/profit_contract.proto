@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.Profit";
+
+//profit_contract
+message CreatedSchemeIds {
+    repeated client.Hash scheme_ids = 1;
+}
+
+message GetManagingSchemeIdsInput {
+    client.Address manager = 1;
+}
+
+message SchemeBeneficiaryShare {
+    client.Hash scheme_id = 1;
+    sint64 shares = 2;
+}
+
+message Scheme {
+    client.Address virtual_address = 1;
+    sint64 total_shares = 2;
+    map<string, sint64> undistributed_profits = 3;// token symbol -> amount
+    sint64 current_period = 4;
+    repeated SchemeBeneficiaryShare sub_schemes = 5;
+    sint64 profit_receiving_due_period_count = 7;
+    bool is_release_all_balance_every_time_by_default = 8;
+    client.Hash scheme_id = 9;
+    sint32 delay_distribute_period_count = 10;
+    map<sint64, sint64> cached_delay_total_shares = 11;// period -> total shares, max elements count should be delay_distribute_period_count
+    client.Address manager = 12;
+}
+
+message SchemePeriod {
+    client.Hash scheme_id = 1;
+    sint64 period = 2;
+}
+
+message DistributedProfitsInfo {
+    sint64 total_shares = 1;
+    map<string, sint64> profits_amount = 2;
+    bool is_released = 3;
+}
+
+message GetProfitDetailsInput {
+    client.Hash scheme_id = 1;
+    client.Address beneficiary = 2;
+}
+
+message ProfitDetails {
+    repeated ProfitDetail details = 1;
+}
+
+message ProfitDetail {
+    sint64 start_period = 1;
+    sint64 end_period = 2;
+    sint64 shares = 3;
+    sint64 last_profit_period = 4;
+    bool is_weight_removed = 5;
+}
+
+message ClaimProfitsInput {
+    client.Hash scheme_id = 1;
+    string symbol = 2;
+}

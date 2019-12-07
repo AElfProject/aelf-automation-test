@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using AElf.Contracts.MultiToken;
-using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Utils;
-using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
 

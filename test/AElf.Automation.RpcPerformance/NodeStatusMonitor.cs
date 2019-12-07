@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.ClientDtoExtension;
+using AElfChain.Common.Utils;
 using log4net;
 using Volo.Abp.Threading;
 

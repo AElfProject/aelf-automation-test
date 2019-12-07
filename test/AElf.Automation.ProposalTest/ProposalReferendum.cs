@@ -8,7 +8,7 @@ using AElf.Contracts.ReferendumAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using Google.Protobuf;
 using ApproveInput = Acs3.ApproveInput;
 

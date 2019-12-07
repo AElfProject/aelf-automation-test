@@ -2,8 +2,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
-using AElfChain.SDK;
+using AElfChain.Common.Utils;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -12,7 +13,7 @@ namespace AElf.Automation.QueryTransaction
     public class TransactionQuery
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiService _apiService;
+        private readonly AElfClient _apiService;
         private readonly ConcurrentQueue<string> _transactionQueue = new ConcurrentQueue<string>();
         private long _blockHeight = 1;
         private bool _completeQuery;

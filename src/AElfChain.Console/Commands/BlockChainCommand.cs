@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AElf.Client.Service;
 using AElfChain.Common;
 using AElfChain.Common.ContractSerializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
-using AElfChain.SDK;
 using Newtonsoft.Json;
 using Sharprompt;
 using Volo.Abp.Threading;
@@ -23,7 +23,7 @@ namespace AElfChain.Console.Commands
         }
 
         private ApiCompletionEngine AutoEngine { get; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiService => NodeManager.ApiService;
 
         public override void RunCommand()
         {
@@ -42,9 +42,6 @@ namespace AElfChain.Console.Commands
                 case "TransactionPoolStatus":
                     GetTransactionPoolStatus();
                     break;
-                case "BlockState":
-                    GetBlockState();
-                    break;
                 case "CurrentRoundInformation":
                     GetCurrentRoundInformation();
                     break;
@@ -62,12 +59,6 @@ namespace AElfChain.Console.Commands
                     break;
                 case "TransactionResults":
                     GetTransactionResults();
-                    break;
-                case "GetRoundFromBase64":
-                    GetRoundFromBase64();
-                    break;
-                case "GetMiningSequences":
-                    GetMiningSequences();
                     break;
                 case "ListAccounts":
                     ListAllAccounts();
@@ -110,7 +101,7 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var hash = input[0];
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
-            var block = AsyncHelper.RunSync(() => ApiService.GetBlockAsync(hash, includeTransaction));
+            var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHashAsync(hash, includeTransaction));
             JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
@@ -134,15 +125,6 @@ namespace AElfChain.Console.Commands
         {
             var transactionPoolStatusInfo = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
             JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented).WriteSuccessLine();
-        }
-
-        private void GetBlockState()
-        {
-            "Parameter: [BlockHash]".WriteSuccessLine();
-            var input = CommandOption.InputParameters(1);
-            var hash = input[0];
-            var blockState = AsyncHelper.RunSync(() => ApiService.GetBlockStateAsync(hash));
-            JsonConvert.SerializeObject(blockState, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetChainStatus()
@@ -197,23 +179,6 @@ namespace AElfChain.Console.Commands
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
             var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(hash, offset, limit));
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
-        }
-
-        private void GetRoundFromBase64()
-        {
-            "Parameter: [base64Info]".WriteSuccessLine();
-            var input = CommandOption.InputParameters(1);
-            var roundInfo = AsyncHelper.RunSync(() => ApiService.GetRoundFromBase64Async(input[0]));
-            JsonConvert.SerializeObject(roundInfo, Formatting.Indented).WriteSuccessLine();
-        }
-
-        private void GetMiningSequences()
-        {
-            "Parameter: [Count]".WriteSuccessLine();
-            var input = CommandOption.InputParameters(1);
-            int.TryParse(input[0], out var count);
-            var sequences = AsyncHelper.RunSync(() => ApiService.GetMiningSequencesAsync(count));
-            JsonConvert.SerializeObject(sequences, Formatting.Indented).WriteSuccessLine();
         }
 
         private void ListAllAccounts()
@@ -319,7 +284,6 @@ namespace AElfChain.Console.Commands
                 "BlockHeight",
                 "BlockByHash",
                 "BlockByHeight",
-                "BlockState",
                 "ChainStatus",
                 "ContractFileDescriptor",
                 "CurrentRoundInformation",
@@ -327,8 +291,6 @@ namespace AElfChain.Console.Commands
                 "TransactionResult",
                 "TransactionResults",
                 "TransactionPoolStatus",
-                "GetRoundFromBase64",
-                "GetMiningSequences",
                 "ListAccounts",
                 "GetAccountPubicKey",
                 "GetAllPeers",

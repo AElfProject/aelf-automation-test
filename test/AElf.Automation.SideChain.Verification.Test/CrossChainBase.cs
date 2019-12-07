@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acs7;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Utils;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -54,7 +54,7 @@ namespace AElf.Automation.SideChain.Verification
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
-            MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
+            //MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
             NativeToken = MainChainService.PrimaryTokenSymbol;
             
             return MainChainService;
@@ -71,7 +71,7 @@ namespace AElf.Automation.SideChain.Verification
                 var url = info.SideChainUrl;
                 var sideService = new ContractServices(url, InitAccount, AccountDir, password);
                 SideChainServices.Add(sideService);
-                sideService.NodeManager.ApiService.SetFailReTryTimes(10);
+                //sideService.NodeManager.ApiService.SetFailReTryTimes(10);
             }
 
             return SideChainServices;
@@ -93,10 +93,10 @@ namespace AElf.Automation.SideChain.Verification
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
-            var transactionOutput =
-                AsyncHelper.RunSync(() => services.NodeManager.ApiService.SendTransactionAsync(rawTx));
+            var transactionId =
+                services.NodeManager.ApiService.SendTransaction(rawTx);
 
-            return transactionOutput.TransactionId;
+            return transactionId;
         }
 
         protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)

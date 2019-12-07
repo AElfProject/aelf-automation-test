@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
+using AElfChain.Common.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -37,7 +37,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         public void GetPeers(string url)
         {
             var service = AElfChainClient.GetClient(url);
-            var list = service.GetPeersAsync().Result;
+            var list = service.GetPeersAsync(true).Result;
             _logger.Info($"Peer {url} information");
             foreach (var peer in list) _logger.Info(JsonConvert.SerializeObject(peer));
         }
