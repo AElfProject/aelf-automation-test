@@ -97,6 +97,13 @@ namespace AElf.Automation.EconomicSystem.Tests
         }
 
         [TestMethod]
+        public void GetTreasurySchemes()
+        {
+            var treasury = Behaviors.Treasury;
+            Behaviors.ProfitService.GetTreasurySchemes(treasury.ContractAddress);
+        }
+
+        [TestMethod]
         public void GetCandidateHistory()
         {
             foreach (var candidate in FullNodeAddress)

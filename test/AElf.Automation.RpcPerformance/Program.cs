@@ -64,11 +64,16 @@ namespace AElf.Automation.RpcPerformance
                 performance.InitExecCommand(200 + GroupCount);
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = nodeManager.IsMainChain();
-                if (authority && isMainChain)
-                    performance.DeployContractsWithAuthority();
-                else if (authority)
-                    performance.SideChainDeployContractsWithAuthority();
-                else
+                var chainId = nodeManager.GetChainId();
+                if (authority)
+                {
+                    if (isMainChain)
+                        performance.DeployContractsWithAuthority();
+                    else if (chainId.Equals("tDVV"))
+                        performance.SideChainDeployContractsWithCreator();
+                    else
+                        performance.SideChainDeployContractsWithAuthority();
+                }else
                     performance.DeployContracts();
                 
                 performance.InitializeContracts();

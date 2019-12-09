@@ -144,6 +144,49 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContractsWithAuthority()
         {
+            var account = AccountList[0].Account;
+            var authority = new AuthorityManager(NodeManager, account);
+            var miners = authority.GetCurrentMiners();
+            if (miners.Count >= ThreadCount)
+            {
+                for (var i = 0; i < ThreadCount; i++)
+                {
+                    var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
+                    ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
+                }
+            }
+            else
+            {
+                for (var i = 0; i < ThreadCount;)
+                {
+                    foreach (var miner in miners)
+                    {
+                        var contractAddress =
+                            authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken.dll");
+                        ContractList.Add(new ContractInfo(miner, contractAddress.GetFormatted()));
+                        i++;
+                    }
+
+                    Thread.Sleep(60000);
+                }
+            }
+        }
+        
+        public void SideChainDeployContractsWithCreator()
+        {
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                var account = AccountList[0].Account;
+                var authority = new AuthorityManager(NodeManager, account);
+                var creator = NodeInfoHelper.Config.Nodes.First().Account;
+                var contractAddress = authority.DeployContractWithAuthority(creator, "AElf.Contracts.MultiToken.dll");
+                ContractList.Add(new ContractInfo(creator, contractAddress.GetFormatted()));
+                Thread.Sleep(60000);
+            }
+        }
+
+        public void SideChainDeployContractsWithAuthority()
+        {
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
@@ -153,19 +196,6 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void SideChainDeployContractsWithAuthority()
-        {
-            for (var i = 0; i < ThreadCount; i++)
-            {
-                var account = AccountList[0].Account;
-                var authority = new AuthorityManager(NodeManager, account);
-                var miners = authority.GetCurrentMiners();
-                if (i > miners.Count)
-                    return;
-                var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
-                ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
-            }
-        }
 
         public void InitializeContracts()
         {
@@ -376,7 +406,7 @@ namespace AElf.Automation.RpcPerformance
         private string KeyStorePath { get; }
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
-        public int ThreadCount { get; }
+        public int ThreadCount { get; set; }
         public int ExeTimes { get; }
         public bool LimitTransaction { get; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }

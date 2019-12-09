@@ -7,6 +7,8 @@ using AElf.Types;
 using AElfChain.Common.Utils;
 using AElfChain.SDK.Models;
 using Google.Protobuf;
+using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -22,6 +24,7 @@ namespace AElfChain.Common.Contracts
         ReleaseApprovedContract,
         ProposeNewContract,
         ProposeUpdateContract,
+        ReleaseCodeCheckedContract,
 
         //view
         CurrentContractSerialNumber,
@@ -96,11 +99,20 @@ namespace AElfChain.Common.Contracts
             return address;
         }
 
-        public TransactionResultDto ReleaseApprovedContract(ReleaseApprovedContractInput input,
+        public TransactionResult ReleaseApprovedContract(ReleaseContractInput input,
+            string caller)
+        {
+            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
+            var result = AsyncHelper.RunSync(() => tester.ReleaseApprovedContract.SendAsync(input));
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            return result.TransactionResult;
+        }
+
+        public TransactionResultDto ReleaseCodeCheckedContract(ReleaseContractInput input,
             string caller = null)
         {
             SetAccount(caller);
-            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseApprovedContract, new ReleaseApprovedContractInput
+            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseCodeCheckedContract, new ReleaseContractInput
             {
                 ProposalId = input.ProposalId,
                 ProposedContractInputHash = input.ProposedContractInputHash
@@ -108,6 +120,26 @@ namespace AElfChain.Common.Contracts
             return result;
         }
         
+        public TransactionResult ProposeNewContract(ContractDeploymentInput input,
+            string caller = null)
+        {
+            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
+            var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            return result.TransactionResult;
+        }
+        
+        public TransactionResult ProposeUpdateContract(ContractUpdateInput input,
+            string caller = null)
+        {
+            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
+            var result = AsyncHelper.RunSync(() => tester.ProposeUpdateContract.SendAsync(input));
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            return result.TransactionResult;
+        }
+
         public Dictionary<NameProvider, Address> GetAllSystemContracts()
         {
             var dic = new Dictionary<NameProvider, Address>();

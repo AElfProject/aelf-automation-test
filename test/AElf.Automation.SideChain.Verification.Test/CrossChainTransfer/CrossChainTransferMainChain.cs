@@ -28,7 +28,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var sideAccount in AccountList[sideChainService.ChainId])
                 {
                     var rawTxInfo = CrossChainTransferWithTxId(MainChainService, symbol, mainAccount,
-                        sideAccount, sideChainService.ChainId, 100);
+                        sideAccount, sideChainService.ChainId, 1000_00000000);
                     if (rawTxInfo == null) continue;
 
                     Thread.Sleep(100);

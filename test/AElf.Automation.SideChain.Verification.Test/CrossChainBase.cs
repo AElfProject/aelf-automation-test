@@ -84,7 +84,7 @@ namespace AElf.Automation.SideChain.Verification
             services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = services.PrimaryTokenSymbol,
-                Amount = 1000000,
+                Amount = 10000_00000000,
                 Memo = "Issue side chain token",
                 To = AddressHelper.Base58StringToAddress(account)
             });

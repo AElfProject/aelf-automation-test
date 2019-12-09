@@ -37,7 +37,7 @@ namespace AElf.Automation.SideChainCreate
                     TokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
                     Decimals = 8,
                     IsBurnable = true,
-                    Issuer = AddressHelper.Base58StringToAddress(operation.InitAccount),
+                    Issuer = AddressHelper.Base58StringToAddress(operation.Creator),
                     TotalSupply = 10_00000000_00000000
                 };
                 var proposal = operation.CreateProposal(sideChainInfo.IndexingPrice, sideChainInfo.LockedTokenAmount,

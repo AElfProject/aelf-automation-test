@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var sideChainService in SideChainServices)
             {
                 var balance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
-                if (balance >= 200000)
+                if (balance >= 100000_00000000)
                 {
                     Logger.Info(
                         $"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress} {symbol} token balance is {balance}");
@@ -57,7 +57,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 {
                     transferTimes--;
                     rawTxInfo = CrossChainTransferWithResult(MainChainService, symbol, InitAccount, InitAccount,
-                        sideChainService.ChainId, 200000);
+                        sideChainService.ChainId, 100000_00000000);
                 }
 
                 if (transferTimes == 0 && rawTxInfo == null)
@@ -188,7 +188,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var acc in account.Value)
             {
                 if (acc.Equals(InitAccount)) continue;
-                MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000,
+                MainChainService.TokenService.TransferBalance(InitAccount, acc, 1000_00000000,
                     MainChainService.PrimaryTokenSymbol);
             }
 
@@ -204,7 +204,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var mainTransferTxIds = new List<CrossChainTransactionInfo>();
             foreach (var mainChainAccount in mainAccounts)
             {
-                var mainTxId = Transfer(MainChainService, InitAccount, mainChainAccount, 10000, symbol);
+                var mainTxId = Transfer(MainChainService, InitAccount, mainChainAccount, 1000_00000000, symbol);
                 var mainTxInfo = new CrossChainTransactionInfo(mainTxId, mainChainAccount);
                 mainTransferTxIds.Add(mainTxInfo);
             }
@@ -216,7 +216,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 {
                     var account = mainTxInfo.ReceiveAccount;
                     Logger.Info($"Transfer on main chain again: account {account}");
-                    Transfer(MainChainService, InitAccount, account, 10000, symbol);
+                    Transfer(MainChainService, InitAccount, account, 1000_00000000, symbol);
                 }
 
             foreach (var sideChainService in SideChainServices)
@@ -224,7 +224,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var transferTxIds = new List<CrossChainTransactionInfo>();
                 foreach (var sideAccount in AccountList[sideChainService.ChainId])
                 {
-                    var sideTxId = Transfer(sideChainService, InitAccount, sideAccount, 10000, symbol);
+                    var sideTxId = Transfer(sideChainService, InitAccount, sideAccount, 1000_00000000, symbol);
                     var sideTxInfo = new CrossChainTransactionInfo(sideTxId, sideAccount);
                     transferTxIds.Add(sideTxInfo);
                 }
@@ -235,7 +235,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         var account = sideTxInfo.ReceiveAccount;
                         Logger.Info($"Transfer on side chain {sideChainService.ChainId} again: account {account}");
-                        Transfer(sideChainService, InitAccount, account, 10000, symbol);
+                        Transfer(sideChainService, InitAccount, account, 1000_00000000, symbol);
                     }
             }
 
@@ -263,7 +263,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var mainTransferTxIds = new List<CrossChainTransactionInfo>();
             foreach (var mainChainAccount in AccountList[MainChainService.ChainId])
             {
-                var mainTxId = Transfer(MainChainService, InitAccount, mainChainAccount, 10000, symbol);
+                var mainTxId = Transfer(MainChainService, InitAccount, mainChainAccount, 1000_00000000, symbol);
                 var mainTxInfo = new CrossChainTransactionInfo(mainTxId, mainChainAccount);
                 mainTransferTxIds.Add(mainTxInfo);
             }
@@ -275,7 +275,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 {
                     var account = mainTxInfo.ReceiveAccount;
                     Logger.Info($"Transfer on main chain again: account {account}");
-                    Transfer(MainChainService, InitAccount, account, 10000, symbol);
+                    Transfer(MainChainService, InitAccount, account, 1000_00000000, symbol);
                 }
 
             foreach (var sideChainService in SideChainServices)
@@ -283,7 +283,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var transferTxIds = new List<CrossChainTransactionInfo>();
                 foreach (var sideAccount in AccountList[sideChainService.ChainId])
                 {
-                    var sideTxId = Transfer(sideChainService, InitAccount, sideAccount, 10000, symbol);
+                    var sideTxId = Transfer(sideChainService, InitAccount, sideAccount, 1000_00000000, symbol);
                     var sideTxInfo = new CrossChainTransactionInfo(sideTxId, sideAccount);
                     transferTxIds.Add(sideTxInfo);
                 }
@@ -294,7 +294,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         var account = sideTxInfo.ReceiveAccount;
                         Logger.Info($"Transfer on side chain {sideChainService.ChainId} again: account {account}");
-                        Transfer(sideChainService, InitAccount, account, 10000, symbol);
+                        Transfer(sideChainService, InitAccount, account, 1000_00000000, symbol);
                     }
             }
 
