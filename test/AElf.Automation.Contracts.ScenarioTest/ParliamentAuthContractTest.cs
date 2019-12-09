@@ -29,7 +29,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string Symbol = NodeOption.NativeTokenSymbol;
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
-        public AElfClient ApiService { get; set; }
+        public AElfClient ApiClient { get; set; }
         public List<string> UserList { get; set; }
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
@@ -51,7 +51,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             #endregion
 
             NodeManager = new NodeManager(RpcUrl);
-            ApiService = NodeManager.ApiService;
+            ApiClient = NodeManager.ApiClient;
             var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             Parliament = Tester.ParliamentService;

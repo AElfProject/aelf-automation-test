@@ -23,7 +23,7 @@ namespace AElfChain.Console.Commands
         }
 
         private ApiCompletionEngine AutoEngine { get; }
-        public AElfClient ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public override void RunCommand()
         {
@@ -91,7 +91,7 @@ namespace AElfChain.Console.Commands
 
         private void GetBlockHeight()
         {
-            var height = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            var height = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
             $"Current chain height: {height}".WriteSuccessLine();
         }
 
@@ -101,7 +101,7 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var hash = input[0];
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
-            var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHashAsync(hash, includeTransaction));
+            var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHashAsync(hash, includeTransaction));
             JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
@@ -111,25 +111,25 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var height = long.Parse(input[0]);
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
-            var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height, includeTransaction));
+            var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHeightAsync(height, includeTransaction));
             JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetCurrentRoundInformation()
         {
-            var roundInformation = AsyncHelper.RunSync(ApiService.GetCurrentRoundInformationAsync);
+            var roundInformation = AsyncHelper.RunSync(ApiClient.GetCurrentRoundInformationAsync);
             JsonConvert.SerializeObject(roundInformation, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionPoolStatus()
         {
-            var transactionPoolStatusInfo = AsyncHelper.RunSync(ApiService.GetTransactionPoolStatusAsync);
+            var transactionPoolStatusInfo = AsyncHelper.RunSync(ApiClient.GetTransactionPoolStatusAsync);
             JsonConvert.SerializeObject(transactionPoolStatusInfo, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetChainStatus()
         {
-            var chainInfo = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+            var chainInfo = AsyncHelper.RunSync(ApiClient.GetChainStatusAsync);
             JsonConvert.SerializeObject(chainInfo, Formatting.Indented).WriteSuccessLine();
         }
 
@@ -139,14 +139,14 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var withDetails = input.Length == 2 && bool.Parse(input[1]);
 
-            var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
+            var descriptorSet = AsyncHelper.RunSync(() => ApiClient.GetContractFileDescriptorSetAsync(input[0]));
             var customContract = new CustomContractSerializer(descriptorSet);
             customContract.GetAllMethodsInfo(withDetails);
         }
 
         private void GetTaskQueueStatus()
         {
-            var taskQueueInfo = AsyncHelper.RunSync(ApiService.GetTaskQueueStatusAsync);
+            var taskQueueInfo = AsyncHelper.RunSync(ApiClient.GetTaskQueueStatusAsync);
             JsonConvert.SerializeObject(taskQueueInfo, Formatting.Indented).WriteSuccessLine();
         }
 
@@ -155,7 +155,7 @@ namespace AElfChain.Console.Commands
             "Parameter: [TransactionId]".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var transactionId = input[0];
-            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(transactionId));
+            var resultDto = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(transactionId));
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 
@@ -167,7 +167,7 @@ namespace AElfChain.Console.Commands
             string hash;
             if (result)
             {
-                var block = AsyncHelper.RunSync(() => NodeManager.ApiService.GetBlockByHeightAsync(height));
+                var block = AsyncHelper.RunSync(() => NodeManager.ApiClient.GetBlockByHeightAsync(height));
                 hash = block.BlockHash;
             }
             else
@@ -177,7 +177,7 @@ namespace AElfChain.Console.Commands
 
             var offset = input.Length >= 2 ? int.Parse(input[1]) : 0;
             var limit = input.Length == 3 ? int.Parse(input[2]) : 10;
-            var resultDto = AsyncHelper.RunSync(() => ApiService.GetTransactionResultsAsync(hash, offset, limit));
+            var resultDto = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultsAsync(hash, offset, limit));
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
         }
 

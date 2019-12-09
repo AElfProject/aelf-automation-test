@@ -22,7 +22,7 @@ namespace AElf.Automation.ScenariosExecution
 
         public void RunScenariosByTasks()
         {
-            var scenarios = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).ToList();
+            var scenarios = ScenarioConfig.ReadInformation.TestCases.FindAll(o => o.Enable).ToList();
 
             var tokenScenario = new TokenScenario();
             tokenScenario.PrepareAccountBalance();
@@ -82,7 +82,7 @@ namespace AElf.Automation.ScenariosExecution
 
         public void RunScenariosByScheduler()
         {
-            var scenarios = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).ToList();
+            var scenarios = ScenarioConfig.ReadInformation.TestCases.FindAll(o => o.Enable).ToList();
 
             var tokenScenario = new TokenScenario();
             tokenScenario.PrepareAccountBalance();

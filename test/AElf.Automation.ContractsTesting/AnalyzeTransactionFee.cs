@@ -35,7 +35,7 @@ namespace AElf.Automation.ContractsTesting
                 var height = i;
                 try
                 {
-                    var blockInfo = AsyncHelper.RunSync(()=>NodeManager.ApiService.GetBlockByHeightAsync(height, true));
+                    var blockInfo = AsyncHelper.RunSync(()=>NodeManager.ApiClient.GetBlockByHeightAsync(height, true));
                     if (blockInfo.Body.TransactionsCount != 3)
                     {
                         $"Height: {height}, TxCount: {blockInfo.Body.TransactionsCount}".WriteSuccessLine();
@@ -62,7 +62,7 @@ namespace AElf.Automation.ContractsTesting
                 {
                     try
                     {
-                        var transactionResult = AsyncHelper.RunSync(()=>NodeManager.ApiService.GetTransactionResultAsync(txId));
+                        var transactionResult = AsyncHelper.RunSync(()=>NodeManager.ApiClient.GetTransactionResultAsync(txId));
                         if (transactionResult.TransactionFee.Value != null)
                         {
                             $"TxId: {txId}, Fee: {transactionResult.TransactionFee.Value.Values.First()}".WriteSuccessLine();

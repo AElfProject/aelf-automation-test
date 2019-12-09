@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using AElfChain.Common.Helpers;
 using Newtonsoft.Json;
 
@@ -32,7 +31,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("Contracts")] public List<ContractItem> Contracts { get; set; }
     }
 
-    public class ConfigInfo
+    public class ScenarioConfig
     {
         [JsonProperty("TestCases")] public List<TestCase> TestCases { get; set; }
         [JsonProperty("UserCount")] public int UserCount { get; set; }
@@ -40,42 +39,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("SpecifyEndpoint")] public SpecifyEndpoint SpecifyEndpoint { get; set; }
         [JsonProperty("ContractsInfo")] public ContractsInfo ContractsInfo { get; set; }
-    }
 
-    public static class ConfigInfoHelper
-    {
-        private static ConfigInfo _instance;
-        private static string _jsonContent;
-        private static readonly object LockObj = new object();
-        private static readonly string ConfigFile = CommonHelper.MapPath("config/scenario-nodes.json");
-
-        public static ConfigInfo Config => GetConfigInfo();
-
-        public static bool UpdateConfig(ContractsInfo info)
-        {
-            if (_jsonContent == null)
-                _jsonContent = File.ReadAllText(ConfigFile);
-
-            var configInfo = JsonConvert.DeserializeObject<ConfigInfo>(_jsonContent);
-            configInfo.ContractsInfo = info;
-
-            _jsonContent = JsonConvert.SerializeObject(configInfo, Formatting.Indented);
-            File.WriteAllText(ConfigFile, _jsonContent);
-
-            return true;
-        }
-
-        private static ConfigInfo GetConfigInfo()
-        {
-            lock (LockObj)
-            {
-                if (_instance != null) return _instance;
-
-                _jsonContent = File.ReadAllText(ConfigFile);
-                _instance = JsonConvert.DeserializeObject<ConfigInfo>(_jsonContent);
-            }
-
-            return _instance;
-        }
+        public static ScenarioConfig ReadInformation => ConfigHelper<ScenarioConfig>.GetConfigInfo("scenario-nodes.json");
     }
 }

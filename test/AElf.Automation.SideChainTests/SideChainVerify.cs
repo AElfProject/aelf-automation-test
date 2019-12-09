@@ -344,7 +344,7 @@ namespace AElf.Automation.SideChainTests
                 sideChainTokenContracts, nameof(TokenMethod.CrossChainTransfer),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
-            var txId = sideAServices.NodeManager.ApiService.SendTransaction(rawTx);
+            var txId = sideAServices.NodeManager.ApiClient.SendTransaction(rawTx);
             var txResult = sideAServices.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
@@ -418,7 +418,7 @@ namespace AElf.Automation.SideChainTests
             for (int i = 511; i < 521; i++)
             {
                 
-                var block = await SideContractTester1.NodeManager.ApiService.GetBlockByHeightAsync(i,true);
+                var block = await SideContractTester1.NodeManager.ApiClient.GetBlockByHeightAsync(i,true);
                 blocks.Add(block);
             }
             

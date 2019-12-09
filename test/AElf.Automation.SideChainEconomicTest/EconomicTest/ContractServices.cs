@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             GetContractServices();
         }
 
-        public AElfClient ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
@@ -70,7 +70,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public async Task<MerklePath> GetMerklePath(string transactionId)
         {
-            var result = await ApiService.GetMerklePathByTransactionIdAsync(transactionId);
+            var result = await ApiClient.GetMerklePathByTransactionIdAsync(transactionId);
 
             return new MerklePath
             {
@@ -87,7 +87,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         private void GetContractServices()
         {
-            Logger.Info($"Get contract service from: {ApiService.BaseUrl}");
+            Logger.Info($"Get contract service from: {ApiClient.BaseUrl}");
 
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 

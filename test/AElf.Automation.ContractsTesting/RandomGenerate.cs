@@ -88,7 +88,7 @@ namespace AElf.Automation.ContractsTesting
 
                     _hashQueue.Enqueue(tokenHash);
                     var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
-                    var height = await _nodeManager.ApiService.GetBlockHeightAsync();
+                    var height = await _nodeManager.ApiClient.GetBlockHeightAsync();
                     Logger.Info($"Current information: round={currentRound.Value}, height={height}");
                     await Task.Delay(1000);
                 }

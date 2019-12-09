@@ -25,7 +25,7 @@ namespace AElf.Automation.RpcPerformance
             _account = account;
 
             _nodeManager = nodeManager;
-            _nodeTransactionOption = ConfigInfoHelper.Config.NodeTransactionOption;
+            _nodeTransactionOption = RpcConfig.ReadInformation.NodeTransactionOption;
         }
 
         public bool WhetherEnableTransactionLimit()

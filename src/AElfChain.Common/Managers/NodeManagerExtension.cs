@@ -47,7 +47,7 @@ namespace AElfChain.Common.Managers
         
         public static void WaitTransactionResultToLib(this INodeManager nodeManager, string transactionId)
         {
-            var transactionResult = nodeManager.ApiService.GetTransactionResultAsync(transactionId).Result;
+            var transactionResult = nodeManager.ApiClient.GetTransactionResultAsync(transactionId).Result;
             if(transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 throw new Exception("Transaction result not Mined, no need wait lib to effective.");
             var transactionExecutionBlockNumber = transactionResult.BlockNumber;
@@ -57,7 +57,7 @@ namespace AElfChain.Common.Managers
                 if(checkTime<=0)
                     throw new Exception("Transaction not increased to lib long time.");
                 checkTime--;
-                var chainStatus = nodeManager.ApiService.GetChainStatusAsync().Result;
+                var chainStatus = nodeManager.ApiClient.GetChainStatusAsync().Result;
                 if (chainStatus.LastIrreversibleBlockHeight > transactionExecutionBlockNumber + 8)
                     break;
                 Thread.Sleep(4000);
@@ -67,7 +67,7 @@ namespace AElfChain.Common.Managers
 
         public static void WaitCurrentHeightToLib(this INodeManager nodeManager)
         {
-            var currentHeight = nodeManager.ApiService.GetBlockHeightAsync().Result;
+            var currentHeight = nodeManager.ApiClient.GetBlockHeightAsync().Result;
             Thread.Sleep(4000);
             var checkTime = 60;
             while (true)
@@ -75,7 +75,7 @@ namespace AElfChain.Common.Managers
                 if(checkTime<=0)
                     throw new Exception("Transaction not increased to lib long time.");
                 checkTime--;
-                var chainStatus = nodeManager.ApiService.GetChainStatusAsync().Result;
+                var chainStatus = nodeManager.ApiClient.GetChainStatusAsync().Result;
                 if (chainStatus.LastIrreversibleBlockHeight > currentHeight)
                 {
                     Console.WriteLine();

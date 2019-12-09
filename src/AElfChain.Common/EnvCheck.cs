@@ -93,7 +93,7 @@ namespace AElfChain.Common
             var service = AElfClientExtension.GetClient(node.Endpoint);
             try
             {
-                node.ApiService = service;
+                node.ApiClient = service;
                 var chainStatus = AsyncHelper.RunSync(service.GetChainStatusAsync);
                 if (chainStatus == null) return;
                 node.Status = true;

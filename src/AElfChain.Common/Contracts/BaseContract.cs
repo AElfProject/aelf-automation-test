@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = ApiService.SendTransaction(rawTx);
+            var txId = ApiClient.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             _txResultList.Enqueue(txId);
 
@@ -119,7 +119,7 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
-            var txId = ApiService.SendTransaction(rawTx);
+            var txId = ApiClient.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -139,7 +139,7 @@ namespace AElfChain.Common.Contracts
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
             //check whether tx exist or not
             var genTxId = TransactionUtil.CalculateTxId(rawTx);
-            var transactionResult = AsyncHelper.RunSync(()=>ApiService.GetTransactionResultAsync(genTxId));
+            var transactionResult = AsyncHelper.RunSync(()=>ApiClient.GetTransactionResultAsync(genTxId));
             if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
             {
                 Logger.Warn($"Found duplicate transaction.");
@@ -148,7 +148,7 @@ namespace AElfChain.Common.Contracts
             }
 
             existed = false;
-            var txId = ApiService.SendTransaction(rawTx);
+            var txId = ApiClient.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -204,7 +204,7 @@ namespace AElfChain.Common.Contracts
             {
                 var result = _txResultList.TryDequeue(out var txId);
                 if (!result) break;
-                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -265,7 +265,7 @@ namespace AElfChain.Common.Contracts
         #region Priority
 
         public INodeManager NodeManager { get; set; }
-        public AElfClient ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount => CallAddress.ConvertAddress();

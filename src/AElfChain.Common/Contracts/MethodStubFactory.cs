@@ -32,7 +32,7 @@ namespace AElfChain.Common.Contracts
         public string SenderAddress { private get; set; }
         public Address Sender => SenderAddress.ConvertAddress();
         public INodeManager NodeManager { get; }
-        public AElfClient ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -58,14 +58,14 @@ namespace AElfChain.Common.Contracts
                 }
                 else
                 {
-                    var transactionId = ApiService.SendTransaction(transaction.ToByteArray().ToHex());
+                    var transactionId = ApiClient.SendTransaction(transaction.ToByteArray().ToHex());
                     var checkTimes = 0;
 
                     var stopwatch = Stopwatch.StartNew();
                     while (true)
                     {
                         checkTimes++;
-                        resultDto = await ApiService.GetTransactionResultAsync(transactionId);
+                        resultDto = await ApiClient.GetTransactionResultAsync(transactionId);
                         status = resultDto.Status.ConvertTransactionResultStatus();
                         if (status == TransactionResultStatus.Pending)
                             checkTimes++;
@@ -164,7 +164,7 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
-                var returnValue = await ApiService.ExecuteTransactionAsync(new ExecuteTransactionDto
+                var returnValue = await ApiClient.ExecuteTransactionAsync(new ExecuteTransactionDto
                     {
                         RawTransaction = transaction.ToByteArray().ToHex()
                         
@@ -178,7 +178,7 @@ namespace AElfChain.Common.Contracts
         private bool CheckTransactionExisted(Transaction transaction, out TransactionResultDto transactionResult)
         {
             var txId = transaction.GetHash().ToHex();
-            transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+            transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
             return transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted;
         }
     }

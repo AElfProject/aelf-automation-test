@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcPerformance
         /// <param name="fromStart">是否从高度为1开始检测</param>
         public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
-            _apiService = nodeManager.ApiService;
+            _apiService = nodeManager.ApiClient;
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }

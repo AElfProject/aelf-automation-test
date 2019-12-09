@@ -24,7 +24,7 @@ namespace AElfChain.Console
         [Option("-c|--config", Description = "Config file about bp nodes setting")]
         private static string ConfigFile { get; set; }
 
-        private static AElfClient ApiService => NodeManager.ApiService;
+        private static AElfClient ApiClient => NodeManager.ApiClient;
         private static ILog Logger { get; set; }
 
         public static int Main(string[] args)
@@ -57,7 +57,7 @@ namespace AElfChain.Console
             try
             {
                 NodeManager = new NodeManager(Endpoint);
-                var chainStatusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+                var chainStatusDto = AsyncHelper.RunSync(ApiClient.GetChainStatusAsync);
                 Logger.Info(
                     $"ChainId: {chainStatusDto.ChainId}, LongestChainHeight: {chainStatusDto.LongestChainHeight}, LastIrreversibleBlockHeight: {chainStatusDto.LastIrreversibleBlockHeight}");
 

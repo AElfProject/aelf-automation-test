@@ -30,12 +30,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow(2441)]
         public void VerifyTransactionByHeight(int height)
         {
-            var blockDto = AsyncHelper.RunSync(() => Ch.ApiService.GetBlockByHeightAsync(height, true));
+            var blockDto = AsyncHelper.RunSync(() => Ch.ApiClient.GetBlockByHeightAsync(height, true));
             var txArray = blockDto.Body.Transactions;
 
             foreach (var txId in txArray)
             {
-                var transactionResult = AsyncHelper.RunSync(() => Ch.ApiService.GetTransactionResultAsync(txId));
+                var transactionResult = AsyncHelper.RunSync(() => Ch.ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status;
                 if (status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     _logger.Info($"{txId}: mined");

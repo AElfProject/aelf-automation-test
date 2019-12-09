@@ -10,7 +10,7 @@ namespace AElfChain.Common.DtoExtension
         public static string GetTransactionFeeInfo(this TransactionFeeDto feeDto)
         {
             if (feeDto.Value == null)
-                return "Fee : 0";
+                return "Fee=0";
             
             var feeInfo = "Fee: ";
             foreach (var key in feeDto.Value.Keys)

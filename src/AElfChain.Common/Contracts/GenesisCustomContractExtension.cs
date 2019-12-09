@@ -25,7 +25,7 @@ namespace AElfChain.Common.Contracts
                     SystemContracts = new Dictionary<Address, List<string>>();
                 if (SystemContracts.ContainsKey(contract)) continue;
                 var contractDescriptor =
-                    AsyncHelper.RunSync(()=>genesis.ApiService.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
+                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
                 var systemContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = systemContractHandler.GetContractMethods();
                 SystemContracts.Add(contract, methods);
@@ -52,7 +52,7 @@ namespace AElfChain.Common.Contracts
                 }
 
                 var contractDescriptor =
-                    AsyncHelper.RunSync(()=>genesis.ApiService.GetContractFileDescriptorSetAsync(address.GetFormatted()));
+                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(address.GetFormatted()));
                 var customContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = customContractHandler.GetContractMethods();
                 CustomContracts.TryAdd(address, methods);

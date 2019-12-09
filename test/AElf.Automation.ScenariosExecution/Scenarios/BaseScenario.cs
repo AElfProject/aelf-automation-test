@@ -95,7 +95,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = AsyncHelper.RunSync(Services.NodeManager.ApiService.GetBlockHeightAsync);
+                var newHeight = AsyncHelper.RunSync(Services.NodeManager.ApiClient.GetBlockHeightAsync);
                 if (newHeight == height)
                 {
                     checkTimes++;
@@ -153,7 +153,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         protected void InitializeScenario()
         {
-            var testerCount = ConfigInfoHelper.Config.UserCount;
+            var testerCount = ScenarioConfig.ReadInformation.UserCount;
             var envCheck = EnvCheck.GetDefaultEnvCheck();
             AllTesters = envCheck.GenerateOrGetTestUsers(testerCount);
             if (Services == null)

@@ -66,7 +66,7 @@ namespace AElf.Automation.ScenariosExecution
             ConsensusService = GenesisService.GetConsensusContract();
 
             CurrentBpNodes = GetCurrentBpNodes();
-            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var specifyEndpoint = ScenarioConfig.ReadInformation.SpecifyEndpoint;
             if (!specifyEndpoint.Enable) //随机选择bp执行
             {
                 var rd = new Random(DateTime.Now.Millisecond);

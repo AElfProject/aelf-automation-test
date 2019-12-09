@@ -30,7 +30,7 @@ namespace AElf.Automation.ScenariosExecution
             if (_services != null)
                 return _services.CloneServices();
 
-            var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
+            var specifyEndpoint = ScenarioConfig.ReadInformation.SpecifyEndpoint;
             var url = specifyEndpoint.Enable
                 ? specifyEndpoint.ServiceUrl
                 : _config.Nodes.First(o => o.Status).Endpoint;

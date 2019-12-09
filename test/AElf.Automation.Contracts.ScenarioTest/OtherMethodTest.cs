@@ -149,7 +149,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nodeManager = new NodeManager("192.168.197.14:8000");
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
-            var byteInfo = nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
+            var byteInfo = nodeManager.ApiClient.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
             var customContractHandler = new CustomContractSerializer(byteInfo);
             customContractHandler.GetAllMethodsInfo(true);
             customContractHandler.GetParameters("Create");
@@ -161,9 +161,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nodeManager = new NodeManager("192.168.197.43:8100");
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
-            var height = await nodeManager.ApiService.GetBlockHeightAsync();
-            var block = await nodeManager.ApiService.GetBlockByHeightAsync(height);
-            var createRaw = await nodeManager.ApiService.CreateRawTransactionAsync(new CreateRawTransactionInput
+            var height = await nodeManager.ApiClient.GetBlockHeightAsync();
+            var block = await nodeManager.ApiClient.GetBlockByHeightAsync(height);
+            var createRaw = await nodeManager.ApiClient.CreateRawTransactionAsync(new CreateRawTransactionInput
             {
                 From = token.CallAddress,
                 To = token.ContractAddress,
@@ -185,7 +185,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray())
                 .ToByteArray().ToHex();
             var rawTransactionResult =
-                await nodeManager.ApiService.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
+                await nodeManager.ApiClient.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
                 {
                     RawTransaction = createRaw.RawTransaction,
                     Signature = signature

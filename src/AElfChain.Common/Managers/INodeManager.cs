@@ -7,7 +7,7 @@ namespace AElfChain.Common.Managers
 {
     public interface INodeManager
     {
-        AElfClient ApiService { get; set; }
+        AElfClient ApiClient { get; set; }
         AccountManager AccountManager { get; }
         TransactionManager TransactionManager { get; }
         string GetApiUrl();

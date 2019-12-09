@@ -26,7 +26,7 @@ namespace AElfChain.Common.Managers
             _baseUrl = baseUrl;
             _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
-            ApiService = AElfClientExtension.GetClient(baseUrl);
+            ApiClient = AElfClientExtension.GetClient(baseUrl);
             _chainId = GetChainId();
         }
 
@@ -38,7 +38,7 @@ namespace AElfChain.Common.Managers
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
-            ApiService = AElfClientExtension.GetClient(url);
+            ApiClient = AElfClientExtension.GetClient(url);
             _chainId = GetChainId();
 
             Logger.Info($"Request url updated to: {url}");
@@ -49,7 +49,7 @@ namespace AElfChain.Common.Managers
             if (_chainId != null)
                 return _chainId;
 
-            var chainStatus = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+            var chainStatus = AsyncHelper.RunSync(ApiClient.GetChainStatusAsync);
             _chainId = chainStatus.ChainId;
 
             return _chainId;
@@ -59,7 +59,7 @@ namespace AElfChain.Common.Managers
         {
             if (_genesisAddress != null) return _genesisAddress;
 
-            var statusDto = AsyncHelper.RunSync(ApiService.GetChainStatusAsync);
+            var statusDto = AsyncHelper.RunSync(ApiClient.GetChainStatusAsync);
             _genesisAddress = statusDto.GenesisContractAddress;
 
             return _genesisAddress;
@@ -68,7 +68,7 @@ namespace AElfChain.Common.Managers
         private string CallTransaction(Transaction tx)
         {
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return ApiService.ExecuteTransaction(rawTxString);
+            return ApiClient.ExecuteTransaction(rawTxString);
         }
 
         private TransactionManager GetTransactionManager()
@@ -102,7 +102,7 @@ namespace AElfChain.Common.Managers
 
         private TransactionManager _transactionManager;
         public TransactionManager TransactionManager => GetTransactionManager();
-        public AElfClient ApiService { get; set; }
+        public AElfClient ApiClient { get; set; }
 
         #endregion
 
@@ -165,7 +165,7 @@ namespace AElfChain.Common.Managers
             tx = tx.AddBlockReference(_baseUrl, _chainId);
             tx = TransactionManager.SignTransaction(tx);
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            var transactionId = ApiService.SendTransaction(rawTxString);
+            var transactionId = ApiClient.SendTransaction(rawTxString);
 
             return transactionId;
         }
@@ -173,7 +173,7 @@ namespace AElfChain.Common.Managers
         public string SendTransaction(string from, string to, string methodName, IMessage inputParameter)
         {
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
-            var transactionId = ApiService.SendTransaction(rawTransaction);
+            var transactionId = ApiClient.SendTransaction(rawTransaction);
 
             return transactionId;
         }
@@ -183,7 +183,7 @@ namespace AElfChain.Common.Managers
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
             //check whether tx exist or not
             var genTxId = TransactionUtil.CalculateTxId(rawTransaction);
-            var transactionResult = ApiService.GetTransactionResultAsync(genTxId).Result;
+            var transactionResult = ApiClient.GetTransactionResultAsync(genTxId).Result;
             if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
             {
                 Logger.Warn("Found duplicate transaction.");
@@ -192,13 +192,13 @@ namespace AElfChain.Common.Managers
             }
 
             existed = false;
-            var transactionId = ApiService.SendTransaction(rawTransaction);
+            var transactionId = ApiClient.SendTransaction(rawTransaction);
             return transactionId;
         }
 
         public string SendTransaction(string rawTransaction)
         {
-            return AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(new SendTransactionInput
+            return AsyncHelper.RunSync(() => ApiClient.SendTransactionAsync(new SendTransactionInput
             {
                 RawTransaction = rawTransaction
             })).TransactionId;
@@ -206,7 +206,7 @@ namespace AElfChain.Common.Managers
 
         public List<string> SendTransactions(string rawTransactions)
         {
-            var transactions = AsyncHelper.RunSync(() => ApiService.SendTransactionsAsync(new SendTransactionsInput
+            var transactions = AsyncHelper.RunSync(() => ApiClient.SendTransactionsAsync(new SendTransactionsInput
             {
                 RawTransactions = rawTransactions
             }));
@@ -245,7 +245,7 @@ namespace AElfChain.Common.Managers
             var source = new CancellationTokenSource(maxSeconds * 1000);
             while (!source.IsCancellationRequested)
             {
-                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -288,7 +288,7 @@ namespace AElfChain.Common.Managers
             while (transactionQueue.TryDequeue(out var transactionId))
             {
                 var id = transactionId;
-                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(id));
+                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -366,22 +366,22 @@ namespace AElfChain.Common.Managers
         //Net Api
         public List<PeerDto> NetGetPeers()
         {
-            return AsyncHelper.RunSync(()=>ApiService.GetPeersAsync(true));
+            return AsyncHelper.RunSync(()=>ApiClient.GetPeersAsync(true));
         }
 
         public bool NetAddPeer(string address)
         {
-            return AsyncHelper.RunSync(() => ApiService.AddPeerAsync(address));
+            return AsyncHelper.RunSync(() => ApiClient.AddPeerAsync(address));
         }
 
         public bool NetRemovePeer(string address)
         {
-            return AsyncHelper.RunSync(() => ApiService.RemovePeerAsync(address));
+            return AsyncHelper.RunSync(() => ApiClient.RemovePeerAsync(address));
         }
 
         public NetworkInfoOutput NetworkInfo()
         {
-            return AsyncHelper.RunSync(ApiService.GetNetworkInfoAsync);
+            return AsyncHelper.RunSync(ApiClient.GetNetworkInfoAsync);
         }
 
         #endregion

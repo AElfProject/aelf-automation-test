@@ -17,7 +17,7 @@ namespace AElfChain.Common
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
         [JsonIgnore] public bool Status { get; set; }
-        [JsonIgnore] public AElfClient ApiService { get; set; }
+        [JsonIgnore] public AElfClient ApiClient { get; set; }
     }
 
     public class NodesInfo

@@ -21,7 +21,7 @@ namespace AElf.Automation.ContractsTesting
             _nodeManager = nodeManager;
         }
 
-        private AElfClient _apiService => _nodeManager.ApiService;
+        private AElfClient _apiService => _nodeManager.ApiClient;
 
         public long GetBlockHeight()
         {

@@ -37,7 +37,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public INodeManager NodeManager => MainChain.NodeManager;
 
-        public AElfClient ApiService => MainChain.NodeManager.ApiService;
+        public AElfClient ApiClient => MainChain.NodeManager.ApiClient;
 
         public async Task BuyResources(string account, long amount)
         {
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             var crossStub = sideChain.GenesisService.GetCrossChainStub();
             while (true)
             {
-                var chainStatus = await ApiService.GetChainStatusAsync();
+                var chainStatus = await ApiClient.GetChainStatusAsync();
                 if (chainStatus.LastIrreversibleBlockHeight >= blockNumber)
                 {
                     try

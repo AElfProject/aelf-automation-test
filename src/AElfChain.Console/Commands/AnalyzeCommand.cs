@@ -25,7 +25,7 @@ namespace AElfChain.Console.Commands
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public AElfClient ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public override void RunCommand()
         {
@@ -86,7 +86,7 @@ namespace AElfChain.Console.Commands
             });
             foreach (var manager in nodeManagers)
             {
-                var chainStatus = AsyncHelper.RunSync(manager.ApiService.GetChainStatusAsync);
+                var chainStatus = AsyncHelper.RunSync(manager.ApiClient.GetChainStatusAsync);
                 $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
                 JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
                 System.Console.WriteLine();
@@ -98,7 +98,7 @@ namespace AElfChain.Console.Commands
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var startHeight = long.Parse(input[0]);
-            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            var blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
             if (blockHeight < startHeight)
                 Logger.Error("Wrong block height");
             var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
@@ -114,7 +114,7 @@ namespace AElfChain.Console.Commands
                 for (var i = startHeight; i <= endHeight; i++)
                 {
                     var height = i;
-                    var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
+                    var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHeightAsync(height));
                     var signerKey = block.Header.SignerPubkey;
                     if (minerKey == "")
                     {
@@ -145,7 +145,7 @@ namespace AElfChain.Console.Commands
                 startHeight = endHeight + 1;
                 while (true)
                 {
-                    blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+                    blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
                     if (blockHeight == endHeight)
                         Thread.Sleep(3000);
                     endHeight = blockHeight;
@@ -159,7 +159,7 @@ namespace AElfChain.Console.Commands
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var startHeight = long.Parse(input[0]);
-            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            var blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
             if (blockHeight < startHeight)
                 Logger.Error("Wrong block height");
             var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
@@ -170,13 +170,13 @@ namespace AElfChain.Console.Commands
                 for (var i = startHeight; i <= endHeight; i++)
                 {
                     var height = i;
-                    var block = AsyncHelper.RunSync(() => NodeManager.ApiService.GetBlockByHeightAsync(height, true));
+                    var block = AsyncHelper.RunSync(() => NodeManager.ApiClient.GetBlockByHeightAsync(height, true));
                     Logger.Info(
                         $"BlockHeight: {height}, Hash: {block.BlockHash}, Transactions: {block.Body.TransactionsCount}");
                     foreach (var txId in block.Body.Transactions)
                     {
                         var transaction =
-                            AsyncHelper.RunSync(() => NodeManager.ApiService.GetTransactionResultAsync(txId));
+                            AsyncHelper.RunSync(() => NodeManager.ApiClient.GetTransactionResultAsync(txId));
                         if (transaction.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                         {
                             Logger.Info(
@@ -198,7 +198,7 @@ namespace AElfChain.Console.Commands
                 startHeight = endHeight + 1;
                 while (true)
                 {
-                    blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+                    blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
                     if (blockHeight == endHeight)
                         Thread.Sleep(3000);
                     endHeight = blockHeight;
@@ -263,7 +263,7 @@ namespace AElfChain.Console.Commands
             {
                 Parallel.ForEach(nodeManagers, manager =>
                 {
-                    var transactionPoolStatus = AsyncHelper.RunSync(manager.ApiService.GetTransactionPoolStatusAsync);
+                    var transactionPoolStatus = AsyncHelper.RunSync(manager.ApiClient.GetTransactionPoolStatusAsync);
                     $"{DateTime.Now:HH:mm:ss} {manager.GetApiUrl()} QueuedTxs: {transactionPoolStatus.Queued} ValidatedTxs: {transactionPoolStatus.Validated}"
                         .WriteSuccessLine();
                 });

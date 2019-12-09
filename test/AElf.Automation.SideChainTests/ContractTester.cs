@@ -59,7 +59,7 @@ namespace AElf.Automation.SideChainTests
         public string ExecuteMethodWithTxId(string rawTx)
         {
             var transactionId =
-                NodeManager.ApiService.SendTransaction(rawTx);
+                NodeManager.ApiClient.SendTransaction(rawTx);
 
             return transactionId;
         }

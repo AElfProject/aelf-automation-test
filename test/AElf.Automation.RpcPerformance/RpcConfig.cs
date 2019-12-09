@@ -29,7 +29,7 @@ namespace AElf.Automation.RpcPerformance
         public int MaxTransactionSelect { get; set; }
     }
 
-    public class ConfigInfo
+    public class RpcConfig
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
@@ -49,27 +49,7 @@ namespace AElf.Automation.RpcPerformance
 
         [JsonProperty("RequestRandomEndpoint")]
         public RandomTransactionOption RandomEndpointOption { get; set; }
-    }
 
-    public static class ConfigInfoHelper
-    {
-        private static ConfigInfo _instance;
-        private static readonly object LockObj = new object();
-
-        public static ConfigInfo Config => GetConfigInfo();
-
-        private static ConfigInfo GetConfigInfo()
-        {
-            lock (LockObj)
-            {
-                if (_instance != null) return _instance;
-
-                var configFile = CommonHelper.MapPath("config/rpc-performance.json");
-                var content = File.ReadAllText(configFile);
-                _instance = JsonConvert.DeserializeObject<ConfigInfo>(content);
-            }
-
-            return _instance;
-        }
+        public static RpcConfig ReadInformation => ConfigHelper<RpcConfig>.GetConfigInfo("rpc-performance.json");
     }
 }
