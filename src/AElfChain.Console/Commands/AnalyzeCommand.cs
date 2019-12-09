@@ -63,7 +63,7 @@ namespace AElfChain.Console.Commands
             return new CommandInfo
             {
                 Name = "analyze",
-                Description = "Analyze block chain blocks and transactions."
+                Description = "Analyze block chain blocks and transactions"
             };
         }
 
