@@ -225,7 +225,7 @@ namespace AElfChain.Common.Contracts
                 if (queueLength == _txResultList.Count)
                 {
                     queueSameTimes++;
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
                 else
                 {

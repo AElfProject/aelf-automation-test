@@ -237,13 +237,13 @@ namespace AElfChain.Common.Managers
             return tr.ToByteArray().ToHex();
         }
 
-        public TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1)
+        public TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1)
         {
-            if (maxTimes == -1) maxTimes = 600;
+            if (maxSeconds == -1) maxSeconds = 300;
 
-            var checkTimes = 1;
             var stopwatch = Stopwatch.StartNew();
-            while (checkTimes <= maxTimes)
+            var source = new CancellationTokenSource(maxSeconds * 1000);
+            while (!source.IsCancellationRequested)
             {
                 var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
@@ -255,6 +255,7 @@ namespace AElfChain.Common.Managers
                             true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:
+                    case TransactionResultStatus.Unexecutable:
                     {
                         var message =
                             $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
@@ -265,19 +266,14 @@ namespace AElfChain.Common.Managers
                         return transactionResult;
                     }
                     case TransactionResultStatus.Pending:
-                        checkTimes++;
                         break;
                     case TransactionResultStatus.NotExisted:
-                        checkTimes += 10;
-                        break;
-                    case TransactionResultStatus.Unexecutable:
-                        checkTimes += 20;
                         break;
                 }
 
                 Console.Write(
                     $"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
 
             Console.Write("\r\n");

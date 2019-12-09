@@ -29,7 +29,7 @@ namespace AElfChain.Common.Managers
         string SendTransaction(string rawTransaction);
         List<string> SendTransactions(string rawTransactions);
         string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter);
-        TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1);
+        TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1);
         void CheckTransactionListResult(List<string> transactionIds);
 
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)
