@@ -5,8 +5,7 @@ using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Types;
-using AElfChain.Common.ClientDtoExtension;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 

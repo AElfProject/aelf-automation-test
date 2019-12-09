@@ -2,7 +2,7 @@ using System.Linq;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;

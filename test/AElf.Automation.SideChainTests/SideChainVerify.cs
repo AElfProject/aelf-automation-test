@@ -11,7 +11,7 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

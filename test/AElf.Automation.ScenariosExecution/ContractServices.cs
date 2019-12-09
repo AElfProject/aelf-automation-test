@@ -42,12 +42,10 @@ namespace AElf.Automation.ScenariosExecution
                 break;
             }
         }
-
         public ContractServices CloneServices()
         {
             return MemberwiseClone() as ContractServices;
         }
-
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TreasuryContract TreasuryService { get; set; }
@@ -58,7 +56,6 @@ namespace AElf.Automation.ScenariosExecution
         public ConsensusContract ConsensusService { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-
         public static List<Node> CurrentBpNodes { get; set; }
 
         private void GetAllContractServices()
@@ -95,7 +92,6 @@ namespace AElf.Automation.ScenariosExecution
             TokenConverterService = GenesisService.GetTokenConverterContract();
 
         }
-
         private List<Node> GetCurrentBpNodes()
         {
             var nodes = NodeInfoHelper.Config.Nodes;

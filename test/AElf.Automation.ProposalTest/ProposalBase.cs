@@ -9,7 +9,7 @@ using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 

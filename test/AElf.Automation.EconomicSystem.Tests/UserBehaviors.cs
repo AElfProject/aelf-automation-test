@@ -8,7 +8,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 

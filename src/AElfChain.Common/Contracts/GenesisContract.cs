@@ -5,7 +5,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.Genesis;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 
 namespace AElfChain.Common.Contracts

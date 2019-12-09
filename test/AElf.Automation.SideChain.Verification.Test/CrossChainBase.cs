@@ -10,7 +10,7 @@ using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;

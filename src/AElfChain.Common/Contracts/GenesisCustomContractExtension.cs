@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Genesis;
 using AElf.Types;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
 
@@ -26,7 +26,7 @@ namespace AElfChain.Common.Contracts
                 if (SystemContracts.ContainsKey(contract)) continue;
                 var contractDescriptor =
                     AsyncHelper.RunSync(()=>genesis.ApiService.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
-                var systemContractHandler = new CustomContractHandler(contractDescriptor);
+                var systemContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = systemContractHandler.GetContractMethods();
                 SystemContracts.Add(contract, methods);
             }
@@ -53,7 +53,7 @@ namespace AElfChain.Common.Contracts
 
                 var contractDescriptor =
                     AsyncHelper.RunSync(()=>genesis.ApiService.GetContractFileDescriptorSetAsync(address.GetFormatted()));
-                var customContractHandler = new CustomContractHandler(contractDescriptor);
+                var customContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = customContractHandler.GetContractMethods();
                 CustomContracts.TryAdd(address, methods);
             }

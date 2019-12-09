@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.MultiToken;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
@@ -53,7 +53,7 @@ namespace AElf.Automation.ContractsTesting
 
         public void AnalyzeTokenContract()
         {
-            var contractHandler = new ContractHandler();
+            var contractHandler = new ContractSerializer();
             var contractInfo = contractHandler.GetContractInfo(NameProvider.Token);
             var methodInfo = contractInfo.GetContractMethod("GetBalance");
 

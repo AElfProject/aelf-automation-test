@@ -16,7 +16,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;

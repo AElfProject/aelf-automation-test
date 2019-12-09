@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Client.Service;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,7 +14,7 @@ namespace AElf.Automation.ApiTest
         public ChainApiTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _client = AElfChainClient.GetClient(ServiceUrl);
+            _client = AElfClientExtension.GetClient(ServiceUrl);
             _listener = new AnalyzeListener(testOutputHelper);
         }
 

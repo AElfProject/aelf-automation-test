@@ -10,8 +10,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
-using AElfChain.Common.ClientDtoExtension;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
@@ -59,7 +58,7 @@ namespace AElfChain.Common.Contracts
                 }
                 else
                 {
-                    var transactionId = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
+                    var transactionId = ApiService.SendTransaction(transaction.ToByteArray().ToHex());
                     var checkTimes = 0;
 
                     var stopwatch = Stopwatch.StartNew();

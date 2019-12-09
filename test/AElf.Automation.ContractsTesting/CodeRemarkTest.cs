@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using log4net;
 

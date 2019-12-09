@@ -3,7 +3,7 @@ using AElf.Client.Dto;
 using AElf.Types;
 using Google.Protobuf.Collections;
 
-namespace AElfChain.Common.ClientDtoExtension
+namespace AElfChain.Common.DtoExtension
 {
     public static class TransactionFeeExtension
     {

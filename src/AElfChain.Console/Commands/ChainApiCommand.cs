@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Client.Service;
 using AElfChain.Common;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
@@ -13,9 +13,9 @@ using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
 {
-    public class BlockChainCommand : BaseCommand
+    public class ChainApiCommand : BaseCommand
     {
-        public BlockChainCommand(INodeManager nodeManager, ContractServices contractServices)
+        public ChainApiCommand(INodeManager nodeManager, ContractServices contractServices)
             : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
@@ -140,7 +140,7 @@ namespace AElfChain.Console.Commands
             var withDetails = input.Length == 2 && bool.Parse(input[1]);
 
             var descriptorSet = AsyncHelper.RunSync(() => ApiService.GetContractFileDescriptorSetAsync(input[0]));
-            var customContract = new CustomContractHandler(descriptorSet);
+            var customContract = new CustomContractSerializer(descriptorSet);
             customContract.GetAllMethodsInfo(withDetails);
         }
 

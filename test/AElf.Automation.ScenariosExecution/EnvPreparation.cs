@@ -7,30 +7,28 @@ using log4net;
 
 namespace AElf.Automation.ScenariosExecution
 {
-    public class OldEnvCheck
+    public class EnvPreparation
     {
         private static NodesInfo _config;
+        private static ContractServices _services;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private static readonly string AccountDir = CommonHelper.GetCurrentDataDir();
+        private static readonly EnvPreparation Instance = new EnvPreparation();
 
-        private static readonly OldEnvCheck Instance = new OldEnvCheck();
-
-        private OldEnvCheck()
+        private EnvPreparation()
         {
             _config = NodeInfoHelper.Config;
         }
 
-        private static ContractServices Services { get; set; }
-
-        public static OldEnvCheck GetDefaultEnvCheck()
+        public static EnvPreparation GetDefaultEnvCheck()
         {
             return Instance;
         }
         
         public ContractServices GetContractServices()
         {
-            if (Services != null)
-                return Services.CloneServices();
+            if (_services != null)
+                return _services.CloneServices();
 
             var specifyEndpoint = ConfigInfoHelper.Config.SpecifyEndpoint;
             var url = specifyEndpoint.Enable
@@ -40,9 +38,9 @@ namespace AElf.Automation.ScenariosExecution
             var nodeManager = new NodeManager(url, AccountDir);
 
             var bpAccount = _config.Nodes.First().Account;
-            Services = new ContractServices(nodeManager, bpAccount);
+            _services = new ContractServices(nodeManager, bpAccount);
 
-            return Services.CloneServices();
+            return _services.CloneServices();
         }
 
         public static void PrepareTestAccounts()

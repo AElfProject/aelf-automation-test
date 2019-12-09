@@ -6,7 +6,7 @@ using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -158,8 +158,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             AllTesters = envCheck.GenerateOrGetTestUsers(testerCount);
             if (Services == null)
             {
-                var oldEnv = OldEnvCheck.GetDefaultEnvCheck();
-                Services = oldEnv.GetContractServices();
+                var envPreparation = EnvPreparation.GetDefaultEnvCheck();
+                Services = envPreparation.GetContractServices();
             }
 
             var configInfo = NodeInfoHelper.Config;

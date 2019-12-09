@@ -5,7 +5,7 @@ using System.Threading;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -21,7 +21,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public ChainSummary(string baseUrl)
         {
-            _apiService = AElfChainClient.GetClient(baseUrl);
+            _apiService = AElfClientExtension.GetClient(baseUrl);
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = GetBlockHeight();
         }

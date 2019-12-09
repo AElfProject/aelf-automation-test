@@ -18,14 +18,14 @@ namespace AElf.Automation.ContractsTesting
         private readonly string _account;
         private readonly INodeManager _nodeManager;
         private AEDPoSContractImplContainer.AEDPoSContractImplStub _consensusImplStub;
-        private readonly ConcurrentQueue<Hash> hashQueue;
+        private readonly ConcurrentQueue<Hash> _hashQueue;
 
-        public ILog Logger = Log4NetHelper.GetLogger();
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public RandomGenerate(INodeManager nodeManager, string account)
         {
             _nodeManager = nodeManager;
-            hashQueue = new ConcurrentQueue<Hash>();
+            _hashQueue = new ConcurrentQueue<Hash>();
             _account = account;
         }
 
@@ -49,6 +49,8 @@ namespace AElf.Automation.ContractsTesting
                 Task.Run(async ()=> await GetAllRandomHash())
             };
             Task.WaitAll(tasks.ToArray());
+
+            await Task.CompletedTask;
         }
 
         private void GetConsensusStub()
@@ -63,8 +65,8 @@ namespace AElf.Automation.ContractsTesting
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
             Logger.Info($"Current round info: {roundInfo.Value}");
             var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Empty());
-            if(!hashQueue.Contains(randomOrder.Output.TokenHash))
-                hashQueue.Enqueue(randomOrder.Output.TokenHash);
+            if(!_hashQueue.Contains(randomOrder.Output.TokenHash))
+                _hashQueue.Enqueue(randomOrder.Output.TokenHash);
             var blockHeight = randomOrder.Output.BlockHeight;
             var tokenHash = randomOrder.Output.TokenHash;
             Logger.Info($"Random token height: {blockHeight}, hash: {tokenHash}");
@@ -73,7 +75,7 @@ namespace AElf.Automation.ContractsTesting
         private async Task GetAllRandomHash()
         {
             await Task.Delay(10 * 1000);
-            while (hashQueue.TryDequeue(out var tokenHash))
+            while (_hashQueue.TryDequeue(out var tokenHash))
             {
                 try
                 {
@@ -84,7 +86,7 @@ namespace AElf.Automation.ContractsTesting
                         continue;
                     }
 
-                    hashQueue.Enqueue(tokenHash);
+                    _hashQueue.Enqueue(tokenHash);
                     var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
                     var height = await _nodeManager.ApiService.GetBlockHeightAsync();
                     Logger.Info($"Current information: round={currentRound.Value}, height={height}");
@@ -93,7 +95,7 @@ namespace AElf.Automation.ContractsTesting
                 catch (Exception e)
                 {
                     e.Message.WriteErrorLine();
-                    hashQueue.Enqueue(tokenHash);
+                    _hashQueue.Enqueue(tokenHash);
                     await Task.Delay(1000);
                 }
             }

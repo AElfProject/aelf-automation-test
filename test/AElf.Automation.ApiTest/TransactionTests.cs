@@ -51,7 +51,7 @@ namespace AElf.Automation.ApiTest
             var transactionId =
                 Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(rawTransactionOutput.RawTransaction));
             var signature = _nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray());
-            var result = await _client.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
+            await _client.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
             {
                 RawTransaction = rawTransactionOutput.RawTransaction,
                 Signature = signature.ToHex()

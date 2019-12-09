@@ -43,7 +43,7 @@ namespace AElfChain.Console.Commands
             return new CommandInfo
             {
                 Name = "consensus",
-                Description = "Query current consensus miners"
+                Description = "Query current miners information"
             };
         }
 

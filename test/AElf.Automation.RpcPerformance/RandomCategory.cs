@@ -14,7 +14,7 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 

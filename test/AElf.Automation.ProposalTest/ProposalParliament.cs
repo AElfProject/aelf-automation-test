@@ -9,7 +9,7 @@ using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using ApproveInput = Acs3.ApproveInput;
 

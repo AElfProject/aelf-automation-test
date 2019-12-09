@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -90,7 +90,7 @@ namespace AElfChain.Common
 
         private void CheckNodeConnection(Node node)
         {
-            var service = AElfChainClient.GetClient(node.Endpoint);
+            var service = AElfClientExtension.GetClient(node.Endpoint);
             try
             {
                 node.ApiService = service;

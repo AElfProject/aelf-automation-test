@@ -5,7 +5,7 @@ using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {

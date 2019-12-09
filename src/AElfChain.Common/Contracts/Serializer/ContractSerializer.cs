@@ -28,11 +28,11 @@ using ExecutionAcs5 = AElf.Kernel.SmartContract.ExecutionPluginForAcs5.Tests.Tes
 using ExecutionAcs8 = AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 
 
-namespace AElfChain.Common.ContractSerializer
+namespace AElfChain.Common.Contracts.Serializer
 {
-    public class ContractHandler
+    public class ContractSerializer
     {
-        public ContractHandler()
+        public ContractSerializer()
         {
             ContractInfos = new Dictionary<NameProvider, ContractInfo>();
         }

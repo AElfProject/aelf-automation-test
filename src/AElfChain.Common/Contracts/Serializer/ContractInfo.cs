@@ -4,7 +4,7 @@ using System.Linq;
 using AElfChain.Common.Helpers;
 using Google.Protobuf.Reflection;
 
-namespace AElfChain.Common.ContractSerializer
+namespace AElfChain.Common.Contracts.Serializer
 {
     public class ContractInfo
     {

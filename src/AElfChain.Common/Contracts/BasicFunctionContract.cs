@@ -2,7 +2,7 @@ using System.Linq;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts

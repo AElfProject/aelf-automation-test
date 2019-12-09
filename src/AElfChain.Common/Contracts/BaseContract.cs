@@ -7,7 +7,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
@@ -310,7 +310,7 @@ namespace AElfChain.Common.Contracts
         {
             contractAddress = string.Empty;
             var transactionResult = NodeManager.CheckTransactionResult(txId);
-            if (TransactionResultStatusExtension.ConvertTransactionResultStatus(transactionResult?.Status) != TransactionResultStatus.Mined)
+            if ((transactionResult?.Status).ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 return false;
 
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");

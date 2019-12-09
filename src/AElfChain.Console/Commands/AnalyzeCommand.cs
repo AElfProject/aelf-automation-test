@@ -7,10 +7,9 @@ using AElf;
 using AElf.Client.Service;
 using AElf.Types;
 using AElfChain.Common;
-using AElfChain.Common.ClientDtoExtension;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Sharprompt;
@@ -72,6 +71,7 @@ namespace AElfChain.Console.Commands
         {
             throw new NotImplementedException();
         }
+
         private void ChainsStatus()
         {
             //"Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
@@ -84,14 +84,15 @@ namespace AElfChain.Console.Commands
                 var manager = new NodeManager(o);
                 nodeManagers.Add(manager);
             });
-            foreach(var manager in nodeManagers)
+            foreach (var manager in nodeManagers)
             {
                 var chainStatus = AsyncHelper.RunSync(manager.ApiService.GetChainStatusAsync);
                 $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
                 JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
-               System.Console.WriteLine();
+                System.Console.WriteLine();
             }
         }
+
         private void BlockAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
@@ -152,6 +153,7 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void TransactionAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
@@ -204,6 +206,7 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void NodeElectionAnalyze()
         {
             NodeInfoHelper.Config.CheckNodesAccount();
@@ -244,10 +247,9 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void TransactionPoolAnalyze()
         {
-            //"Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
-            //var input = CommandOption.InputParameters(1);
             var endpoints = NodeInfoHelper.Config.Nodes.Select(o => o.Endpoint).ToList();
             var input = Prompt.MultiSelect("Select endpoint(s)", endpoints);
             var nodeManagers = new List<NodeManager>();
@@ -269,6 +271,7 @@ namespace AElfChain.Console.Commands
                 Thread.Sleep(500);
             }
         }
+
         private void CheckAccountsToken()
         {
             var accounts = NodeManager.ListAccounts();
@@ -281,6 +284,7 @@ namespace AElfChain.Console.Commands
                     $"Account: {acc}  {primaryToken}={balance}".WriteSuccessLine();
             });
         }
+
         private IEnumerable<string> GetSubCommands()
         {
             return new List<string>

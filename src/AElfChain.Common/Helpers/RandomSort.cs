@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AElfChain.Common.Utils
+namespace AElfChain.Common.Helpers
 {
     public static class RandomSort
     {

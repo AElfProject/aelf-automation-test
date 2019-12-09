@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Kernel;
 using AElf.Types;
@@ -120,8 +120,8 @@ namespace AElf.Automation.EconomicSystem.Tests
                     TransactionId = Hash.FromString(Guid.NewGuid().ToString()),
                     Transaction = new Transaction
                     {
-                        From = AddressUtils.Generate(),
-                        To = AddressUtils.Generate(),
+                        From = AddressExtension.Generate(),
+                        To = AddressExtension.Generate(),
                         MethodName = $"Test-{Guid.NewGuid()}",
                         Params = ByteString.CopyFromUtf8("test"),
                         RefBlockNumber = 24,

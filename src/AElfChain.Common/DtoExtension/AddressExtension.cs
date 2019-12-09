@@ -3,9 +3,9 @@ using AElf;
 using AElf.Types;
 using AElfChain.Common.Helpers;
 
-namespace AElfChain.Common.Utils
+namespace AElfChain.Common.DtoExtension
 {
-    public static class AddressUtils
+    public static class AddressExtension
     {
         public static Address Generate()
         {

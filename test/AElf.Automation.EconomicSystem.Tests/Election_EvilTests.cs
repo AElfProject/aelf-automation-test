@@ -8,7 +8,7 @@ using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
 using Google.Protobuf.Reflection;
 using Newtonsoft.Json.Linq;
 
-namespace AElfChain.Common.ContractSerializer
+namespace AElfChain.Common.Contracts.Serializer
 {
     public class ContractMethod : IComparable
     {

@@ -12,8 +12,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common.ClientDtoExtension;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -27,7 +26,7 @@ namespace AElfChain.Common.Managers
             _baseUrl = baseUrl;
             _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
-            ApiService = AElfChainClient.GetClient(baseUrl);
+            ApiService = AElfClientExtension.GetClient(baseUrl);
             _chainId = GetChainId();
         }
 
@@ -39,7 +38,7 @@ namespace AElfChain.Common.Managers
         public void UpdateApiUrl(string url)
         {
             _baseUrl = url;
-            ApiService = AElfChainClient.GetClient(url);
+            ApiService = AElfClientExtension.GetClient(url);
             _chainId = GetChainId();
 
             Logger.Info($"Request url updated to: {url}");

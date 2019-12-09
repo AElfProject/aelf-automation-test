@@ -3,25 +3,8 @@ using AElf.Client.Dto;
 using AElf.Client.Service;
 using Volo.Abp.Threading;
 
-namespace AElfChain.Common.Utils
+namespace AElfChain.Common.DtoExtension
 {
-    public class AElfChainClient
-    {
-        public static AElfClient GetClient(string baseUrl)
-        {
-            var endpoint = FormatServiceUrl(baseUrl);
-            return new AElfClient(endpoint);
-        }
-        
-        private static string FormatServiceUrl(string baseUrl)
-        {
-            if (baseUrl.Contains("http://") || baseUrl.Contains("https://"))
-                return baseUrl;
-
-            return $"http://{baseUrl}";
-        }
-    }
-
     public static class AElfClientExtension
     {
         /// <summary>
@@ -64,6 +47,25 @@ namespace AElfChain.Common.Utils
             {
                 RawTransaction = rawTransaction
             }));
+        }
+        
+        /// <summary>
+        /// 实例化AElf Client
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <returns></returns>
+        public static AElfClient GetClient(string baseUrl)
+        {
+            var endpoint = FormatServiceUrl(baseUrl);
+            return new AElfClient(endpoint);
+        }
+        
+        private static string FormatServiceUrl(string baseUrl)
+        {
+            if (baseUrl.Contains("http://") || baseUrl.Contains("https://"))
+                return baseUrl;
+
+            return $"http://{baseUrl}";
         }
     }
 }

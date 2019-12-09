@@ -5,14 +5,14 @@ using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +49,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProtoMessageRead_Test()
         {
-            var address = AddressUtils.Generate();
+            var address = AddressExtension.Generate();
             var stream = new MemoryStream();
             address.WriteTo(stream);
 
@@ -136,7 +136,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ConvertProtoMethod()
         {
-            var handler = new ContractHandler();
+            var handler = new ContractSerializer();
             var tokenInfo = handler.GetContractInfo(NameProvider.Token);
             var createMethod = tokenInfo.GetContractMethod("Create");
             var result = bool.Parse("true");
@@ -150,7 +150,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
             var byteInfo = nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
-            var customContractHandler = new CustomContractHandler(byteInfo);
+            var customContractHandler = new CustomContractSerializer(byteInfo);
             customContractHandler.GetAllMethodsInfo(true);
             customContractHandler.GetParameters("Create");
         }

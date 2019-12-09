@@ -5,12 +5,11 @@ using System.Linq;
 using AElf;
 using AElf.Types;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.Reflection;
 using Newtonsoft.Json.Linq;
-using ProtoBuf;
 
-namespace AElfChain.Common.ContractSerializer
+namespace AElfChain.Common.Contracts.Serializer
 {
     public class MessageInfo
     {
@@ -54,7 +53,7 @@ namespace AElfChain.Common.ContractSerializer
         public List<MethodInfo> Methods { get; set; }
     }
 
-    public class CustomContractHandler
+    public class CustomContractSerializer
     {
         private readonly byte[] _fileDescriptorBytes;
 
@@ -67,7 +66,7 @@ namespace AElfChain.Common.ContractSerializer
 
         private ContractDescriptor _descriptor;
 
-        public CustomContractHandler(byte[] fileDescriptorBytes)
+        public CustomContractSerializer(byte[] fileDescriptorBytes)
         {
             _fileDescriptorBytes = fileDescriptorBytes;
         }
@@ -80,7 +79,7 @@ namespace AElfChain.Common.ContractSerializer
                 return _descriptor;
 
             var ms = new MemoryStream(_fileDescriptorBytes);
-            var descriptorSet = Serializer.Deserialize<FileDescriptorSet>(ms);
+            var descriptorSet = ProtoBuf.Serializer.Deserialize<FileDescriptorSet>(ms);
 
             _descriptor = new ContractDescriptor();
             foreach (var file in descriptorSet.Files)
@@ -167,7 +166,6 @@ namespace AElfChain.Common.ContractSerializer
                     {
                         //ignore null parameter
                         if (inputs[i] == "null") continue;
-                        var type = fields[i];
                         if (inputs[i].Trim().Length == 50 && IsAddressInfo(inputs[i], out var address))
                             inputJson[fields[i]] = new JObject
                             {
