@@ -49,7 +49,7 @@ namespace AElfChain.Common.Contracts
                 transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
-                TransactionResultStatus status;
+                TransactionResultStatus status = TransactionResultStatus.Pending;
                 var txExist = CheckTransactionExisted(transaction, out var resultDto);
                 if (txExist)
                 {
@@ -59,48 +59,52 @@ namespace AElfChain.Common.Contracts
                 else
                 {
                     var transactionId = NodeManager.SendTransaction(transaction.ToByteArray().ToHex());
-                    var checkTimes = 0;
+                    await Task.Delay(2000); //delay for ovoid 'NotExisted' issue
 
                     var stopwatch = Stopwatch.StartNew();
-                    while (true)
+                    var source = new CancellationTokenSource(5 * 60 * 1000); //check 5 minutes
+                    while (!source.IsCancellationRequested)
                     {
-                        checkTimes++;
                         resultDto = await ApiClient.GetTransactionResultAsync(transactionId);
                         status = resultDto.Status.ConvertTransactionResultStatus();
+                        
                         if (status == TransactionResultStatus.Pending)
-                            checkTimes++;
-                        else if (status == TransactionResultStatus.NotExisted)
-                            checkTimes += 10;
-                        else if (status == TransactionResultStatus.Unexecutable)
-                            checkTimes += 20;
-                        else if (status == TransactionResultStatus.Mined)
+                        {
+                            Console.Write(
+                                $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                            await Task.Delay(1000, source.Token);
+                            break;
+                        }
+
+                        if (status == TransactionResultStatus.NotExisted)
+                        {
+                            Logger.Error($"Transaction {transactionId} not existed");
+                            break;
+                        }
+
+                        if (status == TransactionResultStatus.Mined)
                         {
                             Logger.Info(
                                 $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
                                 true);
                             break;
                         }
-                        else if (status == TransactionResultStatus.Failed)
+
+                        if (status == TransactionResultStatus.Failed || status == TransactionResultStatus.Unexecutable)
                         {
                             Logger.Error(
                                 $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
                                 true);
                             break;
                         }
-
-                        Console.Write(
-                            $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-
-                        if (checkTimes >= 360) //max wait time 3 minutes
-                        {
-                            Console.Write("\r\n");
-                            throw new TimeoutException(
-                                $"Transaction {resultDto.TransactionId} in '{status}' status long times.");
-                        }
-
-                        Thread.Sleep(500);
                     }
 
+                    if (source.IsCancellationRequested && status == TransactionResultStatus.Pending)
+                    {
+                        Console.WriteLine();
+                        throw new TimeoutException(
+                            $"Transaction {resultDto.TransactionId} in '{status}' status long times.");
+                    }
                     stopwatch.Stop();
                 }
 
