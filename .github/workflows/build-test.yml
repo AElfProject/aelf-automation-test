@@ -19,7 +19,6 @@ jobs:
         run:
           git checkout dev && git pull
 
-      - name: Run a multi-line script
+      - name: Build test script
         run:
-          dotnet restore
-          dotnet build
+          dotnet restore && dotnet build
