@@ -294,17 +294,17 @@ namespace AElfChain.Common.Managers
                 {
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.NotExisted:
-                    case TransactionResultStatus.Unexecutable:
                         Console.Write(
                             $"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"TransactionId: {id}, Status: {status}", true);
+                        Logger.Info($"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
                         break;
                     case TransactionResultStatus.Failed:
-                        Logger.Error($"TransactionId: {id}, Status: {status}, Error: {transactionResult.Error}", true);
+                    case TransactionResultStatus.Unexecutable:
+                        Logger.Error($"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}", true);
                         break;
                 }
             }

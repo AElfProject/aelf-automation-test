@@ -171,8 +171,8 @@ namespace AElfChain.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            foreach (var account in approveUsers) _parliament.ApproveProposal(proposalId, account);
-
+            _parliament.MinersApproveProposal(proposalId, approveUsers);
+            
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }

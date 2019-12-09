@@ -82,12 +82,12 @@ namespace AElf.Automation.SetTransactionFees
                     {
                         var amountInfo = feeResult.Fees.First();
                         Logger.Info(
-                            $"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.BasicFee}");
+                            $"Method: {method}  Symbol: {amountInfo.Symbol}  Amount: {amountInfo.BasicFee}");
                     }
                     else
                     {
                         var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {primaryToken}   Amount: 0");
+                        Logger.Warn($"Method: {method}  Symbol: {primaryToken}  Amount: 0");
                     }
                 }
 

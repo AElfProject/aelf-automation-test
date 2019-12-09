@@ -184,23 +184,21 @@ namespace AElfChain.Common.Managers
             
             await Task.Run(() =>
             {
-                using (var writer = File.CreateText(fullPath))
+                using var writer = File.CreateText(fullPath);
+                string scryptResult;
+                while (true)
                 {
-                    string scryptResult;
-                    while (true)
-                    {
-                        scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
-                            keyPair.PrivateKey,
-                            address.GetFormatted());
-                        if (!scryptResult.IsNullOrWhiteSpace())
-                            break;
+                    scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
+                        keyPair.PrivateKey,
+                        address.GetFormatted());
+                    if (!scryptResult.IsNullOrWhiteSpace())
+                        break;
 
-                        Logger.Error("Empty account");
-                    }
-
-                    writer.Write(scryptResult);
-                    writer.Flush();
+                    Logger.Error("Empty account");
                 }
+
+                writer.Write(scryptResult);
+                writer.Flush();
             });
 
             return true;

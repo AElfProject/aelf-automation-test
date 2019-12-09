@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Acs3;
 using AElf;
 using AElfChain.Common.Helpers;
@@ -69,6 +70,21 @@ namespace AElfChain.Common.Contracts
             }));
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
+        }
+
+        public void MinersApproveProposal(Hash proposalId, IEnumerable<string> callers)
+        {
+            var approveTxIds = new List<string>();
+            foreach (var user in callers)
+            {
+                var tester = GetNewTester(user);
+                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = proposalId
+                });
+                approveTxIds.Add(txId);
+            }
+            NodeManager.CheckTransactionListResult(approveTxIds);
         }
 
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
