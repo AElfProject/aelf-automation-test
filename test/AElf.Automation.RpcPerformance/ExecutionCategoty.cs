@@ -153,6 +153,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
                     ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
+                    Thread.Sleep(30000);
                 }
             }
             else
