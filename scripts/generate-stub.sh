@@ -11,7 +11,7 @@ destdir=./Protobuf/Generated
 
 solutiondir=`dirname ${scriptdir}`
 
-protoc --proto_path=../AElf/protobuf \
+protoc --proto_path=./Protobuf/Proto \
 --csharp_out=${destdir} \
 --csharp_opt=file_extension=.g.cs \
 --contract_opt=stub \

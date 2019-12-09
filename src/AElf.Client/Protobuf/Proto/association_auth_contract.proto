@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.AssociationAuth";
+
+// association_auth_contract
+message Organization{
+    int32 release_threshold = 1;
+    repeated Reviewer reviewers = 2;
+    int32 proposer_threshold = 3;
+    client.Address organization_address = 4;
+    client.Hash organization_hash = 5;
+}
+
+message Reviewer {
+    client.Address address  = 1;
+    int32 weight = 2;
+}

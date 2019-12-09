@@ -4,15 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using Acs3;
-using AElf;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -107,7 +105,7 @@ namespace AElfChain.Common.Managers
             return deployAddress;
         }
 
-        private Address UpdateContractWithAuthority(string caller, string address, byte[] code)
+        private void UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
             var input = new ContractUpdateInput
             {
@@ -128,8 +126,8 @@ namespace AElfChain.Common.Managers
 
             if (!CheckProposalStatue(deployProposalId))
             {
-                Logger.Info("Contract code didn't pass the code check");
-                return null;
+                Logger.Error("Contract code didn't pass the code check");
+                return;
             } 
             
             var releaseApprovedContractInput = new ReleaseApprovedContractInput()
@@ -140,10 +138,8 @@ namespace AElfChain.Common.Managers
 
             var release = _genesis.ReleaseApprovedContract(releaseApprovedContractInput,caller);
             release.Status.ShouldBe("MINED");
-            var byteString3 = ByteString.FromBase64(release.Logs.Last().Indexed.First());
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
-            return updateAddress;
         }
 
         public List<string> GetCurrentMiners()
@@ -175,8 +171,8 @@ namespace AElfChain.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            foreach (var account in approveUsers) _parliament.ApproveProposal(proposalId, account);
-
+            _parliament.MinersApproveProposal(proposalId, approveUsers);
+            
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }

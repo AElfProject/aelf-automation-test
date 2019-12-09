@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProtoBaseDir>.\Protobuf</ProtoBaseDir>
+    </PropertyGroup>
+
+    <Choose>
+        <When Condition="!$([MSBuild]::IsOsPlatform(Windows))">
+            <PropertyGroup>
+                <GenerateProtoCommand>../../scripts/generate-message.sh</GenerateProtoCommand>
+                <GenerateStubCommand>../../scripts/generate-stub.sh</GenerateStubCommand>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <GenerateProtoCommand>..\..\scripts\generate-message.bat</GenerateProtoCommand>
+                <GenerateStubCommand>..\..\scripts\generate-stub.bat</GenerateStubCommand>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <Target Name="Gen_proto" BeforeTargets="BeforeBuild">
+        <PropertyGroup>
+            <LocalProtobufDir>$(ProjectDir)/Protobuf</LocalProtobufDir>
+        </PropertyGroup>
+
+        <RemoveDir Directories="Protobuf\Generated" />
+
+        <MakeDir Condition="@(ProtoMessage) != ''" Directories="$(LocalProtobufDir)/Generated" />
+
+        <Exec Condition="@(ProtoMessage) != ''" Command="$(GenerateProtoCommand) %(Identity)" />
+        <Exec Condition="@(ProtoContract) != ''" Command="$(GenerateStubCommand) %(Identity)" />
+    </Target>
+
+    <Target Name="UpdateGeneratedFiles" DependsOnTargets="Gen_proto" BeforeTargets="BeforeBuild">
+        <ItemGroup>
+            <Compile Remove="Protobuf/Generated/*.cs" />
+            <Compile Include="Protobuf/Generated/*.cs" />
+        </ItemGroup>
+    </Target>
+</Project>

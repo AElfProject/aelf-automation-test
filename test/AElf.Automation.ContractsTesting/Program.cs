@@ -41,7 +41,11 @@ namespace AElf.Automation.ContractsTesting
             //Init Logger
             Log4NetHelper.LogInit("ContractTest");
             var nm = new NodeManager(Endpoint);
-            var api = nm.ApiService;
+            var api = nm.ApiClient;
+            while (true)
+            {
+                nm.NewAccount();
+            }
             
             //analyze size fee
             var feeProvider = new TransactionFeeProvider();
@@ -142,7 +146,7 @@ namespace AElf.Automation.ContractsTesting
             for (var i = 1; i <= height; i++)
             {
                 var i1 = i;
-                var blockInfo = AsyncHelper.RunSync(() => nm.ApiService.GetBlockByHeightAsync(i1));
+                var blockInfo = AsyncHelper.RunSync(() => nm.ApiClient.GetBlockByHeightAsync(i1));
                 Logger.Info("Height={0}, Block Hash={1}, TxCount={2}",
                     i,
                     blockInfo?.BlockHash,
@@ -161,7 +165,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = NodeOption.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.199.205:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.40:8000";
 
         #endregion
     }

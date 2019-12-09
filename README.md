@@ -2,31 +2,47 @@
 Automation test project for AElf
 
 ## Clone and build code
-aelf-automation-test is based on AElf project, so please clone code with *--recursive* command.
 ``` 
-git clone https://github.com/AElfProject/aelf-automation-test --recursive
-cd ./aelf-automation-test
-git pull
-cd ./src/AElf
-git checkout dev
-git pull
+git clone https://github.com/AElfProject/aelf-automation-test
 cd ./aelf-automation-test
 dotnet build --configuration Release -o ./build-test-dir
 ```
 
-## Test type
+## CLI tool
+- AElfChain.Console
+
+## Test scripts
 - AElf.Automation.Contracts.ScenarioTest
 - AElf.Automation.ContractsTesting
 - AElf.Automation.EconomicSystem.Tests
-- AElf.Automation.QueryTransaction
 - AElf.Automation.RpcPerformance
 - AElf.Automation.ScenariosExecution
+- AElf.Automation.SetTransactionFees
 - AElf.Automation.SideChainVerification
 
 ## How to run
 
-### AElf.Automation.QueryTransaction
-Console program, change service url and select operation provided number and running.
+### AElfChain.Console
+AElfChain.Console provide lots of convenient commands to help you check node status and transaction execution.
+
+## Feature
+
+ 01. [``chain``]-Query block chain api
+ 02. [``cross-chain-tx``]-Cross chain transactions
+ 03. [``analyze``]-Analyze block chain blocks and transactions
+ 04. [``call``]-Call contract view methods
+ 05. [``send``]-Execute contract action methods
+ 06. [``system-contracts``]-Query all system contracts
+ 07. [``token-balance``]-Query token balance info
+ 08. [``proposal``]-Query Proposal info by Id
+ 09. [``consensus``]-Query current miners information
+ 10. [``deploy``]-Deploy contract with authority permission
+ 11. [``update``]-Update contract with authority permission
+ 12. [``token-transfer``]-Transfer token to tester
+ 13. [``resource``]-Resource buy and sell
+ 14. [``connector``]-Set token connector
+ 15. [``tx-fee``]-Get/Set transaction method fee
+ 16. [``tx-limit``]-Get/Set transaction execution limit
 
 ### AElf.Automation.RpcPerformance
 Performance testing, you can run huge transactions to test node stability and transaction execution tps.
@@ -44,37 +60,36 @@ cp AElf.Contracts.MultiToken.dll ~/.local/share/aelf/contracts
     "GroupCount": 4,
     "TransactionCount": 30,
     "EnableRandomTransaction": true,
-    "ServiceUrl": "192.168.197.13:8000",
+    "ServiceUrl": "192.168.197.43:8100",
     "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
-    "Conflict": true,
-    "ReadOnlyTransaction": false,
+    "RandomSenderTransaction": true,
     "NodeTransactionLimit": {
         "enable_limit": true,
-        "max_transactions_select": 100
+        "max_transactions_select": 20
     },
     "RequestRandomEndpoint": {
         "enable_random": true,
         "endpoint_list": [
-            "192.168.197.13:8000",
-            "192.168.197.28:8000"
+            "192.168.197.43:8100",
+            "192.168.197.15:8100",
+            "192.168.197.52:8100"
         ]
     }
 }
 
 dotnet AElf.Automation.RpcPerformance.dll
 ```
-**Note**:   
+## Note:   
 Adpot GroupCount and TransactionCount number can control transaction sent number frequency.      
 *GroupCount*: how many threads to sent transaction.   
 *TransactionCount*: how many transactions sent each time in one thread.
 *EnableRandomTransaction*: set whether sent transaction with random number from arrange (1, TransactionCount).  
 *ServiceUrl*: node web api address and port.      
 *SentTxLimit*: if transaction hub have more than specified txs, test will wait and not send txs.   
-*Conflict*: default is true, at most have ThreadCount group txs. If set false, all txs with no conflict.   
-*ReadOnlyTransaction*: only sent transactions with query data and not change state db.
-*NodeTransactionLimit*: set node select transaction number in each round.
+*RandomSenderTransaction*: sent transaction with sender are random.
+*NodeTransactionLimit*: set node select transaction number in each block execution.
 *RequestRandomEndpoint*: set whether sent request to other endpoints.
 
 3. Or run test with command line
@@ -90,15 +105,39 @@ em - test mode
 
 ### AElf.Automation.ScenarioExecution
 Scenario testing, test covered a lot of scenarios about contracts execution. Detail scenarios included please refer [document](https://github.com/AElfProject/aelf-automation-test/blob/dev/test/AElf.Automation.ScenariosExecution/ReadMe.md) introduction. 
-1. Prepare test contract  
-Copy contracts files *AElf.Contracts.MultiToken*, *AElf.Contracts.TestContract.BasicFunction* and *AElf.Contracts.TestContract.BasicUpdate* to path ~/.local/share/aelf/contracts.
-2. Prepare test node account  
-Copy test account into build directory *./build-test-dir/aelf/keys*
-3. Modify scenario-nodes config  
-According node types to config node name, service url and accounts information.
-4. Run command to start
+1. Prepare nodes account files and copied to test script execution path ``./aelf/keys``.
+2. Modify scenario-nodes config  
+According test requirement, you can modify each test scenario interval and disable those scenarios you didn't want to run.
+3. Run command to start
 ```
 dotnet AElf.Automation.ScenarioExecution.dll
+dotnet AElf.Automation.ScenarioExecution.dll -c nodes.json
 ```
-*Note*:  
-If you just want to run specified test scenario, you can disable those cases you didn't want to run.
+## Note:
+Due to long time running and user balance verification, all scenario test users are specified and would not used for other test. So for this test all testers are prepared and other accounts exclude node accounts and tester accounts, others are deleted automatically when propgram started.
+And you also no need to prepare test contracts, they are also prepared.
+
+### AElf.Automation.SetTransactionFees
+Set transaction fees for all system contract. This script will go through all system contract methods and set transaction method fee via authority. Except following methods not set due to design:
+```
+1. InitialAElfConsensusContract
+2. FirstRound
+3. NextRound
+4. AEDPoSContractStub.NextTerm
+5. UpdateValue
+6. UpdateTinyBlockInformation
+7. ClaimTransactionFees
+8. DonateResourceToken
+9. RecordCrossChainData
+10. ChargeTransactionFees
+11. CheckThreshold
+12. CheckResourceToken
+13. ChargeResourceToken
+```
+Commands:
+```
+dotnet AElf.Automation.SetTransactionFees -c nodes.json -e 127.0.0.1:8000 -a 50000000
+-c nodes config info
+-e endpoint connected to
+-a transaction fee amount
+```

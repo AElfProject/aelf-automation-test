@@ -95,8 +95,18 @@ namespace AElfChain.Common.Managers
         {
             var dir = CreateKeystoreDirectory();
             var files = dir.GetFiles("*" + KeyFileExtension);
+            var accounts = new List<string>();
+            foreach (var file in files)
+            {
+                if (file.Length == 0)
+                {
+                    File.Delete(file.FullName); //删除文件内容为空的账户文件
+                    continue;
+                }
+                accounts.Add(Path.GetFileNameWithoutExtension(file.Name));
+            }
 
-            return await Task.Run(() => files.Select(f => Path.GetFileNameWithoutExtension(f.Name)).ToList());
+            return await Task.FromResult(accounts);
         }
 
         public static AElfKeyStore GetKeyStore(string dataDirectory = "")
@@ -184,23 +194,21 @@ namespace AElfChain.Common.Managers
             
             await Task.Run(() =>
             {
-                using (var writer = File.CreateText(fullPath))
+                using var writer = File.CreateText(fullPath);
+                string scryptResult;
+                while (true)
                 {
-                    string scryptResult;
-                    while (true)
-                    {
-                        scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
-                            keyPair.PrivateKey,
-                            address.GetFormatted());
-                        if (!scryptResult.IsNullOrWhiteSpace())
-                            break;
+                    scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
+                        keyPair.PrivateKey,
+                        address.GetFormatted());
+                    if (!scryptResult.IsNullOrWhiteSpace())
+                        break;
 
-                        Logger.Error("Empty account");
-                    }
-
-                    writer.Write(scryptResult);
-                    writer.Flush();
+                    Logger.Error("Empty account");
                 }
+
+                writer.Write(scryptResult);
+                writer.Flush();
             });
 
             return true;

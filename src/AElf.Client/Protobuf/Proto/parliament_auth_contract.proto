@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.ParliamentAuth";
+
+//parliament_auth
+message ProposalIdList{
+    repeated client.Hash proposal_ids = 1;
+}
+
+message Organization {
+    sint32 release_threshold = 1;
+    client.Address organization_address = 2;
+    client.Hash organization_hash = 3;
+}

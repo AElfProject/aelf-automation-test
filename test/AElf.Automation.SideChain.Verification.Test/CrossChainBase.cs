@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acs7;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElf.Automation.SideChain.Verification.Verify;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -54,7 +54,7 @@ namespace AElf.Automation.SideChain.Verification
             var password = _environmentInfo.MainChainInfos.Password;
             InitAccount = _environmentInfo.MainChainInfos.Account;
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
-            MainChainService.NodeManager.ApiService.SetFailReTryTimes(10);
+            //MainChainService.NodeManager.ApiClient.SetFailReTryTimes(10);
             NativeToken = MainChainService.PrimaryTokenSymbol;
             
             return MainChainService;
@@ -71,7 +71,7 @@ namespace AElf.Automation.SideChain.Verification
                 var url = info.SideChainUrl;
                 var sideService = new ContractServices(url, InitAccount, AccountDir, password);
                 SideChainServices.Add(sideService);
-                sideService.NodeManager.ApiService.SetFailReTryTimes(10);
+                //sideService.NodeManager.ApiClient.SetFailReTryTimes(10);
             }
 
             return SideChainServices;
@@ -93,10 +93,10 @@ namespace AElf.Automation.SideChain.Verification
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
-            var transactionOutput =
-                AsyncHelper.RunSync(() => services.NodeManager.ApiService.SendTransactionAsync(rawTx));
+            var transactionId =
+                services.NodeManager.ApiClient.SendTransaction(rawTx);
 
-            return transactionOutput.TransactionId;
+            return transactionId;
         }
 
         protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
@@ -108,7 +108,7 @@ namespace AElf.Automation.SideChain.Verification
             while (checkTimes <= maxTimes)
             {
                 transactionResult =
-                    AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetTransactionResultAsync(txId));
+                    AsyncHelper.RunSync(() => services.NodeManager.ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -142,21 +142,21 @@ namespace AElf.Automation.SideChain.Verification
         {
             var index = 0;
             var blockInfoResult =
-                AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetBlockByHeightAsync(blockNumber, true));
+                AsyncHelper.RunSync(() => services.NodeManager.ApiClient.GetBlockByHeightAsync(blockNumber, true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
                 var txResult = AsyncHelper.RunSync(() =>
-                    services.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
+                    services.NodeManager.ApiClient.GetTransactionResultAsync(transactionId));
                 var resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 if (resultStatus == TransactionResultStatus.NotExisted)
                 {
                     Thread.Sleep(500);
                     Logger.Info("Check the transaction again");
                     AsyncHelper.RunSync(() =>
-                        services.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
+                        services.NodeManager.ApiClient.GetTransactionResultAsync(transactionId));
                     resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 }
 
@@ -329,7 +329,7 @@ namespace AElf.Automation.SideChain.Verification
 
         protected long GetBlockHeight(ContractServices services)
         {
-            var blockHeight = services.NodeManager.ApiService.GetBlockHeightAsync().Result;
+            var blockHeight = services.NodeManager.ApiClient.GetBlockHeightAsync().Result;
             return blockHeight;
         }
 
@@ -403,7 +403,7 @@ namespace AElf.Automation.SideChain.Verification
                         CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
             }
 
-            return await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
+            return await MainChainService.NodeManager.ApiClient.GetBlockHeightAsync();
         }
 
         protected void CheckSideChainBlockIndexParentChainHeight(ContractServices services,
@@ -432,7 +432,7 @@ namespace AElf.Automation.SideChain.Verification
         protected async void SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,
             ContractServices servicesTo, CrossChainTransactionInfo infos)
         {
-            var mainHeight = await MainChainService.NodeManager.ApiService.GetBlockHeightAsync();
+            var mainHeight = await MainChainService.NodeManager.ApiClient.GetBlockHeightAsync();
             var checkResult = false;
 
             while (!checkResult)

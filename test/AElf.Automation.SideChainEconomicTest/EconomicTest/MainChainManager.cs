@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Acs0;
+using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -9,7 +10,6 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
-using AElfChain.SDK;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -37,7 +37,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public INodeManager NodeManager => MainChain.NodeManager;
 
-        public IApiService ApiService => MainChain.NodeManager.ApiService;
+        public AElfClient ApiClient => MainChain.NodeManager.ApiClient;
 
         public async Task BuyResources(string account, long amount)
         {
@@ -96,7 +96,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             var crossStub = sideChain.GenesisService.GetCrossChainStub();
             while (true)
             {
-                var chainStatus = await ApiService.GetChainStatusAsync();
+                var chainStatus = await ApiClient.GetChainStatusAsync();
                 if (chainStatus.LastIrreversibleBlockHeight >= blockNumber)
                 {
                     try

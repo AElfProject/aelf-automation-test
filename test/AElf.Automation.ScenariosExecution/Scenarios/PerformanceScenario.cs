@@ -5,7 +5,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Threading;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
-using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using AElf.Contracts.CrossChain;
 using Volo.Abp.Threading;
@@ -50,13 +49,13 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 {
                     var i1 = i;
                     var blockResult =
-                        AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetBlockByHeightAsync(i1, true));
+                        AsyncHelper.RunSync(() => services.NodeManager.ApiClient.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
                     var resultsAsync = new List<TransactionResultDto>();
                     foreach (var txId in txIds)
                     {
                         var result = AsyncHelper.RunSync(() =>
-                            services.NodeManager.ApiService.GetTransactionResultAsync(txId));
+                            services.NodeManager.ApiClient.GetTransactionResultAsync(txId));
                         resultsAsync.Add(result);
                     }
 
@@ -89,7 +88,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     if (sideChainService == services) continue;
                     Logger.Info($"Verify on the side chain {sideChainService.ChainId}");
                     var verifyResult = new Dictionary<string, bool>();
-                    var sideBlock = sideChainService.NodeManager.ApiService.GetBlockHeightAsync().Result;
+                    var sideBlock = sideChainService.NodeManager.ApiClient.GetBlockHeightAsync().Result;
                     Logger.Info($"On block height {sideBlock} get verify result: ");
                     foreach (var verifyInput in verifyInputsValues)
                     {
@@ -107,7 +106,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
                 Logger.Info($"Verify on the main chain {MainChainService.ChainId}");
                 var mainVerifyResult = new Dictionary<string, bool>();
-                var mainBlock = MainChainService.NodeManager.ApiService.GetBlockHeightAsync().Result;
+                var mainBlock = MainChainService.NodeManager.ApiClient.GetBlockHeightAsync().Result;
                 Logger.Info($"On block height {mainBlock} get verify result: ");
                 foreach (var verifyInput in verifyInputsValues)
                 {

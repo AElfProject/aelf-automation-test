@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+option csharp_namespace = "AElf.Client.Proto";
+
+package client;
+
+import "google/protobuf/timestamp.proto";
+
+message Address
+{
+    bytes value = 1;
+}
+
+message Hash
+{
+    bytes value = 1;
+}
+
+message MerklePath {
+    repeated MerklePathNode merkle_path_nodes = 1;
+}
+
+message MerklePathNode{
+    Hash hash = 1;
+    bool is_left_child_node = 2;
+}
+
+message BinaryMerkleTree {
+    repeated Hash nodes = 1;
+    Hash root = 2;
+    int32 leaf_count = 3;
+}
+
+message ScopedStatePath {
+    Address address = 1;
+    StatePath path = 2;
+}
+
+message StatePath {
+    repeated string parts = 1;
+}
+
+message SmartContractRegistration {
+    int32 category = 1;
+    bytes code = 2;
+    Hash code_hash = 3;
+}
+
+//acs0
+message ContractInfo
+{
+    uint64 serial_number = 1;
+    int32 category = 3;
+    Hash code_hash = 4;
+    bool is_system_contract = 5;
+}
+
+//acs1
+message MethodFees {
+    string method_name = 1;
+    repeated MethodFee fees = 2;
+}
+
+message MethodFee {
+    string symbol = 1;
+    sint64 basic_fee = 2;
+}
+
+//acs2
+message ResourceInfo {
+    repeated ScopedStatePath paths = 1;
+    bool non_parallelizable = 2;
+}
+
+// acs3
+message ProposalOutput {
+    Hash proposal_id = 1;
+    string contract_method_name = 2;
+    Address to_address = 3;
+    bytes params = 4;
+    google.protobuf.Timestamp expired_time = 5;
+    Address organization_address = 6;
+    Address proposer = 7;
+    bool to_be_released = 8;
+}
+
+//acs4
+
+message ValidationResult {
+    bool success = 1;
+    string message = 2;
+}
+
+//acs5
+message MethodCallingThreshold {
+    map<string, sint64> symbol_to_amount = 1;// The order matters.
+    ThresholdCheckType threshold_check_type = 2;
+}
+
+enum ThresholdCheckType {
+    BALANCE = 0;
+    ALLOWANCE = 1;
+}
+
+//acs7
+message SideChainIdAndHeightDict {
+    map<int32, int64> id_height_dict = 1;
+}
+
+message SideChainIndexingInformationList {
+    repeated SideChainIndexingInformation indexing_information_list = 1;
+}
+
+message SideChainIndexingInformation {
+    int32 chain_id = 1;
+    int64 indexed_height = 2;
+    int64 to_be_indexed_count = 3;
+}
+
+message CrossChainBlockData {
+    repeated SideChainBlockData side_chain_block_data = 1;
+    repeated ParentChainBlockData parent_chain_block_data = 2;
+    int64 previous_block_height = 3;
+}
+
+message SideChainBlockData {
+    int64 height = 1;
+    Hash block_header_hash = 2;
+    Hash transaction_status_merkle_tree_root = 3;
+    int32 chain_id = 4;
+}
+
+message ParentChainBlockData {
+    int64 height = 1;
+    CrossChainExtraData cross_chain_extra_data = 2;
+    int32 chain_id = 3;
+    Hash transaction_status_merkle_tree_root = 4;
+
+    // Indexed block height from side chain and merkle path for this side chain block
+    map<int64, MerklePath> indexed_merkle_path = 5;
+    map<string, bytes> extra_data = 6;
+}
+
+message CrossChainExtraData {
+    // Merkle tree root of side chain block transaction status root
+    Hash transaction_status_merkle_tree_root = 1;
+}
+
+message IndexedSideChainBlockData{
+    repeated SideChainBlockData side_chain_block_data = 1;
+}
+
+message CrossChainMerkleProofContext {
+    int64 bound_parent_chain_height = 1;
+    MerklePath merkle_path_from_parent_chain = 2;
+}
+
+message ChainInitializationData {
+    int32 chain_id = 1;
+    Address creator = 2;
+    google.protobuf.Timestamp creation_timestamp = 3;
+    repeated bytes extra_information = 4;
+    int64 creation_height_on_parent_chain = 5;
+    bool chain_creator_privilege_preserved = 6;
+    string side_chain_token_symbol = 7;
+}

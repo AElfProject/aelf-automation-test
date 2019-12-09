@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AElfChain.SDK;
+using AElf.Client.Service;
+using AElfChain.Common.DtoExtension;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,13 +14,13 @@ namespace AElf.Automation.ApiTest
         public ChainApiTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _client = AElfChainClient.GetClient(ServiceUrl, 1);
+            _client = AElfClientExtension.GetClient(ServiceUrl);
             _listener = new AnalyzeListener(testOutputHelper);
         }
 
         private readonly ITestOutputHelper _testOutputHelper;
         private const string ServiceUrl = "192.168.197.15:8100";
-        private readonly IApiService _client;
+        private readonly AElfClient _client;
         private readonly AnalyzeListener _listener;
 
         [Fact]
@@ -30,7 +31,7 @@ namespace AElf.Automation.ApiTest
             var hashList = await GetBlockByHeight_Test();
             foreach (var hash in hashList)
             {
-                var (block, timeSpan) = await _listener.ExecuteApi(o => _client.GetBlockAsync(hash));
+                var (block, timeSpan) = await _listener.ExecuteApi(o => _client.GetBlockByHashAsync(hash));
                 block.BlockHash.ShouldBe(hash);
                 totalCount += timeSpan;
                 _testOutputHelper.WriteLine($"block hash: {hash}, execute time: {timeSpan}ms");

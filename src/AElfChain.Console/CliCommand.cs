@@ -6,7 +6,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.Commands;
 using AElfChain.Console.InputOption;
-using AElfChain.SDK;
 using log4net;
 using Shouldly;
 
@@ -24,7 +23,7 @@ namespace AElfChain.Console
             var bp = NodeInfoHelper.Config.Nodes.First();
             Contracts = new ContractServices(nodeManager, bp.Account);
             Commands = new List<BaseCommand>();
-            InitializeCommands();
+            RegisterCommands();
         }
 
         private INodeManager NodeManager { get; }
@@ -44,7 +43,6 @@ namespace AElfChain.Console
             {
                 "[Input command order/name]=> ".WriteWarningLine(changeLine: false);
                 var input = InputReader.ReadLine();
-                //var input = Prompt.Select("[Input command order/name]", GetCommandList());
 
                 //quit command
                 var quitCommand = new List<string> {"quit", "exit", "close"};
@@ -118,10 +116,6 @@ namespace AElfChain.Console
                 {
                     Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
                 }
-                catch (AElfChainApiException e)
-                {
-                    Logger.Error($"Error: {e.GetType().Name}, Message: {e.Message}");
-                }
                 catch (Exception e)
                 {
                     Logger.Error(e);
@@ -129,9 +123,9 @@ namespace AElfChain.Console
             }
         }
 
-        private void InitializeCommands()
+        private void RegisterCommands()
         {
-            Commands.Add(new BlockChainCommand(NodeManager, Contracts));
+            Commands.Add(new ChainApiCommand(NodeManager, Contracts));
             Commands.Add(new CrossChainTxCommand(NodeManager, Contracts));
             Commands.Add(new AnalyzeCommand(NodeManager, Contracts));
             Commands.Add(new ContractQueryCommand(NodeManager, Contracts));

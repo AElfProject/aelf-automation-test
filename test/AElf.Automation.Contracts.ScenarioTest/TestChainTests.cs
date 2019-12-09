@@ -7,12 +7,12 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElf.Types;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -335,7 +335,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ContractMethodTest()
         {
-            var contractHandler = new ContractHandler();
+            var contractHandler = new ContractSerializer();
             var tokenInfo = contractHandler.GetContractInfo(NameProvider.Genesis);
             var method = tokenInfo.GetContractMethod("GetContractInfo");
 

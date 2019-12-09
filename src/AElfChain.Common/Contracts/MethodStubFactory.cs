@@ -4,17 +4,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -31,7 +32,7 @@ namespace AElfChain.Common.Contracts
         public string SenderAddress { private get; set; }
         public Address Sender => SenderAddress.ConvertAddress();
         public INodeManager NodeManager { get; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -47,7 +48,7 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
-                
+
                 TransactionResultStatus status;
                 var txExist = CheckTransactionExisted(transaction, out var resultDto);
                 if (txExist)
@@ -57,14 +58,14 @@ namespace AElfChain.Common.Contracts
                 }
                 else
                 {
-                    var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
+                    var transactionId = ApiClient.SendTransaction(transaction.ToByteArray().ToHex());
                     var checkTimes = 0;
-                    
+
                     var stopwatch = Stopwatch.StartNew();
                     while (true)
                     {
                         checkTimes++;
-                        resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
+                        resultDto = await ApiClient.GetTransactionResultAsync(transactionId);
                         status = resultDto.Status.ConvertTransactionResultStatus();
                         if (status == TransactionResultStatus.Pending)
                             checkTimes++;
@@ -99,6 +100,7 @@ namespace AElfChain.Common.Contracts
 
                         Thread.Sleep(500);
                     }
+
                     stopwatch.Stop();
                 }
 
@@ -162,7 +164,11 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
-                var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
+                var returnValue = await ApiClient.ExecuteTransactionAsync(new ExecuteTransactionDto
+                    {
+                        RawTransaction = transaction.ToByteArray().ToHex()
+                        
+                    });
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 
@@ -172,7 +178,7 @@ namespace AElfChain.Common.Contracts
         private bool CheckTransactionExisted(Transaction transaction, out TransactionResultDto transactionResult)
         {
             var txId = transaction.GetHash().ToHex();
-            transactionResult = ApiService.GetTransactionResultAsync(txId).Result;
+            transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
             return transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted;
         }
     }

@@ -3,8 +3,7 @@ using System.Linq;
 using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Shouldly;
 
 namespace AElfChain.Common.Contracts

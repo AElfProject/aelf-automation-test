@@ -89,7 +89,7 @@ namespace AElfChain.Console.Commands
             return new CommandInfo
             {
                 Name = "cross-chain-tx",
-                Description = "Cross chain transactions."
+                Description = "Cross chain transactions"
             };
         }
 

@@ -7,7 +7,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
-      <ProjectReference Include="..\..\src\AElf\src\AElf.Types\AElf.Types.csproj" />
     </ItemGroup>
 
     <ItemGroup>

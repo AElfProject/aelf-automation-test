@@ -5,8 +5,7 @@ using AElf;
 using AElfChain.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
@@ -103,7 +102,7 @@ namespace AElfChain.Common.Managers
             {
                 try
                 {
-                    var client = AElfChainClient.GetClient(baseUrl);
+                    var client = AElfClientExtension.GetClient(baseUrl);
                     var chainStatus = AsyncHelper.RunSync(client.GetChainStatusAsync);
                     if (chainStatus.LongestChainHeight - chainStatus.LastIrreversibleBlockHeight > 400)
                     {

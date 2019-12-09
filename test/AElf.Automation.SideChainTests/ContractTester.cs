@@ -1,6 +1,7 @@
 using Acs0;
 using Acs3;
 using Acs7;
+using AElf.Client.Dto;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
@@ -9,10 +10,9 @@ using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Shouldly;
 using Volo.Abp.Threading;
 using ApproveInput = Acs3.ApproveInput;
 
@@ -58,10 +58,10 @@ namespace AElf.Automation.SideChainTests
 
         public string ExecuteMethodWithTxId(string rawTx)
         {
-            var transactionOutput =
-                AsyncHelper.RunSync(() => NodeManager.ApiService.SendTransactionAsync(rawTx));
+            var transactionId =
+                NodeManager.ApiClient.SendTransaction(rawTx);
 
-            return transactionOutput.TransactionId;
+            return transactionId;
         }
 
         #endregion

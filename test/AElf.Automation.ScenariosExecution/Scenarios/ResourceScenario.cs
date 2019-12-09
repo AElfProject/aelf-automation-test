@@ -6,7 +6,7 @@ using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios

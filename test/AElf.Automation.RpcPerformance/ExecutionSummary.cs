@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -15,7 +15,7 @@ namespace AElf.Automation.RpcPerformance
     {
         private const int Phase = 120;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private readonly IApiService _apiService;
+        private readonly AElfClient _apiService;
         private long _blockHeight;
         private Dictionary<long, BlockDto> _blockMap;
 
@@ -26,7 +26,7 @@ namespace AElf.Automation.RpcPerformance
         /// <param name="fromStart">是否从高度为1开始检测</param>
         public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
-            _apiService = nodeManager.ApiService;
+            _apiService = nodeManager.ApiClient;
             _blockMap = new Dictionary<long, BlockDto>();
             _blockHeight = fromStart ? 1 : GetBlockHeight();
         }

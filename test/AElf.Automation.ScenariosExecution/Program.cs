@@ -29,7 +29,7 @@ namespace AElf.Automation.ScenariosExecution
             Logger = Log4NetHelper.GetLogger();
             
             //prepare account
-            OldEnvCheck.PrepareTestAccounts();
+            EnvPreparation.PrepareTestAccounts();
             
             var multipleTasks = new MultipleTasks();
             multipleTasks.RunScenariosByTasks();

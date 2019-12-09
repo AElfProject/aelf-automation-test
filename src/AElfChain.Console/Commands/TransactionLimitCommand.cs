@@ -10,8 +10,8 @@ namespace AElfChain.Console.Commands
 {
     public class TransactionLimitCommand : BaseCommand
     {
-        public TransactionLimitCommand(INodeManager nodeManager, ContractServices contractServices) : base(nodeManager,
-            contractServices)
+        public TransactionLimitCommand(INodeManager nodeManager, ContractServices contractServices)
+            : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
         }

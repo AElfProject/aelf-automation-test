@@ -1,5 +1,5 @@
+using AElf.Client.Dto;
 using AElfChain.Common.Managers;
-using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 
