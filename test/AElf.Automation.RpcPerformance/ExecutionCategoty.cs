@@ -511,7 +511,7 @@ namespace AElf.Automation.RpcPerformance
                 if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
                     break;
 
-                var transactionId = ApiClient.SendTransaction(rawTransaction);
+                var transactionId = NodeManager.SendTransaction(rawTransaction);
                 Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
                     GenerateTransactionQueue.Count, transactionId);
                 Thread.Sleep(10);

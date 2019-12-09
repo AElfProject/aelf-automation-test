@@ -344,7 +344,7 @@ namespace AElf.Automation.SideChainTests
                 sideChainTokenContracts, nameof(TokenMethod.CrossChainTransfer),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
-            var txId = sideAServices.NodeManager.ApiClient.SendTransaction(rawTx);
+            var txId = sideAServices.NodeManager.SendTransaction(rawTx);
             var txResult = sideAServices.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();

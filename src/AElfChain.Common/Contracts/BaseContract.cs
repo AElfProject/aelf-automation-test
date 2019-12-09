@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = ApiClient.SendTransaction(rawTx);
+            var txId = NodeManager.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             _txResultList.Enqueue(txId);
 
@@ -119,7 +119,7 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
-            var txId = ApiClient.SendTransaction(rawTx);
+            var txId = NodeManager.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -148,7 +148,7 @@ namespace AElfChain.Common.Contracts
             }
 
             existed = false;
-            var txId = ApiClient.SendTransaction(rawTx);
+            var txId = NodeManager.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result

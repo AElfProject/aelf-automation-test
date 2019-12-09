@@ -7,7 +7,7 @@
         },
         {
             "case_name": "ContractScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 30
         },
         {
@@ -32,12 +32,12 @@
         },
         {
             "case_name": "PerformanceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 30
         },
         {
             "case_name": "DeleteValueScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         }
     ],

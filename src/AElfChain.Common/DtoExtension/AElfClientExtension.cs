@@ -8,48 +8,6 @@ namespace AElfChain.Common.DtoExtension
     public static class AElfClientExtension
     {
         /// <summary>
-        /// 执行Action交易 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="rawTransaction"></param>
-        /// <returns></returns>
-        public static string SendTransaction(this AElfClient client, string rawTransaction)
-        {
-            return AsyncHelper.RunSync(() => client.SendTransactionAsync(new SendTransactionInput
-            {
-                RawTransaction = rawTransaction
-            })).TransactionId;
-        }
-
-        /// <summary>
-        /// 异步执行Action交易 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="rawTransaction"></param>
-        /// <returns></returns>
-        public static async Task<string> SendTransactionAsync(this AElfClient client, string rawTransaction)
-        {
-            return (await client.SendTransactionAsync(new SendTransactionInput
-            {
-                RawTransaction = rawTransaction
-            })).TransactionId;
-        }
-
-        /// <summary>
-        /// 查询View交易
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="rawTransaction"></param>
-        /// <returns></returns>
-        public static string ExecuteTransaction(this AElfClient client, string rawTransaction)
-        {
-            return AsyncHelper.RunSync(() => client.ExecuteTransactionAsync(new ExecuteTransactionDto
-            {
-                RawTransaction = rawTransaction
-            }));
-        }
-        
-        /// <summary>
         /// 实例化AElf Client
         /// </summary>
         /// <param name="baseUrl"></param>

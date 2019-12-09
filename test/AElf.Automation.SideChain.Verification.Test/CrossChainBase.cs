@@ -94,7 +94,7 @@ namespace AElf.Automation.SideChain.Verification
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
             var transactionId =
-                services.NodeManager.ApiClient.SendTransaction(rawTx);
+                services.NodeManager.SendTransaction(rawTx);
 
             return transactionId;
         }

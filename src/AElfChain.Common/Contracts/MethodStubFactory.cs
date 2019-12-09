@@ -58,7 +58,7 @@ namespace AElfChain.Common.Contracts
                 }
                 else
                 {
-                    var transactionId = ApiClient.SendTransaction(transaction.ToByteArray().ToHex());
+                    var transactionId = NodeManager.SendTransaction(transaction.ToByteArray().ToHex());
                     var checkTimes = 0;
 
                     var stopwatch = Stopwatch.StartNew();

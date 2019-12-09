@@ -67,8 +67,11 @@ namespace AElfChain.Common.Managers
 
         private string CallTransaction(Transaction tx)
         {
-            var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            return ApiClient.ExecuteTransaction(rawTxString);
+            var rawTransaction = TransactionManager.ConvertTransactionRawTxString(tx);
+            return AsyncHelper.RunSync(() => ApiClient.ExecuteTransactionAsync(new ExecuteTransactionDto
+            {
+                RawTransaction = rawTransaction
+            }));
         }
 
         private TransactionManager GetTransactionManager()
@@ -165,7 +168,7 @@ namespace AElfChain.Common.Managers
             tx = tx.AddBlockReference(_baseUrl, _chainId);
             tx = TransactionManager.SignTransaction(tx);
             var rawTxString = TransactionManager.ConvertTransactionRawTxString(tx);
-            var transactionId = ApiClient.SendTransaction(rawTxString);
+            var transactionId = SendTransaction(rawTxString);
 
             return transactionId;
         }
@@ -173,12 +176,16 @@ namespace AElfChain.Common.Managers
         public string SendTransaction(string from, string to, string methodName, IMessage inputParameter)
         {
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
-            var transactionId = ApiClient.SendTransaction(rawTransaction);
+            var transactionOutput = AsyncHelper.RunSync(() => ApiClient.SendTransactionAsync(new SendTransactionInput
+            {
+                RawTransaction = rawTransaction
+            }));
 
-            return transactionId;
+            return transactionOutput.TransactionId;
         }
-        
-        public string SendTransaction(string from, string to, string methodName, IMessage inputParameter, out bool existed)
+
+        public string SendTransaction(string from, string to, string methodName, IMessage inputParameter,
+            out bool existed)
         {
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
             //check whether tx exist or not
@@ -192,7 +199,7 @@ namespace AElfChain.Common.Managers
             }
 
             existed = false;
-            var transactionId = ApiClient.SendTransaction(rawTransaction);
+            var transactionId = SendTransaction(rawTransaction);
             return transactionId;
         }
 
@@ -300,14 +307,19 @@ namespace AElfChain.Common.Managers
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:
-                        Logger.Info($"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]", true);
+                        Logger.Info(
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            true);
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                        Logger.Error($"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}", true);
+                        Logger.Error(
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",
+                            true);
                         break;
                 }
             }
+
             stopwatch.Stop();
         }
 
@@ -366,7 +378,7 @@ namespace AElfChain.Common.Managers
         //Net Api
         public List<PeerDto> NetGetPeers()
         {
-            return AsyncHelper.RunSync(()=>ApiClient.GetPeersAsync(true));
+            return AsyncHelper.RunSync(() => ApiClient.GetPeersAsync(true));
         }
 
         public bool NetAddPeer(string address)
