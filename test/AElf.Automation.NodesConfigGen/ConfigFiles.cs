@@ -5,7 +5,7 @@ using System.Text;
 using AElfChain.Common.Helpers;
 using AElfChain.Common;
 
-namespace AElf.Automation.GenerateNodesConfiguration
+namespace AElf.Automation.NodesConfigGen
 {
     public class GenerateInformation
     {

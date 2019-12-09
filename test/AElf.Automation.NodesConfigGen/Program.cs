@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using AElfChain.Common.Helpers;
 
-namespace AElf.Automation.GenerateNodesConfiguration
+namespace AElf.Automation.NodesConfigGen
 {
     internal class Program
     {

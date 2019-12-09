@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ProposalTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainEconomicTest", "test\AElf.Automation.SideChainEconomicTest\AElf.Automation.SideChainEconomicTest.csproj", "{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.GenerateNodesConfiguration", "test\AElf.Automation.GenerateNodesConfiguration\AElf.Automation.GenerateNodesConfiguration.csproj", "{4028C6E8-AE07-4C1E-9437-662997C17BF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.NodesConfigGen", "test\AElf.Automation.NodesConfigGen\AElf.Automation.NodesConfigGen.csproj", "{4028C6E8-AE07-4C1E-9437-662997C17BF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Console", "src\AElfChain.Console\AElfChain.Console.csproj", "{D6A81E91-CE4A-4B71-BBE8-44F0F1F13812}"
 EndProject

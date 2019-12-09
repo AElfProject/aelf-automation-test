@@ -5,7 +5,7 @@ using AElf.Types;
 using AElfChain.Common;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.GenerateNodesConfiguration
+namespace AElf.Automation.NodesConfigGen
 {
     public class ConfigAccount
     {

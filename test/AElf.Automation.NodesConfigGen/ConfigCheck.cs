@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Helpers;
 
-namespace AElf.Automation.GenerateNodesConfiguration
+namespace AElf.Automation.NodesConfigGen
 {
     public class ConfigCheck
     {

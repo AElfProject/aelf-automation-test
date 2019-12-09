@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.GenerateNodesConfiguration
+namespace AElf.Automation.NodesConfigGen
 {
     public class NodeInfo
     {
