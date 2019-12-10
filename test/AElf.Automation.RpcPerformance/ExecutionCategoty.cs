@@ -275,7 +275,6 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() =>
                 {
                     Logger.Info("Begin generate multi requests.");
-
                     var enableRandom = RpcConfig.ReadInformation.EnableRandomTransaction;
                     try
                     {
@@ -294,7 +293,7 @@ namespace AElf.Automation.RpcPerformance
                                     for (var i = 0; i < ThreadCount; i++)
                                     {
                                         var j = i;
-                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes)));
+                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                                     }
 
                                     Task.WaitAll(txsTasks.ToArray<Task>());
@@ -312,7 +311,7 @@ namespace AElf.Automation.RpcPerformance
                                             $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                         var txTasks = new List<Task>();
                                         for (var k = 0; k < ThreadCount; k++)
-                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
 
                                         Task.WaitAll(txTasks.ToArray<Task>());
                                     }
@@ -405,7 +404,7 @@ namespace AElf.Automation.RpcPerformance
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    Amount = (i + 1) % 4 + 1,
+                    Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}",
                     To = toAccount.ConvertAddress()
                 };
@@ -448,7 +447,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = toAccount.ConvertAddress(),
-                    Amount = (i + 1) % 4 + 1,
+                    Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo =
@@ -495,7 +494,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = toAccount.ConvertAddress(),
-                    Amount = (i + 1) % 4 + 1,
+                    Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo = NodeManager.GenerateRawTransaction(account, contractPath,

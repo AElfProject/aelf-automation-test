@@ -64,10 +64,11 @@ namespace AElf.Automation.RpcPerformance
 
             //Transfer token for approve
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
-            TokenMonitor.TransferTokenForTest(bps.ToList());
+            var enumerable = bps as string[] ?? bps.ToArray();
+            TokenMonitor.TransferTokenForTest(enumerable.ToList());
 
             //Set select limit transaction
-            var setAccount = bps.First();
+            var setAccount = enumerable.First();
             var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager, setAccount);
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
@@ -235,8 +236,8 @@ namespace AElf.Automation.RpcPerformance
             var token = cts.Token;
             var taskList = new List<Task>
             {
-                Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token)),
-                Task.Run(() => TokenMonitor.ExecuteTokenCheckTask(testers, token)),
+                Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
+                Task.Run(() => TokenMonitor.ExecuteTokenCheckTask(testers, token), token),
                 Task.Run(() =>
                 {
                     Logger.Info("Begin generate multi requests.");
@@ -259,7 +260,7 @@ namespace AElf.Automation.RpcPerformance
                                     for (var i = 0; i < ThreadCount; i++)
                                     {
                                         var j = i;
-                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes)));
+                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                                     }
 
                                     Task.WaitAll(txsTasks.ToArray<Task>());
@@ -270,14 +271,12 @@ namespace AElf.Automation.RpcPerformance
                                     for (var i = 0; i < ThreadCount; i++)
                                     {
                                         var j = i;
-                                        //Generate transaction requests
                                         GenerateRawTransactionQueue(j, exeTimes);
-                                        //Send  transaction requests
                                         Logger.Info(
                                             $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
                                         var txTasks = new List<Task>();
                                         for (var k = 0; k < ThreadCount; k++)
-                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j)));
+                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
 
                                         Task.WaitAll(txTasks.ToArray<Task>());
                                     }
@@ -309,7 +308,7 @@ namespace AElf.Automation.RpcPerformance
                         Logger.Error("Cancel all tasks due to transaction execution exception.");
                         cts.Cancel(); //取消所有任务执行
                     }
-                })
+                }, token)
             };
 
             Task.WaitAll(taskList.ToArray<Task>());
@@ -433,7 +432,7 @@ namespace AElf.Automation.RpcPerformance
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
-                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
                 return;
             }
 
