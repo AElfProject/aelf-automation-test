@@ -73,7 +73,7 @@ namespace AElfChain.Common.Contracts
                             Console.Write(
                                 $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                             await Task.Delay(1000, source.Token);
-                            break;
+                            continue;
                         }
 
                         if (status == TransactionResultStatus.NotExisted)
