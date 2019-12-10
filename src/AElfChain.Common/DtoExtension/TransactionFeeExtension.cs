@@ -31,9 +31,12 @@ namespace AElfChain.Common.DtoExtension
         {
             if (feeDto == null) return null;
             var values = new MapField<string, long>();
-            foreach (var key in feeDto.Value.Keys)
+            if (feeDto.Value != null)
             {
-                values.Add(key, feeDto.Value[key]);
+                foreach (var key in feeDto.Value.Keys)
+                {
+                    values.Add(key, feeDto.Value[key]);
+                }
             }
 
             return new TransactionFee
