@@ -12,7 +12,6 @@ using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
-using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -68,7 +67,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(to),
                     Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
-                });
+                }, out var existed);
+                if (existed) return;
                 transferTxResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
                 var transferFee = transferTxResult.TransactionFee.GetDefaultTransactionFee();
@@ -138,18 +138,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 var beforeFrom = Token.GetUserBalance(from);
                 var beforeTo = Token.GetUserBalance(to);
-                var tokenStub = Token.GetTestStub<TokenContractContainer.TokenContractStub>(to);
-                var transactionResult = AsyncHelper.RunSync(() => tokenStub.TransferFrom.SendAsync(new TransferFromInput
+                token = Token.GetNewTester(to);
+                var transactionResult = token.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
                 {
                     Amount = amount,
                     From = from.ConvertAddress(),
                     To = to.ConvertAddress(),
                     Symbol = NodeOption.NativeTokenSymbol,
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
-                }));
-                if (transactionResult.TransactionResult.Status != TransactionResultStatus.Mined) return;
+                }, out var existed);
+                if (existed) return; //检查交易是否以存在
+                if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
-                var transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+                var transactionFee = transactionResult.TransactionFee.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
                 var afterAllowance = Token.GetAllowance(from, to);
