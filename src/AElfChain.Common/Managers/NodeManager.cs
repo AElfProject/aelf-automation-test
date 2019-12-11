@@ -272,10 +272,6 @@ namespace AElfChain.Common.Managers
                         Logger.Error(message, true);
                         return transactionResult;
                     }
-                    case TransactionResultStatus.Pending:
-                        break;
-                    case TransactionResultStatus.NotExisted:
-                        break;
                 }
 
                 Console.Write(
@@ -283,8 +279,8 @@ namespace AElfChain.Common.Managers
                 Thread.Sleep(1000);
             }
 
-            Console.Write("\r\n");
-            throw new TimeoutException("Transaction execution status cannot be 'Mined' after long time.");
+            Console.WriteLine();
+            throw new TimeoutException($"Transaction {txId} cannot be 'Mined' after long time.");
         }
 
         public void CheckTransactionListResult(List<string> transactionIds)

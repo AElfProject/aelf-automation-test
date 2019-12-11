@@ -59,6 +59,7 @@ namespace AElfChain.Common.Contracts
                 else
                 {
                     var transactionId = NodeManager.SendTransaction(transaction.ToByteArray().ToHex());
+                    Logger.Info($"Transaction method: {transaction.MethodName}, TxId: {transactionId}");
                     await Task.Delay(2000); //delay for ovoid 'NotExisted' issue
 
                     var stopwatch = Stopwatch.StartNew();
