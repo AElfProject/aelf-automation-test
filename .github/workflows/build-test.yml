@@ -21,7 +21,7 @@ jobs:
           
       - name: Latest commit logs
         run:
-          git logs -3
+          git log -3
           
       - name: Build test script
         run:
