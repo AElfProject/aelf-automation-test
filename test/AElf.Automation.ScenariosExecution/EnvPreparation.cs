@@ -46,6 +46,7 @@ namespace AElf.Automation.ScenariosExecution
         public static void PrepareTestAccounts()
         {
             var keyPath = Path.Combine(CommonHelper.GetCurrentDataDir(), "keys");
+            var backupPath = Path.Combine(CommonHelper.GetCurrentDataDir(), "keys_backup");
             var files = Directory.GetFiles(keyPath);
 
             //clean old accounts exclude node accounts
@@ -54,6 +55,7 @@ namespace AElf.Automation.ScenariosExecution
             {
                 var fileName = Path.GetFileNameWithoutExtension(file);
                 if (nodeAccounts.Contains(fileName)) continue;
+                CommonHelper.CopyFiles(file, backupPath);
                 File.Delete(file);
                 Logger.Info($"Delete account file: {file.Split('/').Last()}");
             }
