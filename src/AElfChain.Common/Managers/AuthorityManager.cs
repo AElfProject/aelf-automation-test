@@ -26,7 +26,6 @@ namespace AElfChain.Common.Managers
         private readonly ConsensusContract _consensus;
         private readonly GenesisContract _genesis;
         private readonly ParliamentAuthContract _parliament;
-        private readonly CrossChainContract _crossChain;
         private readonly TokenContract _token;
         private NodesInfo _info;
 
@@ -40,7 +39,6 @@ namespace AElfChain.Common.Managers
             _consensus = _genesis.GetConsensusContract();
             _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
-            _crossChain = _genesis.GetCrossChainContract();
             
             CheckBpBalance();
         }
@@ -195,12 +193,6 @@ namespace AElfChain.Common.Managers
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
 
-        public Address GetSideChainCreator(int chainId)
-        {
-            var address = _crossChain.GetSideChainCreator(chainId);
-            return address;
-        }
-
         private TransactionResult ApproveAndRelease(ReleaseContractInput input,IEnumerable<string> approveUsers, string callUser)
         {
             //approve
@@ -240,7 +232,7 @@ namespace AElfChain.Common.Managers
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
             foreach (var bp in bps.Skip(1))
             {
-                var balance = _token.GetUserBalance(bp);
+                var balance = _token.GetUserBalance(bp,primaryToken);
                 if (balance < 1000_00000000)
                     _token.TransferBalance(bps[0], bp, 10000_00000000 - balance, primaryToken);
             }

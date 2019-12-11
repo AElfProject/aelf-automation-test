@@ -151,9 +151,9 @@ namespace AElf.Automation.RpcPerformance
             {
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    var contractAddress = authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
+                    var contractAddress =
+                        authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
                     ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
-                    Thread.Sleep(30000);
                 }
             }
             else
@@ -166,13 +166,14 @@ namespace AElf.Automation.RpcPerformance
                             authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken.dll");
                         ContractList.Add(new ContractInfo(miner, contractAddress.GetFormatted()));
                         i++;
+                        if(i == ThreadCount) break;
                     }
 
                     Thread.Sleep(60000);
                 }
             }
         }
-        
+
         public void SideChainDeployContractsWithCreator()
         {
             for (var i = 0; i < ThreadCount; i++)
@@ -298,6 +299,13 @@ namespace AElf.Automation.RpcPerformance
             var randomTransactionOption = ConfigInfoHelper.Config.RandomEndpointOption;
             //add transaction performance check process
             var testers = AccountList.Take(ThreadCount).Select(o => o.Account).ToList();
+            if (NodeManager.IsMainChain())
+            {
+                var authority = new AuthorityManager(NodeManager, testers.First());
+                var miners = authority.GetCurrentMiners();
+                testers = miners;
+            }
+
             var cts = new CancellationTokenSource();
             var token = cts.Token;
             var taskList = new List<Task>
@@ -472,8 +480,13 @@ namespace AElf.Automation.RpcPerformance
             for (var i = 0; i < times; i++)
             {
                 var rd = new Random(DateTime.Now.Millisecond);
-                var countNo = rd.Next(ThreadCount, AccountList.Count);
+                var countNo = rd.Next(0, AccountList.Count);
                 var toAccount = AccountList[countNo].Account;
+                while (toAccount == account)
+                {
+                    countNo = rd.Next(0, AccountList.Count);
+                    toAccount = AccountList[countNo].Account;
+                }
 
                 //Execute Transfer
                 var transferInput = new TransferInput

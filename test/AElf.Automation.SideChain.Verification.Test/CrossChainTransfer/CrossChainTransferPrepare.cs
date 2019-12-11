@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
@@ -44,7 +45,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var sideChainService in SideChainServices)
             {
                 var balance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
-                if (balance >= 100000_00000000)
+                if (balance >= 10_0000_00000000)
                 {
                     Logger.Info(
                         $"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress} {symbol} token balance is {balance}");
@@ -57,7 +58,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 {
                     transferTimes--;
                     rawTxInfo = CrossChainTransferWithResult(MainChainService, symbol, InitAccount, InitAccount,
-                        sideChainService.ChainId, 100000_00000000);
+                        sideChainService.ChainId, 10_0000_00000000);
                 }
 
                 if (transferTimes == 0 && rawTxInfo == null)
@@ -71,7 +72,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             if (initRawTxInfos.Count != 0)
             {
                 Logger.Info("Waiting for the index");
-                Thread.Sleep(200000);
+                Thread.Sleep(120000);
 
                 foreach (var sideChainService in SideChainServices)
                 {
@@ -170,9 +171,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var sideChain in SideChainServices)
             {
                 Logger.Info("Issue side chain token: ");
-                foreach (var account in AccountList)
-                foreach (var acc in account.Value)
-                    IssueSideChainToken(sideChain, acc);
+                foreach (var acc in AccountList.SelectMany(account => account.Value))
+                    if (IsSupplyAllToken(sideChain))
+                        TransferToken(sideChain, acc);
+                    else
+                        IssueSideChainToken(sideChain, acc);
 
                 Logger.Info("Check the balance:");
 
@@ -180,7 +183,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var acc in account.Value)
                 {
                     var accountBalance = GetBalance(sideChain, acc, sideChain.PrimaryTokenSymbol);
-                    Logger.Info($"Account:{acc}, {sideChain.PrimaryTokenSymbol} balance is: {accountBalance}");
+                    Logger.Info(
+                        $"Account:{acc}, on side chain {sideChain.ChainId}, primary token {sideChain.PrimaryTokenSymbol} balance is: {accountBalance}");
                 }
             }
 
@@ -188,7 +192,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var acc in account.Value)
             {
                 if (acc.Equals(InitAccount)) continue;
-                MainChainService.TokenService.TransferBalance(InitAccount, acc, 1000_00000000,
+                MainChainService.TokenService.TransferBalance(InitAccount, acc, 10000_00000000,
                     MainChainService.PrimaryTokenSymbol);
             }
 
@@ -196,28 +200,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var acc in account.Value)
             {
                 var accountBalance = GetBalance(MainChainService, acc, MainChainService.PrimaryTokenSymbol);
-                Logger.Info($"Account:{acc}, {MainChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
+                Logger.Info(
+                    $"Account:{acc}, on main chain {MainChainService.ChainId}, primary token {MainChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
             }
 
-            Logger.Info("Transfer token to each account :");
-
-            var mainTransferTxIds = new List<CrossChainTransactionInfo>();
-            foreach (var mainChainAccount in mainAccounts)
-            {
-                var mainTxId = Transfer(MainChainService, InitAccount, mainChainAccount, 1000_00000000, symbol);
-                var mainTxInfo = new CrossChainTransactionInfo(mainTxId, mainChainAccount);
-                mainTransferTxIds.Add(mainTxInfo);
-            }
-
-            var mainResult = CheckoutTransferResult(MainChainService, mainTransferTxIds);
-
-            if (mainResult[TransactionResultStatus.Failed].Count != 0)
-                foreach (var mainTxInfo in mainResult[TransactionResultStatus.Failed])
-                {
-                    var account = mainTxInfo.ReceiveAccount;
-                    Logger.Info($"Transfer on main chain again: account {account}");
-                    Transfer(MainChainService, InitAccount, account, 1000_00000000, symbol);
-                }
+            Logger.Info("Transfer ELF token to each account on side chain:");
 
             foreach (var sideChainService in SideChainServices)
             {
@@ -243,7 +230,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var mainAccount in AccountList[MainChainService.ChainId])
             {
                 var accountBalance = GetBalance(MainChainService, mainAccount, symbol);
-                Logger.Info($"Account:{mainAccount}, {symbol} balance is:{accountBalance}");
+                Logger.Info($"Account:{mainAccount}, on main chain {symbol} balance is:{accountBalance}");
             }
 
             Logger.Info("show the side chain account balance: ");
@@ -251,7 +238,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var sideAccount in AccountList[sideChainService.ChainId])
             {
                 var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
-                Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
+                Logger.Info(
+                    $"Account:{sideAccount}, on side chain {sideChainService.ChainId} {symbol} balance is: {accountBalance}");
             }
         }
 
