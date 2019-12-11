@@ -18,7 +18,11 @@ jobs:
       - name: Checkout latest build
         run:
           git checkout dev && git pull
-
+          
+      - name: Latest commit logs
+        run:
+          git logs -3
+          
       - name: Build test script
         run:
           dotnet restore && dotnet build
