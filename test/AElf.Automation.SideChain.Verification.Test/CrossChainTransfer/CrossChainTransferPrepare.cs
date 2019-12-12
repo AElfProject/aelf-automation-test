@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {

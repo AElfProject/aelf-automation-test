@@ -12,7 +12,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -39,7 +39,7 @@ namespace AElfChain.Common.Managers
             _consensus = _genesis.GetConsensusContract();
             _token = _genesis.GetTokenContract();
             _parliament = _genesis.GetParliamentAuthContract();
-            
+
             CheckBpBalance();
         }
 
@@ -110,7 +110,7 @@ namespace AElfChain.Common.Managers
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString3).Address;
             Logger.Info($"Contract deploy passed authority, contract address: {deployAddress}");
             
-            return deployAddress ;
+            return deployAddress;
         }
 
         private Address UpdateContractWithAuthority(string caller, string address, byte[] code)
@@ -140,7 +140,7 @@ namespace AElfChain.Common.Managers
 
             if (!CheckProposalStatue(deployProposalId))
             {
-                Logger.Info("Contract code didn't pass the code check");
+                Logger.Error("Contract code didn't pass the code check");
                 return null;
             } 
             
@@ -187,8 +187,8 @@ namespace AElfChain.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            foreach (var account in approveUsers) _parliament.ApproveProposal(proposalId, account);
-
+            _parliament.MinersApproveProposal(proposalId, approveUsers);
+            
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }

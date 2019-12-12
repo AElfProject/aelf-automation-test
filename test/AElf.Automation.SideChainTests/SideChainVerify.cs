@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Acs3;
 using Acs7;
+using AElf.Client.Dto;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -343,7 +344,7 @@ namespace AElf.Automation.SideChainTests
                 sideChainTokenContracts, nameof(TokenMethod.CrossChainTransfer),
                 crossChainTransferInput);
             _logger.Info($"Transaction rawTx is: {rawTx}");
-            var txId = sideAServices.NodeManager.ApiService.SendTransactionAsync(rawTx).Result.TransactionId;
+            var txId = sideAServices.NodeManager.SendTransaction(rawTx);
             var txResult = sideAServices.NodeManager.CheckTransactionResult(txId);
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
@@ -417,7 +418,7 @@ namespace AElf.Automation.SideChainTests
             for (int i = 511; i < 521; i++)
             {
                 
-                var block = await SideContractTester1.NodeManager.ApiService.GetBlockByHeightAsync(i,true);
+                var block = await SideContractTester1.NodeManager.ApiClient.GetBlockByHeightAsync(i,true);
                 blocks.Add(block);
             }
             

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option csharp_namespace = "AElf.Client.TokenConverter";
+
+//token converter
+message TokenSymbol {
+    string symbol = 1;
+}
+
+message Connector {
+    string symbol = 1;
+    sint64 virtual_balance = 2;
+    string weight = 3;
+    bool is_virtual_balance_enabled = 4; // true if virtual balance is enabled, false if not
+    bool is_purchase_enabled = 5;
+}

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
 using log4net;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common
 {
@@ -89,14 +90,14 @@ namespace AElfChain.Common
 
         private void CheckNodeConnection(Node node)
         {
-            var service = AElfChainClient.GetClient(node.Endpoint);
+            var service = AElfClientExtension.GetClient(node.Endpoint);
             try
             {
-                node.ApiService = service;
-                var chainStatus = service.GetChainStatusAsync().Result;
+                node.ApiClient = service;
+                var chainStatus = AsyncHelper.RunSync(service.GetChainStatusAsync);
                 if (chainStatus == null) return;
                 node.Status = true;
-                var height = service.GetBlockHeightAsync().Result;
+                var height = AsyncHelper.RunSync(service.GetBlockHeightAsync);
                 Logger.Info($"Node {node.Name} [{node.Endpoint}] connection success, block height: {height}");
             }
             catch (Exception ex)

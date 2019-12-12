@@ -1,9 +1,9 @@
 ﻿using System;
+using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
-using AElfChain.Common.Utils;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts

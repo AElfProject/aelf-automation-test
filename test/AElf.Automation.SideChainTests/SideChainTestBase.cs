@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using AElfChain.Common.Helpers;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -80,14 +79,14 @@ namespace AElf.Automation.SideChainTests
             var index = 0;
             var blockInfoResult =
                 AsyncHelper.RunSync(() =>
-                    tester.NodeManager.ApiService.GetBlockByHeightAsync(long.Parse(blockNumber), true));
+                    tester.NodeManager.ApiClient.GetBlockByHeightAsync(long.Parse(blockNumber), true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
                 var txResult = AsyncHelper.RunSync(() =>
-                    tester.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
+                    tester.NodeManager.ApiClient.GetTransactionResultAsync(transactionId));
                 var resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 transactionStatus.Add(resultStatus.ToString());
             }
@@ -114,14 +113,14 @@ namespace AElf.Automation.SideChainTests
         protected Hash GetMerkleRoot(string blockNumber, string TxId, ContractServices tester)
         {
             var blockInfoResult =
-                AsyncHelper.RunSync(() => tester.NodeManager.ApiService.GetBlockByHeightAsync(long.Parse(blockNumber), true));
+                AsyncHelper.RunSync(() => tester.NodeManager.ApiClient.GetBlockByHeightAsync(long.Parse(blockNumber), true));
             var transactionIds = blockInfoResult.Body.Transactions;
             var transactionStatus = new List<string>();
 
             foreach (var transactionId in transactionIds)
             {
                 var txResult = AsyncHelper.RunSync(() =>
-                    tester.NodeManager.ApiService.GetTransactionResultAsync(transactionId));
+                    tester.NodeManager.ApiClient.GetTransactionResultAsync(transactionId));
                 var resultStatus = txResult.Status.ConvertTransactionResultStatus();
                 transactionStatus.Add(resultStatus.ToString());
             }

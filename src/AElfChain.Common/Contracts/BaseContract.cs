@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
 
-            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            var txId = NodeManager.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
             _txResultList.Enqueue(txId);
 
@@ -119,8 +119,36 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter)
         {
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            var txId = NodeManager.SendTransaction(rawTx);
+            Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
-            var txId = AsyncHelper.RunSync(() => ApiService.SendTransactionAsync(rawTx)).TransactionId;
+            //Check result
+            Thread.Sleep(100); //in case of 'NotExisted' issue
+            return NodeManager.CheckTransactionResult(txId);
+        }
+        
+        /// <summary>
+        /// 执行交易，如果已经存在，则不执行直接返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <param name="existed"></param>
+        /// <returns></returns>
+        public TransactionResultDto ExecuteMethodWithResult(string method, IMessage inputParameter, out bool existed)
+        {
+            var rawTx = GenerateBroadcastRawTx(method, inputParameter);
+            //check whether tx exist or not
+            var genTxId = TransactionUtil.CalculateTxId(rawTx);
+            var transactionResult = AsyncHelper.RunSync(()=>ApiClient.GetTransactionResultAsync(genTxId));
+            if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
+            {
+                Logger.Warn($"Found duplicate transaction.");
+                existed = true;
+                return transactionResult;
+            }
+
+            existed = false;
+            var txId = NodeManager.SendTransaction(rawTx);
             Logger.Info($"Transaction method: {method}, TxId: {txId}");
 
             //Check result
@@ -137,6 +165,18 @@ namespace AElfChain.Common.Contracts
         public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
             return ExecuteMethodWithResult(method.ToString(), inputParameter);
+        }
+        
+        /// <summary>
+        /// 执行交易，如果已经存在，则不执行直接返回
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="inputParameter"></param>
+        /// <param name="existed"></param>
+        /// <returns></returns>
+        public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter, out bool existed)
+        {
+            return ExecuteMethodWithResult(method.ToString(), inputParameter, out existed);
         }
 
         /// <summary>
@@ -164,7 +204,7 @@ namespace AElfChain.Common.Contracts
             {
                 var result = _txResultList.TryDequeue(out var txId);
                 if (!result) break;
-                var transactionResult = AsyncHelper.RunSync(() => ApiService.GetTransactionResultAsync(txId));
+                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -185,7 +225,7 @@ namespace AElfChain.Common.Contracts
                 if (queueLength == _txResultList.Count)
                 {
                     queueSameTimes++;
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
                 else
                 {
@@ -225,14 +265,12 @@ namespace AElfChain.Common.Contracts
         #region Priority
 
         public INodeManager NodeManager { get; set; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
         public string FileName { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount => CallAddress.ConvertAddress();
         public string ContractAddress { get; set; }
         public Address Contract => ContractAddress.ConvertAddress();
-
-        public static int Timeout { get; set; }
 
         public static ILog Logger = Log4NetHelper.GetLogger();
 
@@ -267,12 +305,12 @@ namespace AElfChain.Common.Contracts
         {
             return NodeManager.GenerateRawTransaction(CallAddress, ContractAddress, method, inputParameter);
         }
-
+        
         private bool GetContractAddress(string txId, out string contractAddress)
         {
             contractAddress = string.Empty;
             var transactionResult = NodeManager.CheckTransactionResult(txId);
-            if (transactionResult?.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+            if ((transactionResult?.Status).ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 return false;
 
             contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");

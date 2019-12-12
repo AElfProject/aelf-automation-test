@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package zero;
+
+import "acs0.proto";
+import "acs1.proto";
+
+option csharp_namespace = "AElf.Contracts.Genesis";
+
+service BasicContractZero {
+    option (aelf.csharp_state) = "AElf.Contracts.Genesis.BasicContractZeroState";
+    option (aelf.base) = "acs0.proto";
+    option (aelf.base) = "acs1.proto";
+    
+    rpc GetDeployedContractAddressList (google.protobuf.Empty) returns (AddressList) {
+        option (aelf.is_view) = true;
+    }
+}
+
+message AddressList {
+    repeated aelf.Address value = 1;
+}
+
+message ContractProposingInfo{
+    aelf.Address proposer = 1;
+    bool is_released = 2;
+}

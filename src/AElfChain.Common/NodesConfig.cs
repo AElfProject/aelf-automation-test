@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
 using Newtonsoft.Json;
 
 namespace AElfChain.Common
@@ -16,8 +16,8 @@ namespace AElfChain.Common
         [JsonProperty("account")] public string Account { get; set; }
         [JsonProperty("password")] public string Password { get; set; }
         [JsonIgnore] public string PublicKey { get; set; }
-        [JsonIgnore] public bool Status { get; set; } = false;
-        [JsonIgnore] public IApiService ApiService { get; set; }
+        [JsonIgnore] public bool Status { get; set; }
+        [JsonIgnore] public AElfClient ApiClient { get; set; }
     }
 
     public class NodesInfo

@@ -1,12 +1,8 @@
 using System.Collections.Generic;
-using System.Threading;
+using AElf.Client.Dto;
 using AElf.Contracts.CrossChain;
-using AElf.Sdk.CSharp;
 using AElfChain.Common.Contracts;
-using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
-using AElfChain.Common.Contracts;
-using AElf.Contracts.CrossChain;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify
@@ -46,12 +42,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 {
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
-                        MainChainService.NodeManager.ApiService.GetBlockByHeightAsync(i1, true));
+                        MainChainService.NodeManager.ApiClient.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
                     var resultsAsync = new List<TransactionResultDto>();
                     foreach (var txId in txIds)
                     {
-                        var result = MainChainService.NodeManager.ApiService.GetTransactionResultAsync(txId).Result;
+                        var result = MainChainService.NodeManager.ApiClient.GetTransactionResultAsync(txId).Result;
                         resultsAsync.Add(result);
                     }
                     

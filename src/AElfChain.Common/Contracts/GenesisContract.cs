@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Acs0;
+using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.Genesis;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Shouldly;
 using Volo.Abp.Threading;

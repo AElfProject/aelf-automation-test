@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElf.Types;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -16,6 +17,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         protected List<string> AllTesters { get; set; }
         protected List<Node> AllNodes { get; set; }
+        
+        protected DateTime UpdateEndpointTime = DateTime.Now;
         protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
@@ -58,15 +61,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Thread.Sleep(1000 * sleepSeconds);
         }
 
-        public void UpdateEndpointAction()
+        protected void UpdateEndpointAction()
         {
-            var randomNumber = CommonHelper.GenerateRandomNumber(1, 10);
-
-            if (randomNumber == 5)
-            {
-                Console.WriteLine();
-                Services.UpdateRandomEndpoint();
-            }
+            var timeSpan = DateTime.Now - UpdateEndpointTime;
+            if (timeSpan.Minutes < 1) return;
+            
+            Console.WriteLine();
+            UpdateEndpointTime = DateTime.Now;
+            Services.UpdateRandomEndpoint();
         }
 
         public void CheckNodeTransactionAction()
@@ -93,7 +95,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (checkTimes == 120)
                     break;
 
-                var newHeight = AsyncHelper.RunSync(Services.NodeManager.ApiService.GetBlockHeightAsync);
+                var newHeight = AsyncHelper.RunSync(Services.NodeManager.ApiClient.GetBlockHeightAsync);
                 if (newHeight == height)
                 {
                     checkTimes++;
@@ -111,15 +113,53 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             throw new Exception("Node height not changed 1 minutes later.");
         }
 
+        protected void PrepareTesterToken(List<string> testers)
+        {
+            var bp = AllNodes.First();
+            var token = Services.TokenService;
+            token.SetAccount(bp.Account, bp.Password);
+            foreach (var tester in testers)
+            {
+                var balance = token.GetUserBalance(tester);
+                if (balance > 10000_00000000) continue;
+                var transferAmount = 50_0000_00000000;
+                token.TransferBalance(bp.Account, tester, transferAmount);
+            }
+        }
+        
+        protected void CollectPartBpTokensToBp0()
+        {
+            Logger.Info("Transfer part bps token to first bp for testing.");
+            var bp0 = AllNodes.First();
+            foreach (var bp in AllNodes.Skip(1))
+            {
+                var balance = Services.TokenService.GetUserBalance(bp.Account);
+                if (balance < 1000_00000000)
+                    continue;
+
+                //transfer
+                Services.TokenService.SetAccount(bp.Account, bp.Password);
+                Services.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    Amount = balance / 2,
+                    Symbol = NodeOption.NativeTokenSymbol,
+                    To = bp0.Account.ConvertAddress(),
+                    Memo = $"Collect part tokens-{Guid.NewGuid()}"
+                });
+            }
+
+            Services.TokenService.CheckTransactionResultList();
+        }
+
         protected void InitializeScenario()
         {
-            var testerCount = ConfigInfoHelper.Config.UserCount;
+            var testerCount = ScenarioConfig.ReadInformation.UserCount;
             var envCheck = EnvCheck.GetDefaultEnvCheck();
             AllTesters = envCheck.GenerateOrGetTestUsers(testerCount);
             if (Services == null)
             {
-                var oldEnv = OldEnvCheck.GetDefaultEnvCheck();
-                Services = oldEnv.GetContractServices();
+                var envPreparation = EnvPreparation.GetDefaultEnvCheck();
+                Services = envPreparation.GetContractServices();
             }
 
             var configInfo = NodeInfoHelper.Config;
@@ -131,6 +171,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var random = new Random(Guid.NewGuid().GetHashCode());
             return random.Next(min, max + 1);
+        }
+
+        protected void PrintTesters(string name, List<string> testers)
+        {
+            Logger.Info($"Scenario: {name}");
+            foreach (var tester in testers)
+            {
+                Logger.Info(tester);
+            }
         }
     }
 }

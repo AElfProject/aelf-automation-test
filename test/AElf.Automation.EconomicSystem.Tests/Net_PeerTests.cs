@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
+using AElfChain.Common.DtoExtension;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -36,8 +36,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000")]
         public void GetPeers(string url)
         {
-            var service = AElfChainClient.GetClient(url);
-            var list = service.GetPeersAsync().Result;
+            var service = AElfClientExtension.GetClient(url);
+            var list = service.GetPeersAsync(true).Result;
             _logger.Info($"Peer {url} information");
             foreach (var peer in list) _logger.Info(JsonConvert.SerializeObject(peer));
         }
@@ -46,7 +46,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000", "192.168.197.205:6810")]
         public void AddPeers(string url, params string[] addressArray)
         {
-            var service = AElfChainClient.GetClient(url);
+            var service = AElfClientExtension.GetClient(url);
             if (addressArray == null) return;
             foreach (var address in addressArray)
             {
@@ -59,7 +59,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         [DataRow("http://192.168.197.13:8000", "192.168.197.28:6800")]
         public void RemovePeers(string url, params string[] addressArray)
         {
-            var service = AElfChainClient.GetClient(url);
+            var service = AElfClientExtension.GetClient(url);
             if (addressArray == null) return;
             foreach (var address in addressArray)
             {

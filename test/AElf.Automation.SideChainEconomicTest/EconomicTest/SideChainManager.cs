@@ -60,7 +60,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             var crossStub = mainChain.GenesisService.GetCrossChainStub();
             while (true)
             {
-                var chainStatus = await mainChain.ApiService.GetChainStatusAsync();
+                var chainStatus = await mainChain.ApiClient.GetChainStatusAsync();
                 if (chainStatus.LastIrreversibleBlockHeight >= blockNumber)
                 {
                     try

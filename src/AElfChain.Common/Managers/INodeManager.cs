@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using Google.Protobuf;
 
 namespace AElfChain.Common.Managers
 {
     public interface INodeManager
     {
-        IApiService ApiService { get; set; }
+        AElfClient ApiClient { get; set; }
         AccountManager AccountManager { get; }
         TransactionManager TransactionManager { get; }
         string GetApiUrl();
@@ -25,10 +25,11 @@ namespace AElfChain.Common.Managers
         //chain
         string DeployContract(string from, string filename);
         string SendTransaction(string from, string to, string methodName, IMessage inputParameter);
+        string SendTransaction(string from, string to, string methodName, IMessage inputParameter, out bool existed);
         string SendTransaction(string rawTransaction);
         List<string> SendTransactions(string rawTransactions);
         string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter);
-        TransactionResultDto CheckTransactionResult(string txId, int maxTimes = -1);
+        TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1);
         void CheckTransactionListResult(List<string> transactionIds);
 
         TResult QueryView<TResult>(string from, string to, string methodName, IMessage inputParameter)

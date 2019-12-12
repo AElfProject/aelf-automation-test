@@ -4,7 +4,7 @@ using Acs0;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.MultiToken;
 using log4net;
 using Shouldly;
@@ -19,7 +19,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Token = Services.TokenService;
             Genesis = Services.GenesisService;
 
-            Testers = AllTesters.GetRange(80, 20);
+            Testers = AllTesters.GetRange(10, 5);
+            PrintTesters(nameof(ExceptionScenario), Testers);
         }
 
         public TokenContract Token { get; }
@@ -43,7 +44,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var executeResult = Token.ExecuteMethodWithResult(methodName, new GetBalanceInput
             {
                 Symbol = NodeOption.NativeTokenSymbol,
-                Owner = AddressUtils.Generate()
+                Owner = AddressExtension.Generate()
             });
             executeResult.Error.ShouldNotBeNull();
             Logger.Info("Execute not existed contract method failed.");
@@ -57,7 +58,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100_000_00000000L,
-                To = AddressUtils.Generate(),
+                To = AddressExtension.Generate(),
                 Memo = "Transfer without enough token test"
             });
             executeResult.Error.ShouldNotBeNull();
@@ -72,8 +73,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100_000_00000000L,
-                From = AddressUtils.Generate(),
-                To = AddressUtils.Generate(),
+                From = AddressExtension.Generate(),
+                To = AddressExtension.Generate(),
                 Memo = "Transfer from test"
             });
             executeResult.Error.ShouldNotBeNull();

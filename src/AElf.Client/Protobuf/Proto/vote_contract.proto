@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+import "client.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "AElf.Client.Vote";
+
+message GetVotingItemInput {
+    client.Hash voting_item_id = 1;
+}
+
+message VotedItems {
+    map<string, VotedIds> voted_item_vote_ids = 1;
+}
+
+message VotedIds {
+    repeated client.Hash active_votes = 1;
+    repeated client.Hash withdrawn_votes = 2;
+}
+
+message GetVotingResultInput {
+    client.Hash voting_item_id = 1;
+    sint64 snapshot_number = 2;
+}
+
+message VotingResult {
+    client.Hash voting_item_id = 1;
+    map<string, sint64> results = 2; // option -> amount
+    sint64 snapshot_number = 3;
+    sint64 voters_count = 4;
+    google.protobuf.Timestamp snapshot_start_timestamp = 5;
+    google.protobuf.Timestamp snapshot_end_timestamp = 6;
+    sint64 votes_amount = 7;
+}
+
+message VotingRecord {
+    client.Hash voting_item_id = 1;
+    client.Address voter = 2;
+    sint64 snapshot_number = 3;
+    sint64 amount = 4;
+    google.protobuf.Timestamp withdraw_timestamp = 5;
+    google.protobuf.Timestamp vote_timestamp = 6;
+    bool is_withdrawn = 7;
+    string option = 8;
+    bool is_change_target = 9;
+}
+
+message GetVotingRecordsInput {
+    repeated client.Hash ids = 1;
+}
+
+message VotingRecords {
+    repeated VotingRecord records = 1;
+}

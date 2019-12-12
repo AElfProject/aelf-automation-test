@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Client.Service;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Sharprompt;
@@ -25,7 +25,7 @@ namespace AElfChain.Console.Commands
             Logger = Log4NetHelper.GetLogger();
         }
 
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public override void RunCommand()
         {
@@ -63,7 +63,7 @@ namespace AElfChain.Console.Commands
             return new CommandInfo
             {
                 Name = "analyze",
-                Description = "Analyze block chain blocks and transactions."
+                Description = "Analyze block chain blocks and transactions"
             };
         }
 
@@ -71,6 +71,7 @@ namespace AElfChain.Console.Commands
         {
             throw new NotImplementedException();
         }
+
         private void ChainsStatus()
         {
             //"Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
@@ -83,20 +84,21 @@ namespace AElfChain.Console.Commands
                 var manager = new NodeManager(o);
                 nodeManagers.Add(manager);
             });
-            foreach(var manager in nodeManagers)
+            foreach (var manager in nodeManagers)
             {
-                var chainStatus = AsyncHelper.RunSync(manager.ApiService.GetChainStatusAsync);
+                var chainStatus = AsyncHelper.RunSync(manager.ApiClient.GetChainStatusAsync);
                 $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
                 JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
-               System.Console.WriteLine();
+                System.Console.WriteLine();
             }
         }
+
         private void BlockAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var startHeight = long.Parse(input[0]);
-            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            var blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
             if (blockHeight < startHeight)
                 Logger.Error("Wrong block height");
             var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
@@ -112,7 +114,7 @@ namespace AElfChain.Console.Commands
                 for (var i = startHeight; i <= endHeight; i++)
                 {
                     var height = i;
-                    var block = AsyncHelper.RunSync(() => ApiService.GetBlockByHeightAsync(height));
+                    var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHeightAsync(height));
                     var signerKey = block.Header.SignerPubkey;
                     if (minerKey == "")
                     {
@@ -143,7 +145,7 @@ namespace AElfChain.Console.Commands
                 startHeight = endHeight + 1;
                 while (true)
                 {
-                    blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+                    blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
                     if (blockHeight == endHeight)
                         Thread.Sleep(3000);
                     endHeight = blockHeight;
@@ -151,12 +153,13 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void TransactionAnalyze()
         {
             "Parameter: [StartHeight] [EndHeight]=null [Continuous]=false".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
             var startHeight = long.Parse(input[0]);
-            var blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+            var blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
             if (blockHeight < startHeight)
                 Logger.Error("Wrong block height");
             var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
@@ -167,13 +170,13 @@ namespace AElfChain.Console.Commands
                 for (var i = startHeight; i <= endHeight; i++)
                 {
                     var height = i;
-                    var block = AsyncHelper.RunSync(() => NodeManager.ApiService.GetBlockByHeightAsync(height, true));
+                    var block = AsyncHelper.RunSync(() => NodeManager.ApiClient.GetBlockByHeightAsync(height, true));
                     Logger.Info(
                         $"BlockHeight: {height}, Hash: {block.BlockHash}, Transactions: {block.Body.TransactionsCount}");
                     foreach (var txId in block.Body.Transactions)
                     {
                         var transaction =
-                            AsyncHelper.RunSync(() => NodeManager.ApiService.GetTransactionResultAsync(txId));
+                            AsyncHelper.RunSync(() => NodeManager.ApiClient.GetTransactionResultAsync(txId));
                         if (transaction.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                         {
                             Logger.Info(
@@ -195,7 +198,7 @@ namespace AElfChain.Console.Commands
                 startHeight = endHeight + 1;
                 while (true)
                 {
-                    blockHeight = AsyncHelper.RunSync(ApiService.GetBlockHeightAsync);
+                    blockHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
                     if (blockHeight == endHeight)
                         Thread.Sleep(3000);
                     endHeight = blockHeight;
@@ -203,6 +206,7 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void NodeElectionAnalyze()
         {
             NodeInfoHelper.Config.CheckNodesAccount();
@@ -243,10 +247,9 @@ namespace AElfChain.Console.Commands
                 }
             }
         }
+
         private void TransactionPoolAnalyze()
         {
-            //"Parameter: [ServiceUrl] [ServiceUrl]...".WriteSuccessLine();
-            //var input = CommandOption.InputParameters(1);
             var endpoints = NodeInfoHelper.Config.Nodes.Select(o => o.Endpoint).ToList();
             var input = Prompt.MultiSelect("Select endpoint(s)", endpoints);
             var nodeManagers = new List<NodeManager>();
@@ -260,7 +263,7 @@ namespace AElfChain.Console.Commands
             {
                 Parallel.ForEach(nodeManagers, manager =>
                 {
-                    var transactionPoolStatus = AsyncHelper.RunSync(manager.ApiService.GetTransactionPoolStatusAsync);
+                    var transactionPoolStatus = AsyncHelper.RunSync(manager.ApiClient.GetTransactionPoolStatusAsync);
                     $"{DateTime.Now:HH:mm:ss} {manager.GetApiUrl()} QueuedTxs: {transactionPoolStatus.Queued} ValidatedTxs: {transactionPoolStatus.Validated}"
                         .WriteSuccessLine();
                 });
@@ -268,6 +271,7 @@ namespace AElfChain.Console.Commands
                 Thread.Sleep(500);
             }
         }
+
         private void CheckAccountsToken()
         {
             var accounts = NodeManager.ListAccounts();
@@ -280,6 +284,7 @@ namespace AElfChain.Console.Commands
                     $"Account: {acc}  {primaryToken}={balance}".WriteSuccessLine();
             });
         }
+
         private IEnumerable<string> GetSubCommands()
         {
             return new List<string>

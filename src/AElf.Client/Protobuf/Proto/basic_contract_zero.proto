@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "client.proto";
+
+option csharp_namespace = "AElf.Client.Genesis";
+
+//basic_contract_zero
+message AddressList {
+    repeated client.Address value = 1;
+}

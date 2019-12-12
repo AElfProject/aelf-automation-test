@@ -8,7 +8,7 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
 using AElf.Types;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
@@ -271,27 +271,38 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void TakeProfit(string account, Hash schemeId)
         {
-            var beforeBalance = Token.GetUserBalance(account);
-
             //Get user profit amount
             var profitAmount = Profit.GetProfitAmount(account, schemeId);
             if (profitAmount == 0)
                 return;
 
             Logger.Info($"ProfitAmount: node {account} profit amount is {profitAmount}");
+            var beforeBalance = Token.GetUserBalance(account);
             var profit = Profit.GetNewTester(account);
-            profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+            var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
                 Symbol = NodeOption.NativeTokenSymbol
-            });
+            }, out var existed);
 
+            if (existed) return; //忽略已经存在交易
+            if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+            
+            //check profit amount process
+            var profitTransactionFee = profitResult.TransactionFee.GetDefaultTransactionFee();
             var afterBalance = Token.GetUserBalance(account);
-            if (beforeBalance != afterBalance)
+            var checkResult = true;
+            /* ignore this check due to bp with other profit or send token to others
+            if (beforeBalance + profitAmount != afterBalance + profitTransactionFee)
+            {
+                Logger.Error($"Check profit balance failed. {beforeBalance + profitAmount}/{afterBalance + profitTransactionFee}");
+                checkResult = false;
+            }
+            */
+            
+            if(checkResult)
                 Logger.Info(
                     $"Profit success - node {account} get profit from Id: {schemeId}, value is: {afterBalance - beforeBalance}");
-            else
-                Logger.Error($"Profit failed - node {account} get profit from Id: {schemeId} failed.");
         }
     }
 }

@@ -1,4 +1,4 @@
-using AElfChain.SDK.Models;
+using AElf.Client.Dto;
 
 namespace AElf.Automation.CheckTxStatus
 {

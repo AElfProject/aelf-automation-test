@@ -9,7 +9,6 @@ namespace AElfChain.Console.Commands
     {
         public static bool TryParseParameters(string input, int length, out string[] parameters)
         {
-            //parameters = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             parameters = ParseArguments(input);
             var result = parameters.Length >= length;
 
@@ -23,8 +22,6 @@ namespace AElfChain.Console.Commands
         {
             while (true)
             {
-                //"[Input parameter]: ".WriteSuccessLine(changeLine:false);
-                //var input = System.Console.ReadLine();
                 var input = Prompt.Input<string>("Input parameter", validators: new[] {Validators.Required()});
                 var result = TryParseParameters(input, length, out var parameters);
 

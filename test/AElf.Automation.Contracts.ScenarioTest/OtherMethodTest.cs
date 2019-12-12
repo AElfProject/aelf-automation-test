@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
-using AElfChain.Common.ContractSerializer;
-using AElfChain.SDK.Models;
+using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +49,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProtoMessageRead_Test()
         {
-            var address = AddressUtils.Generate();
+            var address = AddressExtension.Generate();
             var stream = new MemoryStream();
             address.WriteTo(stream);
 
@@ -138,7 +136,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ConvertProtoMethod()
         {
-            var handler = new ContractHandler();
+            var handler = new ContractSerializer();
             var tokenInfo = handler.GetContractInfo(NameProvider.Token);
             var createMethod = tokenInfo.GetContractMethod("Create");
             var result = bool.Parse("true");
@@ -151,8 +149,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nodeManager = new NodeManager("192.168.197.14:8000");
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
-            var byteInfo = nodeManager.ApiService.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
-            var customContractHandler = new CustomContractHandler(byteInfo);
+            var byteInfo = nodeManager.ApiClient.GetContractFileDescriptorSetAsync(token.ContractAddress).Result;
+            var customContractHandler = new CustomContractSerializer(byteInfo);
             customContractHandler.GetAllMethodsInfo(true);
             customContractHandler.GetParameters("Create");
         }
@@ -163,9 +161,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nodeManager = new NodeManager("192.168.197.43:8100");
             var genesis = nodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
-            var height = await nodeManager.ApiService.GetBlockHeightAsync();
-            var block = await nodeManager.ApiService.GetBlockByHeightAsync(height);
-            var createRaw = await nodeManager.ApiService.CreateRawTransactionAsync(new CreateRawTransactionInput
+            var height = await nodeManager.ApiClient.GetBlockHeightAsync();
+            var block = await nodeManager.ApiClient.GetBlockByHeightAsync(height);
+            var createRaw = await nodeManager.ApiClient.CreateRawTransactionAsync(new CreateRawTransactionInput
             {
                 From = token.CallAddress,
                 To = token.ContractAddress,
@@ -187,12 +185,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray())
                 .ToByteArray().ToHex();
             var rawTransactionResult =
-                await nodeManager.ApiService.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
+                await nodeManager.ApiClient.ExecuteRawTransactionAsync(new ExecuteRawTransactionDto
                 {
                     RawTransaction = createRaw.RawTransaction,
                     Signature = signature
                 });
             Console.WriteLine(rawTransactionResult);
+        }
+
+        [TestMethod]
+        public void CreateTestAccount()
+        {
+            var keyPath = "/Users/ericshu/GitHub/Team/aelf-automation-test/test/AElf.Automation.ScenariosExecution/testers";
+            var keyStore = AElfKeyStore.GetKeyStore(keyPath);
+            var accManager = new AccountManager(keyStore);
+            for (var i = 0; i < 100; i++)
+            {
+                var acc = accManager.NewAccount();
+                accManager.UnlockAccount(acc);
+            }
         }
     }
 }

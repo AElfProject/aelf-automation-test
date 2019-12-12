@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
@@ -16,22 +16,22 @@ namespace AElfChain.Console.Commands
             : base(nodeManager, contractServices)
         {
             Logger = Log4NetHelper.GetLogger();
-            ContractHandler = new ContractHandler();
+            ContractSerializer = new ContractSerializer();
         }
 
-        private ContractHandler ContractHandler { get; }
+        private ContractSerializer ContractSerializer { get; }
 
         public override void RunCommand()
         {
             "Select system contract name: ".WriteSuccessLine();
-            var contractEngine = new CommandsCompletionEngine(ContractHandler.SystemContractsDescriptors.Keys
+            var contractEngine = new CommandsCompletionEngine(ContractSerializer.SystemContractsDescriptors.Keys
                 .Select(o => o.ToString()).ToList());
             var contractReader = new ConsoleReader(contractEngine);
             var input = CommandOption.InputParameters(1, contractReader);
             if (input == null)
                 return;
             var nameProvider = input[0].ConvertNameProvider();
-            var contractInfo = ContractHandler.GetContractInfo(nameProvider);
+            var contractInfo = ContractSerializer.GetContractInfo(nameProvider);
             //contract info
             string contractAddress;
             if (input.Length == 2)
@@ -66,7 +66,13 @@ namespace AElfChain.Console.Commands
                 var jsonInfo = methodInfo.ParseMethodInputJsonInfo(parameterInput);
                 var inputMessage = JsonParser.Default.Parse(jsonInfo, methodInfo.InputType);
                 var transactionId = NodeManager.SendTransaction(sender, contractAddress,
-                    methodInput[0], inputMessage);
+                    methodInput[0], inputMessage, out var existed);
+                if (existed)
+                {
+                    $"TransactionId: {transactionId}, Method: {methodInput[0]}".WriteSuccessLine();
+                    return;
+                }
+
                 var transactionResult = NodeManager.CheckTransactionResult(transactionId);
                 JsonConvert.SerializeObject(transactionResult, Formatting.Indented).WriteSuccessLine();
             }

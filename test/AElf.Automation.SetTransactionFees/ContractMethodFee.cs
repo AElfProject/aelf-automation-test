@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Acs1;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Types;

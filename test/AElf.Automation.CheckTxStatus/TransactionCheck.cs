@@ -23,7 +23,7 @@ namespace AElf.Automation.CheckTxStatus
         public void CheckTxStatus()
         {
             var startBlock = _startBlock;
-            var blockHeight = _nodeManager.ApiService.GetBlockHeightAsync().Result;
+            var blockHeight = _nodeManager.ApiClient.GetBlockHeightAsync().Result;
             Logger.Info($"Chain block height is {blockHeight}");
             var verifyBlock = blockHeight > _verifyBlock ? _verifyBlock : blockHeight;
             var notExistTransactionList = new Dictionary<long, Dictionary<string, TransactionInfo>>();
@@ -31,7 +31,7 @@ namespace AElf.Automation.CheckTxStatus
 
             while (true)
             {
-                var currentBlock = _nodeManager.ApiService.GetBlockHeightAsync().Result;
+                var currentBlock = _nodeManager.ApiClient.GetBlockHeightAsync().Result;
                 if (startBlock > currentBlock)
                     return;
                 var transactionList = new Dictionary<long, List<string>>();
@@ -43,7 +43,7 @@ namespace AElf.Automation.CheckTxStatus
                 {
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
-                        _nodeManager.ApiService.GetBlockByHeightAsync(i1, true));
+                        _nodeManager.ApiClient.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
 
                     transactionList.Add(i, txIds);
@@ -57,7 +57,7 @@ namespace AElf.Automation.CheckTxStatus
 
                     foreach (var txId in txs.Value)
                     {
-                        var txResult = _nodeManager.ApiService.GetTransactionResultAsync(txId).Result;
+                        var txResult = _nodeManager.ApiClient.GetTransactionResultAsync(txId).Result;
                         var status = txResult.Status;
                         var transaction = txResult.Transaction;
                         var txInfo = new TransactionInfo(transaction, status);

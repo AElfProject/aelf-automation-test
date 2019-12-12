@@ -3,7 +3,7 @@ using System.Linq;
 using Acs1;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Types;
@@ -19,13 +19,13 @@ namespace AElf.Automation.SetTransactionFees
         public ContractsFee(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            ContractHandler = new ContractHandler();
+            ContractSerializer = new ContractSerializer();
             Caller = NodeOption.AllNodes.First().Account;
             Genesis = nodeManager.GetGenesisContract(Caller);
         }
 
         private INodeManager NodeManager { get; }
-        private ContractHandler ContractHandler { get; }
+        private ContractSerializer ContractSerializer { get; }
 
         private GenesisContract Genesis { get; }
 
@@ -41,7 +41,7 @@ namespace AElf.Automation.SetTransactionFees
             foreach (var provider in GenesisContract.NameProviderInfos.Keys)
             {
                 Logger.Info($"Begin set contract: {provider}");
-                var contractInfo = ContractHandler.GetContractInfo(provider);
+                var contractInfo = ContractSerializer.GetContractInfo(provider);
                 var contractAddress = systemContracts[provider];
                 if (contractAddress == new Address())
                 {
@@ -62,7 +62,7 @@ namespace AElf.Automation.SetTransactionFees
             foreach (var provider in GenesisContract.NameProviderInfos.Keys)
             {
                 Logger.Info($"Query contract fees: {provider}");
-                var contractInfo = ContractHandler.GetContractInfo(provider);
+                var contractInfo = ContractSerializer.GetContractInfo(provider);
                 var contractAddress = systemContracts[provider];
                 if (contractAddress == new Address())
                 {
@@ -82,12 +82,12 @@ namespace AElf.Automation.SetTransactionFees
                     {
                         var amountInfo = feeResult.Fees.First();
                         Logger.Info(
-                            $"Method: {method.PadRight(48)} Symbol: {amountInfo.Symbol}   Amount: {amountInfo.BasicFee}");
+                            $"Method: {method}  Symbol: {amountInfo.Symbol}  Amount: {amountInfo.BasicFee}");
                     }
                     else
                     {
                         var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-                        Logger.Warn($"Method: {method.PadRight(48)} Symbol: {primaryToken}   Amount: 0");
+                        Logger.Warn($"Method: {method}  Symbol: {primaryToken}  Amount: 0");
                     }
                 }
 

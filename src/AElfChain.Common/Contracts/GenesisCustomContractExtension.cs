@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Genesis;
 using AElf.Types;
-using AElfChain.Common.ContractSerializer;
+using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf.WellKnownTypes;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -24,8 +25,8 @@ namespace AElfChain.Common.Contracts
                     SystemContracts = new Dictionary<Address, List<string>>();
                 if (SystemContracts.ContainsKey(contract)) continue;
                 var contractDescriptor =
-                    genesis.ApiService.GetContractFileDescriptorSetAsync(contract.GetFormatted()).Result;
-                var systemContractHandler = new CustomContractHandler(contractDescriptor);
+                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
+                var systemContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = systemContractHandler.GetContractMethods();
                 SystemContracts.Add(contract, methods);
             }
@@ -45,13 +46,16 @@ namespace AElfChain.Common.Contracts
                 if (SystemContractAddresses.ContainsValue(address)) continue;
                 if(CustomContracts == null)
                     CustomContracts = new Dictionary<Address, List<string>>();
-                if (CustomContracts.ContainsKey(address)) continue;
+                if (CustomContracts.ContainsKey(address))
+                {
+                    CustomContracts.Remove(address);
+                }
 
                 var contractDescriptor =
-                    genesis.ApiService.GetContractFileDescriptorSetAsync(address.GetFormatted()).Result;
-                var customContractHandler = new CustomContractHandler(contractDescriptor);
+                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(address.GetFormatted()));
+                var customContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = customContractHandler.GetContractMethods();
-                CustomContracts.Add(address, methods);
+                CustomContracts.TryAdd(address, methods);
             }
         }
 

@@ -11,13 +11,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         private const int IncreaseActionCount = 10;
         private List<BasicWithParallelContract> _contracts;
+        
+        public List<string> Testers { get; }
 
         public DeleteValueScenario()
         {
             InitializeScenario();
-            var contract = BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, AllTesters[0]);
-            var testers = AllTesters.GetRange(1, 2);
-            _contracts = testers.Select(t =>
+            Testers = AllTesters.GetRange(5, 5);
+            PrintTesters(nameof(DeleteValueScenario), Testers);
+            
+            var contract = BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, Testers[0]);
+            _contracts = Testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
 
@@ -32,6 +36,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 DeleteValueAfterSetAction,
                 SetValueAfterDeleteAction,
                 ComplexDeleteAndChangeAction,
+                () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
         }

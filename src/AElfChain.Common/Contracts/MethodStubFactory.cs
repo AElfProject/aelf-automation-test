@@ -4,17 +4,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Client.Dto;
+using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
-using AElfChain.Common.Utils;
-using AElfChain.SDK;
-using AElfChain.SDK.Models;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -31,7 +32,7 @@ namespace AElfChain.Common.Contracts
         public string SenderAddress { private get; set; }
         public Address Sender => SenderAddress.ConvertAddress();
         public INodeManager NodeManager { get; }
-        public IApiService ApiService => NodeManager.ApiService;
+        public AElfClient ApiClient => NodeManager.ApiClient;
 
         public IMethodStub<TInput, TOutput> Create<TInput, TOutput>(Method<TInput, TOutput> method)
             where TInput : IMessage<TInput>, new() where TOutput : IMessage<TOutput>, new()
@@ -47,51 +48,67 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction.AddBlockReference(NodeManager.GetApiUrl(), NodeManager.GetChainId());
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
-                var transactionOutput = await ApiService.SendTransactionAsync(transaction.ToByteArray().ToHex());
 
-                var checkTimes = 0;
-                TransactionResultDto resultDto;
-                TransactionResultStatus status;
-                var stopwatch = Stopwatch.StartNew();
-                while (true)
+                TransactionResultStatus status = TransactionResultStatus.Pending;
+                var txExist = CheckTransactionExisted(transaction, out var resultDto);
+                if (txExist)
                 {
-                    checkTimes++;
-                    resultDto = await ApiService.GetTransactionResultAsync(transactionOutput.TransactionId);
                     status = resultDto.Status.ConvertTransactionResultStatus();
-                    if (status == TransactionResultStatus.Pending)
-                        checkTimes++;
-                    else if (status == TransactionResultStatus.NotExisted)
-                        checkTimes += 10;
-                    else if (status == TransactionResultStatus.Unexecutable)
-                        checkTimes += 20;
-                    else if (status == TransactionResultStatus.Mined)
+                    Logger.Warn("Duplicate transaction execution.");
+                }
+                else
+                {
+                    var transactionId = NodeManager.SendTransaction(transaction.ToByteArray().ToHex());
+                    Logger.Info($"Transaction method: {transaction.MethodName}, TxId: {transactionId}");
+                    await Task.Delay(2000); //delay for ovoid 'NotExisted' issue
+
+                    var stopwatch = Stopwatch.StartNew();
+                    var source = new CancellationTokenSource(5 * 60 * 1000); //check 5 minutes
+                    while (!source.IsCancellationRequested)
                     {
-                        Logger.Info(
-                            $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
-                            true);
-                        break;
-                    }
-                    else if (status == TransactionResultStatus.Failed)
-                    {
-                        Logger.Error(
-                            $"TransactionId: {resultDto.TransactionId}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
-                            true);
-                        break;
+                        resultDto = await ApiClient.GetTransactionResultAsync(transactionId);
+                        status = resultDto.Status.ConvertTransactionResultStatus();
+                        
+                        if (status == TransactionResultStatus.Pending)
+                        {
+                            Console.Write(
+                                $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                            await Task.Delay(1000, source.Token);
+                            continue;
+                        }
+
+                        if (status == TransactionResultStatus.NotExisted)
+                        {
+                            Logger.Error($"Transaction {transactionId} not existed");
+                            break;
+                        }
+
+                        if (status == TransactionResultStatus.Mined)
+                        {
+                            Logger.Info(
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]",
+                                true);
+                            break;
+                        }
+
+                        if (status == TransactionResultStatus.Failed || status == TransactionResultStatus.Unexecutable)
+                        {
+                            Logger.Error(
+                                $"TransactionId: {resultDto.TransactionId}, Method: {resultDto.Transaction.MethodName}, Status: {status}-[{resultDto.TransactionFee?.GetTransactionFeeInfo()}]\r\nDetail message: {JsonConvert.SerializeObject(resultDto, Formatting.Indented)}",
+                                true);
+                            break;
+                        }
                     }
 
-                    Console.Write(
-                        $"\rTransaction {resultDto.TransactionId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-
-                    if (checkTimes >= 360) //max wait time 3 minutes
+                    if (source.IsCancellationRequested && status == TransactionResultStatus.Pending)
                     {
-                        Console.Write("\r\n");
+                        Console.WriteLine();
                         throw new TimeoutException(
                             $"Transaction {resultDto.TransactionId} in '{status}' status long times.");
                     }
-
-                    Thread.Sleep(500);
+                    stopwatch.Stop();
                 }
-                stopwatch.Stop();
+
                 var transactionFee = resultDto.TransactionFee.ConvertTransactionFeeDto();
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
@@ -152,11 +169,22 @@ namespace AElfChain.Common.Contracts
                 };
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
-                var returnValue = await ApiService.ExecuteTransactionAsync(transaction.ToByteArray().ToHex());
+                var returnValue = await ApiClient.ExecuteTransactionAsync(new ExecuteTransactionDto
+                    {
+                        RawTransaction = transaction.ToByteArray().ToHex()
+                        
+                    });
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 
             return new MethodStub<TInput, TOutput>(method, SendAsync, CallAsync);
+        }
+
+        private bool CheckTransactionExisted(Transaction transaction, out TransactionResultDto transactionResult)
+        {
+            var txId = transaction.GetHash().ToHex();
+            transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
+            return transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted;
         }
     }
 }

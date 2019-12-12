@@ -3,7 +3,6 @@ using System.Threading;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.SDK;
 using log4net;
 using McMaster.Extensions.CommandLineUtils;
 using Shouldly;
@@ -43,7 +42,7 @@ namespace AElf.Automation.RpcPerformance
             Log4NetHelper.LogInit(fileName);
             Logger = Log4NetHelper.GetLogger();
 
-            var transactionType = ConfigInfoHelper.Config.RandomSenderTransaction;
+            var transactionType = RpcConfig.ReadInformation.RandomSenderTransaction;
             var performance = transactionType
                 ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,
                     limitTransaction: LimitTransaction)
@@ -81,10 +80,6 @@ namespace AElf.Automation.RpcPerformance
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (TimeoutException e)
-            {
-                Logger.Error(e.Message);
-            }
-            catch (AElfChainApiException e)
             {
                 Logger.Error(e.Message);
             }
@@ -159,18 +154,18 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        private int GroupCount { get; } = ConfigInfoHelper.Config.GroupCount;
+        private int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionCount { get; } = ConfigInfoHelper.Config.TransactionCount;
+        private int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        private string RpcUrl { get; } = ConfigInfoHelper.Config.ServiceUrl;
+        private string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
 
         [Option("-em|--execute.mode", Description =
             "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
-        private int ExecuteMode { get; } = ConfigInfoHelper.Config.ExecuteMode;
+        private int ExecuteMode { get; } = RpcConfig.ReadInformation.ExecuteMode;
 
         [Option("-lt|--limit.transaction", Description =
             "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]

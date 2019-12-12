@@ -6,7 +6,7 @@ namespace AElfChain.Console.InputOption
 {
     public class ContractsCompletionEngine : ICompletionEngine
     {
-        public readonly char[] _tokenDelimiters = {' '};
+        private readonly char[] _tokenDelimiters = {' '};
 
         public ContractsCompletionEngine(Dictionary<string, string> systemContracts)
         {

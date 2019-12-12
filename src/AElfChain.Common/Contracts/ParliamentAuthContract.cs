@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Acs3;
 using AElf;
 using AElfChain.Common.Helpers;
@@ -6,7 +7,7 @@ using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.Common.Utils;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -47,7 +48,7 @@ namespace AElfChain.Common.Contracts
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
+                ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(10),
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
@@ -69,6 +70,21 @@ namespace AElfChain.Common.Contracts
             }));
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
+        }
+
+        public void MinersApproveProposal(Hash proposalId, IEnumerable<string> callers)
+        {
+            var approveTxIds = new List<string>();
+            foreach (var user in callers)
+            {
+                var tester = GetNewTester(user);
+                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve, new ApproveInput
+                {
+                    ProposalId = proposalId
+                });
+                approveTxIds.Add(txId);
+            }
+            NodeManager.CheckTransactionListResult(approveTxIds);
         }
 
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
