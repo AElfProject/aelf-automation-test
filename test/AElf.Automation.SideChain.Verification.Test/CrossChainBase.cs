@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acs7;
-using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
@@ -30,7 +29,7 @@ namespace AElf.Automation.SideChain.Verification
         protected readonly int CreateTokenNumber;
         protected readonly int VerifyBlockNumber;
         protected readonly int VerifySideChainNumber;
-        private Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> TransactionResultList;
+        private Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> _transactionResultList;
 
         protected CrossChainBase()
         {
@@ -43,7 +42,6 @@ namespace AElf.Automation.SideChain.Verification
         }
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
-        private static int Timeout { get; }
         protected static List<string> TokenSymbols { get; set; }
 
         protected ContractServices InitMainChainServices()
@@ -56,7 +54,7 @@ namespace AElf.Automation.SideChain.Verification
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
             //MainChainService.NodeManager.ApiClient.SetFailReTryTimes(10);
             NativeToken = MainChainService.PrimaryTokenSymbol;
-            
+
             return MainChainService;
         }
 
@@ -89,7 +87,7 @@ namespace AElf.Automation.SideChain.Verification
                 To = AddressHelper.Base58StringToAddress(account)
             });
         }
-        
+
         protected void TransferToken(ContractServices services, string account)
         {
             Logger.Info($"Transfer token {services.PrimaryTokenSymbol} to {account}");
@@ -118,54 +116,6 @@ namespace AElf.Automation.SideChain.Verification
                 services.NodeManager.SendTransaction(rawTx);
 
             return transactionId;
-        }
-
-        protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
-        {
-            if (maxTimes == -1) maxTimes = 600;
-
-            TransactionResultDto transactionResult = null;
-            var checkTimes = 1;
-            var stopwatch = Stopwatch.StartNew();
-            while (checkTimes <= maxTimes)
-            {
-                var transactionResult = AsyncHelper.RunSync(() => services.NodeManager.ApiService.GetTransactionResultAsync(txId));
-                var status = transactionResult.Status.ConvertTransactionResultStatus();
-                switch (status)
-                {
-                    case TransactionResultStatus.Mined:
-                        Logger.Info(
-                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
-                            true);
-                        return transactionResult;
-                    case TransactionResultStatus.Failed:
-                    {
-                        var message =
-                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
-                        message +=
-                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        message += $"\r\nError Message: {transactionResult.Error}";
-                        Logger.Error(message, true);
-                        return transactionResult;
-                    }
-                    case TransactionResultStatus.Pending:
-                        checkTimes++;
-                        break;
-                    case TransactionResultStatus.NotExisted:
-                        checkTimes += 10;
-                        break;
-                    case TransactionResultStatus.Unexecutable:
-                        checkTimes += 20;
-                        break;
-                }
-
-                Console.Write(
-                    $"\rTransaction {txId} status: {status}, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                Thread.Sleep(500);
-            }
-
-            Console.Write("\r\n");
-            throw new TimeoutException("Transaction execution status cannot be 'Mined' after long time.");
         }
 
         protected MerklePath GetMerklePath(ContractServices services, long blockNumber, string txId)
@@ -247,7 +197,7 @@ namespace AElf.Automation.SideChain.Verification
                 crossChainTransferInput);
             Logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = ExecuteMethodWithTxId(services, rawTx);
-            var txResult = CheckTransactionResult(services, txId);
+            var txResult = services.NodeManager.CheckTransactionResult(txId);
             if (txResult == null)
                 return null;
             // get transaction info            
@@ -256,7 +206,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                txResult = CheckTransactionResult(services, txId);
+                txResult = services.NodeManager.CheckTransactionResult(txId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                     return null;
@@ -295,7 +245,7 @@ namespace AElf.Automation.SideChain.Verification
         protected CrossChainTransactionInfo GetCrossChainTransferResult(ContractServices services,
             CrossChainTransactionInfo info)
         {
-            var txResult = CheckTransactionResult(services, info.TxId);
+            var txResult = services.NodeManager.CheckTransactionResult(info.TxId);
             if (txResult == null)
                 return null;
             // get transaction info            
@@ -304,7 +254,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                txResult = CheckTransactionResult(services, info.TxId);
+                txResult = services.NodeManager.CheckTransactionResult(info.TxId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status != TransactionResultStatus.Mined)
                     return null;
@@ -392,13 +342,13 @@ namespace AElf.Automation.SideChain.Verification
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> CheckoutTransferResult(
             ContractServices services, List<CrossChainTransactionInfo> lists)
         {
-            TransactionResultList = new Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>>();
+            _transactionResultList = new Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>>();
             var transactionFailed = new List<CrossChainTransactionInfo>();
             var transactionMined = new List<CrossChainTransactionInfo>();
 
             foreach (var list in lists)
             {
-                var txResult = CheckTransactionResult(services, list.TxId);
+                var txResult = services.NodeManager.CheckTransactionResult(list.TxId);
                 var status = txResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -411,9 +361,9 @@ namespace AElf.Automation.SideChain.Verification
                 }
             }
 
-            TransactionResultList.Add(TransactionResultStatus.Failed, transactionFailed);
-            TransactionResultList.Add(TransactionResultStatus.Mined, transactionMined);
-            return TransactionResultList;
+            _transactionResultList.Add(TransactionResultStatus.Failed, transactionFailed);
+            _transactionResultList.Add(TransactionResultStatus.Mined, transactionMined);
+            return _transactionResultList;
         }
 
         private async Task<long> GetParentChainBlockIndexAsync(ContractServices services,
@@ -426,7 +376,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Logger.Info("Block is not recorded ");
                 Thread.Sleep(10000);
-                indexSideBlock =GetIndexSideHeight(services);
+                indexSideBlock = GetIndexSideHeight(services);
             }
 
             return await MainChainService.NodeManager.ApiClient.GetBlockHeightAsync();

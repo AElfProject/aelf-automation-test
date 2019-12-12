@@ -122,7 +122,7 @@ namespace AElfChain.Common.Managers
             };
             var approveUsers = GetMinApproveMiners();
 
-            var proposalUpdateContact = _genesis.ProposeUpdateContract(input);
+            var proposalUpdateContact = _genesis.ProposeUpdateContract(input,caller);
             var proposalId = ProposalCreated.Parser.ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed).ProposalId;
             var proposalHash = ContractProposed.Parser
                 .ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ContractProposed))).NonIndexed)
@@ -196,8 +196,15 @@ namespace AElfChain.Common.Managers
         private TransactionResult ApproveAndRelease(ReleaseContractInput input,IEnumerable<string> approveUsers, string callUser)
         {
             //approve
-            foreach (var account in approveUsers) _parliament.ApproveProposal(input.ProposalId, account);
-
+            _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
+            
+            //check
+            var approveStatue = _parliament.CheckProposal(input.ProposalId);
+            
+            if (!approveStatue.ToBeReleased)
+            {
+                _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
+            }
             //release
             return _genesis.ReleaseApprovedContract(input, callUser);
         }

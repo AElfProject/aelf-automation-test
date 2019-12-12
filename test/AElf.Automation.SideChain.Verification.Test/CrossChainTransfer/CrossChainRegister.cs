@@ -110,7 +110,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                 });
             var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
-            var txResult = CheckTransactionResult(MainChainService, txId);
+            var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception($"Validate chain {MainChainService.ChainId} token contract failed");
             var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
@@ -130,7 +130,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                     });
                 var sideTxId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
-                var txResult = CheckTransactionResult(sideChainService, sideTxId);
+                var txResult = sideChainService.NodeManager.CheckTransactionResult(sideTxId);
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception($"Validate chain {sideChainService.ChainId} token contract failed");
                 var sideChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, sideTxId, validateTransaction);

@@ -55,7 +55,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         TotalSupply = 10_0000_0000_00000000
                     });
                 var txId = ExecuteMethodWithTxId(MainChainService, createTransaction);
-                var txResult = CheckTransactionResult(MainChainService, txId);
+                var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
 
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed &&
                     txResult.Error.Contains("Token already exists."))
