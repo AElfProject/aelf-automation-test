@@ -209,6 +209,18 @@ namespace AElf.Automation.RpcPerformance
                 contract.Symbol = symbol;
 
                 var token = new TokenContract(NodeManager, account, contractPath);
+                //create fake ELF token, just for transaction fee
+                var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                {
+                    Symbol = primaryToken,
+                    TokenName = $"fake {primaryToken} token just for transaction fee",
+                    TotalSupply = 10_0000_0000_00000000L,
+                    Decimals = 8,
+                    Issuer = account.ConvertAddress(),
+                    IsBurnable = true
+                });
+                
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
