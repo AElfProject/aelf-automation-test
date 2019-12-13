@@ -42,7 +42,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             for (var i = 0; i < CreateTokenNumber; i++)
             {
-                var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
+                var symbol = $"TEST{CommonHelper.RandomString(4, false)}";
                 var createTransaction = MainChainService.TokenService.NodeManager.GenerateRawTransaction(
                     MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
                     TokenMethod.Create.ToString(), new CreateInput
@@ -52,10 +52,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         IsBurnable = true,
                         Issuer = MainChainService.CallAccount,
                         TokenName = "Token of test",
-                        TotalSupply = 5_0000_0000
+                        TotalSupply = 10_0000_0000_00000000
                     });
                 var txId = ExecuteMethodWithTxId(MainChainService, createTransaction);
-                var txResult = CheckTransactionResult(MainChainService, txId);
+                var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
 
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed &&
                     txResult.Error.Contains("Token already exists."))
@@ -80,7 +80,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var issueToken = MainChainService.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
                 {
                     Symbol = symbol,
-                    Amount = 5_0000_0000,
+                    Amount = 10_0000_0000_00000000,
                     Memo = "Issue token",
                     To = MainChainService.CallAccount
                 });

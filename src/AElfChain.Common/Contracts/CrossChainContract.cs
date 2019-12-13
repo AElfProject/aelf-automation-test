@@ -1,4 +1,7 @@
+using AElf.Contracts.CrossChain;
+using AElf.Types;
 using AElfChain.Common.Managers;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -20,7 +23,8 @@ namespace AElfChain.Common.Contracts
         GetParentChainId,
         LockedBalance,
         VerifyTransaction,
-        GetBoundParentChainHeightAndMerklePathByHeight
+        GetBoundParentChainHeightAndMerklePathByHeight,
+        GetSideChainCreator
     }
 
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
@@ -34,6 +38,16 @@ namespace AElfChain.Common.Contracts
             base(nm, contractAbi)
         {
             SetAccount(callAddress);
+        }
+        
+        public Address GetSideChainCreator(int chainId,string caller = null)
+        {
+            var tester = GetTestStub<CrossChainContractContainer.CrossChainContractStub>(caller);
+            var address = AsyncHelper.RunSync(() => tester.GetSideChainCreator.CallAsync(new SInt32Value{Value = chainId}));
+            
+            Logger.Info($"Chain {chainId} creator is {address}");
+
+            return address;
         }
 
         public static string ContractFileName => "AElf.Contracts.CrossChain";

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs3;
 using Acs7;
 using AElfChain.Common;
@@ -9,7 +10,6 @@ using AElf.Contracts.MultiToken;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
-using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
@@ -21,10 +21,11 @@ namespace AElf.Automation.SideChainCreate
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
         public readonly ParliamentAuthContract ParliamentService;
+        public readonly string NativeSymbol;
+
 
         public readonly TokenContract TokenService;
-        public string InitAccount;
-        public string NativeSymbol;
+        public string Creator;
         public string Password;
 
         public string Url;
@@ -36,16 +37,21 @@ namespace AElf.Automation.SideChainCreate
             CrossChainService = contractServices.CrossChainService;
             ParliamentService = contractServices.ParliamentService;
             ConsensusService = contractServices.ConsensusService;
+            NativeSymbol = TokenService.GetPrimaryTokenSymbol();
         }
 
         public void TransferToken(long amount)
         {
-            TokenService.SetAccount(InitAccount, Password);
+            TokenService.SetAccount(Creator, Password);
             var miners = GetMiners();
+            var initAccount = NodeOption.AllNodes.First().Account;
+            var password = NodeOption.AllNodes.First().Password;
+            TokenService.SetAccount(initAccount,password);
+            
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner.GetFormatted());
-                if (miner.GetFormatted().Equals(InitAccount)|| balance > amount) continue;
+                if (miner.GetFormatted().Equals(initAccount)|| balance > amount) continue;
                 TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeSymbol,
@@ -54,12 +60,22 @@ namespace AElf.Automation.SideChainCreate
                     To = miner
                 });
             }
+            
+            var creatorBalance = TokenService.GetUserBalance(Creator);
+            if (Creator.Equals(initAccount)|| creatorBalance > amount) return;
+            TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            {
+                Symbol = NativeSymbol,
+                Amount = amount,
+                Memo = "Transfer to creator",
+                To = AddressHelper.Base58StringToAddress(Creator)
+            });
         }
 
         public void ApproveToken(long amount)
         {
             //token approve
-            TokenService.SetAccount(InitAccount, Password);
+            TokenService.SetAccount(Creator, Password);
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput
                 {
@@ -84,7 +100,7 @@ namespace AElf.Automation.SideChainCreate
                 SideChainTokenTotalSupply = tokenInfo.TotalSupply,
                 IsSideChainTokenBurnable = tokenInfo.IsBurnable
             };
-            ParliamentService.SetAccount(InitAccount, Password);
+            ParliamentService.SetAccount(Creator, Password);
             var result =
                 ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     new CreateProposalInput
@@ -114,7 +130,7 @@ namespace AElf.Automation.SideChainCreate
 
         public int ReleaseProposal(string proposalId)
         {
-            ParliamentService.SetAccount(InitAccount, Password);
+            ParliamentService.SetAccount(Creator, Password);
             var result
                 = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
                     HashHelper.HexStringToHash(proposalId));
@@ -131,11 +147,10 @@ namespace AElf.Automation.SideChainCreate
             var environmentInfo =
                 ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
 
-            InitAccount = environmentInfo.InitAccount;
+            Creator = environmentInfo.Creator;
             Url = environmentInfo.Url;
             Password = environmentInfo.Password;
-            NativeSymbol = environmentInfo.NativeSymbol;
-            var contractService = new ContractServices(Url, InitAccount, Password);
+            var contractService = new ContractServices(Url, Creator, Password);
             return contractService;
         }
 
@@ -154,7 +169,7 @@ namespace AElf.Automation.SideChainCreate
 
         private Address GetGenesisOwnerAddress()
         {
-            ParliamentService.SetAccount(InitAccount, Password);
+            ParliamentService.SetAccount(Creator, Password);
             var address =
                 ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
 

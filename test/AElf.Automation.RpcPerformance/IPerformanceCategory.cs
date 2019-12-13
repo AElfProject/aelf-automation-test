@@ -10,6 +10,7 @@ namespace AElf.Automation.RpcPerformance
         string BaseUrl { get; }
         void InitExecCommand(int userCount = 200);
         void DeployContractsWithAuthority();
+        void SideChainDeployContractsWithCreator();
         void SideChainDeployContractsWithAuthority();
         void DeployContracts();
         void InitializeContracts();

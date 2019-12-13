@@ -31,7 +31,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         sideAccount, sideChainService.ChainId, 100);
                     if (rawTxInfo == null) continue;
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     rawTxInfos.Add(rawTxInfo);
                 }
 
@@ -89,15 +89,18 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var mainAccount in AccountList[MainChainService.ChainId])
             {
                 var accountBalance = GetBalance(MainChainService, mainAccount, symbol);
-                Logger.Info($"Account:{mainAccount}, {symbol} balance is:{accountBalance}");
+                Logger.Info(
+                    $"On main chain {MainChainService.ChainId} account:{mainAccount}, {symbol} balance is:{accountBalance}");
             }
 
             Logger.Info("Show the side chain account balance: ");
-            foreach (var sideChainService in SideChainServices)
-            foreach (var sideAccount in AccountList[sideChainService.ChainId])
+            foreach (var sideChain in SideChainServices)
+            foreach (var sideAccount in AccountList[sideChain.ChainId])
             {
-                var accountBalance = GetBalance(sideChainService, sideAccount, symbol);
-                Logger.Info($"Account:{sideAccount}, {symbol} balance is: {accountBalance}");
+                var accountBalance = GetBalance(sideChain, sideAccount, symbol);
+                var accountPrimaryBalance = GetBalance(sideChain, sideAccount, sideChain.PrimaryTokenSymbol);
+                Logger.Info(
+                    $"On side chain {sideChain.ChainId} account:{sideAccount},\n {symbol} balance is: {accountBalance}\n {sideChain.PrimaryTokenSymbol} balance is {accountPrimaryBalance}");
             }
         }
     }

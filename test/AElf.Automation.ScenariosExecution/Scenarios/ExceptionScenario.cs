@@ -33,8 +33,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 NotExistedMethodAction,
                 TransferWithoutEnoughTokenAction,
-                TransferWithoutEnoughAllowanceAction,
-                UpdateContractAuthorWithoutPermissionAction
+                TransferWithoutEnoughAllowanceAction
             });
         }
 
@@ -79,20 +78,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             });
             executeResult.Error.ShouldNotBeNull();
             Logger.Info("Transfer without enough allowance execute failed.");
-        }
-
-        private void UpdateContractAuthorWithoutPermissionAction()
-        {
-            var testUser = Testers[GenerateRandomNumber(0, 10)];
-            var tester = Genesis.GetNewTester(testUser);
-            var executeResult = tester.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
-                new ChangeContractAuthorInput
-                {
-                    NewAuthor = AddressHelper.Base58StringToAddress(testUser),
-                    ContractAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress)
-                });
-            executeResult.Error.ShouldNotBeNull();
-            Logger.Info("Update contract author information without permission execute failed.");
         }
     }
 }

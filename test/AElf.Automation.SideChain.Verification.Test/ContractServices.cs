@@ -30,8 +30,8 @@ namespace AElf.Automation.SideChain.Verification
             ChainId = ChainHelper.ConvertBase58ToChainId(chainInfo.ChainId);
             PrimaryTokenSymbol = chainInfo.PrimaryTokenSymbol;
         }
-        
-        public void GetContractServices()
+
+        private void GetContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
