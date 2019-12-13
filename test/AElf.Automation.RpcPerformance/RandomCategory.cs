@@ -85,6 +85,10 @@ namespace AElf.Automation.RpcPerformance
         {
         }
 
+        public void SideChainDeployContractsWithCreator()
+        {
+        }
+
         public void DeployContracts()
         {
             throw new NotImplementedException();

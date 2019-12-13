@@ -35,7 +35,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
                     if (verifyBlock > indexMainHeight) verifyBlock = indexMainHeight - 3000;
                 }
                 
-                Logger.Info($"Reset the verify block height:{verifyBlock}");
+                Logger.Info($"The verify block height:{verifyBlock}");
                 
                 //Get main chain transactions
                 for (var i = verifyBlock; i < verifyBlock + VerifyBlockNumber; i++)

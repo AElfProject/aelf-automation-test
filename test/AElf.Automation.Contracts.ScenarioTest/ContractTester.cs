@@ -61,7 +61,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 10_0000000) continue;
+                if (account == miner || balance > 1000_00000000) continue;
                 TokenService.SetAccount(ContractServices.CallAddress);
                 TokenService.IssueBalance(account, miner, 1000_00000000, symbol);
             }
@@ -74,9 +74,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 10_0000000) continue;
+                if (account == miner || balance > 1000_00000000) continue;
                 TokenService.SetAccount(account);
-                TokenService.TransferBalance(account, miner, 1000_00000000, symbol);
+                TokenService.TransferBalance(account, miner, 1000_000000000, symbol);
             }
         }
 
@@ -84,7 +84,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-                if (balance > 10_0000000) return;
+                if (balance > 1000_00000000) return;
                 TokenService.SetAccount(TokenService.CallAddress);
                 TokenService.TransferBalance(TokenService.CallAddress, account, 1000_00000000, symbol);
         }
@@ -93,7 +93,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-            if (balance > 10_0000000) return;
+            if (balance > 1000_00000000) return;
             TokenService.IssueBalance(creator, account, 1000_00000000, symbol);
         }
     }

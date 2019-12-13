@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acs7;
-using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
@@ -30,7 +29,7 @@ namespace AElf.Automation.SideChain.Verification
         protected readonly int CreateTokenNumber;
         protected readonly int VerifyBlockNumber;
         protected readonly int VerifySideChainNumber;
-        protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> TransactionResultList;
+        private Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> _transactionResultList;
 
         protected CrossChainBase()
         {
@@ -43,7 +42,6 @@ namespace AElf.Automation.SideChain.Verification
         }
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
-        private static int Timeout { get; set; }
         protected static List<string> TokenSymbols { get; set; }
 
         protected ContractServices InitMainChainServices()
@@ -56,7 +54,7 @@ namespace AElf.Automation.SideChain.Verification
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
             //MainChainService.NodeManager.ApiClient.SetFailReTryTimes(10);
             NativeToken = MainChainService.PrimaryTokenSymbol;
-            
+
             return MainChainService;
         }
 
@@ -84,10 +82,31 @@ namespace AElf.Automation.SideChain.Verification
             services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
                 Symbol = services.PrimaryTokenSymbol,
-                Amount = 1000000,
+                Amount = 10000_00000000,
                 Memo = "Issue side chain token",
                 To = AddressHelper.Base58StringToAddress(account)
             });
+        }
+
+        protected void TransferToken(ContractServices services, string account)
+        {
+            Logger.Info($"Transfer token {services.PrimaryTokenSymbol} to {account}");
+            services.TokenService.SetAccount(services.CallAddress);
+            services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            {
+                Symbol = services.PrimaryTokenSymbol,
+                Amount = 10000_00000000,
+                Memo = "Issue side chain token",
+                To = AddressHelper.Base58StringToAddress(account)
+            });
+        }
+
+        protected bool IsSupplyAllToken(ContractServices services)
+        {
+            var symbol = services.PrimaryTokenSymbol;
+            Logger.Info($"Check the token {symbol} whether is supplied");
+            var tokenInfo = services.TokenService.GetTokenInfo(symbol);
+            return tokenInfo.TotalSupply == tokenInfo.Supply + tokenInfo.Burned;
         }
 
 
@@ -99,46 +118,7 @@ namespace AElf.Automation.SideChain.Verification
             return transactionId;
         }
 
-        protected TransactionResultDto CheckTransactionResult(ContractServices services, string txId, int maxTimes = -1)
-        {
-            if (maxTimes == -1) maxTimes = Timeout == 0 ? 600 : Timeout;
-
-            TransactionResultDto transactionResult = null;
-            var checkTimes = 1;
-            while (checkTimes <= maxTimes)
-            {
-                transactionResult =
-                    AsyncHelper.RunSync(() => services.NodeManager.ApiClient.GetTransactionResultAsync(txId));
-                var status = transactionResult.Status.ConvertTransactionResultStatus();
-                switch (status)
-                {
-                    case TransactionResultStatus.Mined:
-                        Logger.Info($"Transaction {txId} status: {transactionResult.Status}");
-                        return transactionResult;
-                    case TransactionResultStatus.NotExisted:
-                        
-                        Logger.Error($"Transaction {txId} status: {transactionResult.Status}");
-                        return transactionResult;
-                    case TransactionResultStatus.Failed:
-                    {
-                        var message = $"Transaction {txId} status: {transactionResult.Status}";
-                        message +=
-                            $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        message += $"\r\nError Message: {transactionResult.Error}";
-                        Logger.Error(message);
-                        return transactionResult;
-                    }
-                }
-
-                checkTimes++;
-                Thread.Sleep(500);
-            }
-
-            Logger.Error("Transaction execute status cannot be 'Mined' after one minutes.");
-            return transactionResult;
-        }
-
-        protected MerklePath GetMerklePath(ContractServices services, long blockNumber, string TxId)
+        protected MerklePath GetMerklePath(ContractServices services, long blockNumber, string txId)
         {
             var index = 0;
             var blockInfoResult =
@@ -166,17 +146,15 @@ namespace AElf.Automation.SideChain.Verification
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var txId = HashHelper.HexStringToHash(transactionIds[num]);
+                var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = transactionId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
-                if (transactionIds[num] == TxId)
-                {
-                    index = num;
-                    Logger.Info($"The transaction index is {index}");
-                }
+                if (transactionIds[num] != txId) continue;
+                index = num;
+                Logger.Info($"The transaction index is {index}");
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
@@ -219,7 +197,7 @@ namespace AElf.Automation.SideChain.Verification
                 crossChainTransferInput);
             Logger.Info($"Transaction rawTx is: {rawTx}");
             var txId = ExecuteMethodWithTxId(services, rawTx);
-            var txResult = CheckTransactionResult(services, txId);
+            var txResult = services.NodeManager.CheckTransactionResult(txId);
             if (txResult == null)
                 return null;
             // get transaction info            
@@ -228,7 +206,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                txResult = CheckTransactionResult(services, txId);
+                txResult = services.NodeManager.CheckTransactionResult(txId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.NotExisted || status == TransactionResultStatus.Failed)
                     return null;
@@ -267,7 +245,7 @@ namespace AElf.Automation.SideChain.Verification
         protected CrossChainTransactionInfo GetCrossChainTransferResult(ContractServices services,
             CrossChainTransactionInfo info)
         {
-            var txResult = CheckTransactionResult(services, info.TxId);
+            var txResult = services.NodeManager.CheckTransactionResult(info.TxId);
             if (txResult == null)
                 return null;
             // get transaction info            
@@ -276,7 +254,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Thread.Sleep(2000);
                 Logger.Info("Check the transaction again.");
-                txResult = CheckTransactionResult(services, info.TxId);
+                txResult = services.NodeManager.CheckTransactionResult(info.TxId);
                 status = txResult.Status.ConvertTransactionResultStatus();
                 if (status != TransactionResultStatus.Mined)
                     return null;
@@ -344,7 +322,8 @@ namespace AElf.Automation.SideChain.Verification
             return MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
                 CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
         }
-        protected void GetVerifyResult(ContractServices services, Dictionary<string,bool> results)
+
+        protected void GetVerifyResult(ContractServices services, Dictionary<string, bool> results)
         {
             foreach (var item in results)
             {
@@ -363,13 +342,13 @@ namespace AElf.Automation.SideChain.Verification
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> CheckoutTransferResult(
             ContractServices services, List<CrossChainTransactionInfo> lists)
         {
-            TransactionResultList = new Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>>();
+            _transactionResultList = new Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>>();
             var transactionFailed = new List<CrossChainTransactionInfo>();
             var transactionMined = new List<CrossChainTransactionInfo>();
 
             foreach (var list in lists)
             {
-                var txResult = CheckTransactionResult(services, list.TxId);
+                var txResult = services.NodeManager.CheckTransactionResult(list.TxId);
                 var status = txResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -382,9 +361,9 @@ namespace AElf.Automation.SideChain.Verification
                 }
             }
 
-            TransactionResultList.Add(TransactionResultStatus.Failed, transactionFailed);
-            TransactionResultList.Add(TransactionResultStatus.Mined, transactionMined);
-            return TransactionResultList;
+            _transactionResultList.Add(TransactionResultStatus.Failed, transactionFailed);
+            _transactionResultList.Add(TransactionResultStatus.Mined, transactionMined);
+            return _transactionResultList;
         }
 
         private async Task<long> GetParentChainBlockIndexAsync(ContractServices services,
@@ -397,10 +376,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 Logger.Info("Block is not recorded ");
                 Thread.Sleep(10000);
-
-                indexSideBlock =
-                    MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                        CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+                indexSideBlock = GetIndexSideHeight(services);
             }
 
             return await MainChainService.NodeManager.ApiClient.GetBlockHeightAsync();
@@ -410,23 +386,20 @@ namespace AElf.Automation.SideChain.Verification
             CrossChainTransactionInfo infos)
         {
             var mainHeight = GetParentChainBlockIndexAsync(services, infos).Result;
-            long indexParentBlock = 0;
+            var indexParentBlock = GetIndexParentHeight(services);
             while (indexParentBlock < mainHeight)
             {
+                indexParentBlock = GetIndexParentHeight(services);
                 Logger.Info("Block is not recorded ");
                 Thread.Sleep(10000);
-
-                indexParentBlock = GetIndexParentHeight(services);
             }
         }
 
         protected bool CheckSideChainBlockIndex(ContractServices services, CrossChainTransactionInfo infos)
         {
-            var indexParentBlock =
-                services.CrossChainService.CallViewMethod<SInt64Value>(
-                    CrossChainContractMethod.GetParentChainHeight, new Empty());
+            var indexParentBlock = GetIndexParentHeight(services);
             var transactionHeight = infos.BlockHeight;
-            return indexParentBlock.Value > transactionHeight;
+            return indexParentBlock > transactionHeight;
         }
 
         protected async void SideChainCheckSideChainBlockIndex(ContractServices servicesFrom,
@@ -437,14 +410,11 @@ namespace AElf.Automation.SideChain.Verification
 
             while (!checkResult)
             {
-                var indexSideChainBlock = MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                    CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = servicesFrom.ChainId});
-                var indexParentBlock =
-                    servicesTo.CrossChainService.CallViewMethod<SInt64Value>(
-                        CrossChainContractMethod.GetParentChainHeight, new Empty());
+                var indexSideChainBlock = GetIndexSideHeight(servicesFrom);
+                var indexParentBlock = GetIndexParentHeight(servicesTo);
                 var transactionHeight = infos.BlockHeight;
 
-                if (indexSideChainBlock.Value > transactionHeight && indexParentBlock.Value > mainHeight)
+                if (indexSideChainBlock > transactionHeight && indexParentBlock > mainHeight)
                 {
                     checkResult = true;
                 }

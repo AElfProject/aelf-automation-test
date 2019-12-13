@@ -47,6 +47,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Thread.Sleep(200000);
 
             Logger.Info("Transfer side chain token");
+            TransferTokenToMainChainBpAccount();
             IssueSideTokenForBpAccount();
             Logger.Info("Register address");
             SideChainRegisterMainChain();
@@ -109,7 +110,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                 });
             var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
-            var txResult = CheckTransactionResult(MainChainService, txId);
+            var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception($"Validate chain {MainChainService.ChainId} token contract failed");
             var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
@@ -129,7 +130,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
                     });
                 var sideTxId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
-                var txResult = CheckTransactionResult(sideChainService, sideTxId);
+                var txResult = sideChainService.NodeManager.CheckTransactionResult(sideTxId);
                 if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception($"Validate chain {sideChainService.ChainId} token contract failed");
                 var sideChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, sideTxId, validateTransaction);
@@ -151,7 +152,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     var balance =
                         sideChainService.TokenService.GetUserBalance(node.Account, sideChainService.PrimaryTokenSymbol);
                     if (node.Account == sideChainService.CallAddress || balance > 0) continue;
-                    IssueSideChainToken(sideChainService, node.Account);
+                    if (IsSupplyAllToken(sideChainService))
+                        TransferToken(sideChainService,node.Account);
+                    else 
+                        IssueSideChainToken(sideChainService, node.Account);
                 }
 
                 foreach (var node in nodes)
@@ -161,6 +165,27 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         $"Account:{node.Account}, {sideChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
                 }
             }
+        }
+        
+        private void TransferTokenToMainChainBpAccount()
+        {
+            var nodeConfig = NodeInfoHelper.Config;
+            var nodes = nodeConfig.Nodes;
+
+                foreach (var node in nodes)
+                {
+                    var balance =
+                        MainChainService.TokenService.GetUserBalance(node.Account, MainChainService.PrimaryTokenSymbol);
+                    if (node.Account == MainChainService.CallAddress || balance > 100_00000000) continue;
+                    TransferToken(MainChainService, node.Account);
+                }
+
+                foreach (var node in nodes)
+                {
+                    var accountBalance = GetBalance(MainChainService, node.Account, MainChainService.PrimaryTokenSymbol);
+                    Logger.Info(
+                        $"Account:{node.Account}, {MainChainService.PrimaryTokenSymbol} balance is: {accountBalance}");
+                }
         }
 
         // register
@@ -294,17 +319,21 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var enumerable = miners as Address[] ?? miners.ToArray();
             foreach (var miner in enumerable)
             {
+                var proposal = HashHelper.HexStringToHash(proposalId);
+                var proposalStatue = services.ParliamentService.CheckProposal(proposal);
+                if (proposalStatue.ToBeReleased) goto Release;
                 services.ParliamentService.SetAccount(miner.GetFormatted());
                 var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
                     new ApproveInput
                     {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
+                        ProposalId = proposal
                     });
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception(
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");
             }
 
+            Release:
             services.ParliamentService.SetAccount(InitAccount);
             var releaseResult
                 = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,

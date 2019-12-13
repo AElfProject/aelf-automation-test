@@ -3,6 +3,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.TokenConverter;
+using AElfChain.Common.DtoExtension;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
@@ -26,28 +27,36 @@ namespace AElfChain.Console.Commands
                 .WriteSuccessLine();
 
             var tokenConverter = Services.Genesis.GetTokenConverterStub(parameters[0]);
+            long transactionFee = 0;
+            var tradeAmount = long.Parse(parameters[3]);
             if (parameters[1].Equals("buy"))
-                AsyncHelper.RunSync(() => tokenConverter.Buy.SendAsync(new BuyInput
+            {
+                var transactionResult = AsyncHelper.RunSync(() => tokenConverter.Buy.SendAsync(new BuyInput
                 {
                     Symbol = parameters[2],
-                    Amount = long.Parse(parameters[3]),
+                    Amount = tradeAmount,
                     PayLimit = 0
                 }));
+                transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            }
 
             if (parameters[1].Equals("sell"))
-                AsyncHelper.RunSync(() => tokenConverter.Sell.SendAsync(new SellInput
+            {
+                var transactionResult = AsyncHelper.RunSync(() => tokenConverter.Sell.SendAsync(new SellInput
                 {
                     Symbol = parameters[2],
-                    Amount = long.Parse(parameters[3]),
+                    Amount = tradeAmount,
                     ReceiveLimit = 0
                 }));
+                transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            }
 
             var afterNativeToken = Services.Token.GetUserBalance(parameters[0]);
             var afterResourceToken = Services.Token.GetUserBalance(parameters[0], parameters[2]);
 
             $"Account: {parameters[0]}, {NodeOption.NativeTokenSymbol}={afterNativeToken}, {parameters[2]}={afterResourceToken}"
                 .WriteSuccessLine();
-            $"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float) (beforeNativeToken - afterNativeToken) / (float) (afterResourceToken - beforeResourceToken)}"
+            $"Price({NodeOption.NativeTokenSymbol}/{parameters[2]}): {(float) (beforeNativeToken - afterNativeToken - transactionFee) / (float) (afterResourceToken - beforeResourceToken)}"
                 .WriteSuccessLine();
         }
 
