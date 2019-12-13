@@ -125,7 +125,7 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, result.TransactionResult.TransactionId.ToHex);
 
             return result.TransactionResult;
         }
