@@ -30,6 +30,11 @@ namespace AElfChain.Common.Contracts
         SetFeePoolAddress,
         RegisterCrossChainTokenContractAddress,
         CrossChainCreateToken,
+        UpdateCoefficientFormContract,
+        UpdateCoefficientFormSender,
+        UpdateLinerAlgorithm,
+        UpdatePowerAlgorithm,
+        ChangeFeePieceKey,
 
         //View
         GetTokenInfo,
