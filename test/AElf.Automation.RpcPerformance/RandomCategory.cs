@@ -105,7 +105,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = $"{CommonHelper.RandomString(8, false)}";
                 contract.Symbol = symbol;
-                if (i == 0) //添加默认ELF转账组
+                if (i == 0) //add default ELF transfer group
                 {
                     contract.Symbol = primaryToken;
                     ContractList.Add(contract);
@@ -153,7 +153,7 @@ namespace AElf.Automation.RpcPerformance
 
             Monitor.CheckTransactionsStatus(TxIdList);
             
-            //随机检查用户token
+            //check user token randomly
             foreach (var contract in ContractList)
             {
                 var contractPath = contract.ContractAddress;
@@ -310,7 +310,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         Logger.Error(e.Message);
                         Logger.Error("Cancel all tasks due to transaction execution exception.");
-                        cts.Cancel(); //取消所有任务执行
+                        cts.Cancel(); //cancel all tasks
                     }
                 }, token)
             };

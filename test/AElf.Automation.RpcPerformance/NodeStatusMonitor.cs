@@ -32,7 +32,7 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                if (checkTimes >= 150) return false;    //超过检查次数，退出当前轮交易执行            
+                if (checkTimes >= 150) return false;    //over check time and cancel current round execution            
                 var poolStatus = GetTransactionPoolTxCount();
                 if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
                     return true;

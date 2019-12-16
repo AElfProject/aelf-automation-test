@@ -393,7 +393,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         Logger.Error(e.Message);
                         Logger.Error("Cancel all tasks due to transaction execution exception.");
-                        cts.Cancel(); //取消所有任务执行
+                        cts.Cancel(); //cancel all tasks
                     }
                 }, token)
             };

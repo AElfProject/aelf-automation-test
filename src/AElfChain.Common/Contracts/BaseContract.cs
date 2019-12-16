@@ -18,7 +18,7 @@ namespace AElfChain.Common.Contracts
     public class BaseContract<T>
     {
         /// <summary>
-        ///     部署新合约
+        ///     deploy new contract
         /// </summary>
         /// <param name="nodeManager"></param>
         /// <param name="fileName"></param>
@@ -33,7 +33,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     使用已存在合约
+        ///     Initialize existed contract
         /// </summary>
         /// <param name="nodeManager"></param>
         /// <param name="contractAddress"></param>
@@ -48,7 +48,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     获取合约Stub
+        ///     get contract stub
         /// </summary>
         /// <param name="account"></param>
         /// <param name="password"></param>
@@ -83,7 +83,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     执行交易，返回TransactionId，不等待执行结果
+        ///    execute tx and get transaction id
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -100,7 +100,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     执行交易，返回TransactionId，不等待执行结果
+        ///    send tx and get transaction id
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -111,7 +111,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     执行交易，等待执行结果后返回
+        ///    execution tx and wait result response
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -128,7 +128,7 @@ namespace AElfChain.Common.Contracts
         }
         
         /// <summary>
-        /// 执行交易，如果已经存在，则不执行直接返回
+        ///    check tx whether exist or not before execution
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -157,10 +157,10 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     执行交易，等待执行结果后返回
+        ///     execution tx and wait execution result response
         /// </summary>
-        /// <param name="method">交易方法</param>
-        /// <param name="inputParameter">交易参数</param>
+        /// <param name="method">tx method</param>
+        /// <param name="inputParameter">tx input parameter</param>
         /// <returns></returns>
         public TransactionResultDto ExecuteMethodWithResult(T method, IMessage inputParameter)
         {
@@ -168,7 +168,7 @@ namespace AElfChain.Common.Contracts
         }
         
         /// <summary>
-        /// 执行交易，如果已经存在，则不执行直接返回
+        /// execution tx and check if exist return result
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -180,7 +180,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     切换执行用户
+        ///    switch contract execution owner
         /// </summary>
         /// <param name="account"></param>
         /// <param name="password"></param>
@@ -193,7 +193,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     检查所有执行合约结果
+        ///    check all txs results
         /// </summary>
         public void CheckTransactionResultList()
         {
@@ -239,7 +239,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     调用合约View方法
+        ///    call contract view method
         /// </summary>
         /// <param name="method"></param>
         /// <param name="input"></param>
@@ -251,7 +251,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///     调用合约View方法
+        ///    call view method
         /// </summary>
         /// <param name="method"></param>
         /// <param name="input"></param>

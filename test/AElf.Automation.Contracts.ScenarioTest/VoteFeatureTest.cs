@@ -157,7 +157,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void QueryCandidatesBalance()
         {
-            //查询余额
+            //Query balance
             foreach (var bpAcc in BpNodeAccounts)
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -193,7 +193,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
 
-            //分配资金给FullNode
+            //allocation balance from bp to full node
             Logger.Info("Allowance token to FullNode accounts");
             foreach (var fullAcc in FullNodeAccounts)
             {
@@ -213,7 +213,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     To = AddressHelper.Base58StringToAddress(fullAcc)
                 });
             }
-            //分配资金给BP
+            //allocation balance to bp
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
@@ -236,19 +236,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             consensusService.CheckTransactionResultList();
 
-            //查询余额
             QueryCandidatesBalance();
 
             Logger.Info("All accounts asset prepared completed.");
         }
 
-        //参加选举
+        //attend election
         [TestMethod]
         public void JoinElection()
         {
             PrepareCandidateAsset();
 
-            //参加选举
             foreach (var bpAcc in BpNodeAccounts)
             {
                 electionService.SetAccount(bpAcc);
@@ -263,7 +261,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             consensusService.CheckTransactionResultList(); 
 
-            //检查余额
             QueryCandidatesBalance();
 
             GetCandidateList();
@@ -309,7 +306,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 CH.UnlockAccount(uc);
             }
 
-            //分配资金给普通用户
+            //allocation balance to common tester
             tokenService.SetAccount(BpNodeAccounts[0]);
             foreach (var acc in UserList)
             {
@@ -381,7 +378,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
             consensusService.CheckTransactionResultList();
 
-            //检查投票结果
+            //check election result
             GetPageableElectionInfo();
             GetTicketsInfo();
             Logger.Info("Vote completed.");
@@ -412,7 +409,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             consensusService.CheckTransactionResultList();
-            //检查投票结果
             GetPageableElectionInfo();
             Logger.Info("Vote completed.");
         }
@@ -561,7 +557,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
-        //退出选举
+        //quit election
         [TestMethod]
         public void QuitElection()
         {
@@ -577,7 +573,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             electionService.CheckTransactionResultList();
             GetCandidateList();
 
-            //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -606,7 +601,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             
             GetCandidateList();
 
-            //查询余额
             foreach (var fullAcc in FullNodeAccounts)
             {
                 var callResult = tokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -628,14 +622,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             PrepareUserAccountAndBalance(10);
             UserVoteAction(5, 1);
 
-            //查询信息
             GetCandidateHistoryInfo();
             GetGetCurrentMinersInfo();
             GetTicketsInfo();
             GetCurrentVictories();
             QueryDividends();
 
-            //取消参选
             QuitElection();
         }
 

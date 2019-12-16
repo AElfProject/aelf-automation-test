@@ -52,7 +52,7 @@ namespace AElf.Automation.RpcPerformance
             try
             {
                 var nodeManager = new NodeManager(performance.BaseUrl);
-                if (ExecuteMode == 0) //检测链交易和出块结果
+                if (ExecuteMode == 0) //check node txs and blocks info 
                 {
                     Logger.Info("Check node transaction status information");
                     var nodeSummary = new ExecutionSummary(nodeManager, true);

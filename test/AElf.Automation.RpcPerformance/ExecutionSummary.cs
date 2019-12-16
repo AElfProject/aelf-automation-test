@@ -20,10 +20,10 @@ namespace AElf.Automation.RpcPerformance
         private Dictionary<long, BlockDto> _blockMap;
 
         /// <summary>
-        ///     统计出块信息
+        ///    analyze generate blocks summary info
         /// </summary>
         /// <param name="nodeManager"></param>
-        /// <param name="fromStart">是否从高度为1开始检测</param>
+        /// <param name="fromStart">whether check from height 1</param>
         public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
             _apiService = nodeManager.ApiClient;

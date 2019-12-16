@@ -53,7 +53,7 @@ namespace AElf.Automation.SideChainTests
 
             //Get BpNode Info
             BpNodeAddress = new List<string>();
-            //线下 - 4bp 
+            //offline - 4bp 
             BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
 //            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
 //            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");

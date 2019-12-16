@@ -67,7 +67,7 @@ namespace AElf.Automation.ScenariosExecution
 
             CurrentBpNodes = GetCurrentBpNodes();
             var specifyEndpoint = ScenarioConfig.ReadInformation.SpecifyEndpoint;
-            if (!specifyEndpoint.Enable) //随机选择bp执行
+            if (!specifyEndpoint.Enable) //check whether select random endpoint to run
             {
                 var rd = new Random(DateTime.Now.Millisecond);
                 NodeManager.UpdateApiUrl(CurrentBpNodes[rd.Next(0, CurrentBpNodes.Count - 1)].Endpoint);

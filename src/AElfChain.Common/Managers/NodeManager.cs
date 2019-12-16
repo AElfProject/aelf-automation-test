@@ -246,7 +246,7 @@ namespace AElfChain.Common.Managers
 
         public TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1)
         {
-            if (maxSeconds == -1) maxSeconds = 600; //检查10分钟，避免交易执行中断
+            if (maxSeconds == -1) maxSeconds = 600; //check transaction result 10 minutes.
             Thread.Sleep(1000); //wait 1 second ignore NotExisted result
             var stopwatch = Stopwatch.StartNew();
             var pendingSource = new CancellationTokenSource(maxSeconds * 1000);
@@ -262,7 +262,7 @@ namespace AElfChain.Common.Managers
                 {
                     case TransactionResultStatus.NotExisted:
                         notExist++;
-                        if(notExist >= 20) notExistSource.Cancel(); //连续检查发现为NotExisted则取消检查
+                        if(notExist >= 20) notExistSource.Cancel(); //Continue check and if status 'NotExisted' and cancel check
                         break;
                     case TransactionResultStatus.Pending:
                         if (notExist > 0) notExist = 0;
