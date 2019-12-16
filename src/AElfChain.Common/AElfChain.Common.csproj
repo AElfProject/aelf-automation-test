@@ -23,6 +23,7 @@
         <ProtoContract Include="Protobuf\Proto\test_basic_function_with_parallel_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_update_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_performance_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_events_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\treasury_contract.proto" />
