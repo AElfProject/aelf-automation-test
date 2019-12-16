@@ -99,7 +99,7 @@ namespace AElfChain.Common.Managers
 
             if (!CheckProposalStatue(deployProposalId))
             {
-                Logger.Info("Contract code didn't pass the code check");
+                Logger.Error("Contract code didn't pass the code check");
                 return null;
             }
 
