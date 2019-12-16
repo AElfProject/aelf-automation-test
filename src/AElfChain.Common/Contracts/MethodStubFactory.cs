@@ -101,12 +101,12 @@ namespace AElfChain.Common.Contracts
                 var returnByte = resultDto.ReturnValue == null
                     ? new byte[] { }
                     : ByteArrayHelper.HexStringToByteArray(resultDto.ReturnValue);
-                return new ExecutionResult<TOutput>
+                return await Task.FromResult(new ExecutionResult<TOutput>
                 {
                     Transaction = transaction,
                     TransactionResult = transactionResult,
                     Output = method.ResponseMarshaller.Deserializer(returnByte)
-                };
+                });
             }
 
             async Task<TOutput> CallAsync(TInput input)

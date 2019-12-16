@@ -60,8 +60,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SetTransact
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.CheckTxStatus", "test\AElf.Automation.CheckTxStatus\AElf.Automation.CheckTxStatus.csproj", "{35EF1397-27BE-423B-AF4A-B1039974C99D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Client", "src\AElf.Client\AElf.Client.csproj", "{C32B405E-083A-4AA2-AF95-C6984DEB5130}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,10 +130,6 @@ Global
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,7 +151,6 @@ Global
 		{D6A81E91-CE4A-4B71-BBE8-44F0F1F13812} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{35EF1397-27BE-423B-AF4A-B1039974C99D} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
-		{C32B405E-083A-4AA2-AF95-C6984DEB5130} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

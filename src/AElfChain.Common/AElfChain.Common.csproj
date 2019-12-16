@@ -47,6 +47,7 @@
         <PackageReference Include="AElf.Kernel" Version="0.8.3" />
         <PackageReference Include="AElf.CSharp.Core" Version="0.8.3" />
         <PackageReference Include="AElf.Cryptography" Version="0.8.3" />
+        <PackageReference Include="AElf.Client" Version="0.1.1" />
         <!--end packages-->
         
         <PackageReference Include="Volo.Abp.Core" Version="1.1.0" />
@@ -60,17 +61,9 @@
 
     <ItemGroup>
         <Folder Include="Protobuf\Generated" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Update="config\*">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\AElf.Client\AElf.Client.csproj" />
-    </ItemGroup>
-    
     
 </Project>
