@@ -42,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ElectionService = GenesisService.GetElectionContract();
                 
                 //TokenConverter contract
-                //TokenConverterService = GenesisService.GetTokenConverterContract();
+                TokenConverterService = GenesisService.GetTokenConverterContract();
             }
         }
 

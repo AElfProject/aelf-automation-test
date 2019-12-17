@@ -20,7 +20,6 @@ namespace AElf.Automation.SideChainTests
 {
     public class ContractTester
     {
-        public readonly ConsensusContract ConsensusService;
         public readonly ContractServices ContractServices;
         public readonly CrossChainContract CrossChainService;
         public readonly INodeManager NodeManager;
@@ -33,7 +32,6 @@ namespace AElf.Automation.SideChainTests
             ContractServices = contractServices;
 
             TokenService = ContractServices.TokenService;
-            ConsensusService = ContractServices.ConsensusService;
             CrossChainService = ContractServices.CrossChainService;
             ParliamentService = ContractServices.ParliamentService;
         }
@@ -205,7 +203,6 @@ namespace AElf.Automation.SideChainTests
         //action
         public TransactionResultDto TransferToken(string owner, string spender, long amount, string symbol)
         {
-            TokenService.SetAccount(owner);
             var transfer = TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = symbol,
@@ -214,21 +211,6 @@ namespace AElf.Automation.SideChainTests
                 Memo = "Transfer Token"
             });
             return transfer;
-        }
-
-        public TransactionResultDto CreateToken(string issuer, string symbol, string tokenName)
-        {
-            TokenService.SetAccount(issuer);
-            var create = TokenService.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-            {
-                Symbol = symbol,
-                Decimals = 2,
-                IsBurnable = true,
-                Issuer = AddressHelper.Base58StringToAddress(issuer),
-                TokenName = tokenName,
-                TotalSupply = 100_0000
-            });
-            return create;
         }
 
         public TransactionResultDto IssueToken(string issuer, string symbol, string toAddress)

@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Offline2",
+    "TestEnvironment": "Other",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -56,13 +56,16 @@
             "Environment": "Other",
             "MainChainInfos":
             {
-                "MainChainUrl": "http://192.168.197.56:8001",
+                "MainChainUrl": "http://192.168.197.51:8000",
                 "Account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
                 "Password": "123"
             },
             "SideChainInfos": [
                 {
-                    "SideChainUrl": "http://192.168.197.56:8011"
+                    "SideChainUrl": "http://192.168.197.51:8001"
+                },
+                {
+                    "SideChainUrl": "http://192.168.197.51:8002"
                 }
             ]
         }

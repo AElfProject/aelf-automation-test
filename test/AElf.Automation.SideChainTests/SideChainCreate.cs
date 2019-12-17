@@ -16,16 +16,30 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow("VMxr1PRJopCTXBVboUtrkZUN4SfqtbigFc6z8E9TiMiWyoCF6")]
-        public void RequestSideChain(string account)
+        [DataRow("2YRjTJgE9qziwngfYHQTpMSzjVkY5Bq5sY1LqsZKxyhMZjErQb")]
+        public void TransferSideChain(string account)
         {
-            MainContracts.TransferToken(InitAccount, account, 1000000, NodeOption.NativeTokenSymbol);
-//            MainContracts.TokenApprove(account, 400000);
-//            
-//            var result = MainContracts.RequestSideChain(account,400000);
-//            var transactionResult = result.InfoMsg as TransactionResultDto;
-//            var message = transactionResult.ReadableReturnValue;
-//            _logger.Info($"proposal message is {message}");
+//            MainContracts.TransferToken(InitAccount, account, 100_00000000, NodeOption.NativeTokenSymbol);
+//            SideContractTester1.TransferToken(InitAccount, account, 100_00000000, SideContractTester1.TokenService.GetPrimaryTokenSymbol());
+//            SideContractTester2.TransferToken(InitAccount, account, 100_00000000, SideContractTester2.TokenService.GetPrimaryTokenSymbol());
+//            SideContractTester3.TransferToken(InitAccount, account, 100_00000000, SideContractTester3.TokenService.GetPrimaryTokenSymbol());
+//            SideContractTester4.TransferToken(InitAccount, account, 100_00000000, SideContractTester4.TokenService.GetPrimaryTokenSymbol());
+//            SideContractTester5.TransferToken(InitAccount, account, 100_00000000, SideContractTester5.TokenService.GetPrimaryTokenSymbol());
+
+            _logger.Info($"{MainContracts.GetBalance(InitAccount, NodeOption.NativeTokenSymbol).Balance}"); 
+            _logger.Info($"{SideContractTester1.GetBalance(InitAccount, SideContractTester1.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester2.GetBalance(InitAccount, SideContractTester2.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester3.GetBalance(InitAccount, SideContractTester3.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester4.GetBalance(InitAccount, SideContractTester4.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester5.GetBalance(InitAccount, SideContractTester5.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            
+            _logger.Info($"{MainContracts.GetBalance(account, NodeOption.NativeTokenSymbol)}"); 
+            _logger.Info($"{SideContractTester1.GetBalance(account, SideContractTester1.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester2.GetBalance(account, SideContractTester2.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester3.GetBalance(account, SideContractTester3.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester4.GetBalance(account, SideContractTester4.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            _logger.Info($"{SideContractTester5.GetBalance(account, SideContractTester5.TokenService.GetPrimaryTokenSymbol()).Balance}");
+            
         }
 
         //708d7c62cb33df097c68686796fa4cba9b418ef3b73cd83ab85086037b5a0a9f 2882050

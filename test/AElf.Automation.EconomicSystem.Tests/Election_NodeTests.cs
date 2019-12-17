@@ -38,8 +38,8 @@ namespace AElf.Automation.EconomicSystem.Tests
         {
             foreach (var user in FullNodeAddress)
             {
-                var election = Behaviors.ElectionService.GetNewTester(user, "123");
-                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                Behaviors.ElectionService.SetAccount(user);
+                var electionResult = Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
             }
 
             var candidateList = Behaviors.GetCandidates();

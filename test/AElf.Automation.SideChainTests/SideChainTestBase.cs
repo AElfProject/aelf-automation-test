@@ -16,18 +16,29 @@ namespace AElf.Automation.SideChainTests
         public ContractTester MainContracts;
         public ContractTester SideContractTester1;
         public ContractTester SideContractTester2;
+        public ContractTester SideContractTester3;
+        public ContractTester SideContractTester4;
+        public ContractTester SideContractTester5;
         public ContractTester SideContractTester11;
         
         public ContractServices sideAServices;
         public ContractServices sideBServices;
+        public ContractServices sideCServices;
+        public ContractServices sideDServices;
+        public ContractServices sideEServices;
+
+        
         public ContractServices sideSideAServices;
 
         
-        public static string MainChainUrl { get; } = "http://192.168.197.56:8001";
-        public static string SideAChainUrl { get; } = "http://192.168.197.56:8011";
+        public static string MainChainUrl { get; } = "http://52.90.147.175:8000";
+        public static string SideAChainUrl { get; } = "http://54.84.43.173:8000";
 //        public static string SideSideAChainUrl { get; } = "http://192.168.197.56:8111";
+        public static string SideBChainUrl { get; } = "http://54.234.110.152:8000";
+//        public static string SideCChainUrl { get; } = "http://54.146.209.204:8000";
+//        public static string SideDChainUrl { get; } = "http://52.201.34.95:8000";
+//        public static string SideEChainUrl { get; } = "http://3.95.195.143:8000";
 
-//        public static string SideBChainUrl { get; } = "http://192.168.197.14:8002";
 
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
 
@@ -42,28 +53,21 @@ namespace AElf.Automation.SideChainTests
 
              sideAServices = new ContractServices(SideAChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVV");
 //             sideSideAServices = new ContractServices(SideSideAChainUrl, InitAccount, NodeOption.DefaultPassword, "AZpC");
-
-
-             //             sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVW");
+            sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVW");
+            
+//            sideCServices = new ContractServices(SideCChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVX");
+//            
+//            sideDServices = new ContractServices(SideDChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVY");
+//            
+//            sideEServices = new ContractServices(SideEChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVZ");
              
              MainContracts = new ContractTester(mainServices);
              SideContractTester1 = new ContractTester(sideAServices);
 //             SideContractTester11 = new ContractTester(sideSideAServices);
-//             SideContractTester2 = new ContractTester(sideBServices);
-
-            //Get BpNode Info
-            BpNodeAddress = new List<string>();
-            //线下 - 4bp 
-            BpNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
-//            BpNodeAddress.Add("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK");
-//            BpNodeAddress.Add("2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz");
-//            BpNodeAddress.Add("WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k");
-//            BpNodeAddress.Add("2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D");
-//            BpNodeAddress.Add("2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2");
-//            BpNodeAddress.Add("eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ");
-//            BpNodeAddress.Add("2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws");
-//            BpNodeAddress.Add("EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB");
-//            BpNodeAddress.Add("2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx");
+             SideContractTester2 = new ContractTester(sideBServices);
+//             SideContractTester3 = new ContractTester(sideCServices);
+//             SideContractTester4 = new ContractTester(sideDServices);
+//             SideContractTester5 = new ContractTester(sideEServices);
         }
 
         protected ContractTester GetSideChain(string url, string initAccount, string chainId)
@@ -74,7 +78,7 @@ namespace AElf.Automation.SideChainTests
             return tester;
         }
 
-        protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractServices tester)
+        protected MerklePath GetMerklePath(string blockNumber, string TxId, ContractServices tester,out Hash root)
         {
             var index = 0;
             var blockInfoResult =
@@ -104,41 +108,10 @@ namespace AElf.Automation.SideChainTests
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
-            var root = bmt.Root;
+            root = bmt.Root;
             var merklePath = new MerklePath();
             merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             return merklePath;
-        }
-        
-        protected Hash GetMerkleRoot(string blockNumber, string TxId, ContractServices tester)
-        {
-            var blockInfoResult =
-                AsyncHelper.RunSync(() => tester.NodeManager.ApiClient.GetBlockByHeightAsync(long.Parse(blockNumber), true));
-            var transactionIds = blockInfoResult.Body.Transactions;
-            var transactionStatus = new List<string>();
-
-            foreach (var transactionId in transactionIds)
-            {
-                var txResult = AsyncHelper.RunSync(() =>
-                    tester.NodeManager.ApiClient.GetTransactionResultAsync(transactionId));
-                var resultStatus = txResult.Status.ConvertTransactionResultStatus();
-                transactionStatus.Add(resultStatus.ToString());
-            }
-
-            var txIdsWithStatus = new List<Hash>();
-            for (var num = 0; num < transactionIds.Count; num++)
-            {
-                var txId = HashHelper.HexStringToHash(transactionIds[num].ToString());
-                string txRes = transactionStatus[num];
-                var rawBytes = txId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
-                    .ToArray();
-                var txIdWithStatus = Hash.FromRawBytes(rawBytes);
-                txIdsWithStatus.Add(txIdWithStatus);
-            }
-
-            var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
-            var root = bmt.Root;
-            return root;
         }
     }
 }

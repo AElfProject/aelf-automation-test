@@ -26,12 +26,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         protected ContractTester Tester;
 
         public INodeManager NM { get; set; }
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public string InitAccount { get; } = "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k";
         public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        private static string MainRpcUrl { get; } = "http://192.168.197.56:8001";
-        private static string SideRpcUrl { get; } = "http://192.168.197.56:8011";
-        private static string SideRpcUrl2 { get; } = "http://192.168.197.56:8021";
+        private static string MainRpcUrl { get; } = "http://192.168.197.51:8000";
+        private static string SideRpcUrl { get; } = "http://192.168.197.40:8001";
+        private static string SideRpcUrl2 { get; } = "http://192.168.197.40:8002";
         private string Type { get; } = "Main";
 
         [TestInitialize]
@@ -120,8 +120,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_MinerProposalContract_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
-            var contractProposalInfo = ProposalNewContract(Tester, InitAccount,input);
+            var input = ContractDeploymentInput("AElf.Contracts.TestContract.TransactionFees");
+//            var contractProposalInfo = ProposalNewContract(Tester, InitAccount, input);
+            var contractProposalInfo = new ReleaseContractInput
+            {
+                ProposalId = HashHelper.HexStringToHash("7f6a40b862239b2c403020a0555f8e42aabe699089dc6292f851339cddae9249"),
+                ProposedContractInputHash = HashHelper.HexStringToHash("1f6340e0cd1a8d535c8765cd2ac9b1cd65e79efafd8b2d3d562656685b21a085")
+            };
+
             Approve(Tester, contractProposalInfo.ProposalId);
             var release = ReleaseApprove(Tester, contractProposalInfo, InitAccount);
             
@@ -133,7 +139,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
         
         [TestMethod]
-        [DataRow("41220cef4143cf3532ac1b46dfc53f183d4bc8718c59f3a0f40b1ccebdde58b5","cc212f7ad88e8e2958ec07165f9b248fc3967cb3263e928136765adb7b3ed9a2")]
+        [DataRow("b3203d78ee8f577e976b79b1b1fdc8efc6f585beea02f411c9cd37344fb25dce","e7588bbfd9a390bf1467203b3bdad43526f5930ced4246a7972cea51deb1c97e")]
         public void ReleaseDeployCodeCheck(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -250,7 +256,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         
 
         [TestMethod]
-        [DataRow("1a0d0f50d4472eb09242383e401ea525b7fa0ce8bd2f866c4fd000b30cede13d")]
+        [DataRow("7f6a40b862239b2c403020a0555f8e42aabe699089dc6292f851339cddae9249")]
         public void CheckProposal(string proposalId)
         {
             var proposal = HashHelper.HexStringToHash(proposalId);
@@ -283,11 +289,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
         
         [TestMethod]
-        [DataRow("GiIKIKOmGZC08DAoVVq4bnxr6WsfKAUpflGo1WLHAKS9g+SD")]
-        public void test(string input)
+        [DataRow("CiIKIEpPxz/NJXjoWfyY0hkjcQlVpwTM2qLoR9nS7Dye0i9i")]
+        public void Test(string input)
         {
             var byteString = ByteString.FromBase64(input);
-            var deployProposal = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
             _logger.Info($"{deployProposal}\n");
         }
 

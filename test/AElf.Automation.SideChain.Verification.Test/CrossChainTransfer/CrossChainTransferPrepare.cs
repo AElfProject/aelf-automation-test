@@ -16,6 +16,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             MainChainService = InitMainChainServices();
             SideChainServices = InitSideChainServices();
+            TokenSymbols = new List<string>();
+            foreach (var token in SideChainServices.Select(sideChain => sideChain.PrimaryTokenSymbol))
+            {
+                TokenSymbols.Add(token);
+            }
         }
 
         public void DoCrossChainTransferPrepare()
@@ -23,6 +28,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Logger.Info($"Main chain transfer {NativeToken} to other side chain InitAccount");
             CrossChainTransferToInitAccount(NativeToken);
 
+            foreach (var sideChain in SideChainServices)
+            {
+                Logger.Info($"Side chain transfer {sideChain.PrimaryTokenSymbol} to other chain InitAccount");
+                CrossChainTransferToInitAccount(sideChain.PrimaryTokenSymbol);
+            }
+            
             Logger.Info($"Init account transfer {NativeToken} to other account");
             InitCrossChainTransfer(NativeToken);
 

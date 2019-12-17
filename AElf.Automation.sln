@@ -62,6 +62,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.CheckTxStat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Client", "src\AElf.Client\AElf.Client.csproj", "{C32B405E-083A-4AA2-AF95-C6984DEB5130}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.NetworkTest", "test\AElf.Automation.NetworkTest\AElf.Automation.NetworkTest.csproj", "{2C1109CE-8BB1-42E1-9EAF-62C473543588}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +138,10 @@ Global
 		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C32B405E-083A-4AA2-AF95-C6984DEB5130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,6 +164,7 @@ Global
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{35EF1397-27BE-423B-AF4A-B1039974C99D} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{C32B405E-083A-4AA2-AF95-C6984DEB5130} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
+		{2C1109CE-8BB1-42E1-9EAF-62C473543588} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}
