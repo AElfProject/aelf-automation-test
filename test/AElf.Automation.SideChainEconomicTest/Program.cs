@@ -27,7 +27,6 @@ namespace AElf.Automation.SideChainEconomicTest
                 await mainTest.MainManager.BuyResources(ChainConstInfo.ChainAccount, 2000);
                 await mainTest.Transfer_From_Main_To_Side();
 
-                //设置资源币价格
                 sideTest.SideManager.SetResourceUnitPrice(sideTest.SideA);
 
                 acs8Contract = await sideTest.DeployContract_And_Transfer_Resources();

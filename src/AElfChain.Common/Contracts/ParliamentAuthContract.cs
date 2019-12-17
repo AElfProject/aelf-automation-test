@@ -52,7 +52,7 @@ namespace AElfChain.Common.Contracts
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
-            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, proposal.TransactionResult.TransactionId.ToHex);
             var returnValue = proposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
             Logger.Info($"Proposal {returnValue} created success by {caller ?? CallAddress}.");
             var proposalId =

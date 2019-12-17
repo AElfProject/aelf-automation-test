@@ -3,7 +3,7 @@ using System;
 namespace AElfChain.Common.Helpers
 {
     /// <summary>
-    ///     控制台帮助类
+    ///     console helper class
     /// </summary>
     public static class ConsoleHelper
     {
@@ -19,10 +19,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     打印错误信息
+        ///     print error message
         /// </summary>
-        /// <param name="str">待打印的字符串</param>
-        /// <param name="color">想要打印的颜色</param>
+        /// <param name="str">print message</param>
+        /// <param name="color">print color</param>
         /// <param name="changeLine"></param>
         public static void WriteErrorLine(this string str, ConsoleColor color = ConsoleColor.Red,
             bool changeLine = true)
@@ -31,10 +31,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     打印警告信息
+        ///   print warning message
         /// </summary>
-        /// <param name="str">待打印的字符串</param>
-        /// <param name="color">想要打印的颜色</param>
+        /// <param name="str">print message</param>
+        /// <param name="color">print color</param>
         /// <param name="changeLine"></param>
         public static void WriteWarningLine(this string str, ConsoleColor color = ConsoleColor.Yellow,
             bool changeLine = true)
@@ -43,10 +43,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     打印正常信息
+        ///     print information message
         /// </summary>
-        /// <param name="str">待打印的字符串</param>
-        /// <param name="color">想要打印的颜色</param>
+        /// <param name="str">print message</param>
+        /// <param name="color">print color</param>
         /// <param name="changeLine"></param>
         public static void InfoLine(this string str, ConsoleColor color = ConsoleColor.White, bool changeLine = true)
         {
@@ -54,10 +54,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     打印成功的信息
+        ///     print success message
         /// </summary>
-        /// <param name="str">待打印的字符串</param>
-        /// <param name="color">想要打印的颜色</param>
+        /// <param name="str">print message</param>
+        /// <param name="color">print color</param>
         /// <param name="changeLine"></param>
         public static void WriteSuccessLine(this string str, ConsoleColor color = ConsoleColor.Green,
             bool changeLine = true)

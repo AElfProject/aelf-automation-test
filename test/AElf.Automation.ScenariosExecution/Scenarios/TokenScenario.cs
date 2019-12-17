@@ -147,7 +147,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NodeOption.NativeTokenSymbol,
                     Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
                 }, out var existed);
-                if (existed) return; //检查交易是否以存在
+                if (existed) return; //check tx whether existed
                 if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
                 var transactionFee = transactionResult.TransactionFee.GetDefaultTransactionFee();

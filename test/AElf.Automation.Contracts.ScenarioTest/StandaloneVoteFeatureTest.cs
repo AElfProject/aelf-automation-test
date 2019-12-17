@@ -110,7 +110,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             consensusService.SetAccount(BpNodeAccounts[0]);
 
-            //分配资金给BP
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
@@ -148,7 +147,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 NodeManager.UnlockAccount(uc);
             }
 
-            //分配资金给普通用户
             tokenService.SetAccount(BpNodeAccounts[0]);
             foreach (var acc in UserList)
             {
@@ -200,7 +198,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             PrepareCandidateAsset();
 
-            //参加选举
             foreach (var bpAcc in BpNodeAccounts)
             {
                 consensusService.SetAccount(bpAcc);
@@ -214,7 +211,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("All Full Node joined election completed.");
         }
 
-        //参加选举
+        //attend election
         [TestMethod]
         [DataRow(50)]
         public void UserVoteAction(int voteUserCount)
@@ -234,7 +231,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             consensusService.CheckTransactionResultList();
-            //检查投票结果
+            //check vote result
             GetPageableElectionInfo();
             GetTicketsInfo();
             Logger.Info("Vote completed.");

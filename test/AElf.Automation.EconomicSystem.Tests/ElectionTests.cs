@@ -159,7 +159,6 @@ namespace AElf.Automation.EconomicSystem.Tests
             UserList = NewAccount(Behaviors, userAccount);
             UnlockAccounts(Behaviors, userAccount, UserList);
 
-            //分配资金给普通用户
             var balance = Behaviors.GetBalance(UserList[0]);
             if (balance.Balance >= 20_0000_00000000)
                 return;

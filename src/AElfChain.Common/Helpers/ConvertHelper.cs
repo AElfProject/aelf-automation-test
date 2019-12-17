@@ -5,31 +5,31 @@ namespace AElfChain.Common.Helpers
     public static class ConvertHelper
     {
         /// <summary>
-        ///     将object对象转换为Json数据
+        ///     convert object to json
         /// </summary>
-        /// <param name="obj">object对象</param>
-        /// <returns>转换后的json字符串</returns>
+        /// <param name="obj">object target</param>
+        /// <returns>json string</returns>
         public static string ObjectToJson(object obj)
         {
             return obj == null ? string.Empty : JsonConvert.SerializeObject(obj);
         }
 
         /// <summary>
-        ///     将object对象转换为Json数据
+        ///    convert object to json
         /// </summary>
-        /// <param name="obj">object对象</param>
-        /// <param name="serializerSettings">序列化设置</param>
-        /// <returns>转换后的json字符串</returns>
+        /// <param name="obj">object target</param>
+        /// <param name="serializerSettings">serializer settings</param>
+        /// <returns>json string</returns>
         public static string ObjectToJson(object obj, JsonSerializerSettings serializerSettings)
         {
             return null == obj ? string.Empty : JsonConvert.SerializeObject(obj, serializerSettings);
         }
 
         /// <summary>
-        ///     将object对象转换为Json数据
+        ///    convert object to json
         /// </summary>
-        /// <param name="obj">目标对象</param>
-        /// <param name="isConvertToSingleQuotes">是否将双引号转成单引号</param>
+        /// <param name="obj">target obj</param>
+        /// <param name="isConvertToSingleQuotes">is convert to single quotes</param>
         public static string ObjectToJson(object obj, bool isConvertToSingleQuotes)
         {
             if (obj == null)
@@ -41,10 +41,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     将object对象转换为Json数据
+        ///    convert object to json
         /// </summary>
-        /// <param name="obj">目标对象</param>
-        /// <param name="isConvertToSingleQuotes">是否将双引号转成单引号</param>
+        /// <param name="obj">object target</param>
+        /// <param name="isConvertToSingleQuotes">is convert to single quotes</param>
         /// <param name="settings"></param>
         public static string ObjectToJson(object obj, bool isConvertToSingleQuotes, JsonSerializerSettings settings)
         {
@@ -57,23 +57,23 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     将Json对象转换为T对象
+        ///    convert json to object
         /// </summary>
-        /// <typeparam name="T">对象的类型</typeparam>
-        /// <param name="jsonString">json对象字符串</param>
-        /// <returns>由字符串转换得到的T对象</returns>
+        /// <typeparam name="T">object type</typeparam>
+        /// <param name="jsonString">json string</param>
+        /// <returns>object instance</returns>
         public static T JsonToObject<T>(string jsonString)
         {
             return string.IsNullOrWhiteSpace(jsonString) ? default : JsonConvert.DeserializeObject<T>(jsonString);
         }
 
         /// <summary>
-        ///     将Json对象转换为T对象
+        ///    convert json to T object
         /// </summary>
-        /// <typeparam name="T">对象的类型</typeparam>
-        /// <param name="jsonString">json对象字符串</param>
+        /// <typeparam name="T">object type</typeparam>
+        /// <param name="jsonString">json string</param>
         /// <param name="settings"></param>
-        /// <returns>由字符串转换得到的T对象</returns>
+        /// <returns>T object instance</returns>
         public static T JsonToObject<T>(string jsonString, JsonSerializerSettings settings)
         {
             return string.IsNullOrWhiteSpace(jsonString)

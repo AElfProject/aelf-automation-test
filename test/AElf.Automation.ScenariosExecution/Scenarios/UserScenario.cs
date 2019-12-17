@@ -119,7 +119,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 SchemeId = schemeId,
                 Symbol = NodeOption.NativeTokenSymbol
             }, out var existed);
-            if (existed) return; //交易已经存在，不再执行
+            if (existed) return; //if found tx existed and return
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
             var checkResult = true;

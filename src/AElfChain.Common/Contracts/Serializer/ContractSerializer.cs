@@ -18,11 +18,11 @@ using AElf.Contracts.Profit;
 using AElf.Contracts.ReferendumAuth;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicUpdate;
+using AElf.Contracts.TestContract.Events;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
-using AElfChain.Common.Contracts;
 using Google.Protobuf.Reflection;
 using ExecutionAcs5 = AElf.Kernel.SmartContract.ExecutionPluginForAcs5.Tests.TestContract;
 using ExecutionAcs8 = AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
@@ -128,9 +128,20 @@ namespace AElfChain.Common.Contracts.Serializer
                         ReferendumAuthContractContainer.Descriptor
                     }
                 },
-                {NameProvider.TestBasicFunction, new List<ServiceDescriptor>{BasicFunctionContractContainer.Descriptor}},
-                {NameProvider.TestUpdateFunction, new List<ServiceDescriptor>{BasicUpdateContractContainer.Descriptor}},
+                {
+                    NameProvider.TestBasicFunction,
+                    new List<ServiceDescriptor> {BasicFunctionContractContainer.Descriptor}
+                },
+                {
+                    NameProvider.TestUpdateFunction,
+                    new List<ServiceDescriptor> {BasicUpdateContractContainer.Descriptor}
+                },
                 {NameProvider.TestPerformance, new List<ServiceDescriptor> {PerformanceContractContainer.Descriptor}},
+                {
+                    NameProvider.TestEvents,
+                    new List<ServiceDescriptor>
+                        {MethodFeeProviderContractContainer.Descriptor, EventsContractContainer.Descriptor}
+                },
                 {NameProvider.ExecutionAcs5, new List<ServiceDescriptor> {ExecutionAcs5.ContractContainer.Descriptor}},
                 {NameProvider.ExecutionAcs8, new List<ServiceDescriptor> {ExecutionAcs8.ContractContainer.Descriptor}}
             };

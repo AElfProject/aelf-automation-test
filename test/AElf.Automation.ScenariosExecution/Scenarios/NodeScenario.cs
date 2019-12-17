@@ -84,7 +84,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     count++;
                     Logger.Info($"User {fullNode.Account} announcement election success.");
-                    UserScenario.GetCandidates(Election); //更新candidates列表
+                    UserScenario.GetCandidates(Election); //update candidates list
                 }
 
                 if (count == 3)
@@ -112,7 +112,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 if (quitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.Info($"User {fullNode.Account} quit election success.");
-                UserScenario.GetCandidates(Election); //更新candidates列表
+                UserScenario.GetCandidates(Election); //update candidates list
                 break;
             }
         }
@@ -285,7 +285,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Symbol = NodeOption.NativeTokenSymbol
             }, out var existed);
 
-            if (existed) return; //忽略已经存在交易
+            if (existed) return; //ignore existed tx
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             
             //check profit amount process

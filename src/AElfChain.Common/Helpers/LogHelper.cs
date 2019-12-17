@@ -163,7 +163,7 @@ namespace AElfChain.Common.Helpers
 
                 try
                 {
-                    //显示调用关闭
+                    //show tag and time info
                     _streamWriter.WriteLine("[" + DateTime.Now.ToString(timeStamp) + " - Error]: " + exception.Message);
                     _streamWriter.Flush();
                 }

@@ -100,7 +100,7 @@ namespace AElfChain.Common.Managers
             {
                 if (file.Length == 0)
                 {
-                    File.Delete(file.FullName); //删除文件内容为空的账户文件
+                    File.Delete(file.FullName); //delete empty account files
                     continue;
                 }
                 accounts.Add(Path.GetFileNameWithoutExtension(file.Name));

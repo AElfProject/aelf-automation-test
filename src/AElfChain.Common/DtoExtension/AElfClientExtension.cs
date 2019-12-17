@@ -8,7 +8,7 @@ namespace AElfChain.Common.DtoExtension
     public static class AElfClientExtension
     {
         /// <summary>
-        /// 实例化AElf Client
+        /// get AElf client instance
         /// </summary>
         /// <param name="baseUrl"></param>
         /// <returns></returns>

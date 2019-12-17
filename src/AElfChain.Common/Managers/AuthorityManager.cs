@@ -76,40 +76,46 @@ namespace AElfChain.Common.Managers
             };
             var approveUsers = GetMinApproveMiners();
 
-            var proposalNewContact = _genesis.ProposeNewContract(input,caller);
-            var proposalId = ProposalCreated.Parser.ParseFrom(proposalNewContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed).ProposalId;
+            var proposalNewContact = _genesis.ProposeNewContract(input, caller);
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(proposalNewContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ProposalId;
             var proposalHash = ContractProposed.Parser
                 .ParseFrom(proposalNewContact.Logs.First(l => l.Name.Contains(nameof(ContractProposed))).NonIndexed)
                 .ProposedContractInputHash;
-            
+
             var releaseInput = new ReleaseContractInput
             {
                 ProposalId = proposalId,
                 ProposedContractInputHash = proposalHash
             };
-            
+
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
-            var deployProposalId = ProposalCreated.Parser.ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed).ProposalId;
-            Logger.Info($"Deploy contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
+            var deployProposalId = ProposalCreated.Parser
+                .ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ProposalId;
+            Logger.Info(
+                $"Deploy contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
 
             if (!CheckProposalStatue(deployProposalId))
             {
-                Logger.Info("Contract code didn't pass the code check");
+                Logger.Error("Contract code didn't pass the code check");
                 return null;
-            } 
-            
+            }
+
             var checkCodeRelease = new ReleaseContractInput()
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = deployProposalId
             };
 
-            var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease,caller);
+            var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease, caller);
             release.Status.ShouldBe("MINED");
-            var byteString3 = ByteString.FromBase64(release.Logs.First(l =>l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+            var byteString3 =
+                ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString3).Address;
             Logger.Info($"Contract deploy passed authority, contract address: {deployAddress}");
-            
+
             return deployAddress;
         }
 
@@ -122,37 +128,43 @@ namespace AElfChain.Common.Managers
             };
             var approveUsers = GetMinApproveMiners();
 
-            var proposalUpdateContact = _genesis.ProposeUpdateContract(input,caller);
-            var proposalId = ProposalCreated.Parser.ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed).ProposalId;
+            var proposalUpdateContact = _genesis.ProposeUpdateContract(input, caller);
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ProposalId;
             var proposalHash = ContractProposed.Parser
                 .ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ContractProposed))).NonIndexed)
                 .ProposedContractInputHash;
-            
+
             var releaseInput = new ReleaseContractInput
             {
                 ProposalId = proposalId,
                 ProposedContractInputHash = proposalHash
             };
-            
+
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
-            var deployProposalId = ProposalCreated.Parser.ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed).ProposalId;
-            Logger.Info($"Update contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
+            var deployProposalId = ProposalCreated.Parser
+                .ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ProposalId;
+            Logger.Info(
+                $"Update contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
 
             if (!CheckProposalStatue(deployProposalId))
             {
                 Logger.Error("Contract code didn't pass the code check");
                 return null;
-            } 
-            
+            }
+
             var checkCodeRelease = new ReleaseContractInput()
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = deployProposalId
             };
 
-            var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease,caller);
+            var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease, caller);
             release.Status.ShouldBe("MINED");
-            var byteString = ByteString.FromBase64(release.Logs.First(l =>l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
+            var byteString =
+                ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
             return updateAddress;
@@ -166,7 +178,8 @@ namespace AElfChain.Common.Managers
 
         public List<string> GetMinApproveMiners()
         {
-            var minersCount = _consensus.CallViewMethod<PubkeyList>(ConsensusMethod.GetCurrentMinerPubkeyList, new Empty())
+            var minersCount = _consensus
+                .CallViewMethod<PubkeyList>(ConsensusMethod.GetCurrentMinerPubkeyList, new Empty())
                 .Pubkeys.Count;
             var minNumber = minersCount * 2 / 3 + 1;
             var currentMiners = GetCurrentMiners();
@@ -188,23 +201,25 @@ namespace AElfChain.Common.Managers
 
             //approve
             _parliament.MinersApproveProposal(proposalId, approveUsers);
-            
+
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
 
-        private TransactionResult ApproveAndRelease(ReleaseContractInput input,IEnumerable<string> approveUsers, string callUser)
+        private TransactionResult ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
+            string callUser)
         {
             //approve
             _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
-            
+
             //check
             var approveStatue = _parliament.CheckProposal(input.ProposalId);
-            
+
             if (!approveStatue.ToBeReleased)
             {
                 _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
             }
+
             //release
             return _genesis.ReleaseApprovedContract(input, callUser);
         }
@@ -239,7 +254,7 @@ namespace AElfChain.Common.Managers
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
             foreach (var bp in bps.Skip(1))
             {
-                var balance = _token.GetUserBalance(bp,primaryToken);
+                var balance = _token.GetUserBalance(bp, primaryToken);
                 if (balance < 1000_00000000)
                     _token.TransferBalance(bps[0], bp, 10000_00000000 - balance, primaryToken);
             }

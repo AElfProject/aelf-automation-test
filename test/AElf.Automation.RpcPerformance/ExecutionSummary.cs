@@ -20,15 +20,15 @@ namespace AElf.Automation.RpcPerformance
         private Dictionary<long, BlockDto> _blockMap;
 
         /// <summary>
-        ///     统计出块信息
+        ///    analyze generate blocks summary info
         /// </summary>
         /// <param name="nodeManager"></param>
-        /// <param name="fromStart">是否从高度为1开始检测</param>
+        /// <param name="fromStart">whether check from height 1</param>
         public ExecutionSummary(INodeManager nodeManager, bool fromStart = false)
         {
             _apiService = nodeManager.ApiClient;
             _blockMap = new Dictionary<long, BlockDto>();
-            _blockHeight = fromStart ? 1 : GetBlockHeight();
+            _blockHeight = fromStart ? 1 : AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
         }
 
         public void ContinuousCheckTransactionPerformance(CancellationToken ct)
@@ -44,7 +44,7 @@ namespace AElf.Automation.RpcPerformance
                 
                 if (checkTimes == 60)
                     break;
-                var height = GetBlockHeight();
+                var height = AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
                 if (height == _blockHeight)
                 {
                     checkTimes++;
@@ -58,7 +58,7 @@ namespace AElf.Automation.RpcPerformance
                 for (var i = _blockHeight; i < height; i++)
                 {
                     var j = i;
-                    var block = GetBlockByHeight(j);
+                    var block = AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(j));
                     _blockMap.Add(j, block);
                     if (!_blockMap.Keys.Count.Equals(Phase)) continue;
                     SummaryBlockTransactionInPhase(_blockMap.Values.First(), _blockMap.Values.Last());
@@ -82,16 +82,6 @@ namespace AElf.Automation.RpcPerformance
                         $"{startBlock.Header.Time:hh:mm:ss}~{endBlockDto.Header.Time:hh:mm:ss}. " +
                         $"Average each block generated in {timePerBlock} milliseconds. " +
                         $"{timePerTx} txs executed per second.");
-        }
-
-        private long GetBlockHeight()
-        {
-            return AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
-        }
-
-        private BlockDto GetBlockByHeight(long height)
-        {
-            return AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(height));
         }
 
         private static int GetPerBlockTimeSpan(BlockDto startBlock, BlockDto endBlockDto)

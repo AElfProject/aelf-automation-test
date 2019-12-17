@@ -157,7 +157,7 @@ namespace AElfChain.Common.Helpers
 
         public static string ConvertJsonString(string str)
         {
-            //格式化json字符串
+            //format json string info
             var serializer = new JsonSerializer();
             var tr = new StringReader(str);
             var jtr = new JsonTextReader(tr);

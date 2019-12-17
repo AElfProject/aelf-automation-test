@@ -112,10 +112,10 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///     转换十六进制字符串
+        ///     convert hex value
         /// </summary>
         /// <param name="hexString"></param>
-        /// <param name="isHex">是否是十六进制数值</param>
+        /// <param name="isHex">whether hex type</param>
         /// <returns></returns>
         public static string ConvertHexInfo(string hexString, bool isHex = false)
         {

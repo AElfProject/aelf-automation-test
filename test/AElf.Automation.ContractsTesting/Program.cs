@@ -42,10 +42,6 @@ namespace AElf.Automation.ContractsTesting
             Log4NetHelper.LogInit("ContractTest");
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiClient;
-            while (true)
-            {
-                nm.NewAccount();
-            }
             
             //analyze size fee
             var feeProvider = new TransactionFeeProvider();

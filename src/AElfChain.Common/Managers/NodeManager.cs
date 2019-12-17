@@ -246,16 +246,27 @@ namespace AElfChain.Common.Managers
 
         public TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1)
         {
-            if (maxSeconds == -1) maxSeconds = 300;
-
+            if (maxSeconds == -1) maxSeconds = 600; //check transaction result 10 minutes.
+            Thread.Sleep(1000); //wait 1 second ignore NotExisted result
             var stopwatch = Stopwatch.StartNew();
-            var source = new CancellationTokenSource(maxSeconds * 1000);
-            while (!source.IsCancellationRequested)
+            var pendingSource = new CancellationTokenSource(maxSeconds * 1000);
+            var notExistSource = new CancellationTokenSource();
+            var compositeCancel =
+                CancellationTokenSource.CreateLinkedTokenSource(pendingSource.Token, notExistSource.Token);
+            var notExist = 0;
+            while (!compositeCancel.IsCancellationRequested)
             {
                 var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
+                    case TransactionResultStatus.NotExisted:
+                        notExist++;
+                        if(notExist >= 20) notExistSource.Cancel(); //Continue check and if status 'NotExisted' and cancel check
+                        break;
+                    case TransactionResultStatus.Pending:
+                        if (notExist > 0) notExist = 0;
+                        break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(
                             $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
@@ -263,7 +274,6 @@ namespace AElfChain.Common.Managers
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                    {
                         var message =
                             $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
@@ -271,7 +281,6 @@ namespace AElfChain.Common.Managers
                         message += $"\r\nError Message: {transactionResult.Error}";
                         Logger.Error(message, true);
                         return transactionResult;
-                    }
                 }
 
                 Console.Write(
