@@ -16,7 +16,7 @@ namespace AElf.Automation.EconomicSystem.Tests
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
         protected Behaviors Behaviors;
-        //protected static string RpcUrl { get; } = "http://192.168.197.14:8001";
+//        protected static string RpcUrl { get; } = "http://192.168.197.14:8000";
         protected static string RpcUrl { get; } = "http://52.90.147.175:8000";
 
 
@@ -63,9 +63,10 @@ namespace AElf.Automation.EconomicSystem.Tests
             FullNodeAddress.Add("2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws");
             FullNodeAddress.Add("EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB");
             FullNodeAddress.Add("2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx");
+            FullNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
+
             FullNodeAddress.Add("2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P");
             FullNodeAddress.Add("2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61");
-            FullNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
             FullNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
             FullNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
             FullNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823");

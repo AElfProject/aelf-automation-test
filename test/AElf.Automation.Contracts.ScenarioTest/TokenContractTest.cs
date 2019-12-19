@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using AElf.Client.TokenConverter;
+﻿using System.Threading.Tasks;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
