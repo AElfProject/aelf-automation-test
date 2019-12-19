@@ -15,9 +15,12 @@ namespace AElfChain.Console.Commands
             var parameters = InputParameters();
             if (parameters == null)
                 return;
-
-            var balance = Services.Token.GetUserBalance(parameters[0], parameters[1]);
-            $"Account: {parameters[0]}, {parameters[1]}={balance}".WriteSuccessLine();
+            $"Account: {parameters[0]}".WriteSuccessLine();
+            for (var i = 1; i <= parameters.Length - 1; i++)
+            {
+                var balance = Services.Token.GetUserBalance(parameters[0], parameters[i]);
+                $"Symbol: {parameters[i]}, Balance: {balance}".WriteSuccessLine();
+            }
         }
 
         public override CommandInfo GetCommandInfo()
@@ -34,7 +37,7 @@ namespace AElfChain.Console.Commands
             var owner = "mS8xMLs9SuWdNECkrfQPF8SuRXRuQzitpjzghi3en39C3SRvf";
             var symbol = "TELF";
 
-            "Parameter: [Owner] [Symbol]".WriteSuccessLine();
+            "Parameter: [Owner] [Symbol] [Symbol]...".WriteSuccessLine();
             $"eg1: {owner} {symbol}".WriteSuccessLine();
 
             return CommandOption.InputParameters(2);

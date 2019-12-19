@@ -48,13 +48,33 @@ AElfChain.Console provide lots of convenient commands to help you check node sta
 Performance testing, you can run huge transactions to test node stability and transaction execution tps.
 Following are details about running step and how to configuration.
 
-1. Prepare test contract MultiToken to default directory
+1.Prepare test contract MultiToken to default directory
 ```
 mkdir -p ~/.local/share/aelf/contracts
 cp AElf.Contracts.MultiToken.dll ~/.local/share/aelf/contracts
 ```
-
-2. Run test to send transaction with configuration rpc-performance.json
+2.Add your nodes configuration setting files in directory ``bin/Debug/netcoreapp3.0/config``. All these information used to contract deployment proposal approve and prepare ELF token for transaction execution.
+So you need to set node configurations and also you need to copy all nodes accounts into test directory ``bin/Debug/netcore3.0/aelf/keys``.    
+- Running standalone node, you just need to add one node settings in configuration. 
+- Running multiple nodes, you need to set all nodes information to configuration. Test cannot execute authority transactions without nodes setting.
+ 
+```
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "stand-alone-node",
+      "endpoint": "127.0.0.1:8000",
+      "account": "G6eX2WYjeUXptQXs24QDSMiRHTMFG23PLKVFhLU1zek6SYjut",
+      "password": "123"
+    }
+  ],
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "123"
+}
+```
+ 
+3.Run test to send transaction with configuration rpc-performance.json
 ```
 {
     "GroupCount": 4,
@@ -78,8 +98,11 @@ cp AElf.Contracts.MultiToken.dll ~/.local/share/aelf/contracts
         ]
     }
 }
-
-dotnet AElf.Automation.RpcPerformance.dll
+```
+## Usage:
+```
+dotnet AElf.Automation.RpcPerformance.dll //nodes.json is default value and can be ignored
+dotnet AElf.Automation.RpcPerformance.dll -c other-nodes.json
 ```
 ## Note:   
 Adpot GroupCount and TransactionCount number can control transaction sent number frequency.      
@@ -91,17 +114,6 @@ Adpot GroupCount and TransactionCount number can control transaction sent number
 *RandomSenderTransaction*: sent transaction with sender are random.
 *NodeTransactionLimit*: set node select transaction number in each block execution.
 *RequestRandomEndpoint*: set whether sent request to other endpoints.
-
-3. Or run test with command line
-```
-dotnet AElf.Automation.RpcPerformance.dll -tc 4 -tg 50 -ru http://127.0.0.1:8000 -em 4
-```
-**Note**:    
-Both command line and configure set, command line parameter will be works.    
-tc - test thread count/group      
-tg - each group transaction count     
-ru - node web api address      
-em - test mode
 
 ### AElf.Automation.ScenarioExecution
 Scenario testing, test covered a lot of scenarios about contracts execution. Detail scenarios included please refer [document](https://github.com/AElfProject/aelf-automation-test/blob/dev/test/AElf.Automation.ScenariosExecution/ReadMe.md) introduction. 

@@ -278,7 +278,8 @@ namespace AElfChain.Common.Managers
                             $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        message += $"\r\nError Message: {transactionResult.Error}";
+                        var errorMsg = transactionResult.Error.Split("\n")[1];
+                        message += $"\r\nError Message: {errorMsg}";
                         Logger.Error(message, true);
                         return transactionResult;
                 }

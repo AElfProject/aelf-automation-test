@@ -21,6 +21,7 @@
         <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_function_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_function_with_parallel_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\test_basic_security_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_update_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_performance_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_events_contract.proto" />

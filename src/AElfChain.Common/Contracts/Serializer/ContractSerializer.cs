@@ -17,6 +17,7 @@ using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.Profit;
 using AElf.Contracts.ReferendumAuth;
 using AElf.Contracts.TestContract.BasicFunction;
+using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Contracts.TestContract.Events;
 using AElf.Contracts.TestContract.Performance;
@@ -135,6 +136,10 @@ namespace AElfChain.Common.Contracts.Serializer
                 {
                     NameProvider.TestUpdateFunction,
                     new List<ServiceDescriptor> {BasicUpdateContractContainer.Descriptor}
+                },
+                {
+                    NameProvider.TestBasicSecurity,
+                    new List<ServiceDescriptor> {BasicSecurityContractContainer.Descriptor}
                 },
                 {NameProvider.TestPerformance, new List<ServiceDescriptor> {PerformanceContractContainer.Descriptor}},
                 {
