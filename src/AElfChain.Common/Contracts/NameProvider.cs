@@ -20,6 +20,7 @@ namespace AElfChain.Common.Contracts
 
         TestBasicFunction,
         TestUpdateFunction,
+        TestBasicSecurity,
         TestPerformance,
         TestEvents,
         ExecutionAcs5,
