@@ -171,7 +171,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = transferAmount,
                     To = AddressHelper.Base58StringToAddress(account),
-                    Memo = $"Transfer for voting = {Guid.NewGuid()}"
+                    Memo = $"Transfer={Guid.NewGuid()}"
                 });
                 if (transferTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
                 beforeElfBalance = Token.GetUserBalance(account);

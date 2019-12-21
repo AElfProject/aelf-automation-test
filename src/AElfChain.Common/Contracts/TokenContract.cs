@@ -65,7 +65,7 @@ namespace AElfChain.Common.Contracts
                 Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = to.ConvertAddress(),
                 Amount = amount,
-                Memo = $"transfer amount {amount} - {Guid.NewGuid().ToString()}"
+                Memo = $"{amount}-{Guid.NewGuid().ToString()}"
             });
 
             return result;
@@ -80,7 +80,7 @@ namespace AElfChain.Common.Contracts
                 Symbol = symbol,
                 To = to.ConvertAddress(),
                 Amount = amount,
-                Memo = $"Issue amount {Guid.NewGuid()}"
+                Memo = $"Issue-{Guid.NewGuid()}"
             });
 
             return result;

@@ -144,7 +144,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = balance / 2,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = bp0.Account.ConvertAddress(),
-                    Memo = $"Collect part tokens-{Guid.NewGuid()}"
+                    Memo = $"Collect-{Guid.NewGuid()}"
                 });
             }
 

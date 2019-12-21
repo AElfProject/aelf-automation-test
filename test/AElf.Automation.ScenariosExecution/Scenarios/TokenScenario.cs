@@ -66,7 +66,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(to),
-                    Memo = $"Transfer amount={amount} with Guid={Guid.NewGuid()}"
+                    Memo = $"Guid={Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return;
                 transferTxResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -145,7 +145,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     From = from.ConvertAddress(),
                     To = to.ConvertAddress(),
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Memo = $"TransferFrom amount={amount} with Guid={Guid.NewGuid()}"
+                    Memo = $"{amount}={Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return; //check tx whether existed
                 if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
@@ -230,7 +230,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 500_000_00000000 - balance,
                     To = AddressHelper.Base58StringToAddress(user),
-                    Memo = $"Transfer for testing - {Guid.NewGuid()}"
+                    Memo = $"{Guid.NewGuid()}"
                 });
                 Thread.Sleep(10);
             }
