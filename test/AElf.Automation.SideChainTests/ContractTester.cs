@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Acs0;
 using Acs3;
 using Acs7;
@@ -7,6 +9,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.ParliamentAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -26,6 +29,8 @@ namespace AElf.Automation.SideChainTests
         public readonly INodeManager NodeManager;
         public readonly ParliamentAuthContract ParliamentService;
         public readonly TokenContract TokenService;
+        public TokenContractContainer.TokenContractStub TokenContractStub;
+
 
         public ContractTester(ContractServices contractServices)
         {
@@ -35,7 +40,13 @@ namespace AElf.Automation.SideChainTests
             TokenService = ContractServices.TokenService;
             ConsensusService = ContractServices.ConsensusService;
             CrossChainService = ContractServices.CrossChainService;
-            ParliamentService = ContractServices.ParliamentService;
+            ParliamentService = ContractServices.ParliamentService; 
+            var tester = new ContractTesterFactory(NodeManager);
+            TokenContractStub =
+                tester.Create<TokenContractContainer.TokenContractStub>(TokenService.Contract,
+                    ConsensusService.CallAddress);
+            
+
         }
 
         #region cross chain transfer
@@ -51,6 +62,25 @@ namespace AElf.Automation.SideChainTests
                 });
             return validateTransaction;
         }
+        
+        public async Task<string> ValidateTokenSymbol(string symbol)
+        {
+            var tokenInfo = await TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = symbol});
+            var validateTransaction = NodeManager.GenerateRawTransaction(
+                ContractServices.CallAddress, ContractServices.TokenService.ContractAddress,
+                TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
+                {
+                    IsBurnable = tokenInfo.IsBurnable,
+                    Issuer = tokenInfo.Issuer,
+                    IssueChainId = tokenInfo.IssueChainId,
+                    Decimals = tokenInfo.Decimals,
+                    Symbol = tokenInfo.Symbol,
+                    TokenName = tokenInfo.TokenName,
+                    TotalSupply = tokenInfo.TotalSupply
+                });
+            return validateTransaction;
+        }
+        
 
         #endregion
 
@@ -77,29 +107,28 @@ namespace AElf.Automation.SideChainTests
             return address;
         }
 
-        public TransactionResultDto CreateSideChainProposal(Address organizationAddress, string account,
-            int indexingPrice,
-            long lockedTokenAmount, bool isPrivilegePreserved)
+        public Hash RequestSideChainCreation(string creator, string password, long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
+            SideChainTokenInfo tokenInfo)
         {
-            var createProposalInput = new SideChainCreationRequest
-            {
-                IndexingPrice = indexingPrice,
-                LockedTokenAmount = lockedTokenAmount
-//                IsPrivilegePreserved = isPrivilegePreserved
-            };
-            ParliamentService.SetAccount(account);
+            CrossChainService.SetAccount(creator,password);
             var result =
-                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                    new CreateProposalInput
+                CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
+                    new SideChainCreationRequest
                     {
-                        ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
-                        Params = createProposalInput.ToByteString(),
-                        ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
-                        OrganizationAddress = organizationAddress
+                        IndexingPrice = indexingPrice,
+                        LockedTokenAmount = lockedTokenAmount,
+                        IsPrivilegePreserved = isPrivilegePreserved,
+                        SideChainTokenDecimals = tokenInfo.Decimals,
+                        SideChainTokenName = tokenInfo.TokenName,
+                        SideChainTokenSymbol = tokenInfo.Symbol,
+                        SideChainTokenTotalSupply = tokenInfo.TotalSupply,
+                        IsSideChainTokenBurnable = tokenInfo.IsBurnable
                     });
-
-            return result;
+            var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(ByteString.FromBase64(byteString))
+                .ProposalId;;
+            return proposalId;
         }
 
 
@@ -189,12 +218,12 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
-        public TransactionResultDto Release(string account, string proposalId)
+        public TransactionResultDto ReleaseSideChainCreation(string account, string proposalId)
         {
-            ParliamentService.SetAccount(account);
+            CrossChainService.SetAccount(account);
             var transactionResult =
-                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
+                CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.ReleaseSideChainCreation,
+                    new ReleaseSideChainCreationInput{ProposalId = HashHelper.Base64ToHash(proposalId)});
             return transactionResult;
         }
 

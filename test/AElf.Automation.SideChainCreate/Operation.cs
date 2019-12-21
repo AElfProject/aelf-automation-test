@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acs3;
 using Acs7;
+using AElf.Contracts.AssociationAuth;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -46,12 +47,12 @@ namespace AElf.Automation.SideChainCreate
             var miners = GetMiners();
             var initAccount = NodeOption.AllNodes.First().Account;
             var password = NodeOption.AllNodes.First().Password;
-            TokenService.SetAccount(initAccount,password);
-            
+            TokenService.SetAccount(initAccount, password);
+
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner.GetFormatted());
-                if (miner.GetFormatted().Equals(initAccount)|| balance > amount) continue;
+                if (miner.GetFormatted().Equals(initAccount) || balance > amount) continue;
                 TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeSymbol,
@@ -60,9 +61,9 @@ namespace AElf.Automation.SideChainCreate
                     To = miner
                 });
             }
-            
+
             var creatorBalance = TokenService.GetUserBalance(Creator);
-            if (Creator.Equals(initAccount)|| creatorBalance > amount) return;
+            if (Creator.Equals(initAccount) || creatorBalance > amount) return;
             TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = NativeSymbol,
@@ -85,37 +86,30 @@ namespace AElf.Automation.SideChainCreate
                 });
         }
 
-        public string CreateProposal(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
+        public Hash RequestChainCreation(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
             SideChainTokenInfo tokenInfo)
         {
-            var organizationAddress = GetGenesisOwnerAddress();
-            var createProposalInput = new SideChainCreationRequest
-            {
-                IndexingPrice = indexingPrice,
-                LockedTokenAmount = lockedTokenAmount,
-                IsPrivilegePreserved = isPrivilegePreserved,
-                SideChainTokenDecimals = tokenInfo.Decimals,
-                SideChainTokenName = tokenInfo.TokenName,
-                SideChainTokenSymbol = tokenInfo.Symbol,
-                SideChainTokenTotalSupply = tokenInfo.TotalSupply,
-                IsSideChainTokenBurnable = tokenInfo.IsBurnable
-            };
-            ParliamentService.SetAccount(Creator, Password);
+            CrossChainService.SetAccount(Creator, Password);
             var result =
-                ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                    new CreateProposalInput
+                CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
+                    new SideChainCreationRequest
                     {
-                        ContractMethodName = nameof(CrossChainContractMethod.CreateSideChain),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
-                        Params = createProposalInput.ToByteString(),
-                        ToAddress = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
-                        OrganizationAddress = organizationAddress
+                        IndexingPrice = indexingPrice,
+                        LockedTokenAmount = lockedTokenAmount,
+                        IsPrivilegePreserved = isPrivilegePreserved,
+                        SideChainTokenDecimals = tokenInfo.Decimals,
+                        SideChainTokenName = tokenInfo.TokenName,
+                        SideChainTokenSymbol = tokenInfo.Symbol,
+                        SideChainTokenTotalSupply = tokenInfo.TotalSupply,
+                        IsSideChainTokenBurnable = tokenInfo.IsBurnable
                     });
-            var proposalId = result.ReadableReturnValue.Replace("\"", "");
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
+                    .NonIndexed)).ProposalId;
             return proposalId;
         }
 
-        public void ApproveProposal(string proposalId)
+        public void ApproveProposal(Hash proposalId)
         {
             var miners = GetMiners();
             foreach (var miner in miners)
@@ -123,23 +117,29 @@ namespace AElf.Automation.SideChainCreate
                 ParliamentService.SetAccount(miner.GetFormatted(), "123");
                 var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput
                 {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
+                    ProposalId = proposalId
                 });
             }
         }
 
-        public int ReleaseProposal(string proposalId)
+        public int ReleaseSideChainCreation(Hash proposalId)
         {
-            ParliamentService.SetAccount(Creator, Password);
+            CrossChainService.SetAccount(Creator, Password);
             var result
-                = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
-            var creationRequested = result.Logs[1].NonIndexed;
-            var byteString = ByteString.FromBase64(creationRequested);
-            var chainId = CreationRequested.Parser.ParseFrom(byteString).ChainId;
+                = CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.ReleaseSideChainCreation,
+                    new ReleaseSideChainCreationInput
+                    {
+                        ProposalId = proposalId
+                    });
+            var release = result.Logs.First(l => l.Name.Contains(nameof(SideChainCreatedEvent)))
+                .NonIndexed;
+            var byteString = ByteString.FromBase64(release);
+            var sideChainCreatedEvent = SideChainCreatedEvent.Parser
+                .ParseFrom(byteString);
+            var chainId = sideChainCreatedEvent.ChainId;
+            var creator = sideChainCreatedEvent.Creator;
             return chainId;
         }
-
 
         private ContractServices GetContractServices()
         {
@@ -165,15 +165,6 @@ namespace AElf.Automation.SideChainCreate
             }
 
             return minerList;
-        }
-
-        private Address GetGenesisOwnerAddress()
-        {
-            ParliamentService.SetAccount(Creator, Password);
-            var address =
-                ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
-
-            return address;
         }
     }
 }
