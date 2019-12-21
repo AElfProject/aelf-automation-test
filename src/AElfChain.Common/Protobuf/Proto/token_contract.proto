@@ -61,15 +61,11 @@ service TokenContract {
     }
     rpc TransferToContract (TransferToContractInput) returns (google.protobuf.Empty) {
     }
-    rpc SetResourceTokenUnitPrice (SetResourceTokenUnitPriceInput) returns (google.protobuf.Empty) {
-    }
     rpc AdvanceResourceToken (AdvanceResourceTokenInput) returns (google.protobuf.Empty) {
     }
     rpc TakeResourceTokenBack (TakeResourceTokenBackInput) returns (google.protobuf.Empty) {
     }
     rpc SetFeeReceiver (aelf.Address) returns (google.protobuf.Empty) {
-    }
-    rpc SetTransactionSizeUnitPrice (aelf.SInt64Value) returns (google.protobuf.Empty) {
     }
     
     rpc UpdateCoefficientFromContract (CoefficientFromContract) returns (google.protobuf.Empty) {
@@ -110,9 +106,6 @@ service TokenContract {
     rpc GetPrimaryTokenSymbol (google.protobuf.Empty) returns (google.protobuf.StringValue) {
         option (aelf.is_view) = true;
     }
-    rpc GetTransactionSizeFeeUnitPrice (google.protobuf.Empty) returns (aelf.SInt64Value) {
-        option (aelf.is_view) = true;
-    }
     rpc GetCalculateFeeCoefficientOfContract (aelf.SInt32Value) returns (CalculateFeeCoefficientsOfType) {
         option (aelf.is_view) = true;
     }
@@ -129,7 +122,6 @@ message TokenInfo {
     sint32 decimals = 5;
     aelf.Address issuer = 6;
     bool is_burnable = 7;
-    bool is_transfer_disabled = 8;
     sint32 issue_chain_id = 9;
     sint64 burned = 10;
 }
@@ -142,11 +134,10 @@ message CreateInput {
     aelf.Address issuer = 5;
     bool is_burnable = 6;
     repeated aelf.Address lock_white_list = 7;
-    bool is_transfer_disabled = 8;
     int32 issue_chain_id = 9;
 }
 
-message RegisterNativeTokenInfoInput{
+message RegisterNativeTokenInfoInput {
     string symbol = 1;
     string tokenName = 2;
     sint64 totalSupply = 3;
