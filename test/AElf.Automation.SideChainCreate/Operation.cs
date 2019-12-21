@@ -23,8 +23,6 @@ namespace AElf.Automation.SideChainCreate
         public readonly CrossChainContract CrossChainService;
         public readonly ParliamentAuthContract ParliamentService;
         public readonly string NativeSymbol;
-
-
         public readonly TokenContract TokenService;
         public string Creator;
         public string Password;

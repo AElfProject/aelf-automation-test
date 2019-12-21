@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Acs3;
 using Acs7;
@@ -102,7 +101,7 @@ namespace AElf.Automation.SideChainTests
             return minerList;
         }
 
-        protected CrossChainMerkleProofContext GetCrossChainMerkleProofContext(ContractServices services,
+        private CrossChainMerkleProofContext GetCrossChainMerkleProofContext(ContractServices services,
             long blockHeight)
         {
             var crossChainMerkleProofContext =
@@ -134,7 +133,8 @@ namespace AElf.Automation.SideChainTests
                 SideTester[sideNum]
                     .GetBoundParentChainHeightAndMerklePathByHeight(InitAccount, long.Parse(blockNumber));
 
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, SideTester[sideNum].ContractServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, SideTester[sideNum].ContractServices,out var root
+            );
             if (merklePath == null)
                 Assert.IsTrue(false, "Can't get the merkle path.");
 
@@ -161,7 +161,7 @@ namespace AElf.Automation.SideChainTests
         public void SideChainRegisterMainChain(string blockNumber, string txid, string rawTx)
         {
             //register main chain token address
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices,out var root);
             if (merklePath == null)
                 Assert.IsTrue(false, "Can't get the merkle path.");
             var registerInput = new RegisterCrossChainTokenContractAddressInput
@@ -194,7 +194,7 @@ namespace AElf.Automation.SideChainTests
                 SideTester[sideNum]
                     .GetBoundParentChainHeightAndMerklePathByHeight(InitAccount, long.Parse(blockNumber));
             var sideChainMerklePathA =
-                GetMerklePath(long.Parse(blockNumber), txid, SideTester[sideNum].ContractServices);
+                GetMerklePath(long.Parse(blockNumber), txid, SideTester[sideNum].ContractServices,out var root);
             if (sideChainMerklePathA == null)
                 Assert.IsTrue(false, "Can't get the merkle path.");
             var sideChainRegisterInputA = new RegisterCrossChainTokenContractAddressInput
@@ -246,11 +246,11 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("32266", "255a37ff63aa9ad77975c5d54cd3f0ceb3b61e2b58f38a47e1d5bd0b4485fe64",
-            "0a220a2094cf199db8838787c1254d2e2b7c8e08c525e7980841182c3a458827824f405f12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e71888fc012204999d7ad22a1243726f7373436861696e5472616e7366657232500a220a2094cf199db8838787c1254d2e2b7c8e08c525e7980841182c3a458827824f405f1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f10441ec3f4e7417937eabb331c79bf3454e03cbc89458ec030e0a97f2a0fdb5cfa1c345695ef782acea7e588efd603ced4063ee19efcc50e9da3f46931d45009e636200")]
+        [DataRow("2405", "241745201b5edc926668b94bf8b7045c822e1f5e2575916de87b9f2129510fd0",
+            "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718c21222041b45bd042a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f104419c489118cb41e361a11791edca6b923247ab2f4dd1d7e71336a45edf14e0ff9d0b870787fb7b6da3da752927a068ab3bf961b6ba5db8c42c0a03276654fc4d4000")]
         public void SideChainReceivedMainChain(string blockNumber, string txid, string rawTx)
         {
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices,out var root);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -260,8 +260,7 @@ namespace AElf.Automation.SideChainTests
             };
             crossChainReceiveToken.TransferTransactionBytes =
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
-
-
+            
             var result = SideContractTester1.CrossChainReceive(InitAccount, crossChainReceiveToken);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
@@ -269,10 +268,9 @@ namespace AElf.Automation.SideChainTests
             var balance = SideContractTester1.GetBalance(InitAccount, "ELF");
             _logger.Info($"balance: {balance}");
         }
-
-
+        
         [TestMethod]
-        public void MainChaintDVVCrossChainTransferSideChain()
+        public void MainChainToDvvCrossChainTransferSideChain()
         {
             var crossChainTransferInput = new CrossChainTransferInput()
             {
@@ -303,7 +301,7 @@ namespace AElf.Automation.SideChainTests
             "0a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a12220a208d3c0f7c83c8fd069f648afbe7e443f5fcf2c5fd7dc3ae63984a51698af0f0e718f00e2204049052f02a1243726f7373436861696e5472616e7366657232500a220a20baa28ffec57c135c7015a88d4ade469ec128d5e68e9d2ddf86121f9821dc982a1203454c4618808095e789c604221463726f737320636861696e207472616e736665722898f571309bf4e10482f104417106decded4092633824de2875b8fb8d3b378967f3c906f1724e0decc508ab7b546cbad07e81a8ca6e207fb2df49ca7c166ff3d415ccfa847457aef098af7a4c00")]
         public void SideChainAZcPReceivedMainChain(string blockNumber, string txid, string rawTx)
         {
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, MainContracts.ContractServices,out var root);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -366,7 +364,7 @@ namespace AElf.Automation.SideChainTests
             "0a220a20cd9ba9d03d499bde0e1f75ee30eb6bdfe80065b1b37b9bfa9a47d3cb3e0ea62512220a2080ee395414cb759fc3a997f2b1a3db506aa9779bebbdef653aec7121fd681da618b19e0822042ccbdbd52a1243726f7373436861696e5472616e73666572324d0a220a206a55ae0e235e2619cc9c4af0fe4d3cc61b475a2e81aafe3f2dc00a0b9bd742a512035354411880897a221463726f737320636861696e207472616e7366657228ceae80023082f4a70182f104418b019637e5bd1fa9dfd5ab10683b4300755970b190ce984cfc9a780f50c2f6683490fad40d856f237518cb7c403f3f41f4dc651fa41cb61867f9007310374ffc01")]
         public void MainChainReceivedSideChain(string blockNumber, string txid, string rawTx)
         {
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, sideAServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, sideAServices,out var root);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -425,7 +423,7 @@ namespace AElf.Automation.SideChainTests
             "0a220a2094cf199db8838787c1254d2e2b7c8e08c525e7980841182c3a458827824f405f12220a203025dca79298bfc07abe7cfc0c9d51c0306462f073768f7c549a53e108b19cd91881c70822043762be2b2a1243726f7373436861696e5472616e73666572324a0a220a2094cf199db8838787c1254d2e2b7c8e08c525e7980841182c3a458827824f405f120353544118d00f221463726f737320636861696e207472616e736665722898f5753098f57182f104414e89c25592ecfe1d4388883751c679d74cb8e248e154cf0b8afe1597e784911a1998ed3b1377aee568bc6a4eec3e2432db038f53a31d88e85e20a775b95bf8bb01")]
         public void SideChainBReceivedSideChainA(string blockNumber, string txid, string rawTx)
         {
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, SideContractTester1.ContractServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, SideContractTester1.ContractServices,out var root);
 
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
@@ -471,7 +469,7 @@ namespace AElf.Automation.SideChainTests
 
             var mainHeight = await SideChainCheckSideChainBlockIndex(sideAServices, result.TransactionResult);
             var merklePath = GetMerklePath(result.TransactionResult.BlockNumber,
-                result.TransactionResult.TransactionId.ToString().Replace("\"", ""), sideAServices);
+                result.TransactionResult.TransactionId.ToString().Replace("\"", ""), sideAServices,out var root);
             var crossChainCrossToken = new CrossChainCreateTokenInput
             {
                 FromChainId = sideAServices.ChainId,
@@ -522,7 +520,7 @@ namespace AElf.Automation.SideChainTests
         public void SideChain2CreateSideChain1Token(string blockNumber, string txid, string rawTx)
         {
             //register main chain token address
-            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, sideAServices);
+            var merklePath = GetMerklePath(long.Parse(blockNumber), txid, sideAServices,out var root);
             if (merklePath == null)
                 Assert.IsTrue(false, "Can't get the merkle path.");
             var createInput = new CrossChainCreateTokenInput
@@ -559,7 +557,7 @@ namespace AElf.Automation.SideChainTests
                 var block = await SideContractTester1.NodeManager.ApiClient.GetBlockByHeightAsync(i, true);
                 blocks.Add(block);
             }
-
+            
             var crossChainData = new CrossChainBlockData();
 
             for (int i = 1; i < blocks.Count; i++)
@@ -567,8 +565,8 @@ namespace AElf.Automation.SideChainTests
                 var blockHeader = new BlockHeader(HashHelper.HexStringToHash(blocks[i - 1].BlockHash));
                 var height = blocks[i].Header.Height;
                 var txId = blocks[i].Body.Transactions.First();
-                var root = GetMerkleRoot(height.ToString(), txId,
-                    SideContractTester1.ContractServices);
+                GetMerklePath(height, txId,
+                    SideContractTester1.ContractServices,out var root);
                 var sideChainBlockDate = new SideChainBlockData
                 {
                     ChainId = ChainHelper.ConvertBase58ToChainId("tDVV"),
@@ -580,13 +578,39 @@ namespace AElf.Automation.SideChainTests
             }
 
             crossChainData.PreviousBlockHeight = 3900;
-
+           
             var result =
                 MainContracts.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,
                     crossChainData);
 
             var afterbalance = MainContracts.TokenService.GetUserBalance(InitAccount);
             _logger.Info($"{afterbalance}");
+        }
+        
+        [TestMethod]
+
+        public void GetIndexParentHeight()
+        {
+            var height1 =  sideAServices.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
+            _logger.Info($"{height1}");
+            
+            var height2 =  sideBServices.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
+            _logger.Info($"{height2}");
+
+        }
+        
+        [TestMethod]
+        public void GetIndexSideHeight()
+        {
+            var height1 =  MainContracts.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = sideAServices.ChainId}).Value;
+            _logger.Info($"{height1}");
+            
+            var height2 =  MainContracts.CrossChainService.CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = sideBServices.ChainId}).Value;
+            _logger.Info($"{height2}");
         }
 
 

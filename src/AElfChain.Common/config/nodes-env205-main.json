@@ -53,6 +53,6 @@
             "password": "123"
         }
     ],
-    "NativeTokenSymbol" : "TELF",
+    "NativeTokenSymbol" : "ELF",
     "DefaultPassword": "123"
 }

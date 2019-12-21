@@ -1,0 +1,24 @@
+{
+  "Type": "Add",
+  "Nodes": 
+  [
+    {
+      "ListeningPort": "54.202.235.179:6800"
+    },
+    {
+      "ListeningPort": "18.162.41.20:6800"
+    },
+    {
+      "ListeningPort": "52.66.209.107:6800"
+    },
+    {
+      "ListeningPort": "52.78.196.168:6800"
+    },
+    {
+      "ListeningPort": "54.169.99.49:6800"
+    },
+    {
+      "ListeningPort": "13.236.178.147:6800"
+    }
+  ]
+}
