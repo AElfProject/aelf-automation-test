@@ -114,14 +114,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Approve(Tester, proposal);
             var release = Release(Tester, proposal, InitAccount);
             release.Status.ShouldBe("FAILED");
-            release.Error.Contains("Invalid contract proposing status.").ShouldBeTrue();
+            release.Error.Contains("Contract proposing data not found.").ShouldBeTrue();
         }
 
         [TestMethod]
         public void ProposalDeploy_MinerProposalContract_Success()
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
-            var contractProposalInfo = ProposalNewContract(Tester, InitAccount,input);
+            var contractProposalInfo = ProposalNewContract(Tester, InitAccount, input);
+//            var contractProposalInfo = new ReleaseContractInput
+//            {
+//                ProposalId = HashHelper.HexStringToHash("7f6a40b862239b2c403020a0555f8e42aabe699089dc6292f851339cddae9249"),
+//                ProposedContractInputHash = HashHelper.HexStringToHash("1f6340e0cd1a8d535c8765cd2ac9b1cd65e79efafd8b2d3d562656685b21a085")
+//            };
+
             Approve(Tester, contractProposalInfo.ProposalId);
             var release = ReleaseApprove(Tester, contractProposalInfo, InitAccount);
             
