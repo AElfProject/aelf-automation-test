@@ -60,7 +60,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SetTransact
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.CheckTxStatus", "test\AElf.Automation.CheckTxStatus\AElf.Automation.CheckTxStatus.csproj", "{35EF1397-27BE-423B-AF4A-B1039974C99D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.NetworkTest", "test\AElf.Automation.NetworkTest\AElf.Automation.NetworkTest.csproj", "{2C1109CE-8BB1-42E1-9EAF-62C473543588}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.NetworkTest", "test\AElf.Automation.NetworkTest\AElf.Automation.NetworkTest.csproj", "{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,10 +132,10 @@ Global
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35EF1397-27BE-423B-AF4A-B1039974C99D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C1109CE-8BB1-42E1-9EAF-62C473543588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,7 +157,7 @@ Global
 		{D6A81E91-CE4A-4B71-BBE8-44F0F1F13812} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 		{6BF812E7-3DB1-4CC4-9108-83BC5A38C929} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{35EF1397-27BE-423B-AF4A-B1039974C99D} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
-		{2C1109CE-8BB1-42E1-9EAF-62C473543588} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{E2D76B01-FF6F-4E98-9C7F-7E2AE9317129} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

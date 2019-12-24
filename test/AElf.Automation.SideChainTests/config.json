@@ -1,0 +1,16 @@
+{
+  "MainChainInfos":
+  {
+    "MainChainUrl": "http://192.168.197.14:8000",
+    "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+    "Password": "123"
+  },
+  "SideChainInfos": [
+    {
+      "SideChainUrl": "http://192.168.197.14:8001"
+    },
+    {
+      "SideChainUrl": "http:///192.168.197.14:8002"
+    }
+  ]
+}

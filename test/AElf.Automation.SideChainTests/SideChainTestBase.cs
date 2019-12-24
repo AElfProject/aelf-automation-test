@@ -1,89 +1,65 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Acs0;
+using Acs3;
+using Acs7;
+using AElf.Client.Dto;
+using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Helpers;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
+using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
 {
     public class SideChainTestBase
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public ContractTester MainContracts;
-        public ContractTester SideContractTester1;
-        public ContractTester SideContractTester2;
-        public ContractTester SideContractTester3;
-        public ContractTester SideContractTester4;
-        public ContractTester SideContractTester5;
-        public ContractTester SideContractTester11;
-        
-        public ContractServices sideAServices;
-        public ContractServices sideBServices;
-        public ContractServices sideCServices;
-        public ContractServices sideDServices;
-        public ContractServices sideEServices;
-        
-        public ContractServices sideSideAServices;
+        public ContractServices MainServices;
+        public ContractServices SideAServices;
+        public ContractServices SideBServices;
+
         public TokenContractContainer.TokenContractStub TokenContractStub;
         public TokenContractContainer.TokenContractStub side1TokenContractStub;
         public TokenContractContainer.TokenContractStub side2TokenContractStub;
-        
-        public List<string> Miners;
-        
-        public static string MainChainUrl { get; } = "http://52.90.147.175:8000";
-        public static string SideAChainUrl { get; } = "http://54.84.43.173:8000";
-//        public static string SideSideAChainUrl { get; } = "http://192.168.197.56:8111";
-        public static string SideBChainUrl { get; } = "http://54.234.110.152:8000";
-//        public static string SideCChainUrl { get; } = "http://54.146.209.204:8000";
-//        public static string SideDChainUrl { get; } = "http://52.201.34.95:8000";
-//        public static string SideEChainUrl { get; } = "http://3.95.195.143:8000";
+        public string InitAccount;
 
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public List<string> Miners;
 
         protected void Initialize()
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            var mainServices = new ContractServices(MainChainUrl, InitAccount, NodeOption.DefaultPassword, "AELF");
-            MainContracts = new ContractTester(mainServices);
 
-             sideAServices = new ContractServices(SideAChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVV");
-//             sideSideAServices = new ContractServices(SideSideAChainUrl, InitAccount, NodeOption.DefaultPassword, "AZpC");
-            sideBServices = new ContractServices(SideBChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVW");
-//            sideCServices = new ContractServices(SideCChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVX");
-//            sideDServices = new ContractServices(SideDChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVY");
-//            sideEServices = new ContractServices(SideEChainUrl, InitAccount, NodeOption.DefaultPassword, "tDVZ");
-             
-             MainContracts = new ContractTester(mainServices);
-             SideContractTester1 = new ContractTester(sideAServices);
-//             SideContractTester11 = new ContractTester(sideSideAServices);
-             SideContractTester2 = new ContractTester(sideBServices);
-//             SideContractTester3 = new ContractTester(sideCServices);
-//             SideContractTester4 = new ContractTester(sideDServices);
-//             SideContractTester5 = new ContractTester(sideEServices);
+            InitAccount = ConfigInfoHelper.Config.MainChainInfos.Account;
+            var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
+            var password = ConfigInfoHelper.Config.MainChainInfos.Password;
+            var sideUrls = ConfigInfoHelper.Config.SideChainInfos.Select(l => l.SideChainUrl).ToList();
 
-            TokenContractStub = MainContracts.TokenContractStub;
-            side1TokenContractStub = SideContractTester1.TokenContractStub;
-            side2TokenContractStub = SideContractTester2.TokenContractStub;
+            MainServices = new ContractServices(mainUrl, InitAccount, password);
+            SideAServices = new ContractServices(sideUrls[0], InitAccount, password);
+            SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
+
+            TokenContractStub = MainServices.TokenContractStub;
+            side1TokenContractStub = SideAServices.TokenContractStub;
+            side2TokenContractStub = SideBServices.TokenContractStub;
             Miners = new List<string>();
-            Miners = (new AuthorityManager(MainContracts.NodeManager, InitAccount).GetCurrentMiners());
+            Miners = (new AuthorityManager(SideBServices.NodeManager, InitAccount).GetCurrentMiners());
         }
 
-        protected ContractTester GetSideChain(string url, string initAccount, string chainId)
-        {
-            var keyStore = CommonHelper.GetCurrentDataDir();
-            var contractServices = new ContractServices(url, initAccount, NodeOption.DefaultPassword, chainId);
-            var tester = new ContractTester(contractServices);
-            return tester;
-        }
+        #region cross chain transfer
 
-        protected MerklePath GetMerklePath(long blockNumber, string txId, ContractServices services,out Hash root)
+        protected MerklePath GetMerklePath(long blockNumber, string txId, ContractServices services, out Hash root)
         {
             var index = 0;
             var blockInfoResult =
@@ -119,5 +95,245 @@ namespace AElf.Automation.SideChainTests
             merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             return merklePath;
         }
+
+        protected string ValidateTokenAddress(ContractServices services)
+        {
+            var validateTransaction = services.NodeManager.GenerateRawTransaction(
+                services.CallAddress, services.GenesisService.ContractAddress,
+                GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
+                {
+                    Address = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
+                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                });
+            return validateTransaction;
+        }
+
+        public async Task<string> ValidateTokenSymbol(ContractServices services, string symbol)
+        {
+            var tokenInfo = await TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
+            var validateTransaction = services.NodeManager.GenerateRawTransaction(
+                services.CallAddress, services.TokenService.ContractAddress,
+                TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
+                {
+                    IsBurnable = tokenInfo.IsBurnable,
+                    Issuer = tokenInfo.Issuer,
+                    IssueChainId = tokenInfo.IssueChainId,
+                    Decimals = tokenInfo.Decimals,
+                    Symbol = tokenInfo.Symbol,
+                    TokenName = tokenInfo.TokenName,
+                    TotalSupply = tokenInfo.TotalSupply
+                });
+            return validateTransaction;
+        }
+
+        #endregion
+
+        #region Other Method
+
+        protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
+        {
+            var transactionId =
+                services.NodeManager.SendTransaction(rawTx);
+
+            return transactionId;
+        }
+
+        #endregion
+
+        #region side chain create method
+
+        protected Hash RequestSideChainCreation(ContractServices services, string creator, string password,
+            long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
+            SideChainTokenInfo tokenInfo)
+        {
+            services.CrossChainService.SetAccount(creator, password);
+            var result =
+                services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
+                    new SideChainCreationRequest
+                    {
+                        IndexingPrice = indexingPrice,
+                        LockedTokenAmount = lockedTokenAmount,
+                        IsPrivilegePreserved = isPrivilegePreserved,
+                        SideChainTokenDecimals = tokenInfo.Decimals,
+                        SideChainTokenName = tokenInfo.TokenName,
+                        SideChainTokenSymbol = tokenInfo.Symbol,
+                        SideChainTokenTotalSupply = tokenInfo.TotalSupply,
+                        IsSideChainTokenBurnable = tokenInfo.IsBurnable
+                    });
+            var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(ByteString.FromBase64(byteString))
+                .ProposalId;
+            ;
+            return proposalId;
+        }
+
+
+        protected TransactionResultDto RequestChainDisposal(ContractServices services, string account, int chainId)
+        {
+            services.CrossChainService.SetAccount(account);
+            var result = services.CrossChainService.ExecuteMethodWithResult(
+                CrossChainContractMethod.RequestChainDisposal,
+                new SInt32Value
+                {
+                    Value = chainId
+                });
+
+            return result;
+        }
+
+        protected TransactionResultDto Recharge(ContractServices services, string account, int chainId, long amount)
+        {
+//            var approve = TokenService.ExecuteMethodWithResult(TokenMethod.Approve, new AElf.Contracts.MultiToken.ApproveInput
+//            {
+//                Spender = CrossChainService.Contract,
+//                Symbol = "ELF",
+//                Amount = amount
+//            });
+//            approve.Status.ShouldBe("MINED");
+
+            services.CrossChainService.SetAccount(account);
+            var result =
+                services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.Recharge, new RechargeInput
+                {
+                    ChainId = chainId,
+                    Amount = amount
+                });
+            return result;
+        }
+
+        public SInt32Value GetChainStatus(ContractServices services, int chainId)
+        {
+            var result =
+                services.CrossChainService.CallViewMethod<SInt32Value>(CrossChainContractMethod.GetChainStatus,
+                    new SInt32Value {Value = chainId});
+            return result;
+        }
+
+        public ProposalOutput GetProposal(ContractServices services, string proposalId)
+        {
+            var result =
+                services.ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
+                    HashHelper.HexStringToHash(proposalId));
+            return result;
+        }
+
+        #endregion
+
+        #region cross chain verify 
+
+        protected CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(ContractServices services,
+            string account,
+            long blockNumber)
+        {
+            services.CrossChainService.SetAccount(account);
+            var result = services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
+                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                {
+                    Value = blockNumber
+                });
+            return result;
+        }
+
+        #endregion
+
+        #region Parliament Method
+
+        protected TransactionResultDto Approve(ContractServices services, string account, string proposalId)
+        {
+            services.ParliamentService.SetAccount(account);
+            var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
+            {
+                ProposalId = HashHelper.HexStringToHash(proposalId)
+            });
+
+            return result;
+        }
+
+        protected TransactionResultDto ReleaseSideChainCreation(ContractServices services, string account,
+            string proposalId)
+        {
+            services.CrossChainService.SetAccount(account);
+            var transactionResult =
+                services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.ReleaseSideChainCreation,
+                    new ReleaseSideChainCreationInput {ProposalId = HashHelper.Base64ToHash(proposalId)});
+            return transactionResult;
+        }
+
+        #endregion
+
+        #region Token Method
+
+        //action
+        protected TransactionResultDto TransferToken(ContractServices services, string owner, string spender,
+            long amount, string symbol)
+        {
+            var transfer = services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            {
+                Symbol = symbol,
+                To = AddressHelper.Base58StringToAddress(spender),
+                Amount = amount,
+                Memo = "Transfer Token"
+            });
+            return transfer;
+        }
+
+        public TransactionResultDto IssueToken(ContractServices services, string issuer, string symbol,
+            string toAddress)
+        {
+            services.TokenService.SetAccount(issuer);
+            var issue = services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
+            {
+                Symbol = symbol,
+                Amount = 100_0000,
+                Memo = "Issue",
+                To = AddressHelper.Base58StringToAddress(toAddress)
+            });
+
+            return issue;
+        }
+
+        protected TransactionResultDto TokenApprove(ContractServices services, string owner, long amount)
+        {
+            services.TokenService.SetAccount(owner);
+
+            var result = services.TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
+                new Contracts.MultiToken.ApproveInput
+                {
+                    Symbol = NodeOption.NativeTokenSymbol,
+                    Spender = AddressHelper.Base58StringToAddress(services.CrossChainService.ContractAddress),
+                    Amount = amount
+                });
+
+            return result;
+        }
+
+        protected TransactionResultDto CrossChainReceive(ContractServices services, string account,
+            CrossChainReceiveTokenInput input)
+        {
+            services.TokenService.SetAccount(account);
+            var result = services.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
+            return result;
+        }
+
+        //view
+        protected GetBalanceOutput GetBalance(ContractServices services, string account, string symbol)
+        {
+            var balance = services.TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(account),
+                    Symbol = symbol
+                });
+            return balance;
+        }
+
+        protected string GetPrimaryTokenSymbol(ContractServices services)
+        {
+            var symbol = services.TokenService.GetPrimaryTokenSymbol();
+            return symbol;
+        }
+
+        #endregion
     }
 }

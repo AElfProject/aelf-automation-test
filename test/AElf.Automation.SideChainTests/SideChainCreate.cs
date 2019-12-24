@@ -18,44 +18,30 @@ namespace AElf.Automation.SideChainTests
 
 
         [TestMethod]
-        [DataRow("2YRjTJgE9qziwngfYHQTpMSzjVkY5Bq5sY1LqsZKxyhMZjErQb")]
+        [DataRow("CnVL7BcRcaYGVovoiz4eiv4ZZFyJR7vjBmqgcZqgmicVXKKpx")]
         public void TransferSideChain(string account)
         {
-//            MainContracts.TransferToken(InitAccount, account, 100_00000000, NodeOption.NativeTokenSymbol);
-//            SideContractTester1.TransferToken(InitAccount, account, 100_00000000, SideContractTester1.TokenService.GetPrimaryTokenSymbol());
-//            SideContractTester2.TransferToken(InitAccount, account, 100_00000000, SideContractTester2.TokenService.GetPrimaryTokenSymbol());
-//            SideContractTester3.TransferToken(InitAccount, account, 100_00000000, SideContractTester3.TokenService.GetPrimaryTokenSymbol());
-//            SideContractTester4.TransferToken(InitAccount, account, 100_00000000, SideContractTester4.TokenService.GetPrimaryTokenSymbol());
-//            SideContractTester5.TransferToken(InitAccount, account, 100_00000000, SideContractTester5.TokenService.GetPrimaryTokenSymbol());
+            TransferToken(MainServices,InitAccount, account, 121000_00000000, NodeOption.NativeTokenSymbol);
+            TransferToken(SideAServices,InitAccount, account, 121000_00000000, GetPrimaryTokenSymbol(SideAServices));
+            TransferToken(SideBServices,InitAccount, account, 121000_00000000, GetPrimaryTokenSymbol(SideBServices));
 
-            _logger.Info($"{MainContracts.GetBalance(InitAccount, NodeOption.NativeTokenSymbol).Balance}"); 
-            _logger.Info($"{SideContractTester1.GetBalance(InitAccount, SideContractTester1.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester2.GetBalance(InitAccount, SideContractTester2.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester3.GetBalance(InitAccount, SideContractTester3.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester4.GetBalance(InitAccount, SideContractTester4.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester5.GetBalance(InitAccount, SideContractTester5.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            
-            _logger.Info($"{MainContracts.GetBalance(account, NodeOption.NativeTokenSymbol)}"); 
-            _logger.Info($"{SideContractTester1.GetBalance(account, SideContractTester1.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester2.GetBalance(account, SideContractTester2.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester3.GetBalance(account, SideContractTester3.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester4.GetBalance(account, SideContractTester4.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            _logger.Info($"{SideContractTester5.GetBalance(account, SideContractTester5.TokenService.GetPrimaryTokenSymbol()).Balance}");
-            
+            _logger.Info($"{GetBalance(MainServices,InitAccount, NodeOption.NativeTokenSymbol).Balance}"); 
+            _logger.Info($"{GetBalance(SideAServices,InitAccount, GetPrimaryTokenSymbol(SideAServices)).Balance}");
+            _logger.Info($"{GetBalance(SideBServices,InitAccount, GetPrimaryTokenSymbol(SideBServices)).Balance}");
+           
+            _logger.Info($"{GetBalance(MainServices,account, NodeOption.NativeTokenSymbol)}"); 
+            _logger.Info($"{GetBalance(SideAServices,account, GetPrimaryTokenSymbol(SideAServices)).Balance}");
+            _logger.Info($"{GetBalance(SideBServices,account, GetPrimaryTokenSymbol(SideBServices)).Balance}");
         }
 
-        //708d7c62cb33df097c68686796fa4cba9b418ef3b73cd83ab85086037b5a0a9f 2882050
-        //a2cc529ec1574adaf61f433c0acd5846449fac0896a9e118912b2687e743337b 2947586
         [TestMethod]
         [DataRow("4401e46059f2f829cfb3f69f97fe8b1f4ee3d58356d5a74717c13d4925a8b024")]
         [DataRow("2323f166cfaa67f611b428bbcd5cb0ba47c027b41e6e28a536d02873329dbc48")]
-//        [DataRow("b8ed3964a6567a2aafd62a82e4cfe4515757cb0acacea675f7bdd9664737f5c1")]
-//        [DataRow("921d7e83dc9f4fc2a7e643c11ca6d272684539b5cdb3ef5b1a5d7c902b7f64db")] //disposal
         public void ApproveProposal(string proposalId)
         {
             foreach (var bp in Miners)
             {
-                var result = MainContracts.Approve(bp, proposalId);
+                var result = Approve(MainServices,bp, proposalId);
                 _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
@@ -63,7 +49,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void CreateProposal()
         {
-            MainContracts.TokenApprove(InitAccount, 400000);
+           TokenApprove(MainServices,InitAccount, 400000);
             var tokenInfo = new SideChainTokenInfo
             {
                 Symbol = "STA",
@@ -73,7 +59,7 @@ namespace AElf.Automation.SideChainTests
                 Issuer = AddressHelper.Base58StringToAddress(InitAccount),
                 TotalSupply = 10_00000000_00000000
             };
-            var result = MainContracts.RequestSideChainCreation(InitAccount, "123", 1, 400000, true,tokenInfo);
+            var result = RequestSideChainCreation(MainServices,InitAccount, "123", 1, 400000, true,tokenInfo);
             
             _logger.Info($"proposal message is {result}");
         }
@@ -83,7 +69,7 @@ namespace AElf.Automation.SideChainTests
             "6ab3db4d09f48526f5a64c573b57b6288a70a37822dbb6cd00ef025f35add9ce")]
         public void ReleaseProposal(string proposalId)
         {
-            var result = MainContracts.ReleaseSideChainCreation(InitAccount, proposalId);
+            var result = ReleaseSideChainCreation(MainServices,InitAccount, proposalId);
             var release = result.Logs.First(l => l.Name.Contains(nameof(SideChainCreatedEvent)))
                 .NonIndexed;
             var byteString = ByteString.FromBase64(release);
@@ -100,7 +86,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("94caf8b5a32e8d74c42ceb4a18cb4a06bde743f3c85da57e3fafbc8796443fbe")]
         public void GetProposal(string proposalId)
         {
-            var result = MainContracts.GetProposal(proposalId);
+            var result = GetProposal(MainServices,proposalId);
             _logger.Info(
                 $"proposal message is {result.ProposalId},{result.ExpiredTime},{result.ToAddress},{result.OrganizationAddress},{result.ContractMethodName}");
         }
@@ -114,7 +100,7 @@ namespace AElf.Automation.SideChainTests
         public void CheckStatus(string chainId)
         {
             var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
-            var status = MainContracts.GetChainStatus(intChainId);
+            var status = GetChainStatus(MainServices,intChainId);
             _logger.Info($"side chain is {status}");
         }
         
@@ -123,7 +109,7 @@ namespace AElf.Automation.SideChainTests
         public void Recharge(string chainId)
         {
             var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
-            var status = MainContracts.Recharge(InitAccount,intChainId,200000);
+            var status = Recharge(MainServices,InitAccount,intChainId,200000);
             _logger.Info($" Transaction is {status.Status}");
         }
         
@@ -132,7 +118,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo", 2816514)]
         public void RequestChainDisposal(string account, int chainId)
         {
-            var result = MainContracts.RequestChainDisposal(account, chainId);
+            var result = RequestChainDisposal(MainServices,account, chainId);
             var proposalId = result.ReadableReturnValue;
 
             _logger.Info($"Disposal chain proposal id is {proposalId}");
@@ -143,11 +129,11 @@ namespace AElf.Automation.SideChainTests
         [DataRow("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK")]
         public void CheckBalance(string account)
         {
-            var balance = MainContracts.GetBalance(MainContracts.CrossChainService.ContractAddress,
+            var balance = GetBalance(MainServices,MainServices.CrossChainService.ContractAddress,
                 NodeOption.NativeTokenSymbol);
             _logger.Info($"side chain balance is {balance}");
 
-            var userBalance = MainContracts.GetBalance(account, NodeOption.NativeTokenSymbol);
+            var userBalance = GetBalance(MainServices,account, NodeOption.NativeTokenSymbol);
             _logger.Info($"user balance is {userBalance}");
         }
     }
