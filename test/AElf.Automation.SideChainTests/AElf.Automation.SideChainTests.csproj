@@ -13,7 +13,11 @@
         <PackageReference Include="xunit" Version="2.4.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     </ItemGroup>
-
+    <ItemGroup>
+        <None Update="config.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>

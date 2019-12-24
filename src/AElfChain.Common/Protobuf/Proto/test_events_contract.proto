@@ -11,7 +11,7 @@ option csharp_namespace = "AElf.Contracts.TestContract.Events";
 service EventsContract {
     option (aelf.csharp_state) = "AElf.Contracts.TestContract.Events.EventsContractState";
     option (aelf.base) = "acs1.proto";
-
+    
     //Actions
     rpc InitializeEvents(InitializeInput) returns (google.protobuf.Empty){
     }
@@ -49,7 +49,7 @@ enum OrderStatus {
     CREATED = 0;
     CANCELED = 1;
     ONGOING = 2;
-    DONE = 3;
+    DONE = 3;    
 }
 
 //Input

@@ -124,7 +124,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Decimals = 8,
                 Issuer = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK".ConvertAddress(),
                 IsBurnable = true,
-                IsTransferDisabled = false,
                 IssueChainId = 9992731
             };
             var output = JsonFormatter.Default.Format(create);

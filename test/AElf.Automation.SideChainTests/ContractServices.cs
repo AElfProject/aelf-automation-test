@@ -1,3 +1,4 @@
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
@@ -9,15 +10,19 @@ namespace AElf.Automation.SideChainTests
         public readonly int ChainId;
         public readonly INodeManager NodeManager;
 
-        public ContractServices(string url, string callAddress, string password, string chainId)
+        public ContractServices(string url, string callAddress, string password)
         {
-            ChainId = ChainHelper.ConvertBase58ToChainId(chainId);
             NodeManager = new NodeManager(url);
+            ChainId = ChainHelper.ConvertBase58ToChainId(NodeManager.GetChainId());
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
 
             NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();
+            var tester = new ContractTesterFactory(NodeManager);
+            TokenContractStub =
+                tester.Create<TokenContractContainer.TokenContractStub>(TokenService.Contract,
+                    TokenService.CallAddress);
         }
 
         public GenesisContract GenesisService { get; set; }
@@ -25,9 +30,8 @@ namespace AElf.Automation.SideChainTests
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
         public ParliamentAuthContract ParliamentService { get; set; }
-
-//        public TokenConverterContract TokenConverterService { get; set; }
-
+        public TokenContractContainer.TokenContractStub TokenContractStub;
+        
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 
@@ -51,9 +55,6 @@ namespace AElf.Automation.SideChainTests
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
                 new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
-//
-//            var tokenConverterAddress = GenesisService.GetContractAddressByName(NameProvider.TokenConverterName);
-//            TokenConverterService = new TokenConverterContract(NodeManager, CallAddress, tokenConverterAddress.GetFormatted());
         }
     }
 }

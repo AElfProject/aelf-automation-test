@@ -8,13 +8,12 @@ namespace AElfChain.Common.Contracts
     public enum CrossChainContractMethod
     {
         //Action
-        RequestChainCreation,
-        WithdrawRequest,
-        CreateSideChain,
+        RequestSideChainCreation,
         Recharge,
         RequestChainDisposal,
         DisposeSideChain,
         RecordCrossChainData,
+        ReleaseSideChainCreation,
 
         //View
         GetChainStatus,
