@@ -33,7 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
-        private static string RpcUrl { get; } = "http://192.168.197.40:8000";
+        private static string RpcUrl { get; } = "http://54.169.99.49:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -50,7 +50,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
             Referendum = Tester.ReferendumService;
-            DeployAndInitialize();
+            //DeployAndInitialize();
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
-                    ReleaseThreshold = 10000_00000000,
+                    ReleaseThreshold = 1000,
                     TokenSymbol = Symbol
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");

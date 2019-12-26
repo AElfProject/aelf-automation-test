@@ -16,9 +16,12 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.Profit;
 using AElf.Contracts.ReferendumAuth;
+using AElf.Contracts.TestContract.A;
+using AElf.Contracts.TestContract.B;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Contracts.TestContract.BasicUpdate;
+using AElf.Contracts.TestContract.C;
 using AElf.Contracts.TestContract.Events;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Contracts.TokenConverter;
@@ -146,6 +149,21 @@ namespace AElfChain.Common.Contracts.Serializer
                     NameProvider.TestEvents,
                     new List<ServiceDescriptor>
                         {MethodFeeProviderContractContainer.Descriptor, EventsContractContainer.Descriptor}
+                },
+                {
+                    NameProvider.TestA,
+                    new List<ServiceDescriptor>
+                        {MethodFeeProviderContractContainer.Descriptor, AContractContainer.Descriptor}
+                },
+                {
+                    NameProvider.TestB,
+                    new List<ServiceDescriptor>
+                        {MethodFeeProviderContractContainer.Descriptor, BContractContainer.Descriptor}
+                },
+                {
+                    NameProvider.TestC,
+                    new List<ServiceDescriptor>
+                        {MethodFeeProviderContractContainer.Descriptor, CContractContainer.Descriptor}
                 },
                 {NameProvider.ExecutionAcs5, new List<ServiceDescriptor> {ExecutionAcs5.ContractContainer.Descriptor}},
                 {NameProvider.ExecutionAcs8, new List<ServiceDescriptor> {ExecutionAcs8.ContractContainer.Descriptor}}

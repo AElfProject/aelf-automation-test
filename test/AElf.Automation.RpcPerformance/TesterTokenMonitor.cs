@@ -68,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
                             To = tester.ConvertAddress(),
                             Amount = 1_0000_00000000,
                             Symbol = symbol,
-                            Memo = $"Transfer token for test {Guid.NewGuid()}"
+                            Memo = $"T-{Guid.NewGuid()}"
                         });
                 }
 

@@ -193,7 +193,7 @@ namespace AElf.Automation.ProposalTest
                     Symbol = NativeToken,
                     To = AddressHelper.Base58StringToAddress(miner),
                     Amount = 1000_00000000,
-                    Memo = "Transfer to miners"
+                    Memo = "T-Miners"
                 });
 
                 balance = Services.TokenService.GetUserBalance(miner);

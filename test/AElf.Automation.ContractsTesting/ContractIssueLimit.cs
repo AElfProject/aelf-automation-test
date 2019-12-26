@@ -43,7 +43,7 @@ namespace AElf.Automation.ContractsTesting
                 Amount = 1000,
                 Symbol = NodeOption.NativeTokenSymbol,
                 To = AddressHelper.Base58StringToAddress(_account),
-                Memo = $"transfer for tx execution {Guid.NewGuid()}"
+                Memo = $"T-{Guid.NewGuid()}"
             });
             transferBalance.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -81,7 +81,7 @@ namespace AElf.Automation.ContractsTesting
                 Symbol = symbol,
                 Amount = 8000_000,
                 To = AddressHelper.Base58StringToAddress(_account),
-                Memo = $"issue {Guid.NewGuid()}"
+                Memo = $"I-{Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -113,7 +113,7 @@ namespace AElf.Automation.ContractsTesting
                 Symbol = symbol,
                 Amount = totalBurn - 1000,
                 To = AddressHelper.Base58StringToAddress(_account),
-                Memo = $"issue {Guid.NewGuid()}"
+                Memo = $"I-{Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 

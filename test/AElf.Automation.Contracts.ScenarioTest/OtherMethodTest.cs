@@ -17,6 +17,7 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Xunit;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -203,6 +204,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var acc = accManager.NewAccount();
                 accManager.UnlockAccount(acc);
             }
+        }
+
+        [SkippableFact]
+        public void TestIgnoreTest()
+        {
+            Skip.If(true, "local environment");
         }
     }
 }

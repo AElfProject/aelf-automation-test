@@ -66,7 +66,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = amount,
                     Symbol = NodeOption.NativeTokenSymbol,
                     To = AddressHelper.Base58StringToAddress(to),
-                    Memo = $"Guid={Guid.NewGuid()}"
+                    Memo = $"T-{Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return;
                 transferTxResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -145,7 +145,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     From = from.ConvertAddress(),
                     To = to.ConvertAddress(),
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Memo = $"{amount}={Guid.NewGuid()}"
+                    Memo = $"TF-{Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return; //check tx whether existed
                 if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;

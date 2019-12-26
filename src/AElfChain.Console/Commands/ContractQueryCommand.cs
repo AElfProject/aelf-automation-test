@@ -6,6 +6,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
+using Sharprompt;
 
 namespace AElfChain.Console.Commands
 {

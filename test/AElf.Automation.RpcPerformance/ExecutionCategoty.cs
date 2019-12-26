@@ -246,7 +246,7 @@ namespace AElf.Automation.RpcPerformance
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
                 {
                     Amount = long.MaxValue,
-                    Memo = $"Issue all balance to owner - {Guid.NewGuid()}",
+                    Memo = $"I-{Guid.NewGuid()}",
                     Symbol = symbol,
                     To = account.ConvertAddress()
                 });

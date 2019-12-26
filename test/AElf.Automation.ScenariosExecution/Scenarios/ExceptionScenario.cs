@@ -58,7 +58,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Symbol = NodeOption.NativeTokenSymbol,
                 Amount = 100_000_00000000L,
                 To = AddressExtension.Generate(),
-                Memo = "Transfer without enough token test"
+                Memo = "T without enough token"
             });
             executeResult.Error.ShouldNotBeNull();
             Logger.Info("Transfer without enough token execute failed.");

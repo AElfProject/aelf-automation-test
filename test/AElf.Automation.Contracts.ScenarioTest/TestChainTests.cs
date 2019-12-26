@@ -362,7 +362,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = "TELF",
                     To = accounts[toId].ConvertAddress(),
                     Amount = amount,
-                    Memo = $"transfer - {Guid.NewGuid()}"
+                    Memo = $"T-{Guid.NewGuid()}"
                 });
                 Logger.Info(
                     $"From: account{fromId}, To: account{toId}, Amount: {amount}, TransactionId: {transactionId}");
@@ -382,7 +382,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = "ELF",
                     To = otherAccounts[1].ConvertAddress(),
                     Amount = 1000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
+                    Memo = $"T-{Guid.NewGuid()}"
                 });
 
             var rawInfo2 = MainNode.GenerateRawTransaction(accounts[1], token.ContractAddress, "Transfer",
@@ -391,7 +391,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = "ELF",
                     To = otherAccounts[2].ConvertAddress(),
                     Amount = 1000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
+                    Memo = $"T-{Guid.NewGuid()}"
                 });
 
             var rawTransactions = $"{rawInfo1},{rawInfo2}";

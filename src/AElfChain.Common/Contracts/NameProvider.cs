@@ -23,6 +23,9 @@ namespace AElfChain.Common.Contracts
         TestBasicSecurity,
         TestPerformance,
         TestEvents,
+        TestA,
+        TestB,
+        TestC,
         ExecutionAcs5,
         ExecutionAcs8
     }

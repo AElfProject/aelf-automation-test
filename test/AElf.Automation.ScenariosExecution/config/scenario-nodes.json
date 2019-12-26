@@ -3,7 +3,7 @@
         {
             "case_name": "TokenScenario",
             "enable": true,
-            "time_interval": 5
+            "time_interval": 3
         },
         {
             "case_name": "ContractScenario",
@@ -13,7 +13,7 @@
         {
             "case_name": "ResourceScenario",
             "enable": true,
-            "time_interval": 10
+            "time_interval": 5
         },
         {
             "case_name": "NodeScenario",
@@ -62,6 +62,6 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": true,
-        "service_url": "http://18.162.41.20:8000"
+        "service_url": "http://192.168.197.40:8000"
     }
 }
