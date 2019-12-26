@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AElfChain.Common.Helpers;
 using AElfChain.Console.InputOption;
@@ -18,11 +19,13 @@ namespace AElfChain.Console.Commands
             return result;
         }
 
-        public static string[] InputParameters(int length)
+        public static string[] InputParameters(int length, string promptMsg = "")
         {
+            if(promptMsg == string.Empty)
+                promptMsg = "Input parameter";
             while (true)
             {
-                var input = Prompt.Input<string>("Input parameter", validators: new[] {Validators.Required()});
+                var input = Prompt.Input<string>(promptMsg, validators: new[] {Validators.Required()});
                 var result = TryParseParameters(input, length, out var parameters);
 
                 if (!result) continue;

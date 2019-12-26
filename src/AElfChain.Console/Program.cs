@@ -34,7 +34,7 @@ namespace AElfChain.Console
 
         private void OnExecute(CommandLineApplication app)
         {
-            Log4NetHelper.LogInit();
+            Log4NetHelper.LogInit("AElfChain.Console");
             Logger = Log4NetHelper.GetLogger("Program");
 
             if (ConfigFile == null)
