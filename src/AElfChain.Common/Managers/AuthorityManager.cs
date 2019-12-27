@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using Acs3;
-using AElf;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Contracts;
@@ -46,11 +45,8 @@ namespace AElfChain.Common.Managers
         public Address DeployContractWithAuthority(string caller, string contractName)
         {
             Logger.Info($"Deploy contract: {contractName}");
-            var fileName = contractName.Contains(".dll") ? contractName : $"{contractName}.dll";
-            var contractPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "aelf", "contracts");
-            var code = File.ReadAllBytes(Path.Combine(contractPath, fileName));
+            var contractPath = GetContractFilePath(contractName);
+            var code = File.ReadAllBytes(contractPath);
 
             return DeployContractWithAuthority(caller, code);
         }
@@ -119,7 +115,7 @@ namespace AElfChain.Common.Managers
             return deployAddress;
         }
 
-        private Address UpdateContractWithAuthority(string caller, string address, byte[] code)
+        private void UpdateContractWithAuthority(string caller, string address, byte[] code)
         {
             var input = new ContractUpdateInput
             {
@@ -152,7 +148,6 @@ namespace AElfChain.Common.Managers
             if (!CheckProposalStatue(deployProposalId))
             {
                 Logger.Error("Contract code didn't pass the code check");
-                return null;
             }
 
             var checkCodeRelease = new ReleaseContractInput()
@@ -167,7 +162,6 @@ namespace AElfChain.Common.Managers
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
-            return updateAddress;
         }
 
         public List<string> GetCurrentMiners()
@@ -236,14 +230,16 @@ namespace AElfChain.Common.Managers
         {
             var proposal = _parliament.CheckProposal(proposalId);
             var expired = false;
+            var stopwatch = Stopwatch.StartNew();
             while (!proposal.ToBeReleased && !expired)
             {
                 Thread.Sleep(1000);
                 var dateTime = TimestampHelper.GetUtcNow();
                 proposal = _parliament.CheckProposal(proposalId);
                 if (dateTime >= proposal.ExpiredTime) expired = true;
+                Console.Write($"\rCheck proposal status, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
             }
-
+            Console.WriteLine();
             return proposal.ToBeReleased;
         }
 
@@ -258,6 +254,43 @@ namespace AElfChain.Common.Managers
                 if (balance < 1000_00000000)
                     _token.TransferBalance(bps[0], bp, 10000_00000000 - balance, primaryToken);
             }
+        }
+
+        private string GetContractFilePath(string contractName)
+        {
+            var localPath = CommonHelper.MapPath("aelf/contracts");
+            var defaultPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "aelf", "contracts");
+            var contractPaths = new List<string>();
+            if (contractName.Contains("\\") || contractName.Contains("/"))
+            {
+                contractPaths.Add(contractName);
+            }
+            else if (contractName.Contains(".dll"))
+            {
+                contractPaths.Add(Path.Combine(localPath, contractName));
+                contractPaths.Add(Path.Combine(defaultPath, contractName));
+            }
+            else
+            {
+                contractPaths.Add(Path.Combine(localPath, $"{contractName}.dll.patched"));
+                contractPaths.Add(Path.Combine(defaultPath, $"{contractName}.dll.patched"));
+                contractPaths.Add(Path.Combine(localPath, $"{contractName}.dll"));
+                contractPaths.Add(Path.Combine(defaultPath, $"{contractName}.dll"));
+            }
+
+            foreach (var path in contractPaths)
+            {
+                var exist = File.Exists(path);
+                if (exist)
+                {
+                    Logger.Info($"Deploy contract file: {path}");
+                    return path;
+                }
+            }
+            
+            throw new FileNotFoundException($"contract file {contractName} not found.");
         }
     }
 }

@@ -15,7 +15,6 @@
     <ItemGroup>
         <Folder Include="figures" />
         <Folder Include="logs" />
-        <Folder Include="test-data\contracts" />
         <Folder Include="test-data\keys" />
     </ItemGroup>
 

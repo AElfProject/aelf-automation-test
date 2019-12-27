@@ -71,6 +71,11 @@ namespace AElf.Automation.ScenariosExecution
                         TaskCollection.Add(RunContinueJobWithInterval(deleteValueScenario.RunDeleteValueScenarioJob,
                             scenario.TimeInterval));
                         break;
+                    case "Acs8Scenario":
+                        var acs8Scenario = new Acs8Scenario();
+                        TaskCollection.Add(RunContinueJobWithInterval(acs8Scenario.RunAcs8ScenarioJob,
+                            scenario.TimeInterval));
+                        break;
                 }
 
             //node status monitor
@@ -124,6 +129,10 @@ namespace AElf.Automation.ScenariosExecution
                     case "DeleteValueScenario":
                         var deleteValueScenario = new DeleteValueScenario();
                         RegisterAction(registry, scenario, deleteValueScenario.RunDeleteValueScenarioJob);
+                        break;
+                    case "Acs8Scenario":
+                        var acs8Scenario = new Acs8Scenario();
+                        RegisterAction(registry, scenario, acs8Scenario.RunAcs8ScenarioJob);
                         break;
                 }
 

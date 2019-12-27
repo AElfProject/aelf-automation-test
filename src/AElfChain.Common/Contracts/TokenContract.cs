@@ -36,6 +36,7 @@ namespace AElfChain.Common.Contracts
         UpdatePowerAlgorithm,
         ChangeFeePieceKey,
         ValidateTokenInfoExists,
+        AdvanceResourceToken,
 
         //View
         GetTokenInfo,

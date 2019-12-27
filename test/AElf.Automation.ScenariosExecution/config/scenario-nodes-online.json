@@ -1,116 +1,4 @@
 {
-    "BpNodes": [
-        {
-            "name": "bp1-美国东部(弗吉尼亚北部)",
-            "service_url": "http://52.90.147.175:8000",
-            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
-            "password": "123"
-        },
-        {
-            "name": "bp2-美国东部(弗吉尼亚北部)",
-            "service_url": "http://18.223.158.83:8000",
-            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
-            "password": "123"
-        },
-        {
-            "name": "bp3-美国西部(加利福尼亚北部)",
-            "service_url": "http://13.52.177.95:8000",
-            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
-            "password": "123"
-        },
-        {
-            "name": "bp4-美国西部(俄勒冈)",
-            "service_url": "http://54.202.235.179:8000",
-            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
-            "password": "123"
-        },
-        {
-            "name": "bp5-亚太区域(香港)",
-            "service_url": "http://18.162.41.20:8000",
-            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
-            "password": "123"
-        },
-        {
-            "name": "bp6-亚太区域(孟买)",
-            "service_url": "http://52.66.209.107:8000",
-            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
-            "password": "123"
-        },
-        {
-            "name": "bp7-亚太区域(首尔)",
-            "service_url": "http://52.78.196.168:8000",
-            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
-            "password": "123"
-        },
-        {
-            "name": "bp8-亚太区域(新加坡)",
-            "service_url": "http://54.169.99.49:8000",
-            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
-            "password": "123"
-        },
-        {
-            "name": "bp9-亚太区域(悉尼)",
-            "service_url": "http://13.236.178.147:8000",
-            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
-            "password": "123"
-        }
-    ],
-    "FullNodes": [
-        {
-            "name": "full2-亚太区域(东京)",
-            "service_url": "http://52.195.10.165:8000",
-            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
-            "password": "123"
-        },
-        {
-            "name": "full3-加拿大(中部)",
-            "service_url": "http://35.182.252.147:8000",
-            "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
-            "password": "123"
-        },
-        {
-            "name": "full4-欧洲(法兰克福)",
-            "service_url": "http://52.57.232.61:8000",
-            "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
-            "password": "123"
-        },
-        {
-            "name": "full5-欧洲(爱尔兰)",
-            "service_url": "http://34.240.183.26:8000",
-            "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
-            "password": "123"
-        },
-        {
-            "name": "full7-欧洲(巴黎)",
-            "service_url": "http://15.188.27.177:8000",
-            "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
-            "password": "123"
-        },
-        {
-            "name": "full8-欧洲(斯德哥尔摩)",
-            "service_url": "http://13.53.125.186:8000",
-            "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
-            "password": "123"
-        },
-        {
-            "name": "full11-阿里伦敦",
-            "service_url": "http://8.208.23.245:8000",
-            "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
-            "password": "123"
-        },
-        {
-            "name": "full12-阿里吉隆坡",
-            "service_url": "http://47.254.233.45:8000",
-            "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
-            "password": "123"
-        },
-        {
-            "name": "full13-加拿大",
-            "service_url": "http://35.182.249.243:8000",
-            "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
-            "password": "123"
-        }
-    ],
     "TestCases": [
         {
             "case_name": "TokenScenario",
@@ -150,6 +38,11 @@
         {
             "case_name": "DeleteValueScenario",
             "enable": false,
+            "time_interval": 10
+        },
+        {
+            "case_name": "Acs8Scenario",
+            "enable": true,
             "time_interval": 10
         }
     ],

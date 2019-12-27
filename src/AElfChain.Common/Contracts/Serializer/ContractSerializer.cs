@@ -6,6 +6,7 @@ using Acs3;
 using Acs4;
 using Acs6;
 using Acs7;
+using Acs8;
 using AElf.Contracts.AssociationAuth;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -24,6 +25,7 @@ using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Contracts.TestContract.C;
 using AElf.Contracts.TestContract.Events;
 using AElf.Contracts.TestContract.Performance;
+using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
@@ -145,6 +147,14 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor> {BasicSecurityContractContainer.Descriptor}
                 },
                 {NameProvider.TestPerformance, new List<ServiceDescriptor> {PerformanceContractContainer.Descriptor}},
+                {
+                    NameProvider.TestTransactionFees,
+                    new List<ServiceDescriptor>
+                    {
+                        MethodFeeProviderContractContainer.Descriptor, ResourceConsumptionContractContainer.Descriptor,
+                        TransactionFeesContractContainer.Descriptor
+                    }
+                },
                 {
                     NameProvider.TestEvents,
                     new List<ServiceDescriptor>

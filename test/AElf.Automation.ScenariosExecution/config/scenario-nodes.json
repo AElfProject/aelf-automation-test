@@ -13,7 +13,7 @@
         {
             "case_name": "ResourceScenario",
             "enable": true,
-            "time_interval": 5
+            "time_interval": 3
         },
         {
             "case_name": "NodeScenario",
@@ -32,12 +32,17 @@
         },
         {
             "case_name": "PerformanceScenario",
-            "enable": false,
-            "time_interval": 30
+            "enable": true,
+            "time_interval": 10
         },
         {
             "case_name": "DeleteValueScenario",
             "enable": false,
+            "time_interval": 10
+        },
+        {
+            "case_name": "Acs8Scenario",
+            "enable": true,
             "time_interval": 10
         }
     ],

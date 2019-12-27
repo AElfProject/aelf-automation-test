@@ -2,7 +2,7 @@
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 5
         },
         {
@@ -12,17 +12,17 @@
         },
         {
             "case_name": "ResourceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         },
         {
             "case_name": "NodeScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 60
         },
         {
             "case_name": "UserScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         },
         {
@@ -38,6 +38,11 @@
         {
             "case_name": "DeleteValueScenario",
             "enable": false,
+            "time_interval": 10
+        },
+        {
+            "case_name": "Acs8Scenario",
+            "enable": true,
             "time_interval": 10
         }
     ],

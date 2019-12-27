@@ -39,6 +39,11 @@
             "case_name": "DeleteValueScenario",
             "enable": true,
             "time_interval": 10
+        },
+        {
+            "case_name": "Acs8Scenario",
+            "enable": true,
+            "time_interval": 10
         }
     ],
     "ContractsInfo": {
