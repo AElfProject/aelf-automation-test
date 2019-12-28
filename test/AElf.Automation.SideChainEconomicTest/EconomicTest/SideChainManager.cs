@@ -34,26 +34,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             return contractServices;
         }
 
-        public void SetResourceUnitPrice(ContractServices services)
-        {
-            Logger.Info("Set resource token price");
-            var authority = new AuthorityManager(services.NodeManager, services.CallAddress);
-            var ownerAddress = services.ParliamentService.GetGenesisOwnerAddress();
-            //set resource token price
-            var contract = services.TokenService.ContractAddress;
-            const string method = "SetResourceTokenUnitPrice";
-            var input = new SetResourceTokenUnitPriceInput
-            {
-                CpuUnitPrice = 100,
-                NetUnitPrice = 100,
-                StoUnitPrice = 100
-            };
-            var miners = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
-            var transactionResult = authority.ExecuteTransactionWithAuthority(contract, method, input, ownerAddress,
-                miners, services.CallAddress);
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-        }
-
         public async Task WaitMainChainIndex(ContractServices mainChain, long blockNumber)
         {
             Logger.Info($"Wait side chain index target height: {blockNumber}");

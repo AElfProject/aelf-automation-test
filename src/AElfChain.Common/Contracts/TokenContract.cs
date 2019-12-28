@@ -37,6 +37,8 @@ namespace AElfChain.Common.Contracts
         ChangeFeePieceKey,
         ValidateTokenInfoExists,
         AdvanceResourceToken,
+        UpdateRental,
+        UpdateRentedResourceToken,
 
         //View
         GetTokenInfo,
@@ -46,7 +48,8 @@ namespace AElfChain.Common.Contracts
         IsInWhiteList,
         GetNativeTokenInfo,
         GetCrossChainTransferTokenContractAddress,
-        GetMethodFee
+        GetMethodFee,
+        GetOwningRental
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -93,7 +96,11 @@ namespace AElfChain.Common.Contracts
             return result;
         }
 
-
+        public TransactionResultDto CrossChainReceiveToken(string from, CrossChainReceiveTokenInput input)
+        {
+            var tester = GetNewTester(from);
+            return tester.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
+        }
         public long GetUserBalance(string account, string symbol = "")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -130,6 +137,11 @@ namespace AElfChain.Common.Contracts
             {
                 Symbol = symbol
             });
+        }
+
+        public OwningRental GetOwningRental()
+        {
+            return CallViewMethod<OwningRental>(TokenMethod.GetOwningRental, new Empty());
         }
     }
 }

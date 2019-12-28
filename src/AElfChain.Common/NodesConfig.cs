@@ -76,6 +76,12 @@ namespace AElfChain.Common
         {
             return _instance.Nodes.Select(o => o.Account).ToList();
         }
+
+        public static NodesInfo ReadConfigInfo(string configFile)
+        {
+            var content = File.ReadAllText(configFile);
+            return JsonConvert.DeserializeObject<NodesInfo>(content);
+        }
         
         private static NodesInfo GetConfigInfo()
         {

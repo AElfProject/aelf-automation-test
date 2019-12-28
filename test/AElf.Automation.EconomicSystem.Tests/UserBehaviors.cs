@@ -11,6 +11,7 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
+using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
 namespace AElf.Automation.EconomicSystem.Tests
 {

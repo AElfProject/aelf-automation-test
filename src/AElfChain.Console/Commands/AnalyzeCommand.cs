@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,6 +50,9 @@ namespace AElfChain.Console.Commands
                     break;
                 case "CheckAccountsToken":
                     CheckAccountsToken();
+                    break;
+                case "CheckSidechainRental":
+                    CheckSidechainRental();
                     break;
                 default:
                     Logger.Error("Not supported api method.");
@@ -285,6 +289,39 @@ namespace AElfChain.Console.Commands
             });
         }
 
+        private void CheckSidechainRental()
+        {
+            var isMainchain = NodeManager.IsMainChain();
+            if (isMainchain)
+            {
+                Logger.Warn("Current chain is main chain without any rental record.");
+                return;
+            }
+
+            var beforeTime = DateTime.Now.Add(TimeSpan.FromMinutes(-1));
+            var stopwatch = Stopwatch.StartNew();
+            while (true)
+            {
+                var time = DateTime.Now;
+                if ((time - beforeTime).Minutes == 1)
+                {
+                    beforeTime = DateTime.Now;
+                    var rental = Services.Token.GetOwningRental();
+                    
+                    System.Console.WriteLine();
+                    Logger.Info($"Rental check at: {time:g}");
+                    foreach (var item in rental.ResourceAmount)
+                    {
+                        Logger.Info($"{item.Key} = {item.Value}");
+                    }
+                    stopwatch.Restart();
+                    continue;
+                }
+                Thread.Sleep(500);
+                System.Console.Write($"\rWait one minute and check rental, time using: {stopwatch.ElapsedMilliseconds/1000}s");
+            }
+        }
+
         private IEnumerable<string> GetSubCommands()
         {
             return new List<string>
@@ -294,7 +331,8 @@ namespace AElfChain.Console.Commands
                 "TransactionAnalyze",
                 "TransactionPoolAnalyze",
                 "NodeElectionAnalyze",
-                "CheckAccountsToken"
+                "CheckAccountsToken",
+                "CheckSidechainRental"
             };
         }
     }

@@ -7,6 +7,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
