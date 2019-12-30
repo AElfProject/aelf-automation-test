@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs0;
 using AElf;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -12,7 +13,6 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using Sharprompt;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -23,10 +23,6 @@ namespace AElfChain.Console.Commands
     {
         private NodesInfo _mainNodes;
         private NodesInfo _sideNodes;
-
-        private NodeManager _mainManager;
-        private NodeManager _sideManager;
-
         public ChainService MainChain { get; set; }
         public ChainService SideChain { get; set; }
 
@@ -41,25 +37,17 @@ namespace AElfChain.Console.Commands
             var configPath = CommonHelper.MapPath("config");
             var configFiles = Directory.GetFiles(configPath, "*-main*.json")
                 .Select(o => o.Split("/").Last()).ToList();
-            var mainConfig = Prompt.Select("Select env config", configFiles);
-            _mainNodes = NodeInfoHelper.ReadConfigInfo(mainConfig);
+            var mainConfig = Prompt.Select("Select MainChain config", configFiles);
+            _mainNodes = NodeInfoHelper.ReadConfigInfo(Path.Combine(configPath, mainConfig));
             var firstBp = _mainNodes.Nodes.First();
-            _mainManager = new NodeManager(firstBp.Endpoint);
             MainChain = new ChainService(firstBp);
 
             configFiles = Directory.GetFiles(configPath, "*-side*.json")
                 .Select(o => o.Split("/").Last()).ToList();
-            var sideConfig = Prompt.Select("Select env config", configFiles);
-            _sideNodes = NodeInfoHelper.ReadConfigInfo(sideConfig);
+            var sideConfig = Prompt.Select("Select SideChain config", configFiles);
+            _sideNodes = NodeInfoHelper.ReadConfigInfo(Path.Combine(configPath, sideConfig));
             var sideBp = _sideNodes.Nodes.First();
-            _sideManager = new NodeManager(sideBp.Endpoint);
             SideChain = new ChainService(sideBp);
-
-            var mainTokenInfo = MainChain.TokenStub.GetNativeTokenInfo.CallAsync(new Empty()).Result;
-            Logger.Info(JsonFormatter.ToDiagnosticString(mainTokenInfo), Format.Json);
-
-            var sideTokenInfo = SideChain.TokenStub.GetNativeTokenInfo.CallAsync(new Empty()).Result;
-            Logger.Info(JsonFormatter.ToDiagnosticString(sideTokenInfo), Format.Json);
 
             var quitCommand = false;
             while (!quitCommand)
@@ -110,28 +98,30 @@ namespace AElfChain.Console.Commands
 
         private async Task MainChainRegisterSideChain()
         {
-            var rawTx = SideChain.ValidateTokenAddress();
-            var txId = _sideManager.SendTransaction(rawTx);
-            var txResult = _sideManager.CheckTransactionResult(txId);
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Error($"Validate SideChain {SideChain.ChainId} token contract failed");
-                return;
-            }
+            var transactionResult = await SideChain.GenesisStub.ValidateSystemContractAddress.SendAsync(
+                new ValidateSystemContractAddressInput
+                {
+                    Address = AddressHelper.Base58StringToAddress(SideChain.TokenService.ContractAddress),
+                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var validateBlockNumber = transactionResult.TransactionResult.BlockNumber;
+            var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
+            var indexHeight = await MainChain.CheckSideChainBlockIndex(validateBlockNumber, SideChain);
+            await SideChain.CheckParentChainBlockIndex(indexHeight);
 
-            await MainChain.CheckSideChainBlockIndex(txResult.BlockNumber, SideChain);
-            var merklePath = await MainChain.GetMerklePath(txResult.BlockNumber, txId);
+            var merklePath = await SideChain.GetMerklePath(validateBlockNumber, transactionId);
             if (merklePath == null)
                 throw new Exception("Can't get the merkle path.");
             var crossChainMerkleProofContext =
-                SideChain.CrossChainService.GetCrossChainMerkleProofContext(txResult.BlockNumber);
+                SideChain.CrossChainService.GetCrossChainMerkleProofContext(validateBlockNumber);
             var registerInput = new RegisterCrossChainTokenContractAddressInput
             {
                 FromChainId = SideChain.ChainId,
                 ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
                 TokenContractAddress =
                     AddressHelper.Base58StringToAddress(SideChain.TokenService.ContractAddress),
-                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
+                TransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray()),
                 MerklePath = merklePath
             };
             registerInput.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext.MerklePathFromParentChain
@@ -144,27 +134,28 @@ namespace AElfChain.Console.Commands
 
         private async Task SideChainRegisterMainChain()
         {
-            var rawTx = MainChain.ValidateTokenAddress();
-            var txId = _mainManager.SendTransaction(rawTx);
-            var txResult = _mainManager.CheckTransactionResult(txId);
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Error($"Validate MainChain {MainChain.ChainId} token contract failed");
-                return;
-            }
-            await SideChain.CheckParentChainBlockIndex(txResult.BlockNumber);
-            
+            var transactionResult = await MainChain.GenesisStub.ValidateSystemContractAddress.SendAsync(
+                new ValidateSystemContractAddressInput
+                {
+                    Address = AddressHelper.Base58StringToAddress(MainChain.TokenService.ContractAddress),
+                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var validateBlockNumber = transactionResult.TransactionResult.BlockNumber;
+            var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
+            await SideChain.CheckParentChainBlockIndex(validateBlockNumber);
+
             //register main chain token address
-            var merklePath = await MainChain.GetMerklePath(txResult.BlockNumber, txId);
+            var merklePath = await MainChain.GetMerklePath(validateBlockNumber, transactionId);
             if (merklePath == null)
                 throw new Exception("Can't get the merkle path.");
             var registerInput = new RegisterCrossChainTokenContractAddressInput
             {
                 FromChainId = MainChain.ChainId,
-                ParentChainHeight = txResult.BlockNumber,
+                ParentChainHeight = validateBlockNumber,
                 TokenContractAddress =
                     MainChain.TokenService.ContractAddress.ConvertAddress(),
-                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
+                TransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray()),
                 MerklePath = merklePath
             };
 
@@ -172,13 +163,13 @@ namespace AElfChain.Console.Commands
                 nameof(TokenMethod.RegisterCrossChainTokenContractAddress), registerInput, SideChain.CallAddress);
             Logger.Info(
                 $"Chain {SideChain.ChainId} register Main chain token address {MainChain.TokenService.ContractAddress}");
-            
         }
 
         private async Task SideChainCreateToken()
         {
             var input = Prompt.Input<string>("Input token Symbol:");
             var symbol = input.ToUpper();
+            //verify token exist on main and side chain
             var mainToken = MainChain.TokenService.GetTokenInfo(symbol);
             if (mainToken.Equals(new TokenInfo()))
             {
@@ -187,33 +178,40 @@ namespace AElfChain.Console.Commands
             }
 
             var sideToken = SideChain.TokenService.GetTokenInfo(symbol);
-            if (sideToken.Equals(new TokenInfo()))
+            if (!sideToken.Equals(new TokenInfo()))
             {
                 Logger.Info($"Side chain already with '{input}' token.");
                 return;
             }
-            
-            //validate token
-            var rawTx = MainChain.ValidateTokenSymbol(symbol);
-            var txId = _mainManager.SendTransaction(rawTx);
-            var txResult = _mainManager.CheckTransactionResult(txId);
-            if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Error($"Validate MainChain token '{symbol}' failed");
-                return;
-            }
 
-            await SideChain.CheckParentChainBlockIndex(txResult.BlockNumber);
-            var merklePath = await MainChain.GetMerklePath(txResult.BlockNumber, txResult.TransactionId);
+            //validate token on main chain
+            var transactionResult = await MainChain.TokenStub.ValidateTokenInfoExists.SendAsync(
+                new ValidateTokenInfoExistsInput
+                {
+                    Decimals = mainToken.Decimals,
+                    Issuer = mainToken.Issuer,
+                    IsBurnable = mainToken.IsBurnable,
+                    IssueChainId = mainToken.IssueChainId,
+                    Symbol = mainToken.Symbol,
+                    TokenName = mainToken.TokenName,
+                    TotalSupply = mainToken.TotalSupply
+                });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                $"Validate MainChain token '{symbol}' failed");
+            var checkBlockNumber = transactionResult.TransactionResult.BlockNumber;
+            var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
+            await SideChain.CheckParentChainBlockIndex(checkBlockNumber);
+            //create token on side chains
+            var merklePath = await MainChain.GetMerklePath(checkBlockNumber, transactionId);
             if (merklePath == null)
                 throw new Exception("Can't get the merkle path.");
             var createInput = new CrossChainCreateTokenInput
             {
                 FromChainId = MainChain.ChainId,
                 MerklePath = merklePath,
-                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx))
+                TransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray()),
+                ParentChainHeight = checkBlockNumber
             };
-
             var createResult =
                 SideChain.TokenService.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
                     createInput);
@@ -236,36 +234,32 @@ namespace AElfChain.Console.Commands
             to = input[1];
             symbol = input[2];
             amount = long.Parse(input[3]);
+            //main chain transfer
             var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = symbol,
                 IssueChainId = MainChain.ChainId,
                 Amount = amount,
-                Memo = "cross chain transfer",
+                Memo = "main->side transfer",
                 To = to.ConvertAddress(),
                 ToChainId = SideChain.ChainId,
             };
-            // execute cross chain transfer
-            var rawTx = _mainManager.GenerateRawTransaction(from,
-                MainChain.TokenService.ContractAddress, nameof(TokenMethod.CrossChainTransfer),
-                crossChainTransferInput);
-            var txId = _mainManager.SendTransaction(rawTx);
-            var txResult = _mainManager.CheckTransactionResult(txId);
-            // get transaction info            
-            var status = txResult.Status.ConvertTransactionResultStatus();
-            status.ShouldBe(TransactionResultStatus.Mined);
+            var tokenStub = MainChain.GenesisService.GetTokenStub(from);
+            var transactionResult = await tokenStub.CrossChainTransfer.SendAsync(crossChainTransferInput);
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var transferBlockNumber = transactionResult.TransactionResult.BlockNumber;
+            var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
             Logger.Info(
-                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {SideChain.ChainId}");
-
-            await SideChain.CheckParentChainBlockIndex(txResult.BlockNumber);
-
-            var merklePath = await MainChain.GetMerklePath(txResult.BlockNumber, txId);
+                $"MainChain transaction block: {transferBlockNumber}, txId:{transactionId} to side chain {SideChain.ChainId}");
+            await SideChain.CheckParentChainBlockIndex(transferBlockNumber);
+            //side chain receiver
+            var merklePath = await MainChain.GetMerklePath(transferBlockNumber, transactionId);
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
                 FromChainId = MainChain.ChainId,
-                ParentChainHeight = txResult.BlockNumber,
+                ParentChainHeight = transferBlockNumber,
                 MerklePath = merklePath,
-                TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx))
+                TransferTransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray())
             };
             var beforeBalance = SideChain.TokenService.GetUserBalance(to, symbol);
             var result = SideChain.TokenService.CrossChainReceiveToken(from, crossChainReceiveToken);
@@ -287,44 +281,42 @@ namespace AElfChain.Console.Commands
             to = input[1];
             symbol = input[2];
             amount = long.Parse(input[3]);
+            //side chain transfers
             var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = symbol,
                 IssueChainId = SideChain.ChainId,
                 Amount = amount,
-                Memo = "cross chain transfer",
+                Memo = "side->main transfer",
                 To = to.ConvertAddress(),
                 ToChainId = MainChain.ChainId
             };
-
-            var sideChainTokenContracts = SideChain.TokenService.ContractAddress;
-
-            // execute cross chain transfer
-            var rawTx = _sideManager.GenerateRawTransaction(from,
-                sideChainTokenContracts, nameof(TokenMethod.CrossChainTransfer),
-                crossChainTransferInput);
-            var txId = _sideManager.SendTransaction(rawTx);
-            var txResult = _sideManager.CheckTransactionResult(txId);
-            // get transaction info            
-            var status = txResult.Status.ConvertTransactionResultStatus();
-            status.ShouldBe(TransactionResultStatus.Mined);
+            var tokenStub = SideChain.GenesisService.GetTokenStub(from);
+            var transactionResult = await tokenStub.CrossChainTransfer.SendAsync(crossChainTransferInput);
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var transferBlockNumber = transactionResult.TransactionResult.BlockNumber;
+            var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
             Logger.Info(
-                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {MainChain.ChainId}");
+                $"SideChain transaction block: {transferBlockNumber}, txId:{transactionId} to main chain {MainChain.ChainId}");
+            var indexHeight = await MainChain.CheckSideChainBlockIndex(transferBlockNumber, SideChain);
+            await SideChain.CheckParentChainBlockIndex(indexHeight);
 
-            await SideChain.CheckParentChainBlockIndex(txResult.BlockNumber);
-            var merklePath = await SideChain.GetMerklePath(txResult.BlockNumber, txId);
+            //main chain receiver
+            var merklePath = await SideChain.GetMerklePath(transferBlockNumber, transactionId);
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
             {
                 FromChainId = SideChain.ChainId,
                 MerklePath = merklePath
             };
             // verify side chain transaction
-            var crossChainMerkleProofContext = SideChain.CrossChainService.GetCrossChainMerkleProofContext(txResult.BlockNumber);
+            var crossChainMerkleProofContext =
+                SideChain.CrossChainService.GetCrossChainMerkleProofContext(transferBlockNumber);
             crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
                 .MerklePathFromParentChain.MerklePathNodes);
             crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
             crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
+                ByteString.CopyFrom(transactionResult.Transaction.ToByteArray());
+
             var beforeBalance = MainChain.TokenService.GetUserBalance(to, symbol);
             var result = MainChain.TokenService.CrossChainReceiveToken(from, crossChainReceiveToken);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -336,10 +328,11 @@ namespace AElfChain.Console.Commands
         {
             return new List<string>
             {
-                "Register",
+                "Register[Main-Side]",
+                "Register[Side-Main]",
+                "CreateToken[Side]",
                 "Transfer[Main-Side]",
                 "Transfer[Side-Main]",
-                "Validation",
                 "Exit"
             };
         }

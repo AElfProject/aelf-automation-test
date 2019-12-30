@@ -298,6 +298,8 @@ namespace AElfChain.Console.Commands
                 return;
             }
 
+            var input = Prompt.Input<string>("Input SideChain creator address");
+            var symbols = new[] {"CPU", "RAM", "DISK"};
             var beforeTime = DateTime.Now.Add(TimeSpan.FromMinutes(-1));
             var stopwatch = Stopwatch.StartNew();
             while (true)
@@ -309,7 +311,15 @@ namespace AElfChain.Console.Commands
                     var rental = Services.Token.GetOwningRental();
                     
                     System.Console.WriteLine();
+                    System.Console.WriteLine();
                     Logger.Info($"Rental check at: {time:g}");
+                    Logger.Info($"SideChainCreator: {input}");
+                    foreach (var symbol in symbols)
+                    {
+                        var balance = Services.Token.GetUserBalance(input, symbol);
+                        Logger.Info($"{symbol} = {balance}");
+                    }
+                    Logger.Info("Rental balance info:");
                     foreach (var item in rental.ResourceAmount)
                     {
                         Logger.Info($"{item.Key} = {item.Value}");

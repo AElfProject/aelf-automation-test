@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs0;
 using AElf;
+using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
@@ -32,6 +32,7 @@ namespace AElfChain.Console.Commands
             GetContractServices();
         }
         public GenesisContract GenesisService { get; set; }
+        public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
@@ -40,34 +41,6 @@ namespace AElfChain.Console.Commands
         public AuthorityManager Authority { get; set; }
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
-        public string ValidateTokenAddress()
-        {
-            var validateTransaction = NodeManager.GenerateRawTransaction(
-                CallAddress, GenesisService.ContractAddress,
-                GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
-                {
-                    Address = AddressHelper.Base58StringToAddress(TokenService.ContractAddress),
-                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
-                });
-            return validateTransaction;
-        }
-        public string ValidateTokenSymbol(string symbol)
-        {
-            var tokenInfo = TokenService.GetTokenInfo(symbol);
-            var validateTransaction = NodeManager.GenerateRawTransaction(
-                CallAddress, TokenService.ContractAddress,
-                TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
-                {
-                    IsBurnable = tokenInfo.IsBurnable,
-                    Issuer = tokenInfo.Issuer,
-                    IssueChainId = tokenInfo.IssueChainId,
-                    Decimals = tokenInfo.Decimals,
-                    Symbol = tokenInfo.Symbol,
-                    TokenName = tokenInfo.TokenName,
-                    TotalSupply = tokenInfo.TotalSupply
-                });
-            return validateTransaction;
-        }
         public async Task<long> CheckSideChainBlockIndex(long txHeight, ChainService sideChain)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -80,6 +53,8 @@ namespace AElfChain.Console.Commands
                     await Task.Delay(2000);
                     continue;
                 }
+                System.Console.Write($"\r[Main->Side]Current index height: {indexSideHeight}, target index height: {txHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}"); 
+                System.Console.WriteLine();
                 stopwatch.Stop();
                 var mainHeight = await NodeManager.ApiClient.GetBlockHeightAsync();
                 return mainHeight;
@@ -95,8 +70,10 @@ namespace AElfChain.Console.Commands
                 {
                     System.Console.Write($"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                     await Task.Delay(2000);
+                    continue;
                 }
-                
+                System.Console.Write($"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                System.Console.WriteLine();
                 stopwatch.Stop();
                 break;
             }
@@ -127,7 +104,6 @@ namespace AElfChain.Console.Commands
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (!transactionIds[num].Equals(txId)) continue;
                 index = num;
-                $"The transaction index is {index}".WriteSuccessLine();
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
@@ -139,6 +115,7 @@ namespace AElfChain.Console.Commands
         private void GetContractServices()
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
+            GenesisStub = GenesisService.GetGensisStub(CallAddress);
 
             //TokenService contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.Token);
