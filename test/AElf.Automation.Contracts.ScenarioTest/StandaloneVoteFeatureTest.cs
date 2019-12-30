@@ -113,7 +113,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("Allowance token to BpNode accounts");
             foreach (var bpAcc in BpNodeAccounts)
             {
-                Logger.Info($"Account: {bpAcc}\nPubKey:{NodeManager.GetAccountPublicKey(bpAcc)}");
+                Logger.Info($"Account: {bpAcc}\nPubKey:{SideNode.GetAccountPublicKey(bpAcc)}");
                 var balanceResult = tokenService.CallReadOnlyMethod(TokenMethod.GetBalance, bpAcc);
                 var balance = long.Parse(tokenService.ConvertViewResult(balanceResult, true));
                 if (balance >= 100000)
@@ -137,14 +137,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < userAccount; i++)
             {
                 ci.Parameter = "123";
-                ci = NodeManager.NewAccount(ci);
+                ci = SideNode.NewAccount(ci);
                 if (ci.Result)
                     UserList.Add(ci.InfoMsg?[0]);
 
                 //unlock
                 var uc = new CommandInfo("AccountUnlock", "account");
                 uc.Parameter = String.Format("{0} {1} {2}", UserList[i], "123", "notimeout");
-                NodeManager.UnlockAccount(uc);
+                SideNode.UnlockAccount(uc);
             }
 
             tokenService.SetAccount(BpNodeAccounts[0]);

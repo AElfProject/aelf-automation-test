@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AElf.Client.Service;
+using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Shouldly;
 using Xunit;
@@ -19,7 +20,7 @@ namespace AElf.Automation.ApiTest
         }
 
         private readonly ITestOutputHelper _testOutputHelper;
-        private const string ServiceUrl = "192.168.197.15:8100";
+        private const string ServiceUrl = "127.0.0.1:8000";
         private readonly AElfClient _client;
         private readonly AnalyzeListener _listener;
 
@@ -77,11 +78,14 @@ namespace AElf.Automation.ApiTest
         public async Task GetBlockState_Test()
         {
             var (chainStatus, timeSpan) = await _listener.ExecuteApi(_client.GetChainStatusAsync);
+            chainStatus.ChainId.ShouldBe("AELF");
+            chainStatus.LongestChainHeight.ShouldBeGreaterThan(1);
+            chainStatus.LongestChainHash.ShouldNotBe(Hash.Empty.ToHex());
             _testOutputHelper.WriteLine($"Chain status info: {chainStatus}, execute time: {timeSpan}ms");
             await Task.CompletedTask;
         }
 
-        [Fact]
+        [Fact(Skip="Api removed.")]
         public async Task GetCurrentRoundInformation_Test()
         {
             long totalCount = 0;

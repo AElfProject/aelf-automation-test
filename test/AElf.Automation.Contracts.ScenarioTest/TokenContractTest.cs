@@ -73,7 +73,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     _tokenConverterContract.Contract, TestAccount);
             
             _acs8Contract = new ExecutionPluginForAcs8Contract(NodeManager,BpAccount,"rRf1ZbizAoWzYxHfBY9h3iMMiN3bYsXbUw81W3yF6UewripQu");
-//            _acs8Contract = new ExecutionPluginForAcs8Contract(NodeManager,BpAccount,"2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9");
+//            _acs8Contract = new ExecutionPluginForAcs8Contract(SideNode,BpAccount,"2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9");
             
             _acs8Sub = _acs8Contract.GetTestStub<ContractContainer.ContractStub>(BpAccount);
         }
