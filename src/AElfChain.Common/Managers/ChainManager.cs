@@ -9,6 +9,7 @@ using AElf.Contracts.CrossChain;
 using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.TokenConverter;
 using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -38,6 +39,7 @@ namespace AElfChain.Common.Managers
             ChainId = ChainHelper.ConvertBase58ToChainId(ChainIdName);
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
             GenesisStub = GenesisService.GetGensisStub(CallAddress);
+            Authority = new AuthorityManager(NodeManager, CallAddress);
         }
 
         public ChainManager(string endpoint, string callAddress)
@@ -56,8 +58,10 @@ namespace AElfChain.Common.Managers
         public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
         public TokenContract TokenService => GenesisService.GetTokenContract();
         public TokenContractContainer.TokenContractStub TokenStub => GenesisService.GetTokenStub();
+        public TokenConverterContract TokenConverterService => GenesisService.GetTokenConverterContract();
+        public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
+            GenesisService.GetTokenConverterStub();
         public ConsensusContract ConsensusService => GenesisService.GetConsensusContract();
-
         public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => GenesisService.GetConsensusStub();
         public CrossChainContract CrossChainService => GenesisService.GetCrossChainContract();
 
@@ -140,12 +144,6 @@ namespace AElfChain.Common.Managers
             merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
             
             return merklePath;
-        }
-
-        public void AuthorityManager(string configFile)
-        {
-            NodeInfoHelper.SetConfig(configFile);
-            Authority = new AuthorityManager(NodeManager, CallAddress);
         }
     }
 }
