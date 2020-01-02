@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Genesis;
@@ -61,6 +62,9 @@ namespace AElfChain.Common.Managers
         public TokenConverterContract TokenConverterService => GenesisService.GetTokenConverterContract();
         public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
             GenesisService.GetTokenConverterStub();
+
+        public ConfigurationContract ConfigurationService => GenesisService.GetConfigurationContract();
+        public ConfigurationContainer.ConfigurationStub ConfigurationStub => GenesisService.GetConfigurationStub();
         public ConsensusContract ConsensusService => GenesisService.GetConsensusContract();
         public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => GenesisService.GetConsensusStub();
         public CrossChainContract CrossChainService => GenesisService.GetCrossChainContract();

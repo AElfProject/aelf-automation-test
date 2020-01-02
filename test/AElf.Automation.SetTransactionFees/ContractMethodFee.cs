@@ -93,6 +93,7 @@ namespace AElf.Automation.SetTransactionFees
                 //query result
                 var afterFee = QueryTransactionFee(caller, ContractAddress, method.Name);
                 Logger.Info(JsonConvert.SerializeObject(afterFee, Formatting.Indented));
+                afterFee.Fees.First().BasicFee.ShouldBe(amount);
             }
         }
 

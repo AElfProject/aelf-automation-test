@@ -29,7 +29,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper();
             MainNode = new NodeManager("192.168.197.40:8000");
 
-            NodeInfoHelper.SetConfig("nodes-online-test-side2");
+            NodeInfoHelper.SetConfig("nodes-online-test-side1");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
