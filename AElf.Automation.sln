@@ -30,15 +30,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2C48872E-71E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Common", "src\AElfChain.Common\AElfChain.Common.csproj", "{4F187890-48EB-42E8-A382-220A6F320868}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.Contracts.ScenarioTest", "test\AElf.Automation.Contracts.ScenarioTest\AElf.Automation.Contracts.ScenarioTest.csproj", "{86B9B9C9-157F-4023-BBAA-3A7CB903557C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.FeatureVerification", "test\AElf.Automation.FeatureVerification\AElf.Automation.FeatureVerification.csproj", "{86B9B9C9-157F-4023-BBAA-3A7CB903557C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ContractsTesting", "test\AElf.Automation.ContractsTesting\AElf.Automation.ContractsTesting.csproj", "{41066E28-071D-4A1B-8923-8BB0B41134E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.FunctionVerification", "test\AElf.Automation.FunctionVerification\AElf.Automation.FunctionVerification.csproj", "{41066E28-071D-4A1B-8923-8BB0B41134E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.RpcPerformance", "test\AElf.Automation.RpcPerformance\AElf.Automation.RpcPerformance.csproj", "{AE345924-AA2E-4844-AD4F-640418E04399}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ScenariosExecution", "test\AElf.Automation.ScenariosExecution\AElf.Automation.ScenariosExecution.csproj", "{EEDDE6EB-0F86-477C-A19E-084E95BF157D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainTests", "test\AElf.Automation.SideChainTests\AElf.Automation.SideChainTests.csproj", "{8CF84008-15DB-4A0C-94E7-CB9D6070E7AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainTest", "test\AElf.Automation.SideChainTest\AElf.Automation.SideChainTest.csproj", "{8CF84008-15DB-4A0C-94E7-CB9D6070E7AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChain.Verification.Test", "test\AElf.Automation.SideChain.Verification.Test\AElf.Automation.SideChain.Verification.Test.csproj", "{936CBD3F-C909-4B51-B383-60BF68A0A51E}"
 EndProject
@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ProposalTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.SideChainEconomicTest", "test\AElf.Automation.SideChainEconomicTest\AElf.Automation.SideChainEconomicTest.csproj", "{8EC2FBF6-4221-4E77-A3CD-85360D2DB1BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.NodesConfigGen", "test\AElf.Automation.NodesConfigGen\AElf.Automation.NodesConfigGen.csproj", "{4028C6E8-AE07-4C1E-9437-662997C17BF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.GenerateNodesConfiguration", "test\AElf.Automation.GenerateNodesConfiguration\AElf.Automation.GenerateNodesConfiguration.csproj", "{4028C6E8-AE07-4C1E-9437-662997C17BF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Console", "src\AElfChain.Console\AElfChain.Console.csproj", "{D6A81E91-CE4A-4B71-BBE8-44F0F1F13812}"
 EndProject
