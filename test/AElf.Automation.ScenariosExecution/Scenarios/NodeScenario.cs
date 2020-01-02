@@ -11,6 +11,7 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using Shouldly;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -84,7 +85,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     count++;
                     Logger.Info($"User {fullNode.Account} announcement election success.");
-                    UserScenario.GetCandidates(Election); //update candidates list
+                    var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
+                    newCandidates.ShouldContain(fullNode.PublicKey);
                 }
 
                 if (count == 3)

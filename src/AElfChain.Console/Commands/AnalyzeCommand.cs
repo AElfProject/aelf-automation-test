@@ -167,7 +167,7 @@ namespace AElfChain.Console.Commands
             if (blockHeight < startHeight)
                 Logger.Error("Wrong block height");
             var endHeight = input.Length == 2 ? long.Parse(input[1]) : blockHeight;
-            var continuous = input.Length != 3 || bool.Parse(input[2]);
+            var continuous = input.Length == 3 && bool.Parse(input[2]);
             Logger.Info("Begin analyze block transactions information:");
             while (true)
             {
