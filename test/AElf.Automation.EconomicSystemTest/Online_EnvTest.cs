@@ -4,7 +4,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     [TestClass]
     public class Online_EnvTest

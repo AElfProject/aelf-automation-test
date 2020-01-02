@@ -8,7 +8,7 @@ using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public partial class Behaviors
     {

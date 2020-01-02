@@ -168,7 +168,6 @@ namespace AElf.Automation.SideChainTests
             return proposalId;
         }
 
-
         protected TransactionResultDto RequestChainDisposal(ContractServices services, string account, int chainId)
         {
             services.CrossChainService.SetAccount(account);

@@ -2,7 +2,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using AElf.Types;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public class ContractServices
     {

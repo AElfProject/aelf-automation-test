@@ -1,7 +1,7 @@
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public partial class Behaviors
     {

@@ -9,7 +9,7 @@ using AElf.Types;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public class ElectionTests
     {

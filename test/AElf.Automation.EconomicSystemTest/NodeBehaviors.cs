@@ -3,7 +3,7 @@ using AElfChain.Common.Contracts;
 using AElf.Contracts.Election;
 using Google.Protobuf.WellKnownTypes;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public partial class Behaviors
     {

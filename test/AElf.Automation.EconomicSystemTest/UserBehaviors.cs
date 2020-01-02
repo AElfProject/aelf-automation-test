@@ -13,7 +13,7 @@ using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     public partial class Behaviors
     {

@@ -75,6 +75,10 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info($"New transaction limit number: {afterResult.Value}");
             if (afterResult.Value == limitCount)
                 Logger.Info("Transaction limit set successful.");
+            else
+            {
+                Logger.Error($"Transaction limit set number verify failed. {afterResult.Value}/{limitCount}");
+            }
         }
     }
 }

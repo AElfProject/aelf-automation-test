@@ -6,7 +6,7 @@ using AElfChain.Common.Managers;
 using AElf.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     [TestClass]
     public class QueryTests

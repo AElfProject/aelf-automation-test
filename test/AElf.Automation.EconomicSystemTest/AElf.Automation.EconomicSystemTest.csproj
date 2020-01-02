@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
+        <AssemblyName>AElf.Automation.EconomicSystemTest</AssemblyName>
+        <RootNamespace>AElf.Automation.EconomicSystemTest</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

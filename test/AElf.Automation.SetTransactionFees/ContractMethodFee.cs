@@ -16,7 +16,7 @@ namespace AElf.Automation.SetTransactionFees
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        private readonly List<string> NoFeeMethods = new List<string>
+        private readonly List<string> _noFeeMethods = new List<string>
         {
             "InitialAElfConsensusContract",
             "FirstRound",
@@ -52,7 +52,7 @@ namespace AElf.Automation.SetTransactionFees
         {
             foreach (var method in Contract.Methods)
             {
-                if (NoFeeMethods.Contains(method.Name))
+                if (_noFeeMethods.Contains(method.Name))
                 {
                     Logger.Info($"No need to set method fee for: {method.Name}");
                     continue;

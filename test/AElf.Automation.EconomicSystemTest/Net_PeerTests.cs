@@ -6,7 +6,7 @@ using AElfChain.Common.DtoExtension;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
-namespace AElf.Automation.EconomicSystem.Tests
+namespace AElf.Automation.EconomicSystemTest
 {
     [TestClass]
     public class Net_PeerTests

@@ -167,7 +167,7 @@ namespace AElfChain.Console.Commands
 
         private async Task SideChainCreateToken()
         {
-            var input = Prompt.Input<string>("Input token Symbol:");
+            var input = Prompt.Input<string>("Input token Symbol");
             var symbol = input.ToUpper();
             //verify token exist on main and side chain
             var mainToken = MainChain.TokenService.GetTokenInfo(symbol);

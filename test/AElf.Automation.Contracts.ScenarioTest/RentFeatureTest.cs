@@ -2,12 +2,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -17,6 +20,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ILogHelper Logger = LogHelper.GetLogger();
         public INodeManager MainNode { get; set; }
         public INodeManager SideNode { get; set; }
+        
+        public GenesisContract Genesis { get; set; }
 
         public RentFeatureTest()
         {
@@ -24,12 +29,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper();
             MainNode = new NodeManager("192.168.197.40:8000");
 
-            SideNode = new NodeManager("192.168.197.40:8001");
-            NodeInfoHelper.SetConfig("nodes-env2-side1");
-            Genesis = SideNode.GetGenesisContract();
+            NodeInfoHelper.SetConfig("nodes-online-test-side2");
+            var bpNode = NodeInfoHelper.Config.Nodes.First();
+            SideNode = new NodeManager(bpNode.Endpoint);
+            Genesis = SideNode.GetGenesisContract(bpNode.Account);
         }
-
-        public GenesisContract Genesis { get; set; }
 
         [TestMethod]
         public void UpdateRentalTest()
@@ -48,6 +52,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         {"DISK", 10}
                     }
                 }, organization, bps, bps.First());
+        }
+
+        [TestMethod]
+        public async Task UpdateRentedResources()
+        {
+            var token = Genesis.GetTokenStub();
+            var transactionResult = await token.UpdateRentedResources.SendAsync(new UpdateRentedResourcesInput
+            {
+                ResourceAmount =
+                {
+                    {"CPU", 2},
+                    {"RAM", 4},
+                    {"DISK", 512}
+                }
+            });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var resourceUsage = await token.GetResourceUsage.CallAsync(new Empty());
+            resourceUsage.Value["CPU"].ShouldBe(2);
+            resourceUsage.Value["RAM"].ShouldBe(4);
+            resourceUsage.Value["DISK"].ShouldBe(512);
+        }
+
+        [TestMethod]
+        public async Task QueryResourceUsage()
+        {
+            var token = Genesis.GetTokenStub();
+            var resourceUsage = await token.GetResourceUsage.CallAsync(new Empty());
+            Logger.Info(JsonConvert.SerializeObject(resourceUsage));
         }
 
         [TestMethod]
@@ -79,6 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 10000_00000000,
                 });
             }
+
             Logger.Info($"Account: {bps.First()}");
             foreach (var symbol in symbols)
             {
