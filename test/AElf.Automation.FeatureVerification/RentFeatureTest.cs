@@ -27,7 +27,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("192.168.197.40:8000");
+            MainNode = new NodeManager("13.236.178.147:8000");
 
             NodeInfoHelper.SetConfig("nodes-online-test-side1");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
