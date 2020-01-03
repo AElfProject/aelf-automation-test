@@ -3,6 +3,7 @@ using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 
@@ -49,7 +50,8 @@ namespace AElfChain.Common.Contracts
         GetNativeTokenInfo,
         GetCrossChainTransferTokenContractAddress,
         GetMethodFee,
-        GetOwningRental
+        GetOwningRental,
+        GetLockedAmount
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -108,6 +110,16 @@ namespace AElfChain.Common.Contracts
                 Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
+        }
+
+        public long GetLockedAmount(string account, Hash lockId, string symbol = "")
+        {
+            return CallViewMethod<GetLockedAmountOutput>(TokenMethod.GetLockedAmount, new GetLockedAmountInput
+            {
+                Address = account.ConvertAddress(),
+                LockId = lockId,
+                Symbol = NodeOption.GetTokenSymbol(symbol)
+            }).Amount;
         }
 
         public long GetAllowance(string from, string to, string symbol = "")

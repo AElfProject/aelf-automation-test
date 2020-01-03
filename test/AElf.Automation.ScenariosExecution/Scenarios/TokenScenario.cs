@@ -7,11 +7,14 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Kernel.Miner.Application;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -48,6 +51,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 TransferAction,
                 ApproveTransferAction,
+                ParallelTransferAction,
+                ParallelTransferFromAction,
                 () => PrepareTesterToken(Testers),
                 UpdateEndpointAction
             });
@@ -97,6 +102,202 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             catch (Exception e)
             {
                 Logger.Error($"TransferAction: {e.Message}");
+            }
+        }
+
+        private void ParallelTransferAction()
+        {
+            var list = new List<TxItem>();
+            //generate transactions
+            for (var i = 1; i < 6; i++)
+            {
+                GetTransferPair(out var from, out var to, out var amount);
+                var rawTx = Services.NodeManager.GenerateRawTransaction(from, Token.ContractAddress,
+                    nameof(TokenMethod.Transfer),
+                    new TransferInput
+                    {
+                        To = to.ConvertAddress(),
+                        Amount = amount,
+                        Symbol = "ELF",
+                        Memo = $"PT-{Guid.NewGuid()}"
+                    });
+                var transaction =
+                    Transaction.Parser.ParseFrom(ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)));
+                var txId = transaction.GetHash().ToHex();
+                list.Add(new TxItem
+                {
+                    From = from,
+                    To = to,
+                    Amount = amount,
+                    RawTx = rawTx,
+                    TxId = txId
+                });
+            }
+
+            var testers = list.Select(o => o.From).Concat(list.Select(o => o.To)).Distinct().ToList();
+
+            var beforeBalances = new Dictionary<string, long>();
+            foreach (var tester in testers)
+            {
+                var balance = Token.GetUserBalance(tester);
+                beforeBalances.Add(tester, balance);
+            }
+
+            //execute transactions
+            foreach (var rawTx in list.Select(o => o.RawTx).ToList())
+            {
+                Services.NodeManager.SendTransaction(rawTx);
+            }
+
+            Services.NodeManager.CheckTransactionListResult(list.Select(o => o.TxId).ToList());
+
+            //verify result
+            var afterBalances = new Dictionary<string, long>();
+            foreach (var tester in testers)
+            {
+                var balance = Token.GetUserBalance(tester);
+                afterBalances.Add(tester, balance);
+            }
+
+            //check fee
+            var checkResult = true;
+            foreach (var tx in list)
+            {
+                var transactionResult =
+                    AsyncHelper.RunSync(() => Services.NodeManager.ApiClient.GetTransactionResultAsync(tx.TxId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                if (status == TransactionResultStatus.Mined)
+                {
+                    beforeBalances[tx.From] -= tx.Amount + transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.To] += tx.Amount;
+                }
+                else if (status == TransactionResultStatus.Failed) // failed tx only check tx fee
+                {
+                    beforeBalances[tx.From] -= transactionResult.TransactionFee.GetDefaultTransactionFee();
+                }
+                else
+                {
+                    checkResult = false;
+                    Logger.Error($"Transaction status {status} cannot check result.");
+                }
+            }
+
+            if (checkResult)
+            {
+                //check all balance
+                foreach (var tester in testers)
+                {
+                    beforeBalances[tester].ShouldBe(afterBalances[tester]);
+                }
+            }
+        }
+
+        private void ParallelTransferFromAction()
+        {
+            var approveList = new List<TxItem>();
+            //execute approve operation
+            for (var i = 1; i < 6; i++)
+            {
+                GetTransferPair(out var from, out var to, out var amount);
+                var txId = Services.NodeManager.SendTransaction(from, Token.ContractAddress,
+                    nameof(TokenMethod.Approve),
+                    new ApproveInput
+                    {
+                        Spender = to.ConvertAddress(),
+                        Symbol = "ELF",
+                        Amount = amount
+                    });
+                approveList.Add(new TxItem
+                {
+                    From = from,
+                    To = to,
+                    Amount = amount,
+                    TxId = txId
+                });
+            }
+            Services.NodeManager.CheckTransactionListResult(approveList.Select(o=>o.TxId).ToList());
+            
+            //execute transferFrom operation
+            var transferFromList = new List<TxItem>();
+            foreach (var tx in approveList)
+            {
+                var rawTx = Services.NodeManager.GenerateRawTransaction(tx.To, Token.ContractAddress,
+                    nameof(TokenMethod.TransferFrom),
+                    new TransferFromInput
+                    {
+                        From = tx.From.ConvertAddress(),
+                        To = tx.To.ConvertAddress(),
+                        Amount = tx.Amount,
+                        Symbol = "ELF",
+                        Memo = $"TF-{Guid.NewGuid()}"
+                    });
+                var transaction =
+                    Transaction.Parser.ParseFrom(ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)));
+                var txId = transaction.GetHash().ToHex();
+                transferFromList.Add(new TxItem
+                {
+                    From = tx.To,
+                    To = tx.From,
+                    Amount = tx.Amount,
+                    RawTx = rawTx,
+                    TxId = txId
+                }); 
+            }
+            
+            var testers = transferFromList.Select(o => o.From).Concat(transferFromList.Select(o => o.To)).Distinct().ToList();
+
+            var beforeBalances = new Dictionary<string, long>();
+            foreach (var tester in testers)
+            {
+                var balance = Token.GetUserBalance(tester);
+                beforeBalances.Add(tester, balance);
+            }
+
+            //execute transactions
+            foreach (var rawTx in transferFromList.Select(o => o.RawTx).ToList())
+            {
+                Services.NodeManager.SendTransaction(rawTx);
+            }
+            Services.NodeManager.CheckTransactionListResult(transferFromList.Select(o => o.TxId).ToList());
+
+            //verify result
+            var afterBalances = new Dictionary<string, long>();
+            foreach (var tester in testers)
+            {
+                var balance = Token.GetUserBalance(tester);
+                afterBalances.Add(tester, balance);
+            }
+            
+            //check fee
+            var checkResult = true;
+            foreach (var tx in transferFromList)
+            {
+                var transactionResult =
+                    AsyncHelper.RunSync(() => Services.NodeManager.ApiClient.GetTransactionResultAsync(tx.TxId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                if (status == TransactionResultStatus.Mined)
+                {
+                    beforeBalances[tx.From] += tx.Amount - transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.To] -= tx.Amount;
+                }
+                else if (status == TransactionResultStatus.Failed) // failed tx only check tx fee
+                {
+                    beforeBalances[tx.From] -= transactionResult.TransactionFee.GetDefaultTransactionFee();
+                }
+                else
+                {
+                    checkResult = false;
+                    Logger.Error($"Transaction status {status} cannot check result.");
+                }
+            }
+
+            if (checkResult)
+            {
+                //check all balance
+                foreach (var tester in testers)
+                {
+                    beforeBalances[tester].ShouldBe(afterBalances[tester]);
+                }
             }
         }
 
@@ -256,5 +457,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 return;
             }
         }
+    }
+
+    public struct TxItem
+    {
+        public string TxId { get; set; }
+        public string RawTx { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public long Amount { get; set; }
     }
 }
