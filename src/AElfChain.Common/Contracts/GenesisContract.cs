@@ -186,7 +186,7 @@ namespace AElfChain.Common.Contracts
                 {NameProvider.Token, Hash.FromString("AElf.ContractNames.Token")},
                 {NameProvider.TokenConverter, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.ParliamentAuth")},
+                {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChain, Hash.FromString("AElf.ContractNames.CrossChain")},
                 {NameProvider.AssociationAuth, Hash.FromString("AElf.ContractNames.AssociationAuth")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
