@@ -31,7 +31,7 @@ namespace AElf.Automation.SideChainCreate
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
-            //TokenService contract
+            //Token contract
             TokenService = GenesisService.GetTokenContract();
 
             //Consensus contract

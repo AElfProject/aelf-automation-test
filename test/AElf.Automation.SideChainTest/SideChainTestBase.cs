@@ -183,9 +183,9 @@ namespace AElf.Automation.SideChainTests
 
         protected TransactionResultDto Recharge(ContractServices services, string account, int chainId, long amount)
         {
-//            var approve = TokenService.ExecuteMethodWithResult(TokenMethod.Approve, new AElf.Contracts.MultiToken.ApproveInput
+//            var approve = Token.ExecuteMethodWithResult(TokenMethod.Approve, new AElf.Contracts.MultiToken.ApproveInput
 //            {
-//                Spender = CrossChainService.Contract,
+//                Spender = CrossChain.Contract,
 //                Symbol = "ELF",
 //                Amount = amount
 //            });
@@ -236,7 +236,7 @@ namespace AElf.Automation.SideChainTests
 
         #endregion
 
-        #region Parliament Method
+        #region ParliamentAuth Method
 
         protected TransactionResultDto Approve(ContractServices services, string account, string proposalId)
         {

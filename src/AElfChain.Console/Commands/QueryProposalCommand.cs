@@ -8,8 +8,8 @@ namespace AElfChain.Console.Commands
 {
     public class QueryProposalCommand : BaseCommand
     {
-        public QueryProposalCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public QueryProposalCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 

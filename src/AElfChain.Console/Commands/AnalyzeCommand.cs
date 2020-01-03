@@ -20,8 +20,8 @@ namespace AElfChain.Console.Commands
 {
     public class AnalyzeCommand : BaseCommand
     {
-        public AnalyzeCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public AnalyzeCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
             Logger = Log4NetHelper.GetLogger();
         }
@@ -298,7 +298,7 @@ namespace AElfChain.Console.Commands
                 return;
             }
 
-            var input = Prompt.Input<string>("Input SideChain creator address");
+            var input = Prompt.Input<string>("Input SideContract creator address");
             var symbols = new[] {"CPU", "RAM", "DISK"};
             var beforeTime = DateTime.Now.Add(TimeSpan.FromMinutes(-1));
             var stopwatch = Stopwatch.StartNew();

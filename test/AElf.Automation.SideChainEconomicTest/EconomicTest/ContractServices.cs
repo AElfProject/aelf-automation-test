@@ -91,7 +91,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
-            //TokenService contract
+            //Token contract
             TokenService = GenesisService.GetTokenContract();
 
             //Consensus contract

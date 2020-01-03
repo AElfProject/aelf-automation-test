@@ -13,38 +13,38 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task TransactionLimit_Test()
         {
-            var beforeTxLimit = await ChainManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            var releaseResult = ChainManager.Authority.ExecuteTransactionWithAuthority(ChainManager.ConfigurationService.ContractAddress, nameof(ConfigurationMethod.SetBlockTransactionLimit), new Int32Value
+            var beforeTxLimit = await ContractManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetBlockTransactionLimit), new Int32Value
             {
                 Value = beforeTxLimit.Value + 10
-            },  ChainManager.CallAddress);
+            },  ContractManager.CallAddress);
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var afterTxLimit = await ChainManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
+            var afterTxLimit = await ContractManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
             afterTxLimit.Value.ShouldBe(beforeTxLimit.Value + 10);
         }
 
         [TestMethod]
         public async Task ChangeOwnerAddress_Test()
         {
-            var defaultOwner = await ChainManager.ParliamentStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
-            var owner = await ChainManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
+            var defaultOwner = await ContractManager.ParliamentAuthStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
+            var owner = await ContractManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
             if (owner.Equals(defaultOwner))
             {
                 //set to first bp
-                var releaseResult = ChainManager.Authority.ExecuteTransactionWithAuthority(
-                    ChainManager.ConfigurationService.ContractAddress, nameof(ConfigurationMethod.ChangeOwnerAddress),
-                    ChainManager.CallAccount,
-                    ChainManager.CallAddress);
+                var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                    ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.ChangeOwnerAddress),
+                    ContractManager.CallAccount,
+                    ContractManager.CallAddress);
                 releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                var newOwner = await ChainManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
-                newOwner.ShouldBe(ChainManager.CallAccount);
+                var newOwner = await ContractManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
+                newOwner.ShouldBe(ContractManager.CallAccount);
             }
             
             //recover
-            var configurationStub = ChainManager.GenesisService.GetConfigurationStub(ChainManager.CallAddress);
+            var configurationStub = ContractManager.Genesis.GetConfigurationStub(ContractManager.CallAddress);
             var transactionResult = await configurationStub.ChangeOwnerAddress.SendAsync(defaultOwner);
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            owner = await ChainManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
+            owner = await ContractManager.ConfigurationStub.GetOwnerAddress.CallAsync(new Empty());
             owner.ShouldBe(defaultOwner);
         }
     }

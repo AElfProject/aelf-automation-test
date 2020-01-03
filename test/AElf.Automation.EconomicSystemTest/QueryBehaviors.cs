@@ -12,22 +12,22 @@ namespace AElf.Automation.EconomicSystemTest
 {
     public partial class Behaviors
     {
-        #region ProfitService View Method
+        #region Profit View Method
 
-        // return the hash of ProfitService Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
+        // return the hash of Profit Items(Treasury,MinierReward,BackupSubsidy,CitizaWelfare,BasicReward,VotesWeight,ReElectionReward)
         public CreatedSchemeIds GetCreatedProfitItems()
         {
             var result = ProfitService.CallViewMethod<CreatedSchemeIds>(ProfitMethod.GetManagingSchemeIds,
                 new GetManagingSchemeIdsInput
                 {
-                    Manager = ContractServices.GenesisService.GetContractAddressByName(NameProvider.Treasury)
+                    Manager = ContractManager.Genesis.GetContractAddressByName(NameProvider.Treasury)
                 });
             return result;
         }
 
         #endregion
 
-        #region TokenService Method
+        #region Token Method
 
         public GetBalanceOutput GetBalance(string account, string symbol = "")
         {
@@ -120,7 +120,7 @@ namespace AElf.Automation.EconomicSystemTest
 
         #endregion
 
-        #region VoteService Method
+        #region Vote Method
 
         #endregion
 

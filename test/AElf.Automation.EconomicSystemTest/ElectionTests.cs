@@ -20,8 +20,8 @@ namespace AElf.Automation.EconomicSystemTest
         protected static string RpcUrl { get; } = "http://52.90.147.175:8000";
 
 
-        //protected RpcApiHelper CH { get; set; }   
-        protected INodeManager CH { get; set; }
+        //protected RpcApiHelper NodeManager { get; set; }   
+        protected INodeManager NodeManager { get; set; }
         protected string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
@@ -37,8 +37,8 @@ namespace AElf.Automation.EconomicSystemTest
 
             #region Get services
 
-            CH = new NodeManager(RpcUrl);
-            var contractServices = new ContractServices(CH, InitAccount);
+            NodeManager = new NodeManager(RpcUrl);
+            var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
             #endregion
@@ -83,7 +83,7 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 var name = $"Bp-{i + 1}";
                 var account = BpNodeAddress[i];
-                var pubKey = CH.GetAccountPublicKey(account);
+                var pubKey = NodeManager.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
@@ -93,7 +93,7 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 var name = $"Full-{i + 1}";
                 var account = FullNodeAddress[i];
-                var pubKey = CH.GetAccountPublicKey(account);
+                var pubKey = NodeManager.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
                 _logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
@@ -105,8 +105,8 @@ namespace AElf.Automation.EconomicSystemTest
 //                var balance = Behaviors.GetBalance(bp);
 //                if (balance.Balance < 10000_00000000 && bp!=InitAccount)
 //                {
-//                    Behaviors.TokenService.SetAccount(InitAccount);
-//                        Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+//                    Behaviors.Token.SetAccount(InitAccount);
+//                        Behaviors.Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
 //                        {
 //                            Symbol = "ELF",
 //                            Amount = 20000_00000000L,
@@ -114,7 +114,7 @@ namespace AElf.Automation.EconomicSystemTest
 //                            Memo = "Transfer token for announcement."
 //                        });
 //
-//                        Behaviors.TokenService.CheckTransactionResultList();
+//                        Behaviors.Token.CheckTransactionResultList();
 //                }
 //            }
 //            
@@ -123,8 +123,8 @@ namespace AElf.Automation.EconomicSystemTest
 //                var balance = Behaviors.GetBalance(full);
 //                if (balance.Balance < 100000_00000000)
 //                {
-//                    Behaviors.TokenService.SetAccount(InitAccount);
-//                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+//                    Behaviors.Token.SetAccount(InitAccount);
+//                    Behaviors.Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
 //                    {
 //                        Symbol = "ELF",
 //                        Amount = 20_0000_00000000L,
@@ -132,7 +132,7 @@ namespace AElf.Automation.EconomicSystemTest
 //                        Memo = "Transfer token for announcement."
 //                    });
 //
-//                    Behaviors.TokenService.CheckTransactionResultList();
+//                    Behaviors.Token.CheckTransactionResultList();
 //                }
 //            }
 

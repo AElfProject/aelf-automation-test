@@ -13,7 +13,7 @@ namespace AElf.Automation.EconomicSystemTest
         protected Behaviors Behaviors;
         protected static string RpcUrl { get; } = "http://3.94.106.10:8000";
         protected string InitAccount { get; } = "1DBGP5qXt5r6QAu2iufv4eXodWHYqJVwmz4qNHwtNyjuCoDEm";
-        protected INodeManager CH { get; set; }
+        protected INodeManager NodeManager { get; set; }
         public string Bp0 { get; set; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full1 { get; set; } = "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV";
         public string Full2 { get; set; } = "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX";
@@ -28,8 +28,8 @@ namespace AElf.Automation.EconomicSystemTest
 
             #region Get services
 
-            CH = new NodeManager(RpcUrl);
-            var contractServices = new ContractServices(CH, InitAccount);
+            NodeManager = new NodeManager(RpcUrl);
+            var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
             #endregion

@@ -32,13 +32,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             if (type.Equals("Main"))
             {
-                //ProfitService contract
+                //Profit contract
                 ProfitService = GenesisService.GetProfitContract();
 
-                //VoteService contract
+                //Vote contract
                 VoteService = GenesisService.GetVoteContract();
 
-                //ElectionService contract
+                //Election contract
                 ElectionService = GenesisService.GetElectionContract();
                 
                 //TokenConverter contract
@@ -50,13 +50,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
-            //TokenService contract
+            //Token contract
             TokenService = GenesisService.GetTokenContract();
 
             //Consensus contract
             ConsensusService = GenesisService.GetConsensusContract();
 
-            //Parliament contract
+            //ParliamentAuth contract
             ParliamentService = GenesisService.GetParliamentAuthContract();
 
             //AssociationAuth contract

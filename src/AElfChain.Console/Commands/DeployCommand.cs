@@ -5,8 +5,8 @@ namespace AElfChain.Console.Commands
 {
     public class DeployCommand : BaseCommand
     {
-        public DeployCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public DeployCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 

@@ -15,7 +15,7 @@ namespace AElf.Automation.EconomicSystemTest
         private Behaviors Behaviors;
         private static string RpcUrl { get; } = "http://34.212.171.27:8000";
         private string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
-        private INodeManager CH { get; set; }
+        private INodeManager NodeManager { get; set; }
         private Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
 
         [TestInitialize]
@@ -23,8 +23,8 @@ namespace AElf.Automation.EconomicSystemTest
         {
             #region Get services
 
-            CH = new NodeManager(RpcUrl);
-            var contractServices = new ContractServices(CH, InitAccount);
+            NodeManager = new NodeManager(RpcUrl);
+            var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
             var schemeIds = Behaviors.GetCreatedProfitItems().SchemeIds;
@@ -87,7 +87,7 @@ namespace AElf.Automation.EconomicSystemTest
             var count = 1;
             foreach (var key in keyList)
             {
-                var publicKey = CH.GetAccountPublicKey(key);
+                var publicKey = NodeManager.GetAccountPublicKey(key);
                 _logger.Info($"{count:00} {key} {publicKey}");
                 count++;
             }

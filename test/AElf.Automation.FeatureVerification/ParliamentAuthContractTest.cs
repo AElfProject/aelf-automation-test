@@ -84,7 +84,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
         }
 
-        // new Parliament ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm
+        // new ParliamentAuth ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm
         // organization 4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm
 
         [TestMethod]

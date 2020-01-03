@@ -17,7 +17,7 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         public readonly ConsensusContract ConsensusService;
-        public readonly ContractServices ContractServices;
+        public readonly ContractManager ContractManager;
 
         public readonly ElectionContract ElectionService;
         public readonly INodeManager NodeManager;
@@ -27,17 +27,17 @@ namespace AElf.Automation.EconomicSystemTest
         public readonly TreasuryContract Treasury;
         public readonly VoteContract VoteService;
 
-        public Behaviors(ContractServices contractServices)
+        public Behaviors(ContractManager contractManager)
         {
-            NodeManager = contractServices.NodeManager;
-            ContractServices = contractServices;
+            NodeManager = contractManager.NodeManager;
+            ContractManager = contractManager;
 
-            ElectionService = ContractServices.ElectionService;
-            VoteService = ContractServices.VoteService;
-            ProfitService = ContractServices.ProfitService;
-            TokenService = ContractServices.TokenService;
-            Treasury = ContractServices.TreasuryService;
-            ConsensusService = ContractServices.ConsensusService;
+            ElectionService = ContractManager.Election;
+            VoteService = ContractManager.Vote;
+            ProfitService = ContractManager.Profit;
+            TokenService = ContractManager.Token;
+            Treasury = ContractManager.Treasury;
+            ConsensusService = ContractManager.Consensus;
         }
     }
 }

@@ -13,8 +13,8 @@ namespace AElf.Automation.EconomicSystemTest
         protected Behaviors Behaviors;
         protected static string RpcUrl { get; } = "http://192.168.197.70:8000";
 
-        //protected RpcApiHelper CH { get; set; }   
-        protected INodeManager CH { get; set; }
+        //protected RpcApiHelper NodeManager { get; set; }   
+        protected INodeManager NodeManager { get; set; }
         protected string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> UserList { get; set; }
@@ -26,8 +26,8 @@ namespace AElf.Automation.EconomicSystemTest
         {
             #region Get services
 
-            CH = new NodeManager(RpcUrl, CommonHelper.GetDefaultDataDir());
-            var contractServices = new ContractServices(CH, InitAccount);
+            NodeManager = new NodeManager(RpcUrl, CommonHelper.GetDefaultDataDir());
+            var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices);
 
             #endregion

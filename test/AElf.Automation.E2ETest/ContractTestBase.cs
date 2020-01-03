@@ -10,7 +10,7 @@ namespace AElf.Automation.E2ETest
     public class ContractTestBase
     {
         public INodeManager NodeManager { get; set; }
-        public ChainManager ChainManager { get; set; }
+        public ContractManager ContractManager { get; set; }
         public ILog Logger { get; set; }
 
         public List<Node> ConfigNodes { get; set; }
@@ -25,7 +25,7 @@ namespace AElf.Automation.E2ETest
             var firstBp = ConfigNodes.First();
             
             NodeManager = new NodeManager(firstBp.Endpoint);
-            ChainManager = new ChainManager(NodeManager, firstBp.Account);
+            ContractManager = new ContractManager(NodeManager, firstBp.Account);
         }
 
         private const string ConfigFile = "nodes-env2-main";

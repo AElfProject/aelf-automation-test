@@ -47,7 +47,7 @@ service TokenContract {
     }
     rpc CrossChainReceiveToken (CrossChainReceiveTokenInput) returns (google.protobuf.Empty) {
     }
-    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {
+    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {        
     }
     rpc CheckThreshold (CheckThresholdInput) returns (google.protobuf.Empty) {
     }
