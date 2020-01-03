@@ -200,6 +200,14 @@ namespace AElfChain.Common.Managers
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
 
+        public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input, string callUser)
+        {
+            var organization = GetGenesisOwnerAddress();
+            var miners = GetCurrentMiners();
+
+            return ExecuteTransactionWithAuthority(contractAddress, method, input, organization, miners, callUser);
+        }
+
         private TransactionResult ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
             string callUser)
         {

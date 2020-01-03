@@ -12,8 +12,8 @@ namespace AElfChain.Console.Commands
 {
     public class ContractExecutionCommand : BaseCommand
     {
-        public ContractExecutionCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public ContractExecutionCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
             Logger = Log4NetHelper.GetLogger();
             ContractSerializer = new ContractSerializer();

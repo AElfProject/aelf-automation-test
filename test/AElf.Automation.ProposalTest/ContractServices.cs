@@ -33,7 +33,7 @@ namespace AElf.Automation.ProposalTest
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
-            //TokenService contract
+            //Token contract
             TokenService = GenesisService.GetTokenContract();
 
             //ParliamentAuth contract

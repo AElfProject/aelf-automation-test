@@ -14,8 +14,8 @@ namespace AElfChain.Console.Commands
 {
     public class SetConnectorCommand : BaseCommand
     {
-        public SetConnectorCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public SetConnectorCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 
@@ -71,7 +71,6 @@ namespace AElfChain.Console.Commands
         private async Task GetTokenConnector(string symbol)
         {
             var tokenConverter = Services.Genesis.GetTokenConverterStub();
-
             var result = await tokenConverter.GetConnector.CallAsync(new TokenSymbol
             {
                 Symbol = symbol

@@ -15,8 +15,8 @@ namespace AElfChain.Console.Commands
 {
     public class ChainApiCommand : BaseCommand
     {
-        public ChainApiCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public ChainApiCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
             Logger = Log4NetHelper.GetLogger();
             AutoEngine = new ApiCompletionEngine();

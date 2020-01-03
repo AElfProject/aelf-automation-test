@@ -76,16 +76,16 @@ namespace AElf.Automation.ScenariosExecution
             //Treasury contract
             TreasuryService = GenesisService.GetTreasuryContract();
 
-            //TokenService contract
+            //Token contract
             TokenService = GenesisService.GetTokenContract();
 
-            //ProfitService contract
+            //Profit contract
             ProfitService = GenesisService.GetProfitContract();
 
-            //VoteService contract
+            //Vote contract
             VoteService = GenesisService.GetVoteContract();
 
-            //ElectionService contract
+            //Election contract
             ElectionService = GenesisService.GetElectionContract();
 
             //TokenConverter contract

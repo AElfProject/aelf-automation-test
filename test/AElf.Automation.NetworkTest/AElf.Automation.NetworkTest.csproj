@@ -8,12 +8,16 @@
         <None Update="network.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="logs" />
+        <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="logs\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Remove="logs\**" />
     </ItemGroup>
 
 </Project>

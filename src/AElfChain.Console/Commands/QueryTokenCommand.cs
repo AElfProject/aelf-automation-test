@@ -5,8 +5,8 @@ namespace AElfChain.Console.Commands
 {
     public class QueryTokenCommand : BaseCommand
     {
-        public QueryTokenCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public QueryTokenCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 

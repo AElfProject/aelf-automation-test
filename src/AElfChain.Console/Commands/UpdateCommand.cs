@@ -5,8 +5,8 @@ namespace AElfChain.Console.Commands
 {
     public class UpdateCommand : BaseCommand
     {
-        public UpdateCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public UpdateCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 

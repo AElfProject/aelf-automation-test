@@ -99,7 +99,7 @@ namespace AElf.Automation.ProposalTest
             }
 
             foreach (var (key, value) in OrganizationList)
-                Logger.Info($"Parliament Organization : {key}, ReleaseThreshold is {value}");
+                Logger.Info($"ParliamentAuth Organization : {key}, ReleaseThreshold is {value}");
         }
 
         private void CreateProposal()
@@ -262,14 +262,14 @@ namespace AElf.Automation.ProposalTest
 
         private void CheckTheBalance()
         {
-            Logger.Info("After Parliament test, check the balance of organization address:");
+            Logger.Info("After ParliamentAuth test, check the balance of organization address:");
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
                 Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
             }
 
-            Logger.Info("After Parliament test, check the balance of tester:");
+            Logger.Info("After ParliamentAuth test, check the balance of tester:");
             foreach (var tester in Tester)
             {
                 var balance = Token.GetUserBalance(tester, NativeToken);

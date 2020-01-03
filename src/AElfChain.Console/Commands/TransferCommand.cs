@@ -5,8 +5,8 @@ namespace AElfChain.Console.Commands
 {
     public class TransferCommand : BaseCommand
     {
-        public TransferCommand(INodeManager nodeManager, ContractServices contractServices)
-            : base(nodeManager, contractServices)
+        public TransferCommand(INodeManager nodeManager, ContractManager contractManager)
+            : base(nodeManager, contractManager)
         {
         }
 

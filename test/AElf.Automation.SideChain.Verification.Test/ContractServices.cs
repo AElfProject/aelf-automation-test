@@ -35,7 +35,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             GenesisService = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
 
-            //TokenService contract
+            //Token contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.Token);
             TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.GetFormatted());
 

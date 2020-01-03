@@ -65,7 +65,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Protobuf\Generated" />
         <None Update="config\*">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

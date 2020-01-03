@@ -224,10 +224,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 );
         }
 
-        public static void GetCandidates(ElectionContract election)
+        public static List<string> GetCandidates(ElectionContract election)
         {
             var candidatePublicKeys = election.CallViewMethod<Candidates>(ElectionMethod.GetCandidates, new Empty());
             _candidates = candidatePublicKeys.Pubkeys.Select(o => o.ToByteArray().ToHex()).ToList();
+            return _candidates;
         }
 
         private void GetCandidatesExcludeCurrentMiners()
