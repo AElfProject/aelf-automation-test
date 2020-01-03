@@ -211,5 +211,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Skip.If(true, "local environment");
         }
+
+        [TestMethod]
+        public async Task SaveTokenContractFile()
+        {
+            var nodeManager = new NodeManager("192.168.197.40:8000");
+            NodeInfoHelper.SetConfig("nodes-env1-main.json");
+            var contractManager = new ContractManager(nodeManager, nodeManager.GetRandomAccount());
+            var tokenAddress = contractManager.Token.Contract;
+            var contractResult =
+                await contractManager.GenesisStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
+            var binaryWriter = new BinaryWriter(new FileStream("TokenOrg.dll", FileMode.OpenOrCreate));
+            binaryWriter.Write(contractResult.Code.ToByteArray());
+        }
     }
 }
