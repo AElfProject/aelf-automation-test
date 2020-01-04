@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -10,6 +12,7 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Shouldly;
 
 namespace AElf.Automation.EconomicSystemTest
 {
@@ -111,11 +114,19 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var genesis = NodeManager.GetGenesisContract();
             ElectionContractStub = genesis.GetElectionStub(Tester);
-            await ElectionContractStub.ChangeVotingOption.SendAsync(new ChangeVotingOptionInput
+            var voteId = HashHelper.HexStringToHash(hash);
+            var transactionResult = await ElectionContractStub.ChangeVotingOption.SendAsync(new ChangeVotingOptionInput
             {
                 CandidatePubkey = FullUserPubKey2,
-                VoteId = HashHelper.HexStringToHash(hash)
+                VoteId = voteId
             });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var voteResult = await ElectionContractStub.GetCandidateVoteWithRecords.CallAsync(new StringValue
+            {    
+                Value = FullUserPubKey2
+            });
+            voteResult.ObtainedActiveVotingRecords.Select(o=>o.VoteId).ShouldContain(voteId);
         }
 
         [TestMethod]

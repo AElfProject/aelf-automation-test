@@ -18,7 +18,7 @@ namespace AElf.Automation.E2ETest.ApiSuits
         }
 
         [TestMethod]
-        public async Task GetChainStatus_Testt()
+        public async Task GetChainStatus_Test()
         {
             var chainStatus = await Client.GetChainStatusAsync();
             chainStatus.ChainId.ShouldBe("AELF");
@@ -62,11 +62,11 @@ namespace AElf.Automation.E2ETest.ApiSuits
         {
             var taskQueueStatus = await Client.GetTaskQueueStatusAsync();
             taskQueueStatus.Count.ShouldBeGreaterThan(8);
-            taskQueueStatus.First(o=>o.Name == "BlockBroadcastQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
-            taskQueueStatus.First(o=>o.Name == "TransactionBroadcastQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
-            taskQueueStatus.First(o=>o.Name == "InitialSyncQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
-            taskQueueStatus.First(o=>o.Name == "PeerReconnectionQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
-            taskQueueStatus.First(o=>o.Name == "MergeBlockStateQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
+            taskQueueStatus.First(o => o.Name == "BlockBroadcastQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
+            taskQueueStatus.First(o => o.Name == "TransactionBroadcastQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
+            taskQueueStatus.First(o => o.Name == "InitialSyncQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
+            taskQueueStatus.First(o => o.Name == "PeerReconnectionQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
+            taskQueueStatus.First(o => o.Name == "MergeBlockStateQueue").Size.ShouldBeGreaterThanOrEqualTo(0);
         }
 
         [TestMethod]

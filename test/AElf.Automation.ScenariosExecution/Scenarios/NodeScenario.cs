@@ -86,7 +86,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     count++;
                     Logger.Info($"User {fullNode.Account} announcement election success.");
                     var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
-                    newCandidates.ShouldContain(fullNode.PublicKey);
+                    newCandidates.ShouldContain(fullNode.PublicKey, "Check candidates info failed after announce election.");
                 }
 
                 if (count == 3)
@@ -114,7 +114,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
                 if (quitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.Info($"User {fullNode.Account} quit election success.");
-                UserScenario.GetCandidates(Election); //update candidates list
+                var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
+                newCandidates.ShouldNotContain(fullNode.PublicKey, "Check candidate info failed after quit election.");
                 break;
             }
         }
