@@ -32,7 +32,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
 
         [TestMethod]
-        public async Task TokenCreateAndIssue_Test()
+        public async Task<string> TokenCreateAndIssue_Test()
         {
             string symbol;
             while (true)
@@ -97,6 +97,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Symbol = symbol
             });
             tokenInfo.Supply.ShouldBe(40000_00000000);
+
+            return symbol;
         }
 
         [TestMethod]

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -147,6 +148,52 @@ namespace AElf.Automation.E2ETest.ContractSuits
             cpuConnector.Weight.ShouldBe("0.005");
             cpuConnector.IsVirtualBalanceEnabled.ShouldBe(true);
             cpuConnector.IsPurchaseEnabled.ShouldBe(true);
+        }
+
+        [TestMethod]
+        public async Task EnableConnector_Test()
+        {
+            var tokenContract = new TokenTests();
+            var symbol = await tokenContract.TokenCreateAndIssue_Test();
+            
+            //set connector test
+            var transactionResult =
+                ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, nameof(TokenConverterMethod.AddPairConnectors),
+                    new PairConnector
+                    {
+                        ResourceWeight = "0.05",
+                        NativeWeight = "0.05",
+                        NativeVirtualBalance = 20000_00000000,
+                        ResourceConnectorSymbol = symbol
+                    }, ContractManager.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            {
+                Symbol = symbol
+            });
+            connector.VirtualBalance.ShouldBe(0);
+            
+            //set allowance
+            var allowanceResult = await ContractManager.TokenStub.Approve.SendAsync(new ApproveInput
+            {
+                Amount = 20000_00000000,
+                Spender = ContractManager.TokenConverter.Contract,
+                Symbol = symbol
+            });
+            allowanceResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var enableResult =
+                await ContractManager.TokenconverterStub.EnableConnector.SendAsync(new ToBeConnectedTokenInfo
+                {
+                    TokenSymbol = symbol,
+                    AmountToTokenConvert = 20000_00000000
+                });
+            enableResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            {
+                Symbol = symbol
+            });
+            connector.IsPurchaseEnabled.ShouldBeTrue();
         }
     }
 }
