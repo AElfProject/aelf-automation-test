@@ -4,6 +4,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Treasury;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -36,7 +37,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             
             //donate
             var beforeBalance = ContractManager.Token.GetUserBalance(tester);
-            var donateResult = await ContractManager.TreasuryStub.Donate.SendAsync(new DonateInput
+            var treasuryStub = ContractManager.Genesis.GetTreasuryStub(tester);
+            var donateResult = await treasuryStub.Donate.SendAsync(new DonateInput
             {
                 Symbol = "ELF",
                 Amount = 50_00000000
@@ -47,7 +49,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             beforeBalance.ShouldBe(afterBalance + transactionFee + 50_00000000);
             
             //donate all
-            var donateAllResult = await ContractManager.TreasuryStub.DonateAll.SendAsync(new DonateAllInput
+            var donateAllResult = await treasuryStub.DonateAll.SendAsync(new DonateAllInput
             {
                 Symbol = "ELF"
             });
