@@ -81,7 +81,17 @@ namespace AElfChain.Common.Contracts
 
             return new BasicUpdateContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
-
+        
+        public BasicUpdateContractContainer.BasicUpdateContractStub GetBasicUpdateStub(string callAddress = null)
+        {
+            var caller = callAddress ?? CallAddress;
+            var stub = new ContractTesterFactory(NodeManager);
+            var contractStub =
+                stub.Create<BasicUpdateContractContainer.BasicUpdateContractStub>(
+                    ContractAddress.ConvertAddress(), caller);
+            return contractStub;
+        }
+        
         public static string ContractFileName => "AElf.Contracts.TestContract.BasicUpdate";
     }
 }
