@@ -190,7 +190,7 @@ namespace AElfChain.Common.Managers
             var rawTransaction = GenerateRawTransaction(from, to, methodName, inputParameter);
             //check whether tx exist or not
             var genTxId = TransactionUtil.CalculateTxId(rawTransaction);
-            var transactionResult = ApiClient.GetTransactionResultAsync(genTxId).Result;
+            var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(genTxId));
             if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
             {
                 Logger.Warn("Found duplicate transaction.");
@@ -262,7 +262,8 @@ namespace AElfChain.Common.Managers
                 {
                     case TransactionResultStatus.NotExisted:
                         notExist++;
-                        if(notExist >= 20) notExistSource.Cancel(); //Continue check and if status 'NotExisted' and cancel check
+                        if (notExist >= 20)
+                            notExistSource.Cancel(); //Continue check and if status 'NotExisted' and cancel check
                         break;
                     case TransactionResultStatus.Pending:
                         if (notExist > 0) notExist = 0;
@@ -278,7 +279,9 @@ namespace AElfChain.Common.Managers
                             $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        var errorMsg = transactionResult.Error.Contains("\n") ? transactionResult.Error.Split("\n")[1] : transactionResult.Error;
+                        var errorMsg = transactionResult.Error.Contains("\n")
+                            ? transactionResult.Error.Split("\n")[1]
+                            : transactionResult.Error;
                         message += $"\r\nError Message: {errorMsg}";
                         Logger.Error(message, true);
                         return transactionResult;
