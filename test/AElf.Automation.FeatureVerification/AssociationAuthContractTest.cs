@@ -5,13 +5,12 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -29,7 +28,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string ReviewAccount1 { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string ReviewAccount2 { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
         public string ReviewAccount3 { get; } = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
-        public List<Reviewer> ReviewerList { get; set; }
 
         private static string RpcUrl { get; } = "http://192.168.197.56:8001";
 
@@ -46,22 +44,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
             Tester = new ContractTester(contractServices);
-
-            ReviewerList = new List<Reviewer>();
-            var review1 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount1), Weight = 1};
-            var review2 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount2), Weight = 2};
-            var review3 = new Reviewer {Address = AddressHelper.Base58StringToAddress(ReviewAccount3), Weight = 3};
-            ReviewerList.Add(review1);
-            ReviewerList.Add(review2);
-            ReviewerList.Add(review3);
-
-            foreach (var reviewer in ReviewerList)
-            {
-                var symbol = NodeOption.NativeTokenSymbol;
-                var balance = Tester.TokenService.GetUserBalance(reviewer.Address.GetFormatted(), symbol);
-                if (balance > 0) continue;
-                Tester.TokenService.TransferBalance(InitAccount, reviewer.Address.GetFormatted(), 100, symbol);
-            }
         }
 
         [TestMethod]
@@ -70,9 +52,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
-                    Reviewers = {ReviewerList[0], ReviewerList[1], ReviewerList[2]},
-                    ReleaseThreshold = 3,
-                    ProposerThreshold = 0
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold(),
+                    OrganizationMemberList = new OrganizationMemberList(),
+                    ProposerWhiteList = new ProposerWhiteList()
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
             _logger.Info($"organization address is : {organizationAddress}");
@@ -80,7 +62,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
-            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
+//            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
 
             Tester.TokenService.SetAccount(InitAccount);
             var transfer = Tester.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -99,7 +81,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 Tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
-            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
+//            foreach (var reviewer in organization.Reviewers) _logger.Info($"organization review is : {reviewer}");
         }
 
         [TestMethod]
@@ -148,10 +130,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Tester.AssociationService.SetAccount(ReviewAccount1);
             var result =
-                Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
-                });
+                Tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, HashHelper.HexStringToHash(proposalId));
             _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
 

@@ -20,7 +20,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ParliamentAuthContract ParliamentService { get; set; }
 
         public string CallAddress { get; set; }
-        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
         public ContractServices(INodeManager nodeManager, string callAddress, string type)
         {
             NodeManager = nodeManager;

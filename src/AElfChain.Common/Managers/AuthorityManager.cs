@@ -5,7 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using AElf.Contracts.AssociationAuth;
+using Acs3;
+using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -87,8 +88,10 @@ namespace AElfChain.Common.Managers
             };
 
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
+            transactionResult.Status.ShouldBe("MINED");
+
             var deployProposalId = ProposalCreated.Parser
-                .ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ParseFrom(ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
                 .ProposalId;
             Logger.Info(
                 $"Deploy contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
@@ -140,7 +143,7 @@ namespace AElfChain.Common.Managers
 
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
             var deployProposalId = ProposalCreated.Parser
-                .ParseFrom(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
+                .ParseFrom(ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
                 .ProposalId;
             Logger.Info(
                 $"Update contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
@@ -208,7 +211,7 @@ namespace AElfChain.Common.Managers
             return ExecuteTransactionWithAuthority(contractAddress, method, input, organization, miners, callUser);
         }
 
-        private TransactionResult ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
+        private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
             string callUser)
         {
             //approve

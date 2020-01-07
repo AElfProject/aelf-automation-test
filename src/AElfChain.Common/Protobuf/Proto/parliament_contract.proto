@@ -3,11 +3,11 @@ syntax = "proto3";
 import "acs1.proto";
 import "acs3.proto";
 
-option csharp_namespace = "AElf.Contracts.ParliamentAuth";
+option csharp_namespace = "AElf.Contracts.Parliament";
 
-service ParliamentAuthContract {
+service ParliamentContract {
     
-    option (aelf.csharp_state) = "AElf.Contracts.ParliamentAuth.ParliamentAuthState";
+    option (aelf.csharp_state) = "AElf.Contracts.Parliament.ParliamentState";
     option (aelf.base) = "acs3.proto";
     option (aelf.base) = "acs1.proto";
     
@@ -18,8 +18,6 @@ service ParliamentAuthContract {
     }
     rpc ApproveMultiProposals(ProposalIdList) returns (google.protobuf.Empty){
     }
-    rpc CreateProposalBySystemContract(CreateProposalBySystemContractInput) returns (aelf.Hash){
-    }
     rpc GetOrganization (aelf.Address) returns (Organization) {
         option (aelf.is_view) = true;
     }
@@ -29,34 +27,34 @@ service ParliamentAuthContract {
     rpc ValidateAddressIsParliamentMember(aelf.Address) returns (google.protobuf.BoolValue){
          option (aelf.is_view) = true;
     }
+    rpc CreateOrganizationBySystemContract(CreateOrganizationBySystemContractInput) returns (aelf.Address){
+    }
     rpc GetProposerWhiteListContext(google.protobuf.Empty) returns (GetProposerWhiteListContextOutput){
         option (aelf.is_view) = true;
     }
-    rpc ValidateOrganizationExist(aelf.Address) returns (google.protobuf.BoolValue){
-         option (aelf.is_view) = true;
-    }
-    rpc GetNotApprovedProposals(ProposalIdList) returns (ProposalIdList){
+    rpc GetNotVotedPendingProposals(ProposalIdList) returns (ProposalIdList){
         option (aelf.is_view) = true;
     }
-    rpc GetValidProposals(ProposalIdList) returns (ProposalIdList){
+    rpc GetNotVotedProposals(ProposalIdList) returns (ProposalIdList){
+        option (aelf.is_view) = true;
+    }
+    rpc CalculateOrganizationAddress(CreateOrganizationInput) returns (aelf.Address){
         option (aelf.is_view) = true;
     }
 }
 
 message CreateOrganizationInput {
-    sint32 release_threshold = 1;
+    acs3.ProposalReleaseThreshold proposal_release_threshold = 1;
+    bool proposer_authority_required = 2;
+    bool parliament_member_proposing_allowed = 3;
 }
 
 message Organization {
-    sint32 release_threshold = 1;
+    bool proposer_authority_required = 1;
     aelf.Address organization_address = 2;
     aelf.Hash organization_hash = 3;
-}
-
-message CreateProposalBySystemContractInput {
-    acs3.CreateProposalInput proposal_input =1;
-    aelf.Address origin_proposer = 2;
-    string proposal_id_feedback_method = 3;
+    acs3.ProposalReleaseThreshold proposal_release_threshold = 4;
+    bool parliament_member_proposing_allowed = 5;
 }
 
 message ProposalInfo {
@@ -67,27 +65,14 @@ message ProposalInfo {
     google.protobuf.Timestamp expired_time = 5;
     aelf.Address proposer = 6;
     aelf.Address organization_address = 7;
-    repeated aelf.Address approved_representatives = 8;
+    repeated aelf.Address approvals = 8;
+    repeated aelf.Address rejections = 9;
+    repeated aelf.Address abstentions = 10;
 }
 
 message InitializeInput{
-    int32 genesis_owner_releaseThreshold = 1;
-    aelf.Address privileged_proposer = 2;
-    bool proposer_authority_required = 3;
-}
-
-message ProposalCreated{
-    option (aelf.is_event) = true;
-    aelf.Hash proposal_id = 1;
-}
-
-message ProposalReleased{
-    option (aelf.is_event) = true;
-    aelf.Hash proposal_id = 1;
-}
-
-message ProposerWhiteList{
-    repeated aelf.Address proposers = 1;
+    aelf.Address privileged_proposer = 1;
+    bool proposer_authority_required = 2;
 }
 
 message ProposalIdList{
@@ -96,5 +81,9 @@ message ProposalIdList{
 
 message GetProposerWhiteListContextOutput{
     repeated aelf.Address proposers = 1;
-    bool proposer_authority_required = 2;
+}
+
+message CreateOrganizationBySystemContractInput {
+    CreateOrganizationInput organization_creation_input = 1;
+    string organization_address_feedback_method = 2;
 }

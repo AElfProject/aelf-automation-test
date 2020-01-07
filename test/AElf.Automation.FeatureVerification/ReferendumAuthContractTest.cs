@@ -4,7 +4,7 @@ using System.Threading;
 using Acs3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.ReferendumAuth;
+using AElf.Contracts.Referendum;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -14,7 +14,6 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -59,7 +58,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
-                    ReleaseThreshold = 1000,
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold(),
                     TokenSymbol = Symbol
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
@@ -133,11 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             Referendum.SetAccount(account);
             var result =
-                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId),
-                    Quantity = 6000_00000000
-                });
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve,HashHelper.HexStringToHash(proposalId));
             _logger.Info($"Approve is {result.ReadableReturnValue}");
 
             var balance = Tester.TokenService.GetUserBalance(account, Symbol);

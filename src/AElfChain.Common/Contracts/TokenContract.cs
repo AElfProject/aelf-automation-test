@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ServiceModel.Channels;
+using AElf;
 using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -95,6 +97,19 @@ namespace AElfChain.Common.Contracts
                 Memo = $"I-{Guid.NewGuid()}"
             });
 
+            return result;
+        }
+        
+        public TransactionResultDto ApproveToken(string from, string to, long amount, string symbol = "")
+        {
+            SetAccount(from);
+            var result = ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
+            {
+                Symbol = symbol,
+                Amount = amount,
+                Spender = AddressHelper.Base58StringToAddress(to)
+            });
+            
             return result;
         }
 

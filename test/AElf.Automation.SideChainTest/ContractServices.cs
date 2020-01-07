@@ -30,6 +30,8 @@ namespace AElf.Automation.SideChainTests
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
         public ParliamentAuthContract ParliamentService { get; set; }
+        public AssociationAuthContract AssociationService { get; set; }
+
         public TokenContractContainer.TokenContractStub TokenContractStub;
         
         public string CallAddress { get; set; }
@@ -55,6 +57,8 @@ namespace AElf.Automation.SideChainTests
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
                 new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
+
+            AssociationService = GenesisService.GetAssociationAuthContract();
         }
     }
 }

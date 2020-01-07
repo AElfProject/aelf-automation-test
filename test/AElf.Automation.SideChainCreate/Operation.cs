@@ -2,16 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Acs3;
 using Acs7;
-using AElf.Contracts.AssociationAuth;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
-using AElf.Kernel;
-using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
@@ -88,6 +86,8 @@ namespace AElf.Automation.SideChainCreate
             SideChainTokenInfo tokenInfo)
         {
             CrossChainService.SetAccount(Creator, Password);
+            var sideChainTokenInitialIssue = new SideChainTokenInitialIssue
+                {Address = AddressHelper.Base58StringToAddress(Creator), Amount = 1000_0000_00000000};
             var result =
                 CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
                     new SideChainCreationRequest
@@ -99,7 +99,9 @@ namespace AElf.Automation.SideChainCreate
                         SideChainTokenName = tokenInfo.TokenName,
                         SideChainTokenSymbol = tokenInfo.Symbol,
                         SideChainTokenTotalSupply = tokenInfo.TotalSupply,
-                        IsSideChainTokenBurnable = tokenInfo.IsBurnable
+                        IsSideChainTokenBurnable = tokenInfo.IsBurnable,
+                        InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
+                        SideChainTokenInitialIssueList = {sideChainTokenInitialIssue}
                     });
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
@@ -113,14 +115,11 @@ namespace AElf.Automation.SideChainCreate
             foreach (var miner in miners)
             {
                 ParliamentService.SetAccount(miner.GetFormatted(), "123");
-                var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new Acs3.ApproveInput
-                {
-                    ProposalId = proposalId
-                });
+                var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
             }
         }
 
-        public int ReleaseSideChainCreation(Hash proposalId)
+        public int ReleaseSideChainCreation(Hash proposalId, out Address organization)
         {
             CrossChainService.SetAccount(Creator, Password);
             var result
@@ -136,6 +135,9 @@ namespace AElf.Automation.SideChainCreate
                 .ParseFrom(byteString);
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
+            organization = OrganizationCreated.Parser
+                .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(OrganizationCreated)))
+                    .NonIndexed)).OrganizationAddress;
             return chainId;
         }
 

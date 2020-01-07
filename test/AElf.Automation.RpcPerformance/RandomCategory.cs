@@ -365,8 +365,8 @@ namespace AElf.Automation.RpcPerformance
             while (true)
             {
                 var serviceUrl = randomTransactionOption.GetRandomEndpoint();
-                if (serviceUrl == NodeManager.GetApiUrl())
-                    continue;
+//                if (serviceUrl == NodeManager.GetApiUrl())
+//                    continue;
                 NodeManager.UpdateApiUrl(serviceUrl);
                 try
                 {

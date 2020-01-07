@@ -12,7 +12,6 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -324,10 +323,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 if (proposalStatue.ToBeReleased) goto Release;
                 services.ParliamentService.SetAccount(miner.GetFormatted());
                 var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                    new ApproveInput
-                    {
-                        ProposalId = proposal
-                    });
+                    proposal
+                    );
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception(
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");
