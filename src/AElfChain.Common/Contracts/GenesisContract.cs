@@ -184,6 +184,7 @@ namespace AElfChain.Common.Contracts
                 {NameProvider.Vote, Hash.FromString("AElf.ContractNames.Vote")},
                 {NameProvider.Treasury, Hash.FromString("AElf.ContractNames.Treasury")},
                 {NameProvider.Token, Hash.FromString("AElf.ContractNames.Token")},
+                {NameProvider.TokenHolder, Hash.FromString("AElf.ContractNames.TokenHolder")},
                 {NameProvider.TokenConverter, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},

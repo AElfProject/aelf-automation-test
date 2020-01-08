@@ -8,6 +8,7 @@ using AElf.Contracts.ParliamentAuth;
 using AElf.Contracts.Profit;
 using AElf.Contracts.ReferendumAuth;
 using AElf.Contracts.TokenConverter;
+using AElf.Contracts.TokenHolder;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
 
@@ -80,6 +81,19 @@ namespace AElfChain.Common.Contracts
             var contract = new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
+        }
+        
+        public static TokenHolderContractContainer.TokenHolderContractStub GetTokenHolderStub(this GenesisContract genesis,
+            string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+
+            var tokenHolder = genesis.GetContractAddressByName(NameProvider.TokenHolder);
+
+            var contract = new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.GetFormatted());
+
+            return contract.GetTestStub<TokenHolderContractContainer.TokenHolderContractStub>(caller);
         }
 
         public static TokenConverterContractContainer.TokenConverterContractStub GetTokenConverterStub(

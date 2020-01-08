@@ -42,6 +42,16 @@ namespace AElfChain.Common.Contracts
 
             return new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
         }
+        
+        public static TokenHolderContract GetTokenHolderContract(this GenesisContract genesis, string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+
+            var tokenHolder = genesis.GetContractAddressByName(NameProvider.TokenHolder);
+
+            return new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.GetFormatted());
+        }
 
         public static TokenConverterContract GetTokenConverterContract(
             this GenesisContract genesis, string caller = "")
