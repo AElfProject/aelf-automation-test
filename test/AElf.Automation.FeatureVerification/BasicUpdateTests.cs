@@ -19,7 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         
         private INodeManager NodeManager { get; set; }
-        private string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
+        private string ContractAddress = "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe";
         private string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public BasicUpdateContractContainer.BasicUpdateContractStub BasicUpdateStub { get; set; }
         
@@ -96,6 +96,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 IntValue = 249,
                 LongValue = 4679L,
                 EnumValue = Color.White
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
+        }
+
+        [TestMethod]
+        public async Task GetHashCodeMapStringValue_Test()
+        {
+            var result = await BasicUpdateStub.GetHashCodeMapStringValue.SendAsync(new MapStringInput
+            {
+                Info =
+                {
+                    {"key1", "test1"},
+                    {"key2", "test1"},
+                    {"key3", "test1"}
+                }
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
+        }
+
+        [TestMethod]
+        public async Task GetHashCodeMapEnumValue_Test()
+        {
+            var result = await BasicUpdateStub.GetHashCodeMapEnumValue.SendAsync(new MapEnumInput
+            {
+                Info =
+                {
+                    {"key1", Color.Black},
+                    {"key2", Color.Blue},
+                    {"key3", Color.White}
+                }
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");

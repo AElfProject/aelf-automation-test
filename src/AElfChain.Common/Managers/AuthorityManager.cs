@@ -178,7 +178,9 @@ namespace AElfChain.Common.Managers
             var minersCount = _consensus
                 .CallViewMethod<PubkeyList>(ConsensusMethod.GetCurrentMinerPubkeyList, new Empty())
                 .Pubkeys.Count;
-            var minNumber = minersCount * 2 / 3 + 1;
+            var organization = _genesis.GetContractDeploymentController().OwnerAddress;
+            var voteInfo = _parliament.GetOrganization(organization).ProposalReleaseThreshold.MinimalVoteThreshold;
+            var minNumber = (int) (minersCount * 10000 /voteInfo);
             var currentMiners = GetCurrentMiners();
             return currentMiners.Take(minNumber).ToList();
         }
@@ -216,14 +218,6 @@ namespace AElfChain.Common.Managers
         {
             //approve
             _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
-
-            //check
-            var approveStatue = _parliament.CheckProposal(input.ProposalId);
-
-            if (!approveStatue.ToBeReleased)
-            {
-                _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
-            }
 
             //release
             return _genesis.ReleaseApprovedContract(input, callUser);
