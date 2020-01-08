@@ -405,20 +405,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void GetBalance()
-        {
-            //var miners = Tester.GetMiners();
-            var organizationAddress = AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
-
-//            foreach (var miner in miners)
-//            {
-                var balance = Tester.TokenService.GetUserBalance(InitAccount,Tester.TokenService.GetPrimaryTokenSymbol());
-                _logger.Info($"{balance}");
-//            }
-        }
-
-        [TestMethod]
-//        [DataRow("RSr6bPc7Hv6dMJiWdPgBBFMacUJcrgQoeHkVBMjqJ5HURtKK3")]
         [DataRow("SuaPmtyFjozAVCbubchFHL2yLUrpgWYM67CMgNES1v16xanq9")]
         public void CheckOwner(string contract)
         {
@@ -426,21 +412,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
                     AddressHelper.Base58StringToAddress(contract));
             _logger.Info($"{address.GetFormatted()}");
-        }
-
-        [TestMethod]
-        public void test()
-        {
-            var byteString = ByteString.FromBase64("IMA+KjR0cmFuc2ZlciB0ZXN0IC0gYjJkODVjOWYtOGU1Mi00Yjk1LWI2MmMtYjJiZGI4MjY2MGRm");
-            var fromByteString = ByteString.FromBase64("CiIKILqij/7FfBNccBWojUreRp7BKNXmjp0t34YSH5gh3Jgq");
-            var toByteString = ByteString.FromBase64("EiIKIDq+Ex0HgTuPzOBFd9m0HD6+xbHkrHUcA28pV21awVYp");
-            var symbolString = ByteString.FromBase64("GgNFTEY=");
-            var memo = Transferred.Parser.ParseFrom(byteString).Memo;
-            var from = Transferred.Parser.ParseFrom(fromByteString).From;
-            var to = Transferred.Parser.ParseFrom(toByteString).To;
-            var symbol = Transferred.Parser.ParseFrom(symbolString);
-            var amount = Transferred.Parser.ParseFrom(byteString).Amount;
-            _logger.Info($"{from}\n{to}\n{symbol}\n{memo}\n{amount}");
         }
 
         #region private method
