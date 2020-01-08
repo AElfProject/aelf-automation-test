@@ -7,6 +7,7 @@ using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using Volo.Abp.Threading;
 
@@ -170,7 +171,12 @@ namespace AElfChain.Common.Contracts
         {
             return GetContractAuthor(contractAddress.ConvertAddress());
         }
-
+        
+        public AuthorityStuff GetContractDeploymentController()
+        {
+            return CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController, new Empty());
+        }
+        
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
