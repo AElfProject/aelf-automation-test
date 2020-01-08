@@ -12,10 +12,12 @@ namespace AElfChain.Common.Contracts
         //Action
         RequestSideChainCreation,
         Recharge,
-        RequestChainDisposal,
         DisposeSideChain,
         RecordCrossChainData,
         ReleaseSideChainCreation,
+        AdjustIndexingFeePrice,
+        ChangeCrossChainIndexingController,
+        ChangeSideChainLifetimeController,
 
         //View
         GetChainStatus,
@@ -25,7 +27,13 @@ namespace AElfChain.Common.Contracts
         LockedBalance,
         VerifyTransaction,
         GetBoundParentChainHeightAndMerklePathByHeight,
-        GetSideChainCreator
+        GetSideChainCreator,
+        GetSideChainIndexingFeePrice,
+        GetSideChainBalance,
+        GetSideChainIndexingFeeController,
+        GetSideChainLifetimeController,
+        GetCrossChainIndexingController,
+        GetChainInitializationData
     }
 
     public class CrossChainContract : BaseContract<CrossChainContractMethod>
@@ -52,6 +60,12 @@ namespace AElfChain.Common.Contracts
             return address;
         }
 
+        public long GetSideChainBalance(int chainId)
+        {
+            return CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainBalance, new SInt32Value{Value = chainId}).Value;
+        }
+
         public CrossChainMerkleProofContext GetCrossChainMerkleProofContext(long blockHeight)
         {
             return CallViewMethod<CrossChainMerkleProofContext>(
@@ -71,6 +85,36 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<SInt64Value>(
                 CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = chainId}).Value;
+        }
+
+        public long GetSideChainIndexingFeePrice(int chainId)
+        {
+            return CallViewMethod<SInt64Value>(
+                CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
+        }
+        
+        public AuthorityStuff GetCrossChainIndexingController()
+        {
+            return CallViewMethod<AuthorityStuff>(
+                CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
+        }
+        
+        public AuthorityStuff GetSideChainLifetimeController()
+        {
+            return CallViewMethod<AuthorityStuff>(
+                CrossChainContractMethod.GetSideChainLifetimeController, new Empty());
+        }
+        
+        public GetSideChainIndexingFeeControllerOutput GetSideChainIndexingFeeController(int chainId)
+        {
+            return CallViewMethod<GetSideChainIndexingFeeControllerOutput>(
+                CrossChainContractMethod.GetSideChainIndexingFeeController, new SInt32Value {Value = chainId});
+        }
+        
+        public ChainInitializationData GetChainInitializationData(int chainId)
+        {
+            return CallViewMethod<ChainInitializationData>(
+                CrossChainContractMethod.GetChainInitializationData, new SInt32Value {Value = chainId});
         }
 
         public static string ContractFileName => "AElf.Contracts.CrossChain";

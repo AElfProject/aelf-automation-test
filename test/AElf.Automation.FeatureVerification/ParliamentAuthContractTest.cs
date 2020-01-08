@@ -5,7 +5,7 @@ using Acs3;
 using AElf.Client.Service;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.Parliament;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -16,7 +16,6 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -65,7 +64,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = NewParliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 new CreateOrganizationInput
                 {
-                    ReleaseThreshold = 10000
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold()
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
             _logger.Info($"organization address is : {organizationAddress}");
@@ -160,10 +159,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 NewParliament.SetAccount(miner);
                 var result =
-                    NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-                    {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
-                    });
+                    NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
+                    );
                 _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
@@ -183,10 +180,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             NewParliament.SetAccount(Full);
             var result =
-                NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-                {
-                    ProposalId = HashHelper.HexStringToHash(proposalId)
-                });
+                NewParliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
+                );
             _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
 

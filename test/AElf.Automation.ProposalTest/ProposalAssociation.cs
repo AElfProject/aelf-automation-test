@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Acs3;
+using AElf.Contracts.Association;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.AssociationAuth;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
-using ApproveInput = Acs3.ApproveInput;
+using Shouldly;
 
 namespace AElf.Automation.ProposalTest
 {
@@ -24,10 +23,11 @@ namespace AElf.Automation.ProposalTest
             Token = Services.TokenService;
         }
 
-        private Dictionary<Address, ReviewerInfo> OrganizationList { get; set; }
-        private Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>> ProposalList { get; set; }
-        private Dictionary<string, string> ReleaseProposalList { get; set; }
-        private List<ReviewerInfo> ReviewerInfos { get; set; }
+        private Dictionary<Address,Organization> OrganizationList { get; set; }
+        private Dictionary<KeyValuePair<Address,Organization>, List<Hash>> ProposalList { get; set; }
+        private Dictionary<Hash, Address> ReleaseProposalList { get; set; }
+        private List<OrganizationMemberList> OrganizationMemberInfos { get; set; }
+        private Dictionary<Address, long> BalanceInfo { get; set; }
         private AssociationAuthContract Association { get; }
         private TokenContract Token { get; }
 
@@ -49,45 +49,44 @@ namespace AElf.Automation.ProposalTest
         private void CreateOrganization()
         {
             Logger.Info("Create organization:");
-            ReviewerInfos = SetReviewers();
-            OrganizationList = new Dictionary<Address, ReviewerInfo>();
-            var txIdList = new Dictionary<KeyValuePair<ReviewerInfo, CreateOrganizationInput>, string>();
-            var inputList = new Dictionary<ReviewerInfo, CreateOrganizationInput>();
+            OrganizationList = new Dictionary<Address, Organization>();
+            OrganizationMemberInfos = SetMemberLists();
+            var txIdList = new Dictionary<CreateOrganizationInput, string>();
+            var inputList = new List<CreateOrganizationInput>();
 
-            foreach (var reviewerList in ReviewerInfos)
+            foreach (var organizationMemberList in OrganizationMemberInfos)
             {
-                var releaseThreshold = reviewerList.TotalWeight - reviewerList.MaxWeight;
-                if (releaseThreshold == 0 && reviewerList.MaxWeight > 1)
-                    releaseThreshold = reviewerList.MaxWeight - 1;
-
-                var createOrganizationInput = new CreateOrganizationInput
+                var count = organizationMemberList.OrganizationMembers.Count;
+                var approveCount = count * 2 / 3;
+                var creatOrganizationInput = new CreateOrganizationInput
                 {
-                    ProposerThreshold = 0,
-                    ReleaseThreshold = releaseThreshold
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold
+                    {
+                        MaximalAbstentionThreshold = count - approveCount,
+                        MaximalRejectionThreshold = count - approveCount,
+                        MinimalApprovalThreshold = approveCount,
+                        MinimalVoteThreshold = count
+                    },
+                    ProposerWhiteList = new ProposerWhiteList
+                    {
+                        Proposers = {organizationMemberList.OrganizationMembers.First()}
+                    },
+                    OrganizationMemberList = organizationMemberList
                 };
-                foreach (var reviewer in reviewerList.Reviewers) createOrganizationInput.Reviewers.Add(reviewer);
-
-                inputList.Add(reviewerList, createOrganizationInput);
+                inputList.Add(creatOrganizationInput);
             }
 
             foreach (var input in inputList)
             {
                 var txId =
-                    Association.ExecuteMethodWithTxId(AssociationMethod.CreateOrganization, input.Value);
+                    Association.ExecuteMethodWithTxId(AssociationMethod.CreateOrganization, input);
                 txIdList.Add(input, txId);
             }
 
             foreach (var (key, value) in txIdList)
             {
-                var checkTime = 5;
                 var result = Association.NodeManager.CheckTransactionResult(value);
                 var status = result.Status.ConvertTransactionResultStatus();
-                while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                {
-                    checkTime--;
-                    Thread.Sleep(2000);
-                }
-
                 if (status != TransactionResultStatus.Mined)
                 {
                     Logger.Error("Create organization address failed.");
@@ -96,23 +95,38 @@ namespace AElf.Automation.ProposalTest
                 {
                     var organizationAddress =
                         AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
+                    var info = Association.GetOrganization(organizationAddress);
+                    info.OrganizationAddress.ShouldBe(organizationAddress);
+                    info.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(key.ProposalReleaseThreshold
+                        .MaximalAbstentionThreshold);
+                    info.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(key.ProposalReleaseThreshold
+                        .MaximalRejectionThreshold);
+                    info.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(key.ProposalReleaseThreshold
+                        .MinimalApprovalThreshold);
+                    info.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(key.ProposalReleaseThreshold
+                        .MinimalVoteThreshold);
+                    info.OrganizationMemberList.ShouldBe(key.OrganizationMemberList);
+                    info.ProposerWhiteList.ShouldBe(key.ProposerWhiteList);
                     if (OrganizationList.ContainsKey(organizationAddress)) continue;
-                    OrganizationList.Add(organizationAddress, key.Key);
+                    OrganizationList.Add(organizationAddress,info );
                 }
-            }
 
-            foreach (var (key, value) in OrganizationList)
-            {
-                Logger.Info($"AssociationAuth organization : {key}");
-                foreach (var reviewer in value.Reviewers) Logger.Info($"Reviewer is {reviewer}");
+                foreach (var (address, organization) in OrganizationList)
+                {
+                    Logger.Info($"AssociationAuth organization : {address}");
+                    var members = organization.OrganizationMemberList.OrganizationMembers;
+                    var proposer = organization.ProposerWhiteList.Proposers;
+                    foreach (var member in members) Logger.Info($"Member is {member}");
+                    foreach (var p in proposer) Logger.Info($"Proposer is {p}");
+                }
             }
         }
 
         private void CreateProposal()
         {
             Logger.Info("Create Proposal: ");
-            var txIdInfos = new Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>>();
-            ProposalList = new Dictionary<KeyValuePair<Address, ReviewerInfo>, List<string>>();
+            var txIdInfos = new Dictionary<KeyValuePair<Address, Organization>, List<string>>();
+            ProposalList = new Dictionary<KeyValuePair<Address, Organization>, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
                 var txIdList = new List<string>();
@@ -136,8 +150,8 @@ namespace AElf.Automation.ProposalTest
                         Params = transferInput.ToByteString()
                     };
 
-                    var sender = organizationAddress.Value.Reviewers.FirstOrDefault();
-                    Association.SetAccount(sender.Address.GetFormatted());
+                    var sender = organizationAddress.Value.ProposerWhiteList.Proposers.First();
+                    Association.SetAccount(sender.GetFormatted());
                     var txId = Association.ExecuteMethodWithTxId(AssociationMethod.CreateProposal,
                         createProposalInput);
                     txIdList.Add(txId);
@@ -145,34 +159,26 @@ namespace AElf.Automation.ProposalTest
 
                 txIdInfos.Add(organizationAddress, txIdList);
             }
-
-
+            
             foreach (var (key, value) in txIdInfos)
             {
-                var proposalIds = new List<string>();
+                var proposalIds = new List<Hash>();
                 foreach (var txId in value)
                 {
-                    var checkTime = 5;
                     var result = Association.NodeManager.CheckTransactionResult(txId);
                     var status = result.Status.ConvertTransactionResultStatus();
-                    while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                    {
-                        checkTime--;
-                        Thread.Sleep(2000);
-                    }
-
+                    
                     if (status != TransactionResultStatus.Mined)
                     {
                         Logger.Error("Create proposal Failed.");
                     }
                     else
                     {
-                        var proposal = result.ReadableReturnValue.Replace("\"", "");
+                        var proposal = HashHelper.HexStringToHash(result.ReadableReturnValue.Replace("\"", ""));
                         Logger.Info($"Create proposal {proposal} through organization address {key.Key}");
                         proposalIds.Add(proposal);
                     }
                 }
-
                 ProposalList.Add(key, proposalIds);
             }
         }
@@ -180,73 +186,70 @@ namespace AElf.Automation.ProposalTest
         private void ApproveProposal()
         {
             Logger.Info("Approve proposal: ");
-            var proposalApproveList =
-                new Dictionary<KeyValuePair<Address, ReviewerInfo>, Dictionary<string, Dictionary<Reviewer, string>>>();
-            ReleaseProposalList = new Dictionary<string, string>();
+            var proposalApproveList = new Dictionary<Hash, List<ApproveInfo>>();
+            ReleaseProposalList = new Dictionary<Hash, Address>();
             foreach (var proposal in ProposalList)
             {
-                Logger.Info($"Organization address: {proposal.Key.Key}: ");
-                var approveTxIds = new Dictionary<string, Dictionary<Reviewer, string>>();
+                var organization = proposal.Key.Key;
+                Logger.Info($"Organization address: {organization}: ");
+                var info = proposal.Key.Value;
+                var minimalApprovalThreshold = info.ProposalReleaseThreshold.MinimalApprovalThreshold;
+                var approveTxInfos = new List<ApproveInfo>();
+                var approveCount = minimalApprovalThreshold;
+                var members = info.OrganizationMemberList.OrganizationMembers;
+                
                 foreach (var proposalId in proposal.Value)
                 {
-                    var txInfoList = new Dictionary<Reviewer, string>();
-                    var approveCount = proposal.Key.Value.Reviewers.Count;
-                    for (var i = 0; i < approveCount; i++)
+                    var approveMember = members.Take((int) approveCount).ToList();
+                    foreach (var member in approveMember)
                     {
-                        var reviewer = proposal.Key.Value.Reviewers[i].Address.GetFormatted();
-                        Association.SetAccount(reviewer);
-                        var txId = Association.ExecuteMethodWithTxId(AssociationMethod.Approve,
-                            new ApproveInput
-                            {
-                                ProposalId = HashHelper.HexStringToHash(proposalId)
-                            });
-                        txInfoList.Add(proposal.Key.Value.Reviewers[i], txId);
+                        var txId = Association.Approve(proposalId, member.GetFormatted()).TransactionId;
+                        var approveInfo = new ApproveInfo(nameof(ParliamentMethod.Approve), member.GetFormatted(), txId);
+                        approveTxInfos.Add(approveInfo);
                     }
 
-                    approveTxIds.Add(proposalId, txInfoList);
-                }
+                    var otherMembers = members.Where(m => !approveMember.Contains(m)).ToList();
+                    var abstentionMember = otherMembers.First();
+                    var abstentionTxId = Association.Abstain(proposalId, abstentionMember.GetFormatted()).TransactionId;
+                    var abstentionInfo =
+                        new ApproveInfo(nameof(ParliamentMethod.Abstain), abstentionMember.GetFormatted(), abstentionTxId);
+                    approveTxInfos.Add(abstentionInfo);
 
-                proposalApproveList.Add(proposal.Key, approveTxIds);
+                    var rejectionMiners = otherMembers.Where(r => !abstentionMember.Equals(r)).ToList();
+                    foreach (var rm in rejectionMiners)
+                    {
+                        var txId = Association.Reject(proposalId, rm.GetFormatted()).TransactionId;
+                        var rejectInfo = new ApproveInfo(nameof(ParliamentMethod.Reject), rm.GetFormatted(), txId);
+                        approveTxInfos.Add(rejectInfo);
+                    }
+                    
+                    proposalApproveList.Add(proposalId, approveTxInfos);
+                }
             }
 
             foreach (var (key, value) in proposalApproveList)
             foreach (var proposalApprove in value)
             {
-                var approveMinedCount = 0;
-                foreach (var txInfo in proposalApprove.Value)
-                {
-                    var checkTime = 5;
-                    var result = Association.NodeManager.CheckTransactionResult(txInfo.Value);
-                    var status = result.Status.ConvertTransactionResultStatus();
-                    while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                    {
-                        checkTime--;
-                        Thread.Sleep(2000);
-                    }
+                var result = Association.NodeManager.CheckTransactionResult(proposalApprove.TxId);
+                var status = result.Status.ConvertTransactionResultStatus();
 
-                    if (status != TransactionResultStatus.Mined)
-                    {
-                        Logger.Error("Approve proposal Failed.");
-                    }
-                    else
-                    {
-                        approveMinedCount += txInfo.Key.Weight;
-                        Logger.Info($"{txInfo.Key} approve proposal {proposalApprove.Key} successful");
-                    }
-                }
+                if (status != TransactionResultStatus.Mined)
+                    Logger.Error($"{proposalApprove.Type} proposal Failed.");
+                Logger.Info($"{proposalApprove.Account} {proposalApprove.Type} proposal {key} successful");
+            }
 
-                var expectedReleaseThreshold = key.Value.TotalWeight - key.Value.MaxWeight;
-                if (expectedReleaseThreshold == 0)
-                    expectedReleaseThreshold = key.Value.MaxWeight;
+            foreach (var (key, value) in proposalApproveList)
+            {
+                var proposalStatue = Association.CheckProposal(key);
+                var approveCount = value.Select(a => a.Type.Contains("Approve")).Count();
+                var abstainCount = value.Select(a => a.Type.Contains("Abstain")).Count();
+                var rejectCount = value.Select(a => a.Type.Contains("Reject")).Count();
+                proposalStatue.AbstentionCount.ShouldBe(abstainCount);
+                proposalStatue.RejectionCount.ShouldBe(rejectCount);
+                proposalStatue.ApprovalCount.ShouldBe(approveCount);
 
-                if (approveMinedCount <= expectedReleaseThreshold)
-                {
-                    Logger.Info($"Approve is not enough. {proposalApprove.Key} ");
-                    continue;
-                }
-
-                var sender = key.Value.Reviewers.FirstOrDefault();
-                ReleaseProposalList.Add(proposalApprove.Key, sender.Address.GetFormatted());
+                if (proposalStatue.ToBeReleased)
+                    ReleaseProposalList.Add(key,proposalStatue.Proposer);
             }
         }
 
@@ -257,23 +260,15 @@ namespace AElf.Automation.ProposalTest
             foreach (var proposalId in ReleaseProposalList)
             {
                 var sender = proposalId.Value;
-                Association.SetAccount(sender);
-                var txId = Association.ExecuteMethodWithTxId(AssociationMethod.Release,
-                    HashHelper.HexStringToHash(proposalId.Key));
+                Association.SetAccount(sender.GetFormatted());
+                var txId = Association.ExecuteMethodWithTxId(AssociationMethod.Release, proposalId.Key);
                 releaseTxIds.Add(txId);
             }
 
             foreach (var txId in releaseTxIds)
             {
-                var checkTime = 5;
                 var result = Association.NodeManager.CheckTransactionResult(txId);
                 var status = result.Status.ConvertTransactionResultStatus();
-                while (status == TransactionResultStatus.NotExisted && checkTime > 0)
-                {
-                    checkTime--;
-                    Thread.Sleep(2000);
-                }
-
                 if (status != TransactionResultStatus.Mined) Logger.Error("Release proposal Failed.");
             }
         }
@@ -281,26 +276,34 @@ namespace AElf.Automation.ProposalTest
         private void CheckTheBalance()
         {
             Logger.Info("After Association test, check the balance of organization address:");
-            foreach (var organization in OrganizationList)
+            foreach (var balanceInfo in BalanceInfo)
             {
-                var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+                var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
+                balance.ShouldBe(balanceInfo.Value+10);
+                BalanceInfo[balanceInfo.Key] = balance;
+                Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
 
             Logger.Info("After Association test, check the balance of tester:");
-            foreach (var tester in Tester)
+            foreach (var tester in AssociationTester)
             {
-                var balance = Token.GetUserBalance(tester, NativeToken);
-                Logger.Info($"{tester} {NativeToken} balance is {balance}");
+                var balance = Token.GetUserBalance(tester, TokenSymbol);
+                Logger.Info($"{tester} {TokenSymbol} balance is {balance}");
             }
         }
 
         private void TransferToVirtualAccount()
         {
+            BalanceInfo = new Dictionary<Address, long>();
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                if (balance > 10_00000000) continue;
+                if (balance >= 100_00000000)
+                {
+                    BalanceInfo.Add(organization.Key, balance);
+                    continue;
+                }
+
                 Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = Symbol,
@@ -310,49 +313,35 @@ namespace AElf.Automation.ProposalTest
                 });
 
                 balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
-                Logger.Info($"{organization.Key} {Symbol} balance is {balance}");
+                BalanceInfo.Add(organization.Key, balance);
+                Logger.Info($"{organization} {Symbol} token balance is {balance}");
             }
         }
 
-        private List<ReviewerInfo> SetReviewers()
+        private List<OrganizationMemberList> SetMemberLists()
         {
-            Logger.Info("Set reviewers: ");
-            var reviewerInfos = new List<ReviewerInfo>();
+            Logger.Info("Set members: ");
+
+            var reviewerInfos = new List<OrganizationMemberList>();
             for (var i = 0; i < 4; i++)
             {
-                var reviewers = new List<Reviewer>();
-                for (var j = 0; j < 5; j++)
+                var reviewers = new List<Address>();
+                var membersCount = GenerateRandomNumber(1, AssociationTester.Count);
+                for (var j = 0; j < membersCount; j++)
                 {
-                    var randomNo = GenerateRandomNumber(0, Tester.Count - 1);
-                    var account = Tester[randomNo];
-                    if (reviewers.Count != 0 && reviewers.Exists(o => o.Address.GetFormatted().Equals(account)))
+                    var randomNo = GenerateRandomNumber(0, AssociationTester.Count - 1);
+                    var account = AddressHelper.Base58StringToAddress(AssociationTester[randomNo]);
+                    if (reviewers.Contains(account))
                         continue;
-                    var weight = GenerateRandomNumber(0, 3);
-                    var reviewer = new Reviewer
-                    {
-                        Address = AddressHelper.Base58StringToAddress(account),
-                        Weight = weight
-                    };
-                    reviewers.Add(reviewer);
+
+                    reviewers.Add(account);
                 }
 
-                Logger.Info("Check the weight");
-
-                if (reviewers.Count > 1 && reviewers.FindAll(o => o.Weight.Equals(0)).Count == reviewers.Count)
+                var organizationMemberList = new OrganizationMemberList
                 {
-                    Logger.Info("All the reviewers weight is 0, reset the reviewer weight ");
-                    foreach (var reviewer in reviewers)
-                    {
-                        var weight = GenerateRandomNumber(1, 3);
-                        reviewer.Weight = weight;
-                    }
-                }
-
-                var reviewerInfo = new ReviewerInfo(reviewers);
-                foreach (var reviewer in reviewerInfo.Reviewers)
-                    Logger.Info($"Reviewers is {reviewer.Address} weight is {reviewer.Weight}");
-
-                reviewerInfos.Add(reviewerInfo);
+                    OrganizationMembers = {reviewers}
+                };
+                reviewerInfos.Add(organizationMemberList);
             }
 
             return reviewerInfos;

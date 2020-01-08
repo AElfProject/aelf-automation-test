@@ -5,7 +5,8 @@ using Acs0;
 using Acs3;
 using Acs7;
 using AElf.Client.Dto;
-using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.Association;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Helpers;
@@ -16,9 +17,9 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Volo.Abp.Threading;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -33,6 +34,8 @@ namespace AElf.Automation.SideChainTests
         public TokenContractContainer.TokenContractStub side1TokenContractStub;
         public TokenContractContainer.TokenContractStub side2TokenContractStub;
         public string InitAccount;
+        public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
+        public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
 
         public List<string> Miners;
 
@@ -54,7 +57,7 @@ namespace AElf.Automation.SideChainTests
             side1TokenContractStub = SideAServices.TokenContractStub;
             side2TokenContractStub = SideBServices.TokenContractStub;
             Miners = new List<string>();
-            Miners = (new AuthorityManager(SideBServices.NodeManager, InitAccount).GetCurrentMiners());
+            Miners = (new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners());
         }
 
         #region cross chain transfer
@@ -147,6 +150,11 @@ namespace AElf.Automation.SideChainTests
             SideChainTokenInfo tokenInfo)
         {
             services.CrossChainService.SetAccount(creator, password);
+            var issue = new SideChainTokenInitialIssue
+            {
+                Address = AddressHelper.Base58StringToAddress(creator),
+                Amount = 10_0000_0000_0000
+            };
             var result =
                 services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
                     new SideChainCreationRequest
@@ -158,7 +166,9 @@ namespace AElf.Automation.SideChainTests
                         SideChainTokenName = tokenInfo.TokenName,
                         SideChainTokenSymbol = tokenInfo.Symbol,
                         SideChainTokenTotalSupply = tokenInfo.TotalSupply,
-                        IsSideChainTokenBurnable = tokenInfo.IsBurnable
+                        IsSideChainTokenBurnable = tokenInfo.IsBurnable,
+                        InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
+                        SideChainTokenInitialIssueList = {issue}
                     });
             var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
             var proposalId = ProposalCreated.Parser
@@ -166,19 +176,6 @@ namespace AElf.Automation.SideChainTests
                 .ProposalId;
             ;
             return proposalId;
-        }
-
-        protected TransactionResultDto RequestChainDisposal(ContractServices services, string account, int chainId)
-        {
-            services.CrossChainService.SetAccount(account);
-            var result = services.CrossChainService.ExecuteMethodWithResult(
-                CrossChainContractMethod.RequestChainDisposal,
-                new SInt32Value
-                {
-                    Value = chainId
-                });
-
-            return result;
         }
 
         protected TransactionResultDto Recharge(ContractServices services, string account, int chainId, long amount)
@@ -217,6 +214,113 @@ namespace AElf.Automation.SideChainTests
             return result;
         }
 
+        public void ApproveProposal(ContractServices services, Hash proposalId)
+        {
+            var miners = GetMiners(services);
+            foreach (var miner in miners)
+            {
+                services.ParliamentService.SetAccount(miner.GetFormatted(), "123");
+                var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+            }
+        }
+
+        protected Address CreateAssociationOrganization(ContractServices services)
+        {
+            var address = services.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
+                new CreateOrganizationInput
+                {
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold
+                    {
+                        MaximalAbstentionThreshold = 1,
+                        MaximalRejectionThreshold = 1,
+                        MinimalApprovalThreshold = 2,
+                        MinimalVoteThreshold = 3
+                    },
+                    OrganizationMemberList = new OrganizationMemberList
+                    {
+                        OrganizationMembers =
+                        {
+                            AddressHelper.Base58StringToAddress(OtherAccount),
+                            AddressHelper.Base58StringToAddress(InitAccount),
+                            AddressHelper.Base58StringToAddress(MemberAccount)
+                        }
+                    },
+                    ProposerWhiteList = new ProposerWhiteList
+                    {
+                        Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
+                    }
+                });
+            var organization = address.ReadableReturnValue.Replace("\"", "");
+            _logger.Info($"Association organization is: {organization}");
+            return AddressHelper.Base58StringToAddress(organization);
+        }
+
+        protected Address CreateParliamentOrganization(ContractServices services)
+        {
+            services.ParliamentService.SetAccount(InitAccount);
+            var address = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
+                new Contracts.Parliament.CreateOrganizationInput()
+                {
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold
+                    {
+                        MaximalAbstentionThreshold = 1000,
+                        MaximalRejectionThreshold = 1000,
+                        MinimalApprovalThreshold = 3000,
+                        MinimalVoteThreshold = 3000
+                    },
+                    ProposerAuthorityRequired = false,
+                    ParliamentMemberProposingAllowed = true
+                });
+            var organization = address.ReadableReturnValue.Replace("\"", "");
+            _logger.Info($"Association organization is: {organization}");
+            return AddressHelper.Base58StringToAddress(organization);
+        }
+
+        protected void ApproveWithAssociation(ContractServices tester, Hash proposalId, Address association)
+        {
+            var organization =
+                tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
+                    association);
+            var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
+            foreach (var member in members)
+            {
+                tester.AssociationService.SetAccount(member.GetFormatted());
+                var approve =
+                    tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
+                if (tester.AssociationService.CheckProposal(proposalId).ToBeReleased) return;
+            }
+        }
+
+        protected TransactionResultDto ReleaseWithAssociation(ContractServices tester, Hash proposalId, string account)
+        {
+            tester.AssociationService.SetAccount(account);
+            var result =
+                tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Release,
+                    proposalId);
+            return result;
+        }
+
+        protected void ApproveAndTransferOrganizationBalanceAsync(ContractServices tester, Address organizationAddress,
+            long amount, string proposer)
+        {
+            var approveInput = new ApproveInput
+            {
+                Spender = AddressHelper.Base58StringToAddress(tester.CrossChainService.ContractAddress),
+                Symbol = "ELF",
+                Amount = amount
+            };
+            var proposal = tester.AssociationService.CreateProposal(tester.TokenService.ContractAddress,
+                nameof(TokenMethod.Approve), approveInput, organizationAddress, proposer);
+            ApproveWithAssociation(tester, proposal, organizationAddress);
+            ReleaseWithAssociation(tester, proposal, proposer);
+        }
+
+        protected Address CreateAssociationController(string creator, CreateOrganizationInput input)
+        {
+            var address = MainServices.AssociationService.CreateOrganization(input);
+            return address;
+        }
+
         #endregion
 
         #region cross chain verify 
@@ -241,21 +345,19 @@ namespace AElf.Automation.SideChainTests
         protected TransactionResultDto Approve(ContractServices services, string account, string proposalId)
         {
             services.ParliamentService.SetAccount(account);
-            var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, new ApproveInput
-            {
-                ProposalId = HashHelper.HexStringToHash(proposalId)
-            });
+            var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
+                HashHelper.HexStringToHash(proposalId));
 
             return result;
         }
 
         protected TransactionResultDto ReleaseSideChainCreation(ContractServices services, string account,
-            string proposalId)
+            Hash proposalId)
         {
             services.CrossChainService.SetAccount(account);
             var transactionResult =
                 services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.ReleaseSideChainCreation,
-                    new ReleaseSideChainCreationInput {ProposalId = HashHelper.Base64ToHash(proposalId)});
+                    new ReleaseSideChainCreationInput {ProposalId = proposalId});
             return transactionResult;
         }
 
@@ -334,5 +436,20 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
+
+
+        private IEnumerable<Address> GetMiners(ContractServices services)
+        {
+            var minerList = new List<Address>();
+            var miners =
+                services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            foreach (var publicKey in miners.Pubkeys)
+            {
+                var address = Address.FromPublicKey(publicKey.ToByteArray());
+                minerList.Add(address);
+            }
+
+            return minerList;
+        }
     }
 }

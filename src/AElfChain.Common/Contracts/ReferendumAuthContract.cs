@@ -1,4 +1,7 @@
+using Acs3;
 using AElf.Client.Dto;
+using AElf.Contracts.Referendum;
+using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -17,7 +20,9 @@ namespace AElfChain.Common.Contracts
         Approve,
         CreateProposal,
         Release,
-        ReclaimVoteToken
+        ReclaimVoteToken,
+        Abstain,
+        Reject
     }
 
     public class ReferendumAuthContract : BaseContract<ReferendumMethod>
@@ -32,11 +37,34 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }
-
-        public void InitializeReferendum()
+        
+        public TransactionResultDto Approve(Hash proposalId, string caller)
         {
-            var initializeResult = ExecuteMethodWithResult(ReferendumMethod.Initialize, new Empty());
-            if (initializeResult is TransactionResultDto txDto) txDto.Status.ToLower().ShouldBe("mined");
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
+        }
+        
+        public TransactionResultDto Abstain(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ReferendumMethod.Abstain, proposalId);
+        }
+        
+        public TransactionResultDto Reject(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ReferendumMethod.Reject, proposalId);
+        }
+        
+        public Organization GetOrganization(Address organization)
+        {
+            return CallViewMethod<Organization>(ReferendumMethod.GetOrganization, organization);
+        }
+
+        public ProposalOutput CheckProposal(Hash proposalId)
+        {
+            return CallViewMethod<ProposalOutput>(ReferendumMethod.GetProposal,
+                proposalId);
         }
     }
 }

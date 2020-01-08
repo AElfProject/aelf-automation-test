@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Acs3;
 using AElf;
+using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.Parliament;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -20,6 +21,8 @@ namespace AElfChain.Common.Contracts
         //Action
         Initialize,
         Approve,
+        Reject,
+        Abstain,
         CreateProposal,
         GetProposal,
         Release,
@@ -42,7 +45,7 @@ namespace AElfChain.Common.Contracts
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
             string caller = null)
         {
-            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
+            var tester = GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = method,
@@ -63,13 +66,28 @@ namespace AElfChain.Common.Contracts
 
         public void ApproveProposal(Hash proposalId, string caller = null)
         {
-            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
-            var transactionResult = AsyncHelper.RunSync(() => tester.Approve.SendAsync(new ApproveInput
-            {
-                ProposalId = proposalId
-            }));
+            var tester = GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
+            var transactionResult = AsyncHelper.RunSync(() => tester.Approve.SendAsync(proposalId));
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
+        }
+        
+        public TransactionResultDto Approve(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+        }
+        
+        public TransactionResultDto Abstain(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ParliamentMethod.Abstain, proposalId);
+        }
+        
+        public TransactionResultDto Reject(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(ParliamentMethod.Reject, proposalId);
         }
 
         public void MinersApproveProposal(Hash proposalId, IEnumerable<string> callers)
@@ -78,10 +96,7 @@ namespace AElfChain.Common.Contracts
             foreach (var user in callers)
             {
                 var tester = GetNewTester(user);
-                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve, new ApproveInput
-                {
-                    ProposalId = proposalId
-                });
+                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve,proposalId);
                 approveTxIds.Add(txId);
             }
             NodeManager.CheckTransactionListResult(approveTxIds);
@@ -89,7 +104,7 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
         {
-            var tester = GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
+            var tester = GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.Release.SendAsync(proposalId));
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
@@ -100,6 +115,11 @@ namespace AElfChain.Common.Contracts
         public Address GetGenesisOwnerAddress()
         {
             return CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
+        }
+        
+        public Organization GetOrganization(Address organization)
+        {
+            return CallViewMethod<Organization>(ParliamentMethod.GetOrganization, organization);
         }
 
         public ProposalOutput CheckProposal(Hash proposalId)

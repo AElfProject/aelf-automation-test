@@ -37,13 +37,13 @@
         <ProtoContract Include="Protobuf\Proto\profit_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\aedpos_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\aedpos_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\parliament_auth_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\association_auth_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\parliament_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\association_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\vote_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_converter_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\cross_chain_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\configuration_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\referendum_auth_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\referendum_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>

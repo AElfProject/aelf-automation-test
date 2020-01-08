@@ -3,14 +3,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf;
+using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;
 using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
@@ -74,8 +76,13 @@ namespace AElfChain.Common.Managers
         public CrossChainContract CrossChain => Genesis.GetCrossChainContract();
         public CrossChainContractContainer.CrossChainContractStub CrossChainStub => Genesis.GetCrossChainStub();
         public ParliamentAuthContract ParliamentAuth => Genesis.GetParliamentAuthContract();
-        public ParliamentAuthContractContainer.ParliamentAuthContractStub ParliamentAuthStub =>
+        public ParliamentContractContainer.ParliamentContractStub ParliamentAuthStub =>
             Genesis.GetParliamentAuthStub();
+        public AssociationAuthContract Association => Genesis.GetAssociationAuthContract();
+        public AssociationContractContainer.AssociationContractStub AssociationStub => Genesis.GetAssociationAuthStub();
+        public ReferendumAuthContract Referendum => Genesis.GetReferendumAuthContract();
+        public ReferendumContractContainer.ReferendumContractStub ReferendumStub =>
+            Genesis.GetReferendumAuthStub();
         public ElectionContract Election => Genesis.GetElectionContract();
         public ElectionContractContainer.ElectionContractStub ElectionStub => Genesis.GetElectionStub();
         public VoteContract Vote => Genesis.GetVoteContract();
