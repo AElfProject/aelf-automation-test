@@ -3,11 +3,11 @@ syntax = "proto3";
 import "acs1.proto";
 import "acs3.proto";
 
-option csharp_namespace = "AElf.Contracts.ReferendumAuth";
+option csharp_namespace = "AElf.Contracts.Referendum";
 
-service ReferendumAuthContract {
+service ReferendumContract {
     
-    option (aelf.csharp_state) = "AElf.Contracts.ReferendumAuth.ReferendumAuthState";
+    option (aelf.csharp_state) = "AElf.Contracts.Referendum.ReferendumState";
     option (aelf.base) = "acs3.proto";
     option (aelf.base) = "acs1.proto";
     // Actions
@@ -20,18 +20,23 @@ service ReferendumAuthContract {
     rpc GetOrganization (aelf.Address) returns (Organization) {
         option (aelf.is_view) = true;
     }
+    rpc CalculateOrganizationAddress(CreateOrganizationInput) returns (aelf.Address){
+        option (aelf.is_view) = true;
+    }
 }
 
 message CreateOrganizationInput {
-    int64 release_threshold = 1;
-    string token_symbol = 2;
+    string token_symbol = 1;
+    acs3.ProposalReleaseThreshold proposal_release_threshold = 2;
+    acs3.ProposerWhiteList proposer_white_list = 3;
 }
 
 message Organization {
-    int64 release_threshold = 1;
+    acs3.ProposalReleaseThreshold proposal_release_threshold = 1;
     string token_symbol = 2;
     aelf.Address organization_address = 3;
     aelf.Hash organization_hash = 4;
+    acs3.ProposerWhiteList proposer_white_list = 5;
 }
 
 message Receipt {
@@ -48,14 +53,7 @@ message ProposalInfo {
     google.protobuf.Timestamp expired_time = 5;
     aelf.Address proposer = 6;
     aelf.Address organization_address = 7;
-}
-
-message ProposalCreated{
-    option (aelf.is_event) = true;
-    aelf.Hash proposal_id = 1;
-}
-
-message ProposalReleased{
-    option (aelf.is_event) = true;
-    aelf.Hash proposal_id = 1;
+    int64 approval_count = 8;
+    int64 rejection_count = 9;
+    int64 abstention_count = 10;
 }

@@ -1,12 +1,12 @@
-using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
-using AElf.Contracts.ReferendumAuth;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.TokenHolder;
 using AElf.Contracts.Treasury;
@@ -42,7 +42,7 @@ namespace AElfChain.Common.Contracts
             return contract.GetTestStub<AEDPoSContractImplContainer.AEDPoSContractImplStub>(caller);
         }
 
-        public static ParliamentAuthContractContainer.ParliamentAuthContractStub GetParliamentAuthStub(
+        public static ParliamentContractContainer.ParliamentContractStub GetParliamentAuthStub(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -54,7 +54,7 @@ namespace AElfChain.Common.Contracts
                 new ParliamentAuthContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
 
             return contract
-                .GetTestStub<ParliamentAuthContractContainer.ParliamentAuthContractStub>(caller);
+                .GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
         }
 
         public static ProfitContractContainer.ProfitContractStub GetProfitStub(this GenesisContract genesis,
@@ -163,7 +163,7 @@ namespace AElfChain.Common.Contracts
             return contract.GetTestStub<CrossChainContractContainer.CrossChainContractStub>(caller);
         }
 
-        public static AssociationAuthContractContainer.AssociationAuthContractStub GetAssociationAuthStub(
+        public static AssociationContractContainer.AssociationContractStub GetAssociationAuthStub(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -174,10 +174,10 @@ namespace AElfChain.Common.Contracts
             var contract =
                 new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
 
-            return contract.GetTestStub<AssociationAuthContractContainer.AssociationAuthContractStub>(caller);
+            return contract.GetTestStub<AssociationContractContainer.AssociationContractStub>(caller);
         }
 
-        public static ReferendumAuthContractContainer.ReferendumAuthContractStub GetReferendumAuthStub(
+        public static ReferendumContractContainer.ReferendumContractStub GetReferendumAuthStub(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -189,7 +189,7 @@ namespace AElfChain.Common.Contracts
                 new ReferendumAuthContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
 
             return contract
-                .GetTestStub<ReferendumAuthContractContainer.ReferendumAuthContractStub>(caller);
+                .GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);
         }
 
         public static ConfigurationContainer.ConfigurationStub GetConfigurationStub(this GenesisContract genesis,

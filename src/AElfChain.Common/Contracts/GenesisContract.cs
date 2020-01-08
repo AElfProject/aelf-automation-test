@@ -25,6 +25,8 @@ namespace AElfChain.Common.Contracts
         ProposeNewContract,
         ProposeUpdateContract,
         ReleaseCodeCheckedContract,
+        ChangeContractDeploymentController,
+        ChangeCodeCheckController,
 
         //view
         CurrentContractSerialNumber,
@@ -33,7 +35,9 @@ namespace AElfChain.Common.Contracts
         GetContractHash,
         GetContractAddressByName,
         GetSmartContractRegistrationByAddress,
-        GetDeployedContractAddressList
+        GetDeployedContractAddressList,
+        GetContractDeploymentController,
+        GetCodeCheckController
     }
 
     public class GenesisContract : BaseContract<GenesisMethod>
@@ -99,17 +103,20 @@ namespace AElfChain.Common.Contracts
             return address;
         }
 
-        public TransactionResult ReleaseApprovedContract(ReleaseContractInput input,
+        public TransactionResultDto ReleaseApprovedContract(ReleaseContractInput input,
             string caller)
         {
-            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
-            var result = AsyncHelper.RunSync(() => tester.ReleaseApprovedContract.SendAsync(input));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            return result.TransactionResult;
+            SetAccount(caller);
+            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseApprovedContract, new ReleaseContractInput
+            {
+                ProposalId = input.ProposalId,
+                ProposedContractInputHash = input.ProposedContractInputHash
+            });
+            return result;
         }
 
         public TransactionResultDto ReleaseCodeCheckedContract(ReleaseContractInput input,
-            string caller = null)
+            string caller)
         {
             SetAccount(caller);
             var result = ExecuteMethodWithResult(GenesisMethod.ReleaseCodeCheckedContract, new ReleaseContractInput
@@ -189,9 +196,9 @@ namespace AElfChain.Common.Contracts
                 {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},
                 {NameProvider.CrossChain, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationAuth, Hash.FromString("AElf.ContractNames.AssociationAuth")},
+                {NameProvider.AssociationAuth, Hash.FromString("AElf.ContractNames.Association")},
                 {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
-                {NameProvider.ReferendumAuth, Hash.FromString("AElf.ContractNames.ReferendumAuth")}
+                {NameProvider.ReferendumAuth, Hash.FromString("AElf.ContractNames.Referendum")}
             };
 
             return dic;

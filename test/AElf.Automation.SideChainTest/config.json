@@ -10,7 +10,7 @@
       "SideChainUrl": "http://192.168.197.14:8001"
     },
     {
-      "SideChainUrl": "http:///192.168.197.14:8002"
+      "SideChainUrl": "http://192.168.197.14:8002"
     }
   ]
 }

@@ -1,9 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
+using AElf.Client.Dto;
+using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -66,7 +71,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 TokenService.IssueBalance(account, miner, 1000_00000000, symbol);
             }
         }
-        
+
         public void TransferTokenToMiner(string account)
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();

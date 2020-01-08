@@ -24,8 +24,9 @@ namespace AElf.Automation.ProposalTest
         protected static string Symbol;
         private readonly EnvironmentInfo _environmentInfo;
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
+        protected static List<string> AssociationTester { get; set; }
         protected static List<string> Tester { get; set; }
-        protected string NativeToken;
+        protected string TokenSymbol;
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
         protected static ContractServices Services { get; set; }
@@ -62,7 +63,8 @@ namespace AElf.Automation.ProposalTest
             if (Services == null)
                 Services = GetContractServices();
             Tester = GenerateOrGetTestUsers();
-            NativeToken = GetNativeToken();
+            AssociationTester = GenerateOrGetTestUsers(Tester);
+            TokenSymbol = Services.TokenService.GetPrimaryTokenSymbol();
             if (Symbol == null)
                 ProposalPrepare();
         }
@@ -88,6 +90,21 @@ namespace AElf.Automation.ProposalTest
             testUsers.AddRange(newAccounts);
             return testUsers;
         }
+        
+        private List<string> GenerateOrGetTestUsers(ICollection<string> testers)
+        {
+            var url = _environmentInfo.Url;
+            var nodeManager = new NodeManager(url, AccountDir);
+
+            var accounts = nodeManager.ListAccounts();
+
+            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMinersPubkey().Contains(o)&& !testers.Contains(o));
+            if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
+
+            var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
+            testUsers.AddRange(newAccounts);
+            return testUsers;
+        }
 
         private ContractServices GetContractServices()
         {
@@ -95,7 +112,7 @@ namespace AElf.Automation.ProposalTest
             var url = _environmentInfo.Url;
             var password = _environmentInfo.Password;
 
-            Services = new ContractServices(url, InitAccount, AccountDir, password);
+            Services = new ContractServices(url, InitAccount, password);
             return Services;
         }
 
@@ -110,13 +127,6 @@ namespace AElf.Automation.ProposalTest
 
             return accounts;
         }
-
-        private string GetNativeToken()
-        {
-            var token = Services.TokenService.GetPrimaryTokenSymbol();
-            return token;
-        }
-
         protected void GetMiners()
         {
             Miners = new List<string>();
@@ -174,30 +184,30 @@ namespace AElf.Automation.ProposalTest
                 if (balance >= 100_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = NativeToken,
+                    Symbol = TokenSymbol,
                     To = AddressHelper.Base58StringToAddress(tester),
                     Amount = 1000_00000000,
                     Memo = "Transfer to tester"
                 });
 
                 balance = Services.TokenService.GetUserBalance(tester);
-                Logger.Info($"Tester {tester} {NativeToken} balance is {balance}");
+                Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
 
             foreach (var miner in Miners)
             {
                 var balance = Services.TokenService.GetUserBalance(miner);
-                if (balance >= 100_00000000) continue;
+                if (balance >= 1000_00000000) continue;
                 Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
-                    Symbol = NativeToken,
+                    Symbol = TokenSymbol,
                     To = AddressHelper.Base58StringToAddress(miner),
                     Amount = 1000_00000000,
                     Memo = "T-Miners"
                 });
 
                 balance = Services.TokenService.GetUserBalance(miner);
-                Logger.Info($"Miner {miner} {NativeToken} balance is {balance}");
+                Logger.Info($"Miner {miner} {TokenSymbol} balance is {balance}");
             }
         }
     }

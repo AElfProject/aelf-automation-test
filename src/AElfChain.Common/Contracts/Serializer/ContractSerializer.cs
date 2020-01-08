@@ -7,16 +7,16 @@ using Acs4;
 using Acs6;
 using Acs7;
 using Acs8;
-using AElf.Contracts.AssociationAuth;
+using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;
 using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.ParliamentAuth;
+using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
-using AElf.Contracts.ReferendumAuth;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.TestContract.A;
 using AElf.Contracts.TestContract.B;
 using AElf.Contracts.TestContract.BasicFunction;
@@ -102,7 +102,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor>
                     {
                         MethodFeeProviderContractContainer.Descriptor, AuthorizationContractContainer.Descriptor,
-                        ParliamentAuthContractContainer.Descriptor
+                        ParliamentContractContainer.Descriptor
                     }
                 },
                 {
@@ -118,7 +118,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor>
                     {
                         MethodFeeProviderContractContainer.Descriptor, AuthorizationContractContainer.Descriptor,
-                        AssociationAuthContractContainer.Descriptor
+                        AssociationContractContainer.Descriptor
                     }
                 },
                 {
@@ -131,7 +131,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor>
                     {
                         MethodFeeProviderContractContainer.Descriptor, AuthorizationContractContainer.Descriptor,
-                        ReferendumAuthContractContainer.Descriptor
+                        ReferendumContractContainer.Descriptor
                     }
                 },
                 {

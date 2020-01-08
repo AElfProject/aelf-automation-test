@@ -8,9 +8,9 @@ namespace AElf.Automation.ProposalTest
     {
         public readonly INodeManager NodeManager;
 
-        public ContractServices(string url, string callAddress, string keyStore, string password)
+        public ContractServices(string url, string callAddress, string password)
         {
-            NodeManager = new NodeManager(url, keyStore);
+            NodeManager = new NodeManager(url);
             CallAddress = callAddress;
             CallAccount = AddressHelper.Base58StringToAddress(callAddress);
             NodeManager.UnlockAccount(CallAddress, password);

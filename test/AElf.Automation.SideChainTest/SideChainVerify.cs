@@ -16,7 +16,6 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using ApproveInput = Acs3.ApproveInput;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -578,11 +577,8 @@ namespace AElf.Automation.SideChainTests
             foreach (var miner in miners)
             {
                 services.ParliamentService.SetAccount(miner.GetFormatted());
-                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                    new ApproveInput
-                    {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
-                    });
+                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
+                    );
                 if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             }
 
