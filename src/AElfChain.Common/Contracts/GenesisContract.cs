@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
@@ -175,6 +176,13 @@ namespace AElfChain.Common.Contracts
         public AuthorityStuff GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController, new Empty());
+        }
+
+        public List<Hash> GetContractHashCodeList()
+        {
+            var deployedContracts =
+                CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
+            return deployedContracts.Value.Select(address => CallViewMethod<Hash>(GenesisMethod.GetContractHash, address)).ToList();
         }
         
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)

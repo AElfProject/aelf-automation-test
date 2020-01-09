@@ -8,6 +8,7 @@ using AElfChain.Common.Managers;
 using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -15,6 +16,7 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -24,6 +26,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class OtherMethodTest
     {
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        
         [TestInitialize]
         public void TestInitialize()
         {
@@ -223,6 +227,75 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 await contractManager.GenesisStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
             var binaryWriter = new BinaryWriter(new FileStream("TokenOrg.dll", FileMode.OpenOrCreate));
             binaryWriter.Write(contractResult.Code.ToByteArray());
+        }
+
+        [TestMethod]
+        public async Task GetHashCodeTest()
+        {
+            //byte string
+            var byteString = ByteString.CopyFromUtf8("test info");
+            Logger.Info($"ByteString => {byteString.GetHashCode()}");
+            //string value
+            var message = "proto buf string test info";
+            var stringInfo = new StringValue
+            {
+                Value = message
+            };
+            Logger.Info($"StringValue => {stringInfo.GetHashCode()}/{message.GetHashCode()}");
+            
+            //int3 value
+            var value = Int32.MaxValue;
+            var int32Info = new Int32Value
+            {
+                Value = value
+            };
+            Logger.Info($"Int32Value => {int32Info.GetHashCode()}/{value.GetHashCode()}");
+            
+            //int64 value
+            var data = Int64.MaxValue;
+            var int64Info = new Int64Value
+            {
+                Value = data
+            };
+            Logger.Info($"Int64Value => {int64Info.GetHashCode()}/{data.GetHashCode()}");
+            
+            //enum
+            var enumData = Color.Blue;
+            var enumInfo = new EnumInput
+            {
+                Info = enumData
+            };
+            Logger.Info($"EnumInput => {enumInfo.GetHashCode()}/{enumData.GetHashCode()}");
+            
+            //map
+            var map1 = new MapStringInput
+            {
+                Info =
+                {
+                    {"key1", "test1"},
+                    {"key2", "test1"},
+                    {"key3", "test1"}
+                }
+            };
+            var map2 = new MapStringInput
+            {
+                Info =
+                {
+                    {"key1", "test1"},
+                    {"key2", "test2"},
+                }
+            };
+            Logger.Info($"MapStringInput => {map1.GetHashCode()}/{map2.GetHashCode()}");
+        }
+
+        [TestMethod]
+        public void UpdateCodeHash_Test()
+        {
+            const string tokenPath = "/Users/ericshu/.local/share/aelf/contracts/AElf.Contracts.MultiToken.dll.patched";
+            var contractFileCode = File.ReadAllBytes(tokenPath);
+            var newCode = CodeInjectHelper.ChangeContractCodeHash(contractFileCode);
+            var binaryWriter = new BinaryWriter(new FileStream("TokenCodeChange.dll", FileMode.OpenOrCreate));
+            binaryWriter.Write(newCode);
         }
     }
 }
