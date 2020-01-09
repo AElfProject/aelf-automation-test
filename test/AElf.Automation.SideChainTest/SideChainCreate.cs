@@ -1,12 +1,9 @@
 using System.Linq;
-using System.Xml.Serialization;
 using Acs3;
 using Acs7;
 using AElf.Contracts.Association;
 using AElfChain.Common;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.MultiToken;
-using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
@@ -14,7 +11,6 @@ using AElfChain.Common.Contracts;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using TransferInput = AElf.Contracts.MultiToken.TransferInput;
 
 namespace AElf.Automation.SideChainTests
 {

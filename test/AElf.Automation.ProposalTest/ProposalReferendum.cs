@@ -19,15 +19,14 @@ namespace AElf.Automation.ProposalTest
         public ProposalReferendum()
         {
             Initialize();
-            Referendum = Services.ReferendumService;
-            Token = Services.TokenService;
+            Referendum = Services.Referendum;
+            Token = Services.Token;
         }
 
         private List<Address> OrganizationList { get; set; }
         private Dictionary<Address, List<Hash>> ProposalList { get; set; }
         private List<Hash> ReleaseProposalList { get; set; }
-        private List<Hash> ReleaseMinedProposal { get; set; }
-        private List<ApproveInfo> VoterInfos { get; set; }
+        private Dictionary<Hash,List<ApproveInfo>> ProposalApproveList { get; set; }
         private Dictionary<Address, long> BalanceInfo { get; set; }
 
         private ReferendumAuthContract Referendum { get; }
@@ -66,11 +65,11 @@ namespace AElf.Automation.ProposalTest
                         MaximalAbstentionThreshold = 1000 - rd,
                         MaximalRejectionThreshold = 1000 - rd,
                         MinimalApprovalThreshold = rd,
-                        MinimalVoteThreshold = 500
+                        MinimalVoteThreshold = rd
                     },
                     ProposerWhiteList = new ProposerWhiteList
                     {
-                        Proposers = {AddressHelper.Base58StringToAddress(proposer)}
+                        Proposers = {proposer.ConvertAddress()}
                     },
                     TokenSymbol = Token.GetNativeTokenSymbol()
                 };
@@ -94,8 +93,7 @@ namespace AElf.Automation.ProposalTest
                 }
                 else
                 {
-                    var organizationAddress =
-                        AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
+                    var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
                     var info = Referendum.GetOrganization(organizationAddress);
                     info.OrganizationAddress.ShouldBe(organizationAddress);
                     info.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(key.ProposalReleaseThreshold
@@ -107,11 +105,9 @@ namespace AElf.Automation.ProposalTest
                     info.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(key.ProposalReleaseThreshold
                         .MinimalVoteThreshold);
                     OrganizationList.Add(organizationAddress);
+                    Logger.Info($"Referendum organization : {organizationAddress}, MinimalVoteThreshold is {key.ProposalReleaseThreshold.MinimalVoteThreshold}");
                 }
             }
-
-            foreach (var organization in OrganizationList)
-                Logger.Info($"Referendum organization : {organization}");
         }
 
         private void CreateProposal()
@@ -130,13 +126,13 @@ namespace AElf.Automation.ProposalTest
                     {
                         To = toOrganizationAddress,
                         Symbol = Symbol,
-                        Amount = 10,
+                        Amount = 100,
                         Memo = "virtual account transfer virtual account"
                     };
 
                     var createProposalInput = new CreateProposalInput
                     {
-                        ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
+                        ToAddress = Token.ContractAddress.ConvertAddress(),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
                         ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
@@ -178,9 +174,8 @@ namespace AElf.Automation.ProposalTest
         private void ApproveProposal()
         {
             Logger.Info("Approve proposal: ");
-            var proposalApproveList = new Dictionary<Hash, List<ApproveInfo>>();
+            ProposalApproveList = new Dictionary<Hash, List<ApproveInfo>>();
             ReleaseProposalList = new List<Hash>();
-            VoterInfos = new List<ApproveInfo>();
 
             foreach (var proposal in ProposalList)
             {
@@ -195,6 +190,7 @@ namespace AElf.Automation.ProposalTest
                     var approveTotal = 0;
                     var rejectTotal = 0;
                     var approveTester = new List<string>();
+                    var voterInfos = new List<ApproveInfo>();
                     foreach (var tester in Tester)
                     {
                         var rd = GenerateRandomNumber(100, (int) approveCount);
@@ -208,7 +204,7 @@ namespace AElf.Automation.ProposalTest
                         balance.ShouldBe(beforeBalance - rd - voteFee - fee);
 
                         var approveInfo = new ApproveInfo(nameof(ReferendumMethod.Approve), tester, proposalId, rd);
-                        VoterInfos.Add(approveInfo);
+                        voterInfos.Add(approveInfo);
                         approveTotal += rd;
                         approveTester.Add(tester);
                         if (approveTotal >= approveCount) break;
@@ -216,7 +212,8 @@ namespace AElf.Automation.ProposalTest
 
                     var otherVoter = Tester.Where(m => !approveTester.Contains(m)).ToList();
                     var abrd = GenerateRandomNumber(1, (int) (abstentionCount - 1));
-                    if (otherVoter.Count == 0) break;
+                    if (otherVoter.Count == 0)  {ProposalApproveList.Add(proposalId, voterInfos); continue;}
+                    
                     var abstainTester = otherVoter.First();
                     Referendum.SetAccount(abstainTester);
                     var abBeforeBalance = Token.GetUserBalance(abstainTester, TokenSymbol);
@@ -229,9 +226,9 @@ namespace AElf.Automation.ProposalTest
                     abBalance.ShouldBe(abBeforeBalance - abrd - abVoteFee - abApproveTokenFee);
 
                     var abstainInfo = new ApproveInfo(nameof(ReferendumMethod.Abstain), abstainTester, proposalId, abrd);
-                    VoterInfos.Add(abstainInfo);
-
-                    if (otherVoter.Count == 1) break;
+                    voterInfos.Add(abstainInfo);
+                    if (otherVoter.Count == 1) {ProposalApproveList.Add(proposalId, voterInfos); continue;}
+                    
                     var rejectionTesters = otherVoter.Where(r => !abstainTester.Equals(r)).ToList();
                     foreach (var rejectionTester in rejectionTesters)
                     {
@@ -239,56 +236,48 @@ namespace AElf.Automation.ProposalTest
                         rejectTotal += rjrd;
                         if (rejectTotal >= rejectionCount) break;
                         Referendum.SetAccount(rejectionTester);
-                        var rjBeforeBalance = Token.GetUserBalance(abstainTester, TokenSymbol);
+                        var rjBeforeBalance = Token.GetUserBalance(rejectionTester, TokenSymbol);
                         var rjApproveTokenFee =
                             Token.ApproveToken(rejectionTester, Referendum.ContractAddress, rjrd, TokenSymbol)
                                 .TransactionFee.GetDefaultTransactionFee();
-
                         var rjTransaction = Referendum.Reject(proposalId, rejectionTester);
                         var rjVoteFee = rjTransaction.TransactionFee.GetDefaultTransactionFee();
 
                         var rjBalance = Token.GetUserBalance(rejectionTester, TokenSymbol);
                         rjBalance.ShouldBe(rjBeforeBalance - rjrd - rjVoteFee - rjApproveTokenFee);
-
+                        
                         var rejectionInfo = new ApproveInfo(nameof(ReferendumMethod.Reject), rejectionTester, proposalId,
-                            abrd);
-                        VoterInfos.Add(rejectionInfo);
+                            rjrd);
+                        voterInfos.Add(rejectionInfo);
                     }
 
-                    proposalApproveList.Add(proposalId, VoterInfos);
+                    ProposalApproveList.Add(proposalId, voterInfos);
                 }
             }
 
-            foreach (var (key, value) in proposalApproveList)
+            foreach (var (key, value) in ProposalApproveList)
             {
                 var proposalStatue = Referendum.CheckProposal(key);
-
-                if (proposalStatue.ToBeReleased)
-                    ReleaseProposalList.Add(key);
+                proposalStatue.ToBeReleased.ShouldBeTrue();
             }
         }
 
         private void ReleaseProposal()
         {
             Logger.Info("Release proposal: ");
-            var releaseTxInfos = new Dictionary<Hash, string>();
-            ReleaseMinedProposal = new List<Hash>();
 
-            foreach (var proposalId in ReleaseProposalList)
+            foreach (var (key,value) in ProposalList)
             {
-                var proposer = Referendum.CheckProposal(proposalId).Proposer;
-                Referendum.SetAccount(proposer.GetFormatted());
-                var txId = Referendum.ExecuteMethodWithTxId(ReferendumMethod.Release, proposalId);
-                releaseTxInfos.Add(proposalId, txId);
-            }
-
-            foreach (var txInfo in releaseTxInfos)
-            {
-                var result = Referendum.NodeManager.CheckTransactionResult(txInfo.Value);
-                var status = result.Status.ConvertTransactionResultStatus();
-                if (status != TransactionResultStatus.Mined) Logger.Error("Release proposal Failed.");
-
-                ReleaseMinedProposal.Add(txInfo.Key);
+                var sender = Referendum.GetOrganization(key).ProposerWhiteList.Proposers.First();
+                Referendum.SetAccount(sender.GetFormatted());
+                foreach (var proposalId in value)
+                {
+                    var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                    var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.Release,
+                        proposalId);
+                    var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                    newBalance.ShouldBe(balance - 100);
+                }
             }
         }
 
@@ -296,17 +285,20 @@ namespace AElf.Automation.ProposalTest
         {
             Logger.Info("Reclaim token: ");
 
-            foreach (var voterInfo in VoterInfos)
+            foreach (var (key,value) in ProposalApproveList)
+            foreach (var voterInfo in value)
             {
-                if (!ReleaseMinedProposal.Contains(voterInfo.Proposal)) continue;
                 Referendum.SetAccount(voterInfo.Account);
                 var balance = Token.GetUserBalance(voterInfo.Account, TokenSymbol);
+                Logger.Info($"Before reclaim vote token the account {voterInfo.Account} balance is {balance}, reclaim token is {voterInfo.Amount}");
+ 
                 var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken,voterInfo.Proposal);
                 var status = result.Status.ConvertTransactionResultStatus();
                 if (status != TransactionResultStatus.Mined) Logger.Error("Reclaim token failed");
                 var reclaimFee = result.TransactionFee.GetDefaultTransactionFee();
-                var newBalance = Token.GetUserBalance(voterInfo.Account, TokenSymbol);
+                var newBalance = Token.GetUserBalance(voterInfo.Account, TokenSymbol);;
                 newBalance.ShouldBe(balance+voterInfo.Amount-reclaimFee);
+                Logger.Info($"After reclaim vote token the account {voterInfo.Account} balance is {newBalance},reclaim fee is {reclaimFee}");
             }
         }
 
@@ -316,8 +308,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var balanceInfo in BalanceInfo)
             {
                 var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
-                balance.ShouldBe(balanceInfo.Value + 10);
-                BalanceInfo[balanceInfo.Key] = balance;
+                balance.ShouldBe(balanceInfo.Value);
                 Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
 
@@ -341,15 +332,7 @@ namespace AElf.Automation.ProposalTest
                     BalanceInfo.Add(organization, balance);
                     continue;
                 }
-
-                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                {
-                    Symbol = Symbol,
-                    To = organization,
-                    Amount = 100_00000000,
-                    Memo = "Transfer to organization address"
-                });
-
+                Token.TransferBalance(InitAccount, organization.GetFormatted(), 1000_00000000, Symbol);
                 balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
                 BalanceInfo.Add(organization, balance);
                 Logger.Info($"{organization} {Symbol} token balance is {balance}");
@@ -363,14 +346,7 @@ namespace AElf.Automation.ProposalTest
                 var balance = Token.GetUserBalance(tester);
                 if (balance < 1000_00000000)
                 {
-                    Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = TokenSymbol,
-                        To = AddressHelper.Base58StringToAddress(tester),
-                        Amount = 1000_00000000,
-                        Memo = "Transfer to organization address"
-                    });
-
+                    Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
                     balance = Token.GetUserBalance(tester);
                 }
 

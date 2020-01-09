@@ -105,22 +105,22 @@ namespace AElfChain.Common.Contracts
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
         
-        public TransactionResultDto Approve(Hash proposalId, string caller)
+        public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
+            return ExecuteMethodWithTxId(AssociationMethod.Approve, proposalId);
         }
         
-        public TransactionResultDto Abstain(Hash proposalId, string caller)
+        public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(AssociationMethod.Abstain, proposalId);
+            return ExecuteMethodWithTxId(AssociationMethod.Abstain, proposalId);
         }
         
-        public TransactionResultDto Reject(Hash proposalId, string caller)
+        public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(AssociationMethod.Reject, proposalId);
+            return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
         }
     }
 }

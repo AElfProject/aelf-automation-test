@@ -19,13 +19,12 @@ namespace AElf.Automation.ProposalTest
         public ProposalAssociation()
         {
             Initialize();
-            Association = Services.AssociationService;
-            Token = Services.TokenService;
+            Association = Services.Association;
+            Token = Services.Token;
         }
 
-        private Dictionary<Address,Organization> OrganizationList { get; set; }
-        private Dictionary<KeyValuePair<Address,Organization>, List<Hash>> ProposalList { get; set; }
-        private Dictionary<Hash, Address> ReleaseProposalList { get; set; }
+        private Dictionary<Address, Organization> OrganizationList { get; set; }
+        private Dictionary<KeyValuePair<Address, Organization>, List<Hash>> ProposalList { get; set; }
         private List<OrganizationMemberList> OrganizationMemberInfos { get; set; }
         private Dictionary<Address, long> BalanceInfo { get; set; }
         private AssociationAuthContract Association { get; }
@@ -57,7 +56,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var organizationMemberList in OrganizationMemberInfos)
             {
                 var count = organizationMemberList.OrganizationMembers.Count;
-                var approveCount = count * 2 / 3;
+                var approveCount = count == 1 ? 1 : count * 2 / 3;
                 var creatOrganizationInput = new CreateOrganizationInput
                 {
                     ProposalReleaseThreshold = new ProposalReleaseThreshold
@@ -108,7 +107,7 @@ namespace AElf.Automation.ProposalTest
                     info.OrganizationMemberList.ShouldBe(key.OrganizationMemberList);
                     info.ProposerWhiteList.ShouldBe(key.ProposerWhiteList);
                     if (OrganizationList.ContainsKey(organizationAddress)) continue;
-                    OrganizationList.Add(organizationAddress,info );
+                    OrganizationList.Add(organizationAddress, info);
                 }
 
                 foreach (var (address, organization) in OrganizationList)
@@ -137,7 +136,7 @@ namespace AElf.Automation.ProposalTest
                     {
                         To = toOrganizationAddress.Key,
                         Symbol = Symbol,
-                        Amount = 10,
+                        Amount = 100,
                         Memo = "virtual account transfer virtual account"
                     };
 
@@ -159,7 +158,7 @@ namespace AElf.Automation.ProposalTest
 
                 txIdInfos.Add(organizationAddress, txIdList);
             }
-            
+
             foreach (var (key, value) in txIdInfos)
             {
                 var proposalIds = new List<Hash>();
@@ -167,7 +166,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     var result = Association.NodeManager.CheckTransactionResult(txId);
                     var status = result.Status.ConvertTransactionResultStatus();
-                    
+
                     if (status != TransactionResultStatus.Mined)
                     {
                         Logger.Error("Create proposal Failed.");
@@ -179,50 +178,64 @@ namespace AElf.Automation.ProposalTest
                         proposalIds.Add(proposal);
                     }
                 }
+
                 ProposalList.Add(key, proposalIds);
             }
         }
 
         private void ApproveProposal()
         {
-            Logger.Info("Approve proposal: ");
+            Logger.Info("Approve/Abstain/Reject proposal: ");
             var proposalApproveList = new Dictionary<Hash, List<ApproveInfo>>();
-            ReleaseProposalList = new Dictionary<Hash, Address>();
             foreach (var proposal in ProposalList)
             {
                 var organization = proposal.Key.Key;
                 Logger.Info($"Organization address: {organization}: ");
                 var info = proposal.Key.Value;
                 var minimalApprovalThreshold = info.ProposalReleaseThreshold.MinimalApprovalThreshold;
-                var approveTxInfos = new List<ApproveInfo>();
                 var approveCount = minimalApprovalThreshold;
                 var members = info.OrganizationMemberList.OrganizationMembers;
-                
+
                 foreach (var proposalId in proposal.Value)
                 {
+                    var approveTxInfos = new List<ApproveInfo>();
                     var approveMember = members.Take((int) approveCount).ToList();
                     foreach (var member in approveMember)
                     {
-                        var txId = Association.Approve(proposalId, member.GetFormatted()).TransactionId;
-                        var approveInfo = new ApproveInfo(nameof(ParliamentMethod.Approve), member.GetFormatted(), txId);
+                        var txId = Association.Approve(proposalId, member.GetFormatted());
+                        var approveInfo =
+                            new ApproveInfo(nameof(AssociationMethod.Approve), member.GetFormatted(), txId);
                         approveTxInfos.Add(approveInfo);
                     }
 
                     var otherMembers = members.Where(m => !approveMember.Contains(m)).ToList();
+                    if (otherMembers.Count == 0)
+                    {
+                        proposalApproveList.Add(proposalId, approveTxInfos);
+                        continue;
+                    }
+
                     var abstentionMember = otherMembers.First();
-                    var abstentionTxId = Association.Abstain(proposalId, abstentionMember.GetFormatted()).TransactionId;
+                    var abstentionTxId = Association.Abstain(proposalId, abstentionMember.GetFormatted());
                     var abstentionInfo =
-                        new ApproveInfo(nameof(ParliamentMethod.Abstain), abstentionMember.GetFormatted(), abstentionTxId);
+                        new ApproveInfo(nameof(AssociationMethod.Abstain), abstentionMember.GetFormatted(),
+                            abstentionTxId);
                     approveTxInfos.Add(abstentionInfo);
 
                     var rejectionMiners = otherMembers.Where(r => !abstentionMember.Equals(r)).ToList();
+                    if (rejectionMiners.Count == 0)
+                    {
+                        proposalApproveList.Add(proposalId, approveTxInfos);
+                        continue;
+                    }
+
                     foreach (var rm in rejectionMiners)
                     {
-                        var txId = Association.Reject(proposalId, rm.GetFormatted()).TransactionId;
-                        var rejectInfo = new ApproveInfo(nameof(ParliamentMethod.Reject), rm.GetFormatted(), txId);
+                        var txId = Association.Reject(proposalId, rm.GetFormatted());
+                        var rejectInfo = new ApproveInfo(nameof(AssociationMethod.Reject), rm.GetFormatted(), txId);
                         approveTxInfos.Add(rejectInfo);
                     }
-                    
+
                     proposalApproveList.Add(proposalId, approveTxInfos);
                 }
             }
@@ -241,35 +254,30 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in proposalApproveList)
             {
                 var proposalStatue = Association.CheckProposal(key);
-                var approveCount = value.Select(a => a.Type.Contains("Approve")).Count();
-                var abstainCount = value.Select(a => a.Type.Contains("Abstain")).Count();
-                var rejectCount = value.Select(a => a.Type.Contains("Reject")).Count();
+                var approveCount = value.Count(a => a.Type.Equals("Approve"));
+                var abstainCount = value.Count(a => a.Type.Equals("Abstain"));
+                var rejectCount = value.Count(a => a.Type.Equals("Reject"));
                 proposalStatue.AbstentionCount.ShouldBe(abstainCount);
                 proposalStatue.RejectionCount.ShouldBe(rejectCount);
                 proposalStatue.ApprovalCount.ShouldBe(approveCount);
-
-                if (proposalStatue.ToBeReleased)
-                    ReleaseProposalList.Add(key,proposalStatue.Proposer);
+                proposalStatue.ToBeReleased.ShouldBeTrue();
             }
         }
 
         private void ReleaseProposal()
         {
             Logger.Info("Release proposal: ");
-            var releaseTxIds = new List<string>();
-            foreach (var proposalId in ReleaseProposalList)
+            foreach (var (key, value) in ProposalList)
             {
-                var sender = proposalId.Value;
-                Association.SetAccount(sender.GetFormatted());
-                var txId = Association.ExecuteMethodWithTxId(AssociationMethod.Release, proposalId.Key);
-                releaseTxIds.Add(txId);
-            }
-
-            foreach (var txId in releaseTxIds)
-            {
-                var result = Association.NodeManager.CheckTransactionResult(txId);
-                var status = result.Status.ConvertTransactionResultStatus();
-                if (status != TransactionResultStatus.Mined) Logger.Error("Release proposal Failed.");
+                var sender = key.Value.ProposerWhiteList.Proposers.First();
+                foreach (var proposalId in value)
+                {
+                    var balance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
+                    Association.SetAccount(sender.GetFormatted());
+                    var result = Association.ExecuteMethodWithResult(AssociationMethod.Release, proposalId);
+                    var newBalance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
+                    newBalance.ShouldBe(balance - 100);
+                }
             }
         }
 
@@ -279,8 +287,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var balanceInfo in BalanceInfo)
             {
                 var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
-                balance.ShouldBe(balanceInfo.Value+10);
-                BalanceInfo[balanceInfo.Key] = balance;
+                balance.ShouldBe(balanceInfo.Value);
                 Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
 
@@ -303,27 +310,18 @@ namespace AElf.Automation.ProposalTest
                     BalanceInfo.Add(organization.Key, balance);
                     continue;
                 }
-
-                Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                {
-                    Symbol = Symbol,
-                    To = organization.Key,
-                    Amount = 100_00000000,
-                    Memo = "Transfer to organization address"
-                });
-
+                Token.TransferBalance(InitAccount, organization.Key.GetFormatted(), 100_00000000, Symbol);
                 balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
                 BalanceInfo.Add(organization.Key, balance);
-                Logger.Info($"{organization} {Symbol} token balance is {balance}");
+                Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
             }
         }
 
         private List<OrganizationMemberList> SetMemberLists()
         {
-            Logger.Info("Set members: ");
-
+            Logger.Info("Set members and check balance: ");
             var reviewerInfos = new List<OrganizationMemberList>();
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 10; i++)
             {
                 var reviewers = new List<Address>();
                 var membersCount = GenerateRandomNumber(1, AssociationTester.Count);
@@ -333,7 +331,6 @@ namespace AElf.Automation.ProposalTest
                     var account = AddressHelper.Base58StringToAddress(AssociationTester[randomNo]);
                     if (reviewers.Contains(account))
                         continue;
-
                     reviewers.Add(account);
                 }
 
@@ -341,6 +338,17 @@ namespace AElf.Automation.ProposalTest
                 {
                     OrganizationMembers = {reviewers}
                 };
+                
+                foreach (var reviewer in reviewers)
+                {
+                    var balance = Token.GetUserBalance(reviewer.GetFormatted(), TokenSymbol);
+                    if (balance >= 100_00000000)
+                        continue;
+                    Token.TransferBalance(InitAccount, reviewer.GetFormatted(), 100_00000000, TokenSymbol);
+                    balance = Token.GetUserBalance(reviewer.GetFormatted(), TokenSymbol);
+                    Logger.Info($"{reviewer} {TokenSymbol} token balance is {balance}");
+                }
+
                 reviewerInfos.Add(organizationMemberList);
             }
 
