@@ -91,7 +91,7 @@ namespace AElfChain.Common.Contracts
             tester.SetAccount(from);
             var result = tester.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
             {
-                Symbol = symbol,
+                Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = to.ConvertAddress(),
                 Amount = amount,
                 Memo = $"I-{Guid.NewGuid()}"
@@ -105,7 +105,7 @@ namespace AElfChain.Common.Contracts
             SetAccount(from);
             var result = ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
             {
-                Symbol = symbol,
+                Symbol = NodeOption.GetTokenSymbol(symbol),
                 Amount = amount,
                 Spender = AddressHelper.Base58StringToAddress(to)
             });

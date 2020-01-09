@@ -230,7 +230,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task GetHashCodeTest()
+        public void GetHashCodeTest()
         {
             //byte string
             var byteString = ByteString.CopyFromUtf8("test info");
