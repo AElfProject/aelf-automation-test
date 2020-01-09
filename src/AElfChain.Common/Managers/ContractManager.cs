@@ -14,6 +14,7 @@ using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Referendum;
 using AElf.Contracts.TokenConverter;
+using AElf.Contracts.TokenHolder;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
 using AElf.CSharp.Core.Utils;
@@ -66,6 +67,8 @@ namespace AElfChain.Common.Managers
         public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
         public TokenContract Token => Genesis.GetTokenContract();
         public TokenContractContainer.TokenContractStub TokenStub => Genesis.GetTokenStub();
+        public TokenHolderContract TokenHolder => Genesis.GetTokenHolderContract();
+        public TokenHolderContractContainer.TokenHolderContractStub TokenHolderStub => Genesis.GetTokenHolderStub();
         public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();
         public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
             Genesis.GetTokenConverterStub();

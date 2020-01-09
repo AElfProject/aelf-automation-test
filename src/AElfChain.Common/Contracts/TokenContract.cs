@@ -105,9 +105,9 @@ namespace AElfChain.Common.Contracts
             SetAccount(from);
             var result = ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
             {
-                Symbol = symbol,
+                Symbol = NodeOption.GetTokenSymbol(symbol),
                 Amount = amount,
-                Spender = AddressHelper.Base58StringToAddress(to)
+                Spender = to.ConvertAddress()
             });
             
             return result;
