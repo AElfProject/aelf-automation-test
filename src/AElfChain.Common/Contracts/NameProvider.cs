@@ -10,6 +10,7 @@ namespace AElfChain.Common.Contracts
         Vote,
         Treasury,
         Token,
+        TokenHolder,
         TokenConverter,
         Consensus,
         ParliamentAuth,

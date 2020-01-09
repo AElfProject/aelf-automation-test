@@ -48,6 +48,7 @@ namespace AElfChain.Common.Managers
             Logger.Info($"Deploy contract: {contractName}");
             var contractPath = GetContractFilePath(contractName);
             var code = File.ReadAllBytes(contractPath);
+            code = GenerateUniqContractCode(code);
 
             return DeployContractWithAuthority(caller, code);
         }
@@ -55,12 +56,10 @@ namespace AElfChain.Common.Managers
         public void UpdateContractWithAuthority(string caller, string address, string contractName)
         {
             Logger.Info($"Update contract: {contractName}");
-            var fileName = contractName.Contains(".dll") ? contractName : $"{contractName}.dll";
-            var contractPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "aelf", "contracts");
-            var code = File.ReadAllBytes(Path.Combine(contractPath, fileName));
-
+            var contractPath = GetContractFilePath(contractName);
+            var code = File.ReadAllBytes(contractPath);
+            code = GenerateUniqContractCode(code);
+            
             UpdateContractWithAuthority(caller, address, code);
         }
 
@@ -296,6 +295,17 @@ namespace AElfChain.Common.Managers
             }
             
             throw new FileNotFoundException($"contract file {contractName} not found.");
+        }
+
+        private byte[] GenerateUniqContractCode(byte[] code)
+        {
+            var contractHashList = _genesis.GetContractHashCodeList();
+            while (true)
+            {
+                var hash = Hash.FromRawBytes(code);
+                if (!contractHashList.Contains(hash)) return code;
+                code = CodeInjectHelper.ChangeContractCodeHash(code);
+            }
         }
     }
 }

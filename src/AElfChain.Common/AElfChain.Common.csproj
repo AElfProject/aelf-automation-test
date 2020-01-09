@@ -30,6 +30,7 @@
         <ProtoContract Include="Protobuf\Proto\test_b_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_c_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\token_holder_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\treasury_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\basic_contract_zero.proto" />

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Acs0;
 using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
@@ -176,6 +177,13 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController, new Empty());
         }
+
+        public List<Hash> GetContractHashCodeList()
+        {
+            var deployedContracts =
+                CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
+            return deployedContracts.Value.Select(address => CallViewMethod<Hash>(GenesisMethod.GetContractHash, address)).ToList();
+        }
         
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
@@ -197,6 +205,7 @@ namespace AElfChain.Common.Contracts
                 {NameProvider.Vote, Hash.FromString("AElf.ContractNames.Vote")},
                 {NameProvider.Treasury, Hash.FromString("AElf.ContractNames.Treasury")},
                 {NameProvider.Token, Hash.FromString("AElf.ContractNames.Token")},
+                {NameProvider.TokenHolder, Hash.FromString("AElf.ContractNames.TokenHolder")},
                 {NameProvider.TokenConverter, Hash.FromString("AElf.ContractNames.TokenConverter")},
                 {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
                 {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},

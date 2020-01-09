@@ -352,7 +352,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = new CoefficientFromContract
             {
-                FeeType = FeeTypeEnum.Sto,
+                FeeType = FeeTypeEnum.Storage,
                 Coefficient = new CoefficientFromSender
                 {
                     PieceKey = 1000000,
@@ -375,7 +375,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
-//
+
         [TestMethod]
         public void UpdateCoefficientFromSender()
         {

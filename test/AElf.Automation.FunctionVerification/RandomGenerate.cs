@@ -64,7 +64,7 @@ namespace AElf.Automation.ContractsTesting
         {
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
             Logger.Info($"Current round info: {roundInfo.Value}");
-            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Empty());
+            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Hash());
             if(!_hashQueue.Contains(randomOrder.Output.TokenHash))
                 _hashQueue.Enqueue(randomOrder.Output.TokenHash);
             var blockHeight = randomOrder.Output.BlockHeight;
