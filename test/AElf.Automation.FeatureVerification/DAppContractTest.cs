@@ -49,26 +49,31 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task InitializeDAppContract_Test()
         {
+            Logger.Info("=>InitializeDAppContract_Test");
             var result = await DAppStub.Initialize.SendAsync(new InitializeInput
             {
                 ProfitReceiver = NodesAccounts[0].ConvertAddress()
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, result.TransactionResult.Error);
+            GetDAppContractBalance();
         }
 
         [TestMethod]
         public async Task SignUp_Deposit_RegistProfit_Test()
         {
-            const long amount = 80_00000000L;
+            Logger.Info("=>SignUp_Deposit_RegistProfit_Test");
+            const long amount = 100_00000000L;
+            var beforeDappBalance = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress);
             for (var i = 0; i < 4; i++)
             {
-                var dappStub = DAppContract.GetDAppStub(Investors[i]);
+                var j = i;
+                var dappStub = DAppContract.GetDAppStub(Investors[j]);
                 var transactionResult = await dappStub.SignUp.SendAsync(new Empty());
                 transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
                 //allowance
                 var approveResult =
-                    ContractManager.Token.ApproveToken(Investors[i], DAppContract.ContractAddress, amount);
+                    ContractManager.Token.ApproveToken(Investors[j], DAppContract.ContractAddress, amount);
                 approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
                 //deposit
@@ -79,23 +84,53 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
                 //regist profit
-                var tokenHolder = ContractManager.Genesis.GetTokenHolderStub(Investors[i]);
+                var tokenHolder = ContractManager.Genesis.GetTokenHolderStub(Investors[j]);
                 var registResult = await tokenHolder.RegisterForProfits.SendAsync(new RegisterForProfitsInput
                 {
                     SchemeManager = DAppContract.Contract,
-                    Amount = 10_00000000 * (i + 1)
+                    Amount = 10_00000000L * (j + 1)
                 });
                 registResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
                 //Query app balance
-                var balance = ContractManager.Token.GetUserBalance(Investors[i], "APP");
-                Logger.Info($"Account: {Investors[i]}, Balance: APP={balance}");
+                var balance = ContractManager.Token.GetUserBalance(Investors[j], "APP");
+                Logger.Info($"Account: {Investors[j]}, Balance: APP={balance}");
             }
+
+            var afterDappBalance = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress);
+            Logger.Info($"DApp contract balance: {beforeDappBalance} => {afterDappBalance}");
         }
 
         [TestMethod]
+        public async Task NodesSignUp_Test()
+        {
+            Logger.Info("=>NodesSignUp_Test");
+            const long amount = 50_00000000;
+            foreach (var acc in NodesAccounts.Take(4))
+            {
+                var dappStub = DAppContract.GetDAppStub(acc);
+                var transactionResult = await dappStub.SignUp.SendAsync(new Empty());
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+                //allowance
+                var approveResult =
+                    ContractManager.Token.ApproveToken(acc, DAppContract.ContractAddress, amount);
+                approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+                //deposit
+                transactionResult = await dappStub.Deposit.SendAsync(new DepositInput
+                {
+                    Amount = amount
+                });
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);             
+            }
+            GetDAppContractBalance();
+        }
+        
+        [TestMethod]
         public async Task Use_Test()
         {
+            Logger.Info("=>Use_Test");
             const long amount = 100_00000000L;
             foreach (var acc in NodesAccounts.Take(4))
             {
@@ -104,7 +139,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractManager.Token.ApproveToken(acc, DAppContract.ContractAddress, amount, "APP");
                 approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                //deposit
+                //use
                 var dappStub = DAppContract.GetDAppStub(acc);
                 for (var i = 0; i < 5; i++)
                 {
@@ -116,15 +151,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }
             }
+            GetDAppContractBalance();
         }
 
         [TestMethod]
         public async Task DeveloperReceiveProfit_Test()
         {
+            Logger.Info("=>DeveloperReceiveProfit_Test");
             var beforeBalance = ContractManager.Token.GetUserBalance(NodesAccounts[0]);
 
             var tokenStub = ContractManager.Genesis.GetTokenStub(NodesAccounts[0]);
-            var profits = ContractManager.Token.GetUserBalance(DAppContract.CallAddress);
+            var profits = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress);
             var receiveResult = await tokenStub.ReceiveProfits.SendAsync(new ReceiveProfitsInput
             {
                 ContractAddress = DAppContract.Contract,
@@ -135,11 +172,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var afterBalance = ContractManager.Token.GetUserBalance(NodesAccounts[0]);
             Logger.Info($"Contract Profit: {profits}, Developer account balance: {beforeBalance} => {afterBalance}");
+            GetDAppContractBalance();
         }
 
         [TestMethod]
         public async Task InvestorReceiveProfit_Test()
         {
+            Logger.Info("=>InvestorReceiveProfit_Test");
             for (var i = 0; i < 4; i++)
             {
                 var beforeBalance = ContractManager.Token.GetUserBalance(Investors[i]);
@@ -157,8 +196,47 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info(
                     $"Investor profit balance change: {beforeBalance} => {afterBalance}, profit: {afterBalance - beforeBalance}");
             }
+            GetDAppContractBalance();
         }
 
+        [TestMethod]
+        public async Task InvestorWithDraw_Test()
+        {
+            var investor = Investors[0];
+            //allowance
+            var tokenStub = ContractManager.Genesis.GetTokenStub(investor);
+            var approveResult = await tokenStub.Approve.SendAsync(new ApproveInput
+            {
+                Spender = DAppContract.Contract,
+                Symbol = "APP",
+                Amount = 10_00000000L
+            });
+            approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var beforeBalance = ContractManager.Token.GetUserBalance(investor);
+            var dappStub = DAppContract.GetDAppStub(investor);
+            var withdrawResult = await dappStub.Withdraw.SendAsync(new WithdrawInput
+            {
+                Symbol = "ELF",
+                Amount = 10_00000000L
+            });
+            withdrawResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var txFee = withdrawResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var afterBalance = ContractManager.Token.GetUserBalance(investor);
+            beforeBalance.ShouldBe(afterBalance + txFee - 10_00000000);
+        }
+
+        [TestMethod]
+        public async Task Summary_Case_Test()
+        {
+            await InitializeDAppContract_Test();
+            await SignUp_Deposit_RegistProfit_Test();
+            await NodesSignUp_Test();
+            await Use_Test();
+            await DeveloperReceiveProfit_Test();
+            await InvestorReceiveProfit_Test();
+        }
+        
         private void PrepareInvestors()
         {
             Investors = new List<string>
@@ -176,6 +254,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 //transfer token for test
                 ContractManager.Token.TransferBalance(NodesAccounts[0], acc, 200_00000000);
             }
+        }
+        private void GetDAppContractBalance()
+        {
+            var elfBalance = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress, "ELF");
+            var appBalance = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress, "APP");
+            Logger.Info($"DApp balance: ELF={elfBalance}/APP={appBalance}");
         }
     }
 }
