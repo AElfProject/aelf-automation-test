@@ -171,7 +171,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task SetAndGetMethodFee_Test()
         {
             const string method = nameof(TokenMethod.GetBalance);
-            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Token.ContractAddress,
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
                 "SetMethodFee", new MethodFees
                 {
                     MethodName = method,
@@ -197,7 +198,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Symbol = "CPU",
                 BasicFee = 5000_0000
             });
-            
+
             //verify transaction fee
             var buyResult = await ContractManager.TokenconverterStub.Buy.SendAsync(new BuyInput
             {
@@ -255,7 +256,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var resourceInfos = await ContractManager.TokenStub.GetResourceTokenInfo.CallAsync(new Empty());
             resourceInfos.Value.Count.ShouldBe(4);
             var resourceSymbols = resourceInfos.Value.Select(o => o.Symbol);
-            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STO", "NET"});
+            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC"});
 
             resourceInfos.Value.ShouldAllBe(o => o.IsBurnable);
             resourceInfos.Value.ShouldAllBe(o => o.Supply == 5_0000_0000_00000000);
@@ -266,6 +267,26 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.GenesisStub.GetContractAddressByName.CallAsync(
                     Hash.FromString("AElf.ContractNames.Economic"));
             resourceInfos.Value.ShouldAllBe(o => o.Issuer == economicContract);
+        }
+
+        [TestMethod]
+        public async Task CheckAllResourcesToken_Test()
+        {
+            var chainId = NodeManager.GetChainId();
+            var hash = Hash.FromString("AElf.ContractNames.Economic");
+            var economicContract = await ContractManager.GenesisStub.GetContractAddressByName.CallAsync(hash);
+            var resourceSymbols = new[] {"CPU", "RAM", "DISK", "NET", "WRITE", "READ", "STORAGE", "TRAFFIC"};
+            foreach (var symbol in resourceSymbols)
+            {
+                var tokenInfo = ContractManager.Token.GetTokenInfo(symbol);
+                tokenInfo.Symbol.ShouldBe(symbol);
+                tokenInfo.TotalSupply.ShouldBe(5_0000_0000_00000000L);
+                tokenInfo.Decimals.ShouldBe(8);
+                tokenInfo.Issuer.ShouldBe(economicContract);
+                tokenInfo.IsBurnable.ShouldBeTrue();
+                tokenInfo.IsProfitable.ShouldBeTrue();
+                tokenInfo.IssueChainId.ShouldBe(ChainHelper.ConvertBase58ToChainId(chainId));
+            }
         }
     }
 }

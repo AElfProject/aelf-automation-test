@@ -24,9 +24,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class DAppContractTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private string ContractAddress = "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe";
-        private string ConfigFile = "nodes-env2-main";
-        private string AppSymbol = "MAPP";
+        private string ContractAddress = "26jVvCFwcsgcPni9cD8kcCSkBKbPrbrY8FEb1nwT9WGiHc4Ezv";
+        private string ConfigFile = "nodes-env2-side1";
+        private string AppSymbol = "SAPP";
         private INodeManager NodeManager { get; set; }
         public DAppContainer.DAppStub DAppStub { get; set; }
         public DAppContract DAppContract { get; set; }
@@ -172,7 +172,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow(0, "MAPP", 6)]
+        [DataRow(0, "SAPP", 6)]
         public async Task Use_ResourceToken_Test(int countId, string symbol, int executeTimes)
         {
             Logger.Info("=>Use_ResourceToken_Test");
@@ -207,7 +207,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("MAPP")]
+        [DataRow("SAPP")]
         public async Task DeveloperReceiveProfit_Test(string symbol)
         {
             Logger.Info("=>DeveloperReceiveProfit_Test");

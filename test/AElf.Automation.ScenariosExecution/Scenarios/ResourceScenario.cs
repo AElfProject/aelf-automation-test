@@ -159,25 +159,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = "RAM",
+                    Symbol = "WRITE",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = "CPU",
+                    Symbol = "READ",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = "NET",
+                    Symbol = "TRAFFIC",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
                     Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
-                    Symbol = "STO",
+                    Symbol = "STORAGE",
                     Amount = 100_000_00000000
                 });
             }
@@ -187,7 +187,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private string GetRandomResSymbol()
         {
-            var symbols = new[] {"CPU", "RAM", "NET", "STO"};
+            var symbols = new[] {"READ", "WRITE", "STORAGE", "TRAFFIC"};
             var id = GenerateRandomNumber(0, symbols.Length - 1);
 
             return symbols[id];

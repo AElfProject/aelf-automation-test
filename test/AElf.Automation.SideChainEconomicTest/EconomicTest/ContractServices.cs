@@ -16,7 +16,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public static ILog Logger = Log4NetHelper.GetLogger();
         public readonly INodeManager NodeManager;
 
-        public readonly List<string> Symbols = new List<string> {"ELF", "CPU", "RAM", "NET", "STO"};
+        public readonly List<string> Symbols = new List<string> {"ELF", "CPU", "RAM", "NET", "DISK"};
 
         public ContractServices(string url, string callAddress, string password)
         {
