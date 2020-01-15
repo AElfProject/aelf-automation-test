@@ -426,6 +426,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractManager.Token.TransferBalance(NodesAccounts[0], account, 50_00000000, symbol);
                 sendResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
+
+            await Task.CompletedTask;
         }
     }
 }

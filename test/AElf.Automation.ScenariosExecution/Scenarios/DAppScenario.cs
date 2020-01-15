@@ -22,18 +22,21 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public DAppContainer.DAppStub DAppStub { get; set; }
         public DAppContract DAppContract { get; set; }
 
-        public List<string> NodesAccounts { get; set; }
-        
+        public List<string> MinerAccounts { get; set; }
+        public List<string> Testers { get; set; }
         public string ContractDeveloper { get; set; }
 
         public DAppScenario()
         {
             InitializeScenario();
-            NodesAccounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
-            ContractDeveloper = NodesAccounts.First();
+            MinerAccounts = ContractServices.CurrentBpNodes.Select(o => o.Account).ToList();
+            ContractDeveloper = MinerAccounts.First();
             InitializeDAppContract();
+            Testers = AllTesters.GetRange(100, 10);
         }
+
         
+
         private void InitializeDAppContract()
         {
             DAppContract = new DAppContract(Services.NodeManager, ContractDeveloper);
@@ -50,7 +53,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     ProfitReceiver = ContractDeveloper.ConvertAddress(),
                     Symbol = symbol
                 }));
-                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, transactionResult.TransactionResult.Error);
                 return;
             }
         }
