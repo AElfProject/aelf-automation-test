@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Contracts.Election;
+using Acs0;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using AElfChain.Common;
@@ -8,9 +8,11 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -25,7 +27,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public BpGenerateBlockRewardsTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-env1-side1");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -102,6 +104,30 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"Account: {acc}");
                 Logger.Info($"Balance change: {beforeBalance}=>{afterBalance}, ProfitAmount: {profitAmount}, TransactionFee: {transactionFee}");
             }
+        }
+
+        [TestMethod]
+        [DataRow("0c807600de0a45e482bf083abd2fe49ded7d3edb132acd0f880db7eb04304d98")]
+        public async Task ContractDelpyTransactionResultTest(string transactionId)
+        {
+            var transactionResult = await NodeManager.ApiClient.GetTransactionResultAsync(transactionId);
+            var byteString =
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+            var contractDeployed = ContractDeployed.Parser.ParseFrom(byteString);
+            contractDeployed.Version.ShouldBe(1);
+            Logger.Info($"{JsonConvert.SerializeObject(contractDeployed)}");
+        }
+
+        [TestMethod]
+        [DataRow("712b4b4d9843b3c2941a6f0612757beb2311921f47c739778669d983ecc2965d")]
+        [DataRow("3c80ea852661d0cab2c3b5a24ab0ad7cb0cdba8d656f9d9f26a4f7a84f8efa78")]
+        public async Task ContractUpdateTransactionResultTest(string transactionId)
+        {
+            var transactionResult = await NodeManager.ApiClient.GetTransactionResultAsync(transactionId);
+            var byteString =
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
+            var codeUpdate = CodeUpdated.Parser.ParseFrom(byteString);
+            Logger.Info($"{JsonConvert.SerializeObject(codeUpdate)}");
         }
     }
 }
