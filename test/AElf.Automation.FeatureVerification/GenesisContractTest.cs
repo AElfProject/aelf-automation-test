@@ -3,6 +3,7 @@ using System.Linq;
 using Acs0;
 using Acs3;
 using AElf.Contracts.Association;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
@@ -10,13 +11,13 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
-using Organization = AElf.Contracts.Association.Organization;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -131,7 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_MinerProposalContract_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.MultiToken4");
+            var input = ContractDeploymentInput("AElf.Contracts.TestContract.BasicUpdate1");
             var contractProposalInfo = ProposalNewContract(Tester, Creator, input);
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
@@ -158,7 +159,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var associationCreateProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ProposeNewContract), deploymentInput,
                 creator, OtherAccount);
-            ApproveWithAssociation(Tester,associationCreateProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(associationCreateProposal,creator);
             var createResult = Tester.AssociationService.ReleaseProposal(associationCreateProposal, OtherAccount);
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(ByteString.FromBase64(createResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)).ProposalId;
@@ -175,7 +176,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var releaseProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseApprovedContract), contractProposalInfo,
                 creator, OtherAccount);
-            ApproveWithAssociation(Tester,releaseProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(releaseProposal,creator);
             var releaseResult = Tester.AssociationService.ReleaseProposal(releaseProposal, OtherAccount);
             var byteString =
                 ByteString.FromBase64(releaseResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
@@ -187,7 +188,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_OrganizationProposalContractWithOtherOrganization_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.MultiToken3");
+            var input = ContractDeploymentInput("AElf.Contracts.TestContract.BasicUpdate1");
             var contractProposalInfo = ProposalNewContract(Tester, OtherAccount, input);
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
@@ -195,7 +196,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //                ProposedContractInputHash = HashHelper.HexStringToHash("ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")
 //            };
             var organizationAddress = AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
-            ApproveWithAssociation(Tester,contractProposalInfo.ProposalId,organizationAddress);
+            Tester.AssociationService.ApproveWithAssociation(contractProposalInfo.ProposalId,organizationAddress);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, OtherAccount);
             release.Status.ShouldBe("MINED");
             var byteString =
@@ -206,8 +207,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("ea2439a554df11143e020384bf4e97a0c117a93c854fb91c3c0d8efeb568cc91",
-            "6e256995ba37bf00314ff85cc666bff225292e70d3c7a734bc0f28c67904eaa7")]
+        [DataRow("6bf5db3a326d99bf4c508e7b39df0f22543271cade52c6a001dba293f132251f",
+            "ce3b565c1003b2a61937c540ff7e9db15a4f63dcd7ee6ffdff31b1a47eab4ad1")]
         public void ReleaseDeployCodeCheck(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -218,7 +219,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ProposalId = proposalId
             };
 
-            var release = Tester.GenesisService.ReleaseCodeCheckedContract(releaseApprovedContractInput, InitAccount);
+            var release = Tester.GenesisService.ReleaseCodeCheckedContract(releaseApprovedContractInput, Creator);
             release.Status.ShouldBe("MINED");
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
@@ -227,8 +228,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
         
         [TestMethod]
-        [DataRow("a4f7d2bbd6d2817eef34ba60607831560e030d8abf2b418d9981dcdc8059f460",
-            "354ace8d615c866cc0948810e55587fc451c45b40c5447e9040e44aa9ab7eddc")]
+        [DataRow("9114cedf21b4273803a4dfcd1a8260200e0416ebb24ceb2492a1e5fe052bdc34",
+            "6e256995ba37bf00314ff85cc666bff225292e70d3c7a734bc0f28c67904eaa7")]
         public void ReleaseDeployCodeCheckWithOrganization(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -242,7 +243,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var releaseProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseCodeCheckedContract), releaseApprovedContractInput,
                 creator, OtherAccount);
-            ApproveWithAssociation(Tester,releaseProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(releaseProposal,creator);
             var releaseResult = Tester.AssociationService.ReleaseProposal(releaseProposal, OtherAccount);
             releaseResult.Status.ShouldBe("MINED");
             var byteString =
@@ -268,8 +269,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("aa7a9a13b494dc3a113f591d5d7139635a7479e926cde06b902d3a38737aa86e",
-            "ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")]
+        [DataRow("6171bff09116c62a2bc5fd0ec547a99b8c8c95532b0eebaf611d713d796c4016",
+            "d65391e08082dff24e708caf5c4a664a57998f7f35e6fc9ea7b6ae118f0e2191")]
         public void ReleaseUpdateCodeCheck(string proposal, string hash)
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
@@ -392,11 +393,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("5b8f8ba5aa1e1815bdfafc6b37383ca52cd641d188384affaee9aaa9a3648f4a")]
+        [DataRow("9114cedf21b4273803a4dfcd1a8260200e0416ebb24ceb2492a1e5fe052bdc34")]
         public void CheckProposal(string proposalId)
         {
             var proposal = HashHelper.HexStringToHash(proposalId);
-            var result = Tester.AssociationService.CallViewMethod<ProposalOutput>(AssociationMethod.GetProposal,
+            var result = Tester.ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                 proposal);
             _logger.Info($"{result.ToBeReleased}");
             _logger.Info($"{result.ExpiredTime}");
@@ -412,6 +413,33 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
                     AddressHelper.Base58StringToAddress(contract));
             _logger.Info($"{address.GetFormatted()}");
+        }
+
+        [TestMethod]
+        public void GetRequiredAcsInContracts()
+        {
+            var result = Tester.ConfigurationService.CallViewMethod<RequiredAcsInContracts>(ConfigurationMethod.GetRequiredAcsInContracts,new Empty());
+            foreach (var acs in result.AcsList) {_logger.Info($"{acs}"); }
+            _logger.Info($"{result.RequireAll}");
+        }
+
+        [TestMethod]
+        public void SetRequiredAcsInContracts()
+        {
+            var defaultOrganization = Tester.ParliamentService.GetGenesisOwnerAddress();
+            var input = new RequiredAcsInContracts()
+            {
+                AcsList = {"acs3"},
+                RequireAll = true
+            };
+            var createProposal = Tester.ParliamentService.CreateProposal(Tester.ConfigurationService.ContractAddress,
+                nameof(ConfigurationMethod.SetRequiredAcsInContracts),input, defaultOrganization, InitAccount);
+            ApproveByMiner(Tester,createProposal);
+            var release = Tester.ParliamentService.ReleaseProposal(createProposal, InitAccount);
+            release.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result = Tester.ConfigurationService.CallViewMethod<RequiredAcsInContracts>(ConfigurationMethod.GetRequiredAcsInContracts,new Empty());
+            result.AcsList.Contains("acs3").ShouldBeTrue();
+            result.RequireAll.ShouldBeFalse();
         }
 
         #region private method
@@ -432,9 +460,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         OrganizationMembers =
                         {
-                            AddressHelper.Base58StringToAddress(OtherAccount),
-                            AddressHelper.Base58StringToAddress(InitAccount),
-                            AddressHelper.Base58StringToAddress(Member)
+                            OtherAccount.ConvertAddress(),
+                            InitAccount.ConvertAddress(),
+                            Member.ConvertAddress()
                         }
                     },
                     ProposerWhiteList = new ProposerWhiteList
@@ -580,22 +608,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 };
                 var createProposal = tester.AssociationService.CreateProposal(tester.TokenService.ContractAddress,
                     nameof(TokenMethod.Issue), input, organization, account);
-                ApproveWithAssociation(tester,createProposal,organization);
+                tester.AssociationService.ApproveWithAssociation(createProposal,organization);
                 tester.AssociationService.ReleaseProposal(createProposal,account);
-            }
-        }
-
-        public void ApproveWithAssociation(ContractTester tester,Hash proposalId,Address association)
-        {
-            var organization = tester.AssociationService.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                    association);
-            var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
-            foreach (var member in members)
-            {
-                tester.AssociationService.SetAccount(member.GetFormatted());
-                var approve = tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
-                approve.Status.ShouldBe("MINED");                
-                if (tester.AssociationService.CheckProposal(proposalId).ToBeReleased) return;
             }
         }
 

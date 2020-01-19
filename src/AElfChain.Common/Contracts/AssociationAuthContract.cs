@@ -1,3 +1,4 @@
+using System.Linq;
 using Acs3;
 using AElf;
 using AElf.Client.Dto;
@@ -19,6 +20,8 @@ namespace AElfChain.Common.Contracts
         GetOrganization,
         GetProposal,
         CalculateOrganizationAddress,
+        ValidateProposerInWhiteList,
+        ValidateOrganizationExist,
 
         //Action
         CreateOrganization,
@@ -26,7 +29,10 @@ namespace AElfChain.Common.Contracts
         CreateProposal,
         Release,
         Abstain,
-        Reject
+        Reject,
+        ChangeOrganizationThreshold,
+        ChangeOrganizationMember,
+        ChangeOrganizationProposerWhiteList
     }
 
     public class AssociationAuthContract : BaseContract<AssociationMethod>
@@ -121,6 +127,20 @@ namespace AElfChain.Common.Contracts
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
+        }
+        
+        public void ApproveWithAssociation(Hash proposalId,Address association)
+        {
+            var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
+                association);
+            var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
+            foreach (var member in members)
+            {
+                SetAccount(member.GetFormatted());
+                var approve = ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
+                approve.Status.ShouldBe("MINED");                
+                if (CheckProposal(proposalId).ToBeReleased) return;
+            }
         }
     }
 }

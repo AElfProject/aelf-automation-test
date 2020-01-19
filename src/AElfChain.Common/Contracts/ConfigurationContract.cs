@@ -7,7 +7,9 @@ namespace AElfChain.Common.Contracts
         SetBlockTransactionLimit,
         GetBlockTransactionLimit,
         ChangeOwnerAddress,
-        GetOwnerAddress
+        GetOwnerAddress,
+        SetRequiredAcsInContracts,
+        GetRequiredAcsInContracts
     }
 
     public class ConfigurationContract : BaseContract<ConfigurationMethod>

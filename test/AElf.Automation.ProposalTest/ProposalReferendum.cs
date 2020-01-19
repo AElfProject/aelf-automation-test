@@ -38,7 +38,6 @@ namespace AElf.Automation.ProposalTest
             {
                 TransferToTester,
                 CreateOrganization,
-                TransferToVoter,
                 TransferToVirtualAccount,
                 CreateProposal,
                 ApproveProposal,
@@ -265,7 +264,6 @@ namespace AElf.Automation.ProposalTest
         private void ReleaseProposal()
         {
             Logger.Info("Release proposal: ");
-
             foreach (var (key,value) in ProposalList)
             {
                 var sender = Referendum.GetOrganization(key).ProposerWhiteList.Proposers.First();
@@ -336,21 +334,6 @@ namespace AElf.Automation.ProposalTest
                 balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
                 BalanceInfo.Add(organization, balance);
                 Logger.Info($"{organization} {Symbol} token balance is {balance}");
-            }
-        }
-
-        private void TransferToVoter()
-        {
-            foreach (var tester in Tester)
-            {
-                var balance = Token.GetUserBalance(tester);
-                if (balance < 1000_00000000)
-                {
-                    Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
-                    balance = Token.GetUserBalance(tester);
-                }
-
-                Logger.Info($"{tester} {TokenSymbol} token balance is {balance}");
             }
         }
     }

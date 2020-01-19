@@ -27,10 +27,17 @@ namespace AElfChain.Common.Contracts
         GetProposal,
         Release,
         CreateOrganization,
+        ChangeOrganizationThreshold,
+        ChangeOrganizationProposerWhiteList,
+        ClearProposal,
 
         //View
         GetDefaultOrganizationAddress,
-        GetOrganization
+        GetOrganization,
+        ValidateOrganizationExist,
+        CalculateOrganizationAddress,
+        ValidateAddressIsParliamentMember,
+        GetProposerWhiteListContext
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>

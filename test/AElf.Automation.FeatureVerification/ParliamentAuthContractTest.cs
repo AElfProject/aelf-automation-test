@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Acs3;
 using AElf.Client.Service;
@@ -25,18 +26,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         public ParliamentAuthContract Parliament;
-        public string Symbol = NodeOption.NativeTokenSymbol;
-        protected ContractTester Tester;
+        public TokenContract Token;
+        public string Symbol;
         public INodeManager NodeManager { get; set; }
         public AElfClient ApiClient { get; set; }
-        public List<string> UserList { get; set; }
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
-
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-
         private static string RpcUrl { get; } = "http://192.168.197.40:8000";
 
         [TestInitialize]
@@ -51,10 +49,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             NodeManager = new NodeManager(RpcUrl);
             ApiClient = NodeManager.ApiClient;
-            var contractServices = new ContractServices(NodeManager, InitAccount, "Main");
-            Tester = new ContractTester(contractServices);
-            Parliament = Tester.ParliamentService;
-            GetMiners();
+            var contractServices = new ContractManager(NodeManager, InitAccount);
+            Parliament = contractServices.ParliamentAuth;
+            Token = contractServices.Token;
+            Symbol = contractServices.Token.GetPrimaryTokenSymbol();
+            Miners = contractServices.Authority.GetCurrentMiners();
+            MinersCount = Miners.Count;
         }
 
         [TestMethod]
@@ -77,35 +77,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
-                Parliament.CallViewMethod<Organization>(ParliamentMethod.GetOrganization,organizationAddress.ConvertAddress());
+                Parliament.GetOrganization(organizationAddress.ConvertAddress());
             organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(1000);
+            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(1000);
+            organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
+            organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(6000);
+            organization.ProposerAuthorityRequired.ShouldBeTrue();
+            organization.ParliamentMemberProposingAllowed.ShouldBeTrue();
         }
-
-        // new ParliamentAuth ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm
-        // organization 4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm
-
+        
         [TestMethod]
         [DataRow("4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm",
             "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
         public void CreateProposal(string organizationAddress, string contractAddress)
         {
+            Token.TransferBalance(InitAccount, organizationAddress, 1000, Symbol);
             var transferInput = new TransferInput
             {
                 Symbol = Symbol,
                 Amount = 100,
-                To = AddressHelper.Base58StringToAddress(TestAccount),
+                To = TestAccount.ConvertAddress(),
                 Memo = "Transfer"
             };
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
-                ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
+                ToAddress = Token.Contract,
                 Params = transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
+                OrganizationAddress = organizationAddress.ConvertAddress()
             };
 
-            Parliament.SetAccount(TestAccount);
+            Parliament.SetAccount(Miners.First());
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
@@ -143,12 +146,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             foreach (var miner in Miners)
             {
-                var balance = Tester.TokenService.GetUserBalance(miner, Symbol);
+                var balance = Token.GetUserBalance(miner, Symbol);
                 _logger.Info($"{miner} balance is {balance}");
                 if (balance <= 0)
                 {
-                    Tester.TokenService.SetAccount(InitAccount);
-                    Tester.TokenService.TransferBalance(InitAccount, miner, 1000_0000000, Symbol);
+                    Token.SetAccount(InitAccount);
+                    Token.TransferBalance(InitAccount, miner, 1000_0000000, Symbol);
                 }
 
                 Parliament.SetAccount(miner);
@@ -164,11 +167,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             "F5d3S7YJhSLvcBWtGw6nJ6Rx64MBgK4RpdMt6EAEDcns36qYs")]
         public void ApproveWithFullNode(string proposalId, string contractAddress)
         {
-            var balance = Tester.TokenService.GetUserBalance(Full, Symbol);
+            var balance = Token.GetUserBalance(Full, Symbol);
             if (balance <= 0)
             {
-                Tester.TokenService.SetAccount(InitAccount);
-                Tester.TokenService.TransferBalance(InitAccount, Full, 1000_0000000, Symbol);
+                Token.SetAccount(InitAccount);
+                Token.TransferBalance(InitAccount, Full, 1000_0000000, Symbol);
             }
 
             Parliament.SetAccount(Full);
@@ -199,20 +202,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");
             _logger.Info($"{info.ProposalReleaseThreshold.MinimalVoteThreshold}");
 
-        }
-
-        protected void GetMiners()
-        {
-            Miners = new List<string>();
-            var miners =
-                Tester.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            foreach (var minersPubkey in miners.Pubkeys)
-            {
-                var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                Miners.Add(miner.GetFormatted());
-            }
-
-            MinersCount = Miners.Count;
         }
     }
 }
