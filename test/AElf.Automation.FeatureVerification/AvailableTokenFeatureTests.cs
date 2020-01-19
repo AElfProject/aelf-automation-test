@@ -1,13 +1,17 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -22,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AvailableTokenFeatureTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env2-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -32,53 +36,92 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryAvailableTokenInfos()
         {
-            var tokenInfos = await ContractManager.TokenStub.GetAvailableTokenInfos.CallAsync(new Empty());
-            if (tokenInfos.Equals(new AllAvailableTokenInfo()))
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            if (tokenInfos.Equals(new SymbolListToPayTXSizeFee()))
             {
                 Logger.Info("GetAvailableTokenInfos: Null");
                 return;
             }
 
-            foreach (var info in tokenInfos.AllAvailableTokens)
+            foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
             {
-                Logger.Info($"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
+                Logger.Info(
+                    $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
             }
         }
 
         [TestMethod]
         public async Task SetAvailableTokenInfos()
         {
-            var availableTokenInfo = new AllAvailableTokenInfo
+            var availableTokenInfo = new SymbolListToPayTXSizeFee
             {
-                AllAvailableTokens =
+                SymbolsToPayTxSizeFee =
                 {
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
-                        TokenSymbol = "RAM",
-                        AddedTokenWeight = 100,
+                        TokenSymbol = "ELF",
+                        AddedTokenWeight = 1,
                         BaseTokenWeight = 1
                     },
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
                         TokenSymbol = "CPU",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
-                        TokenSymbol = "ELF",
-                        AddedTokenWeight = 1,
+                        TokenSymbol = "RAM",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "NET",
+                        AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     }
                 }
             };
-            
+
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetAvailableTokenInfo),
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
                 availableTokenInfo, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             await QueryAvailableTokenInfos();
+        }
+
+        [TestMethod]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "ELF", 5000_0000L)]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "CPU", 8_0000_0000L)]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "NYNYO", 50_0000_0000L)]
+        public async Task PrepareTesterToken(string account, string symbol, long amount)
+        {
+            //bp balance
+            var bpBalance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
+            if (bpBalance < 100_00000000L)
+            {
+                if (symbol != "ELF")
+                {
+                    var buyResult = await ContractManager.TokenconverterStub.Buy.SendAsync(new BuyInput
+                    {
+                        Symbol = symbol,
+                        Amount = 100_00000000L
+                    });
+                    buyResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                }
+            }
+
+            var balance = ContractManager.Token.GetUserBalance(account, symbol);
+            if (balance >= amount) return;
+            var transactionResult =
+                ContractManager.Token.TransferBalance(ContractManager.CallAddress, account, amount - balance, symbol);
+            transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            //query user balance
+            var afterBalance = ContractManager.Token.GetUserBalance(account, symbol);
+            Logger.Info($"Account: {account}, {symbol} = {afterBalance}");
         }
 
         [TestMethod]
@@ -91,7 +134,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var tokenInfo = ContractManager.Token.GetTokenInfo(symbol);
                 if (tokenInfo.Equals(new TokenInfo())) break;
             }
-            
+
             //create
             var createResult = await ContractManager.TokenStub.Create.SendAsync(new CreateInput
             {
@@ -105,7 +148,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 TotalSupply = 10_0000_0000_00000000L
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //issue
             var issueResult = await ContractManager.TokenStub.Issue.SendAsync(new IssueInput
             {
@@ -115,10 +158,53 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Memo = "issue half tokens"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //get balance
             var balance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
             Logger.Info($"Account: {ContractManager.CallAddress}, Symbol: {symbol}, Balance: {balance}");
+        }
+
+        [TestMethod]
+        public async Task SetVoteInterest_Test()
+        {
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.SetVoteInterest),
+                new InterestInfoList
+                {
+                    InterestInfos =
+                    {
+                        new InterestInfo
+                        {
+                            Day = 90,
+                            Capital = 1000,
+                            Interest = 1
+                        },
+                        new InterestInfo
+                        {
+                            Day = 180,
+                            Capital = 2000,
+                            Interest = 9,
+                        },
+                        new InterestInfo
+                        {
+                            Day = 270,
+                            Capital = 4000,
+                            Interest = 45
+                        },
+                        new InterestInfo
+                        {
+                            Day = 360,
+                            Capital = 4000,
+                            Interest = 84
+                        }
+                    }
+                }, ContractManager.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //Query interest
+            var queryResult = await ContractManager.ElectionStub.GetVoteInterestInfo.CallAsync(new Empty());
+            Logger.Info($"{JsonConvert.SerializeObject(queryResult)}");
         }
     }
 }

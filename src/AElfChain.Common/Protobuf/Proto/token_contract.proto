@@ -79,9 +79,11 @@ service TokenContract {
     }
     rpc UpdateRentedResources (UpdateRentedResourcesInput) returns (google.protobuf.Empty) {
     }
-    rpc SetAvailableTokenInfo(AllAvailableTokenInfo) returns (google.protobuf.Empty){
+    rpc SetSymbolsToPayTXSizeFee(SymbolListToPayTXSizeFee) returns (google.protobuf.Empty){
     }
-    rpc InitializeAuthorizedOrganization(google.protobuf.Empty) returns  (google.protobuf.Empty){
+    rpc InitializeAuthorizedController(google.protobuf.Empty) returns  (google.protobuf.Empty) {
+    }
+    rpc AddTokenWhiteList (AddTokeWhiteListInput) returns (google.protobuf.Empty) {
     }
 
     // Views
@@ -130,15 +132,16 @@ service TokenContract {
     rpc GetResourceUsage (google.protobuf.Empty) returns (ResourceUsage) {
         option (aelf.is_view) = true;
     }
-    rpc GetAvailableTokenInfos(google.protobuf.Empty) returns (AllAvailableTokenInfo){
+    rpc GetSymbolsToPayTXSizeFee(google.protobuf.Empty) returns (SymbolListToPayTXSizeFee){
         option (aelf.is_view) = true;
     }
-    rpc GetAssociationOrganizationForUserFee(google.protobuf.Empty) returns (AssociationOrganizationForUserFee){
+    rpc GetUserFeeController(google.protobuf.Empty) returns (ControllerForUserFee){
         option (aelf.is_view) = true;
     }
-    rpc GetAssociationOrganizationForDeveloperFee(google.protobuf.Empty) returns (AssociationOrganizationForDeveloperFee){
+    rpc GetDeveloperFeeController(google.protobuf.Empty) returns (ControllerForDeveloperFee){
         option (aelf.is_view) = true;
     }
+
 }
 
 message TokenInfo {
@@ -243,7 +246,7 @@ message ChargeTransactionFeesInput {
     aelf.Address contract_address = 2;
     sint64 transaction_size_fee = 3;
     string primary_token_symbol = 4;
-    repeated AvailableTokenInfo all_available_tokens = 5;
+    repeated SymbolToPayTXSizeFee symbols_to_pay_tx_size_fee = 5;
 }
 
 message TransactionFeeBill {
@@ -402,7 +405,6 @@ message ValidateTokenInfoExistsInput{
 
 message InitializeInput {
     map<string, sint32> resource_amount = 1;
-    aelf.Address default_proposer = 2;
 }
 
 message UpdateRentalInput {
@@ -458,6 +460,11 @@ message TokenStateInAddress{
     bool value = 1;
 }
 
+message AddTokeWhiteListInput{
+    string token_symbol = 1;
+    aelf.Address address = 2;
+}
+
 enum FeeTypeEnum {
     READ = 0;
     STORAGE = 1;
@@ -486,14 +493,14 @@ message CalculateFeeCoefficient {
     map<string, sint32> coefficient_dic = 4;
 }
 
-message AvailableTokenInfo{
+message SymbolToPayTXSizeFee{
     string token_symbol = 1;
     sint32 base_token_weight = 2;
     sint32 added_token_weight = 3;
 }
 
-message AllAvailableTokenInfo{
-    repeated AvailableTokenInfo all_available_tokens = 1;
+message SymbolListToPayTXSizeFee{
+    repeated SymbolToPayTXSizeFee symbols_to_pay_tx_size_fee = 1;
 }
 
 // Events
@@ -560,17 +567,18 @@ message RentalAccountBalanceInsufficient {
 
 message ExtraTokenListModified {
     option (aelf.is_event) = true;
-    AllAvailableTokenInfo all_token_infos = 1;
+    SymbolListToPayTXSizeFee symbol_list_to_pay_tx_size_fee = 1;
 }
 
-message AssociationOrganizationForUserFee{
-    aelf.Address root_organization = 1;
-    aelf.Address parliament_organization = 2;
-    aelf.Address referendum_organization = 3;
+message ControllerForUserFee{
+    aelf.Address root_controller = 1;
+    aelf.Address parliament_controller = 2;
+    aelf.Address referendum_controller = 3;
 }
 
-message AssociationOrganizationForDeveloperFee{
-    aelf.Address root_organization = 1;
-    aelf.Address parliament_organization = 2;
-    aelf.Address developer_organization = 3;
+message ControllerForDeveloperFee{
+    aelf.Address root_controller = 1;
+    aelf.Address parliament_controller = 2;
+    aelf.Address developer_controller = 3;
 }
+

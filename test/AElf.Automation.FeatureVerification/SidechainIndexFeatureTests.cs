@@ -28,7 +28,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
             
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
             var last = NodeInfoHelper.Config.Nodes.Last();
             NodeManager = new NodeManager(last.Endpoint);
             MainManager = new ContractManager(NodeManager, last.Account);
