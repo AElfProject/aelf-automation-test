@@ -3,7 +3,6 @@ using System.Linq;
 using Acs0;
 using Acs3;
 using AElf.Contracts.Association;
-using AElf.Contracts.Configuration;
 using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
@@ -414,34 +413,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AddressHelper.Base58StringToAddress(contract));
             _logger.Info($"{address.GetFormatted()}");
         }
-
-        [TestMethod]
-        public void GetRequiredAcsInContracts()
-        {
-            var result = Tester.ConfigurationService.CallViewMethod<RequiredAcsInContracts>(ConfigurationMethod.GetRequiredAcsInContracts,new Empty());
-            foreach (var acs in result.AcsList) {_logger.Info($"{acs}"); }
-            _logger.Info($"{result.RequireAll}");
-        }
-
-        [TestMethod]
-        public void SetRequiredAcsInContracts()
-        {
-            var defaultOrganization = Tester.ParliamentService.GetGenesisOwnerAddress();
-            var input = new RequiredAcsInContracts()
-            {
-                AcsList = {"acs3"},
-                RequireAll = true
-            };
-            var createProposal = Tester.ParliamentService.CreateProposal(Tester.ConfigurationService.ContractAddress,
-                nameof(ConfigurationMethod.SetRequiredAcsInContracts),input, defaultOrganization, InitAccount);
-            ApproveByMiner(Tester,createProposal);
-            var release = Tester.ParliamentService.ReleaseProposal(createProposal, InitAccount);
-            release.Status.ShouldBe(TransactionResultStatus.Mined);
-            var result = Tester.ConfigurationService.CallViewMethod<RequiredAcsInContracts>(ConfigurationMethod.GetRequiredAcsInContracts,new Empty());
-            result.AcsList.Contains("acs3").ShouldBeTrue();
-            result.RequireAll.ShouldBeFalse();
-        }
-
+        
         #region private method
 
         private Address CreateAssociationOrganization(ContractTester tester)
