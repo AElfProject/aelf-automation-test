@@ -21,7 +21,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
     {
         public static ILog Logger = Log4NetHelper.GetLogger();
 
-        public List<string> Symbols = new List<string> {"CPU", "RAM", "NET", "STO"};
+        public List<string> Symbols = new List<string> {"READ", "WRITE", "STORAGE", "TRAFFIC"};
 
 
         public MainChainManager(string serviceUrl, string account)

@@ -6,15 +6,17 @@ import "acs3.proto";
 option csharp_namespace = "AElf.Contracts.Association";
 
 service AssociationContract {
-    
+
     option (aelf.csharp_state) = "AElf.Contracts.Association.AssociationState";
     option (aelf.base) = "acs3.proto";
     option (aelf.base) = "acs1.proto";
-    
+
     // Actions    
     rpc CreateOrganization (CreateOrganizationInput) returns (aelf.Address) {
     }
     rpc ChangeOrganizationMember(OrganizationMemberList) returns (google.protobuf.Empty){
+    }
+    rpc CreateOrganizationBySystemContract(CreateOrganizationBySystemContractInput) returns (aelf.Address){
     }
     //view
     rpc GetOrganization (aelf.Address) returns (Organization) {
@@ -54,4 +56,8 @@ message ProposalInfo {
 
 message OrganizationMemberList {
     repeated aelf.Address organization_members = 1;
+}
+message CreateOrganizationBySystemContractInput {
+    CreateOrganizationInput organization_creation_input = 1;
+    string organization_address_feedback_method = 2;
 }

@@ -7,6 +7,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Referendum;
+using AElf.Contracts.TestContract.DApp;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.TokenHolder;
 using AElf.Contracts.Treasury;
@@ -204,6 +205,17 @@ namespace AElfChain.Common.Contracts
                 new ConfigurationContract(genesis.NodeManager, caller, configuration.GetFormatted());
 
             return contract.GetTestStub<ConfigurationContainer.ConfigurationStub>(caller);
+        }
+
+        public static DAppContainer.DAppStub GetDAppStub(this GenesisContract genesis, string contractAddress, string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+
+            var contract =
+                new DAppContract(genesis.NodeManager, caller, contractAddress);
+
+            return contract.GetTestStub<DAppContainer.DAppStub>(caller);
         }
     }
 }

@@ -105,7 +105,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         [TestMethod]
         [DataRow(5000_00000000, "CPU")]
-        [DataRow(5000_00000000, "STO")]
+        [DataRow(5000_00000000, "DISK")]
         [DataRow(5000_00000000, "NET")]
         [DataRow(5000_00000000, "RAM")]
         public async Task BuyResource(long amount, string symbol)
@@ -243,7 +243,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("KDSkLLtkvKcAmFppPfRUGWdgtrPYVPRzYmCSA56tTaNcjgF7n")]
         public void TransferResource(string contract)
         {
-            var symbols = new List<string> {"CPU", "NET", "STO", "RAM"};
+            var symbols = new List<string> {"CPU", "NET", "DISK", "RAM"};
             var genesis = MainNode.GetGenesisContract(BpAccount);
             var token = genesis.GetTokenContract();
             foreach (var symbol in symbols) token.TransferBalance(BpAccount, contract, 5000_00000000, symbol);
@@ -253,7 +253,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("KDSkLLtkvKcAmFppPfRUGWdgtrPYVPRzYmCSA56tTaNcjgF7n")]
         public void GetContractResource(string contract)
         {
-            var symbols = new List<string> {"CPU", "NET", "STO", "RAM"};
+            var symbols = new List<string> {"CPU", "NET", "DISK", "RAM"};
             var genesis = MainNode.GetGenesisContract(BpAccount);
             var token = genesis.GetTokenContract();
 

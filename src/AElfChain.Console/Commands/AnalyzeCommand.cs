@@ -299,7 +299,7 @@ namespace AElfChain.Console.Commands
             }
 
             var input = Prompt.Input<string>("Input SideContract creator address");
-            var symbols = new[] {"CPU", "RAM", "DISK"};
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
             var beforeTime = DateTime.Now.Add(TimeSpan.FromMinutes(-1));
             var stopwatch = Stopwatch.StartNew();
             while (true)

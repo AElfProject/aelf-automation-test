@@ -72,7 +72,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                         var transactionResult = await ContractManager.TokenStub.Transfer.SendAsync(new TransferInput
                         {
                             To = account.ConvertAddress(),
-                            Amount = electionDeposit,
+                            Amount = electionDeposit + 5_00000000L,
                             Symbol = "ELF",
                             Memo = "transfer election deposit"
                         });
