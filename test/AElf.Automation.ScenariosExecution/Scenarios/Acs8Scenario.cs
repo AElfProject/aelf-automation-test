@@ -77,10 +77,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var stoFee = Calculator.Net.GetSizeFee(txSize);
                 
                 //assert result
-                beforeResource["CPU"].ShouldBe(afterResource["CPU"] + cpuFee);
-                beforeResource["RAM"].ShouldBe(afterResource["RAM"]);
-                beforeResource["NET"].ShouldBe(afterResource["NET"] + netFee);
-                beforeResource["STO"].ShouldBe(afterResource["STO"] + stoFee);
+                beforeResource["READ"].ShouldBe(afterResource["READ"] + cpuFee);
+                beforeResource["WRITE"].ShouldBe(afterResource["WRITE"]);
+                beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + netFee);
+                beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + stoFee);
             }
         }
 
@@ -99,10 +99,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
                 //assert result
-                beforeResource["CPU"].ShouldBe(afterResource["CPU"]);
-                beforeResource["RAM"].ShouldBeGreaterThan(afterResource["RAM"]);
-                beforeResource["NET"].ShouldBe(afterResource["NET"] + txFee);
-                beforeResource["STO"].ShouldBe(afterResource["STO"] + txFee);
+                beforeResource["READ"].ShouldBe(afterResource["READ"]);
+                beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);
+                beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + txFee);
+                beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + txFee);
             }
         }
 
@@ -123,10 +123,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
                 //assert result
-                beforeResource["CPU"].ShouldBeGreaterThan(afterResource["CPU"]);
-                beforeResource["RAM"].ShouldBeGreaterThan(afterResource["RAM"]);
-                beforeResource["NET"].ShouldBe(afterResource["NET"] + txFee);
-                beforeResource["STO"].ShouldBe(afterResource["STO"] + txFee);
+                beforeResource["READ"].ShouldBeGreaterThan(afterResource["READ"]);
+                beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);
+                beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + txFee);
+                beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + txFee);
             }
         }
 
@@ -144,10 +144,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
                 //assert result
-                beforeResource["CPU"].ShouldBe(afterResource["CPU"]);
-                beforeResource["RAM"].ShouldBe(afterResource["RAM"]);
-                beforeResource["NET"].ShouldBe(afterResource["NET"] + txFee);
-                beforeResource["STO"].ShouldBe(afterResource["STO"] + txFee);
+                beforeResource["READ"].ShouldBeGreaterThan(afterResource["READ"]);
+                beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);
+                beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + txFee);
+                beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + txFee);
             }
         }
 
@@ -163,7 +163,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public void PrepareAcs8ResourceToken()
         {
-            var symbols = new[] {"CPU", "RAM", "NET", "STO"};
+            var symbols = new[] {"READ", "WRITE", "TRAFFIC", "STORAGE"};
             var firstBp = AllNodes.First().Account;
             TokenConverter.SetAccount(firstBp);
             Token.SetAccount(firstBp);

@@ -17,16 +17,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class BasicUpdateTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        
+
         private INodeManager NodeManager { get; set; }
-        private string ContractAddress = "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe";
+        private string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
         private string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public BasicUpdateContractContainer.BasicUpdateContractStub BasicUpdateStub { get; set; }
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
-            Log4NetHelper.LogInit();  
+            Log4NetHelper.LogInit();
             NodeManager = new NodeManager("192.168.197.40:8000");
             var basicUpdate = new BasicUpdateContract(NodeManager, Caller, ContractAddress);
             BasicUpdateStub = basicUpdate.GetTestStub<BasicUpdateContractContainer.BasicUpdateContractStub>(Caller);
@@ -99,6 +99,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
+
+            result = await BasicUpdateStub.GetHashCodeComplexValue.SendAsync(new ComplexInput
+            {
+                StringValue = "just string info",
+                IntValue = 270,
+                LongValue = 5000L,
+                EnumValue = Color.Blue
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
         }
 
         [TestMethod]
@@ -115,6 +125,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
+
+            result = await BasicUpdateStub.GetHashCodeMapStringValue.SendAsync(new MapStringInput
+            {
+                Info =
+                {
+                    {"key1", "test1"},
+                    {"key2", "test2"},
+                }
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
         }
 
         [TestMethod]
@@ -125,6 +146,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Info =
                 {
                     {"key1", Color.Black},
+                    {"key2", Color.Blue},
+                    {"key3", Color.White}
+                }
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
+            
+            result = await BasicUpdateStub.GetHashCodeMapEnumValue.SendAsync(new MapEnumInput
+            {
+                Info =
+                {
                     {"key2", Color.Blue},
                     {"key3", Color.White}
                 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Acs7;
+using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using log4net;
 
@@ -19,7 +20,7 @@ namespace AElf.Automation.SideChainCreate
 
             //Init Logger
             Log4NetHelper.LogInit("SideChainCreate");
-
+            //NodeInfoHelper.SetConfig("nodes");
             #endregion
 
             var operation = new Operation();
@@ -36,6 +37,7 @@ namespace AElf.Automation.SideChainCreate
                     TokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
                     Decimals = 8,
                     IsBurnable = true,
+                    IsProfitable = true,
                     Issuer = AddressHelper.Base58StringToAddress(operation.Creator),
                     TotalSupply = 10_00000000_00000000
                 };

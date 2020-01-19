@@ -7,10 +7,10 @@ import "acs1.proto";
 option csharp_namespace = "AElf.Contracts.TokenConverter";
 
 service TokenConverterContract {
-    
+
     option (aelf.csharp_state) = "AElf.Contracts.TokenConverter.TokenConverterContractState";
     option (aelf.base) = "acs1.proto";
-    
+
     // Actions
     rpc Initialize (InitializeInput) returns (google.protobuf.Empty) {
     }
@@ -50,6 +50,9 @@ service TokenConverterContract {
         option (aelf.is_view) = true;
     }
     rpc GetNeededDeposit(ToBeConnectedTokenInfo) returns (DepositInfo) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetDepositConnectorBalance(google.protobuf.StringValue) returns (google.protobuf.Int64Value){
         option (aelf.is_view) = true;
     }
 }
@@ -117,7 +120,7 @@ message TokenSold {
     string symbol = 1 [(aelf.is_indexed) = true];
     sint64 sold_amount = 2;
     sint64 base_amount = 3;
-    sint64 fee_amount =4;    
+    sint64 fee_amount =4;
 }
 message PairConnector {
     string resource_connector_symbol = 1;

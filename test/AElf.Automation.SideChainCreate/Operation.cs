@@ -11,6 +11,7 @@ using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
+using log4net.Repository.Hierarchy;
 using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainCreate
@@ -100,6 +101,7 @@ namespace AElf.Automation.SideChainCreate
                         SideChainTokenSymbol = tokenInfo.Symbol,
                         SideChainTokenTotalSupply = tokenInfo.TotalSupply,
                         IsSideChainTokenBurnable = tokenInfo.IsBurnable,
+                        IsSideChainTokenProfitable = tokenInfo.IsProfitable,
                         InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
                         SideChainTokenInitialIssueList = {sideChainTokenInitialIssue}
                     });

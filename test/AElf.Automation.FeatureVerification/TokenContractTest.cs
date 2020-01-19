@@ -45,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static string RpcUrl { get; } = "18.212.240.254:8000";
 //        private static string RpcUrl { get; } = "192.168.199.205:8000";
         private string Symbol { get; } = "TEST";
-        private List<string> ResourceSymbol = new List<string>{"CPU","NET","STO","RAM"};
+        private List<string> ResourceSymbol = new List<string>{"CPU","NET","DISK","RAM"};
 
         [TestInitialize]
         public void Initialize()

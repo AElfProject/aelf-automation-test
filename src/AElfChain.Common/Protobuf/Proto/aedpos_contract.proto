@@ -9,9 +9,9 @@ import "google/protobuf/wrappers.proto";
 option csharp_namespace = "AElf.Contracts.Consensus.AEDPoS";
 
 service AEDPoSContract {
-    
+
     option (aelf.csharp_state) = "AElf.Contracts.Consensus.AEDPoS.AEDPoSContractState";
-    
+
     // Actions
     // -> Process
     rpc InitialAElfConsensusContract (InitialAElfConsensusContractInput) returns (google.protobuf.Empty) {
@@ -26,10 +26,10 @@ service AEDPoSContract {
     }
     rpc UpdateTinyBlockInformation (TinyBlockInput) returns (google.protobuf.Empty) {
     }
-    
+
     rpc UpdateConsensusInformation (ConsensusInformation) returns (google.protobuf.Empty) {
     }
-    
+
     rpc SetMaximumMinersCount (aelf.SInt32Value) returns (google.protobuf.Empty) {
     }
 
@@ -83,6 +83,9 @@ service AEDPoSContract {
         option (aelf.is_view) = true;
     }
     rpc GetNextElectCountDown (google.protobuf.Empty) returns (aelf.SInt64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetPreviousTermInformation (aelf.SInt64Value) returns (Round) {
         option (aelf.is_view) = true;
     }
 }

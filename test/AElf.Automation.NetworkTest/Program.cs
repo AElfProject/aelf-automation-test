@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using log4net;
 
@@ -15,7 +16,7 @@ namespace AElf.Automation.NetworkTest
 
             //Init Logger
             Log4NetHelper.LogInit("NetworkTest_");
-
+            //NodeInfoHelper.SetConfig("nodes-online-test-main");
             #endregion
 
             var operation = new Operation();
@@ -39,7 +40,6 @@ namespace AElf.Automation.NetworkTest
                     operation.GetPeer();
                     break;
             }
-
         }
     }
 }

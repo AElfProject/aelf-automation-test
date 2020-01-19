@@ -147,7 +147,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 converter.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(MainChainService
                     .CallAddress);
 
-            var symbols = new List<string> {"CPU", "NET", "STO"};
+            var symbols = new List<string> {"CPU", "RAM", "DISK", "NET"};
             foreach (var symbol in symbols)
             {
                 var transactionResult = await testStub.Buy.SendAsync(new BuyInput

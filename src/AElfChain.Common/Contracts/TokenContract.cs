@@ -107,7 +107,7 @@ namespace AElfChain.Common.Contracts
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
                 Amount = amount,
-                Spender = AddressHelper.Base58StringToAddress(to)
+                Spender = to.ConvertAddress()
             });
             
             return result;

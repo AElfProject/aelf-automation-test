@@ -109,7 +109,7 @@ namespace AElf.Automation.EconomicSystemTest
             };
             var stoConnector = new Connector
             {
-                Symbol = "STO",
+                Symbol = "DISK",
                 IsPurchaseEnabled = true,
                 IsVirtualBalanceEnabled = false,
                 VirtualBalance = 0,
