@@ -1,7 +1,8 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Contracts.Election;
+using Acs3;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.Parliament;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
@@ -11,7 +12,6 @@ using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -163,48 +163,61 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var balance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
             Logger.Info($"Account: {ContractManager.CallAddress}, Symbol: {symbol}, Balance: {balance}");
         }
-
+        
         [TestMethod]
-        public async Task SetVoteInterest_Test()
+        public async Task Controller_Transfer_For_Symbol_To_Pay_Tx_Fee()
         {
-            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Election.ContractAddress,
-                nameof(ContractManager.ElectionStub.SetVoteInterest),
-                new InterestInfoList
+            var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
+            
+            //Without authority would be failed
+            var newSymbolList = new SymbolListToPayTXSizeFee();
+            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTXSizeFee
+            {
+                TokenSymbol = primaryToken,
+                AddedTokenWeight = 1,
+                BaseTokenWeight = 1
+            });
+            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTXSizeFee.SendAsync(newSymbolList);
+            symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
+            
+            
+            var newParliament = new CreateOrganizationInput
+            {
+                ProposerAuthorityRequired = false,
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    InterestInfos =
-                    {
-                        new InterestInfo
-                        {
-                            Day = 90,
-                            Capital = 1000,
-                            Interest = 1
-                        },
-                        new InterestInfo
-                        {
-                            Day = 180,
-                            Capital = 2000,
-                            Interest = 9,
-                        },
-                        new InterestInfo
-                        {
-                            Day = 270,
-                            Capital = 4000,
-                            Interest = 45
-                        },
-                        new InterestInfo
-                        {
-                            Day = 360,
-                            Capital = 4000,
-                            Interest = 84
-                        }
-                    }
-                }, ContractManager.CallAddress);
+                    MaximalAbstentionThreshold = 1,
+                    MaximalRejectionThreshold = 1,
+                    MinimalApprovalThreshold = 1,
+                    MinimalVoteThreshold = 1
+                },
+                ParliamentMemberProposingAllowed = false
+            };
+            var parliamentCreateRet =
+                await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(newParliament);
+            var newOrganization = parliamentCreateRet.Output;
+
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
+                nameof(ContractManager.TokenStub.SetControllerForSymbolsToPayTXSizeFee),
+                newOrganization,
+                ContractManager.CallAddress
+            );
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
+                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTXSizeFee),
+                newSymbolList,
+                newOrganization,
+                ContractManager.Authority.GetCurrentMiners(),
+                ContractManager.CallAddress
+            );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
-            //Query interest
-            var queryResult = await ContractManager.ElectionStub.GetVoteInterestInfo.CallAsync(new Empty());
-            Logger.Info($"{JsonConvert.SerializeObject(queryResult)}");
+            //Verify symbol list
+            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);
         }
     }
 }

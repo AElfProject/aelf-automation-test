@@ -191,6 +191,7 @@ namespace AElfChain.Console.Commands
                     Decimals = mainToken.Decimals,
                     Issuer = mainToken.Issuer,
                     IsBurnable = mainToken.IsBurnable,
+                    IsProfitable = mainToken.IsProfitable,
                     IssueChainId = mainToken.IssueChainId,
                     Symbol = mainToken.Symbol,
                     TokenName = mainToken.TokenName,

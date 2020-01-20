@@ -15,7 +15,7 @@ using Shouldly;
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
-    public class RentFeatureTest
+    public class SidechainRentFeatureTests
     {
         public ILogHelper Logger = LogHelper.GetLogger();
         public INodeManager MainNode { get; set; }
@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         
         public GenesisContract Genesis { get; set; }
 
-        public RentFeatureTest()
+        public SidechainRentFeatureTests()
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
@@ -48,8 +48,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Rental =
                     {
                         {"CPU", 1000},
-                        {"RAM", 1000},
-                        {"DISK", 10}
+                        {"RAM", 500},
+                        {"DISK", 4},
+                        {"NET", 2}
                     }
                 }, organization, bps, bps.First());
         }
@@ -103,13 +104,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = MainNode.GetGenesisContract(bps.First());
             var token = genesis.GetTokenContract();
             var tokenConverter = genesis.GetTokenConverterStub();
-            var symbols = new[] {"CPU", "RAM", "DISK"};
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
             foreach (var symbol in symbols)
             {
                 await tokenConverter.Buy.SendAsync(new BuyInput
                 {
                     Symbol = symbol,
-                    Amount = 10000_00000000,
+                    Amount = 10000_00000000
                 });
             }
 

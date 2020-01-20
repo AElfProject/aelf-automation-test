@@ -2,7 +2,7 @@
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 3
         },
         {
@@ -12,7 +12,7 @@
         },
         {
             "case_name": "ResourceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 3
         },
         {
@@ -32,7 +32,7 @@
         },
         {
             "case_name": "PerformanceScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         },
         {
@@ -42,7 +42,7 @@
         },
         {
             "case_name": "Acs8Scenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 10
         }
     ],
@@ -63,10 +63,10 @@
             }
         ]
     },
-    "UserCount": 100,
+    "UserCount": 120,
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": true,
-        "service_url": "http://192.168.197.40:8000"
+        "service_url": "http://192.168.197.14:8000"
     }
 }
