@@ -11,16 +11,13 @@ namespace AElfChain.Common.DtoExtension
         {
             if (feeDto.Value == null)
                 return "Fee=0";
-            
+
             var feeInfo = "Fee: ";
-            foreach (var key in feeDto.Value.Keys)
-            {
-                feeInfo += $"{key}={feeDto.Value[key]} ";
-            }
+            foreach (var key in feeDto.Value.Keys) feeInfo += $"{key}={feeDto.Value[key]} ";
 
             return feeInfo.Trim();
         }
-        
+
         public static long GetDefaultTransactionFee(this TransactionFeeDto transactionFee)
         {
             if (transactionFee == null) return 0;
@@ -32,12 +29,8 @@ namespace AElfChain.Common.DtoExtension
             if (feeDto == null) return null;
             var values = new MapField<string, long>();
             if (feeDto.Value != null)
-            {
                 foreach (var key in feeDto.Value.Keys)
-                {
                     values.Add(key, feeDto.Value[key]);
-                }
-            }
 
             return new TransactionFee
             {

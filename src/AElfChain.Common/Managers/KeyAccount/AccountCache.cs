@@ -9,24 +9,22 @@ namespace AElfChain.Common.Managers
 {
     public class AccountInfo
     {
-        public string Account { get; set; }
-        public string PrivateKey { get; set; }
-        public string PublicKey { get; set; }
-
         public AccountInfo(string account, string privateKey, string publicKey)
         {
             Account = account;
             PrivateKey = privateKey;
             PublicKey = publicKey;
         }
+
+        public string Account { get; set; }
+        public string PrivateKey { get; set; }
+        public string PublicKey { get; set; }
     }
 
     public class AccountInfoCache
     {
         private const string KeyCacheExtension = ".cache";
         private const string KeyFolderName = "keys";
-
-        public string KeyPath { get; set; }
         public static ILog Logger = Log4NetHelper.GetLogger();
 
         public AccountInfoCache()
@@ -34,13 +32,15 @@ namespace AElfChain.Common.Managers
             KeyPath = Path.Combine(CommonHelper.GetCurrentDataDir(), KeyFolderName);
         }
 
+        public string KeyPath { get; set; }
+
         public async Task WriteCache(string account, byte[] privateKeyBytes)
         {
-            var privateKey = ByteExtensions.ToHex(privateKeyBytes);
+            var privateKey = privateKeyBytes.ToHex();
             var keyPair = CryptoHelper.FromPrivateKey(privateKeyBytes);
             var publicKeyBytes = keyPair.PublicKey;
-            var publicKey = ByteExtensions.ToHex(publicKeyBytes);
-            
+            var publicKey = publicKeyBytes.ToHex();
+
             var accountInfo = new AccountInfo(account, privateKey, publicKey);
             await WriteCache(accountInfo);
         }
@@ -81,7 +81,7 @@ namespace AElfChain.Common.Managers
                 var content = File.ReadAllText(fullName);
                 var infoArray = content.Split(" ");
                 info = new AccountInfo(account, infoArray[0], infoArray[1]);
-                
+
                 return true;
             }
 

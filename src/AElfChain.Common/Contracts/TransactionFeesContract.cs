@@ -16,11 +16,11 @@ namespace AElfChain.Common.Contracts
         WriteRamCountTest,
         NoReadWriteCountTest,
         ComplexCountTest,
-        
+
         GetContractName,
         QueryContractResource
     }
-    
+
     public class TransactionFeesContract : BaseContract<TxFeesMethod>
     {
         public TransactionFeesContract(INodeManager nodeManager, string callAddress, string contractAddress) :
@@ -33,7 +33,9 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
+        public static string ContractFileName => "AElf.Contracts.TestContract.TransactionFees";
+
         public void InitializeTxFees(Address address)
         {
             var initializeResult = ExecuteMethodWithResult(TxFeesMethod.InitializeFeesContract, address);
@@ -45,7 +47,7 @@ namespace AElfChain.Common.Contracts
             var resources = CallViewMethod<ResourcesOutput>(TxFeesMethod.QueryContractResource, new Empty());
             return resources.Resources.ToDictionary(tokenInfo => tokenInfo.Symbol, tokenInfo => tokenInfo.Amount);
         }
-        
+
         public static TransactionFeesContract GetOrDeployTxFeesContract(INodeManager nodeManager, string callAddress)
         {
             var genesis = nodeManager.GetGenesisContract();
@@ -58,7 +60,5 @@ namespace AElfChain.Common.Contracts
 
             return new TransactionFeesContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
-        
-        public static string ContractFileName => "AElf.Contracts.TestContract.TransactionFees";
     }
 }

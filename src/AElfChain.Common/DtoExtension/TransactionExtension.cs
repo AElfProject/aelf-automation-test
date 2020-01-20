@@ -11,7 +11,7 @@ namespace AElfChain.Common.DtoExtension
             return (TransactionResultStatus) Enum.Parse(typeof(TransactionResultStatus), status, true);
         }
     }
-    
+
     public static class TransactionUtil
     {
         public static string CalculateTxId(string rawTx)

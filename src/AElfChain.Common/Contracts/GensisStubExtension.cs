@@ -83,8 +83,9 @@ namespace AElfChain.Common.Contracts
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
-        
-        public static TokenHolderContractContainer.TokenHolderContractStub GetTokenHolderStub(this GenesisContract genesis,
+
+        public static TokenHolderContractContainer.TokenHolderContractStub GetTokenHolderStub(
+            this GenesisContract genesis,
             string caller = "")
         {
             if (caller == "")
@@ -207,7 +208,8 @@ namespace AElfChain.Common.Contracts
             return contract.GetTestStub<ConfigurationContainer.ConfigurationStub>(caller);
         }
 
-        public static DAppContainer.DAppStub GetDAppStub(this GenesisContract genesis, string contractAddress, string caller = "")
+        public static DAppContainer.DAppStub GetDAppStub(this GenesisContract genesis, string contractAddress,
+            string caller = "")
         {
             if (caller == "")
                 caller = genesis.CallAddress;

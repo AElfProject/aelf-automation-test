@@ -18,7 +18,7 @@ namespace AElfChain.Common.DtoExtension
                 RefBlockNumber = transactionDto.RefBlockNumber,
                 RefBlockPrefix = ByteString.FromBase64(transactionDto.RefBlockPrefix)
             };
-            
+
             return transaction.Size();
         }
     }

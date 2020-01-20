@@ -71,7 +71,7 @@ namespace AElfChain.Common
                 name += ".json";
             ConfigFile = CommonHelper.MapPath($"config/{name}");
         }
-        
+
         public static List<string> GetAccounts()
         {
             return _instance.Nodes.Select(o => o.Account).ToList();
@@ -82,13 +82,13 @@ namespace AElfChain.Common
             var content = File.ReadAllText(configFile);
             return JsonConvert.DeserializeObject<NodesInfo>(content);
         }
-        
+
         private static NodesInfo GetConfigInfo()
         {
             lock (LockObj)
             {
                 if (_instance != null) return _instance;
-                
+
                 _jsonContent = File.ReadAllText(ConfigFile);
                 _instance = JsonConvert.DeserializeObject<NodesInfo>(_jsonContent);
             }

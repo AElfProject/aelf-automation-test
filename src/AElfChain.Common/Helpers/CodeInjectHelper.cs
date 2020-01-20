@@ -15,7 +15,7 @@ namespace AElfChain.Common.Helpers
             ilProcessor.InsertAfter(method.Body.Instructions.First(), ilProcessor.Create(OpCodes.Nop));
             var newCode = new MemoryStream();
             asm.Write(newCode);
-            
+
             return newCode.ToArray();
         }
     }

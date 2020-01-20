@@ -1,8 +1,8 @@
 using System.Linq;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
-using AElfChain.Common.Managers;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
@@ -33,6 +33,8 @@ namespace AElfChain.Common.Contracts
         {
         }
 
+        public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunction";
+
         public void InitialBasicFunctionContract()
         {
             var initializeResult = ExecuteMethodWithResult(FunctionMethod.InitialBasicFunctionContract,
@@ -45,9 +47,8 @@ namespace AElfChain.Common.Contracts
                     Manager = CallAccount
                 });
             if (initializeResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Error($"Initialize execution of basic function contract failed. Error: {initializeResult.Error}");
-            }
+                Logger.Error(
+                    $"Initialize execution of basic function contract failed. Error: {initializeResult.Error}");
 
             var setLimitResult = ExecuteMethodWithResult(FunctionMethod.UpdateBetLimit, new BetLimitInput
             {
@@ -55,9 +56,8 @@ namespace AElfChain.Common.Contracts
                 MaxValue = 100_0000L
             });
             if (setLimitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-            {
-                Logger.Error($"UpdateBetLimit execution of basic function contract failed. Error: {setLimitResult.Error}");
-            }
+                Logger.Error(
+                    $"UpdateBetLimit execution of basic function contract failed. Error: {setLimitResult.Error}");
         }
 
         public string GetContractName()
@@ -65,7 +65,8 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<StringValue>(FunctionMethod.GetContractName, new Empty()).Value;
         }
 
-        public static BasicFunctionContract GetOrDeployBasicFunctionContract(INodeManager nodeManager, string callAddress)
+        public static BasicFunctionContract GetOrDeployBasicFunctionContract(INodeManager nodeManager,
+            string callAddress)
         {
             var genesis = nodeManager.GetGenesisContract();
             var addressList = genesis.QueryCustomContractByMethodName("InitialBasicFunctionContract");
@@ -78,7 +79,5 @@ namespace AElfChain.Common.Contracts
 
             return new BasicFunctionContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
-
-        public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunction";
     }
 }

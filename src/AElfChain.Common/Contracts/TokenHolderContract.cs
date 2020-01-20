@@ -13,11 +13,11 @@ namespace AElfChain.Common.Contracts
         RegisterForProfits,
         Withdraw,
         ClaimProfits,
-        
+
         //View
         GetScheme
     }
-    
+
     public class TokenHolderContract : BaseContract<TokenHolderMethod>
     {
         public TokenHolderContract(INodeManager nodeManager, string callAddress) :

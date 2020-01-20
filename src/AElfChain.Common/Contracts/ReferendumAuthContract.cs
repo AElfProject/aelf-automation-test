@@ -3,8 +3,6 @@ using AElf.Client.Dto;
 using AElf.Contracts.Referendum;
 using AElf.Types;
 using AElfChain.Common.Managers;
-using Google.Protobuf.WellKnownTypes;
-using Shouldly;
 
 namespace AElfChain.Common.Contracts
 {
@@ -37,25 +35,25 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }
-        
+
         public TransactionResultDto Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
         }
-        
+
         public TransactionResultDto Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Abstain, proposalId);
         }
-        
+
         public TransactionResultDto Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Reject, proposalId);
         }
-        
+
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ReferendumMethod.GetOrganization, organization);

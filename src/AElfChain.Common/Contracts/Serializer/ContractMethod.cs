@@ -114,6 +114,7 @@ namespace AElfChain.Common.Contracts.Serializer
                             inputJson[InputFields[i].JsonName] = inputs[i];
                         }
                     }
+
                     break;
             }
 

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Profit;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts

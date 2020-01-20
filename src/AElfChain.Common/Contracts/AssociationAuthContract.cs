@@ -9,7 +9,6 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Shouldly;
-using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -98,25 +97,25 @@ namespace AElfChain.Common.Contracts
                 ExecuteMethodWithResult(AssociationMethod.CreateOrganization, input).ReadableReturnValue
                     .Replace("\"", ""));
         }
-        
+
         public Organization GetOrganization(Address organization)
         {
-            return 
+            return
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
-        
+
         public TransactionResultDto Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
         }
-        
+
         public TransactionResultDto Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(AssociationMethod.Abstain, proposalId);
         }
-        
+
         public TransactionResultDto Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);

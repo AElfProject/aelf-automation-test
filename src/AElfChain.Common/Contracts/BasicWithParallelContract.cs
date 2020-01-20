@@ -55,6 +55,8 @@ namespace AElfChain.Common.Contracts
         {
         }
 
+        public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunctionWithParallel";
+
         public static BasicWithParallelContract GetOrDeployBasicWithParallelContract(INodeManager nodeManager,
             string callAddress)
         {
@@ -68,7 +70,5 @@ namespace AElfChain.Common.Contracts
 
             return new BasicWithParallelContract(nodeManager, callAddress, addressList.First().GetFormatted());
         }
-
-        public static string ContractFileName => "AElf.Contracts.TestContract.BasicFunctionWithParallel";
     }
 }

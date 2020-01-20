@@ -49,6 +49,8 @@ namespace AElfChain.Common.Contracts
             SetAccount(callAddress);
         }
 
+        public static string ContractFileName => "AElf.Contracts.CrossChain";
+
         public Address GetSideChainCreator(int chainId, string caller = null)
         {
             var tester = GetTestStub<CrossChainContractContainer.CrossChainContractStub>(caller);
@@ -63,7 +65,7 @@ namespace AElfChain.Common.Contracts
         public long GetSideChainBalance(int chainId)
         {
             return CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainBalance, new SInt32Value{Value = chainId}).Value;
+                CrossChainContractMethod.GetSideChainBalance, new SInt32Value {Value = chainId}).Value;
         }
 
         public CrossChainMerkleProofContext GetCrossChainMerkleProofContext(long blockHeight)
@@ -92,31 +94,29 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<SInt64Value>(
                 CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
         }
-        
+
         public AuthorityStuff GetCrossChainIndexingController()
         {
             return CallViewMethod<AuthorityStuff>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
-        
+
         public AuthorityStuff GetSideChainLifetimeController()
         {
             return CallViewMethod<AuthorityStuff>(
                 CrossChainContractMethod.GetSideChainLifetimeController, new Empty());
         }
-        
+
         public GetSideChainIndexingFeeControllerOutput GetSideChainIndexingFeeController(int chainId)
         {
             return CallViewMethod<GetSideChainIndexingFeeControllerOutput>(
                 CrossChainContractMethod.GetSideChainIndexingFeeController, new SInt32Value {Value = chainId});
         }
-        
+
         public ChainInitializationData GetChainInitializationData(int chainId)
         {
             return CallViewMethod<ChainInitializationData>(
                 CrossChainContractMethod.GetChainInitializationData, new SInt32Value {Value = chainId});
         }
-
-        public static string ContractFileName => "AElf.Contracts.CrossChain";
     }
 }

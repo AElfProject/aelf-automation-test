@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using AElf;
 using AElf.Types;
-using AElfChain.Common.Helpers;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf.Reflection;
 using Newtonsoft.Json.Linq;
 
@@ -125,7 +125,7 @@ namespace AElfChain.Common.Contracts.Serializer
             foreach (var method in methods)
             {
                 $"{count++: 00}. {method}".WriteSuccessLine();
-                if(withDetails)
+                if (withDetails)
                     GetParameters(method);
             }
 

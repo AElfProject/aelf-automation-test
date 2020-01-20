@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElfChain.Common.Helpers;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.Exceptions;
 using AElf.Types;
+using AElfChain.Common.Helpers;
 using log4net;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Crypto;
@@ -103,6 +103,7 @@ namespace AElfChain.Common.Managers
                     File.Delete(file.FullName); //delete empty account files
                     continue;
                 }
+
                 accounts.Add(Path.GetFileNameWithoutExtension(file.Name));
             }
 
@@ -191,7 +192,7 @@ namespace AElfChain.Common.Managers
             var fullPath = GetKeyFileFullPath(address.GetFormatted());
             //save cache
             await CacheAccount.WriteCache(address.GetFormatted(), keyPair.PrivateKey);
-            
+
             await Task.Run(() =>
             {
                 using var writer = File.CreateText(fullPath);

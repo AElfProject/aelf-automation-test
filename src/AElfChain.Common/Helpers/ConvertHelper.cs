@@ -15,7 +15,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///    convert object to json
+        ///     convert object to json
         /// </summary>
         /// <param name="obj">object target</param>
         /// <param name="serializerSettings">serializer settings</param>
@@ -26,7 +26,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///    convert object to json
+        ///     convert object to json
         /// </summary>
         /// <param name="obj">target obj</param>
         /// <param name="isConvertToSingleQuotes">is convert to single quotes</param>
@@ -41,7 +41,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///    convert object to json
+        ///     convert object to json
         /// </summary>
         /// <param name="obj">object target</param>
         /// <param name="isConvertToSingleQuotes">is convert to single quotes</param>
@@ -57,7 +57,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///    convert json to object
+        ///     convert json to object
         /// </summary>
         /// <typeparam name="T">object type</typeparam>
         /// <param name="jsonString">json string</param>
@@ -68,7 +68,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///    convert json to T object
+        ///     convert json to T object
         /// </summary>
         /// <typeparam name="T">object type</typeparam>
         /// <param name="jsonString">json string</param>

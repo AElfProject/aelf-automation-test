@@ -31,7 +31,7 @@ namespace AElfChain.Common.Helpers
         }
 
         /// <summary>
-        ///   print warning message
+        ///     print warning message
         /// </summary>
         /// <param name="str">print message</param>
         /// <param name="color">print color</param>
