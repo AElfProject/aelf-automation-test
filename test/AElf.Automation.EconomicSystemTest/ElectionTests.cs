@@ -16,6 +16,7 @@ namespace AElf.Automation.EconomicSystemTest
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
 
         protected Behaviors Behaviors;
+
 //        protected static string RpcUrl { get; } = "http://192.168.197.14:8000";
         protected static string RpcUrl { get; } = "http://52.90.147.175:8000";
 
@@ -103,21 +104,21 @@ namespace AElf.Automation.EconomicSystemTest
             foreach (var bp in BpNodeAddress)
             {
                 var balance = Behaviors.GetBalance(bp);
-                if (balance.Balance < 10000_00000000 && bp!=InitAccount)
+                if (balance.Balance < 10000_00000000 && bp != InitAccount)
                 {
                     Behaviors.TokenService.SetAccount(InitAccount);
-                        Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                        {
-                            Symbol = "ELF",
-                            Amount = 20000_00000000L,
-                            To = AddressHelper.Base58StringToAddress(bp),
-                            Memo = "Transfer token for announcement."
-                        });
+                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        Symbol = "ELF",
+                        Amount = 20000_00000000L,
+                        To = AddressHelper.Base58StringToAddress(bp),
+                        Memo = "Transfer token for announcement."
+                    });
 
-                        Behaviors.TokenService.CheckTransactionResultList();
+                    Behaviors.TokenService.CheckTransactionResultList();
                 }
             }
-            
+
             foreach (var full in FullNodeAddress)
             {
                 var balance = Behaviors.GetBalance(full);

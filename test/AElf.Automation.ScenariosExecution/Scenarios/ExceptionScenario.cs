@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Acs0;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElfChain.Common.DtoExtension;
 using AElf.Contracts.MultiToken;
-using log4net;
 using Shouldly;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios

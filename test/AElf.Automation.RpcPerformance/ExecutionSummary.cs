@@ -74,7 +74,7 @@ namespace AElf.Automation.RpcPerformance
             var totalTransactions = _blockMap.Values.Sum(o => o.Body.TransactionsCount);
             var averageTx = totalTransactions / Phase;
             var timePerBlock = GetPerBlockTimeSpan(startBlock, endBlockDto);
-            var timePerTx = totalTransactions / GetTotalBlockSeconds(startBlock, endBlockDto);
+            var timePerTx = totalTransactions * 1000 / GetTotalBlockSeconds(startBlock, endBlockDto);
             _blockMap = new Dictionary<long, BlockDto>();
             Logger.Info($"Summary Information: {Phase} blocks from height " +
                         $"{startBlock.Header.Height}~{endBlockDto.Header.Height} executed " +
@@ -101,8 +101,9 @@ namespace AElf.Automation.RpcPerformance
             var hours = timeSpan.Hours;
             var minutes = timeSpan.Minutes;
             var seconds = timeSpan.Seconds;
+            var mileSeconds = timeSpan.Milliseconds;
 
-            return hours * 60 * 60 + minutes * 60 + seconds;
+            return 1000 * (hours * 60 * 60 + minutes * 60 + seconds) + mileSeconds;
         }
     }
 }

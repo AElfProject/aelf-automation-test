@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Acs0;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Types;
 using AElfChain.Common.Contracts;
