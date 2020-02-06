@@ -64,6 +64,9 @@ namespace AElfChain.Console.Commands
                     case "CreateToken[Side]":
                         AsyncHelper.RunSync(SideChainCreateToken);
                         break;
+                    case "CreateTokens[Side]":
+                        AsyncHelper.RunSync(SideChainCreateTokens);
+                        break;
                     case "Transfer[Main-Side]":
                         AsyncHelper.RunSync(TransferMain2Side);
                         break;
@@ -202,7 +205,8 @@ namespace AElfChain.Console.Commands
             var checkBlockNumber = transactionResult.TransactionResult.BlockNumber;
             var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
             await SideContract.CheckParentChainBlockIndex(checkBlockNumber);
-            //create token on side chains
+
+            //create token on side chain
             var merklePath = await MainContract.GetMerklePath(checkBlockNumber, transactionId);
             if (merklePath == null)
                 throw new Exception("Can't get the merkle path.");
@@ -220,6 +224,67 @@ namespace AElfChain.Console.Commands
             var tokenInfo = SideContract.Token.GetTokenInfo(symbol);
             tokenInfo.ShouldNotBe(new TokenInfo());
             Logger.Info($"Side chain token '{symbol}' created success.");
+        }
+
+        private async Task SideChainCreateTokens()
+        {
+            var input = Prompt.Input<string>("Input token Symbols");
+            var symbols = input.ToUpper().Trim().Split(" ");
+            foreach (var symbol in symbols)
+            {
+                //verify token exist on main and side chain
+                var mainToken = MainContract.Token.GetTokenInfo(symbol);
+                if (mainToken.Equals(new TokenInfo()))
+                {
+                    Logger.Error($"Main chain without '{input}' token.");
+                    continue;
+                }
+
+                var sideToken = SideContract.Token.GetTokenInfo(symbol);
+                if (!sideToken.Equals(new TokenInfo()))
+                {
+                    Logger.Info($"Side chain already with '{input}' token.");
+                    continue;
+                }
+
+                //validate token on main chain
+                var transactionResult = await MainContract.TokenStub.ValidateTokenInfoExists.SendAsync(
+                    new ValidateTokenInfoExistsInput
+                    {
+                        Decimals = mainToken.Decimals,
+                        Issuer = mainToken.Issuer,
+                        IsBurnable = mainToken.IsBurnable,
+                        IsProfitable = mainToken.IsProfitable,
+                        IssueChainId = mainToken.IssueChainId,
+                        Symbol = mainToken.Symbol,
+                        TokenName = mainToken.TokenName,
+                        TotalSupply = mainToken.TotalSupply
+                    });
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                    $"Validate MainContract token '{symbol}' failed");
+                var checkBlockNumber = transactionResult.TransactionResult.BlockNumber;
+                var transactionId = transactionResult.TransactionResult.TransactionId.ToHex();
+                await SideContract.CheckParentChainBlockIndex(checkBlockNumber);
+
+                //create token on side chain
+                var merklePath = await MainContract.GetMerklePath(checkBlockNumber, transactionId);
+                if (merklePath == null)
+                    throw new Exception("Can't get the merkle path.");
+                var createInput = new CrossChainCreateTokenInput
+                {
+                    FromChainId = MainContract.ChainId,
+                    MerklePath = merklePath,
+                    TransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray()),
+                    ParentChainHeight = checkBlockNumber
+                };
+                var createResult =
+                    SideContract.Token.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken,
+                        createInput);
+                createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var tokenInfo = SideContract.Token.GetTokenInfo(symbol);
+                tokenInfo.ShouldNotBe(new TokenInfo());
+                Logger.Info($"Side chain token '{symbol}' created success.");
+            }
         }
 
         private async Task TransferMain2Side()
@@ -332,6 +397,7 @@ namespace AElfChain.Console.Commands
                 "Register[Main-Side]",
                 "Register[Side-Main]",
                 "CreateToken[Side]",
+                "CreateTokens[Side]",
                 "Transfer[Main-Side]",
                 "Transfer[Side-Main]",
                 "Exit"

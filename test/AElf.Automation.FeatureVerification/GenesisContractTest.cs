@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Acs0;
+using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
 using AElf.Contracts.Genesis;
@@ -312,14 +313,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void ChangeContractDeploymentController()
         {
             var changeAddress = CreateAssociationOrganization(Tester);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(Tester.AssociationService.ContractAddress),
                 OwnerAddress = changeAddress
             };
 
             var contractDeploymentController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
             _logger.Info($"owner address is {contractDeploymentController.OwnerAddress} ");
 
@@ -339,7 +340,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var release = Tester.ParliamentService.ReleaseProposal(proposalId, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             contractDeploymentController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
             contractDeploymentController.OwnerAddress.ShouldBe(changeAddress);
             _logger.Info($"Owner address is {contractDeploymentController.OwnerAddress} ");
@@ -349,14 +350,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void ChangeCodeCheckController()
         {
             var changeAddress = CreateParliamentOrganization(Tester);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(Tester.ParliamentService.ContractAddress),
                 OwnerAddress = changeAddress
             };
 
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             _logger.Info($"owner address is {contractCodeCheckController.OwnerAddress} ");
 
@@ -376,7 +377,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var release = Tester.ParliamentService.ReleaseProposal(proposalId, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             contractCodeCheckController.OwnerAddress.ShouldBe(changeAddress);
             _logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
@@ -386,7 +387,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void CheckController()
         {
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             _logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }

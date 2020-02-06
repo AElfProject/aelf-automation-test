@@ -1,3 +1,4 @@
+using Acs1;
 using Acs7;
 using AElf.Contracts.CrossChain;
 using AElf.Types;
@@ -95,15 +96,15 @@ namespace AElfChain.Common.Contracts
                 CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
         }
 
-        public AuthorityStuff GetCrossChainIndexingController()
+        public AuthorityInfo GetCrossChainIndexingController()
         {
-            return CallViewMethod<AuthorityStuff>(
+            return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
 
-        public AuthorityStuff GetSideChainLifetimeController()
+        public AuthorityInfo GetSideChainLifetimeController()
         {
-            return CallViewMethod<AuthorityStuff>(
+            return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetSideChainLifetimeController, new Empty());
         }
 

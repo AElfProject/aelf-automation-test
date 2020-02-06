@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Xml.Serialization;
+using Acs1;
 using Acs3;
 using Acs7;
 using AElf.Contracts.Association;
@@ -230,7 +231,7 @@ namespace AElf.Automation.SideChainTests
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
 
             var checkPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
-            var association = MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).AuthorityStuff
+            var association = MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).AuthorityInfo
                 .OwnerAddress;
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {
@@ -327,7 +328,7 @@ namespace AElf.Automation.SideChainTests
         public void ChangeLifeController()
         {
             var associationOrganization = CreateAssociationOrganization(MainServices);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(MainServices.AssociationService.ContractAddress),
                 OwnerAddress = associationOrganization
@@ -350,7 +351,7 @@ namespace AElf.Automation.SideChainTests
         {
             TransferToken(MainServices, InitAccount, OtherAccount, 10000_00000000, "ELF");
             var associationOrganization = CreateAssociationOrganization(MainServices);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(MainServices.AssociationService.ContractAddress),
                 OwnerAddress = associationOrganization
@@ -368,7 +369,7 @@ namespace AElf.Automation.SideChainTests
         public void ChangeIndexingController()
         {
             var parliamentOrganization = CreateParliamentOrganization(SideBServices);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(SideBServices.ParliamentService.ContractAddress),
                 OwnerAddress = parliamentOrganization
