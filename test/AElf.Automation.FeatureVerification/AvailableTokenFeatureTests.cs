@@ -26,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AvailableTokenFeatureTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-online-stage-main");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -179,7 +179,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTXSizeFee.SendAsync(newSymbolList);
             symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
-            
             
             var newParliament = new CreateOrganizationInput
             {

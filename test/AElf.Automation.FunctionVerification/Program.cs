@@ -43,6 +43,13 @@ namespace AElf.Automation.ContractsTesting
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiClient;
             
+            //check transaction fee
+            var transactionFee = new AnalyzeTransactionFee();
+            transactionFee.QueryBlocksInfo(84762, 91690); //298840
+            transactionFee.QueryTransactionsInfo();
+            transactionFee.CalculateTotalFee();
+            Console.ReadLine();
+            
             //analyze size fee
             var feeProvider = new TransactionFeeProvider();
             feeProvider.CalculateTxFee();
@@ -102,14 +109,6 @@ namespace AElf.Automation.ContractsTesting
             configTransaction.SetTransactionLimit(50);
             configTransaction.GetTransactionLimit();
             Console.ReadLine();
-            
-            //check transaction fee
-            var transactionFee = new AnalyzeTransactionFee();
-            transactionFee.QueryBlocksInfo(277325, 284525); //298840
-            transactionFee.QueryTransactionsInfo();
-            transactionFee.CalculateTotalFee();
-            Console.ReadLine();
-
             #endregion
 
             #region Node status check
@@ -161,7 +160,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = NodeOption.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://192.168.197.40:8000";
+        public string Endpoint { get; set; } = "http://18.212.240.254:8000";
 
         #endregion
     }

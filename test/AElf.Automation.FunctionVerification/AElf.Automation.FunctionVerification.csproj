@@ -9,9 +9,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="logs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
   </ItemGroup>
 </Project>

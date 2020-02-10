@@ -33,8 +33,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Testers = AllTesters.GetRange(100, 10);
         }
 
-        
-
         private void InitializeDAppContract()
         {
             DAppContract = new DAppContract(Services.NodeManager, ContractDeveloper);

@@ -288,6 +288,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var organization = transactionResult.Output;
             Logger.Info($"Organization address: {organization.GetFormatted()}");
+            
             return organization;
         }
 
@@ -312,6 +313,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(createOrganizationInput);
             var organizationAddress = transactionResult.Output;
             Logger.Info($"ParliamentAuth address: {organizationAddress}");
+            
             return organizationAddress;
         }
     }

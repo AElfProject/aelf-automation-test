@@ -236,14 +236,14 @@ namespace AElfChain.Console.Commands
                 var mainToken = MainContract.Token.GetTokenInfo(symbol);
                 if (mainToken.Equals(new TokenInfo()))
                 {
-                    Logger.Error($"Main chain without '{input}' token.");
+                    Logger.Error($"Main chain without '{symbol}' token.");
                     continue;
                 }
 
                 var sideToken = SideContract.Token.GetTokenInfo(symbol);
                 if (!sideToken.Equals(new TokenInfo()))
                 {
-                    Logger.Info($"Side chain already with '{input}' token.");
+                    Logger.Info($"Side chain already with '{symbol}' token.");
                     continue;
                 }
 

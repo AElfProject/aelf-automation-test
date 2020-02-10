@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs3;
+using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
@@ -20,19 +23,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ILogHelper Logger = LogHelper.GetLogger();
         public INodeManager MainNode { get; set; }
         public INodeManager SideNode { get; set; }
-        
+
+        public ContractManager MainManager { get; set; }
+        public ContractManager SideManager { get; set; }
+
         public GenesisContract Genesis { get; set; }
 
         public SidechainRentFeatureTests()
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("13.236.178.147:8000");
+            MainNode = new NodeManager("18.212.240.254:8000");
 
-            NodeInfoHelper.SetConfig("nodes-online-test-side1");
+            NodeInfoHelper.SetConfig("nodes-online-stage-side2");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
+
+            MainManager = new ContractManager(MainNode, bpNode.Account);
+            SideManager = new ContractManager(SideNode, bpNode.Account);
         }
 
         [TestMethod]
@@ -53,6 +62,41 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         {"NET", 2}
                     }
                 }, organization, bps, bps.First());
+        }
+
+        [TestMethod]
+        public async Task NewOrg_UpdateRentalTest()
+        {
+            var proposer = SideManager.CallAddress;
+            var defaultOrganization = SideManager.ParliamentAuth.GetGenesisOwnerAddress();
+            var association = await CreateNewAssociationOrganization(defaultOrganization, SideManager.CallAccount);
+            var updateRentalInput = new UpdateRentalInput
+            {
+                Rental =
+                {
+                    {"CPU", 1000},
+                    {"RAM", 500},
+                    {"DISK", 4},
+                    {"NET", 2}
+                }
+            };
+            var proposalId = SideManager.Association.CreateProposal(
+                SideManager.Token.ContractAddress,
+                nameof(TokenMethod.UpdateRental), updateRentalInput, association,
+                proposer);
+            SideManager.Association.SetAccount(proposer);
+            SideManager.Association.ApproveProposal(proposalId, proposer);
+            var approveProposalId = SideManager.ParliamentAuth.CreateProposal(
+                SideManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
+                defaultOrganization, proposer);
+            var currentMiners = SideManager.Authority.GetCurrentMiners();
+            foreach (var miner in currentMiners)
+            {
+                SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
+            }
+
+            SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
+            SideManager.Association.ReleaseProposal(proposalId, proposer);
         }
 
         [TestMethod]
@@ -120,6 +164,40 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balance = token.GetUserBalance(bps.First(), symbol);
                 Logger.Info($"{symbol}={balance}");
             }
+        }
+
+        private async Task<Address> CreateNewAssociationOrganization(Address parliamentOrgAddress, Address sideCreator)
+        {
+            var minimalApproveThreshold = 2;
+            var minimalVoteThreshold = 2;
+            var maximalAbstentionThreshold = 0;
+            var maximalRejectionThreshold = 0;
+            var list = new List<Address> {parliamentOrgAddress,sideCreator};
+            var createOrganizationInput = new CreateOrganizationInput
+            {
+                OrganizationMemberList = new OrganizationMemberList
+                {
+                    OrganizationMembers = {list}
+                },
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MinimalApprovalThreshold = minimalApproveThreshold,
+                    MinimalVoteThreshold = minimalVoteThreshold,
+                    MaximalAbstentionThreshold = maximalAbstentionThreshold,
+                    MaximalRejectionThreshold = maximalRejectionThreshold
+                },
+                ProposerWhiteList = new ProposerWhiteList
+                {
+                    Proposers = {list}
+                }
+            };
+            var transactionResult =
+                await SideManager.AssociationStub.CreateOrganization.SendAsync(createOrganizationInput);
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var organization = transactionResult.Output;
+            Logger.Info($"Organization address: {organization.GetFormatted()}");
+
+            return organization;
         }
     }
 }

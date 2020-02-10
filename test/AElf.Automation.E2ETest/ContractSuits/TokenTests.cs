@@ -291,10 +291,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
 
         [TestMethod]
-        public async Task SetProfitReceivingInformation_Test(string address)
+        public async Task SetProfitReceivingInformation_Test()
         {
+            var address = ContractManager.Profit.Contract;
             var result =
-                await ContractManager.TokenStub.GetProfitReceivingInformation.CallAsync(address.ConvertAddress());
+                await ContractManager.TokenStub.GetProfitReceivingInformation.CallAsync(address);
+            result.ShouldBe(new ProfitReceivingInformation());
         }
     }
 }
