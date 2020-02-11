@@ -26,20 +26,18 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public INodeManager SideNode { get; set; }
         public ContractManager SideManager { get; set; }
         public ILog Logger { get; set; }
-        public string MainConfig = "nodes-env1-main";
-        public string SideConfig = "nodes-env1-side1";
         
         public SidechainFeeTests()
         {
             Log4NetHelper.LogInit("SideChainTest");
             Logger = Log4NetHelper.GetLogger();
             
-            NodeInfoHelper.SetConfig(MainConfig);
+            NodeInfoHelper.SetConfig(ContractTestBase.MainConfig);
             var mainNode = NodeInfoHelper.Config.Nodes.First();
             MainNode = new NodeManager(mainNode.Endpoint);
             MainManager = new ContractManager(MainNode, mainNode.Account);
             
-            NodeInfoHelper.SetConfig(SideConfig);
+            NodeInfoHelper.SetConfig(ContractTestBase.SideConfig);
             var sideNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(sideNode.Endpoint);
             SideManager = new ContractManager(SideNode, sideNode.Account);    

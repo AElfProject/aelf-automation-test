@@ -14,14 +14,13 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
 
-namespace AElf.Automation.Contracts.ScenarioTest
+namespace AElf.Automation.E2ETest.ContractSuits
 {
     [TestClass]
-    public class TransactionFeeSetTests
+    public class TransactionFeeTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public INodeManager NodeManager { get; set; }
@@ -30,11 +29,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ControllerForUserFee UserFeeAddresses { get; set; }
         public List<string> NodeUsers { get; set; }
         public List<string> Miners { get; set; }
-
-        public TransactionFeeSetTests()
+        
+        public TransactionFeeTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig(ContractTestBase.MainConfig);
             NodeUsers = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
 
             var firstNode = NodeInfoHelper.Config.Nodes.First();
@@ -45,7 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             AsyncHelper.RunSync(InitializeAuthorizedOrganization);
             AsyncHelper.RunSync(InitializeReferendumAllowance);
         }
-
+        
         [TestMethod]
         public async Task Update_Coefficient_With_Developer()
         {
@@ -114,30 +113,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             hasModified.CoefficientDic["Numerator".ToLower()].ShouldBe(1);
         }
 
-        [TestMethod]
-        public async Task GetCalculateFeeCoefficientOfContract_Test()
+        private async Task InitializeAuthorizedOrganization()
         {
-            const FeeTypeEnum feeType = FeeTypeEnum.Traffic;
-            var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value
-                {
-                    Value = (int) feeType
-                });
-            Logger.Info(JsonConvert.SerializeObject(userCoefficient));
-        }
-
-        [TestMethod]
-        public async Task GetCalculateFeeCoefficientOfSender_Test()
-        {
-            var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientOfSender.CallAsync(new Empty());
-            Logger.Info(JsonConvert.SerializeObject(userCoefficient));
-        }
-
-        public async Task InitializeAuthorizedOrganization()
-        {
-            var initializeResult =
-                await ContractManager.TokenStub.InitializeAuthorizedController.SendAsync(new Empty());
+            await ContractManager.TokenStub.InitializeAuthorizedController.SendAsync(new Empty());
             //initializeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             DeveloperFeeAddresses = await ContractManager.TokenStub.GetDeveloperFeeController.CallAsync(new Empty());
@@ -150,7 +128,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"User ParliamentController: {UserFeeAddresses.ParliamentController}");
             Logger.Info($"User ReferendumController: {UserFeeAddresses.ReferendumController}");
         }
-
+        
         #region Developer actions
 
         private async Task<Hash> CreateToRootForDeveloperFeeByTwoLayer(CoefficientFromContract input)

@@ -20,6 +20,6 @@ namespace AElf.Automation.E2ETest
             NodeManager = new NodeManager(Endpoint);
         }
 
-        private const string Endpoint = "192.168.197.14:8000";
+        private const string Endpoint = "52.90.147.175:8000";
     }
 }

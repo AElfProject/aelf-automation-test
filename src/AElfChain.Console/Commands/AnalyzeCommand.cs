@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf;
 using AElf.Client.Service;
+using AElf.Contracts.CrossChain;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.DtoExtension;
@@ -35,6 +36,9 @@ namespace AElfChain.Console.Commands
             {
                 case "ChainsStatus":
                     ChainsStatus();
+                    break;
+                case "ChainHeights":
+                    ChainHeights();
                     break;
                 case "BlockAnalyze":
                     BlockAnalyze();
@@ -94,6 +98,39 @@ namespace AElfChain.Console.Commands
                 $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
                 JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
                 System.Console.WriteLine();
+            }
+        }
+
+        private void ChainHeights()
+        {
+            var nodes = NodeInfoHelper.Config.Nodes;
+            var heightInfoDic = new Dictionary<string, long>();
+            var clientInfoDic = new Dictionary<string, AElfClient>();
+            nodes.ForEach(o =>
+            {
+                heightInfoDic.Add(o.Name, 0);
+                clientInfoDic.Add(o.Name, new AElfClient($"http://{o.Endpoint}"));
+            });
+
+            while (true)
+            {
+                Parallel.ForEach(clientInfoDic.Keys, key =>
+                {
+                    try
+                    {
+                        var height = AsyncHelper.RunSync(clientInfoDic[key].GetBlockHeightAsync);
+                        heightInfoDic[key] = height;
+                    }
+                    catch (Exception)
+                    {
+                        $"Request block height failed from: {key}".WriteErrorLine();
+                    }
+                });
+                var info = heightInfoDic.Keys.Aggregate(string.Empty,
+                    (current, key) => current + $"Node={key, -20} Height={heightInfoDic[key]}\n");
+                System.Console.Clear();
+                System.Console.Write($"\r{info}");
+                Thread.Sleep(300);
             }
         }
 
@@ -309,7 +346,7 @@ namespace AElfChain.Console.Commands
                 {
                     beforeTime = DateTime.Now;
                     var rental = Services.Token.GetOwningRental();
-                    
+
                     System.Console.WriteLine();
                     System.Console.WriteLine();
                     Logger.Info($"Rental check at: {time:g}");
@@ -319,16 +356,20 @@ namespace AElfChain.Console.Commands
                         var balance = Services.Token.GetUserBalance(input, symbol);
                         Logger.Info($"{symbol} = {balance}");
                     }
+
                     Logger.Info("Rental balance info:");
                     foreach (var item in rental.ResourceAmount)
                     {
                         Logger.Info($"{item.Key} = {item.Value}");
                     }
+
                     stopwatch.Restart();
                     continue;
                 }
+
                 Thread.Sleep(500);
-                System.Console.Write($"\rWait one minute and check rental, time using: {stopwatch.ElapsedMilliseconds/1000}s");
+                System.Console.Write(
+                    $"\rWait one minute and check rental, time using: {stopwatch.ElapsedMilliseconds / 1000}s");
             }
         }
 
@@ -337,6 +378,7 @@ namespace AElfChain.Console.Commands
             return new List<string>
             {
                 "ChainsStatus",
+                "ChainHeights",
                 "BlockAnalyze",
                 "TransactionAnalyze",
                 "TransactionPoolAnalyze",

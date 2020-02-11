@@ -33,9 +33,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("18.212.240.254:8000");
+            MainNode = new NodeManager("192.168.197.14:8000");
 
-            NodeInfoHelper.SetConfig("nodes-online-stage-side2");
+            NodeInfoHelper.SetConfig("nodes-env1-side1");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);

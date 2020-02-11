@@ -16,41 +16,48 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public AuthorityManager Authority => ContractManager.Authority;
         
         [TestMethod]
-        public async Task AdoptAcs1_TransactionSizeFee_Test()
-        {
-            
-        }
-
-        [TestMethod]
         public async Task AdoptAcs1_TransactionTokenList_Test()
         {
-            
+            var availableTokenInfo = new SymbolListToPayTXSizeFee
+            {
+                SymbolsToPayTxSizeFee =
+                {
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "ELF",
+                        AddedTokenWeight = 1,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "CPU",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "RAM",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "NET",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    }
+                }
+            };
+
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
+                availableTokenInfo, ContractManager.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            tokenInfos.SymbolsToPayTxSizeFee.ShouldBe(availableTokenInfo.SymbolsToPayTxSizeFee);
         }
 
-        [TestMethod]
-        public async Task AdoptResource_ReadSizeFee_Test()
-        {
-            
-        }
-
-        [TestMethod]
-        public async Task AdoptResource_StorageFee_Test()
-        {
-            
-        }
-
-        [TestMethod]
-        public async Task AdoptResource_WriteFee_Test()
-        {
-            
-        }
-
-        [TestMethod]
-        public async Task AdoptResource_TrafficFee_Test()
-        {
-            
-        }
-        
         [TestMethod]
         [DataRow("Transfer", 1000_0000L)]
         public void AdoptContract_TokenTransactionMethodFee_Test(string method, long methodFee)

@@ -201,5 +201,61 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var votesAmount = await electionTester.GetVotesAmount.CallAsync(new Empty());
             votesAmount.Value.ShouldBeGreaterThanOrEqualTo(50);
         }
+        
+        [TestMethod]
+        public async Task SetVoteInterest_Test()
+        {
+            var voteWeightInterestList = new VoteWeightInterestList
+            {
+                VoteWeightInterestInfos =
+                {
+                    new VoteWeightInterest
+                    {
+                        Day = 90,
+                        Capital = 10000,
+                        Interest = 10
+                    },
+                    new VoteWeightInterest
+                    {
+                        Day = 180,
+                        Capital = 10000,
+                        Interest = 12,
+                    },
+                    new VoteWeightInterest
+                    {
+                        Day = 270,
+                        Capital = 10000,
+                        Interest = 15
+                    },
+                    new VoteWeightInterest
+                    {
+                        Day = 360,
+                        Capital = 10000,
+                        Interest = 18
+                    },
+                    new VoteWeightInterest
+                    {
+                        Day = 720,
+                        Capital = 10000,
+                        Interest = 20
+                    },
+                    new VoteWeightInterest
+                    {
+                        Day = 1080,
+                        Capital = 10000,
+                        Interest = 24
+                    }
+                }
+            };
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.SetVoteWeightInterest),
+                voteWeightInterestList, ContractManager.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            //Query interest
+            var queryResult = await ContractManager.ElectionStub.GetVoteWeightSetting.CallAsync(new Empty());
+            queryResult.VoteWeightInterestInfos.ShouldBe(voteWeightInterestList.VoteWeightInterestInfos);
+        }
     }
 }

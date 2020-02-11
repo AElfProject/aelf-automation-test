@@ -27,7 +27,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public BpGenerateBlockRewardsTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env1-side1");
+            NodeInfoHelper.SetConfig("nodes-online-test-main");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -63,7 +63,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryBpBasicProfit()
         {
-            var accounts = NodeInfoHelper.Config.Nodes.Take(4).Select(o => o.Account);
+            var accounts = NodeInfoHelper.Config.Nodes.Take(15).Select(o => o.Account);
             ContractManager.Profit.GetTreasurySchemes(ContractManager.Treasury.ContractAddress);
             var term = await ContractManager.ConsensusStub.GetCurrentTermNumber.CallAsync(new Empty());
             Logger.Info($"Current term number: {term.Value}");
