@@ -58,6 +58,9 @@ namespace AElfChain.Console.Commands
                 case "CheckSidechainRental":
                     CheckSidechainRental();
                     break;
+                case "CheckCandidatesTickets":
+                    CheckCandidatesTickets();
+                    break;
                 default:
                     Logger.Error("Not supported api method.");
                     var subCommands = GetSubCommands();
@@ -127,7 +130,7 @@ namespace AElfChain.Console.Commands
                     }
                 });
                 var info = heightInfoDic.Keys.Aggregate(string.Empty,
-                    (current, key) => current + $"Node={key, -20} Height={heightInfoDic[key]}\n");
+                    (current, key) => current + $"Node={key,-20} Height={heightInfoDic[key]}\n");
                 System.Console.Clear();
                 System.Console.Write($"\r{info}");
                 Thread.Sleep(300);
@@ -373,6 +376,22 @@ namespace AElfChain.Console.Commands
             }
         }
 
+        private void CheckCandidatesTickets()
+        {
+            var voteRankList =
+                AsyncHelper.RunSync(() => Services.ElectionStub.GetDataCenterRankingList.CallAsync(new Empty()));
+            var rankInfo = voteRankList.DataCenters.OrderByDescending(o => o.Value);
+            var nodes = NodeInfoHelper.Config.Nodes;
+            NodeInfoHelper.Config.CheckNodesAccount();
+            var count = 1;
+            foreach (var info in rankInfo)
+            {
+                var node = nodes.FirstOrDefault(o => o.PublicKey == info.Key);
+                $"{count++:00}  {node.Name}  {node.Account}  {node.Endpoint}".WriteSuccessLine();
+                $"PublicKey={info.Key}  Tickets={info.Value}".WriteSuccessLine();
+            }
+        }
+
         private IEnumerable<string> GetSubCommands()
         {
             return new List<string>
@@ -384,7 +403,8 @@ namespace AElfChain.Console.Commands
                 "TransactionPoolAnalyze",
                 "NodeElectionAnalyze",
                 "CheckAccountsToken",
-                "CheckSidechainRental"
+                "CheckSidechainRental",
+                "CheckCandidatesTickets"
             };
         }
     }
