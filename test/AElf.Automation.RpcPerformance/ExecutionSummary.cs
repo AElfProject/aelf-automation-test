@@ -13,7 +13,7 @@ namespace AElf.Automation.RpcPerformance
 {
     public class ExecutionSummary
     {
-        private const int Phase = 120;
+        private const int Phase = 8;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly AElfClient _apiService;
         private long _blockHeight;

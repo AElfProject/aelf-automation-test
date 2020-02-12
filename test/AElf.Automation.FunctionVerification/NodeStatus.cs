@@ -40,6 +40,18 @@ namespace AElf.Automation.ContractsTesting
             return AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(height));
         }
 
+        public void GetBlocksInformation(long start, long end)
+        {
+            //740020,742810
+            for (var height = start; height <= end; height++)
+            {
+                var current = height;
+                var block = AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(current));
+                Logger.Info($"{height},{block.Header.Time},{block.BlockHash},{block.Body.TransactionsCount}");
+            }
+            "Complete analyze result.".WriteSuccessLine();
+        }
+
         public void CheckConfigurationInfo()
         {
             var account = _nodeManager.AccountManager.GetRandomAccount();

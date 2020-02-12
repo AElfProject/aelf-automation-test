@@ -40,6 +40,13 @@ namespace AElf.Automation.ContractsTesting
 
             //Init Logger
             Log4NetHelper.LogInit("ContractTest");
+            
+            //Node blocks analyze
+            var nodeManager = new NodeManager("54.183.221.226:8000");
+            var blockStatus = new NodeStatus(nodeManager);
+            blockStatus.GetBlocksInformation(740020, 742810);
+            Console.ReadLine();
+            
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiClient;
             

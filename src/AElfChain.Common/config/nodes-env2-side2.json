@@ -9,7 +9,7 @@
         },
         {
             "name": "bp2",
-            "endpoint": "192.168.197.29:8002",
+            "endpoint": "192.168.197.53:8002",
             "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
             "password": "123"
         },
