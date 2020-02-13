@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElf;
 using AElf.Client.Service;
-using AElf.Contracts.CrossChain;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.DtoExtension;

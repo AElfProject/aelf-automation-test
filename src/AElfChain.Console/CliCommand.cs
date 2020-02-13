@@ -132,7 +132,7 @@ namespace AElfChain.Console
             Commands.Add(new ContractExecutionCommand(NodeManager, ContractManager));
             Commands.Add(new QueryContractCommand(NodeManager, ContractManager));
             Commands.Add(new QueryTokenCommand(NodeManager, ContractManager));
-            Commands.Add(new QueryProposalCommand(NodeManager, ContractManager));
+            Commands.Add(new ProposalCommand(NodeManager, ContractManager));
             Commands.Add(new ConsensusCommand(NodeManager, ContractManager));
             Commands.Add(new DeployCommand(NodeManager, ContractManager));
             Commands.Add(new UpdateCommand(NodeManager, ContractManager));
