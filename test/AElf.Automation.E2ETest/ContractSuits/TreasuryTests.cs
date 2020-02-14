@@ -151,20 +151,29 @@ namespace AElf.Automation.E2ETest.ContractSuits
             });
             var updateInterestRet = (await ContractManager.TreasuryStub.SetVoteWeightInterest.SendAsync(newInterest)).TransactionResult;
             updateInterestRet.Status.ShouldBe(TransactionResultStatus.Failed);
-            
+
+            var newTester = ConfigNodes[1].Account;
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.CallAddress, 
+                ContractManager.Treasury.ContractAddress, 
                 nameof(ContractManager.TreasuryStub.SetControllerForManageVoteWeightInterest),
-                ContractManager.CallAccount,
+                newTester.ConvertAddress(),
                 ContractManager.CallAddress);
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            updateInterestRet = (await ContractManager.TreasuryStub.SetVoteWeightInterest.SendAsync(newInterest)).TransactionResult;
+            
+            var treasuryStub = ContractManager.Genesis.GetTreasuryStub(newTester);
+            updateInterestRet = (await treasuryStub.SetVoteWeightInterest.SendAsync(newInterest)).TransactionResult;
             updateInterestRet.Status.ShouldBe(TransactionResultStatus.Mined);
+            
             var interestList = await ContractManager.TreasuryStub.GetVoteWeightSetting.CallAsync(new Empty());
             interestList.VoteWeightInterestInfos.Count.ShouldBe(1);
             interestList.VoteWeightInterestInfos[0].Capital.ShouldBe(1000);
             interestList.VoteWeightInterestInfos[0].Interest.ShouldBe(16);
             interestList.VoteWeightInterestInfos[0].Day.ShouldBe(400);
+            
+            //recover back
+            var defaultOwner = ContractManager.Authority.GetGenesisOwnerAddress();
+            var transactionResult = await treasuryStub.SetControllerForManageVoteWeightInterest.SendAsync(defaultOwner);
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
     }
 }

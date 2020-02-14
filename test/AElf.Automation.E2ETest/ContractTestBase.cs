@@ -29,7 +29,7 @@ namespace AElf.Automation.E2ETest
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
         }
 
-        public static string MainConfig = "nodes-online-test-main";
-        public static string SideConfig = CommonHelper.MapPath("config/nodes-online-test-side1.json");
+        public static string MainConfig = "nodes-env2-main";
+        public static string SideConfig = CommonHelper.MapPath("config/nodes-env2-side1.json");
     }
 }
