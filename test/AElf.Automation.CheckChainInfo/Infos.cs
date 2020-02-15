@@ -1,6 +1,6 @@
 using AElf.Client.Dto;
 
-namespace AElf.Automation.CheckTxStatus
+namespace AElf.Automation.CheckChainInfo
 {
     public class TransactionInfo
     {
