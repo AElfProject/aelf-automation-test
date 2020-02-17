@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ServiceModel.Channels;
-using AElf;
 using AElf.Client.Dto;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
@@ -99,7 +97,7 @@ namespace AElfChain.Common.Contracts
 
             return result;
         }
-        
+
         public TransactionResultDto ApproveToken(string from, string to, long amount, string symbol = "")
         {
             SetAccount(from);
@@ -109,7 +107,7 @@ namespace AElfChain.Common.Contracts
                 Amount = amount,
                 Spender = to.ConvertAddress()
             });
-            
+
             return result;
         }
 
@@ -118,6 +116,7 @@ namespace AElfChain.Common.Contracts
             var tester = GetNewTester(from);
             return tester.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
         }
+
         public long GetUserBalance(string account, string symbol = "")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput

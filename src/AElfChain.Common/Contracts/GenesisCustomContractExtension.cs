@@ -21,11 +21,12 @@ namespace AElfChain.Common.Contracts
             SystemContractAddresses = genesis.GetAllSystemContracts();
             foreach (var contract in SystemContractAddresses.Values)
             {
-                if(SystemContracts == null)
+                if (SystemContracts == null)
                     SystemContracts = new Dictionary<Address, List<string>>();
                 if (SystemContracts.ContainsKey(contract)) continue;
                 var contractDescriptor =
-                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
+                    AsyncHelper.RunSync(() =>
+                        genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
                 var systemContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = systemContractHandler.GetContractMethods();
                 SystemContracts.Add(contract, methods);
@@ -34,25 +35,20 @@ namespace AElfChain.Common.Contracts
 
         public static void GetAllCustomContractDic(this GenesisContract genesis)
         {
-            if (SystemContractAddresses == null)
-            {
-                SystemContractAddresses = genesis.GetAllSystemContracts();
-            }
+            if (SystemContractAddresses == null) SystemContractAddresses = genesis.GetAllSystemContracts();
 
             var addressList =
                 genesis.CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
             foreach (var address in addressList.Value)
             {
                 if (SystemContractAddresses.ContainsValue(address)) continue;
-                if(CustomContracts == null)
+                if (CustomContracts == null)
                     CustomContracts = new Dictionary<Address, List<string>>();
-                if (CustomContracts.ContainsKey(address))
-                {
-                    CustomContracts.Remove(address);
-                }
+                if (CustomContracts.ContainsKey(address)) CustomContracts.Remove(address);
 
                 var contractDescriptor =
-                    AsyncHelper.RunSync(()=>genesis.ApiClient.GetContractFileDescriptorSetAsync(address.GetFormatted()));
+                    AsyncHelper.RunSync(() =>
+                        genesis.ApiClient.GetContractFileDescriptorSetAsync(address.GetFormatted()));
                 var customContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = customContractHandler.GetContractMethods();
                 CustomContracts.TryAdd(address, methods);
@@ -61,10 +57,7 @@ namespace AElfChain.Common.Contracts
 
         public static List<Address> QuerySystemContractByMethodName(this GenesisContract genesis, string method)
         {
-            if (SystemContracts == null)
-            {
-                GetAllSystemContractDic(genesis);
-            }
+            if (SystemContracts == null) GetAllSystemContractDic(genesis);
 
             return SystemContracts.Where(o => o.Value.Contains(method)).Select(o => o.Key).ToList();
         }

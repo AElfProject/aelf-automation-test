@@ -11,6 +11,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
+using AElf.Sdk.CSharp.State;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts.Serializer;

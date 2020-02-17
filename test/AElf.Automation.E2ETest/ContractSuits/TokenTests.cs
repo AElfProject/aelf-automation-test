@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using Acs1;
 using AElf.Contracts.MultiToken;
@@ -287,6 +288,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 tokenInfo.IsProfitable.ShouldBeTrue();
                 tokenInfo.IssueChainId.ShouldBe(ChainHelper.ConvertBase58ToChainId(chainId));
             }
+        }
+
+        [TestMethod]
+        public async Task SetProfitReceivingInformation_Test()
+        {
+            var address = ContractManager.Profit.Contract;
+            var result =
+                await ContractManager.TokenStub.GetProfitReceivingInformation.CallAsync(address);
+            result.ShouldBe(new ProfitReceivingInformation());
         }
     }
 }

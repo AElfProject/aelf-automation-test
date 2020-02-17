@@ -8,7 +8,6 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using Volo.Abp.Threading;
 
@@ -86,19 +85,19 @@ namespace AElfChain.Common.Contracts
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
         }
-        
+
         public TransactionResultDto Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Abstain, proposalId);
         }
-        
+
         public TransactionResultDto Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(ReferendumMethod.Reject, proposalId);
         }
-        
+
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ReferendumMethod.GetOrganization, organization);

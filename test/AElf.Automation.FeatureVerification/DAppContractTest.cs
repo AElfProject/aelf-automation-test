@@ -24,7 +24,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class DAppContractTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private string ContractAddress = "2q3pgxJ3CAoABM9oKqVwRBmxQqN8Za7wpi3q8GHqXwW7fcNwTQ";
+        private string ContractAddress = "rCCKJDg8STNqYtwbUC23SEyYNv6mYvKuEnXJPj8ZoGkgQFWqh";
         private string ConfigFile = "nodes-online-test-main";
         private string AppSymbol = "MAPP";
         private INodeManager NodeManager { get; set; }

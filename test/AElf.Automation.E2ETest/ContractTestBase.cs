@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
@@ -19,8 +20,8 @@ namespace AElf.Automation.E2ETest
         {
             Log4NetHelper.LogInit("ContractTest");
             Logger = Log4NetHelper.GetLogger();
-
-            NodeInfoHelper.SetConfig(ConfigFile);
+            
+            NodeInfoHelper.SetConfig(MainConfig);
             ConfigNodes = NodeInfoHelper.Config.Nodes;
             var firstBp = ConfigNodes.First();
 
@@ -28,9 +29,9 @@ namespace AElf.Automation.E2ETest
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
             TransferToNodes();
         }
-
-        private const string ConfigFile = "nodes-env1-main";
-
+        public static string MainConfig = "nodes-env2-main";
+        public static string SideConfig = CommonHelper.MapPath("config/nodes-env2-side1.json");
+        
         public void TransferToNodes()
         {
             foreach (var node in ConfigNodes)

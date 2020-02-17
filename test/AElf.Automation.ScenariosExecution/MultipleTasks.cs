@@ -76,6 +76,11 @@ namespace AElf.Automation.ScenariosExecution
                         TaskCollection.Add(RunContinueJobWithInterval(acs8Scenario.RunAcs8ScenarioJob,
                             scenario.TimeInterval));
                         break;
+                    case "MassRequestScenario":
+                        var requestScenario = new MonitorMassRequestScenario();
+                        TaskCollection.Add(RunContinueJobWithInterval(()=>requestScenario.RunMassRequestScenarioJob(30),
+                            scenario.TimeInterval));
+                        break;
                 }
 
             //node status monitor

@@ -8,11 +8,11 @@ using Acs0;
 using Acs3;
 using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -29,8 +29,6 @@ namespace AElfChain.Common.Managers
         private readonly TokenContract _token;
         private NodesInfo _info;
 
-        public INodeManager NodeManager { get; set; }
-
         public AuthorityManager(INodeManager nodeManager, string caller = "")
         {
             GetConfigNodeInfo();
@@ -42,6 +40,8 @@ namespace AElfChain.Common.Managers
 
             CheckBpBalance();
         }
+
+        public INodeManager NodeManager { get; set; }
 
         public Address DeployContractWithAuthority(string caller, string contractName)
         {
@@ -59,7 +59,7 @@ namespace AElfChain.Common.Managers
             var contractPath = GetContractFilePath(contractName);
             var code = File.ReadAllBytes(contractPath);
             code = GenerateUniqContractCode(code);
-            
+
             UpdateContractWithAuthority(caller, address, code);
         }
 
@@ -90,7 +90,8 @@ namespace AElfChain.Common.Managers
             transactionResult.Status.ShouldBe("MINED");
 
             var deployProposalId = ProposalCreated.Parser
-                .ParseFrom(ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
+                .ParseFrom(ByteString.FromBase64(transactionResult.Logs
+                    .First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
                 .ProposalId;
             Logger.Info(
                 $"Deploy contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
@@ -101,7 +102,7 @@ namespace AElfChain.Common.Managers
                 return null;
             }
 
-            var checkCodeRelease = new ReleaseContractInput()
+            var checkCodeRelease = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = deployProposalId
@@ -142,17 +143,15 @@ namespace AElfChain.Common.Managers
 
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
             var deployProposalId = ProposalCreated.Parser
-                .ParseFrom(ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
+                .ParseFrom(ByteString.FromBase64(transactionResult.Logs
+                    .First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
                 .ProposalId;
             Logger.Info(
                 $"Update contract proposal info: \n proposal id: {deployProposalId}\n proposal input hash: {proposalHash}");
 
-            if (!CheckProposalStatue(deployProposalId))
-            {
-                Logger.Error("Contract code didn't pass the code check");
-            }
+            if (!CheckProposalStatue(deployProposalId)) Logger.Error("Contract code didn't pass the code check");
 
-            var checkCodeRelease = new ReleaseContractInput()
+            var checkCodeRelease = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = deployProposalId
@@ -179,7 +178,7 @@ namespace AElfChain.Common.Managers
                 .Pubkeys.Count;
             var organization = _genesis.GetContractDeploymentController().OwnerAddress;
             var voteInfo = _parliament.GetOrganization(organization).ProposalReleaseThreshold.MinimalVoteThreshold;
-            var minNumber = (int) (minersCount * 10000 /voteInfo);
+            var minNumber = (int) (minersCount * 10000 / voteInfo);
             var currentMiners = GetCurrentMiners();
             return currentMiners.Take(minNumber).ToList();
         }
@@ -204,7 +203,8 @@ namespace AElfChain.Common.Managers
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
 
-        public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input, string callUser)
+        public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
+            string callUser)
         {
             var organization = GetGenesisOwnerAddress();
             var miners = GetCurrentMiners();
@@ -241,8 +241,10 @@ namespace AElfChain.Common.Managers
                 var dateTime = TimestampHelper.GetUtcNow();
                 proposal = _parliament.CheckProposal(proposalId);
                 if (dateTime >= proposal.ExpiredTime) expired = true;
-                Console.Write($"\rCheck proposal status, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                Console.Write(
+                    $"\rCheck proposal status, time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
             }
+
             Console.WriteLine();
             return proposal.ToBeReleased;
         }
@@ -293,7 +295,7 @@ namespace AElfChain.Common.Managers
                     return path;
                 }
             }
-            
+
             throw new FileNotFoundException($"contract file {contractName} not found.");
         }
 

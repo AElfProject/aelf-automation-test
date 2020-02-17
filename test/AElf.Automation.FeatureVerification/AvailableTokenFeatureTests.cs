@@ -1,8 +1,12 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Acs3;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.Parliament;
+using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -22,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AvailableTokenFeatureTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env2-main");
+            NodeInfoHelper.SetConfig("nodes-online-stage-main");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -41,21 +45,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
             {
-                Logger.Info($"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
+                Logger.Info(
+                    $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
             }
         }
 
         [TestMethod]
         public async Task SetAvailableTokenInfos()
         {
-            var availableTokenInfo = new SymbolListToPayTXSizeFee()
+            var availableTokenInfo = new SymbolListToPayTXSizeFee
             {
                 SymbolsToPayTxSizeFee =
                 {
                     new SymbolToPayTXSizeFee
                     {
-                        TokenSymbol = "RAM",
-                        AddedTokenWeight = 100,
+                        TokenSymbol = "ELF",
+                        AddedTokenWeight = 1,
                         BaseTokenWeight = 1
                     },
                     new SymbolToPayTXSizeFee
@@ -66,19 +71,57 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     },
                     new SymbolToPayTXSizeFee
                     {
-                        TokenSymbol = "ELF",
-                        AddedTokenWeight = 1,
+                        TokenSymbol = "RAM",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTXSizeFee
+                    {
+                        TokenSymbol = "NET",
+                        AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     }
                 }
             };
-            
+
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
                 availableTokenInfo, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             await QueryAvailableTokenInfos();
+        }
+
+        [TestMethod]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "ELF", 5000_0000L)]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "CPU", 8_0000_0000L)]
+        [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "NYNYO", 50_0000_0000L)]
+        public async Task PrepareTesterToken(string account, string symbol, long amount)
+        {
+            //bp balance
+            var bpBalance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
+            if (bpBalance < 100_00000000L)
+            {
+                if (symbol != "ELF")
+                {
+                    var buyResult = await ContractManager.TokenconverterStub.Buy.SendAsync(new BuyInput
+                    {
+                        Symbol = symbol,
+                        Amount = 100_00000000L
+                    });
+                    buyResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                }
+            }
+
+            var balance = ContractManager.Token.GetUserBalance(account, symbol);
+            if (balance >= amount) return;
+            var transactionResult =
+                ContractManager.Token.TransferBalance(ContractManager.CallAddress, account, amount - balance, symbol);
+            transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            //query user balance
+            var afterBalance = ContractManager.Token.GetUserBalance(account, symbol);
+            Logger.Info($"Account: {account}, {symbol} = {afterBalance}");
         }
 
         [TestMethod]
@@ -91,7 +134,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var tokenInfo = ContractManager.Token.GetTokenInfo(symbol);
                 if (tokenInfo.Equals(new TokenInfo())) break;
             }
-            
+
             //create
             var createResult = await ContractManager.TokenStub.Create.SendAsync(new CreateInput
             {
@@ -105,7 +148,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 TotalSupply = 10_0000_0000_00000000L
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //issue
             var issueResult = await ContractManager.TokenStub.Issue.SendAsync(new IssueInput
             {
@@ -115,10 +158,65 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Memo = "issue half tokens"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //get balance
             var balance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
             Logger.Info($"Account: {ContractManager.CallAddress}, Symbol: {symbol}, Balance: {balance}");
+        }
+        
+        [TestMethod]
+        public async Task Controller_Transfer_For_Symbol_To_Pay_Tx_Fee()
+        {
+            var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
+            
+            //Without authority would be failed
+            var newSymbolList = new SymbolListToPayTXSizeFee();
+            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTXSizeFee
+            {
+                TokenSymbol = primaryToken,
+                AddedTokenWeight = 1,
+                BaseTokenWeight = 1
+            });
+            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTXSizeFee.SendAsync(newSymbolList);
+            symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
+            
+            var newParliament = new CreateOrganizationInput
+            {
+                ProposerAuthorityRequired = false,
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MaximalAbstentionThreshold = 1,
+                    MaximalRejectionThreshold = 1,
+                    MinimalApprovalThreshold = 1,
+                    MinimalVoteThreshold = 1
+                },
+                ParliamentMemberProposingAllowed = false
+            };
+            var parliamentCreateRet =
+                await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(newParliament);
+            var newOrganization = parliamentCreateRet.Output;
+
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
+                nameof(ContractManager.TokenStub.SetControllerForSymbolsToPayTXSizeFee),
+                newOrganization,
+                ContractManager.CallAddress
+            );
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
+                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTXSizeFee),
+                newSymbolList,
+                newOrganization,
+                ContractManager.Authority.GetCurrentMiners(),
+                ContractManager.CallAddress
+            );
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //Verify symbol list
+            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);
         }
     }
 }

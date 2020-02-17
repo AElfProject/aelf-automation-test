@@ -13,7 +13,7 @@ namespace AElfChain.Common.Contracts
         Withdraw,
         Use
     }
-    
+
     public class DAppContract : BaseContract<DAppContract>
     {
         public DAppContract(INodeManager nodeManager, string callAddress, string contractAddress)
@@ -26,7 +26,9 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, ContractFileName, callAddress)
         {
         }
-        
+
+        public static string ContractFileName => "AElf.Contracts.TestContract.DApp";
+
         public DAppContainer.DAppStub GetDAppStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;
@@ -36,7 +38,5 @@ namespace AElfChain.Common.Contracts
                     ContractAddress.ConvertAddress(), caller);
             return contractStub;
         }
-        
-        public static string ContractFileName => "AElf.Contracts.TestContract.DApp";
     }
 }

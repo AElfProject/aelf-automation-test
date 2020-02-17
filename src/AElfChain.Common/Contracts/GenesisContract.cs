@@ -3,11 +3,11 @@ using System.Linq;
 using Acs0;
 using Acs1;
 using AElf.Client.Dto;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -129,17 +129,18 @@ namespace AElfChain.Common.Contracts
             });
             return result;
         }
-        
+
         public TransactionResult ProposeNewContract(ContractDeploymentInput input,
             string caller = null)
         {
             var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, result.TransactionResult.TransactionId.ToHex);
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                result.TransactionResult.TransactionId.ToHex);
 
             return result.TransactionResult;
         }
-        
+
         public TransactionResult ProposeUpdateContract(ContractUpdateInput input,
             string caller = null)
         {
@@ -173,7 +174,6 @@ namespace AElfChain.Common.Contracts
         {
             return GetContractAuthor(contractAddress.ConvertAddress());
         }
-        
         public AuthorityInfo GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
@@ -183,9 +183,10 @@ namespace AElfChain.Common.Contracts
         {
             var deployedContracts =
                 CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
-            return deployedContracts.Value.Select(address => CallViewMethod<Hash>(GenesisMethod.GetContractHash, address)).ToList();
+            return deployedContracts.Value
+                .Select(address => CallViewMethod<Hash>(GenesisMethod.GetContractHash, address)).ToList();
         }
-        
+
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
         {
             var caller = callAddress ?? CallAddress;

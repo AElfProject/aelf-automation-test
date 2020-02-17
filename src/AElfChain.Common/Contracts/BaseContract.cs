@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Threading;
 using AElf.Client.Dto;
 using AElf.Client.Service;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
@@ -83,7 +83,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    execute tx and get transaction id
+        ///     execute tx and get transaction id
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -100,7 +100,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    send tx and get transaction id
+        ///     send tx and get transaction id
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -111,7 +111,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    execution tx and wait result response
+        ///     execution tx and wait result response
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -126,9 +126,9 @@ namespace AElfChain.Common.Contracts
             Thread.Sleep(100); //in case of 'NotExisted' issue
             return NodeManager.CheckTransactionResult(txId);
         }
-        
+
         /// <summary>
-        ///    check tx whether exist or not before execution
+        ///     check tx whether exist or not before execution
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -139,10 +139,10 @@ namespace AElfChain.Common.Contracts
             var rawTx = GenerateBroadcastRawTx(method, inputParameter);
             //check whether tx exist or not
             var genTxId = TransactionUtil.CalculateTxId(rawTx);
-            var transactionResult = AsyncHelper.RunSync(()=>ApiClient.GetTransactionResultAsync(genTxId));
+            var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(genTxId));
             if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.NotExisted)
             {
-                Logger.Warn($"Found duplicate transaction.");
+                Logger.Warn("Found duplicate transaction.");
                 existed = true;
                 return transactionResult;
             }
@@ -166,9 +166,9 @@ namespace AElfChain.Common.Contracts
         {
             return ExecuteMethodWithResult(method.ToString(), inputParameter);
         }
-        
+
         /// <summary>
-        /// execution tx and check if exist return result
+        ///     execution tx and check if exist return result
         /// </summary>
         /// <param name="method"></param>
         /// <param name="inputParameter"></param>
@@ -180,7 +180,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    switch contract execution owner
+        ///     switch contract execution owner
         /// </summary>
         /// <param name="account"></param>
         /// <param name="password"></param>
@@ -193,7 +193,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    check all txs results
+        ///     check all txs results
         /// </summary>
         public void CheckTransactionResultList()
         {
@@ -239,7 +239,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    call contract view method
+        ///     call contract view method
         /// </summary>
         /// <param name="method"></param>
         /// <param name="input"></param>
@@ -251,7 +251,7 @@ namespace AElfChain.Common.Contracts
         }
 
         /// <summary>
-        ///    call view method
+        ///     call view method
         /// </summary>
         /// <param name="method"></param>
         /// <param name="input"></param>
@@ -305,7 +305,7 @@ namespace AElfChain.Common.Contracts
         {
             return NodeManager.GenerateRawTransaction(CallAddress, ContractAddress, method, inputParameter);
         }
-        
+
         private bool GetContractAddress(string txId, out string contractAddress)
         {
             contractAddress = string.Empty;

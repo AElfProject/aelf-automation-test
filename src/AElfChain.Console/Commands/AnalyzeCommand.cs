@@ -36,6 +36,9 @@ namespace AElfChain.Console.Commands
                 case "ChainsStatus":
                     ChainsStatus();
                     break;
+                case "ChainHeights":
+                    ChainHeights();
+                    break;
                 case "BlockAnalyze":
                     BlockAnalyze();
                     break;
@@ -53,6 +56,9 @@ namespace AElfChain.Console.Commands
                     break;
                 case "CheckSidechainRental":
                     CheckSidechainRental();
+                    break;
+                case "CheckCandidatesTickets":
+                    CheckCandidatesTickets();
                     break;
                 default:
                     Logger.Error("Not supported api method.");
@@ -94,6 +100,39 @@ namespace AElfChain.Console.Commands
                 $"Node: {manager.GetApiUrl()}".WriteSuccessLine();
                 JsonConvert.SerializeObject(chainStatus, Formatting.Indented).WriteSuccessLine();
                 System.Console.WriteLine();
+            }
+        }
+
+        private void ChainHeights()
+        {
+            var nodes = NodeInfoHelper.Config.Nodes;
+            var heightInfoDic = new Dictionary<string, long>();
+            var clientInfoDic = new Dictionary<string, AElfClient>();
+            nodes.ForEach(o =>
+            {
+                heightInfoDic.Add(o.Name, 0);
+                clientInfoDic.Add(o.Name, new AElfClient($"http://{o.Endpoint}"));
+            });
+
+            while (true)
+            {
+                Parallel.ForEach(clientInfoDic.Keys, key =>
+                {
+                    try
+                    {
+                        var height = AsyncHelper.RunSync(clientInfoDic[key].GetBlockHeightAsync);
+                        heightInfoDic[key] = height;
+                    }
+                    catch (Exception)
+                    {
+                        $"Request block height failed from: {key}".WriteErrorLine();
+                    }
+                });
+                var info = heightInfoDic.Keys.Aggregate(string.Empty,
+                    (current, key) => current + $"Node={key,-20} Height={heightInfoDic[key]}\n");
+                System.Console.Clear();
+                System.Console.Write($"\r{info}");
+                Thread.Sleep(300);
             }
         }
 
@@ -309,7 +348,7 @@ namespace AElfChain.Console.Commands
                 {
                     beforeTime = DateTime.Now;
                     var rental = Services.Token.GetOwningRental();
-                    
+
                     System.Console.WriteLine();
                     System.Console.WriteLine();
                     Logger.Info($"Rental check at: {time:g}");
@@ -319,16 +358,36 @@ namespace AElfChain.Console.Commands
                         var balance = Services.Token.GetUserBalance(input, symbol);
                         Logger.Info($"{symbol} = {balance}");
                     }
+
                     Logger.Info("Rental balance info:");
                     foreach (var item in rental.ResourceAmount)
                     {
                         Logger.Info($"{item.Key} = {item.Value}");
                     }
+
                     stopwatch.Restart();
                     continue;
                 }
+
                 Thread.Sleep(500);
-                System.Console.Write($"\rWait one minute and check rental, time using: {stopwatch.ElapsedMilliseconds/1000}s");
+                System.Console.Write(
+                    $"\rWait one minute and check rental, time using: {stopwatch.ElapsedMilliseconds / 1000}s");
+            }
+        }
+
+        private void CheckCandidatesTickets()
+        {
+            var voteRankList =
+                AsyncHelper.RunSync(() => Services.ElectionStub.GetDataCenterRankingList.CallAsync(new Empty()));
+            var rankInfo = voteRankList.DataCenters.OrderByDescending(o => o.Value);
+            var nodes = NodeInfoHelper.Config.Nodes;
+            NodeInfoHelper.Config.CheckNodesAccount();
+            var count = 1;
+            foreach (var info in rankInfo)
+            {
+                var node = nodes.FirstOrDefault(o => o.PublicKey == info.Key);
+                $"{count++:00}  {node.Name}  {node.Account}  {node.Endpoint}".WriteSuccessLine();
+                $"PublicKey={info.Key}  Tickets={info.Value}".WriteSuccessLine();
             }
         }
 
@@ -337,12 +396,14 @@ namespace AElfChain.Console.Commands
             return new List<string>
             {
                 "ChainsStatus",
+                "ChainHeights",
                 "BlockAnalyze",
                 "TransactionAnalyze",
                 "TransactionPoolAnalyze",
                 "NodeElectionAnalyze",
                 "CheckAccountsToken",
-                "CheckSidechainRental"
+                "CheckSidechainRental",
+                "CheckCandidatesTickets"
             };
         }
     }

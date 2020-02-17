@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Client.Service;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using log4net;
 using Volo.Abp.DependencyInjection;
@@ -73,6 +73,7 @@ namespace AElfChain.Common.Contracts
                         Error = resultDto.Error ?? "",
                         Status = status,
                         TransactionFee = transactionFee,
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     }
                     : new TransactionResult
@@ -95,6 +96,7 @@ namespace AElfChain.Common.Contracts
                         Error = resultDto.Error ?? "",
                         Status = status,
                         TransactionFee = transactionFee,
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
                         ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
 
@@ -121,10 +123,9 @@ namespace AElfChain.Common.Contracts
                 transaction = NodeManager.TransactionManager.SignTransaction(transaction);
 
                 var returnValue = await ApiClient.ExecuteTransactionAsync(new ExecuteTransactionDto
-                    {
-                        RawTransaction = transaction.ToByteArray().ToHex()
-                        
-                    });
+                {
+                    RawTransaction = transaction.ToByteArray().ToHex()
+                });
                 return method.ResponseMarshaller.Deserializer(ByteArrayHelper.HexStringToByteArray(returnValue));
             }
 

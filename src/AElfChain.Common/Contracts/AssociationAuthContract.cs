@@ -12,7 +12,6 @@ using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
-using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -107,10 +106,10 @@ namespace AElfChain.Common.Contracts
                 ExecuteMethodWithResult(AssociationMethod.CreateOrganization, input).ReadableReturnValue
                     .Replace("\"", ""));
         }
-        
+
         public Organization GetOrganization(Address organization)
         {
-            return 
+            return
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
         
@@ -118,6 +117,12 @@ namespace AElfChain.Common.Contracts
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Approve, proposalId);
+        }
+        
+        public TransactionResultDto ApproveWithResult(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
         }
         
         public string Abstain(Hash proposalId, string caller)

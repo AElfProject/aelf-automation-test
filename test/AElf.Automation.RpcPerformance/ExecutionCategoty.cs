@@ -648,7 +648,7 @@ namespace AElf.Automation.RpcPerformance
                         AsyncHelper.RunSync(NodeManager.ApiClient.GetTransactionPoolStatusAsync).Validated;
                     if (transactionPoolCount > maxLimit)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(50);
                         Logger.Warn(
                             $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
                         continue;

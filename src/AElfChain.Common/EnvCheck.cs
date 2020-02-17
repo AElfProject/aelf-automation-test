@@ -18,18 +18,18 @@ namespace AElfChain.Common
         private static readonly string AccountDir = CommonHelper.GetCurrentDataDir();
 
         private static readonly EnvCheck Instance = new EnvCheck();
-        
-        public static EnvCheck GetDefaultEnvCheck()
-        {
-            return Instance;
-        }
-        
+
         private EnvCheck()
         {
             _config = NodeInfoHelper.Config;
 
             CheckInitialEnvironment();
             GetConfigNodesPublicKey();
+        }
+
+        public static EnvCheck GetDefaultEnvCheck()
+        {
+            return Instance;
         }
 
         private void CheckInitialEnvironment()

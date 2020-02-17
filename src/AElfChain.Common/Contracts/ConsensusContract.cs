@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AElf;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts

@@ -12,7 +12,7 @@ namespace AElf.Automation.ScenariosExecution
 
         private static ILog Logger { get; set; }
         
-        [Option("-c|--config", Description = "Config file about bp node setting")]
+        [Option("-c|--config", Description = "Config file about all nodes settings")]
         private static string ConfigFile { get; set; }
 
         #endregion

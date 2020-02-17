@@ -28,17 +28,16 @@ namespace AElfChain.Console.Commands
             var authority = Services.Authority;
             var orgAddress = authority.GetGenesisOwnerAddress();
             var miners = authority.GetCurrentMiners();
-            var connector = new Connector
+            var connector = new PairConnector
             {
-                Symbol = parameters[0],
-                IsPurchaseEnabled = bool.Parse(parameters[1]),
-                IsVirtualBalanceEnabled = bool.Parse(parameters[2]),
-                Weight = parameters[3],
-                VirtualBalance = long.Parse(parameters[4])
+                ResourceConnectorSymbol = parameters[0],
+                ResourceWeight = parameters[1],
+                NativeWeight = parameters[2],
+                NativeVirtualBalance = long.Parse(parameters[3]),
             };
             var bp = NodeInfoHelper.Config.Nodes.First().Account;
             var transactionResult = authority.ExecuteTransactionWithAuthority(Services.TokenConverter.ContractAddress,
-                "SetConnector", connector, orgAddress, miners, bp);
+                nameof(TokenConverterContractContainer.TokenConverterContractStub.AddPairConnectors), connector, orgAddress, miners, bp);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             AsyncHelper.RunSync(() => GetTokenConnector(parameters[0]));
@@ -56,14 +55,13 @@ namespace AElfChain.Console.Commands
         public override string[] InputParameters()
         {
             var symbol = "STA";
-            var isPurchaseEnabled = "true";
-            var isVirtualBalanceEnabled = "true";
-            var weight = "0.5";
+            var resourceWeight = "0.05";
+            var nativeWeight = "0.5";
             var virtualBalance = "10000000000";
 
-            "Parameter: [Symbol] [IsPurchaseEnabled] [IsVirtualBalanceEnabled] [Weight] [VirtualBalance]"
+            "Parameter: [Symbol] [ResourceWeight] [NativeWeight] [NativeVirtualBalance]"
                 .WriteSuccessLine();
-            $"eg: {symbol} {isPurchaseEnabled} {isVirtualBalanceEnabled} {weight} {virtualBalance}".WriteSuccessLine();
+            $"eg: {symbol} {resourceWeight} {nativeWeight} {virtualBalance}".WriteSuccessLine();
 
             return CommandOption.InputParameters(5);
         }

@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using Acs3;
 using AElf;
 using AElf.Client.Dto;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Parliament;
 using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -62,7 +62,8 @@ namespace AElfChain.Common.Contracts
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
-            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, proposal.TransactionResult.TransactionId.ToHex);
+            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                proposal.TransactionResult.TransactionId.ToHex);
             var returnValue = proposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
             Logger.Info($"Proposal {returnValue} created success by {caller ?? CallAddress}.");
             var proposalId =
@@ -103,9 +104,10 @@ namespace AElfChain.Common.Contracts
             foreach (var user in callers)
             {
                 var tester = GetNewTester(user);
-                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve,proposalId);
+                var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve, proposalId);
                 approveTxIds.Add(txId);
             }
+
             NodeManager.CheckTransactionListResult(approveTxIds);
         }
 
@@ -123,7 +125,7 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress, new Empty());
         }
-        
+
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ParliamentMethod.GetOrganization, organization);

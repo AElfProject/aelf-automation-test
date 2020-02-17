@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using AElfChain.Common.Managers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Managers;
 using Shouldly;
 
 namespace AElfChain.Common.Contracts

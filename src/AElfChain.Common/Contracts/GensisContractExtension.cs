@@ -42,7 +42,7 @@ namespace AElfChain.Common.Contracts
 
             return new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
         }
-        
+
         public static TokenHolderContract GetTokenHolderContract(this GenesisContract genesis, string caller = "")
         {
             if (caller == "")

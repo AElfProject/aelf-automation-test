@@ -40,6 +40,7 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 var election = Behaviors.ElectionService.GetNewTester(user, "123");
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                electionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
 
             var candidateList = Behaviors.GetCandidates();

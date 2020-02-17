@@ -35,7 +35,6 @@ namespace AElf.Automation.ScenariosExecution
     {
         [JsonProperty("TestCases")] public List<TestCase> TestCases { get; set; }
         [JsonProperty("UserCount")] public int UserCount { get; set; }
-        
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("SpecifyEndpoint")] public SpecifyEndpoint SpecifyEndpoint { get; set; }
         [JsonProperty("ContractsInfo")] public ContractsInfo ContractsInfo { get; set; }

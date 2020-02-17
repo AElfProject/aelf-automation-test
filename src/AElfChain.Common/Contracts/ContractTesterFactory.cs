@@ -1,7 +1,7 @@
-using AElfChain.Common.Managers;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core;
 using AElf.Types;
+using AElfChain.Common.Managers;
 
 namespace AElfChain.Common.Contracts
 {

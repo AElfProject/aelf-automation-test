@@ -1,14 +1,11 @@
-using System.Threading.Tasks;
-using AElf.Client.Dto;
 using AElf.Client.Service;
-using Volo.Abp.Threading;
 
 namespace AElfChain.Common.DtoExtension
 {
     public static class AElfClientExtension
     {
         /// <summary>
-        /// get AElf client instance
+        ///     get AElf client instance
         /// </summary>
         /// <param name="baseUrl"></param>
         /// <returns></returns>
@@ -17,7 +14,7 @@ namespace AElfChain.Common.DtoExtension
             var endpoint = FormatServiceUrl(baseUrl);
             return new AElfClient(endpoint);
         }
-        
+
         private static string FormatServiceUrl(string baseUrl)
         {
             if (baseUrl.Contains("http://") || baseUrl.Contains("https://"))

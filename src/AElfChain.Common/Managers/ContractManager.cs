@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,17 +29,10 @@ namespace AElfChain.Common.Managers
 {
     public class ContractManager
     {
-        private Dictionary<string, string> _systemContracts;
         private AuthorityManager _authorityManager;
-        
+        private Dictionary<string, string> _systemContracts;
+
         public ILog Logger = Log4NetHelper.GetLogger();
-        public int ChainId { get; set; }
-        public string ChainIdName { get; set; }
-        public INodeManager NodeManager { get; set; }
-        public string CallAddress { get; set; }
-        public Address CallAccount { get; set; }
-        public AuthorityManager Authority => GetAuthority();
-        public Dictionary<string, string> SystemContracts => GetSystemContracts();
 
         public ContractManager(INodeManager nodeManager, string callAddress)
         {
@@ -61,41 +55,15 @@ namespace AElfChain.Common.Managers
             Genesis = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
             GenesisStub = Genesis.GetGensisStub(CallAddress);
         }
-        
-        #region Contracts services and stub
-        public GenesisContract Genesis { get; set; }
-        public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
-        public TokenContract Token => Genesis.GetTokenContract();
-        public TokenContractContainer.TokenContractStub TokenStub => Genesis.GetTokenStub();
-        public TokenHolderContract TokenHolder => Genesis.GetTokenHolderContract();
-        public TokenHolderContractContainer.TokenHolderContractStub TokenHolderStub => Genesis.GetTokenHolderStub();
-        public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();
-        public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
-            Genesis.GetTokenConverterStub();
-        public ConfigurationContract Configuration => Genesis.GetConfigurationContract();
-        public ConfigurationContainer.ConfigurationStub ConfigurationStub => Genesis.GetConfigurationStub();
-        public ConsensusContract Consensus => Genesis.GetConsensusContract();
-        public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => Genesis.GetConsensusStub();
-        public CrossChainContract CrossChain => Genesis.GetCrossChainContract();
-        public CrossChainContractContainer.CrossChainContractStub CrossChainStub => Genesis.GetCrossChainStub();
-        public ParliamentAuthContract ParliamentAuth => Genesis.GetParliamentAuthContract();
-        public ParliamentContractContainer.ParliamentContractStub ParliamentAuthStub =>
-            Genesis.GetParliamentAuthStub();
-        public AssociationAuthContract Association => Genesis.GetAssociationAuthContract();
-        public AssociationContractContainer.AssociationContractStub AssociationStub => Genesis.GetAssociationAuthStub();
-        public ReferendumAuthContract Referendum => Genesis.GetReferendumAuthContract();
-        public ReferendumContractContainer.ReferendumContractStub ReferendumStub =>
-            Genesis.GetReferendumAuthStub();
-        public ElectionContract Election => Genesis.GetElectionContract();
-        public ElectionContractContainer.ElectionContractStub ElectionStub => Genesis.GetElectionStub();
-        public VoteContract Vote => Genesis.GetVoteContract();
-        public VoteContractContainer.VoteContractStub VoteStub => Genesis.GetVoteStub();
-        public ProfitContract Profit => Genesis.GetProfitContract();
-        public ProfitContractContainer.ProfitContractStub ProfitStub => Genesis.GetProfitStub();
-        public TreasuryContract Treasury => Genesis.GetTreasuryContract();
-        public TreasuryContractContainer.TreasuryContractStub TreasuryStub => Genesis.GetTreasuryStub();
-        #endregion
-        
+
+        public int ChainId { get; set; }
+        public string ChainIdName { get; set; }
+        public INodeManager NodeManager { get; set; }
+        public string CallAddress { get; set; }
+        public Address CallAccount { get; set; }
+        public AuthorityManager Authority => GetAuthority();
+        public Dictionary<string, string> SystemContracts => GetSystemContracts();
+
         public async Task<long> CheckSideChainBlockIndex(long txHeight, int sideChainId)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -104,18 +72,21 @@ namespace AElfChain.Common.Managers
                 var indexSideHeight = CrossChain.GetSideChainHeight(sideChainId);
                 if (indexSideHeight < txHeight)
                 {
-                    System.Console.Write($"\r[Main->Side]Current index height: {indexSideHeight}, target index height: {txHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}"); 
+                    Console.Write(
+                        $"\r[Main->Side]Current index height: {indexSideHeight}, target index height: {txHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                     await Task.Delay(2000);
                     continue;
                 }
-                System.Console.Write($"\r[Main->Side]Current index height: {indexSideHeight}, target index height: {txHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}"); 
-                System.Console.WriteLine();
+
+                Console.Write(
+                    $"\r[Main->Side]Current index height: {indexSideHeight}, target index height: {txHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                Console.WriteLine();
                 stopwatch.Stop();
                 var mainHeight = await NodeManager.ApiClient.GetBlockHeightAsync();
                 return mainHeight;
             }
         }
-        
+
         public async Task CheckParentChainBlockIndex(long blockHeight)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -124,17 +95,20 @@ namespace AElfChain.Common.Managers
                 var indexHeight = CrossChain.GetParentChainHeight();
                 if (blockHeight > indexHeight)
                 {
-                    System.Console.Write($"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                    Console.Write(
+                        $"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                     await Task.Delay(2000);
                     continue;
                 }
-                System.Console.Write($"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
-                System.Console.WriteLine();
+
+                Console.Write(
+                    $"\r[Side->Main]Current index height: {indexHeight}, target index height: {blockHeight}. Time using: {CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
+                Console.WriteLine();
                 stopwatch.Stop();
                 break;
             }
         }
-        
+
         public async Task<MerklePath> GetMerklePath(long blockNumber, string txId)
         {
             var index = 0;
@@ -166,10 +140,10 @@ namespace AElfChain.Common.Managers
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
             var merklePath = new MerklePath();
             merklePath.MerklePathNodes.AddRange(bmt.GenerateMerklePath(index).MerklePathNodes);
-            
+
             return merklePath;
         }
-        
+
         public string GetContractAddress(string name)
         {
             if (SystemContracts.ContainsKey(name))
@@ -177,7 +151,7 @@ namespace AElfChain.Common.Managers
 
             return null;
         }
-        
+
         private AuthorityManager GetAuthority()
         {
             if (_authorityManager == null)
@@ -185,6 +159,7 @@ namespace AElfChain.Common.Managers
 
             return _authorityManager;
         }
+
         private Dictionary<string, string> GetSystemContracts()
         {
             if (_systemContracts == null)
@@ -200,5 +175,47 @@ namespace AElfChain.Common.Managers
 
             return _systemContracts;
         }
+
+        #region Contracts services and stub
+
+        public GenesisContract Genesis { get; set; }
+        public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
+        public TokenContract Token => Genesis.GetTokenContract();
+        public TokenContractContainer.TokenContractStub TokenStub => Genesis.GetTokenStub();
+        public TokenHolderContract TokenHolder => Genesis.GetTokenHolderContract();
+        public TokenHolderContractContainer.TokenHolderContractStub TokenHolderStub => Genesis.GetTokenHolderStub();
+        public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();
+
+        public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
+            Genesis.GetTokenConverterStub();
+
+        public ConfigurationContract Configuration => Genesis.GetConfigurationContract();
+        public ConfigurationContainer.ConfigurationStub ConfigurationStub => Genesis.GetConfigurationStub();
+        public ConsensusContract Consensus => Genesis.GetConsensusContract();
+        public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => Genesis.GetConsensusStub();
+        public CrossChainContract CrossChain => Genesis.GetCrossChainContract();
+        public CrossChainContractContainer.CrossChainContractStub CrossChainStub => Genesis.GetCrossChainStub();
+        public ParliamentAuthContract ParliamentAuth => Genesis.GetParliamentAuthContract();
+
+        public ParliamentContractContainer.ParliamentContractStub ParliamentAuthStub =>
+            Genesis.GetParliamentAuthStub();
+
+        public AssociationAuthContract Association => Genesis.GetAssociationAuthContract();
+        public AssociationContractContainer.AssociationContractStub AssociationStub => Genesis.GetAssociationAuthStub();
+        public ReferendumAuthContract Referendum => Genesis.GetReferendumAuthContract();
+
+        public ReferendumContractContainer.ReferendumContractStub ReferendumStub =>
+            Genesis.GetReferendumAuthStub();
+
+        public ElectionContract Election => Genesis.GetElectionContract();
+        public ElectionContractContainer.ElectionContractStub ElectionStub => Genesis.GetElectionStub();
+        public VoteContract Vote => Genesis.GetVoteContract();
+        public VoteContractContainer.VoteContractStub VoteStub => Genesis.GetVoteStub();
+        public ProfitContract Profit => Genesis.GetProfitContract();
+        public ProfitContractContainer.ProfitContractStub ProfitStub => Genesis.GetProfitStub();
+        public TreasuryContract Treasury => Genesis.GetTreasuryContract();
+        public TreasuryContractContainer.TreasuryContractStub TreasuryStub => Genesis.GetTreasuryStub();
+
+        #endregion
     }
 }
