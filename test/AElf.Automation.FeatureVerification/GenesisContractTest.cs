@@ -4,6 +4,7 @@ using Acs0;
 using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
+using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -425,7 +426,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AddressHelper.Base58StringToAddress(contract));
             Logger.Info($"{address.GetFormatted()}");
         }
-
         #region private method
 
         private Address CreateAssociationOrganization(ContractTester tester)
