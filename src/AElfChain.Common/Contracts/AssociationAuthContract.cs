@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Acs3;
 using AElf;
@@ -9,6 +10,7 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using Volo.Abp.Threading;
 
@@ -32,7 +34,8 @@ namespace AElfChain.Common.Contracts
         Reject,
         ChangeOrganizationThreshold,
         ChangeOrganizationMember,
-        ChangeOrganizationProposerWhiteList
+        ChangeOrganizationProposerWhiteList,
+        ChangeMethodFeeController
     }
 
     public class AssociationAuthContract : BaseContract<AssociationMethod>
@@ -141,6 +144,11 @@ namespace AElfChain.Common.Contracts
                 approve.Status.ShouldBe("MINED");                
                 if (CheckProposal(proposalId).ToBeReleased) return;
             }
+        }
+
+        public BoolValue ValidateOrganizationExist(Address address)
+        {
+            return CallViewMethod<BoolValue>(AssociationMethod.ValidateOrganizationExist, address);
         }
     }
 }

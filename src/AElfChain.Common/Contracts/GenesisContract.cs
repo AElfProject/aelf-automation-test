@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Acs0;
+using Acs1;
 using AElf.Client.Dto;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -173,9 +174,9 @@ namespace AElfChain.Common.Contracts
             return GetContractAuthor(contractAddress.ConvertAddress());
         }
         
-        public AuthorityStuff GetContractDeploymentController()
+        public AuthorityInfo GetContractDeploymentController()
         {
-            return CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController, new Empty());
+            return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
         }
 
         public List<Hash> GetContractHashCodeList()

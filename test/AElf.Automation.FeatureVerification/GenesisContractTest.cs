@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Acs0;
+using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
-using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class GenesisContractTest
     {
-        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         protected ContractTester Tester;
 
@@ -31,7 +31,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Member { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
-
         public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
         private static string MainRpcUrl { get; } = "http://192.168.197.14:8000";
         private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
@@ -52,17 +51,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NM = new NodeManager(MainRpcUrl);
             var services = new ContractServices(NM, InitAccount, Type);
             Tester = new ContractTester(services);
-            if (Type == "Side"&&!isOrganization)
+            if (Type == "Side" && !isOrganization)
             {
                 Tester.IssueTokenToMiner(Creator);
-                Tester.IssueToken(Creator, InitAccount);
+                Tester.IssueToken(Creator, Member);
                 Tester.IssueToken(Creator, OtherAccount);
-            }else if (isOrganization)
+            }
+            else if (isOrganization)
             {
-                Tester.TokenService.TransferBalance(OtherAccount,Member,100_00000000,Tester.TokenService.GetPrimaryTokenSymbol());
-                Tester.TokenService.TransferBalance(OtherAccount,InitAccount,100_00000000,Tester.TokenService.GetPrimaryTokenSymbol());
+                Tester.TokenService.TransferBalance(OtherAccount, Member, 100_00000000,
+                    Tester.TokenService.GetPrimaryTokenSymbol());
+                Tester.TokenService.TransferBalance(OtherAccount, InitAccount, 100_00000000,
+                    Tester.TokenService.GetPrimaryTokenSymbol());
                 var creator = CreateAssociationOrganization(Tester);
-                IssueTokenToMinerThroughOrganization(Tester,OtherAccount,creator);
+                IssueTokenToMinerThroughOrganization(Tester, OtherAccount, creator);
             }
             else
             {
@@ -97,8 +99,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var organization = GetGenesisOwnerAddress(Tester);
-            var proposal = CreateProposal(Tester, InitAccount, GenesisMethod.ProposeNewContract, input,
-                organization);
+            var proposal = Tester.ParliamentService.CreateProposal(Tester.GenesisService.ContractAddress,
+                nameof(GenesisMethod.ProposeNewContract), input,
+                organization, InitAccount);
             ApproveByMiner(Tester, proposal);
             var release = Tester.ParliamentService.ReleaseProposal(proposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Failed);
@@ -120,14 +123,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var organization = GetGenesisOwnerAddress(Tester);
-            var proposal = CreateProposal(Tester, InitAccount, GenesisMethod.DeploySmartContract, input,
-                organization);
+            var proposal = Tester.ParliamentService.CreateProposal(Tester.GenesisService.ContractAddress,
+                nameof(GenesisMethod.DeploySmartContract), input,
+                organization, InitAccount);
             ApproveByMiner(Tester, proposal);
             var release = Tester.ParliamentService.ReleaseProposal(proposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Failed);
             release.Error.Contains("Contract proposing data not found.").ShouldBeTrue();
         }
-        
+
         [TestMethod]
         public void ProposalDeploy_MinerProposalContract_Success()
         {
@@ -146,7 +150,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
 
-            _logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
+            Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
         }
 
         [TestMethod]
@@ -158,12 +162,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var associationCreateProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ProposeNewContract), deploymentInput,
                 creator, OtherAccount);
-            Tester.AssociationService.ApproveWithAssociation(associationCreateProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(associationCreateProposal, creator);
             var createResult = Tester.AssociationService.ReleaseProposal(associationCreateProposal, OtherAccount);
             var proposalId = ProposalCreated.Parser
-                .ParseFrom(ByteString.FromBase64(createResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)).ProposalId;
+                .ParseFrom(ByteString.FromBase64(createResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
+                    .NonIndexed)).ProposalId;
             var proposalHash = ContractProposed.Parser
-                .ParseFrom(ByteString.FromBase64(createResult.Logs.First(l => l.Name.Contains(nameof(ContractProposed))).NonIndexed))
+                .ParseFrom(ByteString.FromBase64(createResult.Logs.First(l => l.Name.Contains(nameof(ContractProposed)))
+                    .NonIndexed))
                 .ProposedContractInputHash;
             var contractProposalInfo = new ReleaseContractInput
             {
@@ -171,19 +177,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ProposedContractInputHash = proposalHash
             };
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
-            
+
             var releaseProposal = Tester.AssociationService.CreateProposal(
-                Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseApprovedContract), contractProposalInfo,
+                Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseApprovedContract),
+                contractProposalInfo,
                 creator, OtherAccount);
-            Tester.AssociationService.ApproveWithAssociation(releaseProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(releaseProposal, creator);
             var releaseResult = Tester.AssociationService.ReleaseProposal(releaseProposal, OtherAccount);
             var byteString =
-                ByteString.FromBase64(releaseResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
+                ByteString.FromBase64(
+                    releaseResult.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
 
-            _logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
+            Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
         }
-        
+
         [TestMethod]
         public void ProposalDeploy_OrganizationProposalContractWithOtherOrganization_Success()
         {
@@ -194,15 +202,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //                ProposalId = HashHelper.HexStringToHash("9d6ee285b090b4f1261eeb76dfac83055b50fcff01507596f3201aa18f1a44da"),
 //                ProposedContractInputHash = HashHelper.HexStringToHash("ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")
 //            };
-            var organizationAddress = AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
-            Tester.AssociationService.ApproveWithAssociation(contractProposalInfo.ProposalId,organizationAddress);
+            var organizationAddress =
+                AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
+            Tester.AssociationService.ApproveWithAssociation(contractProposalInfo.ProposalId, organizationAddress);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, OtherAccount);
             release.Status.ShouldBe("MINED");
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
 
-            _logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
+            Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
         }
 
         [TestMethod]
@@ -223,9 +232,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
-            _logger.Info($"{deployAddress}");
+            Logger.Info($"{deployAddress}");
         }
-        
+
         [TestMethod]
         [DataRow("9114cedf21b4273803a4dfcd1a8260200e0416ebb24ceb2492a1e5fe052bdc34",
             "6e256995ba37bf00314ff85cc666bff225292e70d3c7a734bc0f28c67904eaa7")]
@@ -240,17 +249,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var creator = AddressHelper.Base58StringToAddress("s31xt16WnoYEhLxgSx7Jofy3ZkezEaf5mSieKd7LpR99NsKaW");
             var releaseProposal = Tester.AssociationService.CreateProposal(
-                Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseCodeCheckedContract), releaseApprovedContractInput,
+                Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseCodeCheckedContract),
+                releaseApprovedContractInput,
                 creator, OtherAccount);
-            Tester.AssociationService.ApproveWithAssociation(releaseProposal,creator);
+            Tester.AssociationService.ApproveWithAssociation(releaseProposal, creator);
             var releaseResult = Tester.AssociationService.ReleaseProposal(releaseProposal, OtherAccount);
             releaseResult.Status.ShouldBe("MINED");
             var byteString =
-                ByteString.FromBase64(releaseResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                ByteString.FromBase64(releaseResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed)))
+                    .NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
-            _logger.Info($"{deployAddress}");
+            Logger.Info($"{deployAddress}");
         }
-        
+
 
         [TestMethod]
         public void ProposalUpdate_MinerProposalUpdateContract_Success()
@@ -263,8 +274,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
-
-            _logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
+            Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
         }
 
         [TestMethod]
@@ -285,45 +295,46 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).Indexed.First());
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
-            _logger.Info($"{updateAddress}");
+            Logger.Info($"{updateAddress}");
         }
 
         [TestMethod]
         public void ProposalDeploy_OtherUserProposalContract_Failed()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken4");
             Tester.GenesisService.SetAccount(OtherAccount);
             var result = Tester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ProposeNewContract, input);
             result.Status.ShouldBe("FAILED");
-            result.Error.Contains("Proposer authority validation failed.").ShouldBeTrue();
+            result.Error.Contains("Unauthorized to propose.").ShouldBeTrue();
         }
 
         [TestMethod]
         public void ProposalUpdate_OtherUserUpdate_Failed()
         {
-            var input = ContractUpdateInput("AElf.Contracts.MultiToken", Tester.ReferendumService.ContractAddress);
+            var input = ContractUpdateInput("AElf.Contracts.MultiToken4", Tester.ReferendumService.ContractAddress);
             Tester.GenesisService.SetAccount(OtherAccount);
             var result = Tester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ProposeUpdateContract, input);
             result.Status.ShouldBe("FAILED");
-            result.Error.Contains("No permission.").ShouldBeTrue();
+            result.Error.Contains("Unauthorized to propose.").ShouldBeTrue();
         }
 
         [TestMethod]
         public void ChangeContractDeploymentController()
         {
             var changeAddress = CreateAssociationOrganization(Tester);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(Tester.AssociationService.ContractAddress),
                 OwnerAddress = changeAddress
             };
 
             var contractDeploymentController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
-            _logger.Info($"owner address is {contractDeploymentController.OwnerAddress} ");
+            Logger.Info($"owner address is {contractDeploymentController.OwnerAddress} ");
 
-            Tester.ParliamentService.SetAccount(InitAccount);
+            var miners = Tester.GetMiners();
+            Tester.ParliamentService.SetAccount(miners.First());
             var proposal = Tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                 new CreateProposalInput
                 {
@@ -334,33 +345,34 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     OrganizationAddress = contractDeploymentController.OwnerAddress
                 });
             var proposalId = HashHelper.HexStringToHash(proposal.ReadableReturnValue.Replace("\"", ""));
-            
-            ApproveByMiner(Tester,proposalId);
-            var release = Tester.ParliamentService.ReleaseProposal(proposalId, InitAccount);
+
+            ApproveByMiner(Tester, proposalId);
+            var release = Tester.ParliamentService.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             contractDeploymentController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetContractDeploymentController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
             contractDeploymentController.OwnerAddress.ShouldBe(changeAddress);
-            _logger.Info($"Owner address is {contractDeploymentController.OwnerAddress} ");
+            Logger.Info($"Owner address is {contractDeploymentController.OwnerAddress} ");
         }
-        
+
         [TestMethod]
         public void ChangeCodeCheckController()
         {
             var changeAddress = CreateParliamentOrganization(Tester);
-            var input = new AuthorityStuff
+            var input = new AuthorityInfo
             {
                 ContractAddress = AddressHelper.Base58StringToAddress(Tester.ParliamentService.ContractAddress),
                 OwnerAddress = changeAddress
             };
 
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
-            _logger.Info($"owner address is {contractCodeCheckController.OwnerAddress} ");
+            Logger.Info($"owner address is {contractCodeCheckController.OwnerAddress} ");
 
-            Tester.ParliamentService.SetAccount(InitAccount);
+            var miners = Tester.GetMiners();
+            Tester.ParliamentService.SetAccount(miners.First());
             var proposal = Tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                 new CreateProposalInput
                 {
@@ -371,37 +383,37 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     OrganizationAddress = contractCodeCheckController.OwnerAddress
                 });
             var proposalId = HashHelper.HexStringToHash(proposal.ReadableReturnValue.Replace("\"", ""));
-            
-            ApproveByMiner(Tester,proposalId);
-            var release = Tester.ParliamentService.ReleaseProposal(proposalId, InitAccount);
+
+            ApproveByMiner(Tester, proposalId);
+            var release = Tester.ParliamentService.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             contractCodeCheckController.OwnerAddress.ShouldBe(changeAddress);
-            _logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
+            Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
         [TestMethod]
         public void CheckController()
         {
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityStuff>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
-            _logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
+            Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
         [TestMethod]
-        [DataRow("9114cedf21b4273803a4dfcd1a8260200e0416ebb24ceb2492a1e5fe052bdc34")]
+        [DataRow("f28e51e01bbddb77b0a647680a55d700f6d7a78d38fab8a0cb62f1f73367345c")]
         public void CheckProposal(string proposalId)
         {
             var proposal = HashHelper.HexStringToHash(proposalId);
             var result = Tester.ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                 proposal);
-            _logger.Info($"{result.ToBeReleased}");
-            _logger.Info($"{result.ExpiredTime}");
-            _logger.Info($"{result.Proposer}");
-            _logger.Info($"{result.OrganizationAddress}");
+            Logger.Info($"{result.ToBeReleased}");
+            Logger.Info($"{result.ExpiredTime}");
+            Logger.Info($"{result.Proposer}");
+            Logger.Info($"{result.OrganizationAddress}");
         }
 
         [TestMethod]
@@ -411,9 +423,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var address =
                 Tester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
                     AddressHelper.Base58StringToAddress(contract));
-            _logger.Info($"{address.GetFormatted()}");
+            Logger.Info($"{address.GetFormatted()}");
         }
-        
+
         #region private method
 
         private Address CreateAssociationOrganization(ContractTester tester)
@@ -443,12 +455,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     }
                 });
             var organization = address.ReadableReturnValue.Replace("\"", "");
-            _logger.Info($"Association organization is: {organization}");
+            Logger.Info($"Association organization is: {organization}");
             return AddressHelper.Base58StringToAddress(organization);
         }
-        
+
         private Address CreateParliamentOrganization(ContractTester tester)
         {
+            var miners = tester.GetMiners();
+            tester.ParliamentService.SetAccount(miners.First());
             var address = tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 new AElf.Contracts.Parliament.CreateOrganizationInput()
                 {
@@ -462,7 +476,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposerAuthorityRequired = false
                 });
             var organization = address.ReadableReturnValue.Replace("\"", "");
-            _logger.Info($"Association organization is: {organization}");
+            Logger.Info($"Association organization is: {organization}");
             return AddressHelper.Base58StringToAddress(organization);
         }
 
@@ -471,23 +485,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             return tester.ParliamentService.CallViewMethod<Address>(ParliamentMethod.GetDefaultOrganizationAddress,
                 new Empty());
-        }
-
-        private Hash CreateProposal(ContractTester tester, string account, GenesisMethod method, IMessage input,
-            Address organizationAddress)
-        {
-            tester.ParliamentService.SetAccount(account);
-            var proposal = tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
-                new CreateProposalInput
-                {
-                    ContractMethodName = method.ToString(),
-                    ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                    Params = input.ToByteString(),
-                    ToAddress = AddressHelper.Base58StringToAddress(tester.GenesisService.ContractAddress),
-                    OrganizationAddress = organizationAddress
-                });
-            var proposalId = proposal.ReadableReturnValue.Replace("\"", "");
-            return HashHelper.HexStringToHash(proposalId);
         }
 
         private ReleaseContractInput ProposalNewContract(ContractTester tester, string account,
@@ -532,7 +529,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 tester.ParliamentService.SetAccount(miner);
                 var approve =
                     tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
-                approve.Status.ShouldBe("MINED");                
+                approve.Status.ShouldBe("MINED");
                 if (tester.ParliamentService.CheckProposal(proposalId).ToBeReleased) return;
             }
         }
@@ -564,7 +561,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             return input;
         }
 
-        public void IssueTokenToMinerThroughOrganization(ContractTester tester,string account,Address organization)
+        private void IssueTokenToMinerThroughOrganization(ContractTester tester, string account, Address organization)
         {
             var symbol = tester.TokenService.GetPrimaryTokenSymbol();
             var miners = tester.GetMiners();
@@ -580,8 +577,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 };
                 var createProposal = tester.AssociationService.CreateProposal(tester.TokenService.ContractAddress,
                     nameof(TokenMethod.Issue), input, organization, account);
-                tester.AssociationService.ApproveWithAssociation(createProposal,organization);
-                tester.AssociationService.ReleaseProposal(createProposal,account);
+                tester.AssociationService.ApproveWithAssociation(createProposal, organization);
+                tester.AssociationService.ReleaseProposal(createProposal, account);
             }
         }
 

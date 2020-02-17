@@ -21,6 +21,7 @@ namespace AElf.Automation.ProposalTest
             Initialize();
             GetMiners();
             Parliament = Services.ParliamentAuth;
+            Parliament.SetAccount(Miners.First());
             Token = Services.Token;
         }
 

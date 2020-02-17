@@ -297,7 +297,7 @@ namespace AElf.Automation.ProposalTest
                 var newBalance = Token.GetUserBalance(voterInfo.Account, TokenSymbol);;
                 newBalance.ShouldBe(balance+voterInfo.Amount-reclaimFee);
                 Logger.Info($"After reclaim vote token the account {voterInfo.Account} balance is {newBalance},reclaim fee is {reclaimFee}");
-            }
+            } 
         }
 
         private void CheckTheBalance()

@@ -1,3 +1,4 @@
+using Acs1;
 using Acs7;
 using AElf.Contracts.CrossChain;
 using AElf.Types;
@@ -93,15 +94,15 @@ namespace AElfChain.Common.Contracts
                 CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
         }
         
-        public AuthorityStuff GetCrossChainIndexingController()
+        public AuthorityInfo GetCrossChainIndexingController()
         {
-            return CallViewMethod<AuthorityStuff>(
+            return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
         
-        public AuthorityStuff GetSideChainLifetimeController()
+        public AuthorityInfo GetSideChainLifetimeController()
         {
-            return CallViewMethod<AuthorityStuff>(
+            return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetSideChainLifetimeController, new Empty());
         }
         
@@ -115,6 +116,12 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<ChainInitializationData>(
                 CrossChainContractMethod.GetChainInitializationData, new SInt32Value {Value = chainId});
+        }
+
+        public GetChainStatusOutput GetChainStatus(int chainId)
+        {
+            return CallViewMethod<GetChainStatusOutput>(CrossChainContractMethod.GetChainStatus,
+                new SInt32Value {Value = chainId});
         }
 
         public static string ContractFileName => "AElf.Contracts.CrossChain";

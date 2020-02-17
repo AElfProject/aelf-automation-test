@@ -23,14 +23,16 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    MaximalAbstentionThreshold = 3000,
-                    MaximalRejectionThreshold = 3000,
+                    MaximalAbstentionThreshold = 5000,
+                    MaximalRejectionThreshold = 5000,
                     MinimalApprovalThreshold = 5000,
                     MinimalVoteThreshold = 10000
                 },
                 ProposerAuthorityRequired = true,
                 ParliamentMemberProposingAllowed = true
             };
+            var miners = ContractManager.Authority.GetCurrentMiners();
+            parliament.SetAccount(miners.First());
             var result = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 createInput);
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
@@ -40,8 +42,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var organization =
                 parliament.GetOrganization(organizationAddress.ConvertAddress());
-            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(3000);
-            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(3000);
+            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(5000);
+            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(5000);
             organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(10000);
             organization.ProposerAuthorityRequired.ShouldBeTrue();
@@ -56,7 +58,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     MinimalApprovalThreshold = 5000,
                     MinimalVoteThreshold = 10000
                 };
-            var miners = ContractManager.Authority.GetCurrentMiners();
             //creat proposal
             var proposalId = parliament.CreateProposal(parliament.ContractAddress,
                 nameof(ParliamentMethod.ChangeOrganizationThreshold), changeInput, organizationAddress.ConvertAddress(),miners.First());

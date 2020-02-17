@@ -27,12 +27,12 @@ namespace AElf.Automation.SideChainTests
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
         public ContractServices MainServices;
+        public List<ContractServices> SideServices;
         public ContractServices SideAServices;
         public ContractServices SideBServices;
 
         public TokenContractContainer.TokenContractStub TokenContractStub;
-        public TokenContractContainer.TokenContractStub side1TokenContractStub;
-        public TokenContractContainer.TokenContractStub side2TokenContractStub;
+        public TokenContractContainer.TokenContractStub Side1TokenContractStub;
         public string InitAccount;
         public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
         public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
@@ -43,21 +43,36 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
-
             InitAccount = ConfigInfoHelper.Config.MainChainInfos.Account;
             var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
             var password = ConfigInfoHelper.Config.MainChainInfos.Password;
             var sideUrls = ConfigInfoHelper.Config.SideChainInfos.Select(l => l.SideChainUrl).ToList();
+            _logger.Info($"url :{mainUrl}");
 
             MainServices = new ContractServices(mainUrl, InitAccount, password);
-            SideAServices = new ContractServices(sideUrls[0], InitAccount, password);
+            SideServices = new List<ContractServices>();
+            foreach (var side in sideUrls)
+            {
+                var sideServices = new ContractServices(side, InitAccount, password);
+                SideServices.Add(sideServices);
+            }
+
+            SideAServices = SideServices.First();
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
 
             TokenContractStub = MainServices.TokenContractStub;
-            side1TokenContractStub = SideAServices.TokenContractStub;
-            side2TokenContractStub = SideBServices.TokenContractStub;
+            Side1TokenContractStub = SideServices.First().TokenContractStub;
             Miners = new List<string>();
             Miners = (new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners());
+
+//            foreach (var miner in Miners)
+//            {
+//                foreach (var service in SideServices)
+//                {
+//                    service.TokenService.IssueBalance(InitAccount, miner, 10000_00000000,
+//                        service.TokenService.GetPrimaryTokenSymbol());
+//                }
+//            }
         }
 
         #region cross chain transfer
@@ -180,14 +195,6 @@ namespace AElf.Automation.SideChainTests
 
         protected TransactionResultDto Recharge(ContractServices services, string account, int chainId, long amount)
         {
-//            var approve = Token.ExecuteMethodWithResult(TokenMethod.Approve, new AElf.Contracts.MultiToken.ApproveInput
-//            {
-//                Spender = CrossChain.Contract,
-//                Symbol = "ELF",
-//                Amount = amount
-//            });
-//            approve.Status.ShouldBe("MINED");
-
             services.CrossChainService.SetAccount(account);
             var result =
                 services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.Recharge, new RechargeInput
@@ -195,14 +202,6 @@ namespace AElf.Automation.SideChainTests
                     ChainId = chainId,
                     Amount = amount
                 });
-            return result;
-        }
-
-        public SInt32Value GetChainStatus(ContractServices services, int chainId)
-        {
-            var result =
-                services.CrossChainService.CallViewMethod<SInt32Value>(CrossChainContractMethod.GetChainStatus,
-                    new SInt32Value {Value = chainId});
             return result;
         }
 
@@ -234,7 +233,7 @@ namespace AElf.Automation.SideChainTests
                         MaximalAbstentionThreshold = 1,
                         MaximalRejectionThreshold = 1,
                         MinimalApprovalThreshold = 2,
-                        MinimalVoteThreshold = 3
+                        MinimalVoteThreshold = 2
                     },
                     OrganizationMemberList = new OrganizationMemberList
                     {
@@ -257,7 +256,8 @@ namespace AElf.Automation.SideChainTests
 
         protected Address CreateParliamentOrganization(ContractServices services)
         {
-            services.ParliamentService.SetAccount(InitAccount);
+            var miners = GetMiners(services);
+            services.ParliamentService.SetAccount(miners.First().GetFormatted());
             var address = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 new Contracts.Parliament.CreateOrganizationInput()
                 {
@@ -379,27 +379,12 @@ namespace AElf.Automation.SideChainTests
             return transfer;
         }
 
-        public TransactionResultDto IssueToken(ContractServices services, string issuer, string symbol,
-            string toAddress)
-        {
-            services.TokenService.SetAccount(issuer);
-            var issue = services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, new IssueInput
-            {
-                Symbol = symbol,
-                Amount = 100_0000,
-                Memo = "Issue",
-                To = AddressHelper.Base58StringToAddress(toAddress)
-            });
-
-            return issue;
-        }
-
         protected TransactionResultDto TokenApprove(ContractServices services, string owner, long amount)
         {
             services.TokenService.SetAccount(owner);
 
             var result = services.TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
-                new Contracts.MultiToken.ApproveInput
+                new ApproveInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Spender = AddressHelper.Base58StringToAddress(services.CrossChainService.ContractAddress),
@@ -436,7 +421,6 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-
 
         private IEnumerable<Address> GetMiners(ContractServices services)
         {

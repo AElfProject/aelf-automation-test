@@ -1,10 +1,14 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Acs3;
+using AElf.Contracts.Association;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -27,9 +31,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("13.236.178.147:8000");
+            MainNode = new NodeManager("192.168.197.40:8000");
 
-            NodeInfoHelper.SetConfig("nodes-online-test-side1");
+            NodeInfoHelper.SetConfig("nodes-env2-side1");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
@@ -39,19 +43,54 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void UpdateRentalTest()
         {
             var authority = new AuthorityManager(SideNode);
-            var token = Genesis.GetTokenContract();
-            var organization = authority.GetGenesisOwnerAddress();
             var bps = authority.GetCurrentMiners();
-            authority.ExecuteTransactionWithAuthority(token.ContractAddress, nameof(TokenMethod.UpdateRental),
-                new UpdateRentalInput
+            var token = Genesis.GetTokenContract();
+            foreach (var bp in bps)
+            {
+                if (bp == bps.First()) continue;
+                token.IssueBalance(bps.First(), bp, 10000_00000000, token.GetPrimaryTokenSymbol());
+            }
+
+            var crossChain = Genesis.GetCrossChainStub();
+            var association = Genesis.GetAssociationAuthContract();
+            var defaultParliament = authority.GetGenesisOwnerAddress();
+            var organizationInput = new CreateOrganizationInput
+            {
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    Rental =
-                    {
-                        {"CPU", 1000},
-                        {"RAM", 1000},
-                        {"DISK", 10}
-                    }
-                }, organization, bps, bps.First());
+                    MaximalAbstentionThreshold = 0,
+                    MaximalRejectionThreshold = 0,
+                    MinimalApprovalThreshold = 2,
+                    MinimalVoteThreshold = 2
+                },
+                OrganizationMemberList = new OrganizationMemberList
+                {
+                    OrganizationMembers = {defaultParliament, bps.First().ConvertAddress()}
+                },
+                ProposerWhiteList = new ProposerWhiteList
+                {
+                    Proposers = {defaultParliament, bps.First().ConvertAddress()}
+                }
+            };
+            var associationAddress = association.CreateOrganization(organizationInput);
+            var updateRentalInput = new UpdateRentalInput
+            {
+                Rental =
+                {
+                    {"CPU", 1000},
+                    {"RAM", 1000},
+                    {"DISK", 10},
+                    {"NET", 1000}
+                }
+            };
+            var proposal = association.CreateProposal(token.ContractAddress, nameof(TokenMethod.UpdateRental),
+                updateRentalInput, associationAddress, bps.First());
+            association.ApproveProposal(proposal, bps.First());
+            var approveProposal = authority.ExecuteTransactionWithAuthority(association.ContractAddress,
+                nameof(AssociationMethod.Approve), proposal, defaultParliament, bps, bps.First());
+            approveProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+            var release = association.ReleaseProposal(proposal, bps.First());
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -103,13 +142,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = MainNode.GetGenesisContract(bps.First());
             var token = genesis.GetTokenContract();
             var tokenConverter = genesis.GetTokenConverterStub();
-            var symbols = new[] {"CPU", "RAM", "DISK"};
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
             foreach (var symbol in symbols)
             {
                 await tokenConverter.Buy.SendAsync(new BuyInput
                 {
                     Symbol = symbol,
-                    Amount = 10000_00000000,
+                    Amount = 100000_00000000,
                 });
             }
 
@@ -117,6 +156,46 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var symbol in symbols)
             {
                 var balance = token.GetUserBalance(bps.First(), symbol);
+                Logger.Info($"{symbol}={balance}");
+            }
+        }
+
+        [TestMethod]
+        public void GetTokenInfo()
+        {
+            var authority = new AuthorityManager(SideNode);
+            var bps = authority.GetCurrentMiners();
+            var genesis = SideNode.GetGenesisContract(bps.First());
+            var token = genesis.GetTokenContract();
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
+            foreach (var symbol in symbols)
+            {
+                var result = token.GetTokenInfo(symbol);
+                Logger.Info($"{symbol} issuer={result.Issuer};amount={result.TotalSupply}");
+            }
+        }
+
+        [TestMethod]
+        public void SideChain_GetBalance()
+        {
+            var authority = new AuthorityManager(SideNode);
+            var bps = authority.GetCurrentMiners();
+            var genesis = SideNode.GetGenesisContract(bps.First());
+            var token = genesis.GetTokenContract();
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
+            foreach (var bp in bps)
+            {
+                Logger.Info($"Account: {bp}");
+                foreach (var symbol in symbols)
+                {
+                    var balance = token.GetUserBalance(bp, symbol);
+                    Logger.Info($"{symbol}={balance}");
+                }
+            }
+
+            foreach (var symbol in symbols)
+            {
+                var balance = token.GetUserBalance(genesis.GetConsensusContract().ContractAddress, symbol);
                 Logger.Info($"{symbol}={balance}");
             }
         }

@@ -15,7 +15,7 @@ using Shouldly;
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
-    public class SidechainIndexFeatureTests
+    public class SideChainIndexFeatureTests
     {
         public ILogHelper Logger = LogHelper.GetLogger();
         public INodeManager NodeManager { get; set; }
@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ContractManager Side1Manager { get; set; }
         public ContractManager Side2Manager { get; set; }
 
-        public SidechainIndexFeatureTests()
+        public SideChainIndexFeatureTests()
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
@@ -120,7 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var proposer = NodeInfoHelper.Config.Nodes.First().Account;
-            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).AuthorityStuff
+            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).AuthorityInfo
                 .OwnerAddress;
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {

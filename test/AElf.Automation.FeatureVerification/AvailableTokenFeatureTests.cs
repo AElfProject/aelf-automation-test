@@ -32,14 +32,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryAvailableTokenInfos()
         {
-            var tokenInfos = await ContractManager.TokenStub.GetAvailableTokenInfos.CallAsync(new Empty());
-            if (tokenInfos.Equals(new AllAvailableTokenInfo()))
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            if (tokenInfos.Equals(new SymbolListToPayTXSizeFee()))
             {
                 Logger.Info("GetAvailableTokenInfos: Null");
                 return;
             }
 
-            foreach (var info in tokenInfos.AllAvailableTokens)
+            foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
             {
                 Logger.Info($"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
             }
@@ -48,23 +48,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetAvailableTokenInfos()
         {
-            var availableTokenInfo = new AllAvailableTokenInfo
+            var availableTokenInfo = new SymbolListToPayTXSizeFee()
             {
-                AllAvailableTokens =
+                SymbolsToPayTxSizeFee =
                 {
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
                         TokenSymbol = "RAM",
                         AddedTokenWeight = 100,
                         BaseTokenWeight = 1
                     },
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
                         TokenSymbol = "CPU",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new AvailableTokenInfo
+                    new SymbolToPayTXSizeFee
                     {
                         TokenSymbol = "ELF",
                         AddedTokenWeight = 1,
@@ -74,7 +74,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetAvailableTokenInfo),
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
                 availableTokenInfo, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
