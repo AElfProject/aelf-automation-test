@@ -103,7 +103,7 @@ namespace AElf.Automation.RpcPerformance
                 var contract = new ContractInfo(AccountList[i].Account, SystemTokenAddress);
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
-                var symbol = $"{CommonHelper.RandomString(8, false)}";
+                var symbol = GenerateNotExistTokenSymbol();
                 contract.Symbol = symbol;
                 if (i == 0) //add default ELF transfer group
                 {
@@ -566,6 +566,16 @@ namespace AElf.Automation.RpcPerformance
 
             Logger.Info(
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
+        }
+
+        private string GenerateNotExistTokenSymbol()
+        {
+            while (true)
+            {
+                var symbol = CommonHelper.RandomString(8, false);
+                var tokenInfo = NodeManager.GetTokenInfo(symbol);
+                if (tokenInfo.Equals(new TokenInfo())) return symbol;     
+            }
         }
 
         #region Public Property
