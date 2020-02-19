@@ -69,6 +69,7 @@ namespace AElfChain.Common
         {
             if (!name.Contains(".json"))
                 name += ".json";
+            _instance = null;
             ConfigFile = CommonHelper.MapPath($"config/{name}");
         }
 

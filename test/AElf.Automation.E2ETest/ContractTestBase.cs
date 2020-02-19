@@ -30,6 +30,6 @@ namespace AElf.Automation.E2ETest
         }
 
         public static string MainConfig = "nodes-env2-main";
-        public static string SideConfig = CommonHelper.MapPath("config/nodes-env2-side1.json");
+        public static string SideConfig = "nodes-env2-side1.json";
     }
 }
