@@ -136,10 +136,12 @@ namespace AElf.Automation.SideChainCreate
             var sideChainCreatedEvent = SideChainCreatedEvent.Parser
                 .ParseFrom(byteString);
             var chainId = sideChainCreatedEvent.ChainId;
-            var creator = sideChainCreatedEvent.Creator;
+            organization = new Address();
+            /* If exist, without OrganizationCreated event 
             organization = OrganizationCreated.Parser
                 .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(OrganizationCreated)))
                     .NonIndexed)).OrganizationAddress;
+            */
             return chainId;
         }
 
