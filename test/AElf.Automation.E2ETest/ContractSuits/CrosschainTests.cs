@@ -67,8 +67,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var chainStatus = await ContractManager.NodeManager.ApiClient.GetChainStatusAsync();
             var chainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId);
             
-            var config = NodeInfoHelper.ReadConfigInfo(SideConfig);
-            var sideNode = config.Nodes.First();
+            NodeInfoHelper.SetConfig(SideConfig);
+            var sideNode = NodeInfoHelper.Config.Nodes.First();
             var nodeManager = new NodeManager(sideNode.Endpoint);
             var contractManager = new ContractManager(nodeManager, sideNode.Account);
             

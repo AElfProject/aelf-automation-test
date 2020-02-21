@@ -26,21 +26,21 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public INodeManager SideNode { get; set; }
         public ContractManager SideManager { get; set; }
         public ILog Logger { get; set; }
-        
+
         public SidechainFeeTests()
         {
             Log4NetHelper.LogInit("SideChainTest");
             Logger = Log4NetHelper.GetLogger();
-            
+
             NodeInfoHelper.SetConfig(ContractTestBase.MainConfig);
             var mainNode = NodeInfoHelper.Config.Nodes.First();
             MainNode = new NodeManager(mainNode.Endpoint);
             MainManager = new ContractManager(MainNode, mainNode.Account);
-            
+
             NodeInfoHelper.SetConfig(ContractTestBase.SideConfig);
             var sideNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(sideNode.Endpoint);
-            SideManager = new ContractManager(SideNode, sideNode.Account);    
+            SideManager = new ContractManager(SideNode, sideNode.Account);
         }
 
         [TestMethod]
@@ -113,18 +113,54 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var parliamentResult = SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
             parliamentResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var associationResult = SideManager.Association.ReleaseProposal(proposalId, proposer);
             associationResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
-        
+
+        [TestMethod]
+        public async Task SetFeeReceiver_Test()
+        {
+            var primaryToken = SideManager.Token.GetPrimaryTokenSymbol();
+            var tokenInfo = SideManager.Token.GetTokenInfo(primaryToken);
+            var creator = tokenInfo.Issuer;
+            var tokenStub = SideManager.Genesis.GetTokenStub(creator.GetFormatted());
+            var transactionResult = await tokenStub.SetFeeReceiver.SendAsync(creator);
+            if (transactionResult.TransactionResult.Status == TransactionResultStatus.Failed)
+            {
+                var error = transactionResult.TransactionResult.Error;
+                error.ShouldContain("Fee receiver already set");
+            }
+
+            var tester = NodeInfoHelper.Config.Nodes[1].Account;
+            tokenStub = SideManager.Genesis.GetTokenStub(tester);
+            //prepare test token
+            var balance = SideManager.Token.GetUserBalance(tester, primaryToken);
+            if (balance == 0)
+            {
+                SideManager.Token.TransferBalance(creator.GetFormatted(), tester, 5_00000000L, primaryToken);
+            }
+
+            var beforeBalance = SideManager.Token.GetUserBalance(creator.GetFormatted(), primaryToken);
+            transactionResult = await tokenStub.Approve.SendAsync(new ApproveInput
+            {
+                Symbol = primaryToken,
+                Amount = 100_00000000L,
+                Spender = creator
+            });
+            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var txFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var afterBalance = SideManager.Token.GetUserBalance(creator.GetFormatted(), primaryToken);
+            afterBalance.ShouldBeGreaterThanOrEqualTo(beforeBalance + txFee * 9 / 10);
+        }
+
         private async Task<Address> CreateAssociationOrganization(Address parliamentOrgAddress, Address sideCreator)
         {
             var minimalApproveThreshold = 2;
             var minimalVoteThreshold = 2;
             var maximalAbstentionThreshold = 0;
             var maximalRejectionThreshold = 0;
-            var list = new List<Address> {parliamentOrgAddress,sideCreator};
+            var list = new List<Address> {parliamentOrgAddress, sideCreator};
             var createOrganizationInput = new CreateOrganizationInput
             {
                 OrganizationMemberList = new OrganizationMemberList
