@@ -28,5 +28,36 @@ namespace AElfChain.Common.DtoExtension
                 throw;
             }
         }
+        
+        public static bool IsAddressInfo(string info, out Address address)
+        {
+            address = new Address();
+            try
+            {
+                address = info.ConvertAddress();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+
+    public static class HashExtension
+    {
+        public static bool IsHashInfo(string info, out Hash hash)
+        {
+            hash = new Hash();
+            try
+            {
+                hash = HashHelper.HexStringToHash(info);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

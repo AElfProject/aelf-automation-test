@@ -1,58 +1,11 @@
-/*
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AElf;
-using AElf.Types;
-using AElfChain.Common.DtoExtension;
-using AElfChain.Common.Helpers;
-using Newtonsoft.Json.Linq;
+using Google.Protobuf.Reflection;
 
-namespace AElfChain.Common.Contracts.Serializer
+namespace AElfChain.Contract
 {
-    public class MessageInfo
-    {
-        public MessageInfo(string name)
-        {
-            Name = name;
-            Fields = new List<string>();
-        }
-
-        public MessageInfo(string name, List<string> fields)
-        {
-            Name = name;
-            Fields = fields;
-        }
-
-        public string Name { get; set; }
-        public List<string> Fields { get; set; }
-    }
-
-    public class MethodInfo
-    {
-        public MethodInfo(string methodName)
-        {
-            MethodName = methodName;
-        }
-
-        public string MethodName { get; set; }
-        public MessageInfo InputMessage { get; set; }
-        public MessageInfo OutputMessage { get; set; }
-    }
-
-    public class ContractDescriptor
-    {
-        public ContractDescriptor()
-        {
-            MessageInfos = new List<MessageInfo>();
-            Methods = new List<MethodInfo>();
-        }
-
-        public List<MessageInfo> MessageInfos { get; set; }
-        public List<MethodInfo> Methods { get; set; }
-    }
-
     public class CustomContractSerializer
     {
         private readonly byte[] _fileDescriptorBytes;
@@ -124,7 +77,7 @@ namespace AElfChain.Common.Contracts.Serializer
             var count = 0;
             foreach (var method in methods)
             {
-                $"{count++: 00}. {method}".WriteSuccessLine();
+                Console.WriteLine($"{count++: 00}. {method}");
                 if (withDetails)
                     GetParameters(method);
             }
@@ -136,15 +89,15 @@ namespace AElfChain.Common.Contracts.Serializer
         {
             var method = Descriptor.Methods.FirstOrDefault(o => o.MethodName == methodName);
             if (method == null) return;
-            $"[Input]: {method.InputMessage.Name}".WriteWarningLine();
+            Console.WriteLine($"[Input]: {method.InputMessage.Name}");
             var inputIndex = 1;
             foreach (var parameter in method.InputMessage.Fields)
-                $"Index: {inputIndex++}  Name: {parameter.PadRight(24)}".WriteWarningLine();
+                Console.WriteLine($"Index: {inputIndex++}  Name: {parameter.PadRight(24)}");
 
-            $"[Output]: {method.OutputMessage.Name}".WriteWarningLine();
+            Console.WriteLine($"[Output]: {method.OutputMessage.Name}");
             var outputIndex = 0;
             foreach (var parameter in method.OutputMessage.Fields)
-                $"Index: {outputIndex++}  Name: {parameter.PadRight(24)}".WriteWarningLine();
+                Console.WriteLine($"Index: {outputIndex++}  Name: {parameter.PadRight(24)}");
         }
 
         private ContractDescriptor UpdateContractDescriptor()
@@ -173,34 +126,5 @@ namespace AElfChain.Common.Contracts.Serializer
 
             return jsonName;
         }
-
-        private bool IsAddressInfo(string info, out Address address)
-        {
-            address = new Address();
-            try
-            {
-                address = info.ConvertAddress();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        private bool IsHashInfo(string info, out Hash hash)
-        {
-            hash = new Hash();
-            try
-            {
-                hash = HashHelper.HexStringToHash(info);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
     }
 }
-*/
