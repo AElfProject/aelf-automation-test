@@ -76,6 +76,16 @@ namespace AElf.Automation.RpcPerformance
                 break;
             }
         }
+        
+        public static string GenerateNotExistTokenSymbol(INodeManager nodeManager)
+        {
+            while (true)
+            {
+                var symbol = CommonHelper.RandomString(8, false);
+                var tokenInfo = nodeManager.GetTokenInfo(symbol);
+                if (tokenInfo.Equals(new TokenInfo())) return symbol;     
+            }
+        }
 
         private string CheckTokenAndIssueBalance()
         {
