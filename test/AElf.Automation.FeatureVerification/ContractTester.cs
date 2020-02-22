@@ -68,7 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 1000_00000000) continue;
+                if (balance > 1000_00000000) continue;
                 TokenService.SetAccount(ContractServices.CallAddress);
                 TokenService.IssueBalance(account, miner, 1000_00000000, symbol);
             }

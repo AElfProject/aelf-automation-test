@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Acs7;
-using AElfChain.Common;
+﻿using Acs7;
 using AElfChain.Common.Helpers;
 using log4net;
 
@@ -48,7 +46,7 @@ namespace AElf.Automation.SideChainCreate
                 operation.ApproveProposal(proposal);
                 var chainIdResult = operation.ReleaseSideChainCreation(proposal, out var organization );
                 var chainId = ChainHelper.ConvertChainIdToBase58(chainIdResult);
-                Logger.Info($"Association organization is {organization}");
+                //Logger.Info($"Association organization is {organization}");
                 Logger.Info($"Side Chain : {chainId} created successfully");
             }
         }
