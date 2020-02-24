@@ -188,7 +188,7 @@ namespace AElfChain.Console.Commands
             }
 
             //validate token on main chain
-            var transactionResult = await MainContract.TokenStub.ValidateTokenInfoExists.SendAsync(
+            var transactionResult = await MainContract.TokenImplStub.ValidateTokenInfoExists.SendAsync(
                 new ValidateTokenInfoExistsInput
                 {
                     Decimals = mainToken.Decimals,
@@ -248,7 +248,7 @@ namespace AElfChain.Console.Commands
                 }
 
                 //validate token on main chain
-                var transactionResult = await MainContract.TokenStub.ValidateTokenInfoExists.SendAsync(
+                var transactionResult = await MainContract.TokenImplStub.ValidateTokenInfoExists.SendAsync(
                     new ValidateTokenInfoExistsInput
                     {
                         Decimals = mainToken.Decimals,

@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AcsCodeCheck()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env2-side1");
+            NodeInfoHelper.SetConfig("nodes-online-3bp");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -45,7 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 nameof(ContractManager.ConfigurationStub.SetRequiredAcsInContracts),
                 new RequiredAcsInContracts
                 {
-                    AcsList = {"acs1", "acs8"},
+                    AcsList = {},
                     RequireAll = false
                 }, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);

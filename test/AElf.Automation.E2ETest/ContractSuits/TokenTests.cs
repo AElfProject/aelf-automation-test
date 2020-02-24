@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel;
 using System.Threading.Tasks;
 using Acs1;
 using AElf.Contracts.MultiToken;
@@ -295,7 +294,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var address = ContractManager.Profit.Contract;
             var result =
-                await ContractManager.TokenStub.GetProfitReceivingInformation.CallAsync(address);
+                await ContractManager.TokenImplStub.GetProfitReceivingInformation.CallAsync(address);
             result.ShouldBe(new ProfitReceivingInformation());
         }
     }

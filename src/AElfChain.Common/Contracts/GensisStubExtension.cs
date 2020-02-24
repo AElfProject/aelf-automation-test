@@ -83,6 +83,19 @@ namespace AElfChain.Common.Contracts
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
+        
+        public static TokenContractImplContainer.TokenContractImplStub GetTokenImplStub(this GenesisContract genesis,
+            string caller = "")
+        {
+            if (caller == "")
+                caller = genesis.CallAddress;
+
+            var token = genesis.GetContractAddressByName(NameProvider.Token);
+
+            var contract = new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
+
+            return contract.GetTestStub<TokenContractImplContainer.TokenContractImplStub>(caller);
+        }
 
         public static TokenHolderContractContainer.TokenHolderContractStub GetTokenHolderStub(
             this GenesisContract genesis,
