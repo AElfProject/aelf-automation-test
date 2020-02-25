@@ -81,7 +81,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor>
                     {
                         MethodFeeProviderContractContainer.Descriptor, ACS2BaseContainer.Descriptor,
-                        TokenContractContainer.Descriptor
+                        TokenContractImplContainer.Descriptor
                     }
                 },
                 {

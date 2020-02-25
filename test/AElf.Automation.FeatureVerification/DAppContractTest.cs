@@ -213,7 +213,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info("=>DeveloperReceiveProfit_Test");
             var beforeBalance = ContractManager.Token.GetUserBalance(NodesAccounts[0], symbol);
 
-            var tokenStub = ContractManager.Genesis.GetTokenStub(NodesAccounts[0]);
+            var tokenStub = ContractManager.Genesis.GetTokenImplStub(NodesAccounts[0]);
             var profits = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress, symbol);
             var receiveResult = await tokenStub.ReceiveProfits.SendAsync(new ReceiveProfitsInput
             {

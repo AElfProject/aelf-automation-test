@@ -198,7 +198,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress,
-                nameof(ContractManager.TokenStub.SetControllerForSymbolsToPayTXSizeFee),
+                nameof(ContractManager.TokenImplStub.SetSymbolsToPayTXSizeFee),
                 newOrganization,
                 ContractManager.CallAddress
             );

@@ -1,6 +1,11 @@
 # aelf-automation-test
 Automation test project for AElf
 
+## Config myget source URL to AElfProject
+```
+nuget sources Add -Name myget.org -Source https://www.myget.org/F/aelf-project-dev/api/v3/index.json
+```
+
 ## Clone and build code
 ``` 
 git clone https://github.com/AElfProject/aelf-automation-test

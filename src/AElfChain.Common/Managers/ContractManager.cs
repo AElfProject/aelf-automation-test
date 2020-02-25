@@ -182,6 +182,7 @@ namespace AElfChain.Common.Managers
         public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
         public TokenContract Token => Genesis.GetTokenContract();
         public TokenContractContainer.TokenContractStub TokenStub => Genesis.GetTokenStub();
+        public TokenContractImplContainer.TokenContractImplStub TokenImplStub => Genesis.GetTokenImplStub();
         public TokenHolderContract TokenHolder => Genesis.GetTokenHolderContract();
         public TokenHolderContractContainer.TokenHolderContractStub TokenHolderStub => Genesis.GetTokenHolderStub();
         public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();

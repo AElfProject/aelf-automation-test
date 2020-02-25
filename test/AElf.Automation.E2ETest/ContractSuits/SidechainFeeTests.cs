@@ -124,7 +124,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var primaryToken = SideManager.Token.GetPrimaryTokenSymbol();
             var tokenInfo = SideManager.Token.GetTokenInfo(primaryToken);
             var creator = tokenInfo.Issuer;
-            var tokenStub = SideManager.Genesis.GetTokenStub(creator.GetFormatted());
+            var tokenStub = SideManager.Genesis.GetTokenImplStub(creator.GetFormatted());
             var transactionResult = await tokenStub.SetFeeReceiver.SendAsync(creator);
             if (transactionResult.TransactionResult.Status == TransactionResultStatus.Failed)
             {
@@ -133,7 +133,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             }
 
             var tester = NodeInfoHelper.Config.Nodes[1].Account;
-            tokenStub = SideManager.Genesis.GetTokenStub(tester);
+            tokenStub = SideManager.Genesis.GetTokenImplStub(tester);
             //prepare test token
             var balance = SideManager.Token.GetUserBalance(tester, primaryToken);
             if (balance == 0)

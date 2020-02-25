@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Genesis;
 using AElf.Types;
-using AElfChain.Common.Contracts.Serializer;
+using AElfChain.Contract;
 using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
 

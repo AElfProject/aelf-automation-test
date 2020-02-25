@@ -200,12 +200,13 @@ namespace AElf.Automation.RpcPerformance
 
         public void InitializeContracts()
         {
+            var chainStatus = AsyncHelper.RunSync(NodeManager.ApiClient.GetChainStatusAsync);
             //create all token
             foreach (var contract in ContractList)
             {
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
-                var symbol = $"ELF{CommonHelper.RandomString(4, false)}";
+                var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(NodeManager);
                 contract.Symbol = symbol;
 
                 var token = new TokenContract(NodeManager, account, contractPath);
@@ -214,11 +215,13 @@ namespace AElf.Automation.RpcPerformance
                 token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = primaryToken,
-                    TokenName = $"fake {primaryToken} token just for transaction fee",
+                    TokenName = $"fake {primaryToken} for tx fee",
                     TotalSupply = 10_0000_0000_00000000L,
                     Decimals = 8,
                     Issuer = account.ConvertAddress(),
-                    IsBurnable = true
+                    IsBurnable = true,
+                    IsProfitable = true,
+                    IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
                 
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
@@ -228,7 +231,9 @@ namespace AElf.Automation.RpcPerformance
                     TotalSupply = long.MaxValue,
                     Decimals = 2,
                     Issuer = account.ConvertAddress(),
-                    IsBurnable = true
+                    IsBurnable = true,
+                    IsProfitable = true,
+                    IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
                 TxIdList.Add(transactionId);
             }

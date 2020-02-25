@@ -25,8 +25,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public INodeManager NodeManager { get; set; }
         public ContractManager ContractManager { get; set; }
-        public ControllerForDeveloperFee DeveloperFeeAddresses { get; set; }
-        public ControllerForUserFee UserFeeAddresses { get; set; }
+        public DeveloperFeeController DeveloperFeeAddresses { get; set; }
+        public UserFeeController UserFeeAddresses { get; set; }
         public List<string> NodeUsers { get; set; }
         public List<string> Miners { get; set; }
         
@@ -115,15 +115,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
         private async Task InitializeAuthorizedOrganization()
         {
-            await ContractManager.TokenStub.InitializeAuthorizedController.SendAsync(new Empty());
+            await ContractManager.TokenImplStub.InitializeAuthorizedController.SendAsync(new Empty());
             //initializeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            DeveloperFeeAddresses = await ContractManager.TokenStub.GetDeveloperFeeController.CallAsync(new Empty());
+            DeveloperFeeAddresses = await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());
             Logger.Info($"Developer RootController: {DeveloperFeeAddresses.RootController}");
             Logger.Info($"Developer ParliamentController: {DeveloperFeeAddresses.ParliamentController}");
             Logger.Info($"Developer DeveloperController: {DeveloperFeeAddresses.DeveloperController}");
 
-            UserFeeAddresses = await ContractManager.TokenStub.GetUserFeeController.CallAsync(new Empty());
+            UserFeeAddresses = await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());
             Logger.Info($"User RootController: {UserFeeAddresses.RootController}");
             Logger.Info($"User ParliamentController: {UserFeeAddresses.ParliamentController}");
             Logger.Info($"User ReferendumController: {UserFeeAddresses.ReferendumController}");
@@ -137,7 +137,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Token.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.RootController,
+                OrganizationAddress = DeveloperFeeAddresses.RootController.OwnerAddress,
                 ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientFromContract),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -145,7 +145,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = createNestProposalInput.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.CreateProposal),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -170,7 +170,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Approve),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -191,7 +191,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.DeveloperController,
+                OrganizationAddress = DeveloperFeeAddresses.DeveloperController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Approve),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -199,7 +199,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = approveMidProposalInput.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.CreateProposal),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -225,7 +225,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Approve),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -242,7 +242,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Release),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -262,7 +262,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = DeveloperFeeAddresses.ParliamentController,
+                OrganizationAddress = DeveloperFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Release),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -286,7 +286,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Token.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.RootController,
+                OrganizationAddress = UserFeeAddresses.RootController.OwnerAddress,
                 ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientFromSender),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -295,7 +295,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = createNestProposalInput.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ParliamentController,
+                OrganizationAddress = UserFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.CreateProposal),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -320,7 +320,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ParliamentController,
+                OrganizationAddress = UserFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Approve),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -340,7 +340,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ReferendumController,
+                OrganizationAddress = UserFeeAddresses.ReferendumController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Approve),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -348,7 +348,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Referendum.Contract,
                 Params = referendumProposal.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ParliamentController,
+                OrganizationAddress = UserFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(ContractManager.ReferendumStub.CreateProposal),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -370,7 +370,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Referendum.Contract,
                 Params = id.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ParliamentController,
+                OrganizationAddress = UserFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(ContractManager.ReferendumStub.Release),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
@@ -390,7 +390,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = ContractManager.Association.Contract,
                 Params = input.ToByteString(),
-                OrganizationAddress = UserFeeAddresses.ParliamentController,
+                OrganizationAddress = UserFeeAddresses.ParliamentController.OwnerAddress,
                 ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.Release),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };

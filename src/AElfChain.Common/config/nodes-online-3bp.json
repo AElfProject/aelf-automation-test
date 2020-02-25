@@ -3,19 +3,19 @@
   "Nodes": [
     {
       "name": "bp1",
-      "endpoint": "34.255.30.161:8000",
+      "endpoint": "52.211.80.142:8000",
       "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     },
     {
       "name": "bp2",
-      "endpoint": "34.243.207.197:8000",
+      "endpoint": "34.244.113.76:8000",
       "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
       "password": "123"
     },
     {
       "name": "bp3",
-      "endpoint": "63.32.118.144:8000",
+      "endpoint": "34.245.25.91:8000",
       "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
       "password": "123"
     }

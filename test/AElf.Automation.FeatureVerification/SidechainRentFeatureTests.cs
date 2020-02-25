@@ -102,7 +102,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task UpdateRentedResources()
         {
-            var token = Genesis.GetTokenStub();
+            var token = Genesis.GetTokenImplStub();
             var transactionResult = await token.UpdateRentedResources.SendAsync(new UpdateRentedResourcesInput
             {
                 ResourceAmount =
@@ -123,7 +123,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryResourceUsage()
         {
-            var token = Genesis.GetTokenStub();
+            var token = Genesis.GetTokenImplStub();
             var resourceUsage = await token.GetResourceUsage.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(resourceUsage));
         }
@@ -131,7 +131,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryOwningRental()
         {
-            var token = Genesis.GetTokenStub();
+            var token = Genesis.GetTokenImplStub();
             var rental = await token.GetOwningRental.CallAsync(new Empty());
             foreach (var item in rental.ResourceAmount)
             {

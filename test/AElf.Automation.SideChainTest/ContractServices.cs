@@ -23,6 +23,8 @@ namespace AElf.Automation.SideChainTests
             TokenContractStub =
                 tester.Create<TokenContractContainer.TokenContractStub>(TokenService.Contract,
                     TokenService.CallAddress);
+            TokenImplContractStub = tester.Create<TokenContractImplContainer.TokenContractImplStub>(TokenService.Contract,
+                TokenService.CallAddress);
         }
 
         public GenesisContract GenesisService { get; set; }
@@ -33,6 +35,7 @@ namespace AElf.Automation.SideChainTests
         public AssociationAuthContract AssociationService { get; set; }
 
         public TokenContractContainer.TokenContractStub TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub TokenImplContractStub;
         
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }

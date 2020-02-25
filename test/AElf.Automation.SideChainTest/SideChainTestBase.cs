@@ -32,7 +32,8 @@ namespace AElf.Automation.SideChainTests
         public ContractServices SideBServices;
 
         public TokenContractContainer.TokenContractStub TokenContractStub;
-        public TokenContractContainer.TokenContractStub Side1TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public string InitAccount;
         public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
         public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
@@ -61,7 +62,8 @@ namespace AElf.Automation.SideChainTests
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
 
             TokenContractStub = MainServices.TokenContractStub;
-            Side1TokenContractStub = SideServices.First().TokenContractStub;
+            side1TokenContractStub = SideAServices.TokenImplContractStub;
+            side2TokenContractStub = SideBServices.TokenImplContractStub;
             Miners = new List<string>();
             Miners = (new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners());
 

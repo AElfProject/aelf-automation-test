@@ -6,12 +6,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Sharprompt" Version="1.0.3"/>
-        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4"/>
+        <PackageReference Include="AElf.Types" Version="0.9.2-18313" />
+        <PackageReference Include="Sharprompt" Version="1.0.3" />
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj"/>
+        <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>
 
 </Project>
