@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Acs1;
 using Acs3;
 using Acs7;
 using AElfChain.Common;
@@ -9,9 +10,7 @@ using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using Google.Protobuf;
-using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
-using log4net.Repository.Hierarchy;
 using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainCreate
@@ -136,12 +135,21 @@ namespace AElf.Automation.SideChainCreate
             var sideChainCreatedEvent = SideChainCreatedEvent.Parser
                 .ParseFrom(byteString);
             var chainId = sideChainCreatedEvent.ChainId;
-            organization = new Address();
-            /* If exist, without OrganizationCreated event 
-            organization = OrganizationCreated.Parser
-                .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(OrganizationCreated)))
-                    .NonIndexed)).OrganizationAddress;
-            */
+            if (result.Logs.FirstOrDefault(l => l.Name.Contains(nameof(OrganizationCreated))) == null)
+            {
+                var controller = CrossChainService.CallViewMethod<AuthorityInfo>(
+                    CrossChainContractMethod.GetSideChainLifetimeController,
+                    new Empty());
+                organization = controller.OwnerAddress;
+            }
+            else
+            {
+                organization = OrganizationCreated.Parser
+                    .ParseFrom(ByteString.FromBase64(result.Logs
+                        .First(l => l.Name.Contains(nameof(OrganizationCreated)))
+                        .NonIndexed)).OrganizationAddress;
+            }
+
             return chainId;
         }
 
