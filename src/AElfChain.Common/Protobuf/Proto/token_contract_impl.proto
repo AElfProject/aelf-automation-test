@@ -14,7 +14,7 @@ service TokenContractImpl {
     option (aelf.base) = "acs1.proto";
     option (aelf.base) = "acs2.proto";
     option (aelf.base) = "token_contract.proto";
-
+    
     rpc SetProfitReceivingInformation (ProfitReceivingInformation) returns (google.protobuf.Empty) {
     }
     rpc ReceiveProfits (ReceiveProfitsInput) returns (google.protobuf.Empty) {

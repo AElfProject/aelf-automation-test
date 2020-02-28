@@ -11,7 +11,7 @@ option csharp_namespace = "AElf.Contracts.TestContract.BasicUpdate";
 service BasicUpdateContract {
     option (aelf.csharp_state) = "AElf.Contracts.TestContract.BasicUpdate.BasicUpdateContractState";
     option (aelf.base) = "acs1.proto";
-
+    
     //Actions
     rpc InitialBasicUpdateContract(InitialBasicContractInput) returns (google.protobuf.Empty){
     }

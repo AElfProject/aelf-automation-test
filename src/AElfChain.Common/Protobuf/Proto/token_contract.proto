@@ -41,7 +41,7 @@ service TokenContract {
     }
     rpc CrossChainReceiveToken (CrossChainReceiveTokenInput) returns (google.protobuf.Empty) {
     }
-    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {
+    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {        
     }
     //be used in kernel
     rpc ClaimTransactionFees (google.protobuf.Empty) returns (google.protobuf.Empty) {
@@ -460,3 +460,8 @@ message RentalAccountBalanceInsufficient {
     string symbol = 1;
     sint64 amount = 2;
 }
+
+
+
+
+
