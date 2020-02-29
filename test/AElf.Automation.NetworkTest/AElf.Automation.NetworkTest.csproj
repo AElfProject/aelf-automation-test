@@ -20,7 +20,7 @@
       <EmbeddedResource Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="AElf.Types" Version="0.9.2-18313" />
+      <PackageReference Include="AElf.Types" Version="0.9.2-18321" />
     </ItemGroup>
 
 </Project>

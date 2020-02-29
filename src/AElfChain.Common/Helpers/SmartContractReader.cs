@@ -6,6 +6,7 @@ namespace AElfChain.Common.Helpers
     public class SmartContractReader
     {
         private const string ContractExtension = ".dll";
+        private const string ContractPatchedExtension = ".dll";
         private const string ContractFolderName = "contracts";
 
         private readonly string _dataDirectory;
@@ -46,7 +47,12 @@ namespace AElfChain.Common.Helpers
             if (contractName.Contains(ContractExtension))
                 return contractName;
 
-            var filePathWithExtension = filePath + ContractExtension;
+            var filePathWithExtension = filePath + ContractPatchedExtension;
+            if(File.Exists(filePathWithExtension))
+                return filePathWithExtension;
+            
+            filePathWithExtension = filePath + ContractExtension;
+            
             return filePathWithExtension;
         }
 

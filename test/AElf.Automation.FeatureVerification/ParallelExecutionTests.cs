@@ -18,7 +18,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager NodeManager { get; set; }
         public string TestAccount { get; set; }
         public string TestContract = "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe";
-        public BasicFunctionWithParallelContractContainer.BasicFunctionWithParallelContractStub ParallelContractStub;
         
         public ParallelExecutionTests()
         {
@@ -48,6 +47,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         First = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count-1)].ConvertAddress(),
                         Second = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count-1)].ConvertAddress()
+                    });
+                Logger.Info($"TxId: {txId}");
+
+                txId = contract.ExecuteMethodWithTxId(
+                    nameof(BasicFunctionWithParallelContractContainer.BasicFunctionWithParallelContractStub
+                        .UpdateBetLimit),
+                    new BetLimitInput
+                    {
+                        MinValue = CommonHelper.GenerateRandomNumber(1, 100),
+                        MaxValue = CommonHelper.GenerateRandomNumber(5000, 6000)
                     });
                 Logger.Info($"TxId: {txId}");
             }
