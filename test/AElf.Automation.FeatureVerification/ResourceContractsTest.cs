@@ -166,9 +166,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 BaseTokenSymbol = TokenSymbol,
                 FeeRate = "0.005",
-                ManagerAddress = AddressHelper.Base58StringToAddress(ManagerAccount),
-                TokenContractAddress = AddressHelper.Base58StringToAddress(TokenContract),
-                FeeReceiverAddress = AddressHelper.Base58StringToAddress(FeeReceiverAccount),
                 Connectors = {ramConnector, netConnector, cpuConnector}
             });
 

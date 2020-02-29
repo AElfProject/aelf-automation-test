@@ -6,7 +6,7 @@ namespace AElfChain.Common.Contracts
     {
         SetBlockTransactionLimit,
         GetBlockTransactionLimit,
-        ChangeOwnerAddress,
+        ChangeConfigurationController,
         GetOwnerAddress
     }
 
