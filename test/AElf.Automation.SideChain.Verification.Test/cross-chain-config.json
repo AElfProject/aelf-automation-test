@@ -3,6 +3,7 @@
     "EnvironmentInfo": [
         {
             "Environment": "Online",
+            "Config": "nodes-online-test-main",
             "MainChainInfos":
             {
                 "MainChainUrl": "http://54.202.235.179:8000",
@@ -20,6 +21,7 @@
         },
         {
             "Environment": "Offline1",
+            "Config": "nodes-env1-main",
             "MainChainInfos":
             {
                 "MainChainUrl": "http://192.168.197.14:8000",
@@ -37,6 +39,7 @@
         },
         {
             "Environment": "Offline2",
+            "Config": "nodes-env2-main",
             "MainChainInfos":
             {
                 "MainChainUrl": "http://192.168.197.29:8000",
@@ -54,6 +57,7 @@
         },
         {
             "Environment": "Other",
+            "Config": "nodes",
             "MainChainInfos":
             {
                 "MainChainUrl": "http://192.168.197.56:8001",

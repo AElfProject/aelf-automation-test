@@ -37,7 +37,7 @@ namespace AElfChain.Common.Contracts
         ValidateOrganizationExist,
         CalculateOrganizationAddress,
         ValidateAddressIsParliamentMember,
-        GetProposerWhiteListContext
+        GetProposerWhiteList
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>

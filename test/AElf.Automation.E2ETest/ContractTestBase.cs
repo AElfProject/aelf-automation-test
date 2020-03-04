@@ -12,6 +12,7 @@ namespace AElf.Automation.E2ETest
     {
         public INodeManager NodeManager { get; set; }
         public ContractManager ContractManager { get; set; }
+        public EnvCheck EnvCheck { get; set; }
         public ILog Logger { get; set; }
 
         public List<Node> ConfigNodes { get; set; }
@@ -27,18 +28,21 @@ namespace AElf.Automation.E2ETest
 
             NodeManager = new NodeManager(firstBp.Endpoint);
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
+            EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();
         }
-        public static string MainConfig = "nodes-env2-main";
-        public static string SideConfig = CommonHelper.MapPath("config/nodes-env2-side1.json");
+        public static string MainConfig = "nodes-env1-main";
+        public static string SideConfig = "nodes-env1-side1";
         
         public void TransferToNodes()
         {
             foreach (var node in ConfigNodes)
             {
-                if (node.Account.Equals(ContractManager.CallAddress)) continue;
+                var symbol = ContractManager.Token.GetPrimaryTokenSymbol();
+                var balance = ContractManager.Token.GetUserBalance(node.Account,symbol);
+                if (node.Account.Equals(ContractManager.CallAddress)|| balance > 10000000000) continue;
                 ContractManager.Token.TransferBalance(ContractManager.CallAddress, node.Account, 100000000000,
-                    ContractManager.Token.GetPrimaryTokenSymbol());
+                    symbol);
             }
         }
     }

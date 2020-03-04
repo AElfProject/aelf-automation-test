@@ -144,48 +144,44 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public void ParliamentChangeWhiteList()
         {
             var parliament = ContractManager.ParliamentAuth;
-            var defaultAddress = parliament.GetGenesisOwnerAddress();
-            var existResult =
-                parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
-            existResult.Value.ShouldBeTrue();
-            var proposalWhiteList =
-                parliament.CallViewMethod<GetProposerWhiteListContextOutput>(
-                    ParliamentMethod.GetProposerWhiteListContext, new Empty());
-            proposalWhiteList.ShouldBe(new GetProposerWhiteListContextOutput());
+            //create parliament organization
+            var createInput = new CreateOrganizationInput
+            {
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MaximalAbstentionThreshold = 1000,
+                    MaximalRejectionThreshold = 1000,
+                    MinimalApprovalThreshold = 3000,
+                    MinimalVoteThreshold = 3000
+                },
+                ProposerAuthorityRequired = true,
+                ParliamentMemberProposingAllowed = true
+            };
             var miners = ContractManager.Authority.GetCurrentMiners();
-
+            parliament.SetAccount(miners.First());
+            var result = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
+                createInput);
+            var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
+            var proposalWhiteList =
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
+            proposalWhiteList.ShouldBe(new ProposerWhiteList());
             var changeInput = new ProposerWhiteList
             {
-                Proposers = { miners.First().ConvertAddress()}
+                Proposers = {miners.First().ConvertAddress()}
             };
 
             var proposalId = parliament.CreateProposal(parliament.ContractAddress,
-                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,defaultAddress,miners.First());
+                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,organizationAddress,miners.First());
             parliament.MinersApproveProposal(proposalId,miners);
             parliament.SetAccount(miners.First());
             var release = parliament.ReleaseProposal(proposalId,miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             
             proposalWhiteList =
-                parliament.CallViewMethod<GetProposerWhiteListContextOutput>(
-                    ParliamentMethod.GetProposerWhiteListContext, new Empty());
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
             proposalWhiteList.Proposers.Contains(miners.First().ConvertAddress()).ShouldBeTrue();
-            
-            //revert
-            var revertInput = new ProposerWhiteList
-            {
-                Proposers = {}
-            };
-            var revertProposalId = parliament.CreateProposal(parliament.ContractAddress,
-                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), revertInput,defaultAddress,miners.First());
-            parliament.MinersApproveProposal(revertProposalId,miners);
-            parliament.SetAccount(miners.First());
-            var revertRelease = parliament.ReleaseProposal(revertProposalId,miners.First());
-            revertRelease.Status.ShouldBe(TransactionResultStatus.Mined);
-            proposalWhiteList =
-                parliament.CallViewMethod<GetProposerWhiteListContextOutput>(
-                    ParliamentMethod.GetProposerWhiteListContext, new Empty());
-            proposalWhiteList.ShouldBe(new GetProposerWhiteListContextOutput());
         }
     }
 }

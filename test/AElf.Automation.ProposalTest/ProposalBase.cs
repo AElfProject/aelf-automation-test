@@ -74,8 +74,7 @@ namespace AElf.Automation.ProposalTest
             var random = new Random(Guid.NewGuid().GetHashCode());
             return random.Next(min, max + 1);
         }
-
-
+        
         private List<string> GenerateOrGetTestUsers()
         {
             var url = _environmentInfo.Url;

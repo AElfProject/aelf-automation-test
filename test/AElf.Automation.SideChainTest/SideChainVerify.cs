@@ -381,7 +381,7 @@ namespace AElf.Automation.SideChainTests
 
         public async Task ValidToken(ContractServices services, ContractServices validateServices)
         {
-            var stub = services.TokenContractStub;
+            var stub = services.TokenImplContractStub;
             var tokenInfo = await stub.GetTokenInfo.CallAsync(new GetTokenInfoInput
                 {Symbol = services.TokenService.GetPrimaryTokenSymbol()});
             var validateStub = validateServices.TokenContractStub;
@@ -442,7 +442,7 @@ namespace AElf.Automation.SideChainTests
             {
                 var tokenInfo = await TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
                     {Symbol = symbol});
-                var result = await TokenContractStub.ValidateTokenInfoExists.SendAsync(new ValidateTokenInfoExistsInput
+                var result = await TokenContractImplStub.ValidateTokenInfoExists.SendAsync(new ValidateTokenInfoExistsInput
                 {
                     Decimals = tokenInfo.Decimals,
                     IsProfitable = tokenInfo.IsProfitable,
@@ -475,7 +475,7 @@ namespace AElf.Automation.SideChainTests
                     TransactionBytes = result.Transaction.ToByteString()
                 };
                 var createResult =
-                    await Side1TokenContractStub.CrossChainCreateToken.SendAsync(crossChainCrossToken);
+                    await side1TokenContractStub.CrossChainCreateToken.SendAsync(crossChainCrossToken);
                 createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
 
@@ -483,7 +483,7 @@ namespace AElf.Automation.SideChainTests
             {
                 var tokenInfo = await TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
                     {Symbol = symbol});
-                var sideATokenInfo = await Side1TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
+                var sideATokenInfo = await side1TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
                     {Symbol = symbol});
                 sideATokenInfo.TokenName.ShouldBe(tokenInfo.TokenName);
             }

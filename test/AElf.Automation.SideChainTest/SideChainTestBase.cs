@@ -32,6 +32,7 @@ namespace AElf.Automation.SideChainTests
         public ContractServices SideBServices;
 
         public TokenContractContainer.TokenContractStub TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub TokenContractImplStub;
         public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
         public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public string InitAccount;

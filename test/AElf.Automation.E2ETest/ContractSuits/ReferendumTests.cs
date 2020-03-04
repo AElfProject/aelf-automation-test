@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Acs3;
 using AElf.Types;
@@ -16,12 +17,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public void ReferendumCreateTest()
         {
-            var miners = ContractManager.Authority.GetCurrentMiners();
-            var members = ConfigNodes.Select(l => l.Account).ToList().FindAll(member => !miners.Contains(member)).ToList();
-            var proposer = ConfigNodes.First().Account.ConvertAddress();
-            var referendum = ContractManager.Referendum;
             var token = ContractManager.Token;
             var symbol = token.GetPrimaryTokenSymbol();
+            var members = GetMembers(token, symbol);
+            var proposer = ConfigNodes.First().Account.ConvertAddress();
+            var referendum = ContractManager.Referendum;
             //create referendum organization
             var createInput = new CreateOrganizationInput
             {
@@ -278,6 +278,19 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization =
                 referendum.GetOrganization(organizationAddress);
             organization.ProposerWhiteList.Proposers.Contains(proposer).ShouldBeTrue();
+        }
+
+        private List<string> GetMembers(TokenContract token,string symbol)
+        {
+            var members = EnvCheck.GenerateOrGetTestUsers(10);
+            foreach (var m in members)
+            {
+                var balance = token.GetUserBalance(m,symbol);
+                if (balance >= 1000_00000000) continue;
+                ContractManager.Token.TransferBalance(ContractManager.CallAddress, m, 1000_00000000,
+                    symbol);
+            }
+            return members;
         }
     }
 }
