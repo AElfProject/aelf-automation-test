@@ -2,9 +2,12 @@ using System;
 using System.Linq;
 using Acs3;
 using AElf.Contracts.Parliament;
+using AElf.Kernel;
+using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -23,8 +26,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    MaximalAbstentionThreshold = 5000,
-                    MaximalRejectionThreshold = 5000,
+                    MaximalAbstentionThreshold = 3000,
+                    MaximalRejectionThreshold = 3000,
                     MinimalApprovalThreshold = 5000,
                     MinimalVoteThreshold = 10000
                 },
@@ -42,8 +45,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var organization =
                 parliament.GetOrganization(organizationAddress.ConvertAddress());
-            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(5000);
-            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(5000);
+            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(3000);
+            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(3000);
             organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(10000);
             organization.ProposerAuthorityRequired.ShouldBeTrue();
@@ -53,8 +56,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             // change organization info:
             var changeInput = new ProposalReleaseThreshold
                 {
-                    MaximalAbstentionThreshold = 2000,
-                    MaximalRejectionThreshold = 3000,
+                    MaximalAbstentionThreshold = 5000,
+                    MaximalRejectionThreshold = 5000,
                     MinimalApprovalThreshold = 5000,
                     MinimalVoteThreshold = 10000
                 };
@@ -113,8 +116,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             
             organization =
                 parliament.GetOrganization(organizationAddress.ConvertAddress());
-            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(2000);
-            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(3000);
+            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(5000);
+            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(5000);
             organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(10000);
             organization.ProposerAuthorityRequired.ShouldBeTrue();
@@ -141,9 +144,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
         
         [TestMethod]
-        public void ParliamentChangeWhiteList()
+        public void ParliamentChangeWhiteList_False()
         {
             var parliament = ContractManager.ParliamentAuth;
+            var miners = ContractManager.Authority.GetCurrentMiners();
             //create parliament organization
             var createInput = new CreateOrganizationInput
             {
@@ -157,8 +161,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 ProposerAuthorityRequired = true,
                 ParliamentMemberProposingAllowed = true
             };
-            var miners = ContractManager.Authority.GetCurrentMiners();
-            parliament.SetAccount(miners.First());
+            var proposer = miners.First();
+            parliament.SetAccount(proposer);
             var result = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
                 createInput);
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
@@ -166,13 +170,51 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 parliament.CallViewMethod<ProposerWhiteList>(
                     ParliamentMethod.GetProposerWhiteList, new Empty());
             proposalWhiteList.ShouldBe(new ProposerWhiteList());
+            
             var changeInput = new ProposerWhiteList
             {
                 Proposers = {miners.First().ConvertAddress()}
             };
+            parliament.SetAccount(proposer);
+            var returnProposalId = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,new CreateProposalInput
+            {
+                ToAddress = parliament.Contract,
+                ContractMethodName = nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList),
+                ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(10),
+                OrganizationAddress = organizationAddress,
+                Params = changeInput.ToByteString()
+            }).ReadableReturnValue.Replace("\"","");
+            
+            var proposalId = HashHelper.HexStringToHash(returnProposalId);
+            var proposalInfo = parliament.CheckProposal(proposalId);
+            proposalInfo.Proposer.ShouldBe(proposer.ConvertAddress());
+            
+            parliament.MinersApproveProposal(proposalId,miners);
+            var release = parliament.ExecuteMethodWithResult(ParliamentMethod.Release,proposalId);
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Failed);
+        }
+
+        [TestMethod]
+        public void ParliamentChangeWhiteList()
+        {
+            var parliament = ContractManager.ParliamentAuth;
+            var defaultAddress = parliament.GetGenesisOwnerAddress();
+            var existResult =
+                parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
+            existResult.Value.ShouldBeTrue();
+            var proposalWhiteList =
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
+            proposalWhiteList.ShouldBe(new ProposerWhiteList());
+            var miners = ContractManager.Authority.GetCurrentMiners();
+
+            var changeInput = new ProposerWhiteList
+            {
+                Proposers = { miners.First().ConvertAddress()}
+            };
 
             var proposalId = parliament.CreateProposal(parliament.ContractAddress,
-                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,organizationAddress,miners.First());
+                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,defaultAddress,miners.First());
             parliament.MinersApproveProposal(proposalId,miners);
             parliament.SetAccount(miners.First());
             var release = parliament.ReleaseProposal(proposalId,miners.First());

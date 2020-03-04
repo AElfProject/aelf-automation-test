@@ -167,6 +167,12 @@ namespace AElf.Automation.ProposalTest
                     }
                 }
 
+                foreach (var proposalId in proposalIds)
+                {
+                    var proposal = Parliament.CheckProposal(proposalId);
+                    proposal.OrganizationAddress.ShouldBe(key);
+                }
+
                 ProposalList.Add(key, proposalIds);
             }
         }
@@ -248,6 +254,7 @@ namespace AElf.Automation.ProposalTest
                     var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
                     var result = Parliament.ExecuteMethodWithResult(ParliamentMethod.Release,
                         proposal);
+                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                     var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }

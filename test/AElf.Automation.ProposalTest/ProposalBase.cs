@@ -180,8 +180,8 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
-                if (balance >= 100_00000000) continue;
-                Services.Token.TransferBalance(InitAccount,tester,100_00000000,TokenSymbol);
+                if (balance >= 1000_00000000) continue;
+                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
@@ -189,8 +189,8 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in AssociationTester)
             {
                 var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
-                if (balance >= 100_00000000) continue;
-                Services.Token.TransferBalance(InitAccount,tester,100_00000000,TokenSymbol);
+                if (balance >= 1000_00000000) continue;
+                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
