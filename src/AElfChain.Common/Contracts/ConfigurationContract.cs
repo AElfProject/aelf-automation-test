@@ -8,7 +8,7 @@ namespace AElfChain.Common.Contracts
         GetBlockTransactionLimit,
         GetOwnerAddress,
         SetRequiredAcsInContracts,
-        GetRequiredAcsInContracts
+        GetRequiredAcsInContracts,
         ChangeConfigurationController,
     }
 

@@ -117,9 +117,8 @@ private ILog Logger { get; set; }
 
             var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                BaseTokenSymbol = TokenSymbol,
-                FeeRate = "0.005",
-                Connectors = {ramConnector, netConnector, cpuConnector}
+                Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                Symbol = NodeManager.GetNativeTokenSymbol()
             });
 
             var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
