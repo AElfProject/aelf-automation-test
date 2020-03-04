@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Acs1;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
@@ -15,24 +16,33 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task GetAndSetManager_Test()
         {
-            var managerAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
+            var managerController =
+                await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             var defaultOrganizationAddress =
                 await ContractManager.ParliamentAuthStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
-            managerAddress.ShouldBe(defaultOrganizationAddress);
+            managerController.OwnerAddress.ShouldBe(defaultOrganizationAddress);
 
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.TokenConverter.ContractAddress, nameof(TokenConverterMethod.SetManagerAddress),
-                ContractManager.CallAccount, ContractManager.CallAddress);
+                ContractManager.TokenConverter.ContractAddress, 
+                nameof(TokenConverterMethod.ChangeConnectorController),
+                new AuthorityInfo
+                {
+                    ContractAddress = managerController.ContractAddress,
+                    OwnerAddress = ContractManager.CallAccount
+                }, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
-            var newManagerAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
-            newManagerAddress.ShouldBe(ContractManager.CallAccount);
+            var newManagerAddress = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            newManagerAddress.OwnerAddress.ShouldBe(ContractManager.CallAccount);
             
             //revert back
-            var setManagerResult = await ContractManager.TokenconverterStub.SetManagerAddress.SendAsync(managerAddress);
+            var setManagerResult = await ContractManager.TokenconverterStub.ChangeConnectorController.SendAsync(new AuthorityInfo{
+                ContractAddress = newManagerAddress.ContractAddress,
+                OwnerAddress = managerController.OwnerAddress
+            });
             setManagerResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            newManagerAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
-            newManagerAddress.ShouldBe(defaultOrganizationAddress);
+            newManagerAddress = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            newManagerAddress.OwnerAddress.ShouldBe(defaultOrganizationAddress);
         }
         
         [TestMethod]
@@ -63,16 +73,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task Connector_Test()
         {
-            var connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            var connector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = "VOTE"
             });
-            if (connector.Equals(new Connector()))
+            if (connector.Equals(new PairConnector()))
             {
                 //set connector test
                 var transactionResult =
-                    ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, nameof(TokenConverterMethod.AddPairConnectors),
-                        new PairConnector
+                    ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, 
+                        nameof(TokenConverterMethod.AddPairConnector),
+                        new PairConnectorParam
                     {
                         ResourceWeight = "0.05",
                         NativeWeight = "0.05",
@@ -81,27 +92,27 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
             
-            connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            connector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = "VOTE"
             });
-            connector.Symbol.ShouldBe("VOTE");
-            connector.RelatedSymbol.ShouldBe("ntVOTE");
-            connector.Weight.ShouldBe("0.05");
+            connector.ResourceConnector.Symbol.ShouldBe("VOTE");
+            connector.ResourceConnector.RelatedSymbol.ShouldBe("ntVOTE");
+            connector.ResourceConnector.Weight.ShouldBe("0.05");
             
             //update
-            connector.VirtualBalance = 1000_0000;
-            connector.IsPurchaseEnabled = false;
-            connector.IsVirtualBalanceEnabled = false;
+            connector.ResourceConnector.VirtualBalance = 1000_0000;
+            connector.ResourceConnector.IsPurchaseEnabled = false;
+            connector.ResourceConnector.IsVirtualBalanceEnabled = false;
             var updateResult = ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, nameof(TokenConverterMethod.UpdateConnector),
                 connector, ContractManager.CallAddress);
             updateResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            connector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = "VOTE"
             });
-            connector.IsPurchaseEnabled.ShouldBeFalse();
-            connector.IsVirtualBalanceEnabled.ShouldBeFalse();
+            connector.ResourceConnector.IsPurchaseEnabled.ShouldBeFalse();
+            connector.ResourceConnector.IsVirtualBalanceEnabled.ShouldBeFalse();
         }
 
         [TestMethod]
@@ -120,34 +131,27 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
 
         [TestMethod]
-        public async Task GetTokenContractAddress_Test()
-        {
-            var address = await ContractManager.TokenconverterStub.GetTokenContractAddress.CallAsync(new Empty());
-            address.ShouldBe(ContractManager.Token.Contract);
-        }
-
-        [TestMethod]
         public async Task GetConnector_Test()
         {
-            var elfConnector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            var elfConnector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = "ELF"
             });
-            elfConnector.Symbol.ShouldBe("ELF");
-            elfConnector.VirtualBalance.ShouldBe(10000000000000);
-            elfConnector.Weight.ShouldBe("0.5");
-            elfConnector.IsVirtualBalanceEnabled.ShouldBe(true);
-            elfConnector.IsPurchaseEnabled.ShouldBe(true);
+            elfConnector.ResourceConnector.Symbol.ShouldBe("ELF");
+            elfConnector.ResourceConnector.VirtualBalance.ShouldBe(10000000000000);
+            elfConnector.ResourceConnector.Weight.ShouldBe("0.5");
+            elfConnector.ResourceConnector.IsVirtualBalanceEnabled.ShouldBe(true);
+            elfConnector.ResourceConnector.IsPurchaseEnabled.ShouldBe(true);
 
-            var cpuConnector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            var cpuConnector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = "CPU"
             });
-            cpuConnector.Symbol.ShouldBe("CPU");
-            cpuConnector.VirtualBalance.ShouldBe(100000);
-            cpuConnector.Weight.ShouldBe("0.005");
-            cpuConnector.IsVirtualBalanceEnabled.ShouldBe(true);
-            cpuConnector.IsPurchaseEnabled.ShouldBe(true);
+            cpuConnector.ResourceConnector.Symbol.ShouldBe("CPU");
+            cpuConnector.ResourceConnector.VirtualBalance.ShouldBe(100000);
+            cpuConnector.ResourceConnector.Weight.ShouldBe("0.005");
+            cpuConnector.ResourceConnector.IsVirtualBalanceEnabled.ShouldBe(true);
+            cpuConnector.ResourceConnector.IsPurchaseEnabled.ShouldBe(true);
         }
 
         [TestMethod]
@@ -158,8 +162,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             
             //set connector test
             var transactionResult =
-                ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, nameof(TokenConverterMethod.AddPairConnectors),
-                    new PairConnector
+                ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.TokenConverter.ContractAddress, 
+                    nameof(TokenConverterMethod.AddPairConnector),
+                    new PairConnectorParam
                     {
                         ResourceWeight = "0.05",
                         NativeWeight = "0.05",
@@ -167,11 +172,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
                         ResourceConnectorSymbol = symbol
                     }, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            var connector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = symbol
             });
-            connector.VirtualBalance.ShouldBe(0);
+            connector.ResourceConnector.VirtualBalance.ShouldBe(0);
             
             //set allowance
             var allowanceResult = await ContractManager.TokenStub.Approve.SendAsync(new ApproveInput
@@ -189,11 +194,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     AmountToTokenConvert = 20000_00000000
                 });
             enableResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            connector = await ContractManager.TokenconverterStub.GetConnector.CallAsync(new TokenSymbol
+            connector = await ContractManager.TokenconverterStub.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = symbol
             });
-            connector.IsPurchaseEnabled.ShouldBeTrue();
+            connector.ResourceConnector.IsPurchaseEnabled.ShouldBeTrue();
         }
     }
 }

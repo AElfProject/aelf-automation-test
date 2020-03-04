@@ -169,7 +169,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var amount = 9000000_00000000;
             await CreateToken(amount);
-            var input = new PairConnector
+            var input = new PairConnectorParam()
             {
                 NativeWeight = "0.05",
                 ResourceWeight = "0.05",
@@ -178,7 +178,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
             var proposal = _parliamentAuthContract.CreateProposal(_tokenConverterContract.ContractAddress,
-                nameof(TokenConverterMethod.AddPairConnectors), input, organization, BpAccount);
+                nameof(TokenConverterMethod.AddPairConnector), input, organization, BpAccount);
             var miners = AuthorityManager.GetCurrentMiners();
             _parliamentAuthContract.MinersApproveProposal(proposal, miners);
             var result = _parliamentAuthContract.ReleaseProposal(proposal, BpAccount);
@@ -354,8 +354,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task GetManagerAddress()
         {
-            var manager = await _tokenConverterSub.GetManagerAddress.CallAsync(new Empty());
-            Logger.Info($"manager is {manager}");
+            var manager = await _tokenConverterSub.GetControllerForManageConnector.CallAsync(new Empty());
+            Logger.Info($"manager is {manager.OwnerAddress}");
             var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
             Logger.Info($"organization is {organization}");
         }
@@ -363,7 +363,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task GetConnector()
         {
-            var result = await _tokenConverterSub.GetConnector.CallAsync(new TokenSymbol {Symbol = "STA"});
+            var result = await _tokenConverterSub.GetPairConnector.CallAsync(new TokenSymbol {Symbol = "STA"});
             Logger.Info($"{result}");
         }
 

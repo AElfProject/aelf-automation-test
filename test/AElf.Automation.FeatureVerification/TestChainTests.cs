@@ -69,7 +69,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var gensis = GenesisContract.GetGenesisContract(MainNode);
             var tokenConverter = gensis.GetTokenConverterStub();
 
-            var result = await tokenConverter.GetConnector.CallAsync(new TokenSymbol
+            var result = await tokenConverter.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = symbol
             });

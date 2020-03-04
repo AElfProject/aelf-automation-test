@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
 using AElf.Contracts.Election;
@@ -52,22 +53,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task ChangeOrganization_Test(string organizationAddress)
         {
             //Query manager address
-            var beforeAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
-            Logger.Info($"Manager address: {beforeAddress}");
-            beforeAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
+            var beforeController = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            Logger.Info($"Manager address: {beforeController}");
+            beforeController.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
 
             //Set manager address
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.TokenConverter.ContractAddress,
-                nameof(ContractManager.TokenconverterStub.SetManagerAddress),
-                organizationAddress.ConvertAddress(),
+                nameof(ContractManager.TokenconverterStub.ChangeConnectorController),
+                 new AuthorityInfo
+                 {
+                     ContractAddress = beforeController.ContractAddress,
+                     OwnerAddress = organizationAddress.ConvertAddress(),
+                 },
                 ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //verify manager permission
-            var afterAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
-            Logger.Info($"Manager address: {afterAddress}");
-            afterAddress.ShouldBe(organizationAddress.ConvertAddress());
+            var afterController = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            Logger.Info($"Manager address: {afterController}");
+            afterController.OwnerAddress.ShouldBe(organizationAddress.ConvertAddress());
         }
 
         [TestMethod]
@@ -76,10 +81,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var defaultOrganization = ContractManager.ParliamentAuth.GetGenesisOwnerAddress();
             //revert back
+            var controller =
+                await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             var createProposal = ContractManager.Association.CreateProposal(
                 ContractManager.TokenConverter.ContractAddress,
-                nameof(ContractManager.TokenconverterStub.SetManagerAddress),
-                defaultOrganization, organizationAddress.ConvertAddress(), Reviwers.First());
+                nameof(ContractManager.TokenconverterStub.ChangeConnectorController), new AuthorityInfo
+                {
+                    ContractAddress = controller.ContractAddress,
+                    OwnerAddress = defaultOrganization,
+                }, organizationAddress.ConvertAddress(), Reviwers.First());
             foreach (var approver in Reviwers)
             {
                 var approveResult = ContractManager.Association.ApproveWithResult(createProposal, approver);
@@ -90,9 +100,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             releaseResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
             //query again
-            var orgAddress = await ContractManager.TokenconverterStub.GetManagerAddress.CallAsync(new Empty());
+            var orgAddress = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {orgAddress}");
-            orgAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
+            orgAddress.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
         }
 
         [TestMethod]

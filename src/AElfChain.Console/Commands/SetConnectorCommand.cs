@@ -28,7 +28,7 @@ namespace AElfChain.Console.Commands
             var authority = Services.Authority;
             var orgAddress = authority.GetGenesisOwnerAddress();
             var miners = authority.GetCurrentMiners();
-            var connector = new PairConnector
+            var connector = new PairConnectorParam
             {
                 ResourceConnectorSymbol = parameters[0],
                 ResourceWeight = parameters[1],
@@ -37,7 +37,7 @@ namespace AElfChain.Console.Commands
             };
             var bp = NodeInfoHelper.Config.Nodes.First().Account;
             var transactionResult = authority.ExecuteTransactionWithAuthority(Services.TokenConverter.ContractAddress,
-                nameof(TokenConverterContractContainer.TokenConverterContractStub.AddPairConnectors), connector, orgAddress, miners, bp);
+                nameof(TokenConverterContractContainer.TokenConverterContractStub.AddPairConnector), connector, orgAddress, miners, bp);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             AsyncHelper.RunSync(() => GetTokenConnector(parameters[0]));
@@ -69,7 +69,7 @@ namespace AElfChain.Console.Commands
         private async Task GetTokenConnector(string symbol)
         {
             var tokenConverter = Services.Genesis.GetTokenConverterStub();
-            var result = await tokenConverter.GetConnector.CallAsync(new TokenSymbol
+            var result = await tokenConverter.GetPairConnector.CallAsync(new TokenSymbol
             {
                 Symbol = symbol
             });

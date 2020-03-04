@@ -141,7 +141,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 SideManager.Token.TransferBalance(creator.GetFormatted(), tester, 5_00000000L, primaryToken);
             }
 
-            var beforeBalance = SideManager.Token.GetUserBalance(creator.GetFormatted(), primaryToken);
             transactionResult = await tokenStub.Approve.SendAsync(new ApproveInput
             {
                 Symbol = primaryToken,
@@ -150,8 +149,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var txFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
-            var afterBalance = SideManager.Token.GetUserBalance(creator.GetFormatted(), primaryToken);
-            afterBalance.ShouldBeGreaterThanOrEqualTo(beforeBalance + txFee * 9 / 10);
+            txFee.ShouldBeGreaterThan(0);
         }
 
         private async Task<Address> CreateAssociationOrganization(Address parliamentOrgAddress, Address sideCreator)
