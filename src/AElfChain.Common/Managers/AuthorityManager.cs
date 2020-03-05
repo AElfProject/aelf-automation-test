@@ -301,11 +301,11 @@ namespace AElfChain.Common.Managers
 
         private byte[] GenerateUniqContractCode(byte[] code)
         {
-            var contractHashList = _genesis.GetContractHashCodeList();
             while (true)
             {
                 var hash = Hash.FromRawBytes(code);
-                if (!contractHashList.Contains(hash)) return code;
+                var registration = _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration, hash);
+                if (registration.Equals(new SmartContractRegistration())) return code;
                 code = CodeInjectHelper.ChangeContractCodeHash(code);
             }
         }

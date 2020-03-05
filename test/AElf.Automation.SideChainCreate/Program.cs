@@ -19,7 +19,7 @@ namespace AElf.Automation.SideChainCreate
 
             //Init Logger
             Log4NetHelper.LogInit("SideChainCreate");
-            //NodeInfoHelper.SetConfig("nodes");
+            NodeInfoHelper.SetConfig("nodes-env2-main");
             #endregion
 
             var operation = new Operation();

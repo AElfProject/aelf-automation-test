@@ -37,8 +37,8 @@ namespace AElfChain.Common.Contracts
         GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
+        GetSmartContractRegistration,
         GetSmartContractRegistrationByAddress,
-        GetDeployedContractAddressList,
         GetContractDeploymentController,
         GetCodeCheckController
     }
@@ -178,14 +178,6 @@ namespace AElfChain.Common.Contracts
         public AuthorityInfo GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
-        }
-
-        public List<Hash> GetContractHashCodeList()
-        {
-            var deployedContracts =
-                CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
-            return deployedContracts.Value
-                .Select(address => CallViewMethod<Hash>(GenesisMethod.GetContractHash, address)).ToList();
         }
 
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
