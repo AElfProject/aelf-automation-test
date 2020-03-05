@@ -47,7 +47,7 @@ namespace AElf.Automation.SideChainCreate
                 operation.ApproveProposal(proposal);
                 var chainIdResult = operation.ReleaseSideChainCreation(proposal, out var organization);
                 var chainId = ChainHelper.ConvertChainIdToBase58(chainIdResult);
-                Logger.Info($"Association organization is {organization}");
+                //Logger.Info($"Association organization is {organization}");
                 Logger.Info($"Side Chain : {chainId} created successfully");
             }
         }

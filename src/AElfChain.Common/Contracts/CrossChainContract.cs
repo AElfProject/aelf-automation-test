@@ -95,13 +95,12 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<SInt64Value>(
                 CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
         }
-
         public AuthorityInfo GetCrossChainIndexingController()
         {
             return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
-
+        
         public AuthorityInfo GetSideChainLifetimeController()
         {
             return CallViewMethod<AuthorityInfo>(
@@ -118,6 +117,12 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<ChainInitializationData>(
                 CrossChainContractMethod.GetChainInitializationData, new SInt32Value {Value = chainId});
+        }
+
+        public GetChainStatusOutput GetChainStatus(int chainId)
+        {
+            return CallViewMethod<GetChainStatusOutput>(CrossChainContractMethod.GetChainStatus,
+                new SInt32Value {Value = chainId});
         }
     }
 }

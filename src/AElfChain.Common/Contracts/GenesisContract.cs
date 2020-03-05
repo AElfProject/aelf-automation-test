@@ -174,7 +174,6 @@ namespace AElfChain.Common.Contracts
         {
             return GetContractAuthor(contractAddress.ConvertAddress());
         }
-
         public AuthorityInfo GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());

@@ -29,7 +29,7 @@ namespace AElf.Automation.ProposalTest
         protected string TokenSymbol;
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
-        protected static ContractServices Services { get; set; }
+        protected static ContractManager Services { get; set; }
 
         protected ProposalBase()
         {
@@ -64,7 +64,7 @@ namespace AElf.Automation.ProposalTest
                 Services = GetContractServices();
             Tester = GenerateOrGetTestUsers();
             AssociationTester = GenerateOrGetTestUsers(Tester);
-            TokenSymbol = Services.TokenService.GetPrimaryTokenSymbol();
+            TokenSymbol = Services.Token.GetPrimaryTokenSymbol();
             if (Symbol == null)
                 ProposalPrepare();
         }
@@ -74,16 +74,15 @@ namespace AElf.Automation.ProposalTest
             var random = new Random(Guid.NewGuid().GetHashCode());
             return random.Next(min, max + 1);
         }
-
-
+        
         private List<string> GenerateOrGetTestUsers()
         {
             var url = _environmentInfo.Url;
             var nodeManager = new NodeManager(url, AccountDir);
 
             var accounts = nodeManager.ListAccounts();
-
-            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMinersPubkey().Contains(o));
+            GetMiners();
+            var testUsers = accounts.FindAll(o => !Miners.Contains(o));
             if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
@@ -98,7 +97,7 @@ namespace AElf.Automation.ProposalTest
 
             var accounts = nodeManager.ListAccounts();
 
-            var testUsers = accounts.FindAll(o => !Services.ConsensusService.GetCurrentMinersPubkey().Contains(o)&& !testers.Contains(o));
+            var testUsers = accounts.FindAll(o => !Miners.Contains(o)&& !testers.Contains(o));
             if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
@@ -106,13 +105,13 @@ namespace AElf.Automation.ProposalTest
             return testUsers;
         }
 
-        private ContractServices GetContractServices()
+        private ContractManager GetContractServices()
         {
             InitAccount = _environmentInfo.InitAccount;
             var url = _environmentInfo.Url;
             var password = _environmentInfo.Password;
 
-            Services = new ContractServices(url, InitAccount, password);
+            Services = new ContractManager(url, InitAccount);
             return Services;
         }
 
@@ -131,7 +130,7 @@ namespace AElf.Automation.ProposalTest
         {
             Miners = new List<string>();
             var miners =
-                Services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+                Services.Consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
@@ -156,7 +155,7 @@ namespace AElf.Automation.ProposalTest
                 TotalSupply = 10_0000_0000_00000000
             };
             var result =
-                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
+                Services.Token.ExecuteMethodWithResult(TokenMethod.Create, createTransactionInput);
             if (result.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception($"Create token {Symbol} Failed");
 
@@ -170,7 +169,7 @@ namespace AElf.Automation.ProposalTest
                 Amount = 10_0000_0000_00000000
             };
             var issueResult =
-                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
+                Services.Token.ExecuteMethodWithResult(TokenMethod.Issue, issueInput);
             if (issueResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception($"Issue token {Symbol} Failed");
         }
@@ -180,33 +179,29 @@ namespace AElf.Automation.ProposalTest
             GetMiners();
             foreach (var tester in Tester)
             {
-                var balance = Services.TokenService.GetUserBalance(tester);
-                if (balance >= 100_00000000) continue;
-                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                {
-                    Symbol = TokenSymbol,
-                    To = AddressHelper.Base58StringToAddress(tester),
-                    Amount = 1000_00000000,
-                    Memo = "Transfer to tester"
-                });
-
-                balance = Services.TokenService.GetUserBalance(tester);
+                var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
+                if (balance >= 1000_00000000) continue;
+                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
+                balance = Services.Token.GetUserBalance(tester);
+                Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
+            }
+            
+            foreach (var tester in AssociationTester)
+            {
+                var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
+                if (balance >= 1000_00000000) continue;
+                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
+                balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
 
             foreach (var miner in Miners)
             {
-                var balance = Services.TokenService.GetUserBalance(miner);
+                var balance = Services.Token.GetUserBalance(miner,TokenSymbol);
                 if (balance >= 1000_00000000) continue;
-                Services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-                {
-                    Symbol = TokenSymbol,
-                    To = AddressHelper.Base58StringToAddress(miner),
-                    Amount = 1000_00000000,
-                    Memo = "T-Miners"
-                });
-
-                balance = Services.TokenService.GetUserBalance(miner);
+                Services.Token.TransferBalance(InitAccount,miner,1000_00000000,TokenSymbol);
+                
+                balance = Services.Token.GetUserBalance(miner);
                 Logger.Info($"Miner {miner} {TokenSymbol} balance is {balance}");
             }
         }
