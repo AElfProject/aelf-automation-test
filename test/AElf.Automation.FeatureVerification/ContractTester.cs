@@ -25,6 +25,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly ProfitContract ProfitService;
         public readonly ReferendumAuthContract ReferendumService;
         public readonly TokenConverterContract TokenConverterService;
+        public readonly ConfigurationContract ConfigurationService;
         public readonly TokenContract TokenService;
         public readonly VoteContract VoteService;
 
@@ -43,6 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             AssociationService = ContractServices.AssociationAuthService;
             ParliamentService = ContractServices.ParliamentService;
             ReferendumService = ContractServices.ReferendumAuthService;
+            ConfigurationService = ContractServices.ConfigurationService;
         }
 
         public List<string> GetMiners()
@@ -66,7 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 1000_00000000) continue;
+                if (balance > 1000_00000000) continue;
                 TokenService.SetAccount(ContractServices.CallAddress);
                 TokenService.IssueBalance(account, miner, 1000_00000000, symbol);
             }

@@ -27,10 +27,17 @@ namespace AElfChain.Common.Contracts
         GetProposal,
         Release,
         CreateOrganization,
+        ChangeOrganizationThreshold,
+        ChangeOrganizationProposerWhiteList,
+        ClearProposal,
 
         //View
         GetDefaultOrganizationAddress,
-        GetOrganization
+        GetOrganization,
+        ValidateOrganizationExist,
+        CalculateOrganizationAddress,
+        ValidateAddressIsParliamentMember,
+        GetProposerWhiteList
     }
 
     public class ParliamentAuthContract : BaseContract<ParliamentMethod>
@@ -72,23 +79,23 @@ namespace AElfChain.Common.Contracts
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
         }
-
-        public TransactionResultDto Approve(Hash proposalId, string caller)
+        
+        public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+            return ExecuteMethodWithTxId(ParliamentMethod.Approve, proposalId);
         }
-
-        public TransactionResultDto Abstain(Hash proposalId, string caller)
+        
+        public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(ParliamentMethod.Abstain, proposalId);
+            return ExecuteMethodWithTxId(ParliamentMethod.Abstain, proposalId);
         }
-
-        public TransactionResultDto Reject(Hash proposalId, string caller)
+        
+        public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(ParliamentMethod.Reject, proposalId);
+            return ExecuteMethodWithTxId(ParliamentMethod.Reject, proposalId);
         }
 
         public void MinersApproveProposal(Hash proposalId, IEnumerable<string> callers)
