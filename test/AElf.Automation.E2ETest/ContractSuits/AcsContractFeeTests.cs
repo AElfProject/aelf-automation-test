@@ -18,29 +18,29 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task AdoptAcs1_TransactionTokenList_Test()
         {
-            var availableTokenInfo = new SymbolListToPayTXSizeFee
+            var availableTokenInfo = new SymbolListToPayTxSizeFee
             {
                 SymbolsToPayTxSizeFee =
                 {
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "ELF",
                         AddedTokenWeight = 1,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "CPU",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "RAM",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "NET",
                         AddedTokenWeight = 50,
@@ -50,11 +50,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
 
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
                 availableTokenInfo, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
             tokenInfos.SymbolsToPayTxSizeFee.ShouldBe(availableTokenInfo.SymbolsToPayTxSizeFee);
         }
 

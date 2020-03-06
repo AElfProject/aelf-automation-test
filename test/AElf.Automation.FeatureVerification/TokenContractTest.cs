@@ -238,7 +238,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task EnableConnector()
         {
-            var buildInput = new ToBeConnectedTokenInfo()
+            var buildInput = new ToBeConnectedTokenInfo
             {
                 TokenSymbol = Symbol,
                 AmountToTokenConvert = 0
@@ -246,66 +246,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var enableConnector = await _tokenConverterSub.EnableConnector.SendAsync(buildInput);
             enableConnector.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-        }
-
-        /*
-        UpdateCoefficientFormContract,
-        UpdateCoefficientFormSender,
-        UpdateLinerAlgorithm,
-        UpdatePowerAlgorithm,
-        ChangeFeePieceKey,
-        */
-
-        [TestMethod]
-        public void UpdateCoefficientFormContract()
-        {
-            var input = new CoefficientFromContract
-            {
-                FeeType = FeeTypeEnum.Storage,
-                Coefficient = new CoefficientFromSender
-                {
-                    PieceKey = 1000000,
-                    IsChangePieceKey = false,
-                    IsLiner = true,
-                    LinerCoefficient = new LinerCoefficient
-                    {
-                        ConstantValue = 1000,
-                        Denominator = 2,
-                        Numerator = 1
-                    }
-                }
-            };
-            var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
-            var proposal = _parliamentAuthContract.CreateProposal(_tokenContract.ContractAddress,
-                nameof(TokenMethod.UpdateCoefficientFromContract), input, organization, InitAccount);
-            var miners = AuthorityManager.GetCurrentMiners();
-            _parliamentAuthContract.MinersApproveProposal(proposal, miners);
-            var result = _parliamentAuthContract.ReleaseProposal(proposal, InitAccount);
-            result.Status.ShouldBe(TransactionResultStatus.Mined);
-        }
-
-        [TestMethod]
-        public void UpdateCoefficientFromSender()
-        {
-            var input = new CoefficientFromSender
-            {
-                PieceKey = 1000000,
-                IsChangePieceKey = false,
-                IsLiner = true,
-                LinerCoefficient = new LinerCoefficient
-                {
-                    ConstantValue = 10000,
-                    Numerator = 1,
-                    Denominator = 400
-                }
-            };
-            var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
-            var proposal = _parliamentAuthContract.CreateProposal(_tokenContract.ContractAddress,
-                nameof(TokenMethod.UpdateCoefficientFromSender), input, organization, InitAccount);
-            var miners = AuthorityManager.GetCurrentMiners();
-            _parliamentAuthContract.MinersApproveProposal(proposal, miners);
-            var result = _parliamentAuthContract.ReleaseProposal(proposal, InitAccount);
-            result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -317,31 +257,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
             [pbr::OriginalName("Ram")] Ram = 2,
             [pbr::OriginalName("Net")] Net = 3,
              */
-            var result = await _tokenSub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value {Value = 0});
-            var cpu = result.Coefficients;
-            Logger.Info($"{cpu}");
+            var result = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 0});
+            Logger.Info($"{result}");
 
-            var result1 = await _tokenSub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value {Value = 1});
-            var sto = result1.Coefficients;
-            Logger.Info($"{sto}");
+            var result1 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 1});
+            Logger.Info($"{result1}");
 
-            var result2 = await _tokenSub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value {Value = 2});
-            var ram = result2.Coefficients;
-            Logger.Info($"{ram}");
+            var result2 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 2});
+            Logger.Info($"{result2}");
 
-            var result3 = await _tokenSub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value {Value = 3});
-            var net = result3.Coefficients;
-            Logger.Info($"{net}");
+            var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 3});
+            Logger.Info($"{result3}");
 
-            var result4 = await _tokenSub.GetCalculateFeeCoefficientOfSender.CallAsync(new Empty());
-            Logger.Info($"{result4.Coefficients}");
+            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value{Value = 4});
+            Logger.Info($"{result4}");
         }
 
         [TestMethod]
         public async Task GetCalculateFeeCoefficientOfUser()
         {
-            var result = await _tokenSub.GetCalculateFeeCoefficientOfSender.CallAsync(new Empty());
-            Logger.Info($"{result.Coefficients}");
+            var result = await _tokenSub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
+            Logger.Info($"{result}");
         }
 
         [TestMethod]
