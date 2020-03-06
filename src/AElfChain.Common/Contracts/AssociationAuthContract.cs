@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Acs3;
 using AElf;
 using AElf.Client.Dto;
@@ -8,6 +10,7 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 
 namespace AElfChain.Common.Contracts
@@ -18,6 +21,8 @@ namespace AElfChain.Common.Contracts
         GetOrganization,
         GetProposal,
         CalculateOrganizationAddress,
+        ValidateProposerInWhiteList,
+        ValidateOrganizationExist,
 
         //Action
         CreateOrganization,
@@ -25,7 +30,11 @@ namespace AElfChain.Common.Contracts
         CreateProposal,
         Release,
         Abstain,
-        Reject
+        Reject,
+        ChangeOrganizationThreshold,
+        ChangeOrganizationMember,
+        ChangeOrganizationProposerWhiteList,
+        ChangeMethodFeeController
     }
 
     public class AssociationAuthContract : BaseContract<AssociationMethod>
@@ -103,23 +112,48 @@ namespace AElfChain.Common.Contracts
             return
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
-
-        public TransactionResultDto Approve(Hash proposalId, string caller)
+        
+        public string Approve(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithTxId(AssociationMethod.Approve, proposalId);
+        }
+        
+        public TransactionResultDto ApproveWithResult(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
         }
-
-        public TransactionResultDto Abstain(Hash proposalId, string caller)
+        
+        public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
-            return ExecuteMethodWithResult(AssociationMethod.Abstain, proposalId);
+            return ExecuteMethodWithTxId(AssociationMethod.Abstain, proposalId);
+        }
+        
+        public string Reject(Hash proposalId, string caller)
+        {
+            SetAccount(caller);
+            return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
+        }
+        
+        public void ApproveWithAssociation(Hash proposalId,Address association)
+        {
+            var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
+                association);
+            var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
+            foreach (var member in members)
+            {
+                SetAccount(member.GetFormatted());
+                var approve = ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
+                approve.Status.ShouldBe("MINED");                
+                if (CheckProposal(proposalId).ToBeReleased) return;
+            }
         }
 
-        public TransactionResultDto Reject(Hash proposalId, string caller)
+        public BoolValue ValidateOrganizationExist(Address address)
         {
-            SetAccount(caller);
-            return ExecuteMethodWithResult(AssociationMethod.Reject, proposalId);
+            return CallViewMethod<BoolValue>(AssociationMethod.ValidateOrganizationExist, address);
         }
     }
 }

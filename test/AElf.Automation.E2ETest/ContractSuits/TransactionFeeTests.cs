@@ -29,7 +29,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public UserFeeController UserFeeAddresses { get; set; }
         public List<string> NodeUsers { get; set; }
         public List<string> Miners { get; set; }
-        
+
         public TransactionFeeTests()
         {
             Log4NetHelper.LogInit();
@@ -44,25 +44,29 @@ namespace AElf.Automation.E2ETest.ContractSuits
             AsyncHelper.RunSync(InitializeAuthorizedOrganization);
             AsyncHelper.RunSync(InitializeReferendumAllowance);
         }
-        
+
         [TestMethod]
-        public async Task Update_Coefficient_With_Developer()
+        public async Task Update_Storage_With_Developer()
         {
-            const int pieceKey = 1000000;
-            const FeeTypeEnum feeType = FeeTypeEnum.Storage;
-            var updateInput = new CoefficientFromContract
+            const int feeType = (int) FeeTypeEnum.Storage;
+            var piece1 = new CalculateFeePieceCoefficients
             {
-                FeeType = feeType,
-                Coefficient = new CoefficientFromSender
+                Value = {0, 500000, 1, 4, 2000}
+            };
+            var piece2 = new CalculateFeePieceCoefficients
+            {
+                Value = {1, 1000000, 1, 64, 2, 100, 250, 600}
+            };
+            var updateInput = new UpdateCoefficientsInput
+            {
+                PieceNumbers = {1, 2},
+                Coefficients = new CalculateFeeCoefficients
                 {
-                    LinerCoefficient = new LinerCoefficient
+                    FeeTokenType = feeType,
+                    PieceCoefficientsList =
                     {
-                        ConstantValue = 1,
-                        Denominator = 5,
-                        Numerator = 999
-                    },
-                    PieceKey = pieceKey,
-                    IsLiner = true
+                        piece1, piece2
+                    }
                 }
             };
 
@@ -75,30 +79,83 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ReleaseToRootForDeveloperFeeByTwoLayer(proposalId);
 
             var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientOfContract.CallAsync(new SInt32Value
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value
                 {
-                    Value = (int) feeType
+                    Value = feeType
                 });
-            var hasModified = userCoefficient.Coefficients.Single(x => x.PieceKey == pieceKey);
-            hasModified.CoefficientDic["ConstantValue".ToLower()].ShouldBe(1);
-            hasModified.CoefficientDic["Denominator".ToLower()].ShouldBe(5);
-            hasModified.CoefficientDic["Numerator".ToLower()].ShouldBe(999);
+            userCoefficient.FeeTokenType.ShouldBe(feeType);
+            var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece2);
         }
 
         [TestMethod]
-        public async Task Update_Coefficient_With_User()
+        public async Task Update_Write_With_Developer()
         {
-            const int pieceKey = 1000000;
-            var updateInput = new CoefficientFromSender
+            const int feeType = (int) FeeTypeEnum.Write;
+            var piece2 = new CalculateFeePieceCoefficients
             {
-                LinerCoefficient = new LinerCoefficient
+                Value = {0, 1000000, 1, 4, 30000}
+            };
+            var piece3 = new CalculateFeePieceCoefficients
+            {
+                Value = {1, 100, 1, 4, 2, 2, 250, 60}
+            };
+            var updateInput = new UpdateCoefficientsInput
+            {
+                PieceNumbers = {2, 3},
+                Coefficients = new CalculateFeeCoefficients
                 {
-                    ConstantValue = 1000,
-                    Denominator = 500,
-                    Numerator = 1
-                },
-                PieceKey = pieceKey,
-                IsLiner = true
+                    FeeTokenType = feeType,
+                    PieceCoefficientsList =
+                    {
+                        piece2, piece3
+                    }
+                }
+            };
+
+            var proposalId = await CreateToRootForDeveloperFeeByTwoLayer(updateInput);
+            await ApproveToRootForDeveloperFeeByTwoLayer(proposalId);
+
+            var middleApproveProposalId = await ApproveToRootForDeveloperFeeByMiddleLayer(proposalId);
+            await ApproveThenReleaseMiddleProposalForDeveloper(middleApproveProposalId);
+
+            await ReleaseToRootForDeveloperFeeByTwoLayer(proposalId);
+
+            var userCoefficient =
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value
+                {
+                    Value = feeType
+                });
+            userCoefficient.FeeTokenType.ShouldBe(feeType);
+            var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece3);
+        }
+
+        [TestMethod]
+        public async Task Update_Tx_With_User()
+        {
+            const int pieceUpperBound1 = 500000;
+            const int pieceUpperBound2 = 800000;
+            const int feeType = (int) FeeTypeEnum.Tx;
+            var piece1 = new CalculateFeePieceCoefficients
+            {
+                Value = {0, pieceUpperBound1, 1, 800, 50000000}
+            };
+            var piece2 = new CalculateFeePieceCoefficients
+            {
+                Value = {1, pieceUpperBound2, 1, 800, 2, 100, 1, 3}
+            };
+            var updateInput = new UpdateCoefficientsInput
+            {
+                PieceNumbers = {1, 2},
+                Coefficients = new CalculateFeeCoefficients
+                {
+                    FeeTokenType = feeType,
+                    PieceCoefficientsList =
+                    {
+                        piece1, piece2
+                    }
+                }
             };
             var proposalId = await CreateToRootForUserFeeByTwoLayer(updateInput);
             await ApproveToRootForUserFeeByTwoLayer(proposalId);
@@ -106,11 +163,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ReleaseToRootForUserFeeByTwoLayer(proposalId);
 
             var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientOfSender.CallAsync(new Empty());
-            var hasModified = userCoefficient.Coefficients.Single(x => x.PieceKey == pieceKey);
-            hasModified.CoefficientDic["ConstantValue".ToLower()].ShouldBe(1000);
-            hasModified.CoefficientDic["Denominator".ToLower()].ShouldBe(500);
-            hasModified.CoefficientDic["Numerator".ToLower()].ShouldBe(1);
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
+            userCoefficient.FeeTokenType.ShouldBe(feeType);
+            var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+            pieceCoefficientsList.First(o => o.Value[0] == 0).ShouldBe(piece1);
+            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece2);
         }
 
         private async Task InitializeAuthorizedOrganization()
@@ -118,7 +175,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ContractManager.TokenImplStub.InitializeAuthorizedController.SendAsync(new Empty());
             //initializeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            DeveloperFeeAddresses = await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());
+            DeveloperFeeAddresses =
+                await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());
             Logger.Info($"Developer RootController: {DeveloperFeeAddresses.RootController}");
             Logger.Info($"Developer ParliamentController: {DeveloperFeeAddresses.ParliamentController}");
             Logger.Info($"Developer DeveloperController: {DeveloperFeeAddresses.DeveloperController}");
@@ -128,17 +186,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             Logger.Info($"User ParliamentController: {UserFeeAddresses.ParliamentController}");
             Logger.Info($"User ReferendumController: {UserFeeAddresses.ReferendumController}");
         }
-        
+
         #region Developer actions
 
-        private async Task<Hash> CreateToRootForDeveloperFeeByTwoLayer(CoefficientFromContract input)
+        private async Task<Hash> CreateToRootForDeveloperFeeByTwoLayer(UpdateCoefficientsInput input)
         {
             var createNestProposalInput = new CreateProposalInput
             {
                 ToAddress = ContractManager.Token.Contract,
                 Params = input.ToByteString(),
                 OrganizationAddress = DeveloperFeeAddresses.RootController.OwnerAddress,
-                ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientFromContract),
+                ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientsForContract),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
             var createProposalInput = new CreateProposalInput
@@ -179,7 +237,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
             var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
-            
+
             var miners = ContractManager.Authority.GetCurrentMiners();
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -209,7 +267,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
             var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
-            
+
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             var newCreateProposalRet = await ContractManager.ParliamentAuthStub.Release.SendAsync(parliamentProposalId);
             var middleProposalId = ProposalCreated.Parser
@@ -280,14 +338,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
         #region User action
 
-        private async Task<Hash> CreateToRootForUserFeeByTwoLayer(CoefficientFromSender input)
+        private async Task<Hash> CreateToRootForUserFeeByTwoLayer(UpdateCoefficientsInput input)
         {
             var createNestProposalInput = new CreateProposalInput
             {
                 ToAddress = ContractManager.Token.Contract,
                 Params = input.ToByteString(),
                 OrganizationAddress = UserFeeAddresses.RootController.OwnerAddress,
-                ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientFromSender),
+                ContractMethodName = nameof(TokenContractContainer.TokenContractStub.UpdateCoefficientsForSender),
                 ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1)
             };
 
@@ -306,7 +364,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            var releaseRet = ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            var releaseRet =
+                ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
             var id = ProposalCreated.Parser
                 .ParseFrom(releaseRet.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
                     .NonIndexed).ProposalId;

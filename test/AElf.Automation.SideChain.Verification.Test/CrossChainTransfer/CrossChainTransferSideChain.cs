@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using AElfChain.Common.Contracts;
 using AElf.Types;
@@ -9,8 +11,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
     {
         public void CrossChainTransferSideChainJob()
         {
-            CrossChainTransferOnSideChain(NativeToken);
-
+            foreach (var symbol in PrimaryTokens)
+            {
+                CrossChainTransferOnSideChain(symbol);
+            }
             if (TokenSymbols.Count < 1) return;
             foreach (var symbol in TokenSymbols) CrossChainTransferOnSideChain(symbol);
         }
@@ -19,6 +23,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             foreach (var sideChainService in SideChainServices)
             {
+                var tokenInfo = sideChainService.TokenService.GetTokenInfo(symbol);
                 Logger.Info($"Side chain {sideChainService.ChainId} transfer {symbol} to each account");
                 var sideRawTxInfos = new Dictionary<int, List<CrossChainTransactionInfo>>();
                 var sideResultTxInfos = new List<CrossChainTransactionInfo>();
@@ -26,15 +31,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var mainRawTxInfos = new List<CrossChainTransactionInfo>();
                 var mainResultTxInfos = new List<CrossChainTransactionInfo>();
 
-
                 Logger.Info($"Side chain {sideChainService.ChainId} transfer to {MainChainService.ChainId}");
 
-                foreach (var transferSideAccount in AccountList[sideChainService.ChainId])
-                    // to main chain account
-                foreach (var receiveSideAccount in AccountList[MainChainService.ChainId])
+                foreach (var account in AccountList)
                 {
-                    var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, transferSideAccount,
-                        receiveSideAccount, MainChainService.ChainId, 100);
+                    var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, account,
+                        account, MainChainService.ChainId, tokenInfo.IssueChainId,100);
                     if (rawTxInfo == null) continue;
 
                     Thread.Sleep(100);
@@ -57,16 +59,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Logger.Info($"Side chain {sideChainService.ChainId} transfer to {receiveSideChain.ChainId}");
 
                     var rawTxInfos = new List<CrossChainTransactionInfo>();
-                    // from side chain
-                    foreach (var transferSideAccount in AccountList[sideChainService.ChainId])
-                        // to side chain account
-                    foreach (var receiveSideAccount in AccountList[receiveSideChain.ChainId])
+                    foreach (var account in AccountList)
                     {
-                        var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, transferSideAccount,
-                            receiveSideAccount, receiveSideChain.ChainId, 100);
+                        var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, account,
+                            account, receiveSideChain.ChainId, tokenInfo.IssueChainId,100);
                         if (rawTxInfo == null) continue;
-
-                        Thread.Sleep(100);
                         rawTxInfos.Add(rawTxInfo);
                     }
 
@@ -84,15 +81,15 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
 
                 Logger.Info("Waiting for the index");
-                Thread.Sleep(200000);
+                Thread.Sleep(60000);
+
+                Logger.Info("Check the index:");
+                MainChainCheckSideChainBlockIndex(sideChainService, mainResultTxInfos.Last().BlockHeight);
 
                 var mainChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                 Logger.Info($"Main chain received Token {symbol}");
                 foreach (var mainRawTxInfo in mainResultTxInfos)
                 {
-                    Logger.Info("Check the index:");
-                    CheckSideChainBlockIndexParentChainHeight(sideChainService, mainRawTxInfo);
-
                     Logger.Info($"Receive CrossTransfer Transaction id is :{mainRawTxInfo.TxId}");
                     var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, mainRawTxInfo);
                     MainChainService.TokenService.SetAccount(mainRawTxInfo.FromAccount);
@@ -110,22 +107,24 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
                 Logger.Info("Receive Mined transaction:");
                 foreach (var result in mainResultList[TransactionResultStatus.Mined]) Logger.Info(result.TxId);
-
-
                 Logger.Info($"Side chain received Token {symbol}");
                 foreach (var receiveSideChain in SideChainServices)
                 {
                     if (receiveSideChain == sideChainService) continue;
+                    Logger.Info("Check the index:");
+                    var mainHeight = MainChainCheckSideChainBlockIndex(sideChainService,
+                        sideRawTxInfos[receiveSideChain.ChainId].Last().BlockHeight);
+                    while (mainHeight > GetIndexParentHeight(receiveSideChain))
+                    {
+                        Console.WriteLine("Block is not recorded ");
+                        Thread.Sleep(10000);
+                    }
 
                     Logger.Info($"Side chain {receiveSideChain.ChainId} receive token {symbol}");
                     var sideChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                     foreach (var sideRawTxInfo in sideRawTxInfos[receiveSideChain.ChainId])
                     {
-                        Logger.Info("Check the index:");
-                        SideChainCheckSideChainBlockIndex(sideChainService, receiveSideChain, sideRawTxInfo);
-
                         Logger.Info($"Receive CrossTransfer Transaction id is :{sideRawTxInfo.TxId}");
-
                         var crossChainReceiveTokenInput = ReceiveFromSideChainInput(sideChainService, sideRawTxInfo);
                         receiveSideChain.TokenService.SetAccount(sideRawTxInfo.FromAccount);
                         var txId = receiveSideChain.TokenService.ExecuteMethodWithTxId(
@@ -143,25 +142,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
                     Logger.Info("Receive Mined transaction:");
                     foreach (var result in sideResultList[TransactionResultStatus.Mined]) Logger.Info(result.TxId);
-                }
-
-                Logger.Info("Show the main chain account balance: ");
-
-                foreach (var mainAccount in AccountList[MainChainService.ChainId])
-                {
-                    var accountBalance = GetBalance(MainChainService, mainAccount, symbol);
-                    Logger.Info(
-                        $"On main chain {MainChainService.ChainId} account:{mainAccount}, {symbol} balance is:{accountBalance}");
-                }
-
-                Logger.Info("Show the side chain account balance: ");
-                foreach (var sideChain in SideChainServices)
-                foreach (var sideAccount in AccountList[sideChain.ChainId])
-                {
-                    var accountBalance = GetBalance(sideChain, sideAccount, symbol);
-                    var accountPrimaryBalance = GetBalance(sideChain, sideAccount, sideChain.PrimaryTokenSymbol);
-                    Logger.Info(
-                        $"On side chain {sideChain.ChainId} account:{sideAccount},\n {symbol} balance is: {accountBalance}\n {sideChain.PrimaryTokenSymbol} balance is {accountPrimaryBalance}");
                 }
             }
         }

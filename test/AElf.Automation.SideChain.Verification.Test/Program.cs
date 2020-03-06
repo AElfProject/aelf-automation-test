@@ -2,6 +2,7 @@
 using AElfChain.Common.Helpers;
 using AElf.Automation.SideChain.Verification.CrossChainTransfer;
 using AElf.Automation.SideChain.Verification.Verify;
+using AElfChain.Common;
 using log4net;
 
 namespace AElf.Automation.SideChain.Verification
@@ -20,11 +21,15 @@ namespace AElf.Automation.SideChain.Verification
 
             //Init Logger
             Log4NetHelper.LogInit("CrossChainTest");
+            var testEnvironment = ConfigInfoHelper.Config.TestEnvironment;
+            var environmentInfo =
+                ConfigInfoHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
+            var config = environmentInfo.Config;
+            NodeInfoHelper.SetConfig(config);
 
             #endregion
 
             var enableCases = ConfigInfoHelper.Config.TestCases.FindAll(o => o.Enable).Select(o => o.Name).ToList();
-            var createTokenNumber = ConfigInfoHelper.Config.CreateTokenNumber;
             var register = new CrossChainRegister();
             var prepare = new CrossChainTransferPrepare();
             var create = new CrossChainCreateToken();
@@ -43,7 +48,7 @@ namespace AElf.Automation.SideChain.Verification
 
             if (!enableCases.Contains("CrossChainTransfer")) return;
             register.DoCrossChainPrepare();
-            if (createTokenNumber >= 1) create.DoCrossChainCreateToken();
+            create.DoCrossChainCreateToken();
             prepare.DoCrossChainTransferPrepare();
 
             var mainTransfer = new CrossChainTransferMainChain();

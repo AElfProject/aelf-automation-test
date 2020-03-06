@@ -18,7 +18,7 @@
         {
             "case_name": "NodeScenario",
             "enable": true,
-            "time_interval": 60
+            "time_interval": 30
         },
         {
             "case_name": "UserScenario",
@@ -44,6 +44,11 @@
             "case_name": "Acs8Scenario",
             "enable": false,
             "time_interval": 10
+        },
+        {
+            "case_name": "MassRequestScenario",
+            "enable": true,
+            "time_interval": 100
         }
     ],
     "ContractsInfo": {
@@ -66,7 +71,7 @@
     "UserCount": 120,
     "Timeout": 300,
     "SpecifyEndpoint": {
-        "enable": true,
-        "service_url": "http://192.168.197.14:8000"
+        "enable": false,
+        "service_url": "http://192.168.197.40:8000"
     }
 }

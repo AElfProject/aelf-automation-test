@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Online",
+    "TestEnvironment": "Offline",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -9,7 +9,7 @@
         },
         {
             "Environment": "Offline",
-            "Url": "http://192.168.197.14:8000",
+            "Url": "http://192.168.197.40:8000",
             "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         },
@@ -31,7 +31,7 @@
         {
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
-            "IsPrivilegePreserved": false,
+            "IsPrivilegePreserved": true,
             "NativeSymbol": "STB"
         }
     ]

@@ -33,40 +33,9 @@ namespace AElfChain.Common.Contracts
             }
         }
 
-        public static void GetAllCustomContractDic(this GenesisContract genesis)
-        {
-            if (SystemContractAddresses == null) SystemContractAddresses = genesis.GetAllSystemContracts();
-
-            var addressList =
-                genesis.CallViewMethod<AddressList>(GenesisMethod.GetDeployedContractAddressList, new Empty());
-            foreach (var address in addressList.Value)
-            {
-                if (SystemContractAddresses.ContainsValue(address)) continue;
-                if (CustomContracts == null)
-                    CustomContracts = new Dictionary<Address, List<string>>();
-                if (CustomContracts.ContainsKey(address)) CustomContracts.Remove(address);
-
-                var contractDescriptor =
-                    AsyncHelper.RunSync(() =>
-                        genesis.ApiClient.GetContractFileDescriptorSetAsync(address.GetFormatted()));
-                var customContractHandler = new CustomContractSerializer(contractDescriptor);
-                var methods = customContractHandler.GetContractMethods();
-                CustomContracts.TryAdd(address, methods);
-            }
-        }
-
-        public static List<Address> QuerySystemContractByMethodName(this GenesisContract genesis, string method)
-        {
-            if (SystemContracts == null) GetAllSystemContractDic(genesis);
-
-            return SystemContracts.Where(o => o.Value.Contains(method)).Select(o => o.Key).ToList();
-        }
-
         public static List<Address> QueryCustomContractByMethodName(this GenesisContract genesis, string method)
         {
-            GetAllCustomContractDic(genesis);
-
-            return CustomContracts.Where(o => o.Value.Contains(method)).Select(o => o.Key).ToList();
+            return new List<Address>(); 
         }
     }
 }

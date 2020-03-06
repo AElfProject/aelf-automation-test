@@ -14,10 +14,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task TransactionLimit_Test()
         {
             var beforeTxLimit = await ContractManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetBlockTransactionLimit), new Int32Value
-            {
-                Value = beforeTxLimit.Value + 10
-            },  ContractManager.CallAddress);
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetBlockTransactionLimit),
+                new Int32Value
+                {
+                    Value = beforeTxLimit.Value + 10
+                }, ContractManager.CallAddress);
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterTxLimit = await ContractManager.ConfigurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
             afterTxLimit.Value.ShouldBe(beforeTxLimit.Value + 10);
@@ -39,7 +41,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 var newOwner = await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
                 newOwner.ShouldBe(ContractManager.CallAccount);
             }
-            
+
             //recover
             var configurationStub = ContractManager.Genesis.GetConfigurationStub(ContractManager.CallAddress);
             var transactionResult = await configurationStub.ChangeConfigurationController.SendAsync(defaultOwner);

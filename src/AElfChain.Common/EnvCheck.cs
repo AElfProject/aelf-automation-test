@@ -42,11 +42,11 @@ namespace AElfChain.Common
             CheckAllNodesConnection();
         }
 
-        public List<string> GenerateOrGetTestUsers(int count)
+        public List<string> GenerateOrGetTestUsers(int count,string url = null)
         {
-            var url = _config.Nodes.First(o => o.Status).Endpoint;
+            if (url == null)
+                url = _config.Nodes.First(o => o.Status).Endpoint;
             var webHelper = new NodeManager(url, AccountDir);
-
             var accounts = webHelper.ListAccounts();
             var testUsers = accounts.FindAll(o => !NodeInfoHelper.GetAccounts().Contains(o));
             if (testUsers.Count >= count) return testUsers.Take(count).ToList();

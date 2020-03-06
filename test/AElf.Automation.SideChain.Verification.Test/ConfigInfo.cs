@@ -9,6 +9,7 @@ namespace AElf.Automation.SideChain.Verification
         [JsonProperty("MainChainInfos")] public MainChainInfos MainChainInfos { get; set; }
         [JsonProperty("SideChainInfos")] public List<SideChainInfos> SideChainInfos { get; set; }
         [JsonProperty("Environment")] public string Environment { get; set; }
+        [JsonProperty("Config")] public string Config { get; set; }
     }
 
     public class MainChainInfos

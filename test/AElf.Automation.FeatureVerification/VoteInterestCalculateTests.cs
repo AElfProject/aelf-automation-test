@@ -92,7 +92,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 }, organizationAddress.ConvertAddress(), Reviwers.First());
             foreach (var approver in Reviwers)
             {
-                var approveResult = ContractManager.Association.Approve(createProposal, approver);
+                var approveResult = ContractManager.Association.ApproveWithResult(createProposal, approver);
                 approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
 

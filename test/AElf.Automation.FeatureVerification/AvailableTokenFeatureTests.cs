@@ -26,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AvailableTokenFeatureTests()
         {
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-online-stage-main");
+            NodeInfoHelper.SetConfig("nodes-env-3bp");
             var firstNode = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(firstNode.Endpoint);
@@ -36,8 +36,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task QueryAvailableTokenInfos()
         {
-            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
-            if (tokenInfos.Equals(new SymbolListToPayTXSizeFee()))
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
+            if (tokenInfos.Equals(new SymbolListToPayTxSizeFee()))
             {
                 Logger.Info("GetAvailableTokenInfos: Null");
                 return;
@@ -53,29 +53,29 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetAvailableTokenInfos()
         {
-            var availableTokenInfo = new SymbolListToPayTXSizeFee
+            var availableTokenInfo = new SymbolListToPayTxSizeFee
             {
                 SymbolsToPayTxSizeFee =
                 {
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "ELF",
                         AddedTokenWeight = 1,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "CPU",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "RAM",
                         AddedTokenWeight = 50,
                         BaseTokenWeight = 1
                     },
-                    new SymbolToPayTXSizeFee
+                    new SymbolToPayTxSizeFee
                     {
                         TokenSymbol = "NET",
                         AddedTokenWeight = 50,
@@ -85,7 +85,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
 
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTXSizeFee),
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
                 availableTokenInfo, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -170,14 +170,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
             
             //Without authority would be failed
-            var newSymbolList = new SymbolListToPayTXSizeFee();
-            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTXSizeFee
+            var newSymbolList = new SymbolListToPayTxSizeFee();
+            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTxSizeFee
             {
                 TokenSymbol = primaryToken,
                 AddedTokenWeight = 1,
                 BaseTokenWeight = 1
             });
-            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTXSizeFee.SendAsync(newSymbolList);
+            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTxSizeFee.SendAsync(newSymbolList);
             symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
             
             var newParliament = new CreateOrganizationInput
@@ -198,7 +198,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress,
-                nameof(ContractManager.TokenImplStub.SetSymbolsToPayTXSizeFee),
+                nameof(ContractManager.TokenImplStub.SetSymbolsToPayTxSizeFee),
                 newOrganization,
                 ContractManager.CallAddress
             );
@@ -206,7 +206,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress,
-                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTXSizeFee),
+                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTxSizeFee),
                 newSymbolList,
                 newOrganization,
                 ContractManager.Authority.GetCurrentMiners(),
@@ -215,7 +215,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
             //Verify symbol list
-            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTXSizeFee.CallAsync(new Empty());
+            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
             symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);
         }
     }

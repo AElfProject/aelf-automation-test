@@ -151,7 +151,7 @@ namespace AElf.Automation.RpcPerformance
                 for (var i = 0; i < ThreadCount; i++)
                 {
                     var contractAddress =
-                        authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken.dll");
+                        authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
                     ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
                 }
             }
@@ -162,7 +162,7 @@ namespace AElf.Automation.RpcPerformance
                     foreach (var miner in miners)
                     {
                         var contractAddress =
-                            authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken.dll");
+                            authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken");
                         ContractList.Add(new ContractInfo(miner, contractAddress.GetFormatted()));
                         i++;
                         if(i == ThreadCount) break;

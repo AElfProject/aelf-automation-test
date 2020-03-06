@@ -17,10 +17,9 @@ namespace AElf.Automation.ProposalTest
             var proposalAssociation = new ProposalAssociation();
             var proposalReferendum = new ProposalReferendum();
 
-            TaskCollection.Add(RunContinueJobWithInterval(proposalParliament.ParliamentJob, 60));
+            TaskCollection.Add(RunContinueJobWithInterval(proposalParliament.ParliamentJob, 100));
             TaskCollection.Add(RunContinueJobWithInterval(proposalAssociation.AssociationJob, 120));
-            TaskCollection.Add(RunContinueJobWithInterval(proposalReferendum.ReferendumJob, 150));
-
+            TaskCollection.Add(RunContinueJobWithInterval(proposalReferendum.ReferendumJob, 240));
 
             Task.WaitAll(TaskCollection.ToArray());
         }
