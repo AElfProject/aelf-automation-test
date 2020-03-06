@@ -19,7 +19,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
-        private AuthorityManager AuthorityManager { get; set; }
 
         private TokenContract _tokenContract;
         private GenesisContract _genesisContract;
@@ -60,7 +59,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 OriginShare = 100_00000000,
                 TargetShare = 1,
             };
-            var depositAmount = 10000_000000000;
+            var depositAmount = 100000_000000000;
             _tokenContract.ApproveToken(InitAccount, _tokenSwapContract.ContractAddress, depositAmount, Symbol);
             var result = await _tokenSwapContractStub.AddSwapPair.SendAsync(new AddSwapPairInput
             {
@@ -85,14 +84,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("f627326f95b6815a0d51d43c23c41728b8221713e3a285de109b19a296b578ae")]
+        [DataRow("1d5461213d84bbc5076f3599fc90fd12d51d0bfaa13dc021981a69ffa48caf78")]
         public async Task AddSwapRound(string pairId)
         {
             var pId = HashHelper.HexStringToHash(pairId);
             var result = await _tokenSwapContractStub.AddSwapRound.SendAsync(new AddSwapRoundInput
             {
                 PairId = pId,
-                MerkleTreeRoot = HashHelper.HexStringToHash("0x16c87a2137353f89e9174c3009f173b0d41f738aeca1c735d262188d52a30f6d")
+                MerkleTreeRoot = HashHelper.HexStringToHash("717ff88b74be72704cf6ebd2b04944531fd428032ddee51b7d3c86e16ee11c07")
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var swapPair = await _tokenSwapContractStub.GetSwapPair.CallAsync(pId);
@@ -121,13 +120,32 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var afterBalance = _tokenContract.GetUserBalance(_tokenSwapContract.ContractAddress,Symbol);
             afterBalance.ShouldBe(beforeBalance+depositAmount);
         }
+        
+        [TestMethod]
+        [DataRow("f627326f95b6815a0d51d43c23c41728b8221713e3a285de109b19a296b578ae")]
+        public async Task ChangeSwapRatio(string sPairId)
+        {
+            var pairId = HashHelper.HexStringToHash(sPairId);
+            var result = await _tokenSwapContractStub.ChangeSwapRatio.SendAsync(new ChainSwapRatioInput()
+            {
+                PairId = pairId,
+                SwapRatio = new SwapRatio
+                {
+                    OriginShare = 100_0000000,
+                    TargetShare = 1,              
+                }
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+        
 
         [TestMethod]
-        [DataRow("f627326f95b6815a0d51d43c23c41728b8221713e3a285de109b19a296b578ae","0x4303ef0796bae63d9f52f7bf61ae2d37b57889452f2ad07bba769d90d354fe37")]
+        [DataRow("1d5461213d84bbc5076f3599fc90fd12d51d0bfaa13dc021981a69ffa48caf78","0xc09322c415a5ac9ffb1a6cde7e927f480cc1d8afaf22b39a47797966c08e9c4b")]
         public async Task SwapToken(string sPairId,string sUniqueId)
         {
-            var beforeBalance = _tokenContract.GetUserBalance(TestAccount, Symbol);
-            var originAmount = "14000000000000000000";
+            var receiveAccount = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+            var beforeBalance = _tokenContract.GetUserBalance(receiveAccount, Symbol);
+            var originAmount = "13000000000000000000";
             var pairId = HashHelper.HexStringToHash(sPairId);
             var uniqueId = HashHelper.HexStringToHash(sUniqueId);
             var merklePath = new MerklePath
@@ -137,20 +155,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new MerklePathNode
                     {
                         Hash = HashHelper.HexStringToHash(
-                            "0x33eabfff93ba964820ad1e20b4eca0b8daf092343f7b987689f22e4462c504e6"),
-                        IsLeftChildNode = false
-                    },
-                    new MerklePathNode
-                    {
-                        Hash = HashHelper.HexStringToHash(
-                            "0xa59d054ab8ddd10785757cd14b7318035e4cbd010bc5356faf5390cc6d1c025b"),
-                        IsLeftChildNode = false
-                    },
-                    new MerklePathNode
-                    {
-                        Hash = HashHelper.HexStringToHash(
-                            "0xc0ba1fd92628e2191919c0758171514b46a431a7291f8bfbfd49254b23c694ef"),
+                            "0xfc19ef2b8c423b51d1d542fc89eeeaa64f5eead96a6c5fcf51cae568e3233659"),
                         IsLeftChildNode = true
+                    },
+                    new MerklePathNode
+                    {
+                        Hash = HashHelper.HexStringToHash(
+                            "0xe666b6218a52bfe5f5d33692fc442c16d9d24ce1f788c355223a86aca0c8a6b3"),
+                        IsLeftChildNode = true
+                    },
+                    new MerklePathNode
+                    {
+                        Hash = HashHelper.HexStringToHash(
+                            "0xef25f8d577585328513447fc29b8818bc3fdb0dd81744f8f2bbc05626697e223"),
+                        IsLeftChildNode = false
+                    },
+                    new MerklePathNode
+                    {
+                        Hash = HashHelper.HexStringToHash(
+                            "0x7142925859b69a57650c847a08c1ee0df571acbb6a0493309848c80b0b9719c4"),
+                        IsLeftChildNode = true
+                    },
+                    new MerklePathNode
+                    {
+                        Hash = HashHelper.HexStringToHash(
+                            "0xf30c892f311cac0510294f3365ac9f6ce330786c7aa7aac3f30a94dbfed236e6"),
+                        IsLeftChildNode = false
+                    },
+                    new MerklePathNode
+                    {
+                        Hash = HashHelper.HexStringToHash(
+                            "0xddf3904913e17d96db2a14282314dc826a859b31082b7d33eceb9a3a68d7079f"),
+                        IsLeftChildNode = false
                     }
                 }
             };
@@ -159,23 +195,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 PairId = pairId,
                 OriginAmount = originAmount,
                 UniqueId = uniqueId,
-                ReceiverAddress = TestAccount.ConvertAddress(),
+                ReceiverAddress = receiveAccount.ConvertAddress(),
                 MerklePath = merklePath
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var tokenTransferredEvent = result.TransactionResult.Logs
                 .First(l => l.Name == nameof(Transferred));
             var nonIndexed = Transferred.Parser.ParseFrom(tokenTransferredEvent.NonIndexed);
-            var expectedAmount = 1400000000;
+            var expectedAmount = 1300000000;
             nonIndexed.Amount.ShouldBe(expectedAmount);
-            Transferred.Parser.ParseFrom(tokenTransferredEvent.Indexed[1]).To.ShouldBe(TestAccount.ConvertAddress());
-            Transferred.Parser.ParseFrom(tokenTransferredEvent.Indexed[2]).Symbol.ShouldBe(Symbol);
-            var balance = _tokenContract.GetUserBalance(TestAccount, Symbol);
+//            Transferred.Parser.ParseFrom(tokenTransferredEvent.Indexed[1]).To.ShouldBe(TestAccount.ConvertAddress());
+//            Transferred.Parser.ParseFrom(tokenTransferredEvent.Indexed[2]).Symbol.ShouldBe(Symbol);
+            var balance = _tokenContract.GetUserBalance(receiveAccount, Symbol);
             balance.ShouldBe(beforeBalance+expectedAmount);
         }
 
         [TestMethod]
-        [DataRow("f627326f95b6815a0d51d43c23c41728b8221713e3a285de109b19a296b578ae")]
+        [DataRow("1d5461213d84bbc5076f3599fc90fd12d51d0bfaa13dc021981a69ffa48caf78")]
         public async Task GetSwapInfo(string sPairId)
         {
             var pairId = HashHelper.HexStringToHash(sPairId);
@@ -185,6 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"times is {swapPair.SwappedTimes}");
             Logger.Info($"Current amount is {swapRound.SwappedAmount}");
             Logger.Info($"Current times is {swapRound.SwappedTimes}");
+            Logger.Info($"Merkle root is {swapRound.MerkleTreeRoot}");
         }
 
         private void CreateTokenAndIssue()
