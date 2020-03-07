@@ -94,11 +94,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const int feeType = (int) FeeTypeEnum.Write;
             var piece2 = new CalculateFeePieceCoefficients
             {
-                Value = {0, 1000000, 1, 4, 30000}
+                Value = {0, 1000, 1, 4, 30000}
             };
             var piece3 = new CalculateFeePieceCoefficients
             {
-                Value = {1, 100, 1, 4, 2, 2, 250, 60}
+                Value = {1, 1000000, 1, 4, 2, 2, 250, 60}
             };
             var updateInput = new UpdateCoefficientsInput
             {
@@ -130,7 +130,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
             pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece3);
         }
-
+        
         [TestMethod]
         public async Task Update_Tx_With_User()
         {
