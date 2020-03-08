@@ -79,7 +79,7 @@ namespace AElf.Automation.RpcPerformance
 
             var afterResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var afterValue = SInt32Value.Parser.ParseFrom(afterResult.Value).Value;
-            Logger.Info($"New transaction limit number: {afterResult.Value}");
+            Logger.Info($"New transaction limit number: {afterValue}");
             if (afterValue == limitCount)
                 Logger.Info("Transaction limit set successful.");
             else
