@@ -116,6 +116,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var associationResult = SideManager.Association.ReleaseProposal(proposalId, proposer);
             associationResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            //Query verification
+            var rentalUnitResult = await SideManager.TokenImplStub.GetOwningRentalUnitValue.CallAsync(new Empty());
+            rentalUnitResult.ResourceUnitValue["CPU"].ShouldBe(updateRentalInput.Rental["CPU"]);
+            rentalUnitResult.ResourceUnitValue["RAM"].ShouldBe(updateRentalInput.Rental["RAM"]);
+            rentalUnitResult.ResourceUnitValue["DISK"].ShouldBe(updateRentalInput.Rental["DISK"]);
+            rentalUnitResult.ResourceUnitValue["NET"].ShouldBe(updateRentalInput.Rental["NET"]);
         }
 
         [TestMethod]
