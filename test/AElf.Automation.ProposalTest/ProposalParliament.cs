@@ -9,6 +9,7 @@ using AElf.Kernel;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Shouldly;
 
@@ -75,6 +76,8 @@ namespace AElf.Automation.ProposalTest
 
             foreach (var input in inputList)
             {
+                var random = CommonHelper.GenerateRandomNumber(1, MinersCount);
+                Parliament.SetAccount(Miners[random]);
                 var txId =
                     Parliament.ExecuteMethodWithTxId(ParliamentMethod.CreateOrganization, input.Value);
                 txIdList.Add(input.Value, txId);

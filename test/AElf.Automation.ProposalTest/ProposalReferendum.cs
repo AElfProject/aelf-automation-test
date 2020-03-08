@@ -273,6 +273,7 @@ namespace AElf.Automation.ProposalTest
                     var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
                     var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.Release,
                         proposalId);
+                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                     var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }
@@ -325,7 +326,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var organization in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
-                if (balance >= 100_00000000)
+                if (balance >= 1000_00000000)
                 {
                     BalanceInfo.Add(organization, balance);
                     continue;

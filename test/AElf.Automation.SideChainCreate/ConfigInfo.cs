@@ -16,7 +16,7 @@ namespace AElf.Automation.SideChainCreate
     {
         [JsonProperty("Environment")] public string Environment { get; set; }
         [JsonProperty("Creator")] public string Creator { get; set; }
-        [JsonProperty("Url")] public string Url { get; set; }
+        [JsonProperty("ConfigFile")] public string ConfigFile { get; set; }
         [JsonProperty("Password")] public string Password { get; set; } 
     }
 
