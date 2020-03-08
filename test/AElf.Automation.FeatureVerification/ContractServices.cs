@@ -19,6 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ReferendumAuthContract ReferendumAuthService { get; set; }
         public ParliamentAuthContract ParliamentService { get; set; }
         public ConfigurationContract ConfigurationService { get; set; }
+        public CrossChainContract CrossChainService { get; set; }
 
         public string CallAddress { get; set; }
         public ContractServices(INodeManager nodeManager, string callAddress, string type)
@@ -66,6 +67,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ReferendumAuthService = GenesisService.GetReferendumAuthContract();
 
             ConfigurationService = GenesisService.GetConfigurationContract();
+            CrossChainService = GenesisService.GetCrossChainContract();
         }
     }
 }

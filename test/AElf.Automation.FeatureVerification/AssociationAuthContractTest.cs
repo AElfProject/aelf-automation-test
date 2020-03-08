@@ -26,6 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         public string Symbol = NodeOption.NativeTokenSymbol;
         private ContractManager ContractManager;
+        private AssociationAuthContract Association;
         private List<string> Miners;
         public INodeManager NodeManager { get; set; }
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
@@ -33,7 +34,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string ReviewAccount2 { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
         public string ReviewAccount3 { get; } = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
 
-        private static string RpcUrl { get; } = "http://192.168.197.40:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.14:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -42,11 +43,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("AssociationTest_");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
 
             #endregion
 
             NodeManager = new NodeManager(RpcUrl);
             ContractManager = new ContractManager(NodeManager, InitAccount);
+            Association = ContractManager.Association;
             Miners = ContractManager.Authority.GetCurrentMiners();
             ContractManager.Token.TransferBalance(InitAccount, ReviewAccount1, 1000_0000000, "ELF");
             ContractManager.Token.TransferBalance(InitAccount, ReviewAccount2, 1000_0000000, "ELF");
@@ -71,7 +74,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         OrganizationMembers =
                         {
                             ReviewAccount1.ConvertAddress(), ReviewAccount2.ConvertAddress(),
-                            ReviewAccount3.ConvertAddress(),InitAccount.ConvertAddress()
+                            ReviewAccount3.ConvertAddress(), InitAccount.ConvertAddress()
                         }
                     },
                     ProposerWhiteList = new ProposerWhiteList
@@ -102,18 +105,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
+        [DataRow("2UicBDXQszyhSaimjj4sbqeMzEBMqLCx3vsjgR49WUyrcocZd9")]
         public void GetOrganization(string organizationAddress)
         {
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
+            foreach (var member in organization.OrganizationMemberList.OrganizationMembers)
+            {
+                _logger.Info($"{member}");
+            }
+
             _logger.Info(
                 $"{organization.OrganizationAddress} maximal abstention threshold is {organization.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
         }
 
         [TestMethod]
-        [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]
+        [DataRow("2UicBDXQszyhSaimjj4sbqeMzEBMqLCx3vsjgR49WUyrcocZd9")]
         public void CreateProposal(string organizationAddress)
         {
             var transferInput = new TransferInput
@@ -129,7 +137,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ToAddress = AddressHelper.Base58StringToAddress(ContractManager.Token.ContractAddress),
                 Params = transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
+                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress),
+                ProposalDescriptionUrl = "http://192.168.197.27"
             };
 
             ContractManager.Association.SetAccount(ReviewAccount1);
@@ -156,10 +165,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
         public void Approve(string proposalId)
         {
-            ContractManager.Association.SetAccount(ReviewAccount1);
-            var result =
-                ContractManager.Association.ExecuteMethodWithResult(AssociationMethod.Approve,
-                    HashHelper.HexStringToHash(proposalId));
+            Association.SetAccount(ReviewAccount1);
+            var result = Association.ExecuteMethodWithResult(AssociationMethod.Approve,
+                HashHelper.HexStringToHash(proposalId));
+            var byteString =
+                ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(ReceiptCreated))).NonIndexed);
+            var info = ReceiptCreated.Parser.ParseFrom(byteString);
+            info.ProposalId.ShouldBe(HashHelper.HexStringToHash(proposalId));
+            info.ReceiptType.ShouldBe(nameof(AssociationMethod.Approve));
+            info.Address.ShouldBe(ReviewAccount1.ConvertAddress());
+
             _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
 
@@ -167,8 +182,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
         public void Release(string proposalId)
         {
-            ContractManager.Association.SetAccount(ReviewAccount1);
-            var result = ContractManager.Association.ExecuteMethodWithResult(AssociationMethod.Release,
+            Association.SetAccount(ReviewAccount1);
+            var result = Association.ExecuteMethodWithResult(AssociationMethod.Release,
                 HashHelper.HexStringToHash(proposalId));
             Assert.AreSame(result.Status, "MINED");
         }
@@ -259,7 +274,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractAddress = associationContract.ConvertAddress(),
                 OwnerAddress = newController
             };
-            var createProposal = ContractManager.ParliamentAuth.CreateProposal(associationContract, nameof(AssociationMethod.ChangeMethodFeeController),
+            var createProposal = ContractManager.ParliamentAuth.CreateProposal(associationContract,
+                nameof(AssociationMethod.ChangeMethodFeeController),
                 changeInput, controller.OwnerAddress, InitAccount);
             ContractManager.ParliamentAuth.MinersApproveProposal(createProposal, Miners);
             var release = ContractManager.ParliamentAuth.ReleaseProposal(createProposal, InitAccount);
@@ -268,7 +284,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             controller.ContractAddress.ShouldBe(associationContract.ConvertAddress());
             controller.OwnerAddress.ShouldBe(newController);
         }
-        
+
         [TestMethod]
         public async Task SetMethodFeeThroughNewController()
         {
@@ -276,7 +292,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Value = nameof(AssociationMethod.CreateOrganization)
             });
-            methodFee.Fees.Select(l =>l.BasicFee).First().ShouldBe(10000000);
+            methodFee.Fees.Select(l => l.BasicFee).First().ShouldBe(10000000);
 
             var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
             var input = new MethodFees
@@ -306,7 +322,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             methodFee.Fees.Select(f => f.BasicFee).First().ShouldBe(100000000);
             methodFee.Fees.Select(f => f.Symbol).First().ShouldBe("ELF");
         }
-        
+
         [TestMethod]
         public async Task ChangeMethodFeeControllerThroughOtherController()
         {
@@ -325,12 +341,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     OrganizationMembers =
                     {
                         ReviewAccount1.ConvertAddress(), ReviewAccount2.ConvertAddress(),
-                        ReviewAccount3.ConvertAddress(),InitAccount.ConvertAddress()
+                        ReviewAccount3.ConvertAddress(), InitAccount.ConvertAddress()
                     }
                 },
                 ProposerWhiteList = new ProposerWhiteList
                 {
-                    Proposers = {InitAccount.ConvertAddress(),ReviewAccount1.ConvertAddress()}
+                    Proposers = {InitAccount.ConvertAddress(), ReviewAccount1.ConvertAddress()}
                 }
             };
             var associationContract = ContractManager.Association.ContractAddress;
@@ -340,7 +356,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractAddress = associationContract.ConvertAddress(),
                 OwnerAddress = newController
             };
-            var createProposal = ContractManager.Association.CreateProposal(associationContract, nameof(AssociationMethod.ChangeMethodFeeController),
+            var createProposal = ContractManager.Association.CreateProposal(associationContract,
+                nameof(AssociationMethod.ChangeMethodFeeController),
                 changeInput, controller.OwnerAddress, InitAccount);
             ContractManager.Association.ApproveWithAssociation(createProposal, controller.OwnerAddress);
             var release = ContractManager.Association.ReleaseProposal(createProposal, InitAccount);

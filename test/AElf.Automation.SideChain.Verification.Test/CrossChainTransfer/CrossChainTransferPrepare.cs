@@ -67,6 +67,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
 
                 var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
+                sideChainService.TokenService.SetAccount(InitAccount);
                 var result = sideChainService.TokenService.ExecuteMethodWithResult(
                     TokenMethod.CrossChainReceiveToken,
                     input);

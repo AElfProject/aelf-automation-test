@@ -7,8 +7,10 @@ using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel;
+using AElf.Types;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shouldly;
 using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -18,8 +20,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
 private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
-        private AuthorityManager AuthorityManager { get; set; }
-
         private TokenContract _tokenContract;
         private TokenConverterContract _tokenConverterContract;
         private GenesisContract _genesisContract;
@@ -39,7 +39,6 @@ private ILog Logger { get; set; }
             Logger = Log4NetHelper.GetLogger();
 
             NodeManager = new NodeManager(RpcUrl);
-            AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
             _tokenConverterContract = _genesisContract.GetTokenConverterContract(InitAccount);
@@ -68,7 +67,7 @@ private ILog Logger { get; set; }
 
                 var result = await _tokenConverterSub.Buy.SendAsync(new BuyInput
                 {
-                    Amount = 10000_00000000,
+                    Amount = 100000_00000000,
                     Symbol = resource
                 });
                 var size = result.Transaction.Size();
@@ -129,6 +128,24 @@ private ILog Logger { get; set; }
 
             Logger.Info(
                 $"After sell token, user ELF balance is {afterBalance} user {Symbol} balance is {afterOtherTokenBalance}");
+        }
+
+        [TestMethod]
+        public async Task BurnResourceToken()
+        {
+            foreach (var symbol in ResourceSymbol)
+            {
+                var result = await _tokenSub.Burn.SendAsync(new BurnInput
+                {
+                    Amount = 1000_00000000,
+                    Symbol = symbol
+                });
+                result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+                
+                var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = symbol});
+                info.Burned.ShouldBe(1000_00000000);
+                info.Supply.ShouldBe(info.TotalSupply - info.Burned);
+            }
         }
     }
 }

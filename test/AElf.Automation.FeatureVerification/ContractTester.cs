@@ -24,7 +24,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly ParliamentAuthContract ParliamentService;
         public readonly ProfitContract ProfitService;
         public readonly ReferendumAuthContract ReferendumService;
-        public readonly TokenConverterContract TokenConverterService;
+        public readonly CrossChainContract CrossChainService;
         public readonly ConfigurationContract ConfigurationService;
         public readonly TokenContract TokenService;
         public readonly VoteContract VoteService;
@@ -45,6 +45,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ParliamentService = ContractServices.ParliamentService;
             ReferendumService = ContractServices.ReferendumAuthService;
             ConfigurationService = ContractServices.ConfigurationService;
+            CrossChainService = ContractServices.CrossChainService;
         }
 
         public List<string> GetMiners()
@@ -100,7 +101,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-            if (balance > 1000_00000000) return;
+            if (balance > 10000_00000000) return;
             TokenService.IssueBalance(creator, account, 1000_00000000, symbol);
         }
     }

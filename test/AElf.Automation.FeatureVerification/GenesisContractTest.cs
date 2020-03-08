@@ -136,14 +136,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_MinerProposalContract_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.TestContract.BasicUpdate1");
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var contractProposalInfo = ProposalNewContract(Tester, Creator, input);
+//            var proposalId = ProposalCreated.Parser
+//                .ParseFrom(ByteString.FromBase64("CiIKIEBMlAb4Acvr6Pj3Rsq7+EJ3DGhOFQEX9E2dqI0R1aYu")).ProposalId;
+//            var proposalHash = ContractProposed.Parser
+//                .ParseFrom(ByteString.FromBase64("CiIKIOt1LiiSK5YRP9vUpMGUFNt2rjuF3IpEAYC0J/vS0Tj0"))
+//                .ProposedContractInputHash;
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
-//                ProposalId = HashHelper.HexStringToHash("6ab5d9c4a7ff3c38277a9f7647acc7c458203d0adbf0e9de87424b82cbccfde4"),
-//                ProposedContractInputHash = HashHelper.HexStringToHash("ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")
+//                ProposalId = proposalId,
+//                ProposedContractInputHash = proposalHash
 //            };
-
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, Creator);
             release.Status.ShouldBe("MINED");
@@ -152,6 +156,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var deployProposal = ProposalCreated.Parser.ParseFrom(byteString).ProposalId;
 
             Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
+        }
+        
+        [TestMethod]
+        public void ProposalDeploy_Success()
+        {
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            var contractProposalInfo = ProposalNewContract(Tester, Member, input);
+//            var proposalId = ProposalCreated.Parser
+//                .ParseFrom(ByteString.FromBase64("CiIKIEBMlAb4Acvr6Pj3Rsq7+EJ3DGhOFQEX9E2dqI0R1aYu")).ProposalId;
+//            var proposalHash = ContractProposed.Parser
+//                .ParseFrom(ByteString.FromBase64("CiIKIOt1LiiSK5YRP9vUpMGUFNt2rjuF3IpEAYC0J/vS0Tj0"))
+//                .ProposedContractInputHash;
+//            var contractProposalInfo = new ReleaseContractInput
+//            {
+//                ProposalId = proposalId,
+//                ProposedContractInputHash = proposalHash
+//            };
+
+            Logger.Info($"{contractProposalInfo.ProposalId}\n {contractProposalInfo.ProposedContractInputHash}");
         }
 
         [TestMethod]
@@ -426,6 +449,36 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AddressHelper.Base58StringToAddress(contract));
             Logger.Info($"{address.GetFormatted()}");
         }
+        
+        [TestMethod]
+        public void ParliamentChangeWhiteList()
+        {
+            var parliament = Tester.ParliamentService;
+            var defaultAddress = parliament.GetGenesisOwnerAddress();
+            var existResult =
+                parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
+            existResult.Value.ShouldBeTrue();
+            
+            var miners = Tester.GetMiners();
+
+            var changeInput = new ProposerWhiteList
+            {
+                Proposers = { Member.ConvertAddress(),Creator.ConvertAddress()}
+            };
+
+            var proposalId = parliament.CreateProposal(parliament.ContractAddress,
+                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,defaultAddress,miners.First());
+            parliament.MinersApproveProposal(proposalId,miners);
+            parliament.SetAccount(miners.First());
+            var release = parliament.ReleaseProposal(proposalId,miners.First());
+            release.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var proposalWhiteList =
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
+            proposalWhiteList.Proposers.Contains(Member.ConvertAddress()).ShouldBeTrue();
+        }
+        
         #region private method
 
         private Address CreateAssociationOrganization(ContractTester tester)

@@ -8,6 +8,7 @@ using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -35,7 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.InitLogHelper();
             MainNode = new NodeManager("192.168.197.14:8000");
 
-            NodeInfoHelper.SetConfig("nodes-env1-side1");
+            NodeInfoHelper.SetConfig("nodes-env1-side2");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
@@ -136,6 +137,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var item in rental.ResourceAmount)
             {
                 Logger.Info($"{item.Key}, {item.Value}");
+            }
+        }
+
+        [TestMethod]
+        public async Task CheckMinerBalance()
+        {
+            var authority = new AuthorityManager(SideNode);
+            var token = Genesis.GetTokenStub();
+            var bps = authority.GetCurrentMiners();
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET","STB"};
+            foreach (var bp in bps)
+            {
+                foreach (var symbol in symbols)
+                {
+                    var balance = await token.GetBalance.CallAsync(new GetBalanceInput {Owner = bp.ConvertAddress() , Symbol = symbol});
+                    Logger.Info($"{bp} {symbol}, {balance.Balance}");
+                }
             }
         }
 

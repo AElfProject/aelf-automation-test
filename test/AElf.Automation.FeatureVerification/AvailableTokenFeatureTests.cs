@@ -33,64 +33,64 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ContractManager = new ContractManager(NodeManager, firstNode.Account);
         }
 
-        [TestMethod]
-        public async Task QueryAvailableTokenInfos()
-        {
-            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
-            if (tokenInfos.Equals(new SymbolListToPayTxSizeFee()))
-            {
-                Logger.Info("GetAvailableTokenInfos: Null");
-                return;
-            }
+//        [TestMethod]
+//        public async Task QueryAvailableTokenInfos()
+//        {
+//            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
+//            if (tokenInfos.Equals(new SymbolListToPayTxSizeFee()))
+//            {
+//                Logger.Info("GetAvailableTokenInfos: Null");
+//                return;
+//            }
+//
+//            foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
+//            {
+//                Logger.Info(
+//                    $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
+//            }
+//        }
 
-            foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
-            {
-                Logger.Info(
-                    $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
-            }
-        }
-
-        [TestMethod]
-        public async Task SetAvailableTokenInfos()
-        {
-            var availableTokenInfo = new SymbolListToPayTxSizeFee
-            {
-                SymbolsToPayTxSizeFee =
-                {
-                    new SymbolToPayTxSizeFee
-                    {
-                        TokenSymbol = "ELF",
-                        AddedTokenWeight = 1,
-                        BaseTokenWeight = 1
-                    },
-                    new SymbolToPayTxSizeFee
-                    {
-                        TokenSymbol = "CPU",
-                        AddedTokenWeight = 50,
-                        BaseTokenWeight = 1
-                    },
-                    new SymbolToPayTxSizeFee
-                    {
-                        TokenSymbol = "RAM",
-                        AddedTokenWeight = 50,
-                        BaseTokenWeight = 1
-                    },
-                    new SymbolToPayTxSizeFee
-                    {
-                        TokenSymbol = "NET",
-                        AddedTokenWeight = 50,
-                        BaseTokenWeight = 1
-                    }
-                }
-            };
-
-            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
-                availableTokenInfo, ContractManager.CallAddress);
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-            await QueryAvailableTokenInfos();
-        }
+//        [TestMethod]
+//        public async Task SetAvailableTokenInfos()
+//        {
+//            var availableTokenInfo = new SymbolListToPayTxSizeFee
+//            {
+//                SymbolsToPayTxSizeFee =
+//                {
+//                    new SymbolToPayTxSizeFee
+//                    {
+//                        TokenSymbol = "ELF",
+//                        AddedTokenWeight = 1,
+//                        BaseTokenWeight = 1
+//                    },
+//                    new SymbolToPayTxSizeFee
+//                    {
+//                        TokenSymbol = "CPU",
+//                        AddedTokenWeight = 50,
+//                        BaseTokenWeight = 1
+//                    },
+//                    new SymbolToPayTxSizeFee
+//                    {
+//                        TokenSymbol = "RAM",
+//                        AddedTokenWeight = 50,
+//                        BaseTokenWeight = 1
+//                    },
+//                    new SymbolToPayTxSizeFee
+//                    {
+//                        TokenSymbol = "NET",
+//                        AddedTokenWeight = 50,
+//                        BaseTokenWeight = 1
+//                    }
+//                }
+//            };
+//
+//            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+//                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
+//                availableTokenInfo, ContractManager.CallAddress);
+//            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+//
+//            await QueryAvailableTokenInfos();
+//        }
 
         [TestMethod]
         [DataRow("2sWEUtNMJLWFTUp3SGwM8i9aoTM2rdyMYuxQAEgD6XaDJjz9ch", "ELF", 5000_0000L)]
@@ -164,59 +164,59 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"Account: {ContractManager.CallAddress}, Symbol: {symbol}, Balance: {balance}");
         }
         
-        [TestMethod]
-        public async Task Controller_Transfer_For_Symbol_To_Pay_Tx_Fee()
-        {
-            var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
-            
-            //Without authority would be failed
-            var newSymbolList = new SymbolListToPayTxSizeFee();
-            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTxSizeFee
-            {
-                TokenSymbol = primaryToken,
-                AddedTokenWeight = 1,
-                BaseTokenWeight = 1
-            });
-            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTxSizeFee.SendAsync(newSymbolList);
-            symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
-            
-            var newParliament = new CreateOrganizationInput
-            {
-                ProposerAuthorityRequired = false,
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MaximalAbstentionThreshold = 1,
-                    MaximalRejectionThreshold = 1,
-                    MinimalApprovalThreshold = 1,
-                    MinimalVoteThreshold = 1
-                },
-                ParliamentMemberProposingAllowed = false
-            };
-            var parliamentCreateRet =
-                await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(newParliament);
-            var newOrganization = parliamentCreateRet.Output;
-
-            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress,
-                nameof(ContractManager.TokenImplStub.SetSymbolsToPayTxSizeFee),
-                newOrganization,
-                ContractManager.CallAddress
-            );
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-            transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Token.ContractAddress,
-                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTxSizeFee),
-                newSymbolList,
-                newOrganization,
-                ContractManager.Authority.GetCurrentMiners(),
-                ContractManager.CallAddress
-            );
-            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
-            //Verify symbol list
-            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
-            symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);
-        }
+//        [TestMethod]
+//        public async Task Controller_Transfer_For_Symbol_To_Pay_Tx_Fee()
+//        {
+//            var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
+//            
+//            //Without authority would be failed
+//            var newSymbolList = new SymbolListToPayTxSizeFee();
+//            newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTxSizeFee
+//            {
+//                TokenSymbol = primaryToken,
+//                AddedTokenWeight = 1,
+//                BaseTokenWeight = 1
+//            });
+//            var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTxSizeFee.SendAsync(newSymbolList);
+//            symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
+//            
+//            var newParliament = new CreateOrganizationInput
+//            {
+//                ProposerAuthorityRequired = false,
+//                ProposalReleaseThreshold = new ProposalReleaseThreshold
+//                {
+//                    MaximalAbstentionThreshold = 1,
+//                    MaximalRejectionThreshold = 1,
+//                    MinimalApprovalThreshold = 1,
+//                    MinimalVoteThreshold = 1
+//                },
+//                ParliamentMemberProposingAllowed = false
+//            };
+//            var parliamentCreateRet =
+//                await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(newParliament);
+//            var newOrganization = parliamentCreateRet.Output;
+//
+//            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+//                ContractManager.Token.ContractAddress,
+//                nameof(ContractManager.TokenImplStub.SetSymbolsToPayTxSizeFee),
+//                newOrganization,
+//                ContractManager.CallAddress
+//            );
+//            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+//
+//            transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+//                ContractManager.Token.ContractAddress,
+//                nameof(TokenContractContainer.TokenContractStub.SetSymbolsToPayTxSizeFee),
+//                newSymbolList,
+//                newOrganization,
+//                ContractManager.Authority.GetCurrentMiners(),
+//                ContractManager.CallAddress
+//            );
+//            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+//            
+//            //Verify symbol list
+//            var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
+//            symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);
+//        }
     }
 }
