@@ -198,6 +198,55 @@ namespace AElf.Automation.E2ETest.ContractSuits
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
         }
+        
+        [TestMethod]
+                public async Task Recover_Tx_With_User()
+                {
+                    const int pieceUpperBound1 = 1000000;
+                    const int pieceUpperBound2 = int.MaxValue;
+                    const int feeType = (int) FeeTypeEnum.Tx;
+                    var piece1 = new CalculateFeePieceCoefficients
+                    {
+                        Value =
+                        {
+                            pieceUpperBound1, 
+                            1, 1, 800, 
+                            0, 1, 10000
+                        }
+                    };
+                    var piece2 = new CalculateFeePieceCoefficients
+                    {
+                        Value =
+                        {
+                            pieceUpperBound2, 
+                            1, 1, 800, 
+                            2, 1, 10000
+                        }
+                    };
+                    var updateInput = new UpdateCoefficientsInput
+                    {
+                        PieceNumbers = {1, 2},
+                        Coefficients = new CalculateFeeCoefficients
+                        {
+                            FeeTokenType = feeType,
+                            PieceCoefficientsList =
+                            {
+                                piece1, piece2
+                            }
+                        }
+                    };
+                    var proposalId = await CreateToRootForUserFeeByTwoLayer(updateInput);
+                    await ApproveToRootForUserFeeByTwoLayer(proposalId);
+                    await VoteToReferendum(proposalId);
+                    await ReleaseToRootForUserFeeByTwoLayer(proposalId);
+        
+                    var userCoefficient =
+                        await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
+                    userCoefficient.FeeTokenType.ShouldBe(feeType);
+                    var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+                    pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
+                    pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
+                }
 
         private async Task InitializeAuthorizedOrganization()
         {
