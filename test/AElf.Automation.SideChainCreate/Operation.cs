@@ -160,7 +160,7 @@ namespace AElf.Automation.SideChainCreate
                 ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
 
             Creator = environmentInfo.Creator;
-            Url = environmentInfo.Url;
+            Url = NodeOption.AllNodes.First().Endpoint;
             Password = environmentInfo.Password;
             var contractService = new ContractServices(Url, Creator, Password);
             return contractService;

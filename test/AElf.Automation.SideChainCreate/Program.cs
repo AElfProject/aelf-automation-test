@@ -19,7 +19,12 @@ namespace AElf.Automation.SideChainCreate
 
             //Init Logger
             Log4NetHelper.LogInit("SideChainCreate");
-            NodeInfoHelper.SetConfig("nodes-env2-main");
+            var testEnvironment = ConfigHelper.Config.TestEnvironment;
+            var environmentInfo =
+                ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
+
+            var configFile = environmentInfo.ConfigFile;
+            NodeInfoHelper.SetConfig(configFile);
             #endregion
 
             var operation = new Operation();
@@ -47,7 +52,7 @@ namespace AElf.Automation.SideChainCreate
                 operation.ApproveProposal(proposal);
                 var chainIdResult = operation.ReleaseSideChainCreation(proposal, out var organization);
                 var chainId = ChainHelper.ConvertChainIdToBase58(chainIdResult);
-                //Logger.Info($"Association organization is {organization}");
+                Logger.Info($"Association organization is {organization}");
                 Logger.Info($"Side Chain : {chainId} created successfully");
             }
         }

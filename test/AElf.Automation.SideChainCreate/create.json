@@ -1,21 +1,27 @@
 {
-    "TestEnvironment": "Offline",
+    "TestEnvironment": "Offline1",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
-            "Url": "http://52.90.147.175:8000",
+            "ConfigFile": "nodes-online-test-main",
             "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         },
         {
-            "Environment": "Offline",
-            "Url": "http://192.168.197.40:8000",
+            "Environment": "Offline1",
+            "ConfigFile": "nodes-env1-main",
+            "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "Password": "123"
+        },       
+        {
+            "Environment": "Offline2",
+            "ConfigFile": "nodes-env2-main",
             "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         },
         {
             "Environment": "Other",
-            "Url": "http://192.168.197.56:8001",
+            "ConfigFile": "nodes",
             "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         }
@@ -25,7 +31,7 @@
         {
             "IndexingPrice": "1",
             "LockedTokenAmount": 4000000,
-            "IsPrivilegePreserved": true,
+            "IsPrivilegePreserved": false,
             "NativeSymbol": "STA"
         },
         {
