@@ -172,7 +172,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 var balance =
                     MainChainService.TokenService.GetUserBalance(node.Account, MainChainService.PrimaryTokenSymbol);
-                if (node.Account == MainChainService.CallAddress || balance > 100_00000000) continue;
+                if (node.Account == MainChainService.CallAddress || balance > 10000_00000000) continue;
                 TransferToken(MainChainService, node.Account);
             }
 

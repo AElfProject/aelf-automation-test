@@ -138,7 +138,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(2),
                         Params = transferInput.ToByteString()
                     };
 

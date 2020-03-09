@@ -73,7 +73,7 @@ namespace AElf.Automation.ContractsTesting
         {
             var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput()
             {
-                Key = "BlockTransactionLimit",
+                Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
                 Value = new Int32Value {Value = transactionCount}.ToByteString()
             }).Result;
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -82,7 +82,7 @@ namespace AElf.Automation.ContractsTesting
 
         public int GetTransactionLimit()
         {
-            var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue{Value = "BlockTransactionLimit"}).Result;
+            var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}).Result;
             Logger.Info($"TransactionLimit: {queryResult.Value}");
 
             return Int32Value.Parser.ParseFrom(queryResult.Value).Value;
