@@ -51,11 +51,20 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const int feeType = (int) FeeTypeEnum.Storage;
             var piece1 = new CalculateFeePieceCoefficients
             {
-                Value = {0, 500000, 1, 4, 2000}
+                Value =
+                {
+                    500000,
+                    1, 4, 2000
+                }
             };
             var piece2 = new CalculateFeePieceCoefficients
             {
-                Value = {1, 1000000, 1, 64, 2, 100, 250, 600}
+                Value =
+                {
+                    1000000,
+                    1, 64, 2,
+                    100, 250, 600
+                }
             };
             var updateInput = new UpdateCoefficientsInput
             {
@@ -85,7 +94,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 });
             userCoefficient.FeeTokenType.ShouldBe(feeType);
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
-            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece2);
+            pieceCoefficientsList.First(o => o.Value[0] == 1000000).ShouldBe(piece2);
         }
 
         [TestMethod]
@@ -94,11 +103,20 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const int feeType = (int) FeeTypeEnum.Write;
             var piece2 = new CalculateFeePieceCoefficients
             {
-                Value = {0, 1000000, 1, 4, 30000}
+                Value =
+                {
+                    100,
+                    1, 1, 5
+                }
             };
             var piece3 = new CalculateFeePieceCoefficients
             {
-                Value = {1, 100, 1, 4, 2, 2, 250, 60}
+                Value =
+                {
+                    10000,
+                    1, 1, 4,
+                    2, 25, 16
+                }
             };
             var updateInput = new UpdateCoefficientsInput
             {
@@ -128,7 +146,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 });
             userCoefficient.FeeTokenType.ShouldBe(feeType);
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
-            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece3);
+            pieceCoefficientsList.First(o => o.Value[0] == 100).ShouldBe(piece2);
+            pieceCoefficientsList.First(o => o.Value[0] == 10000).ShouldBe(piece3);
         }
 
         [TestMethod]
@@ -139,11 +158,21 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const int feeType = (int) FeeTypeEnum.Tx;
             var piece1 = new CalculateFeePieceCoefficients
             {
-                Value = {0, pieceUpperBound1, 1, 800, 50000000}
+                Value =
+                {
+                    pieceUpperBound1,
+                    1, 1, 700,
+                    0, 10000, 500000000
+                }
             };
             var piece2 = new CalculateFeePieceCoefficients
             {
-                Value = {1, pieceUpperBound2, 1, 800, 2, 100, 1, 3}
+                Value =
+                {
+                    pieceUpperBound2,
+                    1, 1, 800,
+                    2, 1, 40000
+                }
             };
             var updateInput = new UpdateCoefficientsInput
             {
@@ -166,8 +195,57 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
             userCoefficient.FeeTokenType.ShouldBe(feeType);
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
-            pieceCoefficientsList.First(o => o.Value[0] == 0).ShouldBe(piece1);
-            pieceCoefficientsList.First(o => o.Value[0] == 1).ShouldBe(piece2);
+            pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
+            pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
+        }
+
+        [TestMethod]
+        public async Task Recover_Tx_With_User()
+        {
+            const int pieceUpperBound1 = 1000000;
+            const int pieceUpperBound2 = int.MaxValue;
+            const int feeType = (int) FeeTypeEnum.Tx;
+            var piece1 = new CalculateFeePieceCoefficients
+            {
+                Value =
+                {
+                    pieceUpperBound1,
+                    1, 1, 800,
+                    0, 1, 10000
+                }
+            };
+            var piece2 = new CalculateFeePieceCoefficients
+            {
+                Value =
+                {
+                    pieceUpperBound2,
+                    1, 1, 800,
+                    2, 1, 10000
+                }
+            };
+            var updateInput = new UpdateCoefficientsInput
+            {
+                PieceNumbers = {1, 2},
+                Coefficients = new CalculateFeeCoefficients
+                {
+                    FeeTokenType = feeType,
+                    PieceCoefficientsList =
+                    {
+                        piece1, piece2
+                    }
+                }
+            };
+            var proposalId = await CreateToRootForUserFeeByTwoLayer(updateInput);
+            await ApproveToRootForUserFeeByTwoLayer(proposalId);
+            await VoteToReferendum(proposalId);
+            await ReleaseToRootForUserFeeByTwoLayer(proposalId);
+
+            var userCoefficient =
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
+            userCoefficient.FeeTokenType.ShouldBe(feeType);
+            var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+            pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
+            pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
         }
 
         private async Task InitializeAuthorizedOrganization()

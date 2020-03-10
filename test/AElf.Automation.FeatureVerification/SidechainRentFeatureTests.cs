@@ -34,9 +34,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("192.168.197.14:8000");
+            MainNode = new NodeManager("192.168.197.40:8000");
 
-            NodeInfoHelper.SetConfig("nodes-env1-side2");
+            NodeInfoHelper.SetConfig("nodes-env2-side1");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
@@ -98,6 +98,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
             SideManager.Association.ReleaseProposal(proposalId, proposer);
+        }
+
+        [TestMethod]
+        public async Task QueryOwningRentalUnitValueTest()
+        {
+            var token = Genesis.GetTokenImplStub();
+            var unitValueInfo = await token.GetOwningRentalUnitValue.CallAsync(new Empty());
+            Logger.Info(JsonConvert.SerializeObject(unitValueInfo));
         }
 
         [TestMethod]

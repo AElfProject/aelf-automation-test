@@ -319,12 +319,18 @@ namespace AElfChain.Console.Commands
         {
             var accounts = NodeManager.ListAccounts();
             _ = Services.Token.ContractAddress;
-            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            var input = Prompt.Input<string>("Input token symbols");
+            var symbols = input.Trim().Split(" ");
             Parallel.ForEach(accounts, acc =>
             {
-                var balance = Services.Token.GetUserBalance(acc, primaryToken);
-                if (balance != 0)
-                    $"Account: {acc}  {primaryToken}={balance}".WriteSuccessLine();
+                var balanceInfo = string.Empty; 
+                foreach (var symbol in symbols)
+                {
+                    var balance = Services.Token.GetUserBalance(acc, symbol);
+                    if (balance != 0)
+                        balanceInfo += $"{symbol}={balance} ";
+                }
+                $"Account: {acc}  {balanceInfo}".WriteSuccessLine();
             });
         }
 
