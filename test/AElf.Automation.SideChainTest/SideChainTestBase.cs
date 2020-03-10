@@ -19,6 +19,7 @@ using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChainTests
@@ -45,6 +46,7 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
+            NodeInfoHelper.SetConfig("nodes-env1-main");
             InitAccount = ConfigInfoHelper.Config.MainChainInfos.Account;
             var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
             var password = ConfigInfoHelper.Config.MainChainInfos.Password;
@@ -63,6 +65,7 @@ namespace AElf.Automation.SideChainTests
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
 
             TokenContractStub = MainServices.TokenContractStub;
+            TokenContractImplStub = MainServices.TokenImplContractStub;
             side1TokenContractStub = SideAServices.TokenImplContractStub;
             side2TokenContractStub = SideBServices.TokenImplContractStub;
             Miners = new List<string>();
@@ -188,6 +191,7 @@ namespace AElf.Automation.SideChainTests
                         InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
                         SideChainTokenInitialIssueList = {issue}
                     });
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(ByteString.FromBase64(byteString))

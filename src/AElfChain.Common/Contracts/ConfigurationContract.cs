@@ -4,12 +4,19 @@ namespace AElfChain.Common.Contracts
 {
     public enum ConfigurationMethod
     {
-        SetBlockTransactionLimit,
-        GetBlockTransactionLimit,
+        SetConfiguration,
+        GetConfiguration,
         GetOwnerAddress,
-        SetRequiredAcsInContracts,
-        GetRequiredAcsInContracts,
         ChangeConfigurationController,
+        GetConfigurationController,
+        ChangeMethodFeeController,
+        GetMethodFeeController
+    }
+
+    public enum ConfigurationNameProvider
+    {
+        BlockTransactionLimit,
+        RequiredAcsInContracts
     }
 
     public class ConfigurationContract : BaseContract<ConfigurationMethod>

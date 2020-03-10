@@ -67,6 +67,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
 
                 var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
+                sideChainService.TokenService.SetAccount(InitAccount);
                 var result = sideChainService.TokenService.ExecuteMethodWithResult(
                     TokenMethod.CrossChainReceiveToken,
                     input);
@@ -170,7 +171,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Logger.Info($"Transfer {token} token to each account on side chain {sideChainService.ChainId}:");
                     foreach (var account in AccountList)
                     {
-                        if (sideChainService.PrimaryTokenSymbol.Equals(token))
+                        if (sideChainService.PrimaryTokenSymbol.Equals(token) && IsSupplyAllToken(sideChainService))
                             IssueSideChainToken(sideChainService, account);
                         else
                             sideChainService.TokenService.TransferBalance(InitAccount, account, amount, token);

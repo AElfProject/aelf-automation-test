@@ -41,7 +41,7 @@ service TokenContract {
     }
     rpc CrossChainReceiveToken (CrossChainReceiveTokenInput) returns (google.protobuf.Empty) {
     }
-    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {
+    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {        
     }
     //be used in kernel
     rpc ClaimTransactionFees (google.protobuf.Empty) returns (google.protobuf.Empty) {
@@ -63,6 +63,8 @@ service TokenContract {
     rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
     rpc AddTokenWhiteList (AddTokeWhiteListInput) returns (google.protobuf.Empty) {
+    }
+    rpc SetMinimumProfitsDonationPartsPerHundred (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
     }
 
     // Views
@@ -203,8 +205,11 @@ message BurnInput {
 }
 
 message ChargeResourceTokenInput {
-    map<string, sint64> cost_dic = 1;
-    aelf.Address caller = 2;
+    sint64 traffic_cost = 1;
+    sint64 storage_cost = 2;
+    sint64 read_cost = 3;
+    sint64 write_cost = 4;
+    aelf.Address caller = 5;
 }
 
 message TransactionFeeBill {

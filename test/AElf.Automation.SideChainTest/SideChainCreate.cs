@@ -100,6 +100,24 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
+        public void RequestSideChainCreation()
+        {
+            TokenApprove(MainServices, InitAccount, 1000000);
+            var tokenInfo = new SideChainTokenInfo
+            {
+                Symbol = "STC",
+                TokenName = "Side chain token STC",
+                Decimals = 8,
+                IsBurnable = true,
+                Issuer = AddressHelper.Base58StringToAddress(InitAccount),
+                TotalSupply = 10_00000000_00000000,
+                IsProfitable = true
+            }; 
+            var proposal = RequestSideChainCreation(MainServices, InitAccount, "123", 1, 1000000, true, tokenInfo);
+            _logger.Info($"proposal id is: {proposal}");
+        }
+
+        [TestMethod]
         [DataRow("6c90e09aa2fe37ae444e02532ea0b45bbab9e441a22f7ecd366f526d55861d0a")]
         public void ApproveProposal(string proposalId)
         {
@@ -109,14 +127,15 @@ namespace AElf.Automation.SideChainTests
                 _logger.Info($"Approve is {result.ReadableReturnValue}");
             }
         }
-        
+
         [TestMethod]
         [DataRow("6c90e09aa2fe37ae444e02532ea0b45bbab9e441a22f7ecd366f526d55861d0a")]
         public void ReleaseSideChainCreation(string proposalId)
         {
             MainServices.CrossChainService.SetAccount(InitAccount);
             var result
-                = MainServices.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.ReleaseSideChainCreation,
+                = MainServices.CrossChainService.ExecuteMethodWithResult(
+                    CrossChainContractMethod.ReleaseSideChainCreation,
                     new ReleaseSideChainCreationInput
                     {
                         ProposalId = HashHelper.HexStringToHash(proposalId)
@@ -162,7 +181,7 @@ namespace AElf.Automation.SideChainTests
 
             _logger.Info($"Side chain id is {chainId}, creator is {creator}");
         }
-        
+
         [TestMethod]
         public void CreateProposalOnSideChain()
         {
@@ -191,11 +210,12 @@ namespace AElf.Automation.SideChainTests
 
             _logger.Info($"Side chain id is {chainId}, creator is {creator}");
         }
-        
+
         [TestMethod]
         public void GetProposal()
         {
-            var proposalId = ProposalCreated.Parser.ParseFrom(ByteString.FromBase64("CiIKIMO8feW9yiU85cN3SXgfIzJ5Od35XIhfYvwsmHmAcuhM")).ProposalId;
+            var proposalId = ProposalCreated.Parser
+                .ParseFrom(ByteString.FromBase64("CiIKIMO8feW9yiU85cN3SXgfIzJ5Od35XIhfYvwsmHmAcuhM")).ProposalId;
             var result = MainServices.AssociationService.CheckProposal(proposalId);
             _logger.Info(
                 $"proposal message is {result.ToBeReleased} {result.ApprovalCount}");
@@ -208,7 +228,7 @@ namespace AElf.Automation.SideChainTests
             var sideChainInfo = MainServices.CrossChainService.GetChainInitializationData(chainId);
             _logger.Info($"{sideChainInfo.Creator},{sideChainInfo.ChainCreatorPrivilegePreserved}");
         }
-        
+
         [TestMethod]
         [DataRow("tDVW")]
         [DataRow("tDVV")]
@@ -281,8 +301,10 @@ namespace AElf.Automation.SideChainTests
             {
                 _logger.Info("Because of changed LifeTimeController, create new IndexingFeeController");
                 var createSideChainIndexingFeeController =
-                    MainServices.AssociationService.CreateOrganization(CreateOrganizationInput.Parser.ParseFrom(getInfo.OrganizationCreationInputBytes));
-                var associationInfo = MainServices.AssociationService.GetOrganization(createSideChainIndexingFeeController);
+                    MainServices.AssociationService.CreateOrganization(
+                        CreateOrganizationInput.Parser.ParseFrom(getInfo.OrganizationCreationInputBytes));
+                var associationInfo =
+                    MainServices.AssociationService.GetOrganization(createSideChainIndexingFeeController);
                 associationInfo.OrganizationAddress.Equals(association).ShouldBeTrue();
             }
 
@@ -319,10 +341,10 @@ namespace AElf.Automation.SideChainTests
                 var approveProposalId = MainServices.AssociationService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                     lifeTimeController, proposer.GetFormatted());
-                ApproveWithAssociation(MainServices,approveProposalId,lifeTimeController);
+                ApproveWithAssociation(MainServices, approveProposalId, lifeTimeController);
                 MainServices.AssociationService.ReleaseProposal(approveProposalId, proposer.GetFormatted());
             }
-            
+
             MainServices.AssociationService.ReleaseProposal(proposalId, InitAccount);
 
             var afterCheckPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
@@ -337,10 +359,11 @@ namespace AElf.Automation.SideChainTests
             _logger.Info($"life controller is {lifeController}");
             var controllerInfo = MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId);
             var input = CreateOrganizationInput.Parser.ParseFrom(controllerInfo.OrganizationCreationInputBytes);
-            _logger.Info($"proposer are : {input.ProposerWhiteList.Proposers}, members are {input.OrganizationMemberList.OrganizationMembers}");
+            _logger.Info(
+                $"proposer are : {input.ProposerWhiteList.Proposers}, members are {input.OrganizationMemberList.OrganizationMembers}");
             var address = CreateAssociationController(InitAccount, input);
             _logger.Info($"indexing fee controller is {address}");
-            
+
             var checkPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {
@@ -359,34 +382,34 @@ namespace AElf.Automation.SideChainTests
             var createProposalToAdjust = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.CreateProposal),
                 createProposalInput, lifeController, OtherAccount);
-            ApproveWithAssociation(MainServices,createProposalToAdjust,lifeController);
+            ApproveWithAssociation(MainServices, createProposalToAdjust, lifeController);
             var releaseResult = MainServices.AssociationService.ReleaseProposal(createProposalToAdjust, OtherAccount);
             var proposalId = ProposalCreated.Parser.ParseFrom(ByteString.FromBase64(releaseResult.Logs
                 .First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)).ProposalId;
-            
+
             //create proposal to Approve by controller
             var createProposalToApprove = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve),
                 proposalId, lifeController, OtherAccount);
-            ApproveWithAssociation(MainServices,createProposalToApprove,lifeController);
+            ApproveWithAssociation(MainServices, createProposalToApprove, lifeController);
             MainServices.AssociationService.ReleaseProposal(createProposalToApprove, OtherAccount);
-            
+
             //create proposal to Approve by creator
             var creator = AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
             var createProposalToApproveByCreator = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve),
                 proposalId, creator, OtherAccount);
-            ApproveWithAssociation(MainServices,createProposalToApproveByCreator,creator);
+            ApproveWithAssociation(MainServices, createProposalToApproveByCreator, creator);
             MainServices.AssociationService.ReleaseProposal(createProposalToApproveByCreator, OtherAccount);
-            
+
             var proposalStatue = MainServices.AssociationService.CheckProposal(proposalId).ToBeReleased;
             _logger.Info($"Adjust indexing fee proposal statue is {proposalStatue}");
-           
+
             // create proposal to release
             var createProposalToRelease = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Release),
                 proposalId, lifeController, OtherAccount);
-            ApproveWithAssociation(MainServices,createProposalToRelease,lifeController);
+            ApproveWithAssociation(MainServices, createProposalToRelease, lifeController);
             MainServices.AssociationService.ReleaseProposal(createProposalToRelease, OtherAccount);
 
             var afterCheckPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
@@ -416,7 +439,7 @@ namespace AElf.Automation.SideChainTests
             controllerOrganization = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
             controllerOrganization.ShouldBe(associationOrganization);
         }
-        
+
         [TestMethod]
         public void ChangeLifeControllerWithOtherController()
         {
@@ -432,7 +455,7 @@ namespace AElf.Automation.SideChainTests
                 MainServices.CrossChainService.ContractAddress,
                 nameof(CrossChainContractMethod.ChangeSideChainLifetimeController), input, controllerOrganization,
                 OtherAccount);
-            ApproveWithAssociation(MainServices,createProposal,associationOrganization);
+            ApproveWithAssociation(MainServices, createProposal, associationOrganization);
             MainServices.AssociationService.ReleaseProposal(createProposal, OtherAccount);
         }
 
@@ -453,7 +476,7 @@ namespace AElf.Automation.SideChainTests
             foreach (var miner in Miners)
             {
                 MainServices.TokenService.IssueBalance(InitAccount, miner,
-                    100_00000000,MainServices.TokenService.GetPrimaryTokenSymbol());
+                    100_00000000, MainServices.TokenService.GetPrimaryTokenSymbol());
                 MainServices.ParliamentService.ApproveProposal(createProposal, miner);
             }
 

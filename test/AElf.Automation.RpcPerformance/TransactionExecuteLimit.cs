@@ -4,6 +4,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.Configuration;
 using AElf.Types;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
@@ -52,10 +53,11 @@ namespace AElf.Automation.RpcPerformance
         private async Task SetSelectTransactionLimit(ConfigurationContainer.ConfigurationStub configurationStub,
             int limitCount)
         {
-            var beforeResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            Logger.Info($"Old transaction limit number: {beforeResult.Value}");
+            var beforeResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var beforeValue = Int32Value.Parser.ParseFrom(beforeResult.Value).Value;
+            Logger.Info($"Old transaction limit number: {beforeValue}");
 
-            if (beforeResult.Value == limitCount)
+            if (beforeValue == limitCount)
                 return;
 
             var authorityManager = new AuthorityManager(_nodeManager, _account);
@@ -63,21 +65,26 @@ namespace AElf.Automation.RpcPerformance
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
             var transactionResult = authorityManager.ExecuteTransactionWithAuthority(
                 _configurationContractAddress.GetFormatted(),
-                nameof(configurationStub.SetBlockTransactionLimit),
-                new Int32Value {Value = limitCount},
+                nameof(configurationStub.SetConfiguration),
+                new SetConfigurationInput
+                {
+                    Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
+                    Value = new Int32Value{Value = limitCount}.ToByteString()
+                },
                 gensisOwner,
                 minersList,
                 _account
             );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var afterResult = await configurationStub.GetBlockTransactionLimit.CallAsync(new Empty());
-            Logger.Info($"New transaction limit number: {afterResult.Value}");
-            if (afterResult.Value == limitCount)
+            var afterResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var afterValue = Int32Value.Parser.ParseFrom(afterResult.Value).Value;
+            Logger.Info($"New transaction limit number: {afterValue}");
+            if (afterValue == limitCount)
                 Logger.Info("Transaction limit set successful.");
             else
             {
-                Logger.Error($"Transaction limit set number verify failed. {afterResult.Value}/{limitCount}");
+                Logger.Error($"Transaction limit set number verify failed. {afterValue}/{limitCount}");
             }
         }
     }

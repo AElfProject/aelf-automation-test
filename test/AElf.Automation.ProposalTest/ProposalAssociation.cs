@@ -128,6 +128,8 @@ namespace AElf.Automation.ProposalTest
             ProposalList = new Dictionary<KeyValuePair<Address, Organization>, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
+                var balance = Token.GetUserBalance(organizationAddress.Key.GetFormatted(), Symbol);
+                if (balance < 100*OrganizationList.Count) continue;
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
@@ -145,7 +147,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress.Key,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(2),
                         Params = transferInput.ToByteString()
                     };
 
@@ -272,9 +274,12 @@ namespace AElf.Automation.ProposalTest
                 var sender = key.Value.ProposerWhiteList.Proposers.First();
                 foreach (var proposalId in value)
                 {
+                    var toBeReleased = Association.CheckProposal(proposalId).ToBeReleased;
+                    if (!toBeReleased) continue;
                     var balance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
                     Association.SetAccount(sender.GetFormatted());
                     var result = Association.ExecuteMethodWithResult(AssociationMethod.Release, proposalId);
+                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                     var newBalance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }

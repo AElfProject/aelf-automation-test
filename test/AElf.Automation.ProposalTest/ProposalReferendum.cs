@@ -116,6 +116,8 @@ namespace AElf.Automation.ProposalTest
             ProposalList = new Dictionary<Address, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
+                var balance = Token.GetUserBalance(organizationAddress.GetFormatted(), Symbol);
+                if (balance < 100*OrganizationList.Count) continue;
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
@@ -134,7 +136,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = Token.ContractAddress.ConvertAddress(),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(2),
                         Params = transferInput.ToByteString()
                     };
 
@@ -270,6 +272,8 @@ namespace AElf.Automation.ProposalTest
                 Referendum.SetAccount(sender.GetFormatted());
                 foreach (var proposalId in value)
                 {
+                    var toBeReleased = Referendum.CheckProposal(proposalId).ToBeReleased;
+                    if (!toBeReleased) continue;
                     var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
                     var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.Release,
                         proposalId);

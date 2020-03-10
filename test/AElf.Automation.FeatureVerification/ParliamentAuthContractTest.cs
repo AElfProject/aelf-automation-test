@@ -35,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-        private static string RpcUrl { get; } = "http://192.168.197.40:8000";
+        private static string RpcUrl { get; } = "http://18.223.158.83:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -44,7 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ParliamentTest_");
-
+            NodeInfoHelper.SetConfig("nodes-online-test-main");
             #endregion
 
             NodeManager = new NodeManager(RpcUrl);
@@ -117,15 +117,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
-            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
-        public void GetProposal(string proposalId, string contractAddress)
+        [DataRow("f2437bef3e0ad87773c9d504a0de2dd088ee154c19a00ff40951c77b630cf8d4")]
+        public void GetProposal(string proposalId)
         {
             var result =
                 Parliament.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                     HashHelper.HexStringToHash(proposalId));
             var toBeRelease = result.ToBeReleased;
-            var proposalParams = result.Params.ToStringUtf8();
             var time = result.ExpiredTime;
             var organizationAddress = result.OrganizationAddress;
             var contractMethodName = result.ContractMethodName;
@@ -133,7 +131,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _logger.Info($"proposal is {toBeRelease}");
             _logger.Info($"proposal expired time is {time} ");
-            _logger.Info($"proposal params is {proposalParams} ");
             _logger.Info($"proposal organization is {organizationAddress}");
             _logger.Info($"proposal method name is {contractMethodName}");
             _logger.Info($"proposal to address is {toAddress}");

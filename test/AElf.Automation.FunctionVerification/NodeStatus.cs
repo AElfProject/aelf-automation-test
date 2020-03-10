@@ -1,6 +1,7 @@
 using System.Threading;
 using AElf.Client.Dto;
 using AElf.Client.Service;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -57,8 +58,10 @@ namespace AElf.Automation.ContractsTesting
             var account = _nodeManager.AccountManager.GetRandomAccount();
             var genesis = GenesisContract.GetGenesisContract(_nodeManager, account);
             var configurationStub = genesis.GetConfigurationStub();
-            var limit = AsyncHelper.RunSync(() => configurationStub.GetBlockTransactionLimit.CallAsync(new Empty()));
-            Logger.Info($"Current transaction limit number is: {limit.Value}");
+            var limit = AsyncHelper.RunSync(() => configurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}));
+            var limitValue = Int32Value.Parser.ParseFrom(limit.Value).Value;
+            Logger.Info($"Current transaction limit number is: {limitValue}");
 
             var currentHeightBefore = AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);
             Thread.Sleep(4000);

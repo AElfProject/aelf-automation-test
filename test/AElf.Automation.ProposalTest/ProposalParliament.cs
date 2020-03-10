@@ -121,6 +121,10 @@ namespace AElf.Automation.ProposalTest
             ProposalList = new Dictionary<Address, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
+                var balance = Token.GetUserBalance(organizationAddress.GetFormatted(), Symbol);
+                if (balance < 100*OrganizationList.Count) continue;
+                var random = CommonHelper.GenerateRandomNumber(1, MinersCount);
+                Parliament.SetAccount(Miners[random]);
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
@@ -138,10 +142,9 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(1),
+                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(2),
                         Params = transferInput.ToByteString()
                     };
-
                     var txId = Parliament.ExecuteMethodWithTxId(ParliamentMethod.CreateProposal, createProposalInput);
 
                     txIdList.Add(txId);
@@ -251,10 +254,13 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("Release proposal: ");
             foreach (var (key,value) in ProposalList)
             {
-                Parliament.SetAccount(InitAccount);
                 foreach (var proposal in value)
                 {
+                    var proposalInfo = Parliament.CheckProposal(proposal);
+                    var toBeReleased = proposalInfo.ToBeReleased;
+                    if (!toBeReleased) continue;
                     var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                    Parliament.SetAccount(proposalInfo.Proposer.GetFormatted());
                     var result = Parliament.ExecuteMethodWithResult(ParliamentMethod.Release,
                         proposal);
                     result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
