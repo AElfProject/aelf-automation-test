@@ -71,7 +71,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (existed) continue;
                 if (buyResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
-                    var transactionFee = buyResult.TransactionFee.GetDefaultTransactionFee();
+                    var transactionFee = buyResult.GetDefaultTransactionFee();
                     var elfAfterBalance = Token.GetUserBalance(user);
                     var resAfterBalance = Token.GetUserBalance(user, resSymbol);
                     if (resBeforeBalance + amount == resAfterBalance)
@@ -109,7 +109,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (existed) continue;
                 if (sellResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
-                    var transactionFee = sellResult.TransactionFee.GetDefaultTransactionFee();
+                    var transactionFee = sellResult.GetDefaultTransactionFee();
                     var elfAfterBalance = Token.GetUserBalance(user);
                     var resAfterBalance = Token.GetUserBalance(user, resSymbol);
                     if (resAfterBalance == resBeforeBalance - amount)

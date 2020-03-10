@@ -270,13 +270,13 @@ namespace AElfChain.Common.Managers
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
                         var message =
-                            $"Transaction {txId} status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]";
+                            $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         var errorMsg = transactionResult.Error.Contains("\n")
@@ -317,13 +317,13 @@ namespace AElfChain.Common.Managers
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
                         Logger.Error(
-                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",
                             true);
                         break;
                 }

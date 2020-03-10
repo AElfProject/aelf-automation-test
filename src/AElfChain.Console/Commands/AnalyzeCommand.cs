@@ -223,13 +223,13 @@ namespace AElfChain.Console.Commands
                         if (transaction.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                         {
                             Logger.Info(
-                                $"{txId} {transaction.Transaction.MethodName} {transaction.Status} {transaction.TransactionFee.GetTransactionFeeInfo()}");
+                                $"{txId} {transaction.Transaction.MethodName} {transaction.Status} {transaction.GetTransactionFeeInfo()}");
                         }
                         else
                         {
                             var errorMsg = transaction.Error.Split("\n")[1];
                             Logger.Error(
-                                $"{txId} {transaction.Transaction.MethodName} {transaction.Status} {transaction.TransactionFee.GetTransactionFeeInfo()}");
+                                $"{txId} {transaction.Transaction.MethodName} {transaction.Status} {transaction.GetTransactionFeeInfo()}");
                             Logger.Error($"Error: {errorMsg}");
                         }
                     }

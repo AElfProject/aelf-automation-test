@@ -292,7 +292,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             
             //check profit amount process
-            var profitTransactionFee = profitResult.TransactionFee.GetDefaultTransactionFee();
+            var profitTransactionFee = profitResult.GetDefaultTransactionFee();
             var afterBalance = Token.GetUserBalance(account);
             var checkResult = true;
             /* ignore this check due to bp with other profit or send token to others

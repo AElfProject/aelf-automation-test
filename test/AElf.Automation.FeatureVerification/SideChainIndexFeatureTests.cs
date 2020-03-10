@@ -100,7 +100,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = amount
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            return transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee() + amount;
+            return transactionResult.TransactionResult.GetDefaultTransactionFee() + amount;
         }
         
         [TestMethod]
@@ -112,7 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = amount
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            return transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee() + amount;
+            return transactionResult.TransactionResult.GetDefaultTransactionFee() + amount;
         }
 
         [TestMethod]

@@ -88,12 +88,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
             var approveTokenResult = token.ApproveToken(approveMember.GetFormatted(), referendum.ContractAddress,
                 approveToken, symbol);
-            var approveTokenFee = approveTokenResult.TransactionFee.GetDefaultTransactionFee();
+            var approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
             referendum.SetAccount(approveMember.GetFormatted());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var approveFee = approveResult.TransactionFee.GetDefaultTransactionFee();
+            var approveFee = approveResult.GetDefaultTransactionFee();
             var afterBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
             afterBalance.ShouldBe(approveMemberBalance - approveTokenFee - approveFee - approveToken);
 
@@ -105,12 +105,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             approveTokenResult = token.ApproveToken(abstentionMember, referendum.ContractAddress,
                 abstainToken,
                 symbol);
-            approveTokenFee = approveTokenResult.TransactionFee.GetDefaultTransactionFee();
+            approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
             referendum.SetAccount(abstentionMember);
             var abstentionResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Abstain, proposalId);
             abstentionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var abstainFee = abstentionResult.TransactionFee.GetDefaultTransactionFee();
+            var abstainFee = abstentionResult.GetDefaultTransactionFee();
             var afterAbstainBalance = token.GetUserBalance(abstentionMember, symbol);
             afterAbstainBalance.ShouldBe(abstentionMemberBalance - approveTokenFee - abstainFee - abstainToken);
 
@@ -121,12 +121,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var rejectToken = organization.ProposalReleaseThreshold.MaximalRejectionThreshold;
             approveTokenResult = token.ApproveToken(rejectionMember, referendum.ContractAddress,
                 rejectToken, symbol);
-            approveTokenFee = approveTokenResult.TransactionFee.GetDefaultTransactionFee();
+            approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
             referendum.SetAccount(rejectionMember);
             var rejectResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Reject, proposalId);
             rejectResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var rejectFee = rejectResult.TransactionFee.GetDefaultTransactionFee();
+            var rejectFee = rejectResult.GetDefaultTransactionFee();
             var afterRejectBalance = token.GetUserBalance(rejectionMember, symbol);
             afterRejectBalance.ShouldBe(rejectionMemberBalance - approveTokenFee - rejectFee - rejectToken);
 
@@ -149,7 +149,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var beforeBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
             var approveReclaim = referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken, proposalId);
             approveReclaim.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var reclaimFee = approveReclaim.TransactionFee.GetDefaultTransactionFee();
+            var reclaimFee = approveReclaim.GetDefaultTransactionFee();
             var afterApproveReclaimBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
             afterApproveReclaimBalance.ShouldBe(beforeBalance + approveToken - reclaimFee);
 
@@ -157,7 +157,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             beforeBalance = token.GetUserBalance(abstentionMember, symbol);
             var abstainReclaim = referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken, proposalId);
             abstainReclaim.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            reclaimFee = abstainReclaim.TransactionFee.GetDefaultTransactionFee();
+            reclaimFee = abstainReclaim.GetDefaultTransactionFee();
             var afterAbstainReclaimBalance = token.GetUserBalance(abstentionMember, symbol);
             afterAbstainReclaimBalance.ShouldBe(beforeBalance + abstainToken - reclaimFee);
 
@@ -165,7 +165,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             beforeBalance = token.GetUserBalance(rejectionMember, symbol);
             var rejectReclaim = referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken, proposalId);
             rejectReclaim.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            reclaimFee = rejectReclaim.TransactionFee.GetDefaultTransactionFee();
+            reclaimFee = rejectReclaim.GetDefaultTransactionFee();
             var afterRejectReclaimBalance = token.GetUserBalance(rejectionMember, symbol);
             afterRejectReclaimBalance.ShouldBe(beforeBalance + rejectToken - reclaimFee);
 

@@ -97,7 +97,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 WaitOneBlock(txResult.BlockNumber);
                 var afterResource = TxFees.QueryContractResource();
 
-                var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
+                var txFee = txResult.GetDefaultTransactionFee();
                 //assert result
                 beforeResource["READ"].ShouldBe(afterResource["READ"]);
                 beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);
@@ -121,7 +121,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 WaitOneBlock(txResult.BlockNumber);
                 var afterResource = TxFees.QueryContractResource();
 
-                var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
+                var txFee = txResult.GetDefaultTransactionFee();
                 //assert result
                 beforeResource["READ"].ShouldBeGreaterThan(afterResource["READ"]);
                 beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);
@@ -142,7 +142,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 WaitOneBlock(txResult.BlockNumber);
                 var afterResource = TxFees.QueryContractResource();
 
-                var txFee = txResult.TransactionFee.GetDefaultTransactionFee();
+                var txFee = txResult.GetDefaultTransactionFee();
                 //assert result
                 beforeResource["READ"].ShouldBeGreaterThan(afterResource["READ"]);
                 beforeResource["WRITE"].ShouldBeGreaterThan(afterResource["WRITE"]);

@@ -99,7 +99,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = NodeManager.GetPrimaryTokenSymbol()
                 });
                 claimProfitResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                var transactionFee = claimProfitResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+                var transactionFee = claimProfitResult.TransactionResult.GetDefaultTransactionFee();
                 var afterBalance = ContractManager.Token.GetUserBalance(acc);
                 Logger.Info($"Account: {acc}");
                 Logger.Info($"Balance change: {beforeBalance}=>{afterBalance}, ProfitAmount: {profitAmount}, TransactionFee: {transactionFee}");

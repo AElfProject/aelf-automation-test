@@ -159,7 +159,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             });
             burnResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var txFee = burnResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var txFee = burnResult.TransactionResult.GetDefaultTransactionFee();
             var afterBalance = ContractManager.Token.GetUserBalance(tester, nativeSymbol);
             var afterTokenInfo = ContractManager.Token.GetTokenInfo(nativeSymbol);
 

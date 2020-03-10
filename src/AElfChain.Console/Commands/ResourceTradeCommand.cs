@@ -37,7 +37,7 @@ namespace AElfChain.Console.Commands
                     Amount = tradeAmount,
                     PayLimit = 0
                 }));
-                transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+                transactionFee = transactionResult.TransactionResult.GetDefaultTransactionFee();
             }
 
             if (parameters[1].Equals("sell"))
@@ -48,7 +48,7 @@ namespace AElfChain.Console.Commands
                     Amount = tradeAmount,
                     ReceiveLimit = 0
                 }));
-                transactionFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+                transactionFee = transactionResult.TransactionResult.GetDefaultTransactionFee();
             }
 
             var afterNativeToken = Services.Token.GetUserBalance(parameters[0]);

@@ -123,7 +123,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
             var checkResult = true;
-            var profitTransactionFee = profitResult.TransactionFee.GetDefaultTransactionFee();
+            var profitTransactionFee = profitResult.GetDefaultTransactionFee();
             var afterBalance = Token.GetUserBalance(account);
 
             if (afterBalance + profitTransactionFee != beforeBalance + profitAmount)
@@ -191,7 +191,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (voteResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             var afterElfBalance = Token.GetUserBalance(account);
             var afterVoteBalance = Token.GetUserBalance(account, "VOTE");
-            var transactionFee = voteResult.TransactionFee.GetDefaultTransactionFee();
+            var transactionFee = voteResult.GetDefaultTransactionFee();
             var afterCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
 
             var checkResult = true;

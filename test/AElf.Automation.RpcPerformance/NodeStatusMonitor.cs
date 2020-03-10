@@ -64,7 +64,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
@@ -76,7 +76,7 @@ namespace AElf.Automation.RpcPerformance
                         break;
                     case TransactionResultStatus.Failed:
                         Logger.Error(
-                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.TransactionFee?.GetTransactionFeeInfo()}]",
+                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);

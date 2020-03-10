@@ -84,7 +84,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
             _logger.Info($"organization address is : {organizationAddress}");
-            var fee = result.TransactionFee.GetDefaultTransactionFee();
+            var fee = result.GetDefaultTransactionFee();
             _logger.Info($"Transaction fee is {fee}");
 
             var organization =

@@ -303,7 +303,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = 40_00000000L
             });
             withdrawResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var txFee = withdrawResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var txFee = withdrawResult.TransactionResult.GetDefaultTransactionFee();
             var afterBalance = ContractManager.Token.GetUserBalance(investor, PrimarySymbol);
             beforeBalance.ShouldBe(afterBalance + txFee - 40_00000000);
 
@@ -344,7 +344,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = 10_00000000L
             });
             withdrawResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var txFee = withdrawResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var txFee = withdrawResult.TransactionResult.GetDefaultTransactionFee();
             var afterBalance = ContractManager.Token.GetUserBalance(investor, PrimarySymbol);
             beforeBalance.ShouldBe(afterBalance + txFee - 10_00000000);
         }

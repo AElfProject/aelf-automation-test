@@ -49,7 +49,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Amount = 50_00000000
             });
             donateResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var transactionFee = donateResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var transactionFee = donateResult.TransactionResult.GetDefaultTransactionFee();
             var afterBalance = ContractManager.Token.GetUserBalance(tester);
             beforeBalance.ShouldBe(afterBalance + transactionFee + 50_00000000);
 

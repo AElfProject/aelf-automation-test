@@ -155,7 +155,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Spender = creator
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var txFee = transactionResult.TransactionResult.TransactionFee.GetDefaultTransactionFee();
+            var txFee = transactionResult.TransactionResult.GetDefaultTransactionFee();
             txFee.ShouldBeGreaterThan(0);
         }
 

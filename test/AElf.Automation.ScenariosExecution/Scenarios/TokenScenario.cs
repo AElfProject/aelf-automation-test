@@ -76,7 +76,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (existed) return;
                 transferTxResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var transferFee = transferTxResult.TransactionFee.GetDefaultTransactionFee();
+                var transferFee = transferTxResult.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
                 var result = true;
@@ -168,12 +168,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.Mined)
                 {
-                    beforeBalances[tx.From] -= tx.Amount + transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.From] -= tx.Amount + transactionResult.GetDefaultTransactionFee();
                     beforeBalances[tx.To] += tx.Amount;
                 }
                 else if (status == TransactionResultStatus.Failed) // failed tx only check tx fee
                 {
-                    beforeBalances[tx.From] -= transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.From] -= transactionResult.GetDefaultTransactionFee();
                 }
                 else
                 {
@@ -277,12 +277,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 if (status == TransactionResultStatus.Mined)
                 {
-                    beforeBalances[tx.From] += tx.Amount - transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.From] += tx.Amount - transactionResult.GetDefaultTransactionFee();
                     beforeBalances[tx.To] -= tx.Amount;
                 }
                 else if (status == TransactionResultStatus.Failed) // failed tx only check tx fee
                 {
-                    beforeBalances[tx.From] -= transactionResult.TransactionFee.GetDefaultTransactionFee();
+                    beforeBalances[tx.From] -= transactionResult.GetDefaultTransactionFee();
                 }
                 else
                 {
@@ -351,7 +351,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (existed) return; //check tx whether existed
                 if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
 
-                var transactionFee = transactionResult.TransactionFee.GetDefaultTransactionFee();
+                var transactionFee = transactionResult.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);
                 var afterAllowance = Token.GetAllowance(from, to);

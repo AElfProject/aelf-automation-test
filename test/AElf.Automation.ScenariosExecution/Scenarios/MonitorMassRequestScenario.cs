@@ -80,10 +80,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void QueryContractInfo()
         {
-            var genesisStub = Services.GenesisService.GetGensisStub();
-            var contracts =
-                AsyncHelper.RunSync(() => genesisStub.GetDeployedContractAddressList.CallAsync(new Empty()));
-            Parallel.ForEach(contracts.Value,
+            var contracts = Services.GenesisService.GetAllSystemContracts().Values;
+            Parallel.ForEach(contracts,
                 contract =>
                 {
                     $"QueryContractInfo: Contract={contract.GetFormatted()}".WriteSuccessLine();

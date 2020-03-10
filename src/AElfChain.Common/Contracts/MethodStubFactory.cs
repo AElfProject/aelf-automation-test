@@ -60,7 +60,7 @@ namespace AElfChain.Common.Contracts
                     status = resultDto.Status.ConvertTransactionResultStatus();
                 }
 
-                var transactionFee = resultDto.TransactionFee.ConvertTransactionFeeDto();
+                var transactionFee = resultDto.ConvertTransactionFeeDto();
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
