@@ -274,9 +274,12 @@ namespace AElf.Automation.ProposalTest
                 var sender = key.Value.ProposerWhiteList.Proposers.First();
                 foreach (var proposalId in value)
                 {
+                    var toBeReleased = Association.CheckProposal(proposalId).ToBeReleased;
+                    if (!toBeReleased) continue;
                     var balance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
                     Association.SetAccount(sender.GetFormatted());
                     var result = Association.ExecuteMethodWithResult(AssociationMethod.Release, proposalId);
+                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                     var newBalance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }
