@@ -8,6 +8,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.DtoExtension;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -28,7 +29,7 @@ private ILog Logger { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string BpAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 //        private static string RpcUrl { get; } = "18.212.240.254:8000";
-        private static string RpcUrl { get; } = "192.168.197.14:8000";
+        private static string RpcUrl { get; } = "192.168.197.40:8000";
         private string Symbol { get; } = "TEST";
         private List<string> ResourceSymbol = new List<string> {"CPU", "NET", "DISK", "RAM","READ", "WRITE", "STORAGE", "TRAFFIC"};
 
@@ -145,6 +146,32 @@ private ILog Logger { get; set; }
                 var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = symbol});
                 info.Burned.ShouldBe(1000_00000000);
                 info.Supply.ShouldBe(info.TotalSupply - info.Burned);
+            }
+        }
+
+        [TestMethod]
+        [DataRow("uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe")]
+        public async Task TransferResourceToContract(string contract)
+        {
+            foreach (var resource in ResourceSymbol)
+            {
+                await _tokenSub.Transfer.SendAsync(new TransferInput
+                {
+                    To = contract.ConvertAddress(),
+                    Amount = 50000_00000000L,
+                    Symbol = resource,
+                    Memo = "transfer resource"
+                });
+            }
+
+            foreach (var resource in ResourceSymbol)
+            {
+                var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = resource,
+                    Owner = contract.ConvertAddress()
+                });
+                Logger.Info($"Token: {resource}, Balance: {balance.Balance}");
             }
         }
     }

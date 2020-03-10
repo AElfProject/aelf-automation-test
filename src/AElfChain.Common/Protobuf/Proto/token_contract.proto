@@ -33,35 +33,39 @@ service TokenContract {
     }
     rpc Burn (BurnInput) returns (google.protobuf.Empty) {
     }
-    rpc RegisterNativeAndResourceTokenInfo(RegisterNativeAndResourceTokenInfoInput) returns (google.protobuf.Empty) {
-    }
-    rpc RegisterNativeTokenInfo(RegisterNativeTokenInfoInput) returns (google.protobuf.Empty) {
+    rpc SetPrimaryTokenSymbol (SetPrimaryTokenSymbolInput) returns (google.protobuf.Empty) {
     }
     rpc CrossChainTransfer (CrossChainTransferInput) returns (google.protobuf.Empty) {
     }
     rpc CrossChainReceiveToken (CrossChainReceiveTokenInput) returns (google.protobuf.Empty) {
     }
-    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {        
+    rpc CrossChainCreateToken(CrossChainCreateTokenInput) returns (google.protobuf.Empty) {
     }
-    //be used in kernel
+
+    // acs1
     rpc ClaimTransactionFees (google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
-    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (aelf.TransactionFee) {
-    }
-    rpc DonateResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
-    }
-    rpc ChargeResourceToken (ChargeResourceTokenInput) returns (aelf.ConsumedResourceTokens) {
-    }
-    rpc CheckResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
-    }
-    rpc CheckThreshold (CheckThresholdInput) returns (google.protobuf.Empty) {
+    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (google.protobuf.BoolValue) {
     }
     rpc SetSymbolsToPayTxSizeFee (SymbolListToPayTxSizeFee) returns (google.protobuf.Empty){
     }
-    rpc UpdateCoefficientsForContract (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
-    }
     rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
+
+    // acs5
+    rpc CheckThreshold (CheckThresholdInput) returns (google.protobuf.Empty) {
+    }
+
+    // acs8
+    rpc DonateResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc ChargeResourceToken (ChargeResourceTokenInput) returns (google.protobuf.Empty) {
+    }
+    rpc CheckResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc UpdateCoefficientsForContract (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
+    }
+
     rpc AddTokenWhiteList (AddTokeWhiteListInput) returns (google.protobuf.Empty) {
     }
     rpc SetMinimumProfitsDonationPartsPerHundred (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
@@ -143,10 +147,8 @@ message RegisterNativeTokenInfoInput {
     sint32 issue_chain_id = 8;
 }
 
-message RegisterNativeAndResourceTokenInfoInput {
-    RegisterNativeTokenInfoInput native_token_info = 1;
-    TokenInfoList resource_token_list = 2;
-    TokenInfo chain_primary_token = 3;
+message SetPrimaryTokenSymbolInput {
+    string symbol = 1;
 }
 
 message IssueInput {
@@ -205,11 +207,8 @@ message BurnInput {
 }
 
 message ChargeResourceTokenInput {
-    sint64 traffic_cost = 1;
-    sint64 storage_cost = 2;
-    sint64 read_cost = 3;
-    sint64 write_cost = 4;
-    aelf.Address caller = 5;
+    map<string, sint64> cost_dic = 1;
+    aelf.Address caller = 2;
 }
 
 message TransactionFeeBill {
@@ -334,6 +333,8 @@ message AddTokeWhiteListInput{
 
 message InitializeInput {
     map<string, sint32> resource_amount = 1;
+    sint32 minimum_profits_donation_parts_per_hundred = 2;
+
 }
 
 message UpdateCoefficientsInput {

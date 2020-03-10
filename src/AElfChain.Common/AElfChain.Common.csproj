@@ -17,6 +17,7 @@
         <ProtoContract Include="Protobuf\Proto\acs6.proto" />
         <ProtoContract Include="Protobuf\Proto\acs7.proto" />
         <ProtoContract Include="Protobuf\Proto\acs8.proto" />
+        <ProtoMessage Include="Protobuf\Proto\transaction_fee.proto" />
         <ProtoContract Include="Protobuf\Proto\acs5_plugin_test_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_function_contract.proto" />

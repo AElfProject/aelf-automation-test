@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AElf.Client.Service;
 using AElfChain.Common;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
@@ -156,7 +157,11 @@ namespace AElfChain.Console.Commands
             var input = CommandOption.InputParameters(1);
             var transactionId = input[0];
             var resultDto = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(transactionId));
+            var transactionFee = resultDto.GetTransactionFee();
+            var resourceFee = resultDto.GetResourceTokenFee();
             JsonConvert.SerializeObject(resultDto, Formatting.Indented).WriteSuccessLine();
+            $"TxFee: {JsonConvert.SerializeObject(transactionFee, Formatting.Indented)}".WriteSuccessLine();
+            $"ResourceFee: {JsonConvert.SerializeObject(resourceFee, Formatting.Indented)}".WriteSuccessLine();
         }
 
         private void GetTransactionResults()
