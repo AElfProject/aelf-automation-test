@@ -28,7 +28,7 @@ namespace AElf.Automation.ProposalTest
 
         private List<Address> OrganizationList { get; set; }
         private Dictionary<Address, List<Hash>> ProposalList { get; set; }
-        private Dictionary<Address,long> BalanceInfo { get; set; }
+        private Dictionary<Address, long> BalanceInfo { get; set; }
         private ParliamentAuthContract Parliament { get; }
         private TokenContract Token { get; }
 
@@ -65,7 +65,7 @@ namespace AElf.Automation.ProposalTest
                     {
                         MaximalAbstentionThreshold = 10000 - a * i,
                         MaximalRejectionThreshold = 10000 - a * i,
-                        MinimalApprovalThreshold = a * i ,
+                        MinimalApprovalThreshold = a * i,
                         MinimalVoteThreshold = 10000
                     },
                     ProposerAuthorityRequired = true,
@@ -95,7 +95,7 @@ namespace AElf.Automation.ProposalTest
                 else
                 {
                     var organizationAddress =
-                        AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
+                        Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
                     var info = Parliament.GetOrganization(organizationAddress);
                     info.OrganizationAddress.ShouldBe(organizationAddress);
                     info.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(key.ProposalReleaseThreshold
@@ -122,7 +122,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var organizationAddress in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organizationAddress.GetFormatted(), Symbol);
-                if (balance < 100*OrganizationList.Count) continue;
+                if (balance < 100 * OrganizationList.Count) continue;
                 var random = CommonHelper.GenerateRandomNumber(1, MinersCount);
                 Parliament.SetAccount(Miners[random]);
                 var txIdList = new List<string>();
@@ -167,9 +167,9 @@ namespace AElf.Automation.ProposalTest
                     }
                     else
                     {
-                        var proposal = result.ReadableReturnValue.Replace("\"", "");
+                        var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
                         Logger.Info($"Create proposal {proposal} through organization address {key}");
-                        proposalIds.Add(HashHelper.HexStringToHash(proposal));
+                        proposalIds.Add(proposal);
                     }
                 }
 
@@ -206,14 +206,24 @@ namespace AElf.Automation.ProposalTest
                     }
 
                     var otherMiners = Miners.Where(m => !miners.Contains(m)).ToList();
-                    if (otherMiners.Count == 0) {proposalApproveList.Add(proposalId, approveTxIds); continue;}
+                    if (otherMiners.Count == 0)
+                    {
+                        proposalApproveList.Add(proposalId, approveTxIds);
+                        continue;
+                    }
+
                     var abstentionMiner = otherMiners.First();
                     var abstentionTxId = Parliament.Abstain(proposalId, abstentionMiner);
                     var abstentionInfo =
                         new ApproveInfo(nameof(ParliamentMethod.Abstain), abstentionMiner, abstentionTxId);
                     approveTxIds.Add(abstentionInfo);
                     var rejectionMiners = otherMiners.Where(r => !abstentionMiner.Contains(r)).ToList();
-                    if (rejectionMiners.Count ==0) {proposalApproveList.Add(proposalId, approveTxIds); continue;}
+                    if (rejectionMiners.Count == 0)
+                    {
+                        proposalApproveList.Add(proposalId, approveTxIds);
+                        continue;
+                    }
+
                     foreach (var rm in rejectionMiners)
                     {
                         var txId = Parliament.Reject(proposalId, rm);
@@ -252,7 +262,7 @@ namespace AElf.Automation.ProposalTest
         private void ReleaseProposal()
         {
             Logger.Info("Release proposal: ");
-            foreach (var (key,value) in ProposalList)
+            foreach (var (key, value) in ProposalList)
             {
                 foreach (var proposal in value)
                 {
@@ -296,12 +306,13 @@ namespace AElf.Automation.ProposalTest
                 var balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
                 if (balance >= 100_00000000)
                 {
-                    BalanceInfo.Add(organization,balance);
+                    BalanceInfo.Add(organization, balance);
                     continue;
                 }
+
                 Token.TransferBalance(InitAccount, organization.GetFormatted(), 1000_00000000, Symbol);
                 balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
-                BalanceInfo.Add(organization,balance);
+                BalanceInfo.Add(organization, balance);
                 Logger.Info($"{organization} {Symbol} token balance is {balance}");
             }
         }

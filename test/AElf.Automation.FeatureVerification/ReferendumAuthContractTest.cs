@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Acs3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -24,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         public TokenContract Token;
         public ReferendumAuthContract Referendum;
-        public string Symbol;
+        public string Symbol = "ELF";
         protected ContractTester Tester;
         public INodeManager NodeManager { get; set; }
         public AElfClient ApiClient { get; set; }
@@ -33,7 +35,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string TestAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
 
-        private static string RpcUrl { get; } = "http://192.168.197.51:8001";
+        private static string RpcUrl { get; } = "http://192.168.197.14:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -69,16 +71,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     },
                     ProposerWhiteList = new ProposerWhiteList
                     {
-                        Proposers = { InitAccount.ConvertAddress()}
+                        Proposers = {InitAccount.ConvertAddress()}
                     },
-                    
                 });
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
+            var returnValue = result.ReturnValue;
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
             _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
                 Referendum.CallViewMethod<Organization>(ReferendumMethod.GetOrganization,
-                    AddressHelper.Base58StringToAddress(organizationAddress));
+                    organizationAddress);
 
             Tester.TokenService.SetAccount(InitAccount);
             var transfer = Tester.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
@@ -115,7 +118,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 Referendum.ExecuteMethodWithResult(ReferendumMethod.CreateProposal,
                     createProposalInput);
-            var proposal = result.ReadableReturnValue;
+            var returnValue = result.ReturnValue;
+            var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
             _logger.Info($"Proposal is : {proposal}");
         }
 
@@ -141,12 +145,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var beforeBalance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
             _logger.Info($"{InitAccount} token balance is {beforeBalance}");
 
-            var approveResult = Token.ApproveToken(InitAccount, Referendum.ContractAddress, 1000,Token.GetPrimaryTokenSymbol());
+            var approveResult = Token.ApproveToken(InitAccount, Referendum.ContractAddress, 1000,
+                Token.GetPrimaryTokenSymbol());
             approveResult.Status.ShouldBe("MINED");
             Referendum.SetAccount(InitAccount);
             var result =
-                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve,HashHelper.HexStringToHash(proposalId));
-
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, HashHelper.HexStringToHash(proposalId));
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var balance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
             _logger.Info($"{InitAccount} token balance is {balance}");
         }

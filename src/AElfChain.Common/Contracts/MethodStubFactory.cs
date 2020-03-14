@@ -74,7 +74,6 @@ namespace AElfChain.Common.Contracts
                         Status = status,
                         TransactionFee = transactionFee,
                         ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
-                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     }
                     : new TransactionResult
                     {
@@ -97,7 +96,6 @@ namespace AElfChain.Common.Contracts
                         Status = status,
                         TransactionFee = transactionFee,
                         ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
-                        ReadableReturnValue = resultDto.ReadableReturnValue ?? ""
                     };
 
                 var returnByte = resultDto.ReturnValue == null

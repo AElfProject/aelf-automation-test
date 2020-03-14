@@ -5,9 +5,9 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
 using AElf.Kernel;
-using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 using Connector = AElf.Contracts.TokenConverter.Connector;
 using TokenSymbol = AElf.Contracts.TokenConverter.TokenSymbol;
+using TransferInput = AElf.Contracts.MultiToken.TransferInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -32,8 +33,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private TokenContractContainer.TokenContractStub _tokenSub;
         private TokenContractContainer.TokenContractStub _bpTokenSub;
         private TokenContractContainer.TokenContractStub _testTokenSub;
-        private ContractContainer.ContractStub _acs8Sub;
-        private ExecutionPluginForAcs8Contract _acs8Contract;
+        private TransactionFeesContractContainer.TransactionFeesContractStub _acs8Sub;
+        private TransactionFeesContract _acs8Contract;
         private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
         private TokenConverterContractContainer.TokenConverterContractStub _testTokenConverterSub;
 
@@ -43,7 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
 //        private static string RpcUrl { get; } = "18.212.240.254:8000";
 
-        private static string RpcUrl { get; } = "192.168.197.14:8000";
+        private static string RpcUrl { get; } = "52.90.147.175:8000";
         private string Symbol { get; } = "TEST";
 
         private List<string> ResourceSymbol = new List<string>
@@ -57,7 +58,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit("ContractTest");
             Logger = Log4NetHelper.GetLogger();
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-online-test-main");
 
             NodeManager = new NodeManager(RpcUrl);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
@@ -73,9 +74,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
             _testTokenConverterSub = _genesisContract.GetTokenConverterStub(TestAccount);
-//            _acs8Contract = new ExecutionPluginForAcs8Contract(NodeManager,BpAccount,"rRf1ZbizAoWzYxHfBY9h3iMMiN3bYsXbUw81W3yF6UewripQu");
+//            _acs8Contract =  TransactionFeesContract.GetOrDeployTxFeesContract(NodeManager, InitAccount);
+//            _acs8Sub = _acs8Contract.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(BpAccount);
 //            _acs8Contract = new ExecutionPluginForAcs8Contract(SideNode,BpAccount,"2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9");
-//            _acs8Sub = _acs8Contract.GetTestStub<ContractContainer.ContractStub>(BpAccount);
         }
 
         [TestMethod]
@@ -316,7 +317,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
 
-            var cpuResult = await _acs8Sub.CpuConsumingMethod.SendAsync(new Empty());
+            var cpuResult = await _acs8Sub.FailCpuStoConsuming.SendAsync(new Empty());
             Logger.Info(cpuResult.Transaction.Size());
             Logger.Info(cpuResult.TransactionResult);
 

@@ -123,8 +123,8 @@ namespace AElf.Automation.SideChainTests
         {
             foreach (var bp in Miners)
             {
-                var result = Approve(MainServices, bp, proposalId);
-                _logger.Info($"Approve is {result.ReadableReturnValue}");
+                var result = Approve(MainServices, bp, proposalId); 
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 

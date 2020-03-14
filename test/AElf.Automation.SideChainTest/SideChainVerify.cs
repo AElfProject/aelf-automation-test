@@ -32,7 +32,7 @@ namespace AElf.Automation.SideChainTests
         }
 
         #region register
-
+        
         [TestMethod]
         [DataRow("yoMUpJwRmwos5aP9uAXVn8i9d48yCzj3sHugYc4BCMntQVgi3")]
         public void TransferSideChain(string account)
@@ -197,7 +197,7 @@ namespace AElf.Automation.SideChainTests
 
         public void MainChainCrossChainTransferSideChain(ContractServices sideService)
         {
-            var symbols = new[] {"CPU", "NET", "DISK", "RAM","READ", "WRITE", "STORAGE", "TRAFFIC"};
+            var symbols = new[] {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
             var txInfos = new Dictionary<TransactionResultDto, string>();
             foreach (var symbol in symbols)
             {
@@ -533,7 +533,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void GetResourceTokenOnSideChain()
         {
-            var symbols = new[] {"CPU", "NET", "DISK", "RAM","READ", "WRITE", "STORAGE", "TRAFFIC"};
+            var symbols = new[] {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
             foreach (var sideService in SideServices)
             {
                 foreach (var symbol in symbols)
@@ -667,23 +667,22 @@ namespace AElf.Automation.SideChainTests
                 services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
             if (createProposalResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
+            var proposalId =
+                Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(createProposalResult.ReturnValue));
 
             //approve
             var miners = GetMiners(services);
             foreach (var miner in miners)
             {
                 services.ParliamentService.SetAccount(miner.GetFormatted());
-                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                    HashHelper.HexStringToHash(proposalId)
-                );
+                var approveResult =
+                    services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
             }
 
             services.ParliamentService.SetAccount(InitAccount);
             var releaseResult
-                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
+                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, proposalId);
             if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false,
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");

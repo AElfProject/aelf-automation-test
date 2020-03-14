@@ -70,11 +70,9 @@ namespace AElfChain.Common.Contracts
             SetAccount(proposer);
             var proposal = ExecuteMethodWithResult(AssociationMethod.CreateProposal, createProposalInput);
             proposal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = proposal.ReadableReturnValue.Replace("\"", "");
-            Logger.Info($"Proposal {returnValue} created success by {proposer}.");
-            var proposalId =
-                HashHelper.HexStringToHash(returnValue);
-
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));     
+            Logger.Info($"Proposal {proposalId} created success by {proposer}.");
+            
             return proposalId;
         }
 
@@ -102,9 +100,11 @@ namespace AElfChain.Common.Contracts
 
         public Address CreateOrganization(IMessage input)
         {
-            return AddressHelper.Base58StringToAddress(
-                ExecuteMethodWithResult(AssociationMethod.CreateOrganization, input).ReadableReturnValue
-                    .Replace("\"", ""));
+            var result = ExecuteMethodWithResult(AssociationMethod.CreateOrganization, input);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var returnValue = result.ReturnValue;
+            var organizationAddress = Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
+            return organizationAddress;
         }
 
         public Organization GetOrganization(Address organization)

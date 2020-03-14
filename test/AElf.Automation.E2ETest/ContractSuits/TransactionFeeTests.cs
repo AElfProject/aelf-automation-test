@@ -288,8 +288,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
             parliamentProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentProposal.Output;
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
 
             var releaseResult = await ContractManager.ParliamentAuthStub.Release.SendAsync(parliamentProposalId);
@@ -313,9 +312,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(approveProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
-
+            var parliamentProposalId = parliamentCreateProposal.Output;
             var miners = ContractManager.Authority.GetCurrentMiners();
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -343,8 +340,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(approveLeafProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             var newCreateProposalRet = await ContractManager.ParliamentAuthStub.Release.SendAsync(parliamentProposalId);
@@ -368,8 +364,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(approveLeafProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -385,8 +380,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(approveLeafProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -405,8 +399,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(releaseProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -438,9 +431,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
-
+            var parliamentProposalId = parliamentCreateProposal.Output;
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             var releaseRet =
                 ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -464,8 +455,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(approveProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -492,8 +482,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(parliamentProposal);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             var ret = ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -514,8 +503,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(parliamentProposal);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
@@ -534,8 +522,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var parliamentCreateProposal =
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(parliamentProposal);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var returnValue = parliamentCreateProposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            var parliamentProposalId = HashHelper.HexStringToHash(returnValue);
+            var parliamentProposalId = parliamentCreateProposal.Output;
 
             ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
             ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);

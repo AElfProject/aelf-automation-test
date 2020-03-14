@@ -256,9 +256,9 @@ namespace AElf.Automation.SideChainTests
                         Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
                     }
                 });
-            var organization = address.ReadableReturnValue.Replace("\"", "");
-            _logger.Info($"Association organization is: {organization}");
-            return AddressHelper.Base58StringToAddress(organization);
+            var organizationAddress = Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            _logger.Info($"Association organization is: {organizationAddress}");
+            return organizationAddress;
         }
 
         protected Address CreateParliamentOrganization(ContractServices services)
@@ -278,9 +278,8 @@ namespace AElf.Automation.SideChainTests
                     ProposerAuthorityRequired = false,
                     ParliamentMemberProposingAllowed = true
                 });
-            var organization = address.ReadableReturnValue.Replace("\"", "");
-            _logger.Info($"Association organization is: {organization}");
-            return AddressHelper.Base58StringToAddress(organization);
+            var organizationAddress = Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            return organizationAddress;
         }
 
         protected void ApproveWithAssociation(ContractServices tester, Hash proposalId, Address association)

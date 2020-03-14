@@ -62,11 +62,8 @@ namespace AElfChain.Common.Contracts
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
             proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, proposal.TransactionResult.TransactionId.ToHex);
-            var returnValue = proposal.TransactionResult.ReadableReturnValue.Replace("\"", "");
-            Logger.Info($"Proposal {returnValue} created success by {caller ?? CallAddress}.");
-            var proposalId =
-                HashHelper.HexStringToHash(returnValue);
-
+            var proposalId = proposal.Output;
+            Logger.Info($"Proposal {proposalId} created success by {caller ?? CallAddress}."); 
             return proposalId;
         }
         

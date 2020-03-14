@@ -309,20 +309,16 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             if (createProposalResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception(
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
-            var proposalId = createProposalResult.ReadableReturnValue.Replace("\"", "");
-
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(createProposalResult.ReturnValue));  
             //approve
             var miners = GetMiners(services);
             var enumerable = miners as Address[] ?? miners.ToArray();
             foreach (var miner in enumerable)
             {
-                var proposal = HashHelper.HexStringToHash(proposalId);
-                var proposalStatue = services.ParliamentService.CheckProposal(proposal);
+                var proposalStatue = services.ParliamentService.CheckProposal(proposalId);
                 if (proposalStatue.ToBeReleased) goto Release;
                 services.ParliamentService.SetAccount(miner.GetFormatted());
-                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                    proposal
-                );
+                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception(
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");
@@ -331,8 +327,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Release:
             services.ParliamentService.SetAccount(InitAccount);
             var releaseResult
-                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release,
-                    HashHelper.HexStringToHash(proposalId));
+                = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Release, proposalId);
             if (releaseResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 throw new Exception(
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");

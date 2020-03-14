@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using AElf.Client.Dto;
 using AElf.Client.Service;
@@ -287,7 +288,8 @@ namespace AElfChain.Common.Contracts
             {
                 Logger.Info("Deploy contract with authority mode.");
                 var authority = new AuthorityManager(NodeManager, CallAddress);
-                var contractAddress = authority.DeployContractWithAuthority(CallAddress, FileName);
+                var miner = authority.GetCurrentMiners().First();
+                var contractAddress = authority.DeployContractWithAuthority(miner, FileName);
                 ContractAddress = contractAddress.GetFormatted();
                 return;
             }

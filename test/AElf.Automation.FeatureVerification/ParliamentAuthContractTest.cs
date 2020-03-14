@@ -73,11 +73,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposerAuthorityRequired = true,
                     ParliamentMemberProposingAllowed = true
                 });
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             _logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
-                Parliament.GetOrganization(organizationAddress.ConvertAddress());
+                Parliament.GetOrganization(organizationAddress);
             organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(1000);
             organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(1000);
             organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
@@ -112,7 +113,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
-            var proposal = result.ReadableReturnValue;
+            var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             _logger.Info($"Proposal is : {proposal}");
         }
 
@@ -154,8 +155,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Parliament.SetAccount(miner);
                 var result =
                     Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
-                    );
-                _logger.Info($"Approve is {result.ReadableReturnValue}");
+                    ); 
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
 
@@ -174,8 +175,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Parliament.SetAccount(Full);
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
-                );
-            _logger.Info($"Approve is {result.ReadableReturnValue}");
+                ); 
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]

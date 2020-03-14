@@ -4,6 +4,7 @@ using Acs3;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -37,7 +38,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var result = referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 createInput);
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             var calculateOrganization =
                 referendum.CallViewMethod<Address>(ReferendumMethod.CalculateOrganizationAddress,
                     createInput);
@@ -225,7 +227,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var result = referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 createInput);
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             var existResult =
                 referendum.CallViewMethod<BoolValue>(ReferendumMethod.ValidateOrganizationExist, organizationAddress);
             existResult.Value.ShouldBeTrue();

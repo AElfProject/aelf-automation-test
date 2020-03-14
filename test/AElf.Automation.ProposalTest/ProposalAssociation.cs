@@ -93,7 +93,7 @@ namespace AElf.Automation.ProposalTest
                 else
                 {
                     var organizationAddress =
-                        AddressHelper.Base58StringToAddress(result.ReadableReturnValue.Replace("\"", ""));
+                        Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
                     var info = Association.GetOrganization(organizationAddress);
                     info.OrganizationAddress.ShouldBe(organizationAddress);
                     info.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(key.ProposalReleaseThreshold
@@ -175,7 +175,7 @@ namespace AElf.Automation.ProposalTest
                     }
                     else
                     {
-                        var proposal = HashHelper.HexStringToHash(result.ReadableReturnValue.Replace("\"", ""));
+                        var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));      
                         Logger.Info($"Create proposal {proposal} through organization address {key.Key}");
                         proposalIds.Add(proposal);
                     }

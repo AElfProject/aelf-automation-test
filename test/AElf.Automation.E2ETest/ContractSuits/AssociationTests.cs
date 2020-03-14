@@ -4,6 +4,7 @@ using AElf.Contracts.Association;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -35,7 +36,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var result = association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 createInput);
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             var calculateOrganization =
                 association.CallViewMethod<Address>(AssociationMethod.CalculateOrganizationAddress,
                     createInput);
@@ -166,7 +168,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var result = association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 createInput);
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "").ConvertAddress();
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             var existResult =
                 association.CallViewMethod<BoolValue>(AssociationMethod.ValidateOrganizationExist, organizationAddress);
             existResult.Value.ShouldBeTrue();

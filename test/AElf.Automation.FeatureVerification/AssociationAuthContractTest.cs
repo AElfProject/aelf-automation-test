@@ -82,14 +82,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         Proposers = {InitAccount.ConvertAddress()}
                     }
                 });
-            var organizationAddress = result.ReadableReturnValue.Replace("\"", "");
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             _logger.Info($"organization address is : {organizationAddress}");
             var fee = result.GetDefaultTransactionFee();
             _logger.Info($"Transaction fee is {fee}");
 
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                    AddressHelper.Base58StringToAddress(organizationAddress));
+                    organizationAddress );
             organization.OrganizationMemberList.OrganizationMembers.Contains(ReviewAccount2.ConvertAddress())
                 .ShouldBeTrue();
             organization.ProposerWhiteList.Proposers.Contains(InitAccount.ConvertAddress()).ShouldBeTrue();
@@ -100,7 +101,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = Symbol,
                 Amount = 1000,
                 Memo = "transfer to Organization",
-                To = AddressHelper.Base58StringToAddress(organizationAddress)
+                To = organizationAddress
             });
         }
 
@@ -145,7 +146,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result =
                 ContractManager.Association.ExecuteMethodWithResult(AssociationMethod.CreateProposal,
                     createProposalInput);
-            var proposal = result.ReadableReturnValue;
+            var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             _logger.Info($"Proposal is : {proposal}");
         }
 
@@ -168,14 +169,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Association.SetAccount(ReviewAccount1);
             var result = Association.ExecuteMethodWithResult(AssociationMethod.Approve,
                 HashHelper.HexStringToHash(proposalId));
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var byteString =
                 ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(ReceiptCreated))).NonIndexed);
             var info = ReceiptCreated.Parser.ParseFrom(byteString);
             info.ProposalId.ShouldBe(HashHelper.HexStringToHash(proposalId));
             info.ReceiptType.ShouldBe(nameof(AssociationMethod.Approve));
             info.Address.ShouldBe(ReviewAccount1.ConvertAddress());
-
-            _logger.Info($"Approve is {result.ReadableReturnValue}");
         }
 
         [TestMethod]

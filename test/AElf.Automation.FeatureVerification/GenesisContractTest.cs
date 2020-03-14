@@ -368,8 +368,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(Tester.GenesisService.ContractAddress),
                     OrganizationAddress = contractDeploymentController.OwnerAddress
                 });
-            var proposalId = HashHelper.HexStringToHash(proposal.ReadableReturnValue.Replace("\"", ""));
-
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
             ApproveByMiner(Tester, proposalId);
             var release = Tester.ParliamentService.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -406,8 +405,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ToAddress = AddressHelper.Base58StringToAddress(Tester.GenesisService.ContractAddress),
                     OrganizationAddress = contractCodeCheckController.OwnerAddress
                 });
-            var proposalId = HashHelper.HexStringToHash(proposal.ReadableReturnValue.Replace("\"", ""));
-
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
             ApproveByMiner(Tester, proposalId);
             var release = Tester.ParliamentService.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -507,9 +505,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
                     }
                 });
-            var organization = address.ReadableReturnValue.Replace("\"", "");
-            Logger.Info($"Association organization is: {organization}");
-            return AddressHelper.Base58StringToAddress(organization);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            Logger.Info($"Association organization is: {organizationAddress}");
+            return organizationAddress;
         }
 
         private Address CreateParliamentOrganization(ContractTester tester)
@@ -528,9 +527,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     },
                     ProposerAuthorityRequired = false
                 });
-            var organization = address.ReadableReturnValue.Replace("\"", "");
-            Logger.Info($"Association organization is: {organization}");
-            return AddressHelper.Base58StringToAddress(organization);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            Logger.Info($"Association organization is: {organizationAddress}");
+            return organizationAddress;
         }
 
 
