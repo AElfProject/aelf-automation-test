@@ -68,7 +68,7 @@ namespace AElfChain.Common.Managers
             var input = new ContractDeploymentInput
             {
                 Code = ByteString.CopyFrom(code),
-                Category = KernelConstants.CodeCoverageRunnerCategory
+                Category = KernelConstants.DefaultRunnerCategory
             };
             var approveUsers = GetMinApproveMiners();
 
@@ -204,12 +204,12 @@ namespace AElfChain.Common.Managers
         }
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
-            string callUser)
-        {
-            var organization = GetGenesisOwnerAddress();
+            string callUser, Address organization = null)
+        { 
+            var parliamentOrganization = organization ?? GetGenesisOwnerAddress();
             var miners = GetCurrentMiners();
 
-            return ExecuteTransactionWithAuthority(contractAddress, method, input, organization, miners, callUser);
+            return ExecuteTransactionWithAuthority(contractAddress, method, input, parliamentOrganization, miners, callUser);
         }
 
         private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,

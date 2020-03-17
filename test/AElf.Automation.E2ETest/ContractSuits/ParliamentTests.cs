@@ -26,9 +26,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    MaximalAbstentionThreshold = 3000,
-                    MaximalRejectionThreshold = 3000,
-                    MinimalApprovalThreshold = 5000,
+                    MaximalAbstentionThreshold = 2500,
+                    MaximalRejectionThreshold = 2500,
+                    MinimalApprovalThreshold = 7500,
                     MinimalVoteThreshold = 10000
                 },
                 ProposerAuthorityRequired = true,
@@ -46,9 +46,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var organization =
                 parliament.GetOrganization(organizationAddress);
-            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(3000);
-            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(3000);
-            organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(5000);
+            organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(2500);
+            organization.ProposalReleaseThreshold.MaximalRejectionThreshold.ShouldBe(2500);
+            organization.ProposalReleaseThreshold.MinimalApprovalThreshold.ShouldBe(7500);
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(10000);
             organization.ProposerAuthorityRequired.ShouldBeTrue();
             organization.ParliamentMemberProposingAllowed.ShouldBeTrue();

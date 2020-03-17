@@ -1,5 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
+using Acs1;
+using Acs3;
 using AElf.Contracts.Configuration;
+using AElf.Contracts.Parliament;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using Google.Protobuf;
@@ -38,26 +42,51 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var defaultOwner =
                 await ContractManager.ParliamentAuthStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
             var owner = await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
-            if (owner.Equals(defaultOwner))
+            var miners = ContractManager.Authority.GetCurrentMiners();
+            var parliamentStub = ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(miners.First());
+            var createManagerController =
+                await parliamentStub.CreateOrganization.SendAsync(new CreateOrganizationInput
+                {
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold
+                    {
+                        MaximalAbstentionThreshold = 1000,
+                        MaximalRejectionThreshold = 1000,
+                        MinimalApprovalThreshold = 2000,
+                        MinimalVoteThreshold = 2000
+                    }
+                });
+            var newControllerManager = createManagerController.Output;
+            if (owner.OwnerAddress.Equals(defaultOwner))
             {
                 //set to first bp
                 var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                     ContractManager.Configuration.ContractAddress,
                     nameof(ConfigurationMethod.ChangeConfigurationController),
-                    ContractManager.CallAccount,
+                    new AuthorityInfo
+                    {
+                        ContractAddress = ContractManager.ParliamentAuth.Contract,
+                        OwnerAddress = newControllerManager,
+                    }, 
                     ContractManager.CallAddress);
                 releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var newOwner =
                     await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
-                newOwner.ShouldBe(ContractManager.CallAccount);
+                newOwner.ContractAddress.ShouldBe(ContractManager.ParliamentAuth.Contract);
+                newOwner.OwnerAddress.ShouldBe(newControllerManager);
             }
 
             //recover
-            var configurationStub = ContractManager.Genesis.GetConfigurationStub(ContractManager.CallAddress);
-            var transactionResult = await configurationStub.ChangeConfigurationController.SendAsync(defaultOwner);
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            owner = await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
-            owner.ShouldBe(defaultOwner);
+            var setManagerResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, 
+                nameof(ConfigurationMethod.ChangeConfigurationController),
+                new AuthorityInfo
+                {
+                    ContractAddress =  ContractManager.ParliamentAuth.Contract,
+                    OwnerAddress = defaultOwner
+                }, miners.First(),newControllerManager);
+            setManagerResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            owner = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            owner.OwnerAddress.ShouldBe(defaultOwner);
         }
     }
 }
