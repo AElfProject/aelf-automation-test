@@ -254,9 +254,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetResourceTokenInfo_Test()
         {
             var resourceInfos = await ContractManager.TokenStub.GetResourceTokenInfo.CallAsync(new Empty());
-            resourceInfos.Value.Count.ShouldBe(4);
+            resourceInfos.Value.Count.ShouldBe(8);
             var resourceSymbols = resourceInfos.Value.Select(o => o.Symbol);
-            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC"});
+            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC","CPU", "RAM", "DISK", "NET"});
 
             resourceInfos.Value.ShouldAllBe(o => o.IsBurnable);
             resourceInfos.Value.ShouldAllBe(o => o.Supply == 5_0000_0000_00000000);

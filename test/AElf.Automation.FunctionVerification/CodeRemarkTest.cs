@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -11,81 +12,99 @@ namespace AElf.Automation.ContractsTesting
 {
     public class CodeRemarkTest
     {
-        public string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
+//        public string ContractAddress = "2Nk2R2se5kVvb9QZwrQomc3iMEwc2TN9Z4TUmbgzMHsC7MkD7G";
         public ILog Logger = Log4NetHelper.GetLogger();
-        public string Tester = "mPxf7UnKAGqkKRcwHTHv8Y9eTCG4vfbJpAfV1FLgMDS7wJGzt";
+        public string Tester = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
         public CodeRemarkTest(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            ParallelContract = new BasicWithParallelContract(NodeManager, Tester, ContractAddress);
+            ParallelContract = new TokenContract(NodeManager, Tester);
         }
 
         public INodeManager NodeManager { get; set; }
-        public BasicWithParallelContract ParallelContract { get; set; }
+        public TokenContract ParallelContract { get; set; }
 
         public void ExecuteContractMethodTest()
         {
-            //initialize
-            ParallelContract.ExecuteMethodWithResult(BasicParallelMethod.InitialBasicFunctionWithParallelContract,
-                new InitialBasicFunctionWithParallelContractInput
+            //create
+            var tokenInfo = ParallelContract.GetTokenInfo("PARALLEL");
+            if (tokenInfo.Equals(new TokenInfo()))
+            {
+                ParallelContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
-                    ContractName = "Parallel testing",
-                    Manager = Tester.ConvertAddress(),
-                    MinValue = 100,
-                    MaxValue = 100_000,
-                    MortgageValue = 100_000_00000000
+                    Symbol = "PARALLEL",
+                    TotalSupply = 100000000000000000,
+                    Decimals = 8,
+                    IsBurnable = true,
+                    IsProfitable = true,
+                    TokenName = "Parallel Token",
+                    Issuer = Tester.ConvertAddress()
                 });
-            var toInfos = new List<string>();
+            }
+
             //execute some other transactions
-            //transfer
+            //transfer ELF
             var accounts = new List<string>();
             var genesis = NodeManager.GetGenesisContract();
             var token = genesis.GetTokenContract();
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 20; i++)
             {
                 var acc = NodeManager.GetRandomAccount();
                 accounts.Add(acc);
-                token.TransferBalance(Tester, acc, 100);
+                token.TransferBalance(Tester, acc, 10000_00000000);
             }
 
-            for (var i = 0; i < 100; i++)
+            //issue
+            foreach (var acc in accounts)
+            {
+                ParallelContract.IssueBalance(Tester, acc, 1000_00000000, "PARALLEL");
+            }
+
+            //make transaction conflict
+            for (var i = 0; i < 20; i++)
             {
                 ParallelContract.SetAccount(accounts[i]);
-                var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.UserPlayBet, new BetInput
+                foreach (var acc in accounts)
                 {
-                    Int64Value = (i + 1) * 100
-                });
+                    if (acc.Equals(accounts[i])) continue;
+                    var pTransactionId = ParallelContract.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        To = acc.ConvertAddress(),
+                        Amount = 100,
+                        Symbol = "PARALLEL"
+                    });
+                    Logger.Info($"TransactionId: {pTransactionId}");
 
-                Logger.Info($"TransactionId: {transactionId}");
+                    token.SetAccount(acc);
+                    var eTransactionId = token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        To = accounts[i].ConvertAddress(),
+                        Amount = 100,
+                        Symbol = "ELF"
+                    });
+                    Logger.Info($"TransactionId: {eTransactionId}");
+                }
             }
 
             ParallelContract.CheckTransactionResultList();
             Console.ReadLine();
 
-//            for (var i = 0; i < 100; i++)
-//            {
-//                var address = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
-//                var transactionId = ParallelContract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseWinMoney, new IncreaseWinMoneyInput
-//                {
-//                    First = Tester.ConvertAddress(), Second = address
-//                });
-//                toInfos.Add(address.GetFormatted());
-//                Logger.Info($"TransactionId: {transactionId}, From:{Tester}, To: {address.GetFormatted()}");
-//            }
-
-            ParallelContract.CheckTransactionResultList();
-
-            //query result
-            foreach (var to in toInfos)
+            // send transaction again, and transaction will be non-parallelizable transactions.
+            for (var i = 0; i < 20; i++)
             {
-                var result = ParallelContract.CallViewMethod<TwoUserMoneyOut>(BasicParallelMethod.QueryTwoUserWinMoney,
-                    new QueryTwoUserWinMoneyInput
+                ParallelContract.SetAccount(accounts[i]);
+                foreach (var acc in accounts)
+                {
+                    if (acc.Equals(accounts[i])) continue;
+                    var pTransactionId = ParallelContract.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
-                        First = Tester.ConvertAddress(),
-                        Second = to.ConvertAddress()
+                        To = acc.ConvertAddress(),
+                        Amount = 100,
+                        Symbol = "PARALLEL"
                     });
-                Logger.Info($"to: {result.SecondInt64Value}");
+                    Logger.Info($"TransactionId: {pTransactionId}");
+                }
             }
         }
     }
