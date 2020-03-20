@@ -44,6 +44,49 @@ namespace AElf.Automation.E2ETest.ContractSuits
             AsyncHelper.RunSync(InitializeAuthorizedOrganization);
             AsyncHelper.RunSync(InitializeReferendumAllowance);
         }
+        
+        [TestMethod]
+        public async Task SetAvailableTokenInfos()
+        {
+            var availableTokenInfo = new SymbolListToPayTxSizeFee
+            {
+                SymbolsToPayTxSizeFee =
+                {
+                    new SymbolToPayTxSizeFee
+                    {
+                        TokenSymbol = "ELF",
+                        AddedTokenWeight = 1,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTxSizeFee
+                    {
+                        TokenSymbol = "CPU",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTxSizeFee
+                    {
+                        TokenSymbol = "RAM",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    },
+                    new SymbolToPayTxSizeFee
+                    {
+                        TokenSymbol = "NET",
+                        AddedTokenWeight = 50,
+                        BaseTokenWeight = 1
+                    }
+                }
+            };
+
+            var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
+                availableTokenInfo, ContractManager.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var symbolListInfo = await QueryAvailableTokenInfos();
+            symbolListInfo.ShouldBe(availableTokenInfo);
+        }
 
         [TestMethod]
         public async Task Update_Storage_With_Developer()
@@ -161,8 +204,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Value =
                 {
                     pieceUpperBound1,
-                    1, 1, 700,
-                    0, 10000, 500000000
+                    1, 1, 900,
+                    0, 1, 100000000
                 }
             };
             var piece2 = new CalculateFeePieceCoefficients
@@ -170,8 +213,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Value =
                 {
                     pieceUpperBound2,
-                    1, 1, 800,
-                    2, 1, 40000
+                    1, 1, 1000,
+                    2, 1, 50000
                 }
             };
             var updateInput = new UpdateCoefficientsInput
@@ -263,6 +306,24 @@ namespace AElf.Automation.E2ETest.ContractSuits
             Logger.Info($"User RootController: {UserFeeAddresses.RootController}");
             Logger.Info($"User ParliamentController: {UserFeeAddresses.ParliamentController}");
             Logger.Info($"User ReferendumController: {UserFeeAddresses.ReferendumController}");
+        }
+        
+        private async Task<SymbolListToPayTxSizeFee> QueryAvailableTokenInfos()
+        {
+            var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
+            if (tokenInfos.Equals(new SymbolListToPayTxSizeFee()))
+            {
+                Logger.Info("GetAvailableTokenInfos: Null");
+                return null;
+            }
+
+            foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
+            {
+                Logger.Info(
+                    $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
+            }
+
+            return tokenInfos;
         }
 
         #region Developer actions
