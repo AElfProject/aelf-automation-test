@@ -109,20 +109,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task GetDeployedContracts()
-        {
-            const string endpoint = "18.162.41.20:8000";
-            var nodeManager = new NodeManager(endpoint);
-
-            var genesis = GenesisContract.GetGenesisContract(nodeManager);
-            var genesisStub = genesis.GetGensisStub();
-
-            var contractList = await genesisStub.GetDeployedContractAddressList.CallAsync(new Empty());
-            Console.WriteLine($"Total deployed contracts: {contractList.Value.Count}");
-            Console.WriteLine(contractList.Value);
-        }
-
-        [TestMethod]
         public void ProtoTypeConvertTest()
         {
             var create = new CreateInput

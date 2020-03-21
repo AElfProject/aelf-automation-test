@@ -31,9 +31,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task CurrentContractSerialNumber()
         {
-            var contracts = await ContractManager.GenesisStub.GetDeployedContractAddressList.CallAsync(new Empty());
             var serialNumber = await ContractManager.GenesisStub.CurrentContractSerialNumber.CallAsync(new Empty());
-            contracts.Value.Count.ShouldBe((int)serialNumber.Value);
+            serialNumber.Value.ShouldBeGreaterThan(1U);
         }
 
         [TestMethod]

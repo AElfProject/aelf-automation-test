@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Acs3;
 using AElf;
