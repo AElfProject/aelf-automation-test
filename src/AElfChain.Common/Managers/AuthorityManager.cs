@@ -188,6 +188,11 @@ namespace AElfChain.Common.Managers
             return _parliament.GetGenesisOwnerAddress();
         }
 
+        public long GetPeriod()
+        {
+            return _consensus.GetCurrentTermInformation();
+        }
+
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             Address organizationAddress, IEnumerable<string> approveUsers, string callUser)
         {

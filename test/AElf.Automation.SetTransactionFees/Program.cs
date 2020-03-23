@@ -12,7 +12,7 @@ namespace AElf.Automation.SetTransactionFees
 {
     internal class Program
     {
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private static  ILog Logger { get; set; }
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.43:8100";
@@ -41,7 +41,8 @@ namespace AElf.Automation.SetTransactionFees
         {
             //Init Logger
             Log4NetHelper.LogInit("ContractFee");
-            
+            Logger = Log4NetHelper.GetLogger();
+
             if (ConfigFile == null)
             {
                 var configPath = CommonHelper.MapPath("config");

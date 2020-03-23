@@ -46,10 +46,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private static string RpcUrl { get; } = "52.90.147.175:8000";
         private string Symbol { get; } = "TEST";
-
-        private List<string> ResourceSymbol = new List<string>
-            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
-
+        
 //        private List<string> SideChainSymbol = new List<string> {"EPC","EDA","EDB","EDC","EDD"};
         private List<string> SideChainSymbol = new List<string> {"STA", "STB"};
 
@@ -74,9 +71,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
             _testTokenConverterSub = _genesisContract.GetTokenConverterStub(TestAccount);
-//            _acs8Contract =  TransactionFeesContract.GetOrDeployTxFeesContract(NodeManager, InitAccount);
-//            _acs8Sub = _acs8Contract.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(BpAccount);
-//            _acs8Contract = new ExecutionPluginForAcs8Contract(SideNode,BpAccount,"2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9");
         }
 
         [TestMethod]
@@ -304,50 +298,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = await _tokenConverterSub.GetPairConnector.CallAsync(new TokenSymbol {Symbol = "STA"});
             Logger.Info($"{result}");
         }
-
-        [TestMethod]
-        public async Task Acs8ContractTest()
-        {
-            var acs8Contract = _acs8Contract.ContractAddress;
-
-            foreach (var s in ResourceSymbol)
-            {
-                var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = AddressHelper.Base58StringToAddress(acs8Contract), Symbol = s});
-                Logger.Info($"{s} balance is {balance.Balance}");
-            }
-
-            var cpuResult = await _acs8Sub.FailCpuStoConsuming.SendAsync(new Empty());
-            Logger.Info(cpuResult.Transaction.Size());
-            Logger.Info(cpuResult.TransactionResult);
-
-            foreach (var s in ResourceSymbol)
-            {
-                var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = AddressHelper.Base58StringToAddress(acs8Contract), Symbol = s});
-                Logger.Info($"{s} balance is {balance.Balance}");
-            }
-
-//            //net
-//            var randomBytes = CommonHelper.GenerateRandombytes(1000);
-//            var netResult = await _acs8Sub.NetConsumingMethod.SendAsync(new NetConsumingMethodInput
-//            {
-//                Blob = ByteString.CopyFrom(randomBytes)
-//            });
-//            Logger.Info(netResult.Transaction.Size());
-//            Logger.Info(netResult.TransactionResult);
-//
-//            //sto
-//            var stoResult = await _acs8Sub.StoConsumingMethod.SendAsync(new Empty());
-//            Logger.Info(stoResult.Transaction.Size());
-//            Logger.Info(stoResult.TransactionResult);
-//
-//            //few
-//            var fewResult = await _acs8Sub.FewConsumingMethod.SendAsync(new Empty());
-//            Logger.Info(fewResult.Transaction.Size());
-//            Logger.Info(fewResult.TransactionResult);
-        }
-
+        
         private async Task CreateToken(long amount)
         {
             var result = await _bpTokenSub.Create.SendAsync(new CreateInput

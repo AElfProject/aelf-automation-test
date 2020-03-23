@@ -51,7 +51,8 @@ namespace AElfChain.Common.Contracts
         GetCrossChainTransferTokenContractAddress,
         GetMethodFee,
         GetOwningRental,
-        GetLockedAmount
+        GetLockedAmount,
+        GetMethodFeeController
     }
 
     public class TokenContract : BaseContract<TokenMethod>

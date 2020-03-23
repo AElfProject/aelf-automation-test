@@ -259,7 +259,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
             resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC","CPU", "RAM", "DISK", "NET"});
 
             resourceInfos.Value.ShouldAllBe(o => o.IsBurnable);
-            resourceInfos.Value.ShouldAllBe(o => o.Supply == 5_0000_0000_00000000);
             resourceInfos.Value.ShouldAllBe(o => o.TotalSupply == 5_0000_0000_00000000);
             resourceInfos.Value.ShouldAllBe(o => o.Decimals == 8);
 
