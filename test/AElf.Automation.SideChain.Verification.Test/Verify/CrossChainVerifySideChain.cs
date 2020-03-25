@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Acs7;
 using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using Google.Protobuf.WellKnownTypes;

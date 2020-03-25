@@ -243,7 +243,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         Beneficiary = Investors[id].ConvertAddress(),
                         SchemeManager = DAppContract.Contract,
-                        Symbol = AppSymbol
                     });
                 claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -269,7 +268,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         Beneficiary = Investors[id].ConvertAddress(),
                         SchemeManager = DAppContract.Contract,
-                        Symbol = PrimarySymbol
                     });
                 claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -314,7 +312,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Beneficiary = investor.ConvertAddress(),
                     SchemeManager = DAppContract.Contract,
-                    Symbol = PrimarySymbol
                 });
             claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             afterBalance = ContractManager.Token.GetUserBalance(investor, PrimarySymbol);

@@ -103,8 +103,7 @@ namespace AElfChain.Common.Contracts
             var newTester = GetNewTester(account);
             return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
-                SchemeId = schemeId,
-                Symbol = NodeOption.NativeTokenSymbol
+                SchemeId = schemeId
             }).Value;
         }
 

@@ -68,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     if (isMainChain)
                         performance.DeployContractsWithAuthority();
-                    else if (chainId.Equals("tDVV"))
+                    else if (chainId.Equals("tDVW"))
                         performance.SideChainDeployContractsWithCreator();
                     else
                         performance.SideChainDeployContractsWithAuthority();

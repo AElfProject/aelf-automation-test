@@ -31,6 +31,7 @@ namespace AElfChain.Common.Contracts
         QueryCurrentDividendsForVoters,
         QueryMinedBlockCountInCurrentTerm,
         GetAvailableDividends,
+        ContributeToSideChainDividendsPool,
 
         AnnounceElection,
         QuitElection,

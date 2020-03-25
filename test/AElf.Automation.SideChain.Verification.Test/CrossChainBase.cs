@@ -402,7 +402,13 @@ namespace AElf.Automation.SideChain.Verification
             var transactionHeight = infos.BlockHeight;
             return indexParentBlock > transactionHeight;
         }
-        
+
+        protected bool CheckSideChainPrivilegePreserved(ContractServices services)
+        {
+            return MainChainService.CrossChainService.GetChainInitializationData(services.ChainId)
+                .ChainCreatorPrivilegePreserved;
+        }
+
         protected void UnlockAccounts(ContractServices services,List<string> accountList)
         {
             services.NodeManager.ListAccounts();

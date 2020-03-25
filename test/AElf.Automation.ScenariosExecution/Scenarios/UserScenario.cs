@@ -116,8 +116,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                SchemeId = schemeId,
-                Symbol = NodeOption.NativeTokenSymbol
+                SchemeId = schemeId
             }, out var existed);
             if (existed) return; //if found tx existed and return
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;

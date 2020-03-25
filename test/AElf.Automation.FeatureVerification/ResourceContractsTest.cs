@@ -29,7 +29,7 @@ private ILog Logger { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string BpAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 //        private static string RpcUrl { get; } = "18.212.240.254:8000";
-        private static string RpcUrl { get; } = "192.168.197.40:8000";
+        private static string RpcUrl { get; } = "192.168.197.14:8000";
         private string Symbol { get; } = "TEST";
         private List<string> ResourceSymbol = new List<string> {"CPU", "NET", "DISK", "RAM","READ", "WRITE", "STORAGE", "TRAFFIC"};
 

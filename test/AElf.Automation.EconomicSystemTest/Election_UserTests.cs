@@ -25,10 +25,16 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(0, 100)]
+        [DataRow(10, 300)]
+        [DataRow(11, 300)]
+        [DataRow(12, 300)]
+        [DataRow(13, 300)]
+        [DataRow(14, 300)]
+        [DataRow(15, 300)]
+        [DataRow(16, 300)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
-            var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 100, amount);
+            var voteResult = Behaviors.UserVote(InitAccount, FullNodeAddress[no], 100, amount);
 
             voteResult.ShouldNotBeNull();
             voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);

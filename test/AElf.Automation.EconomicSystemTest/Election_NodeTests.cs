@@ -1,4 +1,5 @@
 using System.Linq;
+using AElf.Contracts.Election;
 using AElfChain.Common.Contracts;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
@@ -61,6 +62,30 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetVotesInformationResult(int nodeId)
         {
             var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
+        }
+        
+        [TestMethod]
+        public void GetVoteStatus()
+        {
+            var termNumber =
+                Behaviors.ConsensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetCurrentTermNumber,
+                    new Empty()).Value;
+            var voteMessage = $"TermNumber={termNumber}, candidates got vote keys info: \r\n";
+            var candidateList = Behaviors.GetCandidates();
+            foreach (var fullNode in candidateList.Value)
+            {
+                var candidateVote = Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
+                    new StringValue
+                    {
+                        Value = fullNode.ToHex()
+                    });
+                if (candidateVote.Equals(new CandidateVote()))
+                    continue;
+                voteMessage +=
+                    $" {fullNode.ToHex()} All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
+            }
+
+            _logger.Info(voteMessage);
         }
 
         [TestMethod]

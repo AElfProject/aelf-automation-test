@@ -37,6 +37,7 @@ namespace AElf.Automation.SideChainTests
         public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
         public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public string InitAccount;
+        public string TestAccount = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
         public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
         public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
 
