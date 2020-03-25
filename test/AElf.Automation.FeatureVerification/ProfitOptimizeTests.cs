@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Acs1;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
-using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Types;
 using AElfChain.Common;
@@ -192,11 +191,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     });
                 if (profitDetails.Equals(new ProfitDetails())) continue;
                 //take profit
-                var profitAmount = await ContractManager.ProfitStub.GetProfitAmount.CallAsync(new ClaimProfitsInput
+                var profitAmount = await ContractManager.ProfitStub.GetProfitAmount.CallAsync(new GetProfitAmountInput
                 {
                     SchemeId = Schemes[SchemeType.MinerBasicReward].SchemeId,
                     Beneficiary = bpUser.ConvertAddress(),
-                    Symbol = symbol
                 });
                 Logger.Info($"{bpUser}: {symbol} = {profitAmount.Value}");
                 if (profitAmount.Value > 0)
@@ -206,7 +204,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         SchemeId = Schemes[SchemeType.MinerBasicReward].SchemeId,
                         Beneficiary = bpUser.ConvertAddress(),
-                        Symbol = symbol
                     });
                     claimResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }

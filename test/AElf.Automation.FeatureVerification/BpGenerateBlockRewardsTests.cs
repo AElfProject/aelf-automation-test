@@ -96,7 +96,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Beneficiary = acc.ConvertAddress(),
                     SchemeId = schemeId,
-                    Symbol = NodeManager.GetPrimaryTokenSymbol()
                 });
                 claimProfitResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var transactionFee = claimProfitResult.TransactionResult.GetDefaultTransactionFee();
