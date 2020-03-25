@@ -231,8 +231,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 _profit.SetAccount(miner);
                 var profitResult = _profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
                 {
-                    SchemeId = schemeId,
-                    Symbol = NodeOption.NativeTokenSymbol
+                    SchemeId = schemeId
                 });
                 profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var claimProfitsFee = TransactionFeeCharged.Parser.ParseFrom(ByteString.FromBase64(profitResult.Logs
