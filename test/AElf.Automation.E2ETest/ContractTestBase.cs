@@ -31,8 +31,8 @@ namespace AElf.Automation.E2ETest
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();
         }
-        public static string MainConfig = "nodes-env1-main";
-        public static string SideConfig = "nodes-env1-side1";
+        public static string MainConfig = "nodes-env2-main";
+        public static string SideConfig = "nodes-env2-side1";
         
         public void TransferToNodes()
         {

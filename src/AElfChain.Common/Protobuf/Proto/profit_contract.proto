@@ -76,6 +76,7 @@ message Scheme {
     aelf.Hash scheme_id = 9;
     sint32 delay_distribute_period_count = 10;
     map<sint64, sint64> cached_delay_total_shares = 11;// period -> total shares, max elements count should be delay_distribute_period_count
+    repeated string received_token_symbols = 12;
 }
 
 message SchemeBeneficiaryShare {
@@ -119,8 +120,7 @@ message ClaimProfitsInput {
 message DistributeProfitsInput {
     aelf.Hash scheme_id = 1;
     sint64 period = 2;
-    sint64 amount = 3;
-    string symbol = 4;
+    map<string, sint64> amounts_map = 3;
 }
 
 message ProfitDetails {
@@ -156,7 +156,7 @@ message RemoveSubSchemeInput {
 
 message DistributedProfitsInfo {
     sint64 total_shares = 1;
-    map<string, sint64> profits_amount = 2;
+    map<string, sint64> amounts_map = 2;
     bool is_released = 3;
 }
 
