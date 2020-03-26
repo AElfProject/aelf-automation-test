@@ -38,9 +38,6 @@ service AEDPoSContract {
     
     rpc ContributeToSideChainDividendsPool (ContributeToSideChainDividendsPoolInput) returns (google.protobuf.Empty) {
     }
-    
-    rpc ContributeToSideChainDividendsPool (ContributeToSideChainDividendsPoolInput) returns (google.protobuf.Empty) {
-    }
 
     // Views
     rpc GetCurrentMinerList (google.protobuf.Empty) returns (MinerList) {
@@ -253,11 +250,6 @@ message LatestPubkeyToTinyBlocksCount {
 message ContributeToSideChainDividendsPoolInput {
     string symbol = 1;
     int64 amount = 2;
-}
-
-message ContributeToSideChainDividendsPoolInput {
-    string symbol = 1;
-    sint64 amount = 2;
 }
 
 // Events

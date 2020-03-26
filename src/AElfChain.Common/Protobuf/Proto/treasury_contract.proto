@@ -91,10 +91,6 @@ message SymbolList {
     repeated string value = 1;
 }
 
-message SymbolList {
-    repeated string value = 1;
-}
-
 // Events
 
 message DonationReceived {
