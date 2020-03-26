@@ -9,6 +9,7 @@ using Acs7;
 using Acs8;
 using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
+using AElf.Contracts.ConfigurationOnly;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;

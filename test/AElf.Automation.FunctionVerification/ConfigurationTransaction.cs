@@ -1,11 +1,10 @@
-using System;
 using System.IO;
 using System.Linq;
 using Acs0;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.Configuration;
+using AElf.Contracts.ConfigurationOnly;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -78,7 +77,7 @@ namespace AElf.Automation.ContractsTesting
             var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput
             {
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                Value = new Int32Value {Value = transactionCount}.ToByteString()
+                Value = new SInt32Value {Value = transactionCount}.ToByteString()
             }).Result;
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"TransactionResult: {result.TransactionResult}");
@@ -89,7 +88,7 @@ namespace AElf.Automation.ContractsTesting
             var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}).Result;
             Logger.Info($"TransactionLimit: {queryResult.Value}");
 
-            return Int32Value.Parser.ParseFrom(queryResult.Value).Value;
+            return SInt32Value.Parser.ParseFrom(queryResult.Value).Value;
         }
     }
 }

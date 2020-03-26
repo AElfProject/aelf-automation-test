@@ -38,7 +38,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task Prepare_TestToken()
+        public void Prepare_TestToken()
         {
             const long BALANCE = 5000_00000000L;
             var symbols = new[] { "STA", "ELF", "RAM", "CPU" };
@@ -186,7 +186,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task Summary_Case()
         {
-            await Prepare_TestToken();
+            Prepare_TestToken();
             await Register_Mortgage_Test();
             await Contribute_SideChainDividendsPool_Test("ELF", 500_00000000L);
             await Contribute_SideChainDividendsPool_Test("RAM", 500_00000000L);

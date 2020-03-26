@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.Configuration;
+using AElf.Contracts.ConfigurationOnly;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -54,7 +54,7 @@ namespace AElf.Automation.RpcPerformance
             int limitCount)
         {
             var beforeResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var beforeValue = Int32Value.Parser.ParseFrom(beforeResult.Value).Value;
+            var beforeValue = SInt32Value.Parser.ParseFrom(beforeResult.Value).Value;
             Logger.Info($"Old transaction limit number: {beforeValue}");
 
             if (beforeValue == limitCount)
@@ -69,7 +69,7 @@ namespace AElf.Automation.RpcPerformance
                 new SetConfigurationInput
                 {
                     Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                    Value = new Int32Value{Value = limitCount}.ToByteString()
+                    Value = new SInt32Value{Value = limitCount}.ToByteString()
                 },
                 gensisOwner,
                 minersList,
@@ -78,7 +78,7 @@ namespace AElf.Automation.RpcPerformance
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var afterResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var afterValue = Int32Value.Parser.ParseFrom(afterResult.Value).Value;
+            var afterValue = SInt32Value.Parser.ParseFrom(afterResult.Value).Value;
             Logger.Info($"New transaction limit number: {afterValue}");
             if (afterValue == limitCount)
                 Logger.Info("Transaction limit set successful.");

@@ -305,7 +305,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var input = new SetConfigurationInput
             {
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                Value = new Int32Value {Value = limit}.ToByteString()
+                Value = new SInt32Value {Value = limit}.ToByteString()
             };
             var transactionResult = contractManager.Authority.ExecuteTransactionWithAuthority(configurationContract.ContractAddress,
                 nameof(ConfigurationMethod.SetConfiguration), input,
@@ -315,7 +315,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var limitResult =
                 await configurationStub.GetConfiguration.CallAsync(new StringValue
                     {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var value = Int32Value.Parser.ParseFrom(limitResult.Value).Value;
+            var value = SInt32Value.Parser.ParseFrom(limitResult.Value).Value;
             Logger.Info($"Block transaction limit: {value}");
         }
     }
