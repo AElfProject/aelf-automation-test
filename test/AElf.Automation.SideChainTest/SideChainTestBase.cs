@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Acs0;
 using Acs3;
@@ -104,7 +105,7 @@ namespace AElf.Automation.SideChainTests
             {
                 var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = transactionId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
@@ -337,7 +338,7 @@ namespace AElf.Automation.SideChainTests
         {
             services.CrossChainService.SetAccount(account);
             var result = services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                 {
                     Value = blockNumber
                 });

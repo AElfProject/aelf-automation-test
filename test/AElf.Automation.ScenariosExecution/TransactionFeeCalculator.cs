@@ -1,5 +1,5 @@
 using System;
-using AElf.Sdk.CSharp;
+using AElf.CSharp.Core;
 
 namespace AElf.Automation.ScenariosExecution
 {

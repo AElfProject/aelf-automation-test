@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using Acs3;
-using AElf;
-using AElf.Client.Dto;
 using AElf.Contracts.Parliament;
+using AElf.CSharp.Core.Extension;
 using AElf.Kernel;
-using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;

@@ -48,7 +48,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (var i = 1; i < term.Value; i++)
             {
                 var termInformation = await ContractManager.ConsensusStub.GetPreviousTermInformation.CallAsync(
-                    new SInt64Value
+                    new Int64Value
                     {
                         Value = i
                     });

@@ -283,42 +283,16 @@ namespace AElfChain.Common.Contracts
 
         private void DeployContract()
         {
-            var requireAuthority = NodeInfoHelper.Config.RequireAuthority;
-            if (requireAuthority)
-            {
-                Logger.Info("Deploy contract with authority mode.");
-                var authority = new AuthorityManager(NodeManager, CallAddress);
-                var miner = authority.GetCurrentMiners().First();
-                var contractAddress = authority.DeployContractWithAuthority(miner, FileName);
-                ContractAddress = contractAddress.GetFormatted();
-                return;
-            }
-
-            Logger.Info("Deploy contract without authority mode.");
-            var txId = NodeManager.DeployContract(CallAddress, FileName);
-            Logger.Info($"Transaction: DeploySmartContract, TxId: {txId}");
-
-            var result = GetContractAddress(txId, out _);
-            if (!result)
-                throw new Exception("Get contract address failed.");
+            Logger.Info("Deploy contract with authority mode.");
+            var authority = new AuthorityManager(NodeManager, CallAddress);
+            var miner = authority.GetCurrentMiners().First();
+            var contractAddress = authority.DeployContractWithAuthority(miner, FileName);
+            ContractAddress = contractAddress.GetFormatted();
         }
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)
         {
             return NodeManager.GenerateRawTransaction(CallAddress, ContractAddress, method, inputParameter);
-        }
-
-        private bool GetContractAddress(string txId, out string contractAddress)
-        {
-            contractAddress = string.Empty;
-            var transactionResult = NodeManager.CheckTransactionResult(txId);
-            if ((transactionResult?.Status).ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                return false;
-
-            contractAddress = transactionResult.ReadableReturnValue.Replace("\"", "");
-            ContractAddress = contractAddress;
-            Logger.Info($"Get contract address: TxId: {txId}, Address: {contractAddress}");
-            return true;
         }
 
         #endregion Methods

@@ -43,9 +43,6 @@ namespace AElfChain.Console.Commands
                 case "TransactionPoolStatus":
                     GetTransactionPoolStatus();
                     break;
-                case "CurrentRoundInformation":
-                    GetCurrentRoundInformation();
-                    break;
                 case "ChainStatus":
                     GetChainStatus();
                     break;
@@ -114,12 +111,6 @@ namespace AElfChain.Console.Commands
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHeightAsync(height, includeTransaction));
             JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
-        }
-
-        private void GetCurrentRoundInformation()
-        {
-            var roundInformation = AsyncHelper.RunSync(ApiClient.GetCurrentRoundInformationAsync);
-            JsonConvert.SerializeObject(roundInformation, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionPoolStatus()
@@ -291,7 +282,6 @@ namespace AElfChain.Console.Commands
                 "BlockByHeight",
                 "ChainStatus",
                 "ContractFileDescriptor",
-                "CurrentRoundInformation",
                 "TaskQueueStatus",
                 "TransactionResult",
                 "TransactionResults",

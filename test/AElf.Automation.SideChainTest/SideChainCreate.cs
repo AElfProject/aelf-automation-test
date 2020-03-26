@@ -6,12 +6,13 @@ using AElf.Contracts.Association;
 using AElfChain.Common;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
+using AElf.CSharp.Core.Extension;
 using AElf.Kernel;
-using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 using SideChainStatus = AElf.Contracts.CrossChain.SideChainStatus;
@@ -261,7 +262,7 @@ namespace AElf.Automation.SideChainTests
             TransferToken(MainServices, InitAccount, OtherAccount, 1000_00000000,
                 MainServices.TokenService.GetPrimaryTokenSymbol());
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
-            var input = new SInt32Value {Value = chainId};
+            var input = new Int32Value {Value = chainId};
             var organization = MainServices.CrossChainService.GetSideChainLifetimeController();
             var createProposal = MainServices.ParliamentService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.DisposeSideChain),

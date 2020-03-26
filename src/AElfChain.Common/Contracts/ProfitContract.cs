@@ -101,7 +101,7 @@ namespace AElfChain.Common.Contracts
         public long GetProfitAmount(string account, Hash schemeId)
         {
             var newTester = GetNewTester(account);
-            return newTester.CallViewMethod<SInt64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
+            return newTester.CallViewMethod<Int64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
             }).Value;

@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Acs3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
+using AElf.CSharp.Core.Extension;
 using AElf.Kernel;
-using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
@@ -131,7 +131,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ReleaseToRootForDeveloperFeeByTwoLayer(proposalId);
 
             var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value
                 {
                     Value = feeType
                 });
@@ -183,7 +183,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ReleaseToRootForDeveloperFeeByTwoLayer(proposalId);
 
             var userCoefficient =
-                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value
                 {
                     Value = feeType
                 });

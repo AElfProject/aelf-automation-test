@@ -259,19 +259,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             [pbr::OriginalName("Ram")] Ram = 2,
             [pbr::OriginalName("Net")] Net = 3,
              */
-            var result = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 0});
+            var result = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 0});
             Logger.Info($"{result}");
 
-            var result1 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 1});
+            var result1 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 1});
             Logger.Info($"{result1}");
 
-            var result2 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 2});
+            var result2 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 2});
             Logger.Info($"{result2}");
 
-            var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 3});
+            var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 3});
             Logger.Info($"{result3}");
 
-            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value{Value = 4});
+            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value{Value = 4});
             Logger.Info($"{result4}");
         }
 

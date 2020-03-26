@@ -9,8 +9,6 @@ using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
-using AElf.CSharp.CodeOps.Validators;
-using AElf.CSharp.Core;
 using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
@@ -638,14 +636,14 @@ namespace AElf.Automation.SideChainTests
 
         private long GetIndexParentHeight(ContractServices services)
         {
-            return services.CrossChainService.CallViewMethod<SInt64Value>(
+            return services.CrossChainService.CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
         }
 
         private long GetIndexSideHeight(ContractServices services)
         {
-            return MainServices.CrossChainService.CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+            return MainServices.CrossChainService.CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new Int32Value {Value = services.ChainId}).Value;
         }
 
         private void Proposal(ContractServices services, IMessage input)
@@ -708,7 +706,7 @@ namespace AElf.Automation.SideChainTests
         {
             var crossChainMerkleProofContext =
                 services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                     {
                         Value = blockHeight
                     });

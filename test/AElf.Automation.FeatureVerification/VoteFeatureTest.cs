@@ -487,7 +487,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void GetVotesCount()
         {
-            var voteCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetVotesCount, new Empty());
+            var voteCount = consensusService.CallViewMethod<Int64Value>(ConsensusMethod.GetVotesCount, new Empty());
             Logger.Info($"Votes count: {voteCount.Value}");
         }
 
@@ -495,7 +495,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetTicketsCount()
         {
             UserVoteAction(5, 1);
-            var ticketsCount = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetTicketsCount, new Empty());
+            var ticketsCount = consensusService.CallViewMethod<Int64Value>(ConsensusMethod.GetTicketsCount, new Empty());
             Logger.Info($"Tickets count: {ticketsCount.Value}");
         }
 
@@ -549,7 +549,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             GetGetCurrentMinersInfo();
             foreach (var miner in CurrentMinersKeys)
             {
-                var blockResult = consensusService.CallViewMethod<SInt64Value>(ConsensusMethod.QueryMinedBlockCountInCurrentTerm, new PublicKey
+                var blockResult = consensusService.CallViewMethod<Int64Value>(ConsensusMethod.QueryMinedBlockCountInCurrentTerm, new PublicKey
                 {
                     Hex = miner
                 });

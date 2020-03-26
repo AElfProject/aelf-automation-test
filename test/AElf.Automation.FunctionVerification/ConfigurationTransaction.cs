@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Acs0;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -65,13 +66,16 @@ namespace AElf.Automation.ContractsTesting
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-
-            return transactionResult.ReadableReturnValue.Replace("\"", "");
+            var byteString =
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+            var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            
+            return deployAddress.GetFormatted();
         }
 
         public void SetTransactionLimit(int transactionCount)
         {
-            var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput()
+            var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput
             {
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
                 Value = new Int32Value {Value = transactionCount}.ToByteString()

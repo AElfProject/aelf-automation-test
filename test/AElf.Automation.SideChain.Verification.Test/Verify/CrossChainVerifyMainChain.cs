@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Acs7;
 using AElf.Client.Dto;
 using AElf.Contracts.CrossChain;
 using AElfChain.Common.Contracts;
