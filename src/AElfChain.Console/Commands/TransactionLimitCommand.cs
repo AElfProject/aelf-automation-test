@@ -29,7 +29,7 @@ namespace AElfChain.Console.Commands
             var limitResult =
                 AsyncHelper.RunSync(() => configurationStub.GetConfiguration.CallAsync(new StringValue
                     {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}));
-            var value = Int32Value.Parser.ParseFrom(limitResult.Value).Value;
+            var value = SInt32Value.Parser.ParseFrom(limitResult.Value).Value;
             $"Block transaction limit: {value}".WriteSuccessLine();
 
             if (parameters.Length == 1)
@@ -48,7 +48,7 @@ namespace AElfChain.Console.Commands
             var input = new SetConfigurationInput
             {
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                Value = new Int32Value {Value = value}.ToByteString()
+                Value = new SInt32Value {Value = value}.ToByteString()
             };
             var transactionResult = Services.Authority.ExecuteTransactionWithAuthority(configuration.ContractAddress,
                 nameof(ConfigurationMethod.SetConfiguration), input,
@@ -58,7 +58,7 @@ namespace AElfChain.Console.Commands
             var queryResult =
                 AsyncHelper.RunSync(() => configurationStub.GetConfiguration.CallAsync(new StringValue
                     {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}));
-            var newValue = Int32Value.Parser.ParseFrom(queryResult.Value).Value;
+            var newValue = SInt32Value.Parser.ParseFrom(queryResult.Value).Value;
             $"New block transaction limit: {newValue}".WriteSuccessLine();
         }
 

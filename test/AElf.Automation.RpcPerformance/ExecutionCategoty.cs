@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Acs0;
 using AElf.Client.Service;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -17,6 +18,7 @@ using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
@@ -112,7 +114,9 @@ namespace AElf.Automation.RpcPerformance
                         {
                             count++;
                             item.Result = true;
-                            var contractPath = transactionResult.ReadableReturnValue.Replace("\"", "");
+                            var byteString =
+                                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                            var contractPath = ContractDeployed.Parser.ParseFrom(byteString).Address.GetFormatted();
                             ContractList.Add(new ContractInfo(AccountList[item.Id].Account, contractPath));
                             break;
                         }

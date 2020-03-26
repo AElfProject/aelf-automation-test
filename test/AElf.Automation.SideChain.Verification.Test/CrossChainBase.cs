@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Acs7;
 using AElfChain.Common.Contracts;
@@ -146,7 +147,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = transactionId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
@@ -167,7 +168,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             var crossChainMerkleProofContext =
                 services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                     {
                         Value = blockHeight
                     });
@@ -293,14 +294,14 @@ namespace AElf.Automation.SideChain.Verification
 
         protected long GetIndexParentHeight(ContractServices services)
         {
-            return services.CrossChainService.CallViewMethod<SInt64Value>(
+            return services.CrossChainService.CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
         }
 
         protected long GetIndexSideHeight(ContractServices services)
         {
-            return MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+            return MainChainService.CrossChainService.CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new Int32Value {Value = services.ChainId}).Value;
         }
         
         protected long MainChainCheckSideChainBlockIndex(ContractServices servicesFrom,

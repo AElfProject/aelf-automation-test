@@ -54,7 +54,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {
                         AcsList = {"acs1","acs8"},
                         RequireAll = false
-                    }.ToByteString(),
+                    }.ToByteString()
                 }, 
                  ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);

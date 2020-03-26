@@ -19,7 +19,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class ResourceContractsTest
     {
-private ILog Logger { get; set; }
+        private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
         private TokenContract _tokenContract;
         private TokenConverterContract _tokenConverterContract;

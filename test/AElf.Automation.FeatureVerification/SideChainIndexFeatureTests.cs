@@ -40,13 +40,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task GetSideChainHeight()
         {
             //index side1
-            var indexHeight1 = await MainManager.CrossChainStub.GetSideChainHeight.CallAsync(new SInt32Value
+            var indexHeight1 = await MainManager.CrossChainStub.GetSideChainHeight.CallAsync(new Int32Value
             {
                 Value = Side1Manager.ChainId
             });
             
             //index side2
-            var indexHeight2 = await MainManager.CrossChainStub.GetSideChainHeight.CallAsync(new SInt32Value
+            var indexHeight2 = await MainManager.CrossChainStub.GetSideChainHeight.CallAsync(new Int32Value
             {
                 Value = Side2Manager.ChainId
             });
@@ -154,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         
         private async Task GetSideChainBalance(int chainId)
         {
-            var balance = await MainManager.CrossChainStub.GetSideChainBalance.CallAsync(new SInt32Value
+            var balance = await MainManager.CrossChainStub.GetSideChainBalance.CallAsync(new Int32Value
             {
                 Value = chainId
             });

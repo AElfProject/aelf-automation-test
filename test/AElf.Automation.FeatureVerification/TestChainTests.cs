@@ -10,7 +10,6 @@ using AElfChain.Common.Managers;
 using AElfChain.Common.DtoExtension;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
-using AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 using AElf.Types;
 using AElfChain.Common.Contracts.Serializer;
 using Google.Protobuf;
@@ -262,30 +261,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balance = token.GetUserBalance(contract, symbol);
                 Logger.Info($"Contract: {symbol}={balance}");
             }
-        }
-
-        [TestMethod]
-        public async Task ExecuteAcs8Contract()
-        {
-            var contract = "KDSkLLtkvKcAmFppPfRUGWdgtrPYVPRzYmCSA56tTaNcjgF7n";
-            var acs8Contract = new ExecutionPluginForAcs8Contract(MainNode, BpAccount, contract);
-            var acs8Stub = acs8Contract.GetTestStub<ContractContainer.ContractStub>(BpAccount);
-
-            var cpuResult = await acs8Stub.CpuConsumingMethod.SendAsync(new Empty());
-            CheckTransactionResult(cpuResult.TransactionResult);
-
-            var netResult = await acs8Stub.NetConsumingMethod.SendAsync(new NetConsumingMethodInput
-            {
-                Blob = ByteString.CopyFrom(CommonHelper.GenerateRandombytes(1024))
-            });
-            CheckTransactionResult(netResult.TransactionResult);
-
-            var stoResult = await acs8Stub.StoConsumingMethod.SendAsync(new Empty());
-            CheckTransactionResult(stoResult.TransactionResult);
-
-            await Task.Delay(3000);
-
-            GetContractResource(contract);
         }
 
         [TestMethod]

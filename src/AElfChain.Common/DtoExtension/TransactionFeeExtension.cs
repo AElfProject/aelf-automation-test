@@ -53,23 +53,6 @@ namespace AElfChain.Common.DtoExtension
             return 0;
         }
         
-        public static TransactionFee ConvertTransactionFeeDto(this TransactionResultDto transactionResultDto)
-        {
-            if (transactionResultDto == null) return null;
-            var values = new MapField<string, long>();
-
-            var fees = transactionResultDto.GetResourceTokenFee();
-            foreach (var fee in fees)
-            {
-                values.Add(fee.Key, fee.Value);
-            }
-
-            return new TransactionFee
-            {
-                Value = {values}
-            };
-        }
-        
         public static Dictionary<string, long> GetResourceTokenFee(this TransactionResultDto transactionResultDto)
         {
             var dic = new Dictionary<string, long>();

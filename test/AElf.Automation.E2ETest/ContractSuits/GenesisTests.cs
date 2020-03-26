@@ -17,14 +17,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var contract = await ContractManager.GenesisStub.GetContractInfo.CallAsync(genesis.Contract);
             contract.Category.ShouldBe(0);
             contract.IsSystemContract.ShouldBeTrue();
-            contract.SerialNumber.ShouldBe(0UL);
+            contract.SerialNumber.ShouldBe(0L);
             contract.Author.ShouldBe(genesis.Contract);
 
             var tokenContract =
                 await ContractManager.GenesisStub.GetContractInfo.CallAsync(ContractManager.Token.Contract);
             tokenContract.Category.ShouldBe(0);
             tokenContract.IsSystemContract.ShouldBeTrue();
-            tokenContract.SerialNumber.ShouldNotBe(0UL);
+            tokenContract.SerialNumber.ShouldNotBe(0L);
             tokenContract.Author.ShouldBe(genesis.Contract);
         }
 
@@ -32,7 +32,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task CurrentContractSerialNumber()
         {
             var serialNumber = await ContractManager.GenesisStub.CurrentContractSerialNumber.CallAsync(new Empty());
-            serialNumber.Value.ShouldBeGreaterThan(0UL);
+            serialNumber.Value.ShouldBeGreaterThan(1U);
         }
 
         [TestMethod]

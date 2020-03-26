@@ -21,18 +21,18 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var beforeTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var beforeValue = Int32Value.Parser.ParseFrom(beforeTxLimit.Value).Value;
+            var beforeValue = SInt32Value.Parser.ParseFrom(beforeTxLimit.Value).Value;
             var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
                 new SetConfigurationInput
                 {
                     Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                    Value = new Int32Value {Value = beforeValue + 10}.ToByteString()
+                    Value = new SInt32Value {Value = beforeValue + 10}.ToByteString()
                 }, ContractManager.CallAddress);
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var afterValue = Int32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
+            var afterValue = SInt32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
             afterValue.ShouldBe(beforeValue + 10);
         }
 

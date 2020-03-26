@@ -64,7 +64,7 @@ namespace AElfChain.Common.Contracts
 
         public List<string> GetInitialMinersPubkey()
         {
-            var roundInfo = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new SInt64Value
+            var roundInfo = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new Int64Value
             {
                 Value = 1
             });

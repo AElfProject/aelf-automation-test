@@ -6,10 +6,10 @@
     "SentTxLimit": 200,
     "ExecuteMode": 4,
     "Timeout": 300,
-    "RandomSenderTransaction": false,
+    "RandomSenderTransaction": true,
     "NodeTransactionLimit": {
         "enable_limit": true,
-        "max_transactions_select": 30
+        "max_transactions_select": 50
     },
     "RequestRandomEndpoint": {
         "enable_random": true,

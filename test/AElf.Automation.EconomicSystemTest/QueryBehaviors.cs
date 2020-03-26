@@ -53,7 +53,7 @@ namespace AElf.Automation.EconomicSystemTest
 
         public int GetMinersCount()
         {
-            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount,
+            return ElectionService.CallViewMethod<Int32Value>(ElectionMethod.GetMinersCount,
                 new Empty()).Value;
         }
 

@@ -1,11 +1,10 @@
-using System;
 using System.Linq;
 using Acs3;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
+using AElf.CSharp.Core.Extension;
 using AElf.Kernel;
-using AElf.Sdk.CSharp;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;

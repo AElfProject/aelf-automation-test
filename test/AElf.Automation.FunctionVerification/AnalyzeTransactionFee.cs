@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Volo.Abp.Threading;
@@ -18,6 +19,7 @@ namespace AElf.Automation.ContractsTesting
         public List<TransactionResultDto> TransactionResultDtos;
         public long TotalBlocks;
         public long TotalTransactions;
+
         public AnalyzeTransactionFee()
         {
             NodeManager = new NodeManager(Endpoint);
@@ -35,7 +37,8 @@ namespace AElf.Automation.ContractsTesting
                 var height = i;
                 try
                 {
-                    var blockInfo = AsyncHelper.RunSync(()=>NodeManager.ApiClient.GetBlockByHeightAsync(height, true));
+                    var blockInfo =
+                        AsyncHelper.RunSync(() => NodeManager.ApiClient.GetBlockByHeightAsync(height, true));
                     if (blockInfo.Body.TransactionsCount != 3)
                     {
                         $"Height: {height}, TxCount: {blockInfo.Body.TransactionsCount}".WriteSuccessLine();
@@ -47,10 +50,11 @@ namespace AElf.Automation.ContractsTesting
                     e.Message.WriteErrorLine();
                 }
             });
-            
+
             TotalTransactions = Blocks.Sum(o => o.Body.TransactionsCount);
             TotalTransactions += 3 * (TotalBlocks - Blocks.Count);
-            $"Total blocks: {TotalBlocks}, Total transactions: {TotalTransactions}, Average transaction: {TotalTransactions/TotalBlocks}".WriteSuccessLine();
+            $"Total blocks: {TotalBlocks}, Total transactions: {TotalTransactions}, Average transaction: {TotalTransactions / TotalBlocks}"
+                .WriteSuccessLine();
         }
 
         public void QueryTransactionsInfo()
@@ -62,12 +66,11 @@ namespace AElf.Automation.ContractsTesting
                 {
                     try
                     {
-                        var transactionResult = AsyncHelper.RunSync(()=>NodeManager.ApiClient.GetTransactionResultAsync(txId));
-                        if (transactionResult.TransactionFee.Value != null)
-                        {
-                            $"TxId: {txId}, Fee: {transactionResult.TransactionFee.Value.Values.First()}".WriteSuccessLine();
-                            TransactionResultDtos.Add(transactionResult);
-                        }
+                        var transactionResult =
+                            AsyncHelper.RunSync(() => NodeManager.ApiClient.GetTransactionResultAsync(txId));
+                        var transactionFee = transactionResult.GetDefaultTransactionFee();
+                        $"TxId: {txId}, Fee: {transactionFee}".WriteSuccessLine();
+                        TransactionResultDtos.Add(transactionResult);
                     }
                     catch (Exception e)
                     {
@@ -83,11 +86,11 @@ namespace AElf.Automation.ContractsTesting
             var count = TransactionResultDtos.Count;
             foreach (var transactionFee in TransactionResultDtos)
             {
-                totalFee += transactionFee.TransactionFee.Value.Values.First();
+                totalFee += transactionFee.GetDefaultTransactionFee();
             }
-            
+
             $"Total blocks: {TotalBlocks}, Total transactions: {TotalTransactions}".WriteSuccessLine();
-            $"Count: {count}, TotalFees: {totalFee}, AverageFee: {totalFee/count}".WriteSuccessLine();
+            $"Count: {count}, TotalFees: {totalFee}, AverageFee: {totalFee / count}".WriteSuccessLine();
         }
     }
 }

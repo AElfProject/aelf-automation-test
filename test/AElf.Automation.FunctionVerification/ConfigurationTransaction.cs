@@ -1,10 +1,10 @@
-using System;
 using System.IO;
+using System.Linq;
 using Acs0;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.Configuration;
+using AElf.Contracts.ConfigurationOnly;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -65,16 +65,19 @@ namespace AElf.Automation.ContractsTesting
                     TransactionMethodCallList =
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
-
-            return transactionResult.ReadableReturnValue.Replace("\"", "");
+            var byteString =
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+            var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            
+            return deployAddress.GetFormatted();
         }
 
         public void SetTransactionLimit(int transactionCount)
         {
-            var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput()
+            var result = _configurationStub.SetConfiguration.SendAsync(new SetConfigurationInput
             {
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                Value = new Int32Value {Value = transactionCount}.ToByteString()
+                Value = new SInt32Value {Value = transactionCount}.ToByteString()
             }).Result;
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"TransactionResult: {result.TransactionResult}");
@@ -85,7 +88,7 @@ namespace AElf.Automation.ContractsTesting
             var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}).Result;
             Logger.Info($"TransactionLimit: {queryResult.Value}");
 
-            return Int32Value.Parser.ParseFrom(queryResult.Value).Value;
+            return SInt32Value.Parser.ParseFrom(queryResult.Value).Value;
         }
     }
 }

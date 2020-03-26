@@ -38,7 +38,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {
-                var creator = await ContractManager.CrossChainStub.GetSideChainCreator.CallAsync(new SInt32Value
+                var creator = await ContractManager.CrossChainStub.GetSideChainCreator.CallAsync(new Int32Value
                 {
                     Value = chainId
                 });
@@ -53,7 +53,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {
-                var balanceInfo = await ContractManager.CrossChainStub.GetSideChainBalance.CallAsync(new SInt32Value
+                var balanceInfo = await ContractManager.CrossChainStub.GetSideChainBalance.CallAsync(new Int32Value
                 {
                     Value = chainId
                 });

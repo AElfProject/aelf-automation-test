@@ -9,6 +9,7 @@ using Acs7;
 using Acs8;
 using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
+using AElf.Contracts.ConfigurationOnly;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;
@@ -30,8 +31,6 @@ using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
 using Google.Protobuf.Reflection;
-using ExecutionAcs5 = AElf.Kernel.SmartContract.ExecutionPluginForAcs5.Tests.TestContract;
-using ExecutionAcs8 = AElf.Kernel.SmartContract.ExecutionPluginForAcs8.Tests.TestContract;
 
 
 namespace AElfChain.Common.Contracts.Serializer
@@ -176,8 +175,6 @@ namespace AElfChain.Common.Contracts.Serializer
                     new List<ServiceDescriptor>
                         {MethodFeeProviderContractContainer.Descriptor, CContractContainer.Descriptor}
                 },
-                {NameProvider.ExecutionAcs5, new List<ServiceDescriptor> {ExecutionAcs5.ContractContainer.Descriptor}},
-                {NameProvider.ExecutionAcs8, new List<ServiceDescriptor> {ExecutionAcs8.ContractContainer.Descriptor}}
             };
 
         public ContractInfo GetContractInfo(NameProvider name)
