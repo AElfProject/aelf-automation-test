@@ -124,8 +124,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("SCPU", 500_00000000L)]
-        [DataRow("SRAM", 500_00000000L)]
+        [DataRow("SCPU", 400_00000000L)]
+        [DataRow("SRAM", 400_00000000L)]
+
         public async Task Contribute_SideChainDividendsPool_Test(string symbol, long amount)
         {
             var secondBp = NodeInfoHelper.Config.Nodes[1].Account;
@@ -198,12 +199,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var profitMap = await SideManager.TokenHolderStub.GetProfitsMap.CallAsync(new ClaimProfitsInput
             {
                 SchemeManager = SideManager.Consensus.Contract,
-                Beneficiary = SideManager.CallAccount
+                Beneficiary = SideManager.CallAccount,
             });
             foreach (var (key, value) in profitMap.Value)
             {
                 Logger.Info($"Profit info {key} = {value}");
             }
+        }
+
+        [TestMethod]
+        public async Task GetScheme_Test()
+        {
+            var scheme = await SideManager.TokenHolderStub.GetScheme.CallAsync(SideManager.Consensus.Contract);
+            Logger.Info(scheme.SchemeId.ToHex());
+
+            var schemeInfo = await SideManager.ProfitStub.GetScheme.CallAsync(scheme.SchemeId);
+            
         }
     }
 }
