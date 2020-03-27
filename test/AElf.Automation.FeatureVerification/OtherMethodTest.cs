@@ -12,7 +12,6 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts.Serializer;
@@ -74,7 +73,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 CandidatePubkey =
                     "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
                 Amount = 100_00000000,
-                EndTimestamp = TimestampHelper.GetUtcNow().AddDays(120)
+                EndTimestamp = KernelHelper.GetUtcNow().AddDays(120)
             };
             var voteOutput = JsonFormatter.Default.Format(voteInput);
         }

@@ -6,9 +6,9 @@ using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Shouldly;
 
@@ -138,7 +138,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = Token.ContractAddress.ConvertAddress(),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddDays(2),
+                        ExpiredTime = KernelHelper.GetUtcNow().AddDays(2),
                         Params = transferInput.ToByteString()
                     };
 

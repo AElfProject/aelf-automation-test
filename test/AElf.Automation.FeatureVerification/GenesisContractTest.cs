@@ -4,12 +4,10 @@ using Acs0;
 using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
-using AElf.Contracts.Genesis;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
@@ -594,7 +592,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var input = new ContractDeploymentInput
             {
-                Category = KernelConstants.DefaultRunnerCategory,
+                Category = KernelHelper.DefaultRunnerCategory,
                 Code = ByteString.CopyFrom(codeArray)
             };
             return input;

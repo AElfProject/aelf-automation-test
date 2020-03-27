@@ -7,10 +7,10 @@ using AElfChain.Common;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -377,7 +377,7 @@ namespace AElf.Automation.SideChainTests
                 Params = adjustIndexingFeeInput.ToByteString(),
                 ContractMethodName = nameof(CrossChainContractMethod.AdjustIndexingFeePrice),
                 OrganizationAddress = address,
-                ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                ExpiredTime = KernelHelper.GetUtcNow().AddDays(1),
                 ToAddress = AddressHelper.Base58StringToAddress(MainServices.CrossChainService.ContractAddress)
             };
             var createProposalToAdjust = MainServices.AssociationService.CreateProposal(

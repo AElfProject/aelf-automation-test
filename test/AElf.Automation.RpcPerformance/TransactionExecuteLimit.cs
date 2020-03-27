@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.ConfigurationOnly;
+using AElf.Contracts.Configuration;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;

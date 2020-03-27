@@ -9,10 +9,10 @@ using AElf.Client.Dto;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -486,48 +486,6 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-
-        [TestMethod]
-        public async Task CrossChainData()
-        {
-            var balance = MainServices.TokenService.GetUserBalance(InitAccount);
-            _logger.Info($"{balance}");
-            var blocks = new List<BlockDto>();
-            for (int i = 511; i < 521; i++)
-            {
-                var block = await SideAServices.NodeManager.ApiClient.GetBlockByHeightAsync(i, true);
-                blocks.Add(block);
-            }
-
-            var crossChainData = new CrossChainBlockData();
-
-            for (int i = 1; i < blocks.Count; i++)
-            {
-                var blockHeader = new BlockHeader(HashHelper.HexStringToHash(blocks[i - 1].BlockHash));
-                var height = blocks[i].Header.Height;
-                var txId = blocks[i].Body.Transactions.First();
-                GetMerklePath(height, txId,
-                    SideAServices, out var root);
-                var sideChainBlockDate = new SideChainBlockData
-                {
-                    ChainId = ChainHelper.ConvertBase58ToChainId("tDVV"),
-                    BlockHeaderHash = Hash.FromMessage(blockHeader),
-                    Height = height,
-                    TransactionStatusMerkleTreeRoot = root
-                };
-                crossChainData.SideChainBlockDataList.Add(sideChainBlockDate);
-            }
-
-            crossChainData.PreviousBlockHeight = 3900;
-
-            var result =
-                MainServices.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,
-                    crossChainData);
-
-            var afterBalance = MainServices.TokenService.GetUserBalance(InitAccount);
-            _logger.Info($"{afterBalance}");
-        }
-
         [TestMethod]
         public void GetResourceTokenOnSideChain()
         {

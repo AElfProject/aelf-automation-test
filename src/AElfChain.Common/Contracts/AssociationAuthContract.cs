@@ -4,9 +4,9 @@ using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -63,7 +63,7 @@ namespace AElfChain.Common.Contracts
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                ExpiredTime = KernelHelper.GetUtcNow().AddDays(1),
                 OrganizationAddress = organizationAddress
             };
             SetAccount(proposer);

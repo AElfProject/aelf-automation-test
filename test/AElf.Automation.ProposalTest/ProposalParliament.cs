@@ -6,7 +6,6 @@ using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -142,7 +141,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(2),
+                        ExpiredTime = KernelHelper.GetUtcNow().AddHours(2),
                         Params = transferInput.ToByteString()
                     };
                     var txId = Parliament.ExecuteMethodWithTxId(ParliamentMethod.CreateProposal, createProposalInput);

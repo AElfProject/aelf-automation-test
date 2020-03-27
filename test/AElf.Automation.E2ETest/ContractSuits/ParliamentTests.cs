@@ -3,10 +3,10 @@ using System.Linq;
 using Acs3;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -182,7 +182,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 ToAddress = parliament.Contract,
                 ContractMethodName = nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(10),
+                ExpiredTime = KernelHelper.GetUtcNow().AddMinutes(10),
                 OrganizationAddress = organizationAddress,
                 Params = changeInput.ToByteString()
             });

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Acs3;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -56,7 +55,7 @@ namespace AElfChain.Common.Contracts
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(10),
+                ExpiredTime = KernelHelper.GetUtcNow().AddMinutes(10),
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));

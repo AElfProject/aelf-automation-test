@@ -10,7 +10,6 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -211,7 +210,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePubkey =
                         "044958d5c48f003c771769f4a31413cd18053516615cbde502441af8452fb53441a80cc48a7f3b0f2552fd030cacbe9012ba055a3d553b70003f2e637d55fa0f23",
                     Amount = 100,
-                    EndTimestamp = TimestampHelper.GetUtcNow().AddDays(voteDay[i]).AddHours(1)
+                    EndTimestamp = KernelHelper.GetUtcNow().AddDays(voteDay[i]).AddHours(1)
                 });
                 voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }

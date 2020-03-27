@@ -8,7 +8,6 @@ using Acs0;
 using Acs3;
 using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -68,7 +67,7 @@ namespace AElfChain.Common.Managers
             var input = new ContractDeploymentInput
             {
                 Code = ByteString.CopyFrom(code),
-                Category = KernelConstants.DefaultRunnerCategory
+                Category = KernelHelper.DefaultRunnerCategory
             };
             var approveUsers = GetMinApproveMiners();
 
@@ -238,7 +237,7 @@ namespace AElfChain.Common.Managers
             while (!proposal.ToBeReleased && !expired)
             {
                 Thread.Sleep(1000);
-                var dateTime = TimestampHelper.GetUtcNow();
+                var dateTime = KernelHelper.GetUtcNow();
                 proposal = _parliament.CheckProposal(proposalId);
                 if (dateTime >= proposal.ExpiredTime) expired = true;
                 Console.Write(

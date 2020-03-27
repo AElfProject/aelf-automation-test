@@ -4,7 +4,6 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -106,7 +105,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     CandidatePubkey = candidatePubkeys[0],
                     Amount = VOTE,
-                    EndTimestamp = TimestampHelper.GetUtcNow().AddDays(120)
+                    EndTimestamp = KernelHelper.GetUtcNow().AddDays(120)
                 });
                 voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var afterShare = MainManager.Token.GetUserBalance(bp, "SHARE");

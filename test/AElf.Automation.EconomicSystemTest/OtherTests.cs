@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

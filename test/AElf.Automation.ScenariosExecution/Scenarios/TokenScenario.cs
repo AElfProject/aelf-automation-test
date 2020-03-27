@@ -7,7 +7,6 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
-using AElf.Kernel.Miner.Application;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;

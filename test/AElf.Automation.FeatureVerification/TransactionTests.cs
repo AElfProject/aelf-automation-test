@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AElfChain.Common.DtoExtension;
 using AElf.Cryptography;
-using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,22 +12,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TransactionTests
     {
-        [TestMethod]
-        [DataRow(1000)]
-        public void VerifyTransactionSignatureVerify(int txCount)
-        {
-            var transactionList = GenerateTransactions(txCount);
-            var stopwatch = new Stopwatch();
-
-            stopwatch.Start();
-            foreach (var tx in transactionList) tx.VerifySignature();
-
-            stopwatch.Stop();
-
-            var timeSpan = stopwatch.ElapsedMilliseconds;
-            Debug.WriteLine($"TimeSpan: {timeSpan}");
-        }
-
         private IEnumerable<Transaction> GenerateTransactions(int count)
         {
             var transactions = new List<Transaction>();

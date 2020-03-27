@@ -6,7 +6,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using log4net;
@@ -71,7 +70,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 100000_00000000,
                     Symbol = resource
                 });
-                var size = result.Transaction.Size();
+                var size = result.Transaction.CalculateSize();
                 Logger.Info($"transfer size is: {size}");
 
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
@@ -112,7 +111,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = 200000000,
                 Symbol = "CPU"
             });
-            var size = result.Transaction.Size();
+            var size = result.Transaction.CalculateSize();
             Logger.Info($"transfer size is: {size}");
 
             var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
