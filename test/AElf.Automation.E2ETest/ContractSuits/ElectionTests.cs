@@ -145,7 +145,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             voteWithRecords.ActiveVotingRecordIds.ShouldContain(voteId);
             voteWithRecords.ActiveVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             voteWithRecords.AllVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
-            voteWithRecords.ActiveVotingRecords.Select(o=>o.Candidate).ShouldContain(candidatesPubkey.First());
+            voteWithRecords.ActiveVotingRecords.Select(o => o.Candidate).ShouldContain(candidatesPubkey.First());
             electorResult.Pubkey.ToByteArray().ToHex().ShouldBe(testerPubkey);
 
             //GetElectorVoteWithAllRecords
@@ -158,7 +158,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             voteWithAllRecords.ActiveVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             voteWithAllRecords.AllVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             voteWithAllRecords.Pubkey.ToByteArray().ToHex().ShouldBe(testerPubkey);
-            
+
             //GetCandidateVote
             var candidateVote = await electionTester.GetCandidateVote.CallAsync(new StringValue
             {
@@ -178,7 +178,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             candidateVoteWithRecords.ObtainedActiveVotingRecords.Select(o => o.Candidate)
                 .ShouldAllBe(o => o == candidatesPubkey.First());
             candidateVoteWithRecords.Pubkey.ToByteArray().ToHex().ShouldBe(candidatesPubkey.First());
-            
+
             //GetCandidateVoteWithAllRecords
             var candidateVoteWithAllRecords =
                 await electionTester.GetCandidateVoteWithAllRecords.CallAsync(new StringValue
@@ -192,7 +192,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 .ShouldAllBe(o => o == candidatesPubkey.First());
             candidateVoteWithAllRecords.AllObtainedVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             candidateVoteWithAllRecords.Pubkey.ToByteArray().ToHex().ShouldBe(candidatesPubkey.First());
-            
+
             //GetVotersCount
             var votersCount = await electionTester.GetVotersCount.CallAsync(new Empty());
             votersCount.Value.ShouldBeGreaterThanOrEqualTo(1);
@@ -201,7 +201,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var votesAmount = await electionTester.GetVotesAmount.CallAsync(new Empty());
             votesAmount.Value.ShouldBeGreaterThanOrEqualTo(50);
         }
-        
+
         [TestMethod]
         public async Task SetVoteInterest_Test()
         {
@@ -219,7 +219,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     {
                         Day = 180,
                         Capital = 10000,
-                        Interest = 12,
+                        Interest = 12
                     },
                     new VoteWeightInterest
                     {

@@ -4,15 +4,14 @@ using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
-using Microsoft.Extensions.Hosting;
 
 namespace AElf.Automation.NetworkTest
 {
     public class Operation
     {
-        public readonly List<string> AllNodes;
-        public readonly List<string> AllEndpoint;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public readonly List<string> AllEndpoint;
+        public readonly List<string> AllNodes;
 
         public Operation()
         {
@@ -36,7 +35,7 @@ namespace AElf.Automation.NetworkTest
 
                 foreach (var n in AllNodes.Where(n => !operatedNode.Contains(n)))
                 {
-                    var peers = nodeManager.NetGetPeers().Select(o=>o.IpAddress).ToList();
+                    var peers = nodeManager.NetGetPeers().Select(o => o.IpAddress).ToList();
                     if (!peers.Contains(n)) continue;
                     var result = nodeManager.NetRemovePeer(n);
                     Logger.Info($"{endpoint} remove peer {n} {result}");
@@ -61,7 +60,7 @@ namespace AElf.Automation.NetworkTest
 
                 foreach (var n in AllNodes.Where(n => !operatedNode.Contains(n)))
                 {
-                    var peers = nodeManager.NetGetPeers().Select(o=>o.IpAddress).ToList();
+                    var peers = nodeManager.NetGetPeers().Select(o => o.IpAddress).ToList();
                     if (peers.Contains(n)) continue;
                     var result = nodeManager.NetAddPeer(n);
                     Logger.Info($"{node} add peer {n} {result}");

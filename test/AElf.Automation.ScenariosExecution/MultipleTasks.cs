@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common.Helpers;
 using AElf.Automation.ScenariosExecution.Scenarios;
+using AElfChain.Common.Helpers;
 using FluentScheduler;
 using log4net;
 
@@ -78,7 +78,8 @@ namespace AElf.Automation.ScenariosExecution
                         break;
                     case "MassRequestScenario":
                         var requestScenario = new MonitorMassRequestScenario();
-                        TaskCollection.Add(RunContinueJobWithInterval(()=>requestScenario.RunMassRequestScenarioJob(30),
+                        TaskCollection.Add(RunContinueJobWithInterval(
+                            () => requestScenario.RunMassRequestScenarioJob(30),
                             scenario.TimeInterval));
                         break;
                 }

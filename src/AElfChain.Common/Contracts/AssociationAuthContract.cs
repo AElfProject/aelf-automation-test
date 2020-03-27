@@ -69,9 +69,9 @@ namespace AElfChain.Common.Contracts
             SetAccount(proposer);
             var proposal = ExecuteMethodWithResult(AssociationMethod.CreateProposal, createProposalInput);
             proposal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));     
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
             Logger.Info($"Proposal {proposalId} created success by {proposer}.");
-            
+
             return proposalId;
         }
 
@@ -111,32 +111,32 @@ namespace AElfChain.Common.Contracts
             return
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
-        
+
         public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Approve, proposalId);
         }
-        
+
         public TransactionResultDto ApproveWithResult(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
         }
-        
+
         public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Abstain, proposalId);
         }
-        
+
         public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
         }
-        
-        public void ApproveWithAssociation(Hash proposalId,Address association)
+
+        public void ApproveWithAssociation(Hash proposalId, Address association)
         {
             var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                 association);
@@ -145,7 +145,7 @@ namespace AElfChain.Common.Contracts
             {
                 SetAccount(member.GetFormatted());
                 var approve = ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
-                approve.Status.ShouldBe("MINED");                
+                approve.Status.ShouldBe("MINED");
                 if (CheckProposal(proposalId).ToBeReleased) return;
             }
         }

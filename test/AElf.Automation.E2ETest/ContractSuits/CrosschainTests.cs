@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -26,7 +25,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var result =
                 await ContractManager.CrossChainStub.GetSideChainIndexingInformationList.CallAsync(new Empty());
             result.IndexingInformationList.Count.ShouldBe(2);
-            var  chainIds = result.IndexingInformationList.Select(o => o.ChainId).ToList();
+            var chainIds = result.IndexingInformationList.Select(o => o.ChainId).ToList();
             chainIds.ShouldContain(1866392);
             chainIds.ShouldContain(1931928);
         }
@@ -34,7 +33,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task GetSideChainCreator_Test()
         {
-            var chainIdAndHeightDict = await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
+            var chainIdAndHeightDict =
+                await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {
@@ -42,14 +42,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 {
                     Value = chainId
                 });
-                ConfigNodes.Select(o=>o.Account).ShouldContain(creator.GetFormatted());
+                ConfigNodes.Select(o => o.Account).ShouldContain(creator.GetFormatted());
             }
         }
 
         [TestMethod]
         public async Task GetSideChainBalance_Test()
         {
-            var chainIdAndHeightDict = await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
+            var chainIdAndHeightDict =
+                await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {
@@ -66,12 +67,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var chainStatus = await ContractManager.NodeManager.ApiClient.GetChainStatusAsync();
             var chainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId);
-            
+
             NodeInfoHelper.SetConfig(SideConfig);
             var sideNode = NodeInfoHelper.Config.Nodes.First();
             var nodeManager = new NodeManager(sideNode.Endpoint);
             var contractManager = new ContractManager(nodeManager, sideNode.Account);
-            
+
             var parentChainId = await contractManager.CrossChainStub.GetParentChainId.CallAsync(new Empty());
             parentChainId.Value.ShouldBe(chainId);
         }

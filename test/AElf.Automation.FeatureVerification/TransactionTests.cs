@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using AElfChain.Common.DtoExtension;
 using AElf.Cryptography;
 using AElf.Types;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

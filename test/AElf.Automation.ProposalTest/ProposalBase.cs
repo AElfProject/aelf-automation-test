@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 
@@ -23,13 +23,7 @@ namespace AElf.Automation.ProposalTest
         protected static string InitAccount;
         protected static string Symbol;
         private readonly EnvironmentInfo _environmentInfo;
-        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
-        protected static List<string> AssociationTester { get; set; }
-        protected static List<string> Tester { get; set; }
         protected string TokenSymbol;
-        protected static int MinersCount { get; set; }
-        protected List<string> Miners { get; set; }
-        protected static ContractManager Services { get; set; }
 
         protected ProposalBase()
         {
@@ -38,6 +32,13 @@ namespace AElf.Automation.ProposalTest
             _environmentInfo =
                 ConfigHelper.Config.EnvironmentInfos.Find(o => o.Environment.Contains(testEnvironment));
         }
+
+        private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
+        protected static List<string> AssociationTester { get; set; }
+        protected static List<string> Tester { get; set; }
+        protected static int MinersCount { get; set; }
+        protected List<string> Miners { get; set; }
+        protected static ContractManager Services { get; set; }
 
         protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
             bool interrupted = false)
@@ -74,7 +75,7 @@ namespace AElf.Automation.ProposalTest
             var random = new Random(Guid.NewGuid().GetHashCode());
             return random.Next(min, max + 1);
         }
-        
+
         private List<string> GenerateOrGetTestUsers()
         {
             var url = _environmentInfo.Url;
@@ -89,7 +90,7 @@ namespace AElf.Automation.ProposalTest
             testUsers.AddRange(newAccounts);
             return testUsers;
         }
-        
+
         private List<string> GenerateOrGetTestUsers(ICollection<string> testers)
         {
             var url = _environmentInfo.Url;
@@ -97,7 +98,7 @@ namespace AElf.Automation.ProposalTest
 
             var accounts = nodeManager.ListAccounts();
 
-            var testUsers = accounts.FindAll(o => !Miners.Contains(o)&& !testers.Contains(o));
+            var testUsers = accounts.FindAll(o => !Miners.Contains(o) && !testers.Contains(o));
             if (testUsers.Count >= _config.UserCount) return testUsers.Take(_config.UserCount).ToList();
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
@@ -126,6 +127,7 @@ namespace AElf.Automation.ProposalTest
 
             return accounts;
         }
+
         protected void GetMiners()
         {
             Miners = new List<string>();
@@ -179,28 +181,28 @@ namespace AElf.Automation.ProposalTest
             GetMiners();
             foreach (var tester in Tester)
             {
-                var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
+                var balance = Services.Token.GetUserBalance(tester, TokenSymbol);
                 if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
+                Services.Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
-            
+
             foreach (var tester in AssociationTester)
             {
-                var balance = Services.Token.GetUserBalance(tester,TokenSymbol);
+                var balance = Services.Token.GetUserBalance(tester, TokenSymbol);
                 if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount,tester,1000_00000000,TokenSymbol);
+                Services.Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
 
             foreach (var miner in Miners)
             {
-                var balance = Services.Token.GetUserBalance(miner,TokenSymbol);
+                var balance = Services.Token.GetUserBalance(miner, TokenSymbol);
                 if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount,miner,1000_00000000,TokenSymbol);
-                
+                Services.Token.TransferBalance(InitAccount, miner, 1000_00000000, TokenSymbol);
+
                 balance = Services.Token.GetUserBalance(miner);
                 Logger.Info($"Miner {miner} {TokenSymbol} balance is {balance}");
             }

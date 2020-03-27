@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using AElfChain.Common.Helpers;
 using AElfChain.Console.InputOption;
@@ -21,7 +20,7 @@ namespace AElfChain.Console.Commands
 
         public static string[] InputParameters(int length, string promptMsg = "")
         {
-            if(promptMsg == string.Empty)
+            if (promptMsg == string.Empty)
                 promptMsg = "Input parameter";
             while (true)
             {

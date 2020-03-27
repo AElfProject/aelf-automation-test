@@ -83,7 +83,7 @@ namespace AElfChain.Common.Contracts
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
-        
+
         public static TokenContractImplContainer.TokenContractImplStub GetTokenImplStub(this GenesisContract genesis,
             string caller = "")
         {

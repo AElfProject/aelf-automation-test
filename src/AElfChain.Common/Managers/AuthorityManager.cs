@@ -204,11 +204,12 @@ namespace AElfChain.Common.Managers
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             string callUser, Address organization = null)
-        { 
+        {
             var parliamentOrganization = organization ?? GetGenesisOwnerAddress();
             var miners = GetCurrentMiners();
 
-            return ExecuteTransactionWithAuthority(contractAddress, method, input, parliamentOrganization, miners, callUser);
+            return ExecuteTransactionWithAuthority(contractAddress, method, input, parliamentOrganization, miners,
+                callUser);
         }
 
         private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
@@ -303,7 +304,9 @@ namespace AElfChain.Common.Managers
             while (true)
             {
                 var hash = Hash.FromRawBytes(code);
-                var registration = _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration, hash);
+                var registration =
+                    _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration,
+                        hash);
                 if (registration.Equals(new SmartContractRegistration())) return code;
                 code = CodeInjectHelper.ChangeContractCodeHash(code);
             }

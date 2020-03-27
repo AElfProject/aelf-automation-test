@@ -12,13 +12,12 @@ namespace AElf.Automation.ContractsTesting
 {
     public class AnalyzeTransactionFee
     {
-        private INodeManager NodeManager { get; }
         private const string Endpoint = "18.163.40.216:8000";
 
         public List<BlockDto> Blocks;
-        public List<TransactionResultDto> TransactionResultDtos;
         public long TotalBlocks;
         public long TotalTransactions;
+        public List<TransactionResultDto> TransactionResultDtos;
 
         public AnalyzeTransactionFee()
         {
@@ -28,6 +27,8 @@ namespace AElf.Automation.ContractsTesting
             TotalBlocks = 0;
             TotalTransactions = 0;
         }
+
+        private INodeManager NodeManager { get; }
 
         public void QueryBlocksInfo(long fromHeight, long endHeight)
         {
@@ -84,10 +85,7 @@ namespace AElf.Automation.ContractsTesting
         {
             long totalFee = 0;
             var count = TransactionResultDtos.Count;
-            foreach (var transactionFee in TransactionResultDtos)
-            {
-                totalFee += transactionFee.GetDefaultTransactionFee();
-            }
+            foreach (var transactionFee in TransactionResultDtos) totalFee += transactionFee.GetDefaultTransactionFee();
 
             $"Total blocks: {TotalBlocks}, Total transactions: {TotalTransactions}".WriteSuccessLine();
             $"Count: {count}, TotalFees: {totalFee}, AverageFee: {totalFee / count}".WriteSuccessLine();

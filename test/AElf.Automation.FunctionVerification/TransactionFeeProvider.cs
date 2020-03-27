@@ -13,13 +13,6 @@ namespace AElf.Automation.ContractsTesting
 {
     public class TransactionFeeProvider
     {
-        private static ICalculateCostStrategy CpuService { get; set; }
-        private static ICalculateCostStrategy StoService { get; set; }
-        private static ICalculateCostStrategy NetService { get; set; }
-        private static ICalculateCostStrategy RamService { get; set; }
-        private static ICalculateCostStrategy TxService { get; set; }
-
-
         public TransactionFeeProvider()
         {
             CpuService = new CpuCalculateCostStrategy();
@@ -28,6 +21,12 @@ namespace AElf.Automation.ContractsTesting
             RamService = new RamCalculateCostStrategy();
             TxService = new TxCalculateCostStrategy();
         }
+
+        private static ICalculateCostStrategy CpuService { get; set; }
+        private static ICalculateCostStrategy StoService { get; set; }
+        private static ICalculateCostStrategy NetService { get; set; }
+        private static ICalculateCostStrategy RamService { get; set; }
+        private static ICalculateCostStrategy TxService { get; set; }
 
         public static long CpuSizeFee(int size)
         {
@@ -43,7 +42,7 @@ namespace AElf.Automation.ContractsTesting
         {
             return StoService.GetCost(size);
         }
-        
+
         public static long TransactionSizeFee(int size)
         {
             return TxService.GetCost(size);
@@ -86,13 +85,13 @@ namespace AElf.Automation.ContractsTesting
             Console.WriteLine($"Calculate complete to: {filePath}");
         }
     }
-    
+
     public interface ITransactionSizeFeeUnitPriceProvider
     {
         void SetUnitPrice(long unitPrice);
         Task<long> GetUnitPriceAsync();
     }
-    
+
     public enum FeeType
     {
         Tx = 0,
@@ -113,7 +112,7 @@ namespace AElf.Automation.ContractsTesting
         void AddFeeCal(FeeType feeType, int pieceKey, CalculateFunctionType funcTyoe, Dictionary<string, string> param);
     }
 
-    class CalculateFeeService : ICalculateFeeService
+    internal class CalculateFeeService : ICalculateFeeService
     {
         private readonly ICalculateStradegyProvider _calculateStradegyProvider;
 
@@ -147,15 +146,13 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    interface ICalculateStradegyProvider : ISingletonDependency
+    internal interface ICalculateStradegyProvider : ISingletonDependency
     {
         ICalculateCostStrategy GetCalculator(FeeType feeType);
     }
 
-    class CalculateStradegyProvider : ICalculateStradegyProvider
+    internal class CalculateStradegyProvider : ICalculateStradegyProvider
     {
-        private Dictionary<FeeType, ICalculateCostStrategy> CalculatorDic { get; set; }
-
         public CalculateStradegyProvider()
         {
             CalculatorDic = new Dictionary<FeeType, ICalculateCostStrategy>
@@ -168,6 +165,8 @@ namespace AElf.Automation.ContractsTesting
             };
         }
 
+        private Dictionary<FeeType, ICalculateCostStrategy> CalculatorDic { get; }
+
         public ICalculateCostStrategy GetCalculator(FeeType feeType)
         {
             CalculatorDic.TryGetValue(feeType, out var cal);
@@ -175,14 +174,14 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    enum AlgorithmOpCode
+    internal enum AlgorithmOpCode
     {
         AddFunc,
         DeleteFunc,
         UpdateFunc
     }
 
-    interface ICalculateCostStrategy
+    internal interface ICalculateCostStrategy
     {
         long GetCost(int cost);
 
@@ -191,7 +190,7 @@ namespace AElf.Automation.ContractsTesting
             Dictionary<string, string> param = null);
     }
 
-    abstract class CalculateCostStrategyBase : ICalculateCostStrategy
+    internal abstract class CalculateCostStrategyBase : ICalculateCostStrategy
     {
         protected ICalculateAlgorithm CalculateAlgorithm { get; set; }
 
@@ -220,7 +219,7 @@ namespace AElf.Automation.ContractsTesting
 
     #region concrete stradegys
 
-    class CpuCalculateCostStrategy : CalculateCostStrategyBase
+    internal class CpuCalculateCostStrategy : CalculateCostStrategyBase
     {
         public CpuCalculateCostStrategy()
         {
@@ -246,7 +245,7 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    class StoCalculateCostStrategy : CalculateCostStrategyBase
+    internal class StoCalculateCostStrategy : CalculateCostStrategyBase
     {
         public StoCalculateCostStrategy()
         {
@@ -268,7 +267,7 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    class RamCalculateCostStrategy : CalculateCostStrategyBase
+    internal class RamCalculateCostStrategy : CalculateCostStrategyBase
     {
         public RamCalculateCostStrategy()
         {
@@ -288,12 +287,12 @@ namespace AElf.Automation.ContractsTesting
                 Weight = 250,
                 Numerator = 1,
                 Denominator = 4,
-                WeightBase = 40,
+                WeightBase = 40
             }).Prepare();
         }
     }
 
-    class NetCalculateCostStrategy : CalculateCostStrategyBase
+    internal class NetCalculateCostStrategy : CalculateCostStrategyBase
     {
         public NetCalculateCostStrategy()
         {
@@ -315,7 +314,7 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    class TxCalculateCostStrategy : CalculateCostStrategyBase
+    internal class TxCalculateCostStrategy : CalculateCostStrategyBase
     {
         public TxCalculateCostStrategy()
         {
@@ -339,7 +338,7 @@ namespace AElf.Automation.ContractsTesting
 
     #endregion
 
-    interface ICalculateAlgorithm
+    internal interface ICalculateAlgorithm
     {
         Dictionary<int, ICalculateWay> PieceWise { get; set; }
         long Calculate(int count);
@@ -352,14 +351,14 @@ namespace AElf.Automation.ContractsTesting
 
     #region ICalculateAlgorithm implemention
 
-    class CalculateAlgorithm : ICalculateAlgorithm
+    internal class CalculateAlgorithm : ICalculateAlgorithm
     {
-        public ILogger<CalculateAlgorithm> Logger { get; set; }
-
         public CalculateAlgorithm()
         {
             Logger = new NullLogger<CalculateAlgorithm>();
         }
+
+        public ILogger<CalculateAlgorithm> Logger { get; set; }
 
         public Dictionary<int, ICalculateWay> PieceWise { get; set; } = new Dictionary<int, ICalculateWay>();
 
@@ -372,10 +371,7 @@ namespace AElf.Automation.ContractsTesting
 
         public ICalculateAlgorithm Prepare()
         {
-            if (!PieceWise.Any() || PieceWise.Any(x => x.Key <= 0))
-            {
-                Logger.LogError("piece key wrong");
-            }
+            if (!PieceWise.Any() || PieceWise.Any(x => x.Key <= 0)) Logger.LogError("piece key wrong");
 
             PieceWise = PieceWise.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
             return this;
@@ -384,7 +380,7 @@ namespace AElf.Automation.ContractsTesting
         public long Calculate(int count)
         {
             long totalCost = 0;
-            int prePieceKey = 0;
+            var prePieceKey = 0;
             foreach (var piece in PieceWise)
             {
                 if (count < piece.Key)
@@ -420,7 +416,9 @@ namespace AElf.Automation.ContractsTesting
                 }
             }
             else
+            {
                 AddByParam(pieceKey, funcType, parameters);
+            }
         }
 
         public void AddByParam(int pieceKey, CalculateFunctionType funcType, Dictionary<string, string> parameters)
@@ -498,9 +496,9 @@ namespace AElf.Automation.ContractsTesting
 
         public long GetCost(int cost)
         {
-            int diff = cost + 1;
-            double weightChange = (double) diff / ChangeSpanBase;
-            double unitValue = (double) Weight / WeightBase;
+            var diff = cost + 1;
+            var weightChange = (double) diff / ChangeSpanBase;
+            var unitValue = (double) Weight / WeightBase;
             if (weightChange <= 1)
                 return 0;
             return Precision.Mul((long) (weightChange * unitValue * Math.Log(weightChange, Math.E)));
@@ -514,6 +512,9 @@ namespace AElf.Automation.ContractsTesting
         public int Weight { get; set; }
         public int WeightBase { get; set; }
         public long Precision { get; set; } = 100000000L;
+
+        public int Numerator { get; set; }
+        public int Denominator { get; set; } = 1;
 
         public bool InitParameter(Dictionary<string, string> param)
         {
@@ -542,9 +543,6 @@ namespace AElf.Automation.ContractsTesting
             WeightBase = weightBase;
             return true;
         }
-
-        public int Numerator { get; set; }
-        public int Denominator { get; set; } = 1;
 
         public long GetCost(int cost)
         {
@@ -576,6 +574,8 @@ namespace AElf.Automation.ContractsTesting
     {
         public long Precision { get; set; } = 100000000L;
 
+        public int ConstantValue { get; set; }
+
         public bool InitParameter(Dictionary<string, string> param)
         {
             param.TryGetValue(nameof(ConstantValue).ToLower(), out var constantValueStr);
@@ -588,8 +588,6 @@ namespace AElf.Automation.ContractsTesting
             ConstantValue = constantValue;
             return true;
         }
-
-        public int ConstantValue { get; set; }
 
         public long GetCost(int cost)
         {

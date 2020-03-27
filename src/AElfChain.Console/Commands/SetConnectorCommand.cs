@@ -1,11 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Contracts.TokenConverter;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.TokenConverter;
-using AElf.Types;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -33,11 +33,12 @@ namespace AElfChain.Console.Commands
                 ResourceConnectorSymbol = parameters[0],
                 ResourceWeight = parameters[1],
                 NativeWeight = parameters[2],
-                NativeVirtualBalance = long.Parse(parameters[3]),
+                NativeVirtualBalance = long.Parse(parameters[3])
             };
             var bp = NodeInfoHelper.Config.Nodes.First().Account;
             var transactionResult = authority.ExecuteTransactionWithAuthority(Services.TokenConverter.ContractAddress,
-                nameof(TokenConverterContractContainer.TokenConverterContractStub.AddPairConnector), connector, orgAddress, miners, bp);
+                nameof(TokenConverterContractContainer.TokenConverterContractStub.AddPairConnector), connector,
+                orgAddress, miners, bp);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             AsyncHelper.RunSync(() => GetTokenConnector(parameters[0]));

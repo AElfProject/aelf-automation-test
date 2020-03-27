@@ -20,23 +20,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class SideChainProfitMainTests
     {
-        private ILog Logger { get; set; }
-        
-        public INodeManager NodeManager { get; set; }
-        public ContractManager MainManager { get; set; }
-        
         public SideChainProfitMainTests()
         {
             Log4NetHelper.LogInit("SideChainProfitMain");
             Logger = Log4NetHelper.GetLogger();
-            
+
             NodeInfoHelper.SetConfig("nodes-env2-main");
             var node = NodeInfoHelper.Config.Nodes.First();
-            
+
             NodeManager = new NodeManager(node.Endpoint);
             MainManager = new ContractManager(NodeManager, node.Account);
             MainManager.Profit.GetTreasurySchemes(MainManager.Treasury.ContractAddress);
         }
+
+        private ILog Logger { get; }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager MainManager { get; set; }
 
         [TestMethod]
         public async Task PrepareMainToken_Test()
@@ -44,8 +44,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nodes = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
             foreach (var nodeUser in nodes)
             {
-                if(nodeUser == MainManager.CallAddress) continue;
-                
+                if (nodeUser == MainManager.CallAddress) continue;
+
                 var transactionResult = await MainManager.TokenStub.Transfer.SendAsync(new TransferInput
                 {
                     To = nodeUser.ConvertAddress(),
@@ -56,7 +56,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
         }
-        
+
         [TestMethod]
         [DataRow(5000_00000000L)]
         public async Task BuyResource_ForTxFee(long amount)
@@ -81,7 +81,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var nodes = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
             var bps = MainManager.Authority.GetCurrentMiners();
-            var nonBps = nodes.Where(o=>!bps.Contains(o)).ToList();
+            var nonBps = nodes.Where(o => !bps.Contains(o)).ToList();
             foreach (var node in nonBps)
             {
                 var electionStub = MainManager.Genesis.GetElectionStub(node);
@@ -94,7 +94,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task InitialMiners_VoteTest()
         {
             const long VOTE = 200;
-            var bps = NodeInfoHelper.Config.Nodes.Select(o=>o.Account).Take(4);
+            var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);
             var candidates = await MainManager.ElectionStub.GetCandidates.CallAsync(new Empty());
             var candidatePubkeys = candidates.Value.Select(o => o.ToHex()).ToList();
             foreach (var bp in bps)

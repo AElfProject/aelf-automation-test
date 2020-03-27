@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Volo.Abp.Threading;
 

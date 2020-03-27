@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using Acs3;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -25,6 +25,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         }
 
         private Dictionary<int, CrossChainTransactionInfo> ChainValidateTxInfo { get; }
+
         public void DoCrossChainPrepare()
         {
             Logger.Info("Check token address");
@@ -192,7 +193,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 var chainTxInfo = ChainValidateTxInfo[sideChainService.ChainId];
 
-                Logger.Info("Check the index:"); 
+                Logger.Info("Check the index:");
                 MainChainCheckSideChainBlockIndex(sideChainService, chainTxInfo.BlockHeight);
                 var crossChainMerkleProofContext =
                     GetCrossChainMerkleProofContext(sideChainService, chainTxInfo.BlockHeight);
@@ -309,7 +310,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             if (createProposalResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                 throw new Exception(
                     $"Release proposal failed, token address can't register on chain {services.ChainId}");
-            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(createProposalResult.ReturnValue));  
+            var proposalId =
+                Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(createProposalResult.ReturnValue));
             //approve
             var miners = GetMiners(services);
             var enumerable = miners as Address[] ?? miners.ToArray();
@@ -318,7 +320,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 var proposalStatue = services.ParliamentService.CheckProposal(proposalId);
                 if (proposalStatue.ToBeReleased) goto Release;
                 services.ParliamentService.SetAccount(miner.GetFormatted());
-                var approveResult = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+                var approveResult =
+                    services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
                     throw new Exception(
                         $"Approve proposal failed, token address can't register on chain {services.ChainId}");

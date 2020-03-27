@@ -74,19 +74,19 @@ namespace AElfChain.Common.Contracts
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
         }
-        
+
         public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(ParliamentMethod.Approve, proposalId);
         }
-        
+
         public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(ParliamentMethod.Abstain, proposalId);
         }
-        
+
         public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);

@@ -5,17 +5,16 @@ using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
-using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -23,6 +22,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class GenesisContractTest
     {
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly bool isOrganization = false;
 
         protected ContractTester Tester;
 
@@ -35,7 +35,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
         private static string SideRpcUrl2 { get; } = "http://192.168.197.14:8002";
         private string Type { get; } = "Main";
-        private readonly bool isOrganization = false;
 
         [TestInitialize]
         public void Initialize()
@@ -155,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             Logger.Info($"{deployProposal}\n {contractProposalInfo.ProposedContractInputHash}");
         }
-        
+
         [TestMethod]
         public void ProposalDeploy_Success()
         {
@@ -243,7 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
             var proposalHash = HashHelper.HexStringToHash(hash);
-            var releaseApprovedContractInput = new ReleaseContractInput()
+            var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = proposalId
@@ -264,7 +263,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
             var proposalHash = HashHelper.HexStringToHash(hash);
-            var releaseApprovedContractInput = new ReleaseContractInput()
+            var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = proposalId
@@ -306,7 +305,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var proposalId = HashHelper.HexStringToHash(proposal);
             var proposalHash = HashHelper.HexStringToHash(hash);
-            var releaseApprovedContractInput = new ReleaseContractInput()
+            var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = proposalId
@@ -445,7 +444,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     AddressHelper.Base58StringToAddress(contract));
             Logger.Info($"{address.GetFormatted()}");
         }
-        
+
         [TestMethod]
         public void ParliamentChangeWhiteList()
         {
@@ -454,27 +453,28 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var existResult =
                 parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
             existResult.Value.ShouldBeTrue();
-            
+
             var miners = Tester.GetMiners();
 
             var changeInput = new ProposerWhiteList
             {
-                Proposers = { Member.ConvertAddress(),Creator.ConvertAddress()}
+                Proposers = {Member.ConvertAddress(), Creator.ConvertAddress()}
             };
 
             var proposalId = parliament.CreateProposal(parliament.ContractAddress,
-                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput,defaultAddress,miners.First());
-            parliament.MinersApproveProposal(proposalId,miners);
+                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput, defaultAddress,
+                miners.First());
+            parliament.MinersApproveProposal(proposalId, miners);
             parliament.SetAccount(miners.First());
-            var release = parliament.ReleaseProposal(proposalId,miners.First());
+            var release = parliament.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var proposalWhiteList =
                 parliament.CallViewMethod<ProposerWhiteList>(
                     ParliamentMethod.GetProposerWhiteList, new Empty());
             proposalWhiteList.Proposers.Contains(Member.ConvertAddress()).ShouldBeTrue();
         }
-        
+
         #region private method
 
         private Address CreateAssociationOrganization(ContractTester tester)
@@ -514,7 +514,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var miners = tester.GetMiners();
             tester.ParliamentService.SetAccount(miners.First());
             var address = tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
-                new AElf.Contracts.Parliament.CreateOrganizationInput()
+                new AElf.Contracts.Parliament.CreateOrganizationInput
                 {
                     ProposalReleaseThreshold = new ProposalReleaseThreshold
                     {

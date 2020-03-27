@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
 using Acs3;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -24,10 +24,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class AssociationAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public string Symbol = NodeOption.NativeTokenSymbol;
-        private ContractManager ContractManager;
         private AssociationAuthContract Association;
+        private ContractManager ContractManager;
         private List<string> Miners;
+        public string Symbol = NodeOption.NativeTokenSymbol;
         public INodeManager NodeManager { get; set; }
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string ReviewAccount1 { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
@@ -90,7 +90,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                    organizationAddress );
+                    organizationAddress);
             organization.OrganizationMemberList.OrganizationMembers.Contains(ReviewAccount2.ConvertAddress())
                 .ShouldBeTrue();
             organization.ProposerWhiteList.Proposers.Contains(InitAccount.ConvertAddress()).ShouldBeTrue();
@@ -112,10 +112,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     AddressHelper.Base58StringToAddress(organizationAddress));
-            foreach (var member in organization.OrganizationMemberList.OrganizationMembers)
-            {
-                _logger.Info($"{member}");
-            }
+            foreach (var member in organization.OrganizationMemberList.OrganizationMembers) _logger.Info($"{member}");
 
             _logger.Info(
                 $"{organization.OrganizationAddress} maximal abstention threshold is {organization.ProposalReleaseThreshold.MaximalAbstentionThreshold}");

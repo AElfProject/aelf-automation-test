@@ -50,6 +50,7 @@ namespace AElf.Automation.ContractsTesting
                 var block = AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(current));
                 Logger.Info($"{height},{block.Header.Time},{block.BlockHash},{block.Body.TransactionsCount}");
             }
+
             "Complete analyze result.".WriteSuccessLine();
         }
 

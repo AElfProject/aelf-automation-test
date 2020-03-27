@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using AElfChain.Common.Contracts;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Shouldly;
 
@@ -114,7 +113,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Thread.Sleep(60000);
 
                 foreach (var initRawTxInfo in initRawTxInfos)
-                {
                     if (initRawTxInfo.Key.Equals(MainChainService.ChainId))
                     {
                         //main receive:
@@ -126,7 +124,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                             TokenMethod.CrossChainReceiveToken,
                             crossChainReceiveTokenInput);
                         result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                        Logger.Info($"check the balance on the main chain:");
+                        Logger.Info("check the balance on the main chain:");
                         var accountBalance = MainChainService.TokenService.GetUserBalance(InitAccount, symbol);
                         Logger.Info(
                             $"On main chain, InitAccount:{InitAccount}, {symbol} balance is {accountBalance}");
@@ -135,7 +133,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     {
                         //side chain receive 
 
-                        var receive = SideChainServices.Find(s=>s.ChainId.Equals(initRawTxInfo.Key));
+                        var receive = SideChainServices.Find(s => s.ChainId.Equals(initRawTxInfo.Key));
                         var rawTxInfo = initRawTxInfo.Value;
                         var mainHeight = MainChainCheckSideChainBlockIndex(sideChainService, rawTxInfo.BlockHeight);
                         while (mainHeight > GetIndexParentHeight(receive))
@@ -156,7 +154,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Logger.Info(
                             $"On side chain {receive.ChainId}, InitAccount:{InitAccount}, {symbol} balance is {balance}");
                     }
-                }
             }
         }
 
@@ -164,36 +161,26 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             Logger.Info("Transfer main chain token: ");
             PrimaryTokens.Add(NativeToken);
-            foreach (var sideChain in SideChainServices)
-            {
-                PrimaryTokens.Add(sideChain.PrimaryTokenSymbol);
-            }
+            foreach (var sideChain in SideChainServices) PrimaryTokens.Add(sideChain.PrimaryTokenSymbol);
 
             foreach (var token in PrimaryTokens)
             {
                 Logger.Info($"Transfer {token} token to each account on main chain:");
                 foreach (var account in AccountList)
-                {
                     MainChainService.TokenService.TransferBalance(InitAccount, account, amount, token);
-                }
 
                 foreach (var sideChainService in SideChainServices)
                 {
                     Logger.Info($"Transfer {token} token to each account on side chain {sideChainService.ChainId}:");
                     foreach (var account in AccountList)
-                    {
                         if (sideChainService.PrimaryTokenSymbol.Equals(token) && IsSupplyAllToken(sideChainService))
                             IssueSideChainToken(sideChainService, account);
                         else
                             sideChainService.TokenService.TransferBalance(InitAccount, account, amount, token);
-                    }
                 }
             }
 
-            foreach (var token in PrimaryTokens)
-            {
-                CheckAccountBalance(token);
-            }
+            foreach (var token in PrimaryTokens) CheckAccountBalance(token);
         }
 
         private void OtherTransferPerPare()
@@ -203,15 +190,10 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 TransferToInitAccount(symbol);
                 Logger.Info($"Transfer {symbol} token to each account on main chain:");
                 foreach (var account in AccountList)
-                {
                     MainChainService.TokenService.TransferBalance(InitAccount, account, amount, symbol);
-                }
             }
 
-            foreach (var symbol in TokenSymbols)
-            {
-                CheckAccountBalance(symbol);
-            }
+            foreach (var symbol in TokenSymbols) CheckAccountBalance(symbol);
         }
 
         private void CreateTester(int count)
@@ -222,10 +204,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             // Unlock account on main chain 
             UnlockAccounts(MainChainService, AccountList);
             // Unlock account on side chain
-            foreach (var sideChainService in SideChainServices)
-            {
-                UnlockAccounts(sideChainService, AccountList);
-            }
+            foreach (var sideChainService in SideChainServices) UnlockAccounts(sideChainService, AccountList);
         }
     }
 }

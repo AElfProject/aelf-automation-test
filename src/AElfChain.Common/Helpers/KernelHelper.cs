@@ -1,6 +1,6 @@
-using Google.Protobuf.WellKnownTypes;
 using System;
 using AElf.Types;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Helpers
 {
@@ -11,6 +11,7 @@ namespace AElfChain.Common.Helpers
         RefBlockInvalid = -1,
         RefBlockExpired = -2
     }
+
     public class QueuedTransaction
     {
         public Transaction Transaction { get; set; }
@@ -18,11 +19,12 @@ namespace AElfChain.Common.Helpers
         public Timestamp EnqueueTime { get; set; }
         public RefBlockStatus RefBlockStatus { get; set; }
     }
-    
+
     public static class KernelHelper
     {
         public const int DefaultRunnerCategory = 0;
-        public const int CodeCoverageRunnerCategory = 30; 
+        public const int CodeCoverageRunnerCategory = 30;
+
         public static Timestamp GetUtcNow()
         {
             return DateTime.UtcNow.ToTimestamp();
@@ -39,12 +41,12 @@ namespace AElfChain.Common.Helpers
 
         public static Duration DurationFromSeconds(long seconds)
         {
-            return new Duration { Seconds = seconds };
+            return new Duration {Seconds = seconds};
         }
 
         public static Duration DurationFromMinutes(long minutes)
         {
-            return new Duration { Seconds = minutes * 60L };
+            return new Duration {Seconds = minutes * 60L};
         }
     }
 }

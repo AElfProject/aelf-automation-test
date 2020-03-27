@@ -4,17 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
 using AElf.Contracts.Configuration;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElfChain.Common.DtoExtension;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Contracts.Serializer;
+using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.Contract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -234,7 +234,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"StringValue => {stringInfo.GetHashCode()}/{message.GetHashCode()}");
 
             //int3 value
-            var value = Int32.MaxValue;
+            var value = int.MaxValue;
             var int32Info = new Int32Value
             {
                 Value = value
@@ -242,7 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"Int32Value => {int32Info.GetHashCode()}/{value.GetHashCode()}");
 
             //int64 value
-            var data = Int64.MaxValue;
+            var data = long.MaxValue;
             var int64Info = new Int64Value
             {
                 Value = data
@@ -272,7 +272,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Info =
                 {
                     {"key1", "test1"},
-                    {"key2", "test2"},
+                    {"key2", "test2"}
                 }
             };
             Logger.Info($"MapStringInput => {map1.GetHashCode()}/{map2.GetHashCode()}");
@@ -306,7 +306,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
                 Value = new SInt32Value {Value = limit}.ToByteString()
             };
-            var transactionResult = contractManager.Authority.ExecuteTransactionWithAuthority(configurationContract.ContractAddress,
+            var transactionResult = contractManager.Authority.ExecuteTransactionWithAuthority(
+                configurationContract.ContractAddress,
                 nameof(ConfigurationMethod.SetConfiguration), input,
                 genesisOwner, miners, configurationContract.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);

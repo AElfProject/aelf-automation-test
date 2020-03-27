@@ -1,4 +1,3 @@
-
 namespace AElfChain.Contract
 {
     public class MethodInfo

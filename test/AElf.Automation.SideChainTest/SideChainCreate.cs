@@ -3,11 +3,11 @@ using Acs1;
 using Acs3;
 using Acs7;
 using AElf.Contracts.Association;
-using AElfChain.Common;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
+using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -15,7 +15,6 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using SideChainStatus = AElf.Contracts.CrossChain.SideChainStatus;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -113,7 +112,7 @@ namespace AElf.Automation.SideChainTests
                 Issuer = AddressHelper.Base58StringToAddress(InitAccount),
                 TotalSupply = 10_00000000_00000000,
                 IsProfitable = true
-            }; 
+            };
             var proposal = RequestSideChainCreation(MainServices, InitAccount, "123", 1, 1000000, true, tokenInfo);
             _logger.Info($"proposal id is: {proposal}");
         }
@@ -124,7 +123,7 @@ namespace AElf.Automation.SideChainTests
         {
             foreach (var bp in Miners)
             {
-                var result = Approve(MainServices, bp, proposalId); 
+                var result = Approve(MainServices, bp, proposalId);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
@@ -162,7 +161,7 @@ namespace AElf.Automation.SideChainTests
             var tokenInfo = new SideChainTokenInfo
             {
                 Symbol = "SSTA",
-                TokenName = $"Side chain token SSTA",
+                TokenName = "Side chain token SSTA",
                 Decimals = 8,
                 IsBurnable = true,
                 IsProfitable = true,
@@ -191,7 +190,7 @@ namespace AElf.Automation.SideChainTests
             var tokenInfo = new SideChainTokenInfo
             {
                 Symbol = "SSTA",
-                TokenName = $"Side chain token SSTA",
+                TokenName = "Side chain token SSTA",
                 Decimals = 8,
                 IsBurnable = true,
                 IsProfitable = true,
@@ -267,10 +266,7 @@ namespace AElf.Automation.SideChainTests
             var createProposal = MainServices.ParliamentService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.DisposeSideChain),
                 input, organization.OwnerAddress, OtherAccount);
-            foreach (var miner in Miners)
-            {
-                MainServices.ParliamentService.ApproveProposal(createProposal, miner);
-            }
+            foreach (var miner in Miners) MainServices.ParliamentService.ApproveProposal(createProposal, miner);
 
             MainServices.ParliamentService.ReleaseProposal(createProposal, OtherAccount);
             var chainStatue = MainServices.CrossChainService.GetChainStatus(chainId).Status;
@@ -328,10 +324,7 @@ namespace AElf.Automation.SideChainTests
                 var approveProposalId = MainServices.ParliamentService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                     lifeTimeController, InitAccount);
-                foreach (var miner in Miners)
-                {
-                    MainServices.ParliamentService.ApproveProposal(approveProposalId, miner);
-                }
+                foreach (var miner in Miners) MainServices.ParliamentService.ApproveProposal(approveProposalId, miner);
 
                 MainServices.ParliamentService.ReleaseProposal(approveProposalId, InitAccount);
             }
@@ -431,10 +424,7 @@ namespace AElf.Automation.SideChainTests
                 MainServices.CrossChainService.ContractAddress,
                 nameof(CrossChainContractMethod.ChangeSideChainLifetimeController), input, controllerOrganization,
                 InitAccount);
-            foreach (var miner in Miners)
-            {
-                MainServices.ParliamentService.ApproveProposal(createProposal, miner);
-            }
+            foreach (var miner in Miners) MainServices.ParliamentService.ApproveProposal(createProposal, miner);
 
             MainServices.ParliamentService.ReleaseProposal(createProposal, InitAccount);
             controllerOrganization = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;

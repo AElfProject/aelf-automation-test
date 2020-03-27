@@ -14,7 +14,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
     public class AcsContractFeeTests : ContractTestBase
     {
         public AuthorityManager Authority => ContractManager.Authority;
-        
+
         [TestMethod]
         public async Task AdoptAcs1_TransactionTokenList_Test()
         {
@@ -81,7 +81,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 ContractManager.CallAddress
             );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //Query transaction fee
             var transactionFee = ContractManager.Token.CallViewMethod<MethodFees>(
                 nameof(TokenContractImplContainer.TokenContractImplStub.GetMethodFee),

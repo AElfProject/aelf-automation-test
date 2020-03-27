@@ -95,12 +95,13 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetSideChainIndexingFeePrice, new Int32Value {Value = chainId}).Value;
         }
+
         public AuthorityInfo GetCrossChainIndexingController()
         {
             return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
-        
+
         public AuthorityInfo GetSideChainLifetimeController()
         {
             return CallViewMethod<AuthorityInfo>(

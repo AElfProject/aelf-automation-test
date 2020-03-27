@@ -5,12 +5,6 @@ namespace AElf.Automation.ScenariosExecution
 {
     public class TransactionFeeCalculator
     {
-        public CpuSizeFee Cpu { get; set; }
-        public RamSizeFee Ram { get; set; }
-        public StoSizeFee Sto { get; set; }
-        public NetSizeFee Net { get; set; }
-        public TxSizeFee Tx { get; set; }
-        
         public TransactionFeeCalculator()
         {
             Cpu = new CpuSizeFee();
@@ -19,14 +13,16 @@ namespace AElf.Automation.ScenariosExecution
             Net = new NetSizeFee();
             Tx = new TxSizeFee();
         }
+
+        public CpuSizeFee Cpu { get; set; }
+        public RamSizeFee Ram { get; set; }
+        public StoSizeFee Sto { get; set; }
+        public NetSizeFee Net { get; set; }
+        public TxSizeFee Tx { get; set; }
     }
 
     public class CpuSizeFee
     {
-        public LinerCalculateWay Liner1 { get; set; }
-        public LinerCalculateWay Liner2 { get; set; }
-        public PowerCalculateWay Power { get; set; }
-
         public CpuSizeFee()
         {
             Liner1 = new LinerCalculateWay();
@@ -39,17 +35,15 @@ namespace AElf.Automation.ScenariosExecution
             Power.InitParameter(1, 4, 2, 5, 250, 40);
         }
 
+        public LinerCalculateWay Liner1 { get; set; }
+        public LinerCalculateWay Liner2 { get; set; }
+        public PowerCalculateWay Power { get; set; }
+
         public long GetSizeFee(int size)
         {
-            if (size <= 10)
-            {
-                return Liner1.GetCost(size);
-            }
+            if (size <= 10) return Liner1.GetCost(size);
 
-            if (size <= 100 && size > 10)
-            {
-                return Liner2.GetCost(size);
-            }
+            if (size <= 100 && size > 10) return Liner2.GetCost(size);
 
             return size > 100 ? Power.GetCost(size) : 0;
         }
@@ -57,10 +51,6 @@ namespace AElf.Automation.ScenariosExecution
 
     public class RamSizeFee
     {
-        public LinerCalculateWay Liner1 { get; set; }
-        public LinerCalculateWay Liner2 { get; set; }
-        public PowerCalculateWay Power { get; set; }
-
         public RamSizeFee()
         {
             Liner1 = new LinerCalculateWay();
@@ -73,17 +63,15 @@ namespace AElf.Automation.ScenariosExecution
             Power.InitParameter(1, 4, 2, 2, 250, 40);
         }
 
+        public LinerCalculateWay Liner1 { get; set; }
+        public LinerCalculateWay Liner2 { get; set; }
+        public PowerCalculateWay Power { get; set; }
+
         public long GetSizeFee(int size)
         {
-            if (size <= 10)
-            {
-                return Liner1.GetCost(size);
-            }
+            if (size <= 10) return Liner1.GetCost(size);
 
-            if (size <= 100 && size > 10)
-            {
-                return Liner2.GetCost(size);
-            }
+            if (size <= 100 && size > 10) return Liner2.GetCost(size);
 
             return size > 100 ? Power.GetCost(size) : 0;
         }
@@ -91,9 +79,6 @@ namespace AElf.Automation.ScenariosExecution
 
     public class StoSizeFee
     {
-        public LinerCalculateWay Liner1 { get; set; }
-        public PowerCalculateWay Power { get; set; }
-
         public StoSizeFee()
         {
             Liner1 = new LinerCalculateWay();
@@ -103,12 +88,12 @@ namespace AElf.Automation.ScenariosExecution
             Power.InitParameter(1, 64, 2, 100, 250, 500);
         }
 
+        public LinerCalculateWay Liner1 { get; set; }
+        public PowerCalculateWay Power { get; set; }
+
         public long GetSizeFee(int size)
         {
-            if (size <= 1000000)
-            {
-                return Liner1.GetCost(size);
-            }
+            if (size <= 1000000) return Liner1.GetCost(size);
 
             return size > 1000000 ? Power.GetCost(size) : 0;
         }
@@ -116,9 +101,6 @@ namespace AElf.Automation.ScenariosExecution
 
     public class NetSizeFee
     {
-        public LinerCalculateWay Liner1 { get; set; }
-        public PowerCalculateWay Power { get; set; }
-
         public NetSizeFee()
         {
             Liner1 = new LinerCalculateWay();
@@ -128,12 +110,12 @@ namespace AElf.Automation.ScenariosExecution
             Power.InitParameter(1, 64, 2, 100, 250, 500);
         }
 
+        public LinerCalculateWay Liner1 { get; set; }
+        public PowerCalculateWay Power { get; set; }
+
         public long GetSizeFee(int size)
         {
-            if (size <= 1000000)
-            {
-                return Liner1.GetCost(size);
-            }
+            if (size <= 1000000) return Liner1.GetCost(size);
 
             return size > 1000000 ? Power.GetCost(size) : 0;
         }
@@ -141,9 +123,6 @@ namespace AElf.Automation.ScenariosExecution
 
     public class TxSizeFee
     {
-        public LinerCalculateWay Liner1 { get; set; }
-        public PowerCalculateWay Power { get; set; }
-
         public TxSizeFee()
         {
             Liner1 = new LinerCalculateWay();
@@ -153,12 +132,12 @@ namespace AElf.Automation.ScenariosExecution
             Power.InitParameter(1, 800, 2, 100, 1, 1);
         }
 
+        public LinerCalculateWay Liner1 { get; set; }
+        public PowerCalculateWay Power { get; set; }
+
         public long GetSizeFee(int size)
         {
-            if (size <= 1000000)
-            {
-                return Liner1.GetCost(size);
-            }
+            if (size <= 1000000) return Liner1.GetCost(size);
 
             return size > 1000000 ? Power.GetCost(size) : 0;
         }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Acs3;
 using AElf.Contracts.Association;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf;
@@ -129,7 +129,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var organizationAddress in OrganizationList)
             {
                 var balance = Token.GetUserBalance(organizationAddress.Key.GetFormatted(), Symbol);
-                if (balance < 100*OrganizationList.Count) continue;
+                if (balance < 100 * OrganizationList.Count) continue;
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
                 {
@@ -175,7 +175,7 @@ namespace AElf.Automation.ProposalTest
                     }
                     else
                     {
-                        var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));      
+                        var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
                         Logger.Info($"Create proposal {proposal} through organization address {key.Key}");
                         proposalIds.Add(proposal);
                     }
@@ -315,6 +315,7 @@ namespace AElf.Automation.ProposalTest
                     BalanceInfo.Add(organization.Key, balance);
                     continue;
                 }
+
                 Token.TransferBalance(InitAccount, organization.Key.GetFormatted(), 100_00000000, Symbol);
                 balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
                 BalanceInfo.Add(organization.Key, balance);
@@ -343,7 +344,7 @@ namespace AElf.Automation.ProposalTest
                 {
                     OrganizationMembers = {reviewers}
                 };
-                
+
                 foreach (var reviewer in reviewers)
                 {
                     var balance = Token.GetUserBalance(reviewer.GetFormatted(), TokenSymbol);

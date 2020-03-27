@@ -46,7 +46,7 @@ namespace AElfChain.Common.Contracts
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }
-        
+
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
             string caller = null)
         {
@@ -60,12 +60,13 @@ namespace AElfChain.Common.Contracts
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
-            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, proposal.TransactionResult.TransactionId.ToHex);
+            proposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                proposal.TransactionResult.TransactionId.ToHex);
             var proposalId = proposal.Output;
-            Logger.Info($"Proposal {proposalId} created success by {caller ?? CallAddress}."); 
+            Logger.Info($"Proposal {proposalId} created success by {caller ?? CallAddress}.");
             return proposalId;
         }
-        
+
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
         {
             var tester = GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);
@@ -75,7 +76,7 @@ namespace AElfChain.Common.Contracts
 
             return result.TransactionResult;
         }
-        
+
         public TransactionResultDto Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);

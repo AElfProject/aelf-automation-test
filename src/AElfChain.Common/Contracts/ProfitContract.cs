@@ -103,7 +103,7 @@ namespace AElfChain.Common.Contracts
             var newTester = GetNewTester(account);
             return newTester.CallViewMethod<Int64Value>(ProfitMethod.GetProfitAmount, new ClaimProfitsInput
             {
-                SchemeId = schemeId,
+                SchemeId = schemeId
             }).Value;
         }
 

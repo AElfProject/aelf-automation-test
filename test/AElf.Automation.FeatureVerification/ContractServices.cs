@@ -1,6 +1,5 @@
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
-using AElf.Types;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -8,20 +7,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         public readonly INodeManager NodeManager;
 
-        public GenesisContract GenesisService { get; set; }
-        public TokenContract TokenService { get; set; }
-        public TokenConverterContract TokenConverterService { get; set; }
-        public VoteContract VoteService { get; set; }
-        public ProfitContract ProfitService { get; set; }
-        public ElectionContract ElectionService { get; set; }
-        public ConsensusContract ConsensusService { get; set; }
-        public AssociationAuthContract AssociationAuthService { get; set; }
-        public ReferendumAuthContract ReferendumAuthService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
-        public ConfigurationContract ConfigurationService { get; set; }
-        public CrossChainContract CrossChainService { get; set; }
-
-        public string CallAddress { get; set; }
         public ContractServices(INodeManager nodeManager, string callAddress, string type)
         {
             NodeManager = nodeManager;
@@ -41,11 +26,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 //Election contract
                 ElectionService = GenesisService.GetElectionContract();
-                
+
                 //TokenConverter contract
                 TokenConverterService = GenesisService.GetTokenConverterContract();
             }
         }
+
+        public GenesisContract GenesisService { get; set; }
+        public TokenContract TokenService { get; set; }
+        public TokenConverterContract TokenConverterService { get; set; }
+        public VoteContract VoteService { get; set; }
+        public ProfitContract ProfitService { get; set; }
+        public ElectionContract ElectionService { get; set; }
+        public ConsensusContract ConsensusService { get; set; }
+        public AssociationAuthContract AssociationAuthService { get; set; }
+        public ReferendumAuthContract ReferendumAuthService { get; set; }
+        public ParliamentAuthContract ParliamentService { get; set; }
+        public ConfigurationContract ConfigurationService { get; set; }
+        public CrossChainContract CrossChainService { get; set; }
+
+        public string CallAddress { get; set; }
 
         public void GetAllContractServices()
         {

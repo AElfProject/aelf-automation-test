@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Acs0;
+using AElf.Types;
+using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Automation.ScenariosExecution.Scenarios;
-using AElf.Contracts.TestContract.BasicFunction;
-using AElf.Types;
-using AElfChain.Common;
 using log4net;
-using Volo.Abp;
 
 namespace AElf.Automation.ScenariosExecution
 {
@@ -29,23 +25,6 @@ namespace AElf.Automation.ScenariosExecution
             GetAllContractServices();
         }
 
-        public void UpdateRandomEndpoint()
-        {
-            while (true)
-            {
-                var nodes = NodeInfoHelper.Config.Nodes;
-                var randomId = CommonHelper.GenerateRandomNumber(0, nodes.Count);
-                if(nodes[randomId].Endpoint == NodeManager.GetApiUrl()) continue;
-
-                var updateUrl = nodes[randomId].Endpoint;
-                NodeManager.UpdateApiUrl(updateUrl);
-                break;
-            }
-        }
-        public ContractServices CloneServices()
-        {
-            return MemberwiseClone() as ContractServices;
-        }
         public GenesisContract GenesisService { get; set; }
         public TokenContract TokenService { get; set; }
         public TreasuryContract TreasuryService { get; set; }
@@ -57,6 +36,25 @@ namespace AElf.Automation.ScenariosExecution
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
         public static List<Node> CurrentBpNodes { get; set; }
+
+        public void UpdateRandomEndpoint()
+        {
+            while (true)
+            {
+                var nodes = NodeInfoHelper.Config.Nodes;
+                var randomId = CommonHelper.GenerateRandomNumber(0, nodes.Count);
+                if (nodes[randomId].Endpoint == NodeManager.GetApiUrl()) continue;
+
+                var updateUrl = nodes[randomId].Endpoint;
+                NodeManager.UpdateApiUrl(updateUrl);
+                break;
+            }
+        }
+
+        public ContractServices CloneServices()
+        {
+            return MemberwiseClone() as ContractServices;
+        }
 
         private void GetAllContractServices()
         {
@@ -90,8 +88,8 @@ namespace AElf.Automation.ScenariosExecution
 
             //TokenConverter contract
             TokenConverterService = GenesisService.GetTokenConverterContract();
-
         }
+
         private List<Node> GetCurrentBpNodes()
         {
             var nodes = NodeInfoHelper.Config.Nodes;

@@ -2,7 +2,6 @@
 using System.Linq;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 

@@ -8,6 +8,8 @@ namespace AElf.Automation.E2ETest.ApiSuits
     [TestClass]
     public class NetApiTests : ApiTestBase
     {
+        private const string FakePeer = "127.0.0.1:9999";
+
         [TestMethod]
         public async Task GetNetworkInfo_Test()
         {
@@ -42,18 +44,18 @@ namespace AElf.Automation.E2ETest.ApiSuits
             //remove peer
             var result = await Client.RemovePeerAsync(ipAddress);
             result.ShouldBeTrue();
-            
+
             await Task.Delay(3000);
-            
+
             //add peer back
             result = await Client.AddPeerAsync(ipAddress);
             result.ShouldBeTrue();
-            
+
             //get peers
             peers = await Client.GetPeersAsync(false);
-            peers.Select(o=>o.IpAddress).ShouldContain(ipAddress);
+            peers.Select(o => o.IpAddress).ShouldContain(ipAddress);
         }
-        
+
         [TestMethod]
         public async Task GetPeers_Test()
         {
@@ -66,7 +68,5 @@ namespace AElf.Automation.E2ETest.ApiSuits
             peers1.Select(o => o.RequestMetrics).ShouldAllBe(o => o != null);
             peers1.Count.ShouldBe(peers.Count);
         }
-
-        private const string FakePeer = "127.0.0.1:9999";
     }
 }

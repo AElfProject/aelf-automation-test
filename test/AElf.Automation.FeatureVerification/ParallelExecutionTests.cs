@@ -15,10 +15,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ParallelExecutionTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        public string TestAccount { get; set; }
         public string TestContract = "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe";
-        
+
         public ParallelExecutionTests()
         {
             Log4NetHelper.LogInit();
@@ -27,6 +25,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(node.Endpoint);
             TestAccount = node.Account;
         }
+
+        public INodeManager NodeManager { get; set; }
+        public string TestAccount { get; set; }
 
         [TestMethod]
         public void TestParallelTestContract()
@@ -45,8 +46,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         .IncreaseWinMoney),
                     new IncreaseWinMoneyInput
                     {
-                        First = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count-1)].ConvertAddress(),
-                        Second = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count-1)].ConvertAddress()
+                        First = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count - 1)].ConvertAddress(),
+                        Second = accounts[CommonHelper.GenerateRandomNumber(0, accounts.Count - 1)].ConvertAddress()
                     });
                 Logger.Info($"TxId: {txId}");
 

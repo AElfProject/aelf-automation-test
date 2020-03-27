@@ -1,7 +1,7 @@
 using Acs1;
+using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
 using AElfChain.Console.InputOption;
 using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acs3;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf;
@@ -88,7 +88,7 @@ namespace AElf.Automation.ProposalTest
                 var status = result.Status.ConvertTransactionResultStatus();
                 if (status != TransactionResultStatus.Mined)
                 {
-                    Logger.Error($"Create organization address failed.");
+                    Logger.Error("Create organization address failed.");
                 }
                 else
                 {

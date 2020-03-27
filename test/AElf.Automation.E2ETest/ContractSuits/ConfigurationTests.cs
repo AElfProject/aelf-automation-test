@@ -43,7 +43,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.ParliamentAuthStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
             var owner = await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
             var miners = ContractManager.Authority.GetCurrentMiners();
-            var parliamentStub = ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(miners.First());
+            var parliamentStub =
+                ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(
+                    miners.First());
             var createManagerController =
                 await parliamentStub.CreateOrganization.SendAsync(new CreateOrganizationInput
                 {
@@ -65,8 +67,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     new AuthorityInfo
                     {
                         ContractAddress = ContractManager.ParliamentAuth.Contract,
-                        OwnerAddress = newControllerManager,
-                    }, 
+                        OwnerAddress = newControllerManager
+                    },
                     ContractManager.CallAddress);
                 releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var newOwner =
@@ -77,13 +79,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             //recover
             var setManagerResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Configuration.ContractAddress, 
+                ContractManager.Configuration.ContractAddress,
                 nameof(ConfigurationMethod.ChangeConfigurationController),
                 new AuthorityInfo
                 {
-                    ContractAddress =  ContractManager.ParliamentAuth.Contract,
+                    ContractAddress = ContractManager.ParliamentAuth.Contract,
                     OwnerAddress = defaultOwner
-                }, miners.First(),newControllerManager);
+                }, miners.First(), newControllerManager);
             setManagerResult.Status.ShouldBe(TransactionResultStatus.Mined);
             owner = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             owner.OwnerAddress.ShouldBe(defaultOwner);

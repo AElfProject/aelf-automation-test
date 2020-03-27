@@ -6,7 +6,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using AElfChain.Console.InputOption;
 using Google.Protobuf;
-using Sharprompt;
 
 namespace AElfChain.Console.Commands
 {
@@ -36,7 +35,8 @@ namespace AElfChain.Console.Commands
             if (input.Length == 2)
                 contractAddress = input[1];
             else
-                contractAddress = Services.GetContractAddress(input[0]) ?? CommandOption.InputParameters(1, "Input contract address")[0];
+                contractAddress = Services.GetContractAddress(input[0]) ??
+                                  CommandOption.InputParameters(1, "Input contract address")[0];
             $"Contract: {input[0]}, Address: {contractAddress}".WriteWarningLine();
             contractInfo.GetContractViewMethodsInfo();
 

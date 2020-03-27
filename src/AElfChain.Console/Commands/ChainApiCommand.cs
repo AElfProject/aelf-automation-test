@@ -216,29 +216,28 @@ namespace AElfChain.Console.Commands
                     System.Console.WriteLine();
                     continue;
                 }
-                
+
                 var peerInfo = string.Join("  ", peers.Select(o => o.IpAddress));
                 $"Peers: {peerInfo}".WriteSuccessLine();
                 System.Console.WriteLine();
             }
         }
-        
+
         private void GetPeers()
         {
             var input = Prompt.Select("With details", new[] {"yes", "no"});
             var peers = NodeManager.NetGetPeers();
             if (input == "yes")
+            {
                 JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+            }
             else
             {
                 var count = peers.Count;
                 var peerInfo = peers.Select(o => o.IpAddress).ToList();
                 $"Total peers count: {count}".WriteSuccessLine();
                 if (count == 0) return;
-                for (var i = 0; i < peerInfo.Count; i++)
-                {
-                    $"{i + 1:00}. {peerInfo[i]}".WriteSuccessLine();
-                }
+                for (var i = 0; i < peerInfo.Count; i++) $"{i + 1:00}. {peerInfo[i]}".WriteSuccessLine();
             }
         }
 

@@ -48,11 +48,11 @@ namespace AElfChain.Common.Helpers
                 return contractName;
 
             var filePathWithExtension = filePath + ContractPatchedExtension;
-            if(File.Exists(filePathWithExtension))
+            if (File.Exists(filePathWithExtension))
                 return filePathWithExtension;
-            
+
             filePathWithExtension = filePath + ContractExtension;
-            
+
             return filePathWithExtension;
         }
 

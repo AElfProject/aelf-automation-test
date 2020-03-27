@@ -169,7 +169,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 },
                 ContractManager.CallAddress);
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var miners = ContractManager.Authority.GetCurrentMiners();
             var result = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,

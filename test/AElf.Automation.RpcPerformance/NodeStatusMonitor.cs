@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Client.Dto;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -32,11 +32,11 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                if (checkTimes >= 150) return false;    //over check time and cancel current round execution            
+                if (checkTimes >= 150) return false; //over check time and cancel current round execution            
                 var poolStatus = GetTransactionPoolTxCount();
                 if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
                     return true;
-                
+
                 checkTimes++;
                 if (checkTimes % 10 == 0)
                     $"TxHub transaction count: QueuedCount={poolStatus.Queued} ValidatedCount={poolStatus.Validated}. Transaction limit: {MaxValidateLimit}"

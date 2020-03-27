@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Acs3;
 using AElf.Client.Service;
-using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
 using AElf.Types;
@@ -26,8 +24,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
         public ParliamentAuthContract Parliament;
-        public TokenContract Token;
         public string Symbol;
+        public TokenContract Token;
         public INodeManager NodeManager { get; set; }
         public AElfClient ApiClient { get; set; }
         protected static int MinersCount { get; set; }
@@ -45,6 +43,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Init Logger
             Log4NetHelper.LogInit("ParliamentTest_");
             NodeInfoHelper.SetConfig("nodes-online-test-main");
+
             #endregion
 
             NodeManager = new NodeManager(RpcUrl);
@@ -86,7 +85,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             organization.ProposerAuthorityRequired.ShouldBeTrue();
             organization.ParliamentMemberProposingAllowed.ShouldBeTrue();
         }
-        
+
         [TestMethod]
         [DataRow("4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm",
             "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
@@ -155,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Parliament.SetAccount(miner);
                 var result =
                     Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
-                    ); 
+                    );
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
@@ -175,7 +174,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Parliament.SetAccount(Full);
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
-                ); 
+                );
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
@@ -199,7 +198,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"{info.ProposalReleaseThreshold.MaximalRejectionThreshold}");
             _logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");
             _logger.Info($"{info.ProposalReleaseThreshold.MinimalVoteThreshold}");
-
         }
     }
 }

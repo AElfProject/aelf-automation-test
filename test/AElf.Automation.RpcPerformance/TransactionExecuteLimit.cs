@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
+using AElf.Contracts.Configuration;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.Configuration;
-using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -53,7 +53,8 @@ namespace AElf.Automation.RpcPerformance
         private async Task SetSelectTransactionLimit(ConfigurationContainer.ConfigurationStub configurationStub,
             int limitCount)
         {
-            var beforeResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var beforeResult = await configurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var beforeValue = SInt32Value.Parser.ParseFrom(beforeResult.Value).Value;
             Logger.Info($"Old transaction limit number: {beforeValue}");
 
@@ -69,7 +70,7 @@ namespace AElf.Automation.RpcPerformance
                 new SetConfigurationInput
                 {
                     Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                    Value = new SInt32Value{Value = limitCount}.ToByteString()
+                    Value = new SInt32Value {Value = limitCount}.ToByteString()
                 },
                 gensisOwner,
                 minersList,
@@ -77,15 +78,14 @@ namespace AElf.Automation.RpcPerformance
             );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var afterResult = await configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var afterResult = await configurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var afterValue = SInt32Value.Parser.ParseFrom(afterResult.Value).Value;
             Logger.Info($"New transaction limit number: {afterValue}");
             if (afterValue == limitCount)
                 Logger.Info("Transaction limit set successful.");
             else
-            {
                 Logger.Error($"Transaction limit set number verify failed. {afterValue}/{limitCount}");
-            }
         }
     }
 }

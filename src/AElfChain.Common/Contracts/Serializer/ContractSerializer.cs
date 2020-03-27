@@ -31,7 +31,6 @@ using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
 using Google.Protobuf.Reflection;
 
-
 namespace AElfChain.Common.Contracts.Serializer
 {
     public class ContractSerializer
@@ -173,7 +172,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     NameProvider.TestC,
                     new List<ServiceDescriptor>
                         {MethodFeeProviderContractContainer.Descriptor, CContractContainer.Descriptor}
-                },
+                }
             };
 
         public ContractInfo GetContractInfo(NameProvider name)

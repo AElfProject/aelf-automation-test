@@ -10,6 +10,9 @@ namespace AElf.Automation.SideChainTests
         public readonly int ChainId;
         public readonly INodeManager NodeManager;
 
+        public TokenContractContainer.TokenContractStub TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub TokenImplContractStub;
+
         public ContractServices(string url, string callAddress, string password)
         {
             NodeManager = new NodeManager(url);
@@ -23,7 +26,8 @@ namespace AElf.Automation.SideChainTests
             TokenContractStub =
                 tester.Create<TokenContractContainer.TokenContractStub>(TokenService.Contract,
                     TokenService.CallAddress);
-            TokenImplContractStub = tester.Create<TokenContractImplContainer.TokenContractImplStub>(TokenService.Contract,
+            TokenImplContractStub = tester.Create<TokenContractImplContainer.TokenContractImplStub>(
+                TokenService.Contract,
                 TokenService.CallAddress);
         }
 
@@ -34,9 +38,6 @@ namespace AElf.Automation.SideChainTests
         public ParliamentAuthContract ParliamentService { get; set; }
         public AssociationAuthContract AssociationService { get; set; }
 
-        public TokenContractContainer.TokenContractStub TokenContractStub;
-        public TokenContractImplContainer.TokenContractImplStub TokenImplContractStub;
-        
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
 

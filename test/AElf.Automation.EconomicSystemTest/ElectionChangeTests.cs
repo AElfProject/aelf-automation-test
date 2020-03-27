@@ -121,12 +121,12 @@ namespace AElf.Automation.EconomicSystemTest
                 VoteId = voteId
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var voteResult = await ElectionContractStub.GetCandidateVoteWithRecords.CallAsync(new StringValue
-            {    
+            {
                 Value = FullUserPubKey2
             });
-            voteResult.ObtainedActiveVotingRecords.Select(o=>o.VoteId).ShouldContain(voteId);
+            voteResult.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(voteId);
         }
 
         [TestMethod]

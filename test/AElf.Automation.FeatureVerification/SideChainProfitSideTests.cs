@@ -13,18 +13,12 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
-using ClaimProfitsInput = AElf.Contracts.TokenHolder.ClaimProfitsInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class SideChainProfitSideTests
     {
-        private ILog Logger { get; set; }
-
-        public INodeManager NodeManager { get; set; }
-        public ContractManager SideManager { get; set; }
-
         public SideChainProfitSideTests()
         {
             Log4NetHelper.LogInit("SideChainProfitSide");
@@ -37,24 +31,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
             SideManager = new ContractManager(NodeManager, node.Account);
         }
 
+        private ILog Logger { get; }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager SideManager { get; set; }
+
         [TestMethod]
         public void Prepare_TestToken()
         {
             const long BALANCE = 5000_00000000L;
-            var symbols = new[] { "STA", "ELF", "RAM", "CPU" };
+            var symbols = new[] {"STA", "ELF", "RAM", "CPU"};
             var secondBp = NodeInfoHelper.Config.Nodes[1].Account;
             foreach (var symbol in symbols)
-            {
                 SideManager.Token.TransferBalance(SideManager.CallAddress, secondBp, BALANCE, symbol);
-            }
-            
+
             foreach (var symbol in symbols)
             {
                 var balance = SideManager.Token.GetUserBalance(secondBp, symbol);
                 Logger.Info($"{secondBp} {symbol}={balance}");
             }
         }
-        
+
         [TestMethod]
         public async Task Register_Mortgage_Test()
         {
@@ -66,19 +63,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = "SHARE"
             });
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var registerResult =
                 await SideManager.TokenHolderStub.RegisterForProfits.SendAsync(new RegisterForProfitsInput
                 {
                     SchemeManager = SideManager.Consensus.Contract,
                     Amount = 100
                 });
-            registerResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, registerResult.TransactionResult.Error);
-            
+            registerResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                registerResult.TransactionResult.Error);
+
             var afterBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
             afterBalance.ShouldBe(beforeBalance - 100);
         }
-        
+
         [TestMethod]
         [DataRow("SCPU")]
         [DataRow("SRAM")]
@@ -126,7 +124,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         [DataRow("SCPU", 400_00000000L)]
         [DataRow("SRAM", 400_00000000L)]
-
         public async Task Contribute_SideChainDividendsPool_Test(string symbol, long amount)
         {
             var secondBp = NodeInfoHelper.Config.Nodes[1].Account;
@@ -139,7 +136,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = symbol
             });
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var contributeResult =
                 await consensusStub.ContributeToSideChainDividendsPool.SendAsync(
                     new ContributeToSideChainDividendsPoolInput
@@ -171,12 +168,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Beneficiary = SideManager.CallAccount
             });
             Logger.Info(JsonConvert.SerializeObject(profitMap));
-            
+
             var beforeBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, symbol);
             var claimResult = await SideManager.TokenHolderStub.ClaimProfits.SendAsync(new ClaimProfitsInput
             {
                 SchemeManager = SideManager.Consensus.Contract,
-                Beneficiary = SideManager.CallAccount,
+                Beneficiary = SideManager.CallAccount
             });
             claimResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, symbol);
@@ -199,12 +196,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var profitMap = await SideManager.TokenHolderStub.GetProfitsMap.CallAsync(new ClaimProfitsInput
             {
                 SchemeManager = SideManager.Consensus.Contract,
-                Beneficiary = SideManager.CallAccount,
+                Beneficiary = SideManager.CallAccount
             });
-            foreach (var (key, value) in profitMap.Value)
-            {
-                Logger.Info($"Profit info {key} = {value}");
-            }
+            foreach (var (key, value) in profitMap.Value) Logger.Info($"Profit info {key} = {value}");
         }
 
         [TestMethod]
@@ -214,7 +208,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info(scheme.SchemeId.ToHex());
 
             var schemeInfo = await SideManager.ProfitStub.GetScheme.CallAsync(scheme.SchemeId);
-            
         }
     }
 }

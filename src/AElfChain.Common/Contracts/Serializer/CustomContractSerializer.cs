@@ -204,3 +204,4 @@ namespace AElfChain.Common.Contracts.Serializer
     }
 }
 */
+

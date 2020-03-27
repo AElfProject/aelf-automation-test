@@ -13,9 +13,8 @@ namespace AElfChain.Console
 {
     public class CliCommand
     {
-        public List<BaseCommand> Commands;
-
         private readonly ILog Logger = Log4NetHelper.GetLogger();
+        public List<BaseCommand> Commands;
 
         public CliCommand(INodeManager nodeManager)
         {

@@ -22,12 +22,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
     public class TransactionFeeTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
-        public DeveloperFeeController DeveloperFeeAddresses { get; set; }
-        public UserFeeController UserFeeAddresses { get; set; }
-        public List<string> NodeUsers { get; set; }
-        public List<string> Miners { get; set; }
 
         public TransactionFeeTests()
         {
@@ -43,7 +37,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             AsyncHelper.RunSync(InitializeAuthorizedOrganization);
             AsyncHelper.RunSync(InitializeReferendumAllowance);
         }
-        
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
+        public DeveloperFeeController DeveloperFeeAddresses { get; set; }
+        public UserFeeController UserFeeAddresses { get; set; }
+        public List<string> NodeUsers { get; set; }
+        public List<string> Miners { get; set; }
+
         [TestMethod]
         public async Task SetAvailableTokenInfos()
         {
@@ -306,7 +307,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             Logger.Info($"User ParliamentController: {UserFeeAddresses.ParliamentController}");
             Logger.Info($"User ReferendumController: {UserFeeAddresses.ReferendumController}");
         }
-        
+
         private async Task<SymbolListToPayTxSizeFee> QueryAvailableTokenInfos()
         {
             var tokenInfos = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
@@ -317,10 +318,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             }
 
             foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
-            {
                 Logger.Info(
                     $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
-            }
 
             return tokenInfos;
         }
