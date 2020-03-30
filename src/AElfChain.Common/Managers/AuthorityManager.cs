@@ -202,8 +202,12 @@ namespace AElfChain.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            _parliament.MinersApproveProposal(proposalId, approveUsers);
-
+            var proposalInfo = _parliament.CheckProposal(proposalId);
+            while (!proposalInfo.ToBeReleased) 
+            { 
+                _parliament.MinersApproveProposal(proposalId, approveUsers);
+                proposalInfo = _parliament.CheckProposal(proposalId);
+            }
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }

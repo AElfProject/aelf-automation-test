@@ -97,6 +97,7 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            var bps = NodeInfoHelper.Config.Nodes;
             //create all token
             for (var i = 0; i < ThreadCount; i++)
             {
@@ -115,11 +116,14 @@ namespace AElf.Automation.RpcPerformance
                 ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
+                var balance = token.GetUserBalance(account);
+                if (balance < 10000_00000000)
+                    token.SetAccount(bps.First().Account);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
                     TokenName = $"elf token {symbol}",
-                    TotalSupply = long.MaxValue,
+                    TotalSupply = 10_0000_0000_00000000L,
                     Decimals = 8,
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true
@@ -130,7 +134,7 @@ namespace AElf.Automation.RpcPerformance
             Monitor.CheckTransactionsStatus(TxIdList);
 
             //issue all token
-            var amount = long.MaxValue / AccountList.Count;
+            var amount = 10_0000_0000_00000000L / AccountList.Count;
             foreach (var contract in ContractList)
             {
                 var account = contract.Owner;

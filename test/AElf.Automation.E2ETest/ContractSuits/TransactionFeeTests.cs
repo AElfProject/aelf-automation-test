@@ -245,8 +245,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task Recover_Tx_With_User()
         {
-            const int pieceUpperBound1 = 1000000;
-            const int pieceUpperBound2 = int.MaxValue;
+            const int pieceUpperBound1 = 2000000;
+            const int pieceUpperBound2 = 10000000;
             const int feeType = (int) FeeTypeEnum.Tx;
             var piece1 = new CalculateFeePieceCoefficients
             {
