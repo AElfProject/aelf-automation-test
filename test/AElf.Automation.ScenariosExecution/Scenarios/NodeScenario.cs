@@ -43,7 +43,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
-        public Dictionary<SchemeType, Scheme> Schemes { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
         public void RunNodeScenario()
         {
@@ -186,6 +186,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
                                  $"\r\nTreasury balance is {treasuryBalance}";
+            //update scheme
+            Profit.GetTreasurySchemes(Treasury.ContractAddress);
+            Schemes = ProfitContract.Schemes;
+            
             foreach (var (key, value) in Schemes)
             {
                 Address address;

@@ -22,7 +22,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public INodeManager NodeManager { get; set; }
         public ContractManager ContractManager { get; set; }
         public Dictionary<SchemeType, Scheme> Schemes { get; set; }
-        
+
         public CustomizeDividendTests()
         {
             Log4NetHelper.LogInit("CustomizeDividendTests");
@@ -99,26 +99,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
             defaultWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(25);
             var newWeightSetting = new MinerRewardWeightSetting
             {
-                BasicMinerRewardWeight = 1,
-                ReElectionRewardWeight = 1,
-                VotesWeightRewardWeight = 8
+                BasicMinerRewardWeight = 2,
+                ReElectionRewardWeight = 2,
+                VotesWeightRewardWeight = 6
             };
             ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetMinerRewardWeightSetting),
                 newWeightSetting, ContractManager.CallAddress);
             var updatedWeightSetting =
                 await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
-            updatedWeightSetting.BasicMinerRewardProportionInfo.Proportion.ShouldBe(10);
-            updatedWeightSetting.ReElectionRewardProportionInfo.Proportion.ShouldBe(10);
-            updatedWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(80);
+            updatedWeightSetting.BasicMinerRewardProportionInfo.Proportion.ShouldBe(20);
+            updatedWeightSetting.ReElectionRewardProportionInfo.Proportion.ShouldBe(20);
+            updatedWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(60);
 
             var minerRewardProfit =
                 await ContractManager.ProfitStub.GetScheme.CallAsync(Schemes[SchemeType.MinerReward].SchemeId);
             var subSchemes = minerRewardProfit.SubSchemes;
             subSchemes.Count.ShouldBe(3);
-            var weightOneCount = subSchemes.Count(x => x.Shares == 1);
+            var weightOneCount = subSchemes.Count(x => x.Shares == 2);
             weightOneCount.ShouldBe(2);
-            var weightEightCount = subSchemes.Count(x => x.Shares == 8);
+            var weightEightCount = subSchemes.Count(x => x.Shares == 6);
             weightEightCount.ShouldBe(1);
         }
 
@@ -131,12 +131,50 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"CitizenWelfare: {dividends.CitizenWelfareProportionInfo.Proportion}");
             Logger.Info($"MinerReward: {dividends.MinerRewardProportionInfo.Proportion}");
 
-
             var minerReward = await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             Logger.Info("GetMinerRewardWeightProportion");
             Logger.Info($"BasicMinerReward: {minerReward.BasicMinerRewardProportionInfo.Proportion}");
             Logger.Info($"ReElectionReward: {minerReward.ReElectionRewardProportionInfo.Proportion}");
             Logger.Info($"VotesWeightReward: {minerReward.VotesWeightRewardProportionInfo.Proportion}");
+        }
+
+        [TestMethod]
+        [DataRow(new []{4, 5, 6, 7})]
+        public async Task QueryDividendProfits_Test(int[] terms)
+        {
+            var minerReward = await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
+            var basicMinerHash = minerReward.BasicMinerRewardProportionInfo.SchemeId;
+            var reElectionHash = minerReward.ReElectionRewardProportionInfo.SchemeId;
+            var voteWeightHash = minerReward.VotesWeightRewardProportionInfo.SchemeId;
+
+            foreach (var term in terms)
+            {
+                Logger.Info($"Query term number: {term}");
+                var basicAddress = await ContractManager.ProfitStub.GetSchemeAddress.CallAsync(new SchemePeriod
+                {
+                    SchemeId = basicMinerHash,
+                    Period = term
+                });
+
+                var electionAddress = await ContractManager.ProfitStub.GetSchemeAddress.CallAsync(new SchemePeriod
+                {
+                    SchemeId = reElectionHash,
+                    Period = term
+                });
+
+                var voteAddress = await ContractManager.ProfitStub.GetSchemeAddress.CallAsync(new SchemePeriod
+                {
+                    SchemeId = voteWeightHash,
+                    Period = term
+                });
+
+                Logger.Info(
+                    $"BasicReward Profit: {ContractManager.Token.GetUserBalance(basicAddress.GetFormatted(), "ELF")}");
+                Logger.Info(
+                    $"ReElection Profit: {ContractManager.Token.GetUserBalance(electionAddress.GetFormatted(), "ELF")}");
+                Logger.Info(
+                    $"VoteWeight Profit: {ContractManager.Token.GetUserBalance(voteAddress.GetFormatted(), "ELF")}");
+            }
         }
     }
 }
