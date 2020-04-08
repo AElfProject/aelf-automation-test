@@ -68,7 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var result = await _tokenConverterSub.Buy.SendAsync(new BuyInput
                 {
-                    Amount = 100000_00000000,
+                    Amount = 1_00000000,
                     Symbol = resource
                 });
                 var size = result.Transaction.Size();
@@ -94,41 +94,44 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SellResource()
         {
-            var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+            foreach (var resource in ResourceSymbol)
             {
-                Owner = AddressHelper.Base58StringToAddress(InitAccount),
-                Symbol = NodeManager.GetNativeTokenSymbol()
-            });
-            var otherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-            {
-                Owner = AddressHelper.Base58StringToAddress(InitAccount),
-                Symbol = "CPU"
-            });
+                var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Symbol = NodeManager.GetNativeTokenSymbol()
+                });
+                var otherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Symbol = resource
+                });
 
-            Logger.Info($"user ELF balance is {balance} user {Symbol} balance is {otherTokenBalance}");
+                Logger.Info($"user ELF balance is {balance} user {resource} balance is {otherTokenBalance}");
             
-            var result = await _tokenConverterSub.Sell.SendAsync(new SellInput()
-            {
-                Amount = 200000000,
-                Symbol = "CPU"
-            });
-            var size = result.Transaction.Size();
-            Logger.Info($"transfer size is: {size}");
+                var result = await _tokenConverterSub.Sell.SendAsync(new SellInput()
+                {
+                    Amount = 1_00000000,
+                    Symbol = resource
+                });
+                var size = result.Transaction.Size();
+                Logger.Info($"transfer size is: {size}");
 
-            var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-            {
-                Owner = AddressHelper.Base58StringToAddress(InitAccount),
-                Symbol = NodeManager.GetNativeTokenSymbol()
-            });
+                var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Symbol = NodeManager.GetNativeTokenSymbol()
+                });
 
-            var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-            {
-                Owner = AddressHelper.Base58StringToAddress(InitAccount),
-                Symbol = "CPU"
-            });
+                var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Symbol = resource
+                });
 
-            Logger.Info(
-                $"After sell token, user ELF balance is {afterBalance} user {Symbol} balance is {afterOtherTokenBalance}");
+                Logger.Info(
+                    $"After sell token, user ELF balance is {afterBalance} user {resource} balance is {afterOtherTokenBalance}");
+            }
         }
 
         [TestMethod]

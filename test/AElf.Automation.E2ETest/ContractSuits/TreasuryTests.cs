@@ -152,13 +152,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Interest = 16,
                 Day = 400
             });
-            var updateInterestRet = (await ContractManager.TreasuryStub.SetVoteWeightInterest.SendAsync(newInterest))
-                .TransactionResult;
-            updateInterestRet.Status.ShouldBe(TransactionResultStatus.Failed);
-
+            
+            var miners = ContractManager.Authority.GetCurrentMiners();
             var defaultController =
                 await ContractManager.TreasuryStub.GetVoteWeightInterestController.CallAsync(new Empty());
-            var newOrganization = await CreateParliamentOrganization();
+            var newOrganization = CreateParliamentOrganization();
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
                 nameof(ContractManager.TreasuryStub.ChangeVoteWeightInterestController),
@@ -167,15 +165,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     ContractAddress = defaultController.ContractAddress,
                     OwnerAddress = newOrganization
                 },
-                ContractManager.CallAddress);
+                miners.First());
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
-            var miners = ContractManager.Authority.GetCurrentMiners();
             var result = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetVoteWeightInterest),
                 newInterest, newOrganization, miners,
-                ContractManager.CallAddress);
+                miners.First());
             result.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var interestList = await ContractManager.TreasuryStub.GetVoteWeightSetting.CallAsync(new Empty());
@@ -198,24 +195,29 @@ namespace AElf.Automation.E2ETest.ContractSuits
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
-        private async Task<Address> CreateParliamentOrganization()
+        private Address CreateParliamentOrganization()
         {
-            var newParliament = new CreateOrganizationInput
+            var parliament = ContractManager.ParliamentAuth;
+            var createInput = new CreateOrganizationInput
             {
-                ProposerAuthorityRequired = false,
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
                 {
-                    MaximalAbstentionThreshold = 1,
-                    MaximalRejectionThreshold = 1,
-                    MinimalApprovalThreshold = 1,
-                    MinimalVoteThreshold = 1
+                    MaximalAbstentionThreshold = 2500,
+                    MaximalRejectionThreshold = 2500,
+                    MinimalApprovalThreshold = 7500,
+                    MinimalVoteThreshold = 10000
                 },
-                ParliamentMemberProposingAllowed = false
+                ProposerAuthorityRequired = true,
+                ParliamentMemberProposingAllowed = true
             };
-            var result = await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(newParliament);
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var miners = ContractManager.Authority.GetCurrentMiners();
+            parliament.SetAccount(miners.First());
+            var result = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
+                createInput);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
+            return organizationAddress;
 
-            return result.Output;
         }
     }
 }

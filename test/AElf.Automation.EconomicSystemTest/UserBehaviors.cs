@@ -27,6 +27,13 @@ namespace AElf.Automation.EconomicSystemTest
                     Owner = AddressHelper.Base58StringToAddress(account),
                     Symbol = NodeOption.NativeTokenSymbol
                 }).Balance;
+            
+            var beforeVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                new GetBalanceInput
+                {
+                    Owner = AddressHelper.Base58StringToAddress(account),
+                    Symbol = "VOTE"
+                }).Balance;
 
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.Vote, new VoteMinerInput
@@ -36,13 +43,22 @@ namespace AElf.Automation.EconomicSystemTest
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
             });
             vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-
+            var fee = vote.GetDefaultTransactionFee();
+            
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(account),
                 Symbol = NodeOption.NativeTokenSymbol
             }).Balance;
-
+            
+            var afterVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner = AddressHelper.Base58StringToAddress(account),
+                Symbol = "VOTE"
+            }).Balance;
+            
+            afterBalance.ShouldBe(beforeBalance - amount - fee);
+            afterVoteBalance.ShouldBe(beforeVoteBalance + amount);
 //            beforeBalance.ShouldBe(afterBalance + amount, "user voted but user balance not correct.");
 
             return vote;

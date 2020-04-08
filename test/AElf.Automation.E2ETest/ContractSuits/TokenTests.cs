@@ -235,8 +235,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 NameProvider.Profit,
                 NameProvider.Election,
                 NameProvider.Treasury,
-                NameProvider.TokenConverter,
-                NameProvider.ReferendumAuth
+                NameProvider.TokenConverter
             };
             foreach (var provider in whiteList)
             {

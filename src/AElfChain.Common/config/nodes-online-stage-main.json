@@ -60,12 +60,6 @@
       "endpoint": "35.177.181.31:8000",
       "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
       "password": "123"
-    },
-    {
-      "name": "11.亚太区域(东京)-浏览器用",
-      "endpoint": "13.231.179.27:8000",
-      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
-      "password": "123"
     }
   ],
   "NativeTokenSymbol": "ELF",

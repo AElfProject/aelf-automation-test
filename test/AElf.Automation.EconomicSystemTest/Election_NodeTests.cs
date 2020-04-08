@@ -70,8 +70,8 @@ namespace AElf.Automation.EconomicSystemTest
             var termNumber =
                 Behaviors.ConsensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetCurrentTermNumber,
                     new Empty()).Value;
-            var voteMessage = $"TermNumber={termNumber}, candidates got vote keys info: \r\n";
             var candidateList = Behaviors.GetCandidates();
+            var voteMessage = $"TermNumber={termNumber}, candidates count is {candidateList.Value.Count}, got vote keys info: \r\n";
             foreach (var fullNode in candidateList.Value)
             {
                 var candidateVote = Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,

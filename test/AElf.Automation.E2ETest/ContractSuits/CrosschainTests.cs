@@ -57,7 +57,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 {
                     Value = chainId
                 });
-                balanceInfo.Value.ShouldBeGreaterThan(0);
+                balanceInfo.Value.ShouldBeGreaterThanOrEqualTo(0);
             }
         }
 
