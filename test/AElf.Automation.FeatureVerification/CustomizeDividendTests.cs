@@ -127,11 +127,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var dividends = await ContractManager.TreasuryStub.GetDividendPoolWeightProportion.CallAsync(new Empty());
             Logger.Info("GetDividendPoolWeightProportion");
-            Logger.Info(JsonConvert.SerializeObject(dividends));
+            Logger.Info($"BackupSubsidy: {dividends.BackupSubsidyProportionInfo.Proportion}");
+            Logger.Info($"CitizenWelfare: {dividends.CitizenWelfareProportionInfo.Proportion}");
+            Logger.Info($"MinerReward: {dividends.MinerRewardProportionInfo.Proportion}");
+
 
             var minerReward = await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             Logger.Info("GetMinerRewardWeightProportion");
-            Logger.Info(JsonConvert.SerializeObject(minerReward));
+            Logger.Info($"BasicMinerReward: {minerReward.BasicMinerRewardProportionInfo.Proportion}");
+            Logger.Info($"ReElectionReward: {minerReward.ReElectionRewardProportionInfo.Proportion}");
+            Logger.Info($"VotesWeightReward: {minerReward.VotesWeightRewardProportionInfo.Proportion}");
         }
     }
 }
