@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Contracts.Profit;
+using AElf.Contracts.Treasury;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
@@ -68,14 +70,24 @@ namespace AElfChain.Common.Contracts
                 treasuryContract.CallViewMethod<Hash>(TreasuryMethod.GetTreasurySchemeId, new Empty());
             var treasuryScheme = CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasurySchemeId);
             Schemes.Add(SchemeType.Treasury, treasuryScheme);
+            var dividendPoolWeightProportion =
+                treasuryContract.CallViewMethod<DividendPoolWeightProportion>(
+                    TreasuryMethod.GetDividendPoolWeightProportion, new Empty());
             var minerRewardScheme =
-                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[0].SchemeId);
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme,
+                    treasuryScheme.SubSchemes.First(o =>
+                        o.SchemeId == dividendPoolWeightProportion.MinerRewardProportionInfo.SchemeId).SchemeId);
             Schemes.Add(SchemeType.MinerReward, minerRewardScheme);
 
             Schemes.Add(SchemeType.BackupSubsidy,
-                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[1].SchemeId));
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme,
+                    treasuryScheme.SubSchemes.First(o =>
+                        o.SchemeId == dividendPoolWeightProportion.BackupSubsidyProportionInfo.SchemeId).SchemeId));
             Schemes.Add(SchemeType.CitizenWelfare,
-                CallViewMethod<Scheme>(ProfitMethod.GetScheme, treasuryScheme.SubSchemes[2].SchemeId));
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme,
+                    treasuryScheme.SubSchemes.First(o =>
+                        o.SchemeId == dividendPoolWeightProportion.CitizenWelfareProportionInfo.SchemeId).SchemeId));
+
             Schemes.Add(SchemeType.MinerBasicReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[0].SchemeId));
             Schemes.Add(SchemeType.VotesWeightReward,
