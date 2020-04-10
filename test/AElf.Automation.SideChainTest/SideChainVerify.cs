@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 using Acs3;
 using Acs7;
 using AElf.Client.Dto;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
-using AElf.CSharp.CodeOps.Validators;
-using AElf.CSharp.Core;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -31,8 +28,56 @@ namespace AElf.Automation.SideChainTests
             Initialize();
         }
 
+        [TestMethod]
+        public void GetResourceTokenOnSideChain()
+        {
+            var symbols = new[] {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+            foreach (var sideService in SideServices)
+            foreach (var symbol in symbols)
+            {
+                var infoOnMain = MainServices.TokenService.GetTokenInfo(symbol);
+                var info = sideService.TokenService.GetTokenInfo(symbol);
+                _logger.Info($"{symbol}:");
+                info.Symbol.ShouldBe(infoOnMain.Symbol);
+                info.Burned.ShouldBe(infoOnMain.Burned);
+                info.Decimals.ShouldBe(infoOnMain.Decimals);
+                info.IssueChainId.ShouldBe(infoOnMain.IssueChainId);
+                info.Issuer.ShouldBe(infoOnMain.Issuer);
+//                    info.Supply.ShouldBe(infoOnMain.Supply);
+                info.TotalSupply.ShouldBe(infoOnMain.TotalSupply);
+                info.IsBurnable.ShouldBe(infoOnMain.IsBurnable);
+                info.IsProfitable.ShouldBe(infoOnMain.IsProfitable);
+            }
+        }
+
+        [TestMethod]
+        public void GetSideChainBalance()
+        {
+            var balance1 =
+                MainServices.CrossChainService.GetSideChainBalance(ChainHelper.ConvertBase58ToChainId("tDVV"));
+            var balance2 =
+                MainServices.CrossChainService.GetSideChainBalance(ChainHelper.ConvertBase58ToChainId("tDVW"));
+            _logger.Info($"chain tDVV {balance1}\n chain tDVW {balance2}");
+        }
+
+        [TestMethod]
+        public void GetSideChainIndex()
+        {
+            var index1 =
+                MainServices.CrossChainService.GetSideChainHeight(ChainHelper.ConvertBase58ToChainId("tDVV"));
+            var index2 =
+                MainServices.CrossChainService.GetSideChainHeight(ChainHelper.ConvertBase58ToChainId("tDVW"));
+            _logger.Info($"chain tDVV {index1}\n chain tDVW {index2}");
+
+            var index3 =
+                SideAServices.CrossChainService.GetParentChainHeight();
+            var index4 =
+                SideBServices.CrossChainService.GetParentChainHeight();
+            _logger.Info($"chain tDVV index main chain {index3}\n chain tDVW index main chain {index4}");
+        }
+
         #region register
-        
+
         [TestMethod]
         [DataRow("yoMUpJwRmwos5aP9uAXVn8i9d48yCzj3sHugYc4BCMntQVgi3")]
         public void TransferSideChain(string account)
@@ -56,10 +101,8 @@ namespace AElf.Automation.SideChainTests
             _logger.Info(
                 $"{account} {GetPrimaryTokenSymbol(MainServices)} balance is :{GetBalance(MainServices, account, GetPrimaryTokenSymbol(MainServices)).Balance}");
             foreach (var service in SideServices)
-            {
                 _logger.Info(
                     $"{account} {GetPrimaryTokenSymbol(service)} balance is :{GetBalance(service, account, GetPrimaryTokenSymbol(service)).Balance}");
-            }
         }
 
         [TestMethod]
@@ -189,10 +232,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void MainChainCrossChainTransferSideChainResourceToken()
         {
-            foreach (var service in SideServices)
-            {
-                MainChainCrossChainTransferSideChain(service);
-            }
+            foreach (var service in SideServices) MainChainCrossChainTransferSideChain(service);
         }
 
         public void MainChainCrossChainTransferSideChain(ContractServices sideService)
@@ -208,7 +248,7 @@ namespace AElf.Automation.SideChainTests
                     Amount = 100_00000000,
                     Memo = "cross chain transfer",
                     To = AddressHelper.Base58StringToAddress(InitAccount),
-                    ToChainId = sideService.ChainId,
+                    ToChainId = sideService.ChainId
                 };
                 // execute cross chain transfer
                 var rawTx = MainServices.NodeManager.GenerateRawTransaction(InitAccount,
@@ -259,10 +299,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public async Task AllSideChainTransferToMainChain()
         {
-            foreach (var service in SideServices)
-            {
-                await SideChainCrossChainTransferMainChain(service, 10000_00000000);
-            }
+            foreach (var service in SideServices) await SideChainCrossChainTransferMainChain(service, 10000_00000000);
         }
 
         public async Task SideChainCrossChainTransferMainChain(ContractServices services, long amount)
@@ -382,12 +419,10 @@ namespace AElf.Automation.SideChainTests
         public async Task ValidaAllToken()
         {
             foreach (var sideServices in SideServices)
+            foreach (var validate in SideServices)
             {
-                foreach (var validate in SideServices)
-                {
-                    if (validate.ChainId.Equals(sideServices.ChainId)) continue;
-                    await ValidToken(sideServices, validate);
-                }
+                if (validate.ChainId.Equals(sideServices.ChainId)) continue;
+                await ValidToken(sideServices, validate);
             }
         }
 
@@ -489,97 +524,6 @@ namespace AElf.Automation.SideChainTests
 
         #endregion
 
-        [TestMethod]
-        public async Task CrossChainData()
-        {
-            var balance = MainServices.TokenService.GetUserBalance(InitAccount);
-            _logger.Info($"{balance}");
-            var blocks = new List<BlockDto>();
-            for (int i = 511; i < 521; i++)
-            {
-                var block = await SideAServices.NodeManager.ApiClient.GetBlockByHeightAsync(i, true);
-                blocks.Add(block);
-            }
-
-            var crossChainData = new CrossChainBlockData();
-
-            for (int i = 1; i < blocks.Count; i++)
-            {
-                var blockHeader = new BlockHeader(HashHelper.HexStringToHash(blocks[i - 1].BlockHash));
-                var height = blocks[i].Header.Height;
-                var txId = blocks[i].Body.Transactions.First();
-                GetMerklePath(height, txId,
-                    SideAServices, out var root);
-                var sideChainBlockDate = new SideChainBlockData
-                {
-                    ChainId = ChainHelper.ConvertBase58ToChainId("tDVV"),
-                    BlockHeaderHash = Hash.FromMessage(blockHeader),
-                    Height = height,
-                    TransactionStatusMerkleTreeRoot = root
-                };
-                crossChainData.SideChainBlockDataList.Add(sideChainBlockDate);
-            }
-
-            crossChainData.PreviousBlockHeight = 3900;
-
-            var result =
-                MainServices.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RecordCrossChainData,
-                    crossChainData);
-
-            var afterBalance = MainServices.TokenService.GetUserBalance(InitAccount);
-            _logger.Info($"{afterBalance}");
-        }
-
-        [TestMethod]
-        public void GetResourceTokenOnSideChain()
-        {
-            var symbols = new[] {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
-            foreach (var sideService in SideServices)
-            {
-                foreach (var symbol in symbols)
-                {
-                    var infoOnMain = MainServices.TokenService.GetTokenInfo(symbol);
-                    var info = sideService.TokenService.GetTokenInfo(symbol);
-                    _logger.Info($"{symbol}:");
-                    info.Symbol.ShouldBe(infoOnMain.Symbol);
-                    info.Burned.ShouldBe(infoOnMain.Burned);
-                    info.Decimals.ShouldBe(infoOnMain.Decimals);
-                    info.IssueChainId.ShouldBe(infoOnMain.IssueChainId);
-                    info.Issuer.ShouldBe(infoOnMain.Issuer);
-//                    info.Supply.ShouldBe(infoOnMain.Supply);
-                    info.TotalSupply.ShouldBe(infoOnMain.TotalSupply);
-                    info.IsBurnable.ShouldBe(infoOnMain.IsBurnable);
-                    info.IsProfitable.ShouldBe(infoOnMain.IsProfitable);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void GetSideChainBalance()
-        {
-            var balance1 =
-                MainServices.CrossChainService.GetSideChainBalance(ChainHelper.ConvertBase58ToChainId("tDVV"));
-            var balance2 =
-                MainServices.CrossChainService.GetSideChainBalance(ChainHelper.ConvertBase58ToChainId("tDVW"));
-            _logger.Info($"chain tDVV {balance1}\n chain tDVW {balance2}");
-        }
-
-        [TestMethod]
-        public void GetSideChainIndex()
-        {
-            var index1 =
-                MainServices.CrossChainService.GetSideChainHeight(ChainHelper.ConvertBase58ToChainId("tDVV"));
-            var index2 =
-                MainServices.CrossChainService.GetSideChainHeight(ChainHelper.ConvertBase58ToChainId("tDVW"));
-            _logger.Info($"chain tDVV {index1}\n chain tDVW {index2}");
-
-            var index3 =
-                SideAServices.CrossChainService.GetParentChainHeight();
-            var index4 =
-                SideBServices.CrossChainService.GetParentChainHeight();
-            _logger.Info($"chain tDVV index main chain {index3}\n chain tDVW index main chain {index4}");
-        }
-
         #region private
 
         private async Task<long> MainChainCheckSideChainBlockIndex(ContractServices servicesFrom,
@@ -638,14 +582,14 @@ namespace AElf.Automation.SideChainTests
 
         private long GetIndexParentHeight(ContractServices services)
         {
-            return services.CrossChainService.CallViewMethod<SInt64Value>(
+            return services.CrossChainService.CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
         }
 
         private long GetIndexSideHeight(ContractServices services)
         {
-            return MainServices.CrossChainService.CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+            return MainServices.CrossChainService.CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new Int32Value {Value = services.ChainId}).Value;
         }
 
         private void Proposal(ContractServices services, IMessage input)
@@ -708,7 +652,7 @@ namespace AElf.Automation.SideChainTests
         {
             var crossChainMerkleProofContext =
                 services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                     {
                         Value = blockHeight
                     });

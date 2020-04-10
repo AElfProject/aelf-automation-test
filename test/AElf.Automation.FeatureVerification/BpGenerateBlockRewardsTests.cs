@@ -21,8 +21,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class BpGenerateBlockRewardsTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
 
         public BpGenerateBlockRewardsTests()
         {
@@ -33,6 +31,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(firstNode.Endpoint);
             ContractManager = new ContractManager(NodeManager, firstNode.Account);
         }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
 
         [TestMethod]
         public async Task GetCurrentTermNumberTest()
@@ -48,15 +49,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (var i = 1; i < term.Value; i++)
             {
                 var termInformation = await ContractManager.ConsensusStub.GetPreviousTermInformation.CallAsync(
-                    new SInt64Value
+                    new Int64Value
                     {
                         Value = i
                     });
                 Logger.Info($"Term number: {termInformation.TermNumber}");
                 foreach (var (key, value) in termInformation.RealTimeMinersInformation)
-                {
                     Logger.Info($"Pubkey: {key}, Count: {value.ProducedBlocks}");
-                }
             }
         }
 
@@ -78,6 +77,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Logger.Info($"Period: {profit.StartPeriod}-{profit.EndPeriod}, Shares: {profit.Shares}");
                     totalShares += profit.Shares;
                 }
+
                 Logger.Info($"Account: {acc}, total shares: {totalShares}");
             }
         }
@@ -95,14 +95,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var claimProfitResult = await ContractManager.ProfitStub.ClaimProfits.SendAsync(new ClaimProfitsInput
                 {
                     Beneficiary = acc.ConvertAddress(),
-                    SchemeId = schemeId,
-                    Symbol = NodeManager.GetPrimaryTokenSymbol()
+                    SchemeId = schemeId
                 });
                 claimProfitResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var transactionFee = claimProfitResult.TransactionResult.GetDefaultTransactionFee();
                 var afterBalance = ContractManager.Token.GetUserBalance(acc);
                 Logger.Info($"Account: {acc}");
-                Logger.Info($"Balance change: {beforeBalance}=>{afterBalance}, ProfitAmount: {profitAmount}, TransactionFee: {transactionFee}");
+                Logger.Info(
+                    $"Balance change: {beforeBalance}=>{afterBalance}, ProfitAmount: {profitAmount}, TransactionFee: {transactionFee}");
             }
         }
 
@@ -112,7 +112,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var transactionResult = await NodeManager.ApiClient.GetTransactionResultAsync(transactionId);
             var byteString =
-                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed)))
+                    .NonIndexed);
             var contractDeployed = ContractDeployed.Parser.ParseFrom(byteString);
             contractDeployed.Version.ShouldBe(1);
             Logger.Info($"{JsonConvert.SerializeObject(contractDeployed)}");
@@ -125,7 +126,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var transactionResult = await NodeManager.ApiClient.GetTransactionResultAsync(transactionId);
             var byteString =
-                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
+                ByteString.FromBase64(
+                    transactionResult.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
             var codeUpdate = CodeUpdated.Parser.ParseFrom(byteString);
             Logger.Info($"{JsonConvert.SerializeObject(codeUpdate)}");
         }

@@ -21,18 +21,18 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var beforeTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var beforeValue = Int32Value.Parser.ParseFrom(beforeTxLimit.Value).Value;
+            var beforeValue = SInt32Value.Parser.ParseFrom(beforeTxLimit.Value).Value;
             var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
                 new SetConfigurationInput
                 {
                     Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                    Value = new Int32Value {Value = beforeValue + 10}.ToByteString()
+                    Value = new SInt32Value {Value = beforeValue + 10}.ToByteString()
                 }, ContractManager.CallAddress);
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
-            var afterValue = Int32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
+            var afterValue = SInt32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
             afterValue.ShouldBe(beforeValue + 10);
         }
 
@@ -43,7 +43,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.ParliamentAuthStub.GetDefaultOrganizationAddress.CallAsync(new Empty());
             var owner = await ContractManager.ConfigurationStub.GetConfigurationController.CallAsync(new Empty());
             var miners = ContractManager.Authority.GetCurrentMiners();
-            var parliamentStub = ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(miners.First());
+            var parliamentStub =
+                ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(
+                    miners.First());
             var createManagerController =
                 await parliamentStub.CreateOrganization.SendAsync(new CreateOrganizationInput
                 {
@@ -65,8 +67,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     new AuthorityInfo
                     {
                         ContractAddress = ContractManager.ParliamentAuth.Contract,
-                        OwnerAddress = newControllerManager,
-                    }, 
+                        OwnerAddress = newControllerManager
+                    },
                     ContractManager.CallAddress);
                 releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var newOwner =
@@ -77,13 +79,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             //recover
             var setManagerResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Configuration.ContractAddress, 
+                ContractManager.Configuration.ContractAddress,
                 nameof(ConfigurationMethod.ChangeConfigurationController),
                 new AuthorityInfo
                 {
-                    ContractAddress =  ContractManager.ParliamentAuth.Contract,
+                    ContractAddress = ContractManager.ParliamentAuth.Contract,
                     OwnerAddress = defaultOwner
-                }, miners.First(),newControllerManager);
+                }, miners.First(), newControllerManager);
             setManagerResult.Status.ShouldBe(TransactionResultStatus.Mined);
             owner = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             owner.OwnerAddress.ShouldBe(defaultOwner);

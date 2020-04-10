@@ -25,6 +25,7 @@ namespace AElf.Automation.SideChainCreate
 
             var configFile = environmentInfo.ConfigFile;
             NodeInfoHelper.SetConfig(configFile);
+
             #endregion
 
             var operation = new Operation();

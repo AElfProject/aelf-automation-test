@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
@@ -10,18 +9,14 @@ namespace AElf.Automation.E2ETest
 {
     public class ContractTestBase
     {
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
-        public EnvCheck EnvCheck { get; set; }
-        public ILog Logger { get; set; }
-
-        public List<Node> ConfigNodes { get; set; }
+        public static string MainConfig = "nodes-env2-main";
+        public static string SideConfig = "nodes-env2-side1";
 
         public ContractTestBase()
         {
             Log4NetHelper.LogInit("ContractTest");
             Logger = Log4NetHelper.GetLogger();
-            
+
             NodeInfoHelper.SetConfig(MainConfig);
             ConfigNodes = NodeInfoHelper.Config.Nodes;
             var firstBp = ConfigNodes.First();
@@ -31,16 +26,21 @@ namespace AElf.Automation.E2ETest
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();
         }
-        public static string MainConfig = "nodes-env1-main";
-        public static string SideConfig = "nodes-env1-side1";
-        
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
+        public EnvCheck EnvCheck { get; set; }
+        public ILog Logger { get; set; }
+
+        public List<Node> ConfigNodes { get; set; }
+
         public void TransferToNodes()
         {
             foreach (var node in ConfigNodes)
             {
                 var symbol = ContractManager.Token.GetPrimaryTokenSymbol();
-                var balance = ContractManager.Token.GetUserBalance(node.Account,symbol);
-                if (node.Account.Equals(ContractManager.CallAddress)|| balance > 10000000000) continue;
+                var balance = ContractManager.Token.GetUserBalance(node.Account, symbol);
+                if (node.Account.Equals(ContractManager.CallAddress) || balance > 10000000000) continue;
                 ContractManager.Token.TransferBalance(ContractManager.CallAddress, node.Account, 100000000000,
                     symbol);
             }

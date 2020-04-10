@@ -43,9 +43,6 @@ namespace AElfChain.Console.Commands
                 case "TransactionPoolStatus":
                     GetTransactionPoolStatus();
                     break;
-                case "CurrentRoundInformation":
-                    GetCurrentRoundInformation();
-                    break;
                 case "ChainStatus":
                     GetChainStatus();
                     break;
@@ -114,12 +111,6 @@ namespace AElfChain.Console.Commands
             var includeTransaction = input.Length != 1 && bool.Parse(input[1]);
             var block = AsyncHelper.RunSync(() => ApiClient.GetBlockByHeightAsync(height, includeTransaction));
             JsonConvert.SerializeObject(block, Formatting.Indented).WriteSuccessLine();
-        }
-
-        private void GetCurrentRoundInformation()
-        {
-            var roundInformation = AsyncHelper.RunSync(ApiClient.GetCurrentRoundInformationAsync);
-            JsonConvert.SerializeObject(roundInformation, Formatting.Indented).WriteSuccessLine();
         }
 
         private void GetTransactionPoolStatus()
@@ -225,29 +216,28 @@ namespace AElfChain.Console.Commands
                     System.Console.WriteLine();
                     continue;
                 }
-                
+
                 var peerInfo = string.Join("  ", peers.Select(o => o.IpAddress));
                 $"Peers: {peerInfo}".WriteSuccessLine();
                 System.Console.WriteLine();
             }
         }
-        
+
         private void GetPeers()
         {
             var input = Prompt.Select("With details", new[] {"yes", "no"});
             var peers = NodeManager.NetGetPeers();
             if (input == "yes")
+            {
                 JsonConvert.SerializeObject(peers, Formatting.Indented).WriteSuccessLine();
+            }
             else
             {
                 var count = peers.Count;
                 var peerInfo = peers.Select(o => o.IpAddress).ToList();
                 $"Total peers count: {count}".WriteSuccessLine();
                 if (count == 0) return;
-                for (var i = 0; i < peerInfo.Count; i++)
-                {
-                    $"{i + 1:00}. {peerInfo[i]}".WriteSuccessLine();
-                }
+                for (var i = 0; i < peerInfo.Count; i++) $"{i + 1:00}. {peerInfo[i]}".WriteSuccessLine();
             }
         }
 
@@ -291,7 +281,6 @@ namespace AElfChain.Console.Commands
                 "BlockByHeight",
                 "ChainStatus",
                 "ContractFileDescriptor",
-                "CurrentRoundInformation",
                 "TaskQueueStatus",
                 "TransactionResult",
                 "TransactionResults",

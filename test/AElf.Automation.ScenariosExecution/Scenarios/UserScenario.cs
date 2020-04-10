@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 
@@ -116,8 +116,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                SchemeId = schemeId,
-                Symbol = NodeOption.NativeTokenSymbol
+                SchemeId = schemeId
             }, out var existed);
             if (existed) return; //if found tx existed and return
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;

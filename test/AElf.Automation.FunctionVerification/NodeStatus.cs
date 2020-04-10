@@ -50,6 +50,7 @@ namespace AElf.Automation.ContractsTesting
                 var block = AsyncHelper.RunSync(() => _apiService.GetBlockByHeightAsync(current));
                 Logger.Info($"{height},{block.Header.Time},{block.BlockHash},{block.Body.TransactionsCount}");
             }
+
             "Complete analyze result.".WriteSuccessLine();
         }
 
@@ -60,7 +61,7 @@ namespace AElf.Automation.ContractsTesting
             var configurationStub = genesis.GetConfigurationStub();
             var limit = AsyncHelper.RunSync(() => configurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}));
-            var limitValue = Int32Value.Parser.ParseFrom(limit.Value).Value;
+            var limitValue = SInt32Value.Parser.ParseFrom(limit.Value).Value;
             Logger.Info($"Current transaction limit number is: {limitValue}");
 
             var currentHeightBefore = AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);

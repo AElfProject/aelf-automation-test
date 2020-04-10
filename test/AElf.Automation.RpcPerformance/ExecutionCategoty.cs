@@ -9,14 +9,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Acs0;
 using AElf.Client.Service;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
+using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
@@ -112,7 +114,10 @@ namespace AElf.Automation.RpcPerformance
                         {
                             count++;
                             item.Result = true;
-                            var contractPath = transactionResult.ReadableReturnValue.Replace("\"", "");
+                            var byteString =
+                                ByteString.FromBase64(transactionResult.Logs
+                                    .First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                            var contractPath = ContractDeployed.Parser.ParseFrom(byteString).Address.GetFormatted();
                             ContractList.Add(new ContractInfo(AccountList[item.Id].Account, contractPath));
                             break;
                         }
@@ -147,16 +152,13 @@ namespace AElf.Automation.RpcPerformance
             var authority = new AuthorityManager(NodeManager, account);
             var miners = authority.GetCurrentMiners();
             if (miners.Count >= ThreadCount)
-            {
                 for (var i = 0; i < ThreadCount; i++)
                 {
                     var contractAddress =
                         authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
                     ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
                 }
-            }
             else
-            {
                 for (var i = 0; i < ThreadCount;)
                 {
                     foreach (var miner in miners)
@@ -165,12 +167,11 @@ namespace AElf.Automation.RpcPerformance
                             authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken");
                         ContractList.Add(new ContractInfo(miner, contractAddress.GetFormatted()));
                         i++;
-                        if(i == ThreadCount) break;
+                        if (i == ThreadCount) break;
                     }
 
                     Thread.Sleep(60000);
                 }
-            }
         }
 
         public void SideChainDeployContractsWithCreator()
@@ -223,7 +224,7 @@ namespace AElf.Automation.RpcPerformance
                     IsProfitable = true,
                     IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
-                
+
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
@@ -485,7 +486,7 @@ namespace AElf.Automation.RpcPerformance
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
-                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
                 return;
             }
 
@@ -540,7 +541,7 @@ namespace AElf.Automation.RpcPerformance
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
-                Logger.Warn($"Transaction pool transactions over limited, canceled this round execution.");
+                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
                 return;
             }
 

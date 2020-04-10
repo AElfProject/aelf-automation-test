@@ -1,5 +1,4 @@
 using AElf.Client.Dto;
-using AElf.Kernel;
 using AElf.Types;
 using Google.Protobuf;
 
@@ -19,7 +18,7 @@ namespace AElfChain.Common.DtoExtension
                 RefBlockPrefix = ByteString.FromBase64(transactionDto.RefBlockPrefix)
             };
 
-            return transaction.Size();
+            return transaction.CalculateSize();
         }
     }
 }

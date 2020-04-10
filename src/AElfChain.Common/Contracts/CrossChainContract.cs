@@ -56,7 +56,7 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<CrossChainContractContainer.CrossChainContractStub>(caller);
             var address = AsyncHelper.RunSync(() =>
-                tester.GetSideChainCreator.CallAsync(new SInt32Value {Value = chainId}));
+                tester.GetSideChainCreator.CallAsync(new Int32Value {Value = chainId}));
 
             Logger.Info($"Chain {chainId} creator is {address}");
 
@@ -65,14 +65,14 @@ namespace AElfChain.Common.Contracts
 
         public long GetSideChainBalance(int chainId)
         {
-            return CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainBalance, new SInt32Value {Value = chainId}).Value;
+            return CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainBalance, new Int32Value {Value = chainId}).Value;
         }
 
         public CrossChainMerkleProofContext GetCrossChainMerkleProofContext(long blockHeight)
         {
             return CallViewMethod<CrossChainMerkleProofContext>(
-                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                 {
                     Value = blockHeight
                 });
@@ -80,27 +80,28 @@ namespace AElfChain.Common.Contracts
 
         public long GetParentChainHeight()
         {
-            return CallViewMethod<SInt64Value>(
+            return CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
         }
 
         public long GetSideChainHeight(int chainId)
         {
-            return CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = chainId}).Value;
+            return CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new Int32Value {Value = chainId}).Value;
         }
 
         public long GetSideChainIndexingFeePrice(int chainId)
         {
-            return CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainIndexingFeePrice, new SInt32Value {Value = chainId}).Value;
+            return CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainIndexingFeePrice, new Int32Value {Value = chainId}).Value;
         }
+
         public AuthorityInfo GetCrossChainIndexingController()
         {
             return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetCrossChainIndexingController, new Empty());
         }
-        
+
         public AuthorityInfo GetSideChainLifetimeController()
         {
             return CallViewMethod<AuthorityInfo>(
@@ -110,19 +111,19 @@ namespace AElfChain.Common.Contracts
         public GetSideChainIndexingFeeControllerOutput GetSideChainIndexingFeeController(int chainId)
         {
             return CallViewMethod<GetSideChainIndexingFeeControllerOutput>(
-                CrossChainContractMethod.GetSideChainIndexingFeeController, new SInt32Value {Value = chainId});
+                CrossChainContractMethod.GetSideChainIndexingFeeController, new Int32Value {Value = chainId});
         }
 
         public ChainInitializationData GetChainInitializationData(int chainId)
         {
             return CallViewMethod<ChainInitializationData>(
-                CrossChainContractMethod.GetChainInitializationData, new SInt32Value {Value = chainId});
+                CrossChainContractMethod.GetChainInitializationData, new Int32Value {Value = chainId});
         }
 
         public GetChainStatusOutput GetChainStatus(int chainId)
         {
             return CallViewMethod<GetChainStatusOutput>(CrossChainContractMethod.GetChainStatus,
-                new SInt32Value {Value = chainId});
+                new Int32Value {Value = chainId});
         }
     }
 }

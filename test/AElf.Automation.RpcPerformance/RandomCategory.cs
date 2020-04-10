@@ -12,9 +12,9 @@ using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.DtoExtension;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -152,7 +152,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             Monitor.CheckTransactionsStatus(TxIdList);
-            
+
             //check user token randomly
             foreach (var contract in ContractList)
             {
@@ -166,14 +166,12 @@ namespace AElf.Automation.RpcPerformance
                     if (rd != 5) continue;
                     //verify token
                     var balance = token.GetUserBalance(user.Account, symbol);
-                    if(balance == amount)
+                    if (balance == amount)
                         Logger.Info($"Issue token {symbol} to '{user.Account}' with amount {amount} success.");
-                    else if(balance == 0)
+                    else if (balance == 0)
                         Logger.Warn($"User '{user.Account}' without any {symbol} token.");
                     else
-                    {
                         Logger.Error($"User {user.Account} {symbol} token balance not correct.");
-                    }
                 }
             }
         }

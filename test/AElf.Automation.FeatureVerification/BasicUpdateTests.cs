@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
@@ -17,10 +16,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class BasicUpdateTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
+        private readonly string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        private readonly string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
 
         private INodeManager NodeManager { get; set; }
-        private string ContractAddress = "2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9";
-        private string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public BasicUpdateContractContainer.BasicUpdateContractStub BasicUpdateStub { get; set; }
 
         [TestInitialize]
@@ -48,7 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = await BasicUpdateStub.GetHashCodeInt32Value.SendAsync(new Int32Value
             {
-                Value = Int32.MaxValue
+                Value = int.MaxValue
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeInt32Value =>{result.Output.Value}");
@@ -59,7 +58,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = await BasicUpdateStub.GetHashCodeInt64Value.SendAsync(new Int64Value
             {
-                Value = Int64.MaxValue
+                Value = long.MaxValue
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeInt64Value =>{result.Output.Value}");
@@ -131,7 +130,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Info =
                 {
                     {"key1", "test1"},
-                    {"key2", "test2"},
+                    {"key2", "test2"}
                 }
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -152,7 +151,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"GetHashCodeComplexValue =>{result.Output.Value}");
-            
+
             result = await BasicUpdateStub.GetHashCodeMapEnumValue.SendAsync(new MapEnumInput
             {
                 Info =

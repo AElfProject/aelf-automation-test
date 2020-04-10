@@ -1,57 +1,45 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenConverter;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
-using AElf.Contracts.TestContract.TransactionFees;
-using AElf.Contracts.TokenConverter;
-using AElf.Kernel;
-using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using Connector = AElf.Contracts.TokenConverter.Connector;
-using TokenSymbol = AElf.Contracts.TokenConverter.TokenSymbol;
-using TransferInput = AElf.Contracts.MultiToken.TransferInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class TokenContractTest
     {
+        private readonly List<string> ResourceSymbol = new List<string>
+            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+
+        private TokenContractContainer.TokenContractStub _bpTokenSub;
+        private GenesisContract _genesisContract;
+        private ParliamentAuthContract _parliamentAuthContract;
+        private TokenConverterContractContainer.TokenConverterContractStub _testTokenConverterSub;
+        private TokenContractContainer.TokenContractStub _testTokenSub;
+
+        private TokenContract _tokenContract;
+        private TokenConverterContract _tokenConverterContract;
+        private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
+        private TokenContractContainer.TokenContractStub _tokenSub;
         private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
         private AuthorityManager AuthorityManager { get; set; }
-
-        private TokenContract _tokenContract;
-        private GenesisContract _genesisContract;
-        private TokenConverterContract _tokenConverterContract;
-        private ParliamentAuthContract _parliamentAuthContract;
-        private TokenContractContainer.TokenContractStub _tokenSub;
-        private TokenContractContainer.TokenContractStub _bpTokenSub;
-        private TokenContractContainer.TokenContractStub _testTokenSub;
-        private TransactionFeesContractContainer.TransactionFeesContractStub _acs8Sub;
-        private TransactionFeesContract _acs8Contract;
-        private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
-        private TokenConverterContractContainer.TokenConverterContractStub _testTokenConverterSub;
 
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string BpAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string TestAccount { get; } = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
 
-//        private static string RpcUrl { get; } = "18.212.240.254:8000";
-
         private static string RpcUrl { get; } = "52.90.147.175:8000";
         private string Symbol { get; } = "TEST";
-
-        private List<string> ResourceSymbol = new List<string>
-            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
-
-//        private List<string> SideChainSymbol = new List<string> {"EPC","EDA","EDB","EDC","EDD"};
-        private List<string> SideChainSymbol = new List<string> {"STA", "STB"};
 
         [TestInitialize]
         public void Initialize()
@@ -67,16 +55,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _parliamentAuthContract = _genesisContract.GetParliamentAuthContract(InitAccount);
             _tokenConverterContract = _genesisContract.GetTokenConverterContract(InitAccount);
 
-            var tester = new ContractTesterFactory(NodeManager);
             _tokenSub = _genesisContract.GetTokenStub(InitAccount);
             _bpTokenSub = _genesisContract.GetTokenStub(BpAccount);
             _testTokenSub = _genesisContract.GetTokenStub(TestAccount);
 
             _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
             _testTokenConverterSub = _genesisContract.GetTokenConverterStub(TestAccount);
-//            _acs8Contract =  TransactionFeesContract.GetOrDeployTxFeesContract(NodeManager, InitAccount);
-//            _acs8Sub = _acs8Contract.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(BpAccount);
-//            _acs8Contract = new ExecutionPluginForAcs8Contract(SideNode,BpAccount,"2F5C128Srw5rHCXoSY2C7uT5sAku48mkgiaTTp1Hiprhbb7ED9");
         }
 
         [TestMethod]
@@ -147,7 +131,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = 1_00000000,
                 Symbol = "EPC"
             });
-            var size = result.Transaction.Size();
+            var size = result.Transaction.CalculateSize();
             Logger.Info($"transfer size is: {size}");
 
             var afterBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
@@ -171,7 +155,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var amount = 9000000_00000000;
             await CreateToken(amount);
-            var input = new PairConnectorParam()
+            var input = new PairConnectorParam
             {
                 NativeWeight = "0.05",
                 ResourceWeight = "0.05",
@@ -202,7 +186,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Amount = amount
             })).TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var buildInput = new ToBeConnectedTokenInfo()
+            var buildInput = new ToBeConnectedTokenInfo
             {
                 TokenSymbol = Symbol,
                 AmountToTokenConvert = amount
@@ -259,19 +243,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             [pbr::OriginalName("Ram")] Ram = 2,
             [pbr::OriginalName("Net")] Net = 3,
              */
-            var result = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 0});
+            var result = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 0});
             Logger.Info($"{result}");
 
-            var result1 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 1});
+            var result1 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 1});
             Logger.Info($"{result1}");
 
-            var result2 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 2});
+            var result2 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 2});
             Logger.Info($"{result2}");
 
-            var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value {Value = 3});
+            var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 3});
             Logger.Info($"{result3}");
 
-            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new SInt32Value{Value = 4});
+            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 4});
             Logger.Info($"{result4}");
         }
 
@@ -306,10 +290,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task Acs8ContractTest()
+        public async Task Acs8ContractTest(string acs8Contract)
         {
-            var acs8Contract = _acs8Contract.ContractAddress;
-
             foreach (var s in ResourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
@@ -317,35 +299,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
 
-            var cpuResult = await _acs8Sub.FailCpuStoConsuming.SendAsync(new Empty());
-            Logger.Info(cpuResult.Transaction.Size());
-            Logger.Info(cpuResult.TransactionResult);
-
             foreach (var s in ResourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                     {Owner = AddressHelper.Base58StringToAddress(acs8Contract), Symbol = s});
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
-
-//            //net
-//            var randomBytes = CommonHelper.GenerateRandombytes(1000);
-//            var netResult = await _acs8Sub.NetConsumingMethod.SendAsync(new NetConsumingMethodInput
-//            {
-//                Blob = ByteString.CopyFrom(randomBytes)
-//            });
-//            Logger.Info(netResult.Transaction.Size());
-//            Logger.Info(netResult.TransactionResult);
-//
-//            //sto
-//            var stoResult = await _acs8Sub.StoConsumingMethod.SendAsync(new Empty());
-//            Logger.Info(stoResult.Transaction.Size());
-//            Logger.Info(stoResult.TransactionResult);
-//
-//            //few
-//            var fewResult = await _acs8Sub.FewConsumingMethod.SendAsync(new Empty());
-//            Logger.Info(fewResult.Transaction.Size());
-//            Logger.Info(fewResult.TransactionResult);
         }
 
         private async Task CreateToken(long amount)

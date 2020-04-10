@@ -4,7 +4,6 @@ using AElf.Contracts.Association;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
-using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -194,7 +193,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 association.GetOrganization(organizationAddress);
             organization.ProposerWhiteList.Proposers.Contains(newProposer).ShouldBeTrue();
 
-            var changeMemberInput = new OrganizationMemberList()
+            var changeMemberInput = new OrganizationMemberList
             {
                 OrganizationMembers = {enumerable.Take(5).ToList()}
             };
@@ -225,7 +224,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 association.GetOrganization(organizationAddress);
             organization.ProposerWhiteList.Proposers.Contains(proposer).ShouldBeTrue();
 
-            var revertMemberInput = new OrganizationMemberList()
+            var revertMemberInput = new OrganizationMemberList
             {
                 OrganizationMembers = {enumerable}
             };

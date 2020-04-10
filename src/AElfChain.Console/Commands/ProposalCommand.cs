@@ -4,8 +4,8 @@ using AElf;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Newtonsoft.Json;
-using Volo.Abp.Threading;
 using Sharprompt;
+using Volo.Abp.Threading;
 
 namespace AElfChain.Console.Commands
 {
@@ -53,7 +53,6 @@ namespace AElfChain.Console.Commands
 
         private void ApproveProposal()
         {
-            
         }
 
         private void MinersApproveProposal()

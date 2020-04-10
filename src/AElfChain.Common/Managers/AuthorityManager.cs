@@ -8,7 +8,6 @@ using Acs0;
 using Acs3;
 using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -68,7 +67,7 @@ namespace AElfChain.Common.Managers
             var input = new ContractDeploymentInput
             {
                 Code = ByteString.CopyFrom(code),
-                Category = KernelConstants.DefaultRunnerCategory
+                Category = KernelHelper.DefaultRunnerCategory
             };
             var approveUsers = GetMinApproveMiners();
 
@@ -205,11 +204,12 @@ namespace AElfChain.Common.Managers
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             string callUser, Address organization = null)
-        { 
+        {
             var parliamentOrganization = organization ?? GetGenesisOwnerAddress();
             var miners = GetCurrentMiners();
 
-            return ExecuteTransactionWithAuthority(contractAddress, method, input, parliamentOrganization, miners, callUser);
+            return ExecuteTransactionWithAuthority(contractAddress, method, input, parliamentOrganization, miners,
+                callUser);
         }
 
         private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
@@ -238,7 +238,7 @@ namespace AElfChain.Common.Managers
             while (!proposal.ToBeReleased && !expired)
             {
                 Thread.Sleep(1000);
-                var dateTime = TimestampHelper.GetUtcNow();
+                var dateTime = KernelHelper.GetUtcNow();
                 proposal = _parliament.CheckProposal(proposalId);
                 if (dateTime >= proposal.ExpiredTime) expired = true;
                 Console.Write(
@@ -304,7 +304,9 @@ namespace AElfChain.Common.Managers
             while (true)
             {
                 var hash = Hash.FromRawBytes(code);
-                var registration = _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration, hash);
+                var registration =
+                    _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration,
+                        hash);
                 if (registration.Equals(new SmartContractRegistration())) return code;
                 code = CodeInjectHelper.ChangeContractCodeHash(code);
             }

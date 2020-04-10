@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AElf;
 using AElf.Contracts.Association;
@@ -18,7 +19,6 @@ using AElf.Contracts.TokenConverter;
 using AElf.Contracts.TokenHolder;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
-using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -129,7 +129,7 @@ namespace AElfChain.Common.Managers
             {
                 var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = transactionId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);

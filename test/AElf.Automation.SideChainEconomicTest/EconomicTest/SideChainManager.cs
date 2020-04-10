@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;

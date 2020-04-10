@@ -1,22 +1,19 @@
 using System.Collections.Generic;
-using System.Linq;
-using AElf.Client.Dto;
-using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
-using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     public class ContractTester
     {
         public readonly AssociationAuthContract AssociationService;
+        public readonly ConfigurationContract ConfigurationService;
         public readonly ConsensusContract ConsensusService;
         public readonly ContractServices ContractServices;
+        public readonly CrossChainContract CrossChainService;
 
         public readonly ElectionContract ElectionService;
         public readonly GenesisContract GenesisService;
@@ -24,8 +21,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly ParliamentAuthContract ParliamentService;
         public readonly ProfitContract ProfitService;
         public readonly ReferendumAuthContract ReferendumService;
-        public readonly CrossChainContract CrossChainService;
-        public readonly ConfigurationContract ConfigurationService;
         public readonly TokenContract TokenService;
         public readonly VoteContract VoteService;
 
@@ -92,9 +87,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-                if (balance > 1000_00000000) return;
-                TokenService.SetAccount(TokenService.CallAddress);
-                TokenService.TransferBalance(TokenService.CallAddress, account, 1000_00000000, symbol);
+            if (balance > 1000_00000000) return;
+            TokenService.SetAccount(TokenService.CallAddress);
+            TokenService.TransferBalance(TokenService.CallAddress, account, 1000_00000000, symbol);
         }
 
         public void IssueToken(string creator, string account)

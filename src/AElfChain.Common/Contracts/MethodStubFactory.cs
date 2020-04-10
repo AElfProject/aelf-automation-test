@@ -60,7 +60,6 @@ namespace AElfChain.Common.Contracts
                     status = resultDto.Status.ConvertTransactionResultStatus();
                 }
 
-                var transactionFee = resultDto.ConvertTransactionFeeDto();
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
@@ -72,8 +71,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
-                        TransactionFee = transactionFee,
-                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString()
                     }
                     : new TransactionResult
                     {
@@ -94,8 +92,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
                         Error = resultDto.Error ?? "",
                         Status = status,
-                        TransactionFee = transactionFee,
-                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString()
                     };
 
                 var returnByte = resultDto.ReturnValue == null

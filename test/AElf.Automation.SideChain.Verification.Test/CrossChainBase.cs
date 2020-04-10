@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Acs7;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
-using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -26,12 +26,11 @@ namespace AElf.Automation.SideChain.Verification
         protected static List<string> AccountList;
         protected static string NativeToken;
         protected static List<string> PrimaryTokens;
-        protected EnvCheck EnvCheck { get; set; }
         private readonly EnvironmentInfo _environmentInfo;
+        protected readonly int Count;
         protected readonly int CreateTokenNumber;
         protected readonly int VerifyBlockNumber;
         protected readonly int VerifySideChainNumber;
-        protected readonly int Count;
         private Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> _transactionResultList;
 
         protected CrossChainBase()
@@ -46,8 +45,11 @@ namespace AElf.Automation.SideChain.Verification
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
         }
 
+        protected EnvCheck EnvCheck { get; set; }
+
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
         protected static List<string> TokenSymbols { get; set; }
+
         protected ContractServices InitMainChainServices()
         {
             if (MainChainService != null) return MainChainService;
@@ -57,7 +59,7 @@ namespace AElf.Automation.SideChain.Verification
             InitAccount = _environmentInfo.MainChainInfos.Account;
             MainChainService = new ContractServices(mainChainUrl, InitAccount, AccountDir, password);
             NativeToken = MainChainService.PrimaryTokenSymbol;
-            
+
             return MainChainService;
         }
 
@@ -73,6 +75,7 @@ namespace AElf.Automation.SideChain.Verification
                 var sideService = new ContractServices(url, InitAccount, AccountDir, password);
                 SideChainServices.Add(sideService);
             }
+
             return SideChainServices;
         }
 
@@ -88,6 +91,7 @@ namespace AElf.Automation.SideChain.Verification
                 To = AddressHelper.Base58StringToAddress(account)
             });
         }
+
         protected void TransferToken(ContractServices services, string account)
         {
             Logger.Info($"Transfer token {services.PrimaryTokenSymbol} to {account}");
@@ -107,7 +111,7 @@ namespace AElf.Automation.SideChain.Verification
             var tokenInfo = services.TokenService.GetTokenInfo(symbol);
             return tokenInfo.TotalSupply == tokenInfo.Supply + tokenInfo.Burned;
         }
-        
+
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
         {
             var transactionId =
@@ -146,7 +150,7 @@ namespace AElf.Automation.SideChain.Verification
             {
                 var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
                 var txRes = transactionStatus[num];
-                var rawBytes = transactionId.ToByteArray().Concat(EncodingHelper.GetBytesFromUtf8String(txRes))
+                var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
                 var txIdWithStatus = Hash.FromRawBytes(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
@@ -167,7 +171,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             var crossChainMerkleProofContext =
                 services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new SInt64Value
+                    CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
                     {
                         Value = blockHeight
                     });
@@ -206,7 +210,7 @@ namespace AElf.Automation.SideChain.Verification
         }
 
         protected CrossChainTransactionInfo CrossChainTransferWithTxId(ContractServices services, string symbol,
-            string fromAccount, string toAccount, int toChainId,int issueChainId,
+            string fromAccount, string toAccount, int toChainId, int issueChainId,
             long amount)
         {
             //Transfer
@@ -293,16 +297,16 @@ namespace AElf.Automation.SideChain.Verification
 
         protected long GetIndexParentHeight(ContractServices services)
         {
-            return services.CrossChainService.CallViewMethod<SInt64Value>(
+            return services.CrossChainService.CallViewMethod<Int64Value>(
                 CrossChainContractMethod.GetParentChainHeight, new Empty()).Value;
         }
 
         protected long GetIndexSideHeight(ContractServices services)
         {
-            return MainChainService.CrossChainService.CallViewMethod<SInt64Value>(
-                CrossChainContractMethod.GetSideChainHeight, new SInt32Value {Value = services.ChainId}).Value;
+            return MainChainService.CrossChainService.CallViewMethod<Int64Value>(
+                CrossChainContractMethod.GetSideChainHeight, new Int32Value {Value = services.ChainId}).Value;
         }
-        
+
         protected long MainChainCheckSideChainBlockIndex(ContractServices servicesFrom,
             long txHeight)
         {
@@ -321,7 +325,7 @@ namespace AElf.Automation.SideChain.Verification
                 }
 
                 mainHeight = mainHeight == long.MaxValue
-                    ? (MainChainService.NodeManager.ApiClient.GetBlockHeightAsync()).Result
+                    ? MainChainService.NodeManager.ApiClient.GetBlockHeightAsync().Result
                     : mainHeight;
                 var indexParentBlock = GetIndexParentHeight(servicesFrom);
                 checkResult = indexParentBlock > mainHeight;
@@ -329,11 +333,10 @@ namespace AElf.Automation.SideChain.Verification
 
             return mainHeight;
         }
-        
+
         protected void GetVerifyResult(ContractServices services, Dictionary<string, bool> results)
         {
             foreach (var item in results)
-            {
                 switch (item.Value)
                 {
                     case true:
@@ -343,7 +346,6 @@ namespace AElf.Automation.SideChain.Verification
                         Logger.Error($"Transaction {item.Key} on chain {services.ChainId} verify failed.");
                         break;
                 }
-            }
         }
 
         protected Dictionary<TransactionResultStatus, List<CrossChainTransactionInfo>> CheckoutTransferResult(
@@ -386,13 +388,11 @@ namespace AElf.Automation.SideChain.Verification
 
             Logger.Info("Show the side chain account balance: ");
             foreach (var sideChain in SideChainServices)
+            foreach (var account in AccountList)
             {
-                foreach (var account in AccountList)
-                {
-                    var accountBalance = sideChain.TokenService.GetUserBalance(account, symbol);
-                    Logger.Info(
-                        $"On side chain {sideChain.ChainId} account:{account},\n {symbol} balance is: {accountBalance}\n");
-                }
+                var accountBalance = sideChain.TokenService.GetUserBalance(account, symbol);
+                Logger.Info(
+                    $"On side chain {sideChain.ChainId} account:{account},\n {symbol} balance is: {accountBalance}\n");
             }
         }
 
@@ -402,8 +402,8 @@ namespace AElf.Automation.SideChain.Verification
             var transactionHeight = infos.BlockHeight;
             return indexParentBlock > transactionHeight;
         }
-        
-        protected void UnlockAccounts(ContractServices services,List<string> accountList)
+
+        protected void UnlockAccounts(ContractServices services, List<string> accountList)
         {
             services.NodeManager.ListAccounts();
             foreach (var account in accountList)

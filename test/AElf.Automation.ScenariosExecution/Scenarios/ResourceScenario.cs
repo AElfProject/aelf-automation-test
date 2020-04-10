@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using log4net;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
@@ -78,7 +78,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         var cost = elfBeforeBalance + transactionFee - elfAfterBalance;
                         Logger.Info(
-                            $"Buy resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)cost / (double)amount:0.0000}");
+                            $"Buy resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double) cost / (double) amount:0.0000}");
                     }
                     else
                     {
@@ -116,7 +116,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         var got = elfAfterBalance + transactionFee - elfBeforeBalance;
                         Logger.Info(
-                            $"Sell resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double)got / (double)amount:0.0000}");
+                            $"Sell resource {resSymbol}={amount} success. Price(ELF/{resSymbol}): {(double) got / (double) amount:0.0000}");
                     }
                     else
                     {

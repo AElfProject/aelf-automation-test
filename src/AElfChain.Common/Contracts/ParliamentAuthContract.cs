@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using Acs3;
-using AElf;
-using AElf.Client.Dto;
 using AElf.Contracts.Parliament;
-using AElf.Kernel;
-using AElf.Sdk.CSharp;
+using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -58,7 +55,7 @@ namespace AElfChain.Common.Contracts
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddMinutes(10),
+                ExpiredTime = KernelHelper.GetUtcNow().AddMinutes(10),
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));
@@ -77,19 +74,19 @@ namespace AElfChain.Common.Contracts
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} approved success by {caller ?? CallAddress}");
         }
-        
+
         public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(ParliamentMethod.Approve, proposalId);
         }
-        
+
         public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(ParliamentMethod.Abstain, proposalId);
         }
-        
+
         public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);

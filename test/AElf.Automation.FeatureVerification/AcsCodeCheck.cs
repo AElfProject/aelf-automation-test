@@ -19,8 +19,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class AcsCodeCheck
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
 
         public AcsCodeCheck()
         {
@@ -31,6 +29,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(firstNode.Endpoint);
             ContractManager = new ContractManager(NodeManager, firstNode.Account);
         }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
 
         [TestMethod]
         public async Task QueryRequiredAcsContracts()
@@ -52,11 +53,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Key = nameof(ConfigurationNameProvider.RequiredAcsInContracts),
                     Value = new RequiredAcsInContracts
                     {
-                        AcsList = {"acs1","acs8"},
+                        AcsList = {"acs1", "acs8"},
                         RequireAll = false
-                    }.ToByteString(),
-                }, 
-                 ContractManager.CallAddress);
+                    }.ToByteString()
+                },
+                ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             await QueryRequiredAcsContracts();

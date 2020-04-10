@@ -10,19 +10,12 @@ using AElfChain.Common.Managers;
 using log4net;
 using Shouldly;
 using Volo.Abp.Threading;
-using InitializeInput = AElf.Contracts.TestContract.DApp.InitializeInput;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class DAppScenario : BaseScenario
     {
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public DAppContainer.DAppStub DAppStub { get; set; }
-        public DAppContract DAppContract { get; set; }
-
-        public List<string> MinerAccounts { get; set; }
-        public List<string> Testers { get; set; }
-        public string ContractDeveloper { get; set; }
 
         public DAppScenario()
         {
@@ -33,23 +26,31 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Testers = AllTesters.GetRange(100, 10);
         }
 
+        public DAppContainer.DAppStub DAppStub { get; set; }
+        public DAppContract DAppContract { get; set; }
+
+        public List<string> MinerAccounts { get; set; }
+        public List<string> Testers { get; set; }
+        public string ContractDeveloper { get; set; }
+
         private void InitializeDAppContract()
         {
             DAppContract = new DAppContract(Services.NodeManager, ContractDeveloper);
             DAppStub = DAppContract.GetTestStub<DAppContainer.DAppStub>(ContractDeveloper);
-            
+
             while (true)
             {
                 var symbol = CommonHelper.RandomString(4, false);
                 var tokenInfo = Services.NodeManager.GetTokenInfo(symbol);
                 if (!tokenInfo.Equals(new TokenInfo())) continue;
-                
-                var transactionResult = AsyncHelper.RunSync(()=>DAppStub.Initialize.SendAsync(new InitializeInput
+
+                var transactionResult = AsyncHelper.RunSync(() => DAppStub.Initialize.SendAsync(new InitializeInput
                 {
                     ProfitReceiver = ContractDeveloper.ConvertAddress(),
                     Symbol = symbol
                 }));
-                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined, transactionResult.TransactionResult.Error);
+                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
+                    transactionResult.TransactionResult.Error);
                 return;
             }
         }

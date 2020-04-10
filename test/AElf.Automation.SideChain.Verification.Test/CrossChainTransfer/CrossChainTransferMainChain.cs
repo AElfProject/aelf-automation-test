@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common.Contracts;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -11,10 +11,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
     {
         public void CrossChainTransferMainChainJob()
         {
-            foreach (var token in PrimaryTokens)
-            {
-                CrossChainTransferOnMainChain(token);
-            }
+            foreach (var token in PrimaryTokens) CrossChainTransferOnMainChain(token);
             foreach (var symbol in TokenSymbols) CrossChainTransferOnMainChain(symbol);
         }
 
@@ -33,7 +30,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var account in AccountList)
                 {
                     var rawTxInfo = CrossChainTransferWithTxId(MainChainService, symbol, account,
-                        account, sideChainService.ChainId, tokenInfo.IssueChainId,100);
+                        account, sideChainService.ChainId, tokenInfo.IssueChainId, 100);
                     if (rawTxInfo == null) continue;
 
                     Thread.Sleep(1000);
@@ -55,7 +52,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
             Logger.Info("Waiting for the index");
             Thread.Sleep(60000);
-            
+
             foreach (var sideChainService in SideChainServices)
             {
                 Logger.Info("Check the index:");
@@ -64,11 +61,11 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Console.WriteLine("Block is not recorded ");
                     Thread.Sleep(10000);
                 }
-                
+
                 var sideChainReceiveTxIds = new List<CrossChainTransactionInfo>();
                 Logger.Info($"Side chain {sideChainService.ChainId} receive the token {symbol}");
                 foreach (var mainRawTxInfo in mainRawTxInfos[sideChainService.ChainId])
-                { 
+                {
                     Logger.Info($"Receive CrossTransfer Transaction id is : {mainRawTxInfo.TxId}");
                     var receiveTokenInput = ReceiveFromMainChainInput(mainRawTxInfo);
                     sideChainService.TokenService.SetAccount(mainRawTxInfo.FromAccount);
@@ -86,6 +83,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 Logger.Info("Receive Mined transaction:");
                 foreach (var result in resultList[TransactionResultStatus.Mined]) Logger.Info(result.TxId);
             }
+
             CheckAccountBalance(symbol);
         }
     }

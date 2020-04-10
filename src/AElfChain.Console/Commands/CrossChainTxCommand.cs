@@ -23,14 +23,15 @@ namespace AElfChain.Console.Commands
     {
         private NodesInfo _mainNodes;
         private NodesInfo _sideNodes;
-        public ContractManager MainContract { get; set; }
-        public ContractManager SideContract { get; set; }
 
         public CrossChainTxCommand(INodeManager nodeManager, ContractManager contractManager)
             : base(nodeManager, contractManager)
         {
             Logger = Log4NetHelper.GetLogger();
         }
+
+        public ContractManager MainContract { get; set; }
+        public ContractManager SideContract { get; set; }
 
         public override void RunCommand()
         {
@@ -308,7 +309,7 @@ namespace AElfChain.Console.Commands
                 Amount = amount,
                 Memo = "main->side transfer",
                 To = to.ConvertAddress(),
-                ToChainId = SideContract.ChainId,
+                ToChainId = SideContract.ChainId
             };
             var tokenStub = MainContract.Genesis.GetTokenStub(from);
             var transactionResult = await tokenStub.CrossChainTransfer.SendAsync(crossChainTransferInput);

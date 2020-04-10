@@ -1,9 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
-using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.Contract;
-using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
@@ -35,7 +32,7 @@ namespace AElfChain.Common.Contracts
 
         public static List<Address> QueryCustomContractByMethodName(this GenesisContract genesis, string method)
         {
-            return new List<Address>(); 
+            return new List<Address>();
         }
     }
 }

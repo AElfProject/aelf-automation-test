@@ -22,13 +22,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class SidechainRentFeatureTests
     {
         public ILogHelper Logger = LogHelper.GetLogger();
-        public INodeManager MainNode { get; set; }
-        public INodeManager SideNode { get; set; }
-
-        public ContractManager MainManager { get; set; }
-        public ContractManager SideManager { get; set; }
-
-        public GenesisContract Genesis { get; set; }
 
         public SidechainRentFeatureTests()
         {
@@ -44,6 +37,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             MainManager = new ContractManager(MainNode, bpNode.Account);
             SideManager = new ContractManager(SideNode, bpNode.Account);
         }
+
+        public INodeManager MainNode { get; set; }
+        public INodeManager SideNode { get; set; }
+
+        public ContractManager MainManager { get; set; }
+        public ContractManager SideManager { get; set; }
+
+        public GenesisContract Genesis { get; set; }
 
         [TestMethod]
         public void UpdateRentalTest()
@@ -91,10 +92,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 SideManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = SideManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners)
-            {
-                SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
-            }
+            foreach (var miner in currentMiners) SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
 
             SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
             SideManager.Association.ReleaseProposal(proposalId, proposer);
@@ -142,10 +140,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var token = Genesis.GetTokenImplStub();
             var rental = await token.GetOwningRental.CallAsync(new Empty());
-            foreach (var item in rental.ResourceAmount)
-            {
-                Logger.Info($"{item.Key}, {item.Value}");
-            }
+            foreach (var item in rental.ResourceAmount) Logger.Info($"{item.Key}, {item.Value}");
         }
 
         [TestMethod]
@@ -154,14 +149,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var authority = new AuthorityManager(SideNode);
             var token = Genesis.GetTokenStub();
             var bps = authority.GetCurrentMiners();
-            var symbols = new[] {"CPU", "RAM", "DISK", "NET","STB"};
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET", "STB"};
             foreach (var bp in bps)
+            foreach (var symbol in symbols)
             {
-                foreach (var symbol in symbols)
-                {
-                    var balance = await token.GetBalance.CallAsync(new GetBalanceInput {Owner = bp.ConvertAddress() , Symbol = symbol});
-                    Logger.Info($"{bp} {symbol}, {balance.Balance}");
-                }
+                var balance = await token.GetBalance.CallAsync(new GetBalanceInput
+                    {Owner = bp.ConvertAddress(), Symbol = symbol});
+                Logger.Info($"{bp} {symbol}, {balance.Balance}");
             }
         }
 
@@ -176,13 +170,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenConverter = genesis.GetTokenConverterStub();
             var symbols = new[] {"CPU", "RAM", "DISK", "NET"};
             foreach (var symbol in symbols)
-            {
                 await tokenConverter.Buy.SendAsync(new BuyInput
                 {
                     Symbol = symbol,
                     Amount = 10000_00000000
                 });
-            }
 
             Logger.Info($"Account: {bps.First()}");
             foreach (var symbol in symbols)
@@ -198,7 +190,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var minimalVoteThreshold = 2;
             var maximalAbstentionThreshold = 0;
             var maximalRejectionThreshold = 0;
-            var list = new List<Address> {parliamentOrgAddress,sideCreator};
+            var list = new List<Address> {parliamentOrgAddress, sideCreator};
             var createOrganizationInput = new CreateOrganizationInput
             {
                 OrganizationMemberList = new OrganizationMemberList

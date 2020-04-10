@@ -16,7 +16,7 @@ namespace AElf.Automation.SetTransactionFees
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
         public string Endpoint { get; set; } = "http://192.168.197.43:8100";
-        
+
         [Option("-c|--config", Description = "Config file about bp node setting")]
         private static string ConfigFile { get; set; }
 
@@ -41,7 +41,7 @@ namespace AElf.Automation.SetTransactionFees
         {
             //Init Logger
             Log4NetHelper.LogInit("ContractFee");
-            
+
             if (ConfigFile == null)
             {
                 var configPath = CommonHelper.MapPath("config");
@@ -49,8 +49,9 @@ namespace AElf.Automation.SetTransactionFees
                     .Select(o => o.Split("/").Last()).ToList();
                 ConfigFile = Prompt.Select("Select env config", configFiles);
             }
+
             NodeInfoHelper.SetConfig(ConfigFile);
-            
+
             if (Endpoint == null)
             {
                 var nodes = NodeInfoHelper.Config.Nodes.Select(o => $"{o.Name} [{o.Endpoint}]").ToList();

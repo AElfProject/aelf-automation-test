@@ -72,9 +72,12 @@ namespace AElf.Automation.RpcPerformance
                         performance.SideChainDeployContractsWithCreator();
                     else
                         performance.SideChainDeployContractsWithAuthority();
-                }else
+                }
+                else
+                {
                     performance.DeployContracts();
-                
+                }
+
                 performance.InitializeContracts();
 
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);

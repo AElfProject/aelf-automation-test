@@ -10,20 +10,21 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class DeleteValueScenario : BaseScenario
     {
         private const int IncreaseActionCount = 10;
-        private List<BasicWithParallelContract> _contracts;
-        
-        public List<string> Testers { get; }
+        private readonly List<BasicWithParallelContract> _contracts;
 
         public DeleteValueScenario()
         {
             InitializeScenario();
             Testers = AllTesters.GetRange(5, 5);
             PrintTesters(nameof(DeleteValueScenario), Testers);
-            
-            var contract = BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, Testers[0]);
+
+            var contract =
+                BasicWithParallelContract.GetOrDeployBasicWithParallelContract(Services.NodeManager, Testers[0]);
             _contracts = Testers.Select(t =>
                 new BasicWithParallelContract(Services.NodeManager, t, contract.ContractAddress)).ToList();
         }
+
+        public List<string> Testers { get; }
 
         public void RunDeleteValueScenarioJob()
         {
@@ -44,16 +45,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void IncreaseValueAction()
         {
             foreach (var contract in _contracts)
-            {
-                for (int i = 0; i < IncreaseActionCount; i++)
-                {
-                    contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValue,new IncreaseValueInput
+                for (var i = 0; i < IncreaseActionCount; i++)
+                    contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValue, new IncreaseValueInput
                     {
                         Key = contract.CallAddress,
                         Memo = Guid.NewGuid().ToString()
                     });
-                }
-            }
             _contracts.ForEach(c => c.CheckTransactionResultList());
             CheckValue(IncreaseActionCount);
         }
@@ -61,27 +58,19 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void IncreaseValueParallelAction()
         {
             foreach (var contract in _contracts)
-            {
-                for (int i = 0; i < IncreaseActionCount; i++)
-                {
+                for (var i = 0; i < IncreaseActionCount; i++)
                     if (i < IncreaseActionCount / 2)
-                    {
-                        contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValueParallel,new IncreaseValueInput
+                        contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValueParallel, new IncreaseValueInput
                         {
                             Key = contract.CallAddress,
                             Memo = Guid.NewGuid().ToString()
                         });
-                    }
                     else
-                    {
-                        contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValue,new IncreaseValueInput
+                        contract.ExecuteMethodWithTxId(BasicParallelMethod.IncreaseValue, new IncreaseValueInput
                         {
                             Key = contract.CallAddress,
                             Memo = Guid.NewGuid().ToString()
                         });
-                    }
-                }
-            }
             _contracts.ForEach(c => c.CheckTransactionResultList());
             CheckValue(IncreaseActionCount);
         }
@@ -125,13 +114,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void DeleteValueAction()
         {
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.RemoveValue, new RemoveValueInput
                 {
                     Key = contract.CallAddress,
                     Memo = Guid.NewGuid().ToString()
                 });
-            }
 
             _contracts.ForEach(c => c.CheckTransactionResultList());
 
@@ -141,21 +128,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void DeleteValueParallelAction()
         {
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.RemoveValueParallel, new RemoveValueInput
                 {
                     Key = contract.CallAddress,
                     Memo = Guid.NewGuid().ToString()
                 });
-            }
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.RemoveValue, new RemoveValueInput
                 {
                     Key = contract.CallAddress,
                     Memo = Guid.NewGuid().ToString()
                 });
-            }
 
             _contracts.ForEach(c => c.CheckTransactionResultList());
 
@@ -165,7 +148,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void DeleteValueAfterSetAction()
         {
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.RemoveAfterSetValue, new RemoveAfterSetValueInput
                 {
                     Key = contract.CallAddress,
@@ -176,7 +158,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         StringValue = Guid.NewGuid().ToString()
                     }
                 });
-            }
 
             _contracts.ForEach(c => c.CheckTransactionResultList());
 
@@ -186,7 +167,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void SetValueAfterDeleteAction()
         {
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.SetAfterRemoveValue, new SetAfterRemoveValueInput
                 {
                     Key = contract.CallAddress,
@@ -197,7 +177,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         StringValue = Guid.NewGuid().ToString()
                     }
                 });
-            }
 
             _contracts.ForEach(c => c.CheckTransactionResultList());
 
@@ -208,7 +187,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             //test ComplexChangeWithDeleteValue1
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue1, new ComplexChangeInput
                 {
                     Key = contract.CallAddress,
@@ -219,13 +197,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         StringValue = Guid.NewGuid().ToString()
                     }
                 });
-            }
-            
+
             _contracts.ForEach(c => c.CheckTransactionResultList());
             CheckValue(100);
             CheckValue("new-info1");
-            CheckValue((MessageValue)null);
-            
+            CheckValue((MessageValue) null);
+
             //test ComplexChangeWithDeleteValue2
             var message = new MessageValue
             {
@@ -233,7 +210,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 StringValue = "test2"
             };
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue2, new ComplexChangeInput
                 {
                     Key = contract.CallAddress,
@@ -241,28 +217,25 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     StringValue = "new-info2",
                     MessageValue = message
                 });
-            }
-            
+
             _contracts.ForEach(c => c.CheckTransactionResultList());
             CheckValue(0);
             CheckValue("new-info2");
             CheckValue(message);
-            
+
             //test ComplexChangeWithDeleteValue3
             foreach (var contract in _contracts)
-            {
                 contract.ExecuteMethodWithTxId(BasicParallelMethod.ComplexChangeWithDeleteValue3, new ComplexChangeInput
                 {
                     Key = contract.CallAddress,
                     Int64Value = 300,
-                    StringValue = Guid.NewGuid().ToString(),
+                    StringValue = Guid.NewGuid().ToString()
                 });
-            }
-            
+
             _contracts.ForEach(c => c.CheckTransactionResultList());
             CheckValue(300);
             CheckValue("");
-            CheckValue((MessageValue)null);
+            CheckValue((MessageValue) null);
         }
     }
 }

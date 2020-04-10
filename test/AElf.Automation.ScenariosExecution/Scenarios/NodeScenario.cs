@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Shouldly;
@@ -44,7 +43,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         public ConsensusContract Consensus { get; }
         public ProfitContract Profit { get; }
         public TokenContract Token { get; }
-        public Dictionary<SchemeType, Scheme> Schemes { get; }
+        public Dictionary<SchemeType, Scheme> Schemes { get; set; }
 
         public void RunNodeScenario()
         {
@@ -86,7 +85,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     count++;
                     Logger.Info($"User {fullNode.Account} announcement election success.");
                     var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
-                    newCandidates.ShouldContain(fullNode.PublicKey, "Check candidates info failed after announce election.");
+                    newCandidates.ShouldContain(fullNode.PublicKey,
+                        "Check candidates info failed after announce election.");
                 }
 
                 if (count == 3)
@@ -186,6 +186,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
                                  $"\r\nTreasury balance is {treasuryBalance}";
+            //update scheme
+            Profit.GetTreasurySchemes(Treasury.ContractAddress);
+            Schemes = ProfitContract.Schemes;
+            
             foreach (var (key, value) in Schemes)
             {
                 Address address;
@@ -284,13 +288,12 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                SchemeId = schemeId,
-                Symbol = NodeOption.NativeTokenSymbol
+                SchemeId = schemeId
             }, out var existed);
 
             if (existed) return; //ignore existed tx
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-            
+
             //check profit amount process
             var profitTransactionFee = profitResult.GetDefaultTransactionFee();
             var afterBalance = Token.GetUserBalance(account);
@@ -302,8 +305,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 checkResult = false;
             }
             */
-            
-            if(checkResult)
+
+            if (checkResult)
                 Logger.Info(
                     $"Profit success - node {account} get profit from Id: {schemeId}, value is: {afterBalance - beforeBalance}");
         }

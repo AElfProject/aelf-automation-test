@@ -3,15 +3,14 @@ using System.Linq;
 using Acs1;
 using Acs3;
 using Acs7;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using ApproveInput = AElf.Contracts.MultiToken.ApproveInput;
 
 namespace AElf.Automation.SideChainCreate
 {
@@ -19,8 +18,8 @@ namespace AElf.Automation.SideChainCreate
     {
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
-        public readonly ParliamentAuthContract ParliamentService;
         public readonly string NativeSymbol;
+        public readonly ParliamentAuthContract ParliamentService;
         public readonly TokenContract TokenService;
         public string Creator;
         public string Password;

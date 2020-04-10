@@ -1,25 +1,27 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
-using AElfChain.Common.DtoExtension;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TestContract.BasicUpdate;
-using AElf.Kernel;
-using AElf.Sdk.CSharp;
+using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.Contracts.Serializer;
+using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using AElfChain.Contract;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Shouldly;
 using Xunit;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -28,7 +30,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class OtherMethodTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -71,7 +73,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 CandidatePubkey =
                     "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
                 Amount = 100_00000000,
-                EndTimestamp = TimestampHelper.GetUtcNow().AddDays(120)
+                EndTimestamp = KernelHelper.GetUtcNow().AddDays(120)
             };
             var voteOutput = JsonFormatter.Default.Format(voteInput);
         }
@@ -103,20 +105,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var jsonInfo = JsonFormatter.Default.Format(info);
 
             var msg = JsonParser.Default.Parse(jsonInfo, StringValue.Descriptor);
-        }
-
-        [TestMethod]
-        public async Task GetDeployedContracts()
-        {
-            const string endpoint = "18.162.41.20:8000";
-            var nodeManager = new NodeManager(endpoint);
-
-            var genesis = GenesisContract.GetGenesisContract(nodeManager);
-            var genesisStub = genesis.GetGensisStub();
-
-            var contractList = await genesisStub.GetDeployedContractAddressList.CallAsync(new Empty());
-            Console.WriteLine($"Total deployed contracts: {contractList.Value.Count}");
-            Console.WriteLine(contractList.Value);
         }
 
         [TestMethod]
@@ -201,7 +189,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void CreateTestAccount()
         {
-            var keyPath = "/Users/ericshu/GitHub/Team/aelf-automation-test/test/AElf.Automation.ScenariosExecution/testers";
+            var keyPath =
+                "/Users/ericshu/GitHub/Team/aelf-automation-test/test/AElf.Automation.ScenariosExecution/testers";
             var keyStore = AElfKeyStore.GetKeyStore(keyPath);
             var accManager = new AccountManager(keyStore);
             for (var i = 0; i < 100; i++)
@@ -243,23 +232,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Value = message
             };
             Logger.Info($"StringValue => {stringInfo.GetHashCode()}/{message.GetHashCode()}");
-            
+
             //int3 value
-            var value = Int32.MaxValue;
+            var value = int.MaxValue;
             var int32Info = new Int32Value
             {
                 Value = value
             };
             Logger.Info($"Int32Value => {int32Info.GetHashCode()}/{value.GetHashCode()}");
-            
+
             //int64 value
-            var data = Int64.MaxValue;
+            var data = long.MaxValue;
             var int64Info = new Int64Value
             {
                 Value = data
             };
             Logger.Info($"Int64Value => {int64Info.GetHashCode()}/{data.GetHashCode()}");
-            
+
             //enum
             var enumData = Color.Blue;
             var enumInfo = new EnumInput
@@ -267,7 +256,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Info = enumData
             };
             Logger.Info($"EnumInput => {enumInfo.GetHashCode()}/{enumData.GetHashCode()}");
-            
+
             //map
             var map1 = new MapStringInput
             {
@@ -283,7 +272,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Info =
                 {
                     {"key1", "test1"},
-                    {"key2", "test2"},
+                    {"key2", "test2"}
                 }
             };
             Logger.Info($"MapStringInput => {map1.GetHashCode()}/{map2.GetHashCode()}");
@@ -297,6 +286,37 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var newCode = CodeInjectHelper.ChangeContractCodeHash(contractFileCode);
             var binaryWriter = new BinaryWriter(new FileStream("TokenCodeChange.dll", FileMode.OpenOrCreate));
             binaryWriter.Write(newCode);
+        }
+
+        [TestMethod]
+        [DataRow(50)]
+        public async Task GetTransactionLimit(int limit)
+        {
+            NodeInfoHelper.SetConfig("nodes-env205-main");
+            var node = NodeInfoHelper.Config.Nodes.First();
+            var nodeManager = new NodeManager(node.Endpoint);
+            var contractManager = new ContractManager(nodeManager, node.Account);
+            var configurationContract = contractManager.Genesis.GetConfigurationContract();
+            var configurationStub = contractManager.Genesis.GetConfigurationStub();
+
+            var genesisOwner = contractManager.Authority.GetGenesisOwnerAddress();
+            var miners = contractManager.Authority.GetCurrentMiners();
+            var input = new SetConfigurationInput
+            {
+                Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
+                Value = new SInt32Value {Value = limit}.ToByteString()
+            };
+            var transactionResult = contractManager.Authority.ExecuteTransactionWithAuthority(
+                configurationContract.ContractAddress,
+                nameof(ConfigurationMethod.SetConfiguration), input,
+                genesisOwner, miners, configurationContract.CallAddress);
+            transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var limitResult =
+                await configurationStub.GetConfiguration.CallAsync(new StringValue
+                    {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var value = SInt32Value.Parser.ParseFrom(limitResult.Value).Value;
+            Logger.Info($"Block transaction limit: {value}");
         }
     }
 }

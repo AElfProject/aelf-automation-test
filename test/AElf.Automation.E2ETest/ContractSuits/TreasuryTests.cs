@@ -157,11 +157,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             updateInterestRet.Status.ShouldBe(TransactionResultStatus.Failed);
 
             var defaultController =
-                await ContractManager.TreasuryStub.GetVoteWeightInterestController.CallAsync(new Empty());
+                await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
             var newOrganization = await CreateParliamentOrganization();
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.ChangeVoteWeightInterestController),
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
                 new AuthorityInfo
                 {
                     ContractAddress = defaultController.ContractAddress,
@@ -169,7 +169,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 },
                 ContractManager.CallAddress);
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var miners = ContractManager.Authority.GetCurrentMiners();
             var result = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
@@ -187,8 +187,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //recover back
             var defaultOwner = ContractManager.Authority.GetGenesisOwnerAddress();
             authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.ChangeVoteWeightInterestController),
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
                 new AuthorityInfo
                 {
                     ContractAddress = defaultController.ContractAddress,

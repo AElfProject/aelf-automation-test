@@ -1,10 +1,9 @@
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
-using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using Google.Protobuf.WellKnownTypes;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
@@ -53,7 +52,7 @@ namespace AElf.Automation.EconomicSystemTest
 
         public int GetMinersCount()
         {
-            return ElectionService.CallViewMethod<SInt32Value>(ElectionMethod.GetMinersCount,
+            return ElectionService.CallViewMethod<Int32Value>(ElectionMethod.GetMinersCount,
                 new Empty()).Value;
         }
 

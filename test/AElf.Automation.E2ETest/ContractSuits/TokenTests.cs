@@ -55,7 +55,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 IssueChainId = ContractManager.ChainId,
                 Issuer = ContractManager.CallAccount,
                 Symbol = symbol,
-                TokenName = $"create token {symbol}",
+                TokenName = $"create token {symbol}"
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -203,7 +203,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var buyResult = await ContractManager.TokenconverterStub.Buy.SendAsync(new BuyInput
             {
                 Symbol = "CPU",
-                Amount = 200_00000000,
+                Amount = 200_00000000
             });
             buyResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var beforeCpu = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, "CPU");
@@ -235,8 +235,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 NameProvider.Profit,
                 NameProvider.Election,
                 NameProvider.Treasury,
-                NameProvider.TokenConverter,
-                NameProvider.ReferendumAuth
+                NameProvider.TokenConverter
             };
             foreach (var provider in whiteList)
             {
@@ -256,10 +255,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var resourceInfos = await ContractManager.TokenStub.GetResourceTokenInfo.CallAsync(new Empty());
             resourceInfos.Value.Count.ShouldBe(8);
             var resourceSymbols = resourceInfos.Value.Select(o => o.Symbol);
-            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC","CPU", "RAM", "DISK", "NET"});
+            resourceSymbols.ShouldBe(new[] {"WRITE", "READ", "STORAGE", "TRAFFIC", "CPU", "RAM", "DISK", "NET"});
 
             resourceInfos.Value.ShouldAllBe(o => o.IsBurnable);
-            resourceInfos.Value.ShouldAllBe(o => o.Supply == 5_0000_0000_00000000);
+            resourceInfos.Value.ShouldAllBe(o => o.Supply <= 5_0000_0000_00000000);
             resourceInfos.Value.ShouldAllBe(o => o.TotalSupply == 5_0000_0000_00000000);
             resourceInfos.Value.ShouldAllBe(o => o.Decimals == 8);
 

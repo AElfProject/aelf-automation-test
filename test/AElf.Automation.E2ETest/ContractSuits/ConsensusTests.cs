@@ -83,7 +83,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var minerPubkey = await ContractManager.ConsensusStub.GetCurrentMinerPubkey.CallAsync(new Empty());
             var otherTest = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
             var minerAccount = Address.FromPublicKey(ByteArrayHelper.HexStringToByteArray(minerPubkey.Value));
-            
+
             var isCurrentMiner = await ContractManager.ConsensusStub.IsCurrentMiner.CallAsync(otherTest);
             isCurrentMiner.Value.ShouldBeFalse();
 

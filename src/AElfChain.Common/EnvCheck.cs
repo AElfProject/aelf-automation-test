@@ -42,7 +42,7 @@ namespace AElfChain.Common
             CheckAllNodesConnection();
         }
 
-        public List<string> GenerateOrGetTestUsers(int count,string url = null)
+        public List<string> GenerateOrGetTestUsers(int count, string url = null)
         {
             if (url == null)
                 url = _config.Nodes.First(o => o.Status).Endpoint;

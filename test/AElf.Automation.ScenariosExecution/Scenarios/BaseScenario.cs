@@ -5,8 +5,8 @@ using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -15,10 +15,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     public class BaseScenario
     {
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
+
+        protected DateTime UpdateEndpointTime = DateTime.Now;
         protected List<string> AllTesters { get; set; }
         protected List<Node> AllNodes { get; set; }
-        
-        protected DateTime UpdateEndpointTime = DateTime.Now;
         protected static string NativeToken { get; set; }
         protected static ContractServices Services { get; set; }
 
@@ -44,7 +44,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             bool interrupted = false)
         {
             foreach (var action in actions)
-            {
                 try
                 {
                     action.Invoke();
@@ -55,7 +54,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     if (interrupted)
                         break;
                 }
-            }
 
             if (sleepSeconds != 0)
                 Thread.Sleep(1000 * sleepSeconds);
@@ -65,7 +63,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var timeSpan = DateTime.Now - UpdateEndpointTime;
             if (timeSpan.Minutes < 1) return;
-            
+
             Console.WriteLine();
             UpdateEndpointTime = DateTime.Now;
             Services.UpdateRandomEndpoint();
@@ -126,7 +124,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 token.TransferBalance(bp.Account, tester, transferAmount);
             }
         }
-        
+
         protected void CollectPartBpTokensToBp0()
         {
             Logger.Info("Transfer part bps token to first bp for testing.");
@@ -176,10 +174,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         protected void PrintTesters(string name, List<string> testers)
         {
             Logger.Info($"Scenario: {name}");
-            foreach (var tester in testers)
-            {
-                Logger.Info(tester);
-            }
+            foreach (var tester in testers) Logger.Info(tester);
         }
     }
 }

@@ -13,7 +13,9 @@ namespace AElfChain.Common.Contracts
         DonateAll,
 
         //View
-        GetTreasurySchemeId
+        GetTreasurySchemeId,
+        GetMinerRewardWeightProportion,
+        GetDividendPoolWeightProportion
     }
 
     public class TreasuryContract : BaseContract<TreasuryMethod>

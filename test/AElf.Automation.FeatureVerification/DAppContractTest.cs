@@ -24,9 +24,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class DAppContractTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        private string ContractAddress = "rCCKJDg8STNqYtwbUC23SEyYNv6mYvKuEnXJPj8ZoGkgQFWqh";
-        private string ConfigFile = "nodes-online-test-main";
-        private string AppSymbol = "MAPP";
+        private readonly string AppSymbol = "MAPP";
+        private readonly string ConfigFile = "nodes-env2-side1";
+        private readonly string ContractAddress = "rCCKJDg8STNqYtwbUC23SEyYNv6mYvKuEnXJPj8ZoGkgQFWqh";
         private INodeManager NodeManager { get; set; }
         public DAppContainer.DAppStub DAppStub { get; set; }
         public DAppContract DAppContract { get; set; }
@@ -162,7 +162,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     var transactionResult = await dappStub.Use.SendAsync(new Record
                     {
                         Type = RecordType.Use,
-                        Description = $"Use test-{Guid.NewGuid()}",
+                        Description = $"Use test-{Guid.NewGuid()}"
                     });
                     transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }
@@ -232,7 +232,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow(new[] {0, 1, 2, 3})]
         public async Task InvestorReceiveResourceProfit_Test(int[] idArray)
         {
-            Logger.Info($"=>InvestorReceiveProfit_Test");
+            Logger.Info("=>InvestorReceiveProfit_Test");
             foreach (var id in idArray)
             {
                 Logger.Info($"Claim Profit Id = {id}");
@@ -242,8 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new ClaimProfitsInput
                     {
                         Beneficiary = Investors[id].ConvertAddress(),
-                        SchemeManager = DAppContract.Contract,
-                        Symbol = AppSymbol
+                        SchemeManager = DAppContract.Contract
                     });
                 claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -253,12 +252,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 GetDAppContractBalance();
             }
         }
-        
+
         [TestMethod]
         [DataRow(new[] {0, 1, 2, 3})]
         public async Task InvestorReceiveProfit_Test(int[] idArray)
         {
-            Logger.Info($"=>InvestorReceiveProfit_Test");
+            Logger.Info("=>InvestorReceiveProfit_Test");
             foreach (var id in idArray)
             {
                 Logger.Info($"Claim Profit Id = {id}");
@@ -268,8 +267,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new ClaimProfitsInput
                     {
                         Beneficiary = Investors[id].ConvertAddress(),
-                        SchemeManager = DAppContract.Contract,
-                        Symbol = PrimarySymbol
+                        SchemeManager = DAppContract.Contract
                     });
                 claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -313,8 +311,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 new ClaimProfitsInput
                 {
                     Beneficiary = investor.ConvertAddress(),
-                    SchemeManager = DAppContract.Contract,
-                    Symbol = PrimarySymbol
+                    SchemeManager = DAppContract.Contract
                 });
             claimProfitsResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             afterBalance = ContractManager.Token.GetUserBalance(investor, PrimarySymbol);

@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acs3;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
-using AElf.Kernel;
-using AElf.Sdk.CSharp;
+using AElf.CSharp.Core.Extension;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf;
@@ -142,7 +141,7 @@ namespace AElf.Automation.ProposalTest
                         ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
                         OrganizationAddress = organizationAddress,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
-                        ExpiredTime = TimestampHelper.GetUtcNow().AddHours(2),
+                        ExpiredTime = KernelHelper.GetUtcNow().AddHours(2),
                         Params = transferInput.ToByteString()
                     };
                     var txId = Parliament.ExecuteMethodWithTxId(ParliamentMethod.CreateProposal, createProposalInput);
@@ -263,20 +262,18 @@ namespace AElf.Automation.ProposalTest
         {
             Logger.Info("Release proposal: ");
             foreach (var (key, value) in ProposalList)
+            foreach (var proposal in value)
             {
-                foreach (var proposal in value)
-                {
-                    var proposalInfo = Parliament.CheckProposal(proposal);
-                    var toBeReleased = proposalInfo.ToBeReleased;
-                    if (!toBeReleased) continue;
-                    var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
-                    Parliament.SetAccount(proposalInfo.Proposer.GetFormatted());
-                    var result = Parliament.ExecuteMethodWithResult(ParliamentMethod.Release,
-                        proposal);
-                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                    var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
-                    newBalance.ShouldBe(balance - 100);
-                }
+                var proposalInfo = Parliament.CheckProposal(proposal);
+                var toBeReleased = proposalInfo.ToBeReleased;
+                if (!toBeReleased) continue;
+                var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                Parliament.SetAccount(proposalInfo.Proposer.GetFormatted());
+                var result = Parliament.ExecuteMethodWithResult(ParliamentMethod.Release,
+                    proposal);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                newBalance.ShouldBe(balance - 100);
             }
         }
 
