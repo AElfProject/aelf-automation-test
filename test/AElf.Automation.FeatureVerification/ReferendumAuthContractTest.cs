@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Acs3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
 using AElf.Types;
-using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -24,10 +21,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ReferendumAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public TokenContract Token;
         public ReferendumAuthContract Referendum;
         public string Symbol = "ELF";
         protected ContractTester Tester;
+        public TokenContract Token;
         public INodeManager NodeManager { get; set; }
         public AElfClient ApiClient { get; set; }
         public List<string> UserList { get; set; }
@@ -72,7 +69,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposerWhiteList = new ProposerWhiteList
                     {
                         Proposers = {InitAccount.ConvertAddress()}
-                    },
+                    }
                 });
             var returnValue = result.ReturnValue;
             var organizationAddress =

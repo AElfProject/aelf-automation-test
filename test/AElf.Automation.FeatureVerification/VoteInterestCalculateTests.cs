@@ -10,7 +10,6 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -29,13 +28,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class VoteInterestCalculateTests
     {
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private const int DaySec = 86400;
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
-        public InterestCalculate InterestInstance { get; set; }
-
-        public List<string> Reviwers { get; set; }
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public VoteInterestCalculateTests()
         {
@@ -49,12 +43,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             InterestInstance = new InterestCalculate(ContractManager);
         }
 
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
+        public InterestCalculate InterestInstance { get; set; }
+
+        public List<string> Reviwers { get; set; }
+
         [TestMethod]
         [DataRow("65ngL8Rp8mZQHCXqht9GH3xT4tk9CaU95hHaMNE1VmqR7dJ4W")]
         public async Task ChangeOrganization_Test(string organizationAddress)
         {
             //Query manager address
-            var beforeController = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            var beforeController =
+                await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {beforeController}");
             beforeController.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
 
@@ -62,16 +63,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.TokenConverter.ContractAddress,
                 nameof(ContractManager.TokenconverterStub.ChangeConnectorController),
-                 new AuthorityInfo
-                 {
-                     ContractAddress = beforeController.ContractAddress,
-                     OwnerAddress = organizationAddress.ConvertAddress(),
-                 },
+                new AuthorityInfo
+                {
+                    ContractAddress = beforeController.ContractAddress,
+                    OwnerAddress = organizationAddress.ConvertAddress()
+                },
                 ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //verify manager permission
-            var afterController = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            var afterController =
+                await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {afterController}");
             afterController.OwnerAddress.ShouldBe(organizationAddress.ConvertAddress());
         }
@@ -89,7 +91,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 nameof(ContractManager.TokenconverterStub.ChangeConnectorController), new AuthorityInfo
                 {
                     ContractAddress = controller.ContractAddress,
-                    OwnerAddress = defaultOrganization,
+                    OwnerAddress = defaultOrganization
                 }, organizationAddress.ConvertAddress(), Reviwers.First());
             foreach (var approver in Reviwers)
             {
@@ -99,9 +101,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var releaseResult = ContractManager.Association.ReleaseProposal(createProposal, Reviwers.First());
             releaseResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
+
             //query again
-            var orgAddress = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
+            var orgAddress =
+                await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {orgAddress}");
             orgAddress.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
         }
@@ -126,7 +129,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         {
                             Day = 180,
                             Capital = 10000,
-                            Interest = 12,
+                            Interest = 12
                         },
                         new VoteWeightInterest
                         {
@@ -211,7 +214,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     CandidatePubkey =
                         "044958d5c48f003c771769f4a31413cd18053516615cbde502441af8452fb53441a80cc48a7f3b0f2552fd030cacbe9012ba055a3d553b70003f2e637d55fa0f23",
                     Amount = 100,
-                    EndTimestamp = TimestampHelper.GetUtcNow().AddDays(voteDay[i]).AddHours(1)
+                    EndTimestamp = KernelHelper.GetUtcNow().AddDays(voteDay[i]).AddHours(1)
                 });
                 voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
@@ -239,7 +242,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             await CreateNewAssociationOrganization();
         }
-        
+
         [TestMethod]
         public async Task CreateParliamentOrg_Test()
         {
@@ -254,7 +257,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenStub = ContractManager.Genesis.GetTokenStub(first);
             foreach (var account in nodeAccounts)
             {
-                if(account == first) continue;
+                if (account == first) continue;
                 var balance = ContractManager.Token.GetUserBalance(account);
                 if (balance <= 100_00000000)
                 {
@@ -299,7 +302,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var organization = transactionResult.Output;
             Logger.Info($"Organization address: {organization.GetFormatted()}");
-            
+
             return organization;
         }
 
@@ -324,7 +327,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(createOrganizationInput);
             var organizationAddress = transactionResult.Output;
             Logger.Info($"ParliamentAuth address: {organizationAddress}");
-            
+
             return organizationAddress;
         }
     }
@@ -334,14 +337,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private const int DaySec = 86400;
         private const int Scale = 10000;
 
-        public ContractManager CM { get; set; }
-        public VoteWeightInterestList InterestList { get; set; }
-
         public InterestCalculate(ContractManager cm)
         {
             CM = cm;
             InterestList = AsyncHelper.RunSync(GetVoteWeightInterestList);
         }
+
+        public ContractManager CM { get; set; }
+        public VoteWeightInterestList InterestList { get; set; }
 
         public long GetVotesWeight(long votesAmount, long lockTime)
         {
@@ -371,7 +374,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             if (y == 1)
                 return (long) x;
-            decimal a = 1m;
+            var a = 1m;
             if (y == 0)
                 return a;
             var e = new BitArray(BitConverter.GetBytes(y));
@@ -379,10 +382,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (var i = t - 1; i >= 0; --i)
             {
                 a *= a;
-                if (e[i])
-                {
-                    a *= x;
-                }
+                if (e[i]) a *= x;
             }
 
             return a;

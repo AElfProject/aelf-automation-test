@@ -28,7 +28,7 @@ namespace AElfChain.Common.DtoExtension
                 throw;
             }
         }
-        
+
         public static bool IsAddressInfo(string info, out Address address)
         {
             address = new Address();

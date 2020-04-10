@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
-using AElf.Contracts.MultiToken;
 using Shouldly;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios

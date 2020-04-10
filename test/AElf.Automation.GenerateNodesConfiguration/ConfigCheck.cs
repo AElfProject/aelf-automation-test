@@ -7,8 +7,8 @@ namespace AElf.Automation.NodesConfigGen
 {
     public class ConfigCheck
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogger();
         private readonly List<NodeInfo> _allNodes;
+        private readonly ILogHelper _logger = LogHelper.GetLogger();
         private readonly NodesInformation _nodes;
 
         public ConfigCheck()

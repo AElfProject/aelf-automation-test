@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common.Contracts;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
@@ -11,10 +11,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
     {
         public void CrossChainTransferSideChainJob()
         {
-            foreach (var symbol in PrimaryTokens)
-            {
-                CrossChainTransferOnSideChain(symbol);
-            }
+            foreach (var symbol in PrimaryTokens) CrossChainTransferOnSideChain(symbol);
             if (TokenSymbols.Count < 1) return;
             foreach (var symbol in TokenSymbols) CrossChainTransferOnSideChain(symbol);
         }
@@ -36,7 +33,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 foreach (var account in AccountList)
                 {
                     var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, account,
-                        account, MainChainService.ChainId, tokenInfo.IssueChainId,100);
+                        account, MainChainService.ChainId, tokenInfo.IssueChainId, 100);
                     if (rawTxInfo == null) continue;
 
                     Thread.Sleep(100);
@@ -62,7 +59,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     foreach (var account in AccountList)
                     {
                         var rawTxInfo = CrossChainTransferWithTxId(sideChainService, symbol, account,
-                            account, receiveSideChain.ChainId, tokenInfo.IssueChainId,100);
+                            account, receiveSideChain.ChainId, tokenInfo.IssueChainId, 100);
                         if (rawTxInfo == null) continue;
                         rawTxInfos.Add(rawTxInfo);
                     }

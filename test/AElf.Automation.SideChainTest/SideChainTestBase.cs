@@ -8,14 +8,12 @@ using Acs7;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
-using AElfChain.Common.Helpers;
-using AElf.CSharp.Core.Utils;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -28,13 +26,11 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        public string InitAccount;
         public ContractServices MainServices;
-        public List<ContractServices> SideServices;
         public ContractServices SideAServices;
         public ContractServices SideBServices;
-
-        public TokenContractContainer.TokenContractStub TokenContractStub;
-        public TokenContractImplContainer.TokenContractImplStub TokenContractImplStub;
+        public List<string> Miners;
         public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
         public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public string InitAccount;
@@ -42,7 +38,7 @@ namespace AElf.Automation.SideChainTests
         public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
         public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
 
-        public List<string> Miners;
+        public TokenContractContainer.TokenContractStub TokenContractStub;
 
         protected void Initialize()
         {
@@ -71,7 +67,7 @@ namespace AElf.Automation.SideChainTests
             side1TokenContractStub = SideAServices.TokenImplContractStub;
             side2TokenContractStub = SideBServices.TokenImplContractStub;
             Miners = new List<string>();
-            Miners = (new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners());
+            Miners = new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners();
 
 //            foreach (var miner in Miners)
 //            {
@@ -81,6 +77,49 @@ namespace AElf.Automation.SideChainTests
 //                        service.TokenService.GetPrimaryTokenSymbol());
 //                }
 //            }
+        }
+
+        #region Other Method
+
+        protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
+        {
+            var transactionId =
+                services.NodeManager.SendTransaction(rawTx);
+
+            return transactionId;
+        }
+
+        #endregion
+
+        #region cross chain verify 
+
+        protected CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(ContractServices services,
+            string account,
+            long blockNumber)
+        {
+            services.CrossChainService.SetAccount(account);
+            var result = services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
+                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
+                {
+                    Value = blockNumber
+                });
+            return result;
+        }
+
+        #endregion
+
+        private IEnumerable<Address> GetMiners(ContractServices services)
+        {
+            var minerList = new List<Address>();
+            var miners =
+                services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            foreach (var publicKey in miners.Pubkeys)
+            {
+                var address = Address.FromPublicKey(publicKey.ToByteArray());
+                minerList.Add(address);
+            }
+
+            return minerList;
         }
 
         #region cross chain transfer
@@ -150,18 +189,6 @@ namespace AElf.Automation.SideChainTests
                     TotalSupply = tokenInfo.TotalSupply
                 });
             return validateTransaction;
-        }
-
-        #endregion
-
-        #region Other Method
-
-        protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)
-        {
-            var transactionId =
-                services.NodeManager.SendTransaction(rawTx);
-
-            return transactionId;
         }
 
         #endregion
@@ -258,7 +285,8 @@ namespace AElf.Automation.SideChainTests
                         Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
                     }
                 });
-            var organizationAddress = Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
             _logger.Info($"Association organization is: {organizationAddress}");
             return organizationAddress;
         }
@@ -268,7 +296,7 @@ namespace AElf.Automation.SideChainTests
             var miners = GetMiners(services);
             services.ParliamentService.SetAccount(miners.First().GetFormatted());
             var address = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
-                new Contracts.Parliament.CreateOrganizationInput()
+                new Contracts.Parliament.CreateOrganizationInput
                 {
                     ProposalReleaseThreshold = new ProposalReleaseThreshold
                     {
@@ -280,7 +308,8 @@ namespace AElf.Automation.SideChainTests
                     ProposerAuthorityRequired = false,
                     ParliamentMemberProposingAllowed = true
                 });
-            var organizationAddress = Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
             return organizationAddress;
         }
 
@@ -327,23 +356,6 @@ namespace AElf.Automation.SideChainTests
         {
             var address = MainServices.AssociationService.CreateOrganization(input);
             return address;
-        }
-
-        #endregion
-
-        #region cross chain verify 
-
-        protected CrossChainMerkleProofContext GetBoundParentChainHeightAndMerklePathByHeight(ContractServices services,
-            string account,
-            long blockNumber)
-        {
-            services.CrossChainService.SetAccount(account);
-            var result = services.CrossChainService.CallViewMethod<CrossChainMerkleProofContext>(
-                CrossChainContractMethod.GetBoundParentChainHeightAndMerklePathByHeight, new Int64Value
-                {
-                    Value = blockNumber
-                });
-            return result;
         }
 
         #endregion
@@ -429,19 +441,5 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
-
-        private IEnumerable<Address> GetMiners(ContractServices services)
-        {
-            var minerList = new List<Address>();
-            var miners =
-                services.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            foreach (var publicKey in miners.Pubkeys)
-            {
-                var address = Address.FromPublicKey(publicKey.ToByteArray());
-                minerList.Add(address);
-            }
-
-            return minerList;
-        }
     }
 }

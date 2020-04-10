@@ -8,24 +8,23 @@ using AElf.Client.Service;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
     public class MonitorMassRequestScenario : BaseScenario
     {
-        public INodeManager NodeManager { get; set; }
-        public AElfClient ApiClient => NodeManager.ApiClient;
-
-        public long ChainHeight { get; set; }
-
         public MonitorMassRequestScenario()
         {
             InitializeScenario();
             NodeManager = Services.NodeManager;
             ChainHeight = AsyncHelper.RunSync(ApiClient.GetBlockHeightAsync);
         }
+
+        public INodeManager NodeManager { get; set; }
+        public AElfClient ApiClient => NodeManager.ApiClient;
+
+        public long ChainHeight { get; set; }
 
         public void RunMassRequestScenarioJob(int threadNumber)
         {
@@ -38,7 +37,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 tasks.Add(Task.Run(() =>
                 {
                     while (!pendingSource.IsCancellationRequested)
-                    {
                         ExecuteStandaloneTask(new Action[]
                         {
                             QueryChainStatus,
@@ -46,10 +44,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                             QueryContractInfo,
                             QueryUserTokenBalance
                         });
-                    }
                 }));
                 Thread.Sleep(100);
             }
+
             Task.WaitAll(tasks.ToArray());
 
             stopwatch.Stop();

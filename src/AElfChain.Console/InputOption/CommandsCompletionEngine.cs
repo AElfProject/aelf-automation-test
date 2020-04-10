@@ -6,8 +6,8 @@ namespace AElfChain.Console.InputOption
 {
     public class CommandsCompletionEngine : ICompletionEngine
     {
-        private readonly char[] _tokenDelimiters = {' '};
         private readonly List<string> _commands;
+        private readonly char[] _tokenDelimiters = {' '};
 
         public CommandsCompletionEngine(List<string> commands)
         {

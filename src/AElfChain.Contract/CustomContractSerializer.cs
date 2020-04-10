@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Google.Protobuf.Reflection;
+using ProtoBuf;
 
 namespace AElfChain.Contract
 {
@@ -32,7 +33,7 @@ namespace AElfChain.Contract
                 return _descriptor;
 
             var ms = new MemoryStream(_fileDescriptorBytes);
-            var descriptorSet = ProtoBuf.Serializer.Deserialize<FileDescriptorSet>(ms);
+            var descriptorSet = Serializer.Deserialize<FileDescriptorSet>(ms);
 
             _descriptor = new ContractDescriptor();
             foreach (var file in descriptorSet.Files)

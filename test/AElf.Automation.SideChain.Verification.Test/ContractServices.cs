@@ -1,23 +1,15 @@
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
-using AElf.Types;
 
 namespace AElf.Automation.SideChain.Verification
 {
     public class ContractServices
     {
         public readonly int ChainId;
-        public readonly string PrimaryTokenSymbol;
         public readonly INodeManager NodeManager;
-        public GenesisContract GenesisService { get; set; }
-        public TokenContract TokenService { get; set; }
-        public ConsensusContract ConsensusService { get; set; }
-        public CrossChainContract CrossChainService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
+        public readonly string PrimaryTokenSymbol;
 
-        public string CallAddress { get;}
-        public Address CallAccount { get;}
-        
 
         public ContractServices(string url, string callAddress, string keyStore, string password)
         {
@@ -30,6 +22,15 @@ namespace AElf.Automation.SideChain.Verification
             ChainId = ChainHelper.ConvertBase58ToChainId(chainInfo.ChainId);
             PrimaryTokenSymbol = chainInfo.PrimaryTokenSymbol;
         }
+
+        public GenesisContract GenesisService { get; set; }
+        public TokenContract TokenService { get; set; }
+        public ConsensusContract ConsensusService { get; set; }
+        public CrossChainContract CrossChainService { get; set; }
+        public ParliamentAuthContract ParliamentService { get; set; }
+
+        public string CallAddress { get; }
+        public Address CallAccount { get; }
 
         private void GetContractServices()
         {
@@ -52,12 +53,12 @@ namespace AElf.Automation.SideChain.Verification
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);
             ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
         }
-        
+
         private ChainInfo GetChainInfo()
         {
             var chainId = NodeManager.GetChainId();
             var primaryTokenSymbol = TokenService.GetPrimaryTokenSymbol();
-            var chainInfo = new ChainInfo(chainId,primaryTokenSymbol);
+            var chainInfo = new ChainInfo(chainId, primaryTokenSymbol);
             return chainInfo;
         }
     }

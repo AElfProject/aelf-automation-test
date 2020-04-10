@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using Google.Protobuf;
 using Shouldly;
 

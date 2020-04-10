@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.TestContract.Performance;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -23,7 +23,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             InitializeScenario();
 
-            Performance = PerformanceContract.GetOrDeployPerformanceContract(Services.NodeManager, Services.CallAddress);
+            Performance =
+                PerformanceContract.GetOrDeployPerformanceContract(Services.NodeManager, Services.CallAddress);
             Testers = AllTesters.GetRange(15, 5);
             PrintTesters(nameof(PerformanceScenario), Testers);
         }

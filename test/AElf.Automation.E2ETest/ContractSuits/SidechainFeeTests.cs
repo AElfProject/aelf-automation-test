@@ -21,12 +21,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
     [TestClass]
     public class SidechainFeeTests
     {
-        public INodeManager MainNode { get; set; }
-        public ContractManager MainManager { get; set; }
-        public INodeManager SideNode { get; set; }
-        public ContractManager SideManager { get; set; }
-        public ILog Logger { get; set; }
-
         public SidechainFeeTests()
         {
             Log4NetHelper.LogInit("SideChainTest");
@@ -42,6 +36,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             SideNode = new NodeManager(sideNode.Endpoint);
             SideManager = new ContractManager(SideNode, sideNode.Account);
         }
+
+        public INodeManager MainNode { get; set; }
+        public ContractManager MainManager { get; set; }
+        public INodeManager SideNode { get; set; }
+        public ContractManager SideManager { get; set; }
+        public ILog Logger { get; set; }
 
         [TestMethod]
         public async Task AdoptSideChain_IndexFee_Test()
@@ -68,10 +68,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 MainManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = MainManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners)
-            {
-                MainManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
-            }
+            foreach (var miner in currentMiners) MainManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
 
             MainManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
             MainManager.Association.ReleaseProposal(proposalId, proposer);
@@ -106,17 +103,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 SideManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = SideManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners)
-            {
-                SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
-            }
+            foreach (var miner in currentMiners) SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
 
             var parliamentResult = SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
             parliamentResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var associationResult = SideManager.Association.ReleaseProposal(proposalId, proposer);
             associationResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
+
             //Query verification
             var rentalUnitResult = await SideManager.TokenImplStub.GetOwningRentalUnitValue.CallAsync(new Empty());
             rentalUnitResult.ResourceUnitValue["CPU"].ShouldBe(updateRentalInput.Rental["CPU"]);
@@ -143,9 +137,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //prepare test token
             var balance = SideManager.Token.GetUserBalance(tester, primaryToken);
             if (balance == 0)
-            {
                 SideManager.Token.TransferBalance(creator.GetFormatted(), tester, 5_00000000L, primaryToken);
-            }
 
             transactionResult = await tokenStub.Approve.SendAsync(new ApproveInput
             {

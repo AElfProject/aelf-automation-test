@@ -39,6 +39,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("SpecifyEndpoint")] public SpecifyEndpoint SpecifyEndpoint { get; set; }
         [JsonProperty("ContractsInfo")] public ContractsInfo ContractsInfo { get; set; }
 
-        public static ScenarioConfig ReadInformation => ConfigHelper<ScenarioConfig>.GetConfigInfo("scenario-nodes.json");
+        public static ScenarioConfig ReadInformation =>
+            ConfigHelper<ScenarioConfig>.GetConfigInfo("scenario-nodes.json");
     }
 }

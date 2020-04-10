@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Acs0;
 using Acs1;
 using AElf.Client.Dto;
@@ -174,6 +173,7 @@ namespace AElfChain.Common.Contracts
         {
             return GetContractAuthor(contractAddress.ConvertAddress());
         }
+
         public AuthorityInfo GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());

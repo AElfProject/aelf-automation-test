@@ -1,6 +1,6 @@
 using AElf.Client.Dto;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Election;
+using AElfChain.Common.Contracts;
 using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Automation.EconomicSystemTest

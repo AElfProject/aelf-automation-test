@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 
@@ -15,12 +15,11 @@ namespace AElf.Automation.ContractsTesting
 {
     public class RandomGenerate
     {
+        public static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly string _account;
+        private readonly ConcurrentQueue<Hash> _hashQueue;
         private readonly INodeManager _nodeManager;
         private AEDPoSContractImplContainer.AEDPoSContractImplStub _consensusImplStub;
-        private readonly ConcurrentQueue<Hash> _hashQueue;
-
-        public static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         public RandomGenerate(INodeManager nodeManager, string account)
         {
@@ -46,7 +45,7 @@ namespace AElf.Automation.ContractsTesting
                         await Task.Delay(500);
                     }
                 }),
-                Task.Run(async ()=> await GetAllRandomHash())
+                Task.Run(async () => await GetAllRandomHash())
             };
             Task.WaitAll(tasks.ToArray());
 
@@ -65,7 +64,7 @@ namespace AElf.Automation.ContractsTesting
             var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
             Logger.Info($"Current round info: {roundInfo.Value}");
             var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Hash());
-            if(!_hashQueue.Contains(randomOrder.Output.TokenHash))
+            if (!_hashQueue.Contains(randomOrder.Output.TokenHash))
                 _hashQueue.Enqueue(randomOrder.Output.TokenHash);
             var blockHeight = randomOrder.Output.BlockHeight;
             var tokenHash = randomOrder.Output.TokenHash;
@@ -76,7 +75,6 @@ namespace AElf.Automation.ContractsTesting
         {
             await Task.Delay(10 * 1000);
             while (_hashQueue.TryDequeue(out var tokenHash))
-            {
                 try
                 {
                     var randomResult = await _consensusImplStub.GetRandomNumber.CallAsync(tokenHash);
@@ -98,7 +96,6 @@ namespace AElf.Automation.ContractsTesting
                     _hashQueue.Enqueue(tokenHash);
                     await Task.Delay(1000);
                 }
-            }
         }
 
         private List<string> GetAvailableAccounts()
@@ -111,7 +108,7 @@ namespace AElf.Automation.ContractsTesting
             foreach (var acc in accounts)
             {
                 var balance = token.GetUserBalance(acc, primaryToken);
-                if(balance > 10000_0000)
+                if (balance > 10000_0000)
                     availableAccounts.Add(acc);
             }
 

@@ -155,11 +155,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             
             var miners = ContractManager.Authority.GetCurrentMiners();
             var defaultController =
-                await ContractManager.TreasuryStub.GetVoteWeightInterestController.CallAsync(new Empty());
-            var newOrganization = CreateParliamentOrganization();
+                await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
+            var newOrganization = await CreateParliamentOrganization();
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.ChangeVoteWeightInterestController),
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
                 new AuthorityInfo
                 {
                     ContractAddress = defaultController.ContractAddress,
@@ -167,7 +167,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 },
                 miners.First());
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var result = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetVoteWeightInterest),
@@ -184,8 +184,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //recover back
             var defaultOwner = ContractManager.Authority.GetGenesisOwnerAddress();
             authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.ChangeVoteWeightInterestController),
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
                 new AuthorityInfo
                 {
                     ContractAddress = defaultController.ContractAddress,

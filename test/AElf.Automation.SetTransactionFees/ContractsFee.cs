@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
 using Acs1;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 

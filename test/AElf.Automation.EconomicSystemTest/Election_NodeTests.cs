@@ -2,6 +2,7 @@ using System.Linq;
 using AElf.Contracts.Election;
 using AElfChain.Common.Contracts;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

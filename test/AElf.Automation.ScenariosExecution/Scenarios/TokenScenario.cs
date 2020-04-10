@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
-using AElf.Kernel.Miner.Application;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -47,7 +46,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         public void TokenScenarioJob()
         {
-            ExecuteStandaloneTask(actions: new Action[]
+            ExecuteStandaloneTask(new Action[]
             {
                 TransferAction,
                 ApproveTransferAction,
@@ -144,10 +143,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             //execute transactions
-            foreach (var rawTx in list.Select(o => o.RawTx).ToList())
-            {
-                Services.NodeManager.SendTransaction(rawTx);
-            }
+            foreach (var rawTx in list.Select(o => o.RawTx).ToList()) Services.NodeManager.SendTransaction(rawTx);
 
             Services.NodeManager.CheckTransactionListResult(list.Select(o => o.TxId).ToList());
 
@@ -183,13 +179,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             if (checkResult)
-            {
                 //check all balance
                 foreach (var tester in testers)
-                {
                     beforeBalances[tester].ShouldBe(afterBalances[tester]);
-                }
-            }
         }
 
         private void ParallelTransferFromAction()
@@ -215,8 +207,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     TxId = txId
                 });
             }
-            Services.NodeManager.CheckTransactionListResult(approveList.Select(o=>o.TxId).ToList());
-            
+
+            Services.NodeManager.CheckTransactionListResult(approveList.Select(o => o.TxId).ToList());
+
             //execute transferFrom operation
             var transferFromList = new List<TxItem>();
             foreach (var tx in approveList)
@@ -241,10 +234,11 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Amount = tx.Amount,
                     RawTx = rawTx,
                     TxId = txId
-                }); 
+                });
             }
-            
-            var testers = transferFromList.Select(o => o.From).Concat(transferFromList.Select(o => o.To)).Distinct().ToList();
+
+            var testers = transferFromList.Select(o => o.From).Concat(transferFromList.Select(o => o.To)).Distinct()
+                .ToList();
 
             var beforeBalances = new Dictionary<string, long>();
             foreach (var tester in testers)
@@ -255,9 +249,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
             //execute transactions
             foreach (var rawTx in transferFromList.Select(o => o.RawTx).ToList())
-            {
                 Services.NodeManager.SendTransaction(rawTx);
-            }
             Services.NodeManager.CheckTransactionListResult(transferFromList.Select(o => o.TxId).ToList());
 
             //verify result
@@ -267,7 +259,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var balance = Token.GetUserBalance(tester);
                 afterBalances.Add(tester, balance);
             }
-            
+
             //check fee
             var checkResult = true;
             foreach (var tx in transferFromList)
@@ -292,13 +284,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }
 
             if (checkResult)
-            {
                 //check all balance
                 foreach (var tester in testers)
-                {
                     beforeBalances[tester].ShouldBe(afterBalances[tester]);
-                }
-            }
         }
 
         private void ApproveTransferAction()
@@ -322,19 +310,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         var newAllowance = Token.GetAllowance(from, to);
                         if (newAllowance == allowance + 1000_00000000)
-                        {
                             Logger.Info($"Approve success - from {from} to {to} with amount {amount}.");
-                        }
                         else
-                        {
                             Logger.Error(
                                 $"Allowance check failed. {NodeOption.NativeTokenSymbol}: {allowance + 1000_00000000}/{newAllowance}");
-                        }
 
                         allowance = newAllowance;
                     }
                     else
+                    {
                         return;
+                    }
                 }
 
                 var beforeFrom = Token.GetUserBalance(from);

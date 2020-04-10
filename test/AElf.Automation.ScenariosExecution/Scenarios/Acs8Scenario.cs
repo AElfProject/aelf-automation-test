@@ -21,17 +21,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
     {
         public new static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public TransactionFeesContract TxFees { get; set; }
-        public TokenConverterContract TokenConverter { get; set; }
-
-        public AElfClient Client => Services.NodeManager.ApiClient;
-
-        public DateTime CheckResourceTokenTime { get; set; }
-
-        public TokenContract Token { get; set; }
-        
-        public TransactionFeeCalculator Calculator { get; set; }
-
         public Acs8Scenario()
         {
             InitializeScenario();
@@ -44,6 +33,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             PrepareAcs8ResourceToken();
             TxFees.InitializeTxFees(TxFees.Contract); //tx contract itself, just for test acs8.
         }
+
+        public TransactionFeesContract TxFees { get; set; }
+        public TokenConverterContract TokenConverter { get; set; }
+
+        public AElfClient Client => Services.NodeManager.ApiClient;
+
+        public DateTime CheckResourceTokenTime { get; set; }
+
+        public TokenContract Token { get; set; }
+
+        public TransactionFeeCalculator Calculator { get; set; }
 
         public void RunAcs8ScenarioJob()
         {
@@ -75,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var cpuFee = Calculator.Cpu.GetSizeFee(randNo);
                 var netFee = Calculator.Net.GetSizeFee(txSize);
                 var stoFee = Calculator.Net.GetSizeFee(txSize);
-                
+
                 //assert result
                 beforeResource["READ"].ShouldBe(afterResource["READ"] + cpuFee);
                 beforeResource["WRITE"].ShouldBe(afterResource["WRITE"]);
@@ -202,7 +202,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Token.SetAccount(firstBp);
             Logger.Info("Check acs8 contract resource task.");
             foreach (var resource in resources.Resources)
-            {
                 if (resource.Amount <= 100_00000000 && resource.Symbol != NodeOption.NativeTokenSymbol)
                 {
                     //buy resource
@@ -223,7 +222,6 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         });
                     transferResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 }
-            }
         }
 
         private void WaitOneBlock(long blockHeight)

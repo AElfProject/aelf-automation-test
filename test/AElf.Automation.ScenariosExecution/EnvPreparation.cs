@@ -24,7 +24,7 @@ namespace AElf.Automation.ScenariosExecution
         {
             return Instance;
         }
-        
+
         public ContractServices GetContractServices()
         {
             if (_services != null)
@@ -59,7 +59,7 @@ namespace AElf.Automation.ScenariosExecution
                 File.Delete(file);
                 Logger.Info($"Delete account file: {file.Split('/').Last()}");
             }
-            
+
             //copy test accounts
             var accountPath = CommonHelper.MapPath("test-data/keys");
             foreach (var file in Directory.GetFiles(accountPath))
@@ -67,7 +67,7 @@ namespace AElf.Automation.ScenariosExecution
                 CommonHelper.CopyFiles(file, keyPath);
                 Logger.Info($"Copy tester account: {file.Split('/').Last()}");
             }
-            
+
             //copy test contract
             var defaultDir = CommonHelper.GetDefaultDataDir();
             var testContracts = CommonHelper.MapPath("test-data/contracts");
@@ -75,7 +75,7 @@ namespace AElf.Automation.ScenariosExecution
             foreach (var file in Directory.GetFiles(testContracts))
             {
                 CommonHelper.CopyFiles(file, contractPath);
-                Logger.Info($"Copy tester contract: {file.Split('/').Last()}");         
+                Logger.Info($"Copy tester contract: {file.Split('/').Last()}");
             }
         }
     }

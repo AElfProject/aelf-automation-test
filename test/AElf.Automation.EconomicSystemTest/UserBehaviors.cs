@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using AElf.Client.Dto;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenConverter;
 using AElf.Types;
+using AElfChain.Common;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
-using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
 namespace AElf.Automation.EconomicSystemTest
 {

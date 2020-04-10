@@ -71,7 +71,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
-                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString()
                     }
                     : new TransactionResult
                     {
@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
-                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString(),
+                        ReturnValue = (resultDto.ReturnValue ?? "").ToByteString()
                     };
 
                 var returnByte = resultDto.ReturnValue == null

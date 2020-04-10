@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.DtoExtension;
-using AElf.Contracts.TestContract.BasicFunctionWithParallel;
 using log4net;
 
 namespace AElf.Automation.ContractsTesting
@@ -30,7 +29,6 @@ namespace AElf.Automation.ContractsTesting
             //create
             var tokenInfo = ParallelContract.GetTokenInfo("PARALLEL");
             if (tokenInfo.Equals(new TokenInfo()))
-            {
                 ParallelContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = "PARALLEL",
@@ -41,7 +39,6 @@ namespace AElf.Automation.ContractsTesting
                     TokenName = "Parallel Token",
                     Issuer = Tester.ConvertAddress()
                 });
-            }
 
             //execute some other transactions
             //transfer ELF
@@ -56,10 +53,7 @@ namespace AElf.Automation.ContractsTesting
             }
 
             //issue
-            foreach (var acc in accounts)
-            {
-                ParallelContract.IssueBalance(Tester, acc, 1000_00000000, "PARALLEL");
-            }
+            foreach (var acc in accounts) ParallelContract.IssueBalance(Tester, acc, 1000_00000000, "PARALLEL");
 
             //make transaction conflict
             for (var i = 0; i < 20; i++)

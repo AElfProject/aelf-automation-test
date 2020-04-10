@@ -20,8 +20,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class AvailableTokenFeatureTests
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
 
         public AvailableTokenFeatureTests()
         {
@@ -32,6 +30,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(firstNode.Endpoint);
             ContractManager = new ContractManager(NodeManager, firstNode.Account);
         }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
 
         [TestMethod]
         public async Task QueryAvailableTokenInfos()
@@ -44,10 +45,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             foreach (var info in tokenInfos.SymbolsToPayTxSizeFee)
-            {
                 Logger.Info(
                     $"Symbol: {info.TokenSymbol}, TokenWeight: {info.AddedTokenWeight}, BaseWeight: {info.BaseTokenWeight}");
-            }
         }
 
         [TestMethod]
@@ -101,7 +100,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //bp balance
             var bpBalance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
             if (bpBalance < 100_00000000L)
-            {
                 if (symbol != "ELF")
                 {
                     var buyResult = await ContractManager.TokenconverterStub.Buy.SendAsync(new BuyInput
@@ -111,7 +109,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     });
                     buyResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }
-            }
 
             var balance = ContractManager.Token.GetUserBalance(account, symbol);
             if (balance >= amount) return;
@@ -163,12 +160,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var balance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
             Logger.Info($"Account: {ContractManager.CallAddress}, Symbol: {symbol}, Balance: {balance}");
         }
-        
+
         [TestMethod]
         public async Task Controller_Transfer_For_Symbol_To_Pay_Tx_Fee()
         {
             var primaryToken = ContractManager.Token.GetPrimaryTokenSymbol();
-            
+
             //Without authority would be failed
             var newSymbolList = new SymbolListToPayTxSizeFee();
             newSymbolList.SymbolsToPayTxSizeFee.Add(new SymbolToPayTxSizeFee
@@ -179,7 +176,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             var symbolSetRet = await ContractManager.TokenStub.SetSymbolsToPayTxSizeFee.SendAsync(newSymbolList);
             symbolSetRet.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
-            
+
             var newParliament = new CreateOrganizationInput
             {
                 ProposerAuthorityRequired = false,
@@ -213,7 +210,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractManager.CallAddress
             );
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //Verify symbol list
             var symbolList = await ContractManager.TokenStub.GetSymbolsToPayTxSizeFee.CallAsync(new Empty());
             symbolList.SymbolsToPayTxSizeFee.Count.ShouldBe(1);

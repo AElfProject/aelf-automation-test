@@ -168,7 +168,9 @@ namespace AElfChain.Console.Commands
                     else
                     {
                         if (minerKey == signerKey)
+                        {
                             continueBlocks++;
+                        }
                         else
                         {
                             $"Continue blocks: {continueBlocks}".WriteSuccessLine();
@@ -267,9 +269,7 @@ namespace AElfChain.Console.Commands
                     var bpCollection = "";
                     foreach (var node in NodeOption.AllNodes)
                         if (pubKeys.Contains(node.PublicKey))
-                        {
                             bpCollection += $"{node.Name}  ";
-                        }
 
                     $"Current bp account info: {bpCollection.Trim()}".WriteSuccessLine();
                 }
@@ -323,13 +323,14 @@ namespace AElfChain.Console.Commands
             var symbols = input.Trim().Split(" ");
             Parallel.ForEach(accounts, acc =>
             {
-                var balanceInfo = string.Empty; 
+                var balanceInfo = string.Empty;
                 foreach (var symbol in symbols)
                 {
                     var balance = Services.Token.GetUserBalance(acc, symbol);
                     if (balance != 0)
                         balanceInfo += $"{symbol}={balance} ";
                 }
+
                 $"Account: {acc}  {balanceInfo}".WriteSuccessLine();
             });
         }
@@ -366,10 +367,7 @@ namespace AElfChain.Console.Commands
                     }
 
                     Logger.Info("Rental balance info:");
-                    foreach (var item in rental.ResourceAmount)
-                    {
-                        Logger.Info($"{item.Key} = {item.Value}");
-                    }
+                    foreach (var item in rental.ResourceAmount) Logger.Info($"{item.Key} = {item.Value}");
 
                     stopwatch.Restart();
                     continue;

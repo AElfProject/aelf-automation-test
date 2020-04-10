@@ -1,37 +1,39 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using AElfChain.Common;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
-using AElf.Kernel;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using InitializeInput = AElf.Contracts.TokenConverter.InitializeInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class ResourceContractsTest
     {
-        private ILog Logger { get; set; }
-        private INodeManager NodeManager { get; set; }
+        private GenesisContract _genesisContract;
         private TokenContract _tokenContract;
         private TokenConverterContract _tokenConverterContract;
-        private GenesisContract _genesisContract;
-        private TokenContractContainer.TokenContractStub _tokenSub;
         private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
+        private TokenContractContainer.TokenContractStub _tokenSub;
+
+        private readonly List<string> ResourceSymbol = new List<string>
+            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+
+        private ILog Logger { get; set; }
+        private INodeManager NodeManager { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+
         private string BpAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+
 //        private static string RpcUrl { get; } = "18.212.240.254:8000";
         private static string RpcUrl { get; } = "192.168.197.14:8000";
         private string Symbol { get; } = "TEST";
-        private List<string> ResourceSymbol = new List<string> {"CPU", "NET", "DISK", "RAM","READ", "WRITE", "STORAGE", "TRAFFIC"};
 
         [TestInitialize]
         public void Initialize()
@@ -71,7 +73,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 1_00000000,
                     Symbol = resource
                 });
-                var size = result.Transaction.Size();
+                var size = result.Transaction.CalculateSize();
                 Logger.Info($"transfer size is: {size}");
 
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
@@ -145,8 +147,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = symbol
                 });
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                
-                var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = symbol});
+
+                var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
                 info.Burned.ShouldBe(1000_00000000);
                 info.Supply.ShouldBe(info.TotalSupply - info.Burned);
             }
@@ -157,7 +159,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task TransferResourceToContract(string contract)
         {
             foreach (var resource in ResourceSymbol)
-            {
                 await _tokenSub.Transfer.SendAsync(new TransferInput
                 {
                     To = contract.ConvertAddress(),
@@ -165,7 +166,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Symbol = resource,
                     Memo = "transfer resource"
                 });
-            }
 
             foreach (var resource in ResourceSymbol)
             {

@@ -1,11 +1,11 @@
 using System.IO;
 using System.Linq;
 using Acs0;
+using AElf.Contracts.Configuration;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Contracts.ConfigurationOnly;
-using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -66,9 +66,10 @@ namespace AElf.Automation.ContractsTesting
                         new SystemContractDeploymentInput.Types.SystemTransactionMethodCallList()
                 });
             var byteString =
-                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                ByteString.FromBase64(transactionResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed)))
+                    .NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
-            
+
             return deployAddress.GetFormatted();
         }
 
@@ -85,7 +86,8 @@ namespace AElf.Automation.ContractsTesting
 
         public int GetTransactionLimit()
         {
-            var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue{Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}).Result;
+            var queryResult = _configurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)}).Result;
             Logger.Info($"TransactionLimit: {queryResult.Value}");
 
             return SInt32Value.Parser.ParseFrom(queryResult.Value).Value;

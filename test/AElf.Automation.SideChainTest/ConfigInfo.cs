@@ -8,19 +8,20 @@ namespace AElf.Automation.SideChainTests
     {
         [JsonProperty("SideChainUrl")] public string SideChainUrl { get; set; }
     }
+
     public class MainChainInfos
     {
         [JsonProperty("MainChainUrl")] public string MainChainUrl { get; set; }
         [JsonProperty("Account")] public string Account { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
     }
-    
+
     public class ConfigInfo
     {
         [JsonProperty("MainChainInfos")] public MainChainInfos MainChainInfos { get; set; }
         [JsonProperty("SideChainInfos")] public List<SideChainInfos> SideChainInfos { get; set; }
     }
-    
+
     public static class ConfigInfoHelper
     {
         private static ConfigInfo _instance;

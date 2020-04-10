@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Acs3;
+using AElf.Contracts.Referendum;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
-using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using CreateOrganizationInput = AElf.Contracts.Referendum.CreateOrganizationInput;
 
 namespace AElf.Automation.E2ETest.ContractSuits
 {
@@ -34,7 +33,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     MinimalApprovalThreshold = 2000,
                     MinimalVoteThreshold = 2000
                 },
-                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}},
+                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}}
             };
             var result = referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 createInput);
@@ -223,7 +222,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     MinimalApprovalThreshold = 500,
                     MinimalVoteThreshold = 500
                 },
-                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}},
+                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}}
             };
             var result = referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
                 createInput);
@@ -244,7 +243,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationProposerWhiteList), changeProposerInput, organizationAddress,
                 proposer.GetFormatted());
-            
+
             var approveMember = enumerable.First();
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
             token.ApproveToken(approveMember.GetFormatted(), referendum.ContractAddress,
@@ -252,7 +251,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             referendum.SetAccount(approveMember.GetFormatted());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
+
             var release = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             organization =
@@ -275,7 +274,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             referendum.SetAccount(otherApproveMember.GetFormatted());
             approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, revertProposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
+
             var revertRelease = referendum.ReleaseProposal(revertProposalId, newProposer.GetFormatted());
             revertRelease.Status.ShouldBe(TransactionResultStatus.Mined);
             organization =
@@ -283,16 +282,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization.ProposerWhiteList.Proposers.Contains(proposer).ShouldBeTrue();
         }
 
-        private List<string> GetMembers(TokenContract token,string symbol)
+        private List<string> GetMembers(TokenContract token, string symbol)
         {
             var members = EnvCheck.GenerateOrGetTestUsers(10);
             foreach (var m in members)
             {
-                var balance = token.GetUserBalance(m,symbol);
+                var balance = token.GetUserBalance(m, symbol);
                 if (balance >= 1000_00000000) continue;
                 ContractManager.Token.TransferBalance(ContractManager.CallAddress, m, 1000_00000000,
                     symbol);
             }
+
             return members;
         }
     }

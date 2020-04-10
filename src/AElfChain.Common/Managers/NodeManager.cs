@@ -8,7 +8,6 @@ using Acs0;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Client.Service;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -159,7 +158,7 @@ namespace AElfChain.Common.Managers
             var codeArray = contractReader.Read(filename);
             var input = new ContractDeploymentInput
             {
-                Category = KernelConstants.CodeCoverageRunnerCategory,
+                Category = KernelHelper.CodeCoverageRunnerCategory,
                 Code = ByteString.CopyFrom(codeArray)
             };
 

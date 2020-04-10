@@ -1,6 +1,5 @@
 using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
-using AElf.Contracts.ConfigurationOnly;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.Election;
@@ -84,7 +83,7 @@ namespace AElfChain.Common.Contracts
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
-        
+
         public static TokenContractImplContainer.TokenContractImplStub GetTokenImplStub(this GenesisContract genesis,
             string caller = "")
         {

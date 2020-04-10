@@ -21,35 +21,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class ProfitOptimizeTests
     {
-        private ILog Logger { get; set; }
-        
-        public INodeManager NodeManager { get; set; }
-        public ContractManager ContractManager { get; set; }
-        
-        public Dictionary<SchemeType, Scheme> Schemes { get; set; }
-        
         public ProfitOptimizeTests()
         {
             Log4NetHelper.LogInit("ProfitOptimizeTests");
             Logger = Log4NetHelper.GetLogger();
-            
+
             NodeInfoHelper.SetConfig("nodes-env2-side1");
             var node = NodeInfoHelper.Config.Nodes.First();
-            
+
             NodeManager = new NodeManager(node.Endpoint);
             ContractManager = new ContractManager(NodeManager, node.Account);
             ContractManager.Profit.GetTreasurySchemes(ContractManager.Treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
         }
-        
+
+        private ILog Logger { get; }
+
+        public INodeManager NodeManager { get; set; }
+        public ContractManager ContractManager { get; set; }
+
+        public Dictionary<SchemeType, Scheme> Schemes { get; set; }
+
         [TestMethod]
         public async Task SetDistributingSymbolList_Test()
         {
             var beforeList = await ContractManager.TreasuryStub.GetDistributingSymbolList.CallAsync(new Empty());
-            beforeList.Value.ShouldBe(new []{"ELF"});
+            beforeList.Value.ShouldBe(new[] {"ELF"});
             var symbolList = new SymbolList
             {
-                Value = { "ELF", "CPU", "RAM"}
+                Value = {"ELF", "CPU", "RAM"}
             };
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
@@ -68,7 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task Prepare_NewToken_Test(string symbol)
         {
             const long supply = 10_00000000_00000000L;
-            
+
             //create
             var createResult = await ContractManager.TokenImplStub.Create.SendAsync(new CreateInput
             {
@@ -82,7 +82,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 TotalSupply = supply
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //issue
             var bpUsers = ContractManager.Authority.GetCurrentMiners();
             foreach (var bp in bpUsers)
@@ -95,7 +95,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "issue token"
                 });
                 issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                
+
                 //query result
                 var balance = ContractManager.Token.GetUserBalance(bp, symbol);
                 Logger.Info($"Account: {bp}, {symbol}={balance}");
@@ -125,7 +125,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 },
                 ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             //query verification
             var transactionFee = await ContractManager.TokenImplStub.GetMethodFee.CallAsync(new StringValue
             {
@@ -138,7 +138,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
         }
 
-        
 
         [TestMethod]
         public async Task SendTxForTransactionFee_CPU_Test()
@@ -155,23 +154,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 txResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 txFee += txResult.TransactionResult.GetDefaultTransactionFee();
             }
+
             Logger.Info($"Total transaction fee: {txFee}");
         }
-        
+
         [TestMethod]
         public async Task SendTxForTransactionFee_RAM_Test()
         {
-            var symbols = new[] { "ELF", "CPU", "RAM", "DISK", "NET"};
+            var symbols = new[] {"ELF", "CPU", "RAM", "DISK", "NET"};
             var txFee = 0L;
             foreach (var symbol in symbols)
             {
                 var txResult = await ContractManager.TokenImplStub.GetTokenInfo.SendAsync(new GetTokenInfoInput
                 {
-                    Symbol = symbol    
+                    Symbol = symbol
                 });
                 txResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 txFee += txResult.TransactionResult.GetDefaultTransactionFee();
             }
+
             Logger.Info($"Total transaction fee: {txFee}");
         }
 
@@ -194,7 +195,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var profitAmount = await ContractManager.ProfitStub.GetProfitAmount.CallAsync(new GetProfitAmountInput
                 {
                     SchemeId = Schemes[SchemeType.MinerBasicReward].SchemeId,
-                    Beneficiary = bpUser.ConvertAddress(),
+                    Beneficiary = bpUser.ConvertAddress()
                 });
                 Logger.Info($"{bpUser}: {symbol} = {profitAmount.Value}");
                 if (profitAmount.Value > 0)
@@ -203,11 +204,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     var claimResult = await profitStub.ClaimProfits.SendAsync(new ClaimProfitsInput
                     {
                         SchemeId = Schemes[SchemeType.MinerBasicReward].SchemeId,
-                        Beneficiary = bpUser.ConvertAddress(),
+                        Beneficiary = bpUser.ConvertAddress()
                     });
                     claimResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }
-                
+
                 //after balance
                 var afterBalance = ContractManager.Token.GetUserBalance(bpUser, symbol);
                 Logger.Info($"{bpUser} {symbol} before = {beforeBalance}, after = {afterBalance}");

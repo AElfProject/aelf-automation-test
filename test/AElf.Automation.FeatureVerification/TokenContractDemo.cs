@@ -15,22 +15,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class TokenContractDemo
     {
-        private ILog Logger { get; set; }
-        public INodeManager NodeManager { get; set; }
-        
-        public ContractManager ContractManager { get; set; }
-        
         public TokenContractDemo()
         {
             Log4NetHelper.LogInit("TokenDemo");
             Logger = Log4NetHelper.GetLogger();
-            
+
             NodeInfoHelper.SetConfig("nodes-local");
             var node = NodeInfoHelper.Config.Nodes.First();
-            
+
             NodeManager = new NodeManager(node.Endpoint);
             ContractManager = new ContractManager(NodeManager, node.Account);
         }
+
+        private ILog Logger { get; }
+        public INodeManager NodeManager { get; set; }
+
+        public ContractManager ContractManager { get; set; }
 
         [TestMethod]
         public async Task ChainHeight_Test()
@@ -44,7 +44,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var testAccount = "22aa2d73PDgBkjBk5Jf98S2UPkC8hJDGnZqPUAoKvYqAq7Lfow";
             var transferAmount = 1000_00000000L;
-            
+
             var tokenStub = ContractManager.TokenStub;
             //call
             var beforeBalance = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
@@ -52,7 +52,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Owner = ContractManager.CallAccount,
                 Symbol = "ELF"
             });
-            
+
             //action transfer
             var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput
             {
@@ -63,7 +63,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var transactionFee = transactionResult.TransactionResult.GetDefaultTransactionFee();
-            
+
             //assert
             var afterBalance = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
@@ -71,7 +71,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = "ELF"
             });
             afterBalance.Balance.ShouldBe(beforeBalance.Balance - transferAmount - transactionFee);
-            
+
             var testBalance = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
                 Owner = ContractManager.CallAccount,

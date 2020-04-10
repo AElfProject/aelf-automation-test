@@ -1,7 +1,7 @@
 using System.Linq;
-using AElfChain.Common.Contracts;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -66,7 +66,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             foreach (var full in FullNodeAddress)
             {
-                var voteResult = Behaviors.UserVote(InitAccount, full, 100, 200);
+                var voteResult = Behaviors.UserVote(InitAccount, full, 100, 2000);
 
                 voteResult.ShouldNotBeNull();
                 voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);

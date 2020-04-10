@@ -4,9 +4,9 @@ using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
 using AElf.CSharp.Core.Extension;
-using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -65,15 +65,15 @@ namespace AElfChain.Common.Contracts
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = TimestampHelper.GetUtcNow().AddDays(1),
+                ExpiredTime = KernelHelper.GetUtcNow().AddDays(1),
                 OrganizationAddress = organizationAddress
             };
             SetAccount(proposer);
             var proposal = ExecuteMethodWithResult(AssociationMethod.CreateProposal, createProposalInput);
             proposal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));     
+            var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
             Logger.Info($"Proposal {proposalId} created success by {proposer}.");
-            
+
             return proposalId;
         }
 
@@ -113,32 +113,32 @@ namespace AElfChain.Common.Contracts
             return
                 CallViewMethod<Organization>(AssociationMethod.GetOrganization, organization);
         }
-        
+
         public string Approve(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Approve, proposalId);
         }
-        
+
         public TransactionResultDto ApproveWithResult(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
         }
-        
+
         public string Abstain(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Abstain, proposalId);
         }
-        
+
         public string Reject(Hash proposalId, string caller)
         {
             SetAccount(caller);
             return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
         }
-        
-        public void ApproveWithAssociation(Hash proposalId,Address association)
+
+        public void ApproveWithAssociation(Hash proposalId, Address association)
         {
             var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                 association);
@@ -147,7 +147,7 @@ namespace AElfChain.Common.Contracts
             {
                 SetAccount(member.GetFormatted());
                 var approve = ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
-                approve.Status.ShouldBe("MINED");                
+                approve.Status.ShouldBe("MINED");
                 if (CheckProposal(proposalId).ToBeReleased) return;
             }
         }

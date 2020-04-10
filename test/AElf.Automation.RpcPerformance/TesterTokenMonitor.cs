@@ -5,9 +5,9 @@ using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElfChain.Common.DtoExtension;
 using log4net;
 
 namespace AElf.Automation.RpcPerformance
@@ -76,14 +76,14 @@ namespace AElf.Automation.RpcPerformance
                 break;
             }
         }
-        
+
         public static string GenerateNotExistTokenSymbol(INodeManager nodeManager)
         {
             while (true)
             {
                 var symbol = CommonHelper.RandomString(8, false);
                 var tokenInfo = nodeManager.GetTokenInfo(symbol);
-                if (tokenInfo.Equals(new TokenInfo())) return symbol;     
+                if (tokenInfo.Equals(new TokenInfo())) return symbol;
             }
         }
 

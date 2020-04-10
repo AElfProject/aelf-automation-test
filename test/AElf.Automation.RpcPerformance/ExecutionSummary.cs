@@ -20,7 +20,7 @@ namespace AElf.Automation.RpcPerformance
         private Dictionary<long, BlockDto> _blockMap;
 
         /// <summary>
-        ///    analyze generate blocks summary info
+        ///     analyze generate blocks summary info
         /// </summary>
         /// <param name="nodeManager"></param>
         /// <param name="fromStart">whether check from height 1</param>
@@ -41,7 +41,7 @@ namespace AElf.Automation.RpcPerformance
                     Logger.Warn("ContinuousCheckTransactionPerformance task was been cancelled.");
                     break;
                 }
-                
+
                 if (checkTimes == 60)
                     break;
                 var height = AsyncHelper.RunSync(_apiService.GetBlockHeightAsync);

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElfChain.Common.Contracts;
-using AElfChain.Common.Helpers;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -77,12 +77,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             }
         }
 
-        private void  ValidateTokenSymbol()
+        private void ValidateTokenSymbol()
         {
             foreach (var sideChainService in ChainValidateTxInfo.Keys)
             {
                 var validate = CheckTokenExisted(sideChainService);
-                if(validate.Count == 0) continue;
+                if (validate.Count == 0) continue;
                 var symbol = sideChainService.PrimaryTokenSymbol;
                 //verify side chain token address
                 var chainTxInfo = ChainValidateTxInfo[sideChainService];
@@ -124,14 +124,15 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 }
             }
         }
-        
+
         //cross create 
         private void MainChainCreateToken()
         {
             for (var i = 0; i < CreateTokenNumber; i++)
             {
                 var symbol = $"TEST{CommonHelper.RandomString(4, false)}";
-                var createResult = MainChainService.TokenService.ExecuteMethodWithResult(TokenMethod.Create,new CreateInput
+                var createResult = MainChainService.TokenService.ExecuteMethodWithResult(TokenMethod.Create,
+                    new CreateInput
                     {
                         Symbol = symbol,
                         Decimals = 2,
@@ -141,26 +142,26 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         TotalSupply = 10_0000_0000_00000000,
                         IsProfitable = true
                     });
-               createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-               var tokenInfo = MainChainService.TokenService.GetTokenInfo(symbol);
-               var validateTransaction = MainChainService.NodeManager.GenerateRawTransaction(
-                   MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
-                   TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
-                   {
-                       IsBurnable = tokenInfo.IsBurnable,
-                       Issuer = tokenInfo.Issuer,
-                       IssueChainId = tokenInfo.IssueChainId,
-                       Decimals = tokenInfo.Decimals,
-                       Symbol = tokenInfo.Symbol,
-                       TokenName = tokenInfo.TokenName,
-                       TotalSupply = tokenInfo.TotalSupply,
-                       IsProfitable = tokenInfo.IsProfitable
-                   });
-               var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
-               var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
-               if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-                   Assert.IsTrue(false,
-                       $"Validate chain {MainChainService.ChainId} token symbol failed");
+                createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var tokenInfo = MainChainService.TokenService.GetTokenInfo(symbol);
+                var validateTransaction = MainChainService.NodeManager.GenerateRawTransaction(
+                    MainChainService.CallAddress, MainChainService.TokenService.ContractAddress,
+                    TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
+                    {
+                        IsBurnable = tokenInfo.IsBurnable,
+                        Issuer = tokenInfo.Issuer,
+                        IssueChainId = tokenInfo.IssueChainId,
+                        Decimals = tokenInfo.Decimals,
+                        Symbol = tokenInfo.Symbol,
+                        TokenName = tokenInfo.TokenName,
+                        TotalSupply = tokenInfo.TotalSupply,
+                        IsProfitable = tokenInfo.IsProfitable
+                    });
+                var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
+                var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
+                if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                    Assert.IsTrue(false,
+                        $"Validate chain {MainChainService.ChainId} token symbol failed");
                 var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
                 ChainCreateTxInfo.Add(symbol, mainChainTx);
                 Logger.Info($"Create token {symbol} success");
@@ -241,7 +242,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     TokenMethod.GetTokenInfo,
                     new GetTokenInfoInput {Symbol = symbol});
                 if (sideTokenInfo.Equals(new TokenInfo()))
-                    validate.Add(sideChainService); 
+                    validate.Add(sideChainService);
             }
 
             return validate;
