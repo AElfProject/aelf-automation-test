@@ -116,7 +116,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 1_00000000,
                     Symbol = resource
                 });
-                var size = result.Transaction.Size();
+                var size = result.Transaction.CalculateSize();
                 Logger.Info($"transfer size is: {size}");
 
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput

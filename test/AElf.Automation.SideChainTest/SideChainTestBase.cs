@@ -26,11 +26,12 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public string InitAccount;
         public ContractServices MainServices;
         public ContractServices SideAServices;
         public ContractServices SideBServices;
+        public List<ContractServices> SideServices;
         public List<string> Miners;
+        public TokenContractImplContainer.TokenContractImplStub TokenContractImplStub;
         public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
         public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public string InitAccount;

@@ -11,10 +11,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using AElf.Kernel;
-using AElf.Types;
 using AElfChain.Common;
-using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -145,7 +142,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var genesis = MainManager.GenesisStub;
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var result = await genesis.ProposeNewContract.SendAsync(input);
-            var size = result.Transaction.Size();
+            var size = result.Transaction.CalculateSize();
             var fee = TransactionFeeCharged.Parser.ParseFrom(result.TransactionResult.Logs
                 .First(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed).Amount;
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);

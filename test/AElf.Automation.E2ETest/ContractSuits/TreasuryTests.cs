@@ -156,7 +156,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var miners = ContractManager.Authority.GetCurrentMiners();
             var defaultController =
                 await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
-            var newOrganization = await CreateParliamentOrganization();
+            var newOrganization = CreateParliamentOrganization();
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Election.ContractAddress,
                 nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
