@@ -1,4 +1,6 @@
+using AElf.Types;
 using AElfChain.Common.Managers;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
@@ -11,9 +13,11 @@ namespace AElfChain.Common.Contracts
         Release,
         Donate,
         DonateAll,
+        SetVoteWeightInterest,
 
         //View
         GetTreasurySchemeId,
+        GetCurrentTreasuryBalance,
         GetMinerRewardWeightProportion,
         GetDividendPoolWeightProportion
     }
@@ -24,6 +28,13 @@ namespace AElfChain.Common.Contracts
             base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
+        }
+        
+        
+        public long GetCurrentTreasuryBalance()
+        {
+            var result = CallViewMethod<SInt64Value>(TreasuryMethod.GetCurrentTreasuryBalance,new Empty());
+            return result.Value;
         }
     }
 }

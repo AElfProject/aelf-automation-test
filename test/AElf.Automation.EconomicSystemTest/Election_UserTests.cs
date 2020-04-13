@@ -25,13 +25,40 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(0, 100)]
+        [DataRow(1, 200_00000000)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
-            var voteResult = Behaviors.UserVote(UserList[0], FullNodeAddress[no], 100, amount);
+            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+            Behaviors.TokenService.TransferBalance(InitAccount, account, 1000_00000000);
+            var voteResult = Behaviors.UserVote(account, FullNodeAddress[no], 120, amount);
 
             voteResult.ShouldNotBeNull();
             voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
+        public void Withdraw()
+        {
+            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+            var txId = "273b6025f64b86dd8a00579246155a40be9fdf121f79e72101a700bfd270159e";
+            Behaviors.ElectionService.SetAccount(account);
+            var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
+            var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
+            beforeShareBalance.ShouldBe(beforeVoteBalance);
+            
+            var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
+            var result =
+                Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
+                    HashHelper.HexStringToHash(txId));
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var fee = result.GetTransactionFee().Item2;
+            var afterVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
+            var afterShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
+
+            var afterElfBalance = Behaviors.TokenService.GetUserBalance(account);
+            afterVoteBalance.ShouldBe(0);
+            afterShareBalance.ShouldBe(0);
+            afterElfBalance.ShouldBe(beforeElfBalance + beforeVoteBalance - fee);
         }
 
         [TestMethod]

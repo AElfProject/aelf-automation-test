@@ -123,8 +123,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task SetFeeReceiver_Test()
         {
             var primaryToken = SideManager.Token.GetPrimaryTokenSymbol();
-            var tokenInfo = SideManager.Token.GetTokenInfo(primaryToken);
-            var creator = tokenInfo.Issuer;
+            var creator = SideManager.CallAccount;
             var tokenStub = SideManager.Genesis.GetTokenImplStub(creator.GetFormatted());
             var transactionResult = await tokenStub.SetFeeReceiver.SendAsync(creator);
             if (transactionResult.TransactionResult.Status == TransactionResultStatus.Failed)

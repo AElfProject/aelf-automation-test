@@ -202,6 +202,9 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeContracts()
         {
             var chainStatus = AsyncHelper.RunSync(NodeManager.ApiClient.GetChainStatusAsync);
+            var genesis = GenesisContract.GetGenesisContract(NodeManager);
+            var systemToken  = genesis.GetTokenContract();
+            var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
             //create all token
             foreach (var contract in ContractList)
             {
@@ -209,7 +212,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(NodeManager);
                 contract.Symbol = symbol;
-
+                
                 var token = new TokenContract(NodeManager, account, contractPath);
                 //create fake ELF token, just for transaction fee
                 var primaryToken = NodeManager.GetPrimaryTokenSymbol();
@@ -224,12 +227,16 @@ namespace AElf.Automation.RpcPerformance
                     IsProfitable = true,
                     IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
-
+                var balance = systemToken.GetUserBalance(account);
+                if (balance < 10000_00000000)
+                {
+                    systemToken.TransferBalance(bps.First(),account, 10000_00000000);
+                }
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
                     TokenName = $"elf token {symbol}",
-                    TotalSupply = long.MaxValue,
+                    TotalSupply = 10_0000_0000_00000000L,
                     Decimals = 2,
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true,
@@ -251,7 +258,7 @@ namespace AElf.Automation.RpcPerformance
                 var token = new TokenContract(NodeManager, account, contractPath);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
                 {
-                    Amount = long.MaxValue,
+                    Amount = 10_0000_0000_00000000L,
                     Memo = $"I-{Guid.NewGuid()}",
                     Symbol = symbol,
                     To = account.ConvertAddress()

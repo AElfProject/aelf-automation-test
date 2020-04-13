@@ -271,6 +271,7 @@ namespace AElfChain.Common.Managers
                         Logger.Info(
                             $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
+                        Thread.Sleep(1000); //wait 1 second to wait set best chain
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
@@ -318,6 +319,7 @@ namespace AElfChain.Common.Managers
                         Logger.Info(
                             $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
                             true);
+                        Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:

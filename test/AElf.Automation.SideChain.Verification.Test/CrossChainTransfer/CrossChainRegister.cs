@@ -12,11 +12,14 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 
 namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 {
     public class CrossChainRegister : CrossChainBase
     {
+        private const long amount = 10000_00000000;
+
         public CrossChainRegister()
         {
             MainChainService = InitMainChainServices();
@@ -36,8 +39,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                 return;
             }
 
+            TransferToInitAccount();
             Logger.Info("Validate token address");
-            ValidateMainChainTokenAddress();
             ValidateSideChainTokenAddress();
             Logger.Info("Transfer side chain token");
             TransferTokenToMainChainBpAccount();
@@ -46,7 +49,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             Thread.Sleep(60000);
 
             Logger.Info("Register address");
-            SideChainRegisterMainChain();
             MainChainRegister();
             SideChainRegisterSideChain();
         }
@@ -95,25 +97,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             return true;
         }
 
-        // validate
-        private void ValidateMainChainTokenAddress()
-        {
-            var validateTransaction = MainChainService.GenesisService.NodeManager.GenerateRawTransaction(
-                MainChainService.CallAddress, MainChainService.GenesisService.ContractAddress,
-                GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
-                {
-                    Address = AddressHelper.Base58StringToAddress(MainChainService.TokenService.ContractAddress),
-                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
-                });
-            var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
-            var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);
-            if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)
-                throw new Exception($"Validate chain {MainChainService.ChainId} token contract failed");
-            var mainChainTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
-            ChainValidateTxInfo.Add(MainChainService.ChainId, mainChainTx);
-            Logger.Info($"Validate main chain token address {MainChainService.TokenService.ContractAddress}");
-        }
-
         private void ValidateSideChainTokenAddress()
         {
             foreach (var sideChainService in SideChainServices)
@@ -139,19 +122,33 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         private void IssueSideTokenForBpAccount()
         {
             var nodeConfig = NodeInfoHelper.Config;
+            var nodes = nodeConfig.Nodes;
             foreach (var sideChainService in SideChainServices)
             {
-                var nodes = nodeConfig.Nodes;
-
-                foreach (var node in nodes)
+                if (!CheckSideChainPrivilegePreserved(sideChainService))
                 {
-                    var balance =
-                        sideChainService.TokenService.GetUserBalance(node.Account, sideChainService.PrimaryTokenSymbol);
-                    if (node.Account == sideChainService.CallAddress || balance > 0) continue;
-                    if (IsSupplyAllToken(sideChainService))
+                    foreach (var node in nodes)
+                    {
+                        var balance =
+                            sideChainService.TokenService.GetUserBalance(node.Account,
+                                sideChainService.PrimaryTokenSymbol);
+                        if (node.Account == sideChainService.CallAddress || balance > 10000_00000000) continue;
                         TransferToken(sideChainService, node.Account);
-                    else
-                        IssueSideChainToken(sideChainService, node.Account);
+                    }
+                }
+                else
+                {
+                    foreach (var node in nodes)
+                    {
+                        var balance =
+                            sideChainService.TokenService.GetUserBalance(node.Account,
+                                sideChainService.PrimaryTokenSymbol);
+                        if (node.Account == sideChainService.CallAddress || balance > 0) continue;
+                        if (IsSupplyAllToken(sideChainService))
+                            TransferToken(sideChainService, node.Account);
+                        else
+                            IssueSideChainToken(sideChainService, node.Account);
+                    }
                 }
 
                 foreach (var node in nodes)
@@ -218,41 +215,6 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             }
         }
 
-        private void SideChainRegisterMainChain()
-        {
-            //register main chain token address
-            var mainChainTxInfo = ChainValidateTxInfo[MainChainService.ChainId];
-            foreach (var sideChainService in SideChainServices)
-            {
-                Logger.Info("Check the index:");
-                while (!CheckSideChainBlockIndex(sideChainService, mainChainTxInfo))
-                {
-                    Console.WriteLine("Block is not recorded ");
-                    Thread.Sleep(10000);
-                }
-            }
-
-            var merklePath = GetMerklePath(MainChainService, mainChainTxInfo.BlockHeight, mainChainTxInfo.TxId);
-            if (merklePath == null)
-                throw new Exception("Can't get the merkle path.");
-            var registerInput = new RegisterCrossChainTokenContractAddressInput
-            {
-                FromChainId = MainChainService.ChainId,
-                ParentChainHeight = mainChainTxInfo.BlockHeight,
-                TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(MainChainService.TokenService.ContractAddress),
-                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(mainChainTxInfo.RawTx)),
-                MerklePath = merklePath
-            };
-
-            foreach (var sideChainService in SideChainServices)
-            {
-                Proposal(sideChainService, registerInput);
-                Logger.Info(
-                    $"Chain {sideChainService.ChainId} register Main chain token address {MainChainService.TokenService.ContractAddress}");
-            }
-        }
-
         private void SideChainRegisterSideChain()
         {
             foreach (var sideChainService in SideChainServices)
@@ -285,6 +247,55 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Logger.Info(
                         $"Chain {registerChain.ChainId} register chain {sideChainService.ChainId} token address {sideChainService.TokenService.ContractAddress}");
                 }
+            }
+        }
+
+        private void TransferToInitAccount()
+        {
+            var initRawTxInfos = new Dictionary<int, CrossChainTransactionInfo>();
+            var miners = GetMiners(MainChainService);
+            var enumerable = miners as Address[] ?? miners.ToArray();
+            foreach (var sideChainService in SideChainServices)
+            {
+                if (CheckSideChainPrivilegePreserved(sideChainService)) continue;
+                var balance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
+                if (balance >= amount * (Count + enumerable.Count()))
+                {
+                    Logger.Info(
+                        $"Side chain {sideChainService.ChainId} account {sideChainService.CallAddress}" +
+                        $"{NativeToken} token balance is {balance}");
+                    return;
+                }
+
+                var rawTxInfo = CrossChainTransferWithResult(MainChainService, NativeToken, InitAccount, InitAccount,
+                    sideChainService.ChainId, amount * Count * 2);
+                initRawTxInfos.Add(sideChainService.ChainId, rawTxInfo);
+                Logger.Info(
+                    $"the transactions block is:{rawTxInfo.BlockHeight},transaction id is: {rawTxInfo.TxId}");
+
+                Logger.Info("Waiting for the index");
+                Thread.Sleep(30000);
+
+                Logger.Info($"Side chain {sideChainService.ChainId} received token");
+                Logger.Info(
+                    $"Receive CrossTransfer Transaction id is : {initRawTxInfos[sideChainService.ChainId].TxId}");
+                Logger.Info("Check the index:");
+                while (!CheckSideChainBlockIndex(sideChainService, initRawTxInfos[sideChainService.ChainId]))
+                {
+                    Console.WriteLine("Block is not recorded ");
+                    Thread.Sleep(10000);
+                }
+
+                var input = ReceiveFromMainChainInput(initRawTxInfos[sideChainService.ChainId]);
+                sideChainService.TokenService.SetAccount(InitAccount);
+                var result = sideChainService.TokenService.ExecuteMethodWithResult(
+                    TokenMethod.CrossChainReceiveToken,
+                    input);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                Logger.Info($"check the balance on the side chain {sideChainService.ChainId}");
+                var accountBalance = sideChainService.TokenService.GetUserBalance(InitAccount, NativeToken);
+                Logger.Info(
+                    $"On side chain {sideChainService.ChainId}, InitAccount:{InitAccount}, {NativeToken} balance is {accountBalance}");
             }
         }
 

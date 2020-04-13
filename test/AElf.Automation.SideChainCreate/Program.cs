@@ -1,4 +1,5 @@
-﻿using Acs7;
+﻿using System.Threading;
+using Acs7;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
 using log4net;
@@ -55,6 +56,7 @@ namespace AElf.Automation.SideChainCreate
                 var chainId = ChainHelper.ConvertChainIdToBase58(chainIdResult);
                 Logger.Info($"Association organization is {organization}");
                 Logger.Info($"Side Chain : {chainId} created successfully");
+                Thread.Sleep(2000);
             }
         }
     }

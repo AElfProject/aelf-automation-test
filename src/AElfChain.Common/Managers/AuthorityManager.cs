@@ -187,6 +187,11 @@ namespace AElfChain.Common.Managers
             return _parliament.GetGenesisOwnerAddress();
         }
 
+        public long GetPeriod()
+        {
+            return _consensus.GetCurrentTermInformation();
+        }
+
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             Address organizationAddress, IEnumerable<string> approveUsers, string callUser)
         {
@@ -196,8 +201,12 @@ namespace AElfChain.Common.Managers
                 organizationAddress, callUser);
 
             //approve
-            _parliament.MinersApproveProposal(proposalId, approveUsers);
-
+            var proposalInfo = _parliament.CheckProposal(proposalId);
+            while (!proposalInfo.ToBeReleased) 
+            { 
+                _parliament.MinersApproveProposal(proposalId, approveUsers);
+                proposalInfo = _parliament.CheckProposal(proposalId);
+            }
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }

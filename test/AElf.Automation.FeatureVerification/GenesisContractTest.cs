@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Acs0;
 using Acs1;
 using Acs3;
@@ -10,6 +11,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using AElfChain.Common;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -27,11 +29,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         protected ContractTester Tester;
 
         public INodeManager NM { get; set; }
+        public ContractManager MainManager { get; set; }
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Member { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
         public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        private static string MainRpcUrl { get; } = "http://192.168.197.14:8000";
+        private static string MainRpcUrl { get; } = "http://52.90.147.175:8000";
         private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
         private static string SideRpcUrl2 { get; } = "http://192.168.197.14:8002";
         private string Type { get; } = "Main";
@@ -43,11 +46,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ContractTest_");
+            NodeInfoHelper.SetConfig("nodes-online-test-main");
 
             #endregion
 
             NM = new NodeManager(MainRpcUrl);
             var services = new ContractServices(NM, InitAccount, Type);
+            MainManager = new ContractManager(NM, InitAccount);
+
             Tester = new ContractTester(services);
             if (Type == "Side" && !isOrganization)
             {
@@ -128,6 +134,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var release = Tester.ParliamentService.ReleaseProposal(proposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Failed);
             release.Error.Contains("Contract proposing data not found.").ShouldBeTrue();
+        }
+        
+        [TestMethod]
+        public async Task ProposalDeploy_MinerProposalContract_Success_stub()
+        {
+            var genesis = MainManager.GenesisStub;
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            var result = await genesis.ProposeNewContract.SendAsync(input);
+            var size = result.Transaction.CalculateSize();
+            var fee = TransactionFeeCharged.Parser.ParseFrom(result.TransactionResult.Logs
+                .First(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed).Amount;
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"{size}");
         }
 
         [TestMethod]

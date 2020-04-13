@@ -26,18 +26,18 @@ namespace AElf.Automation.SideChainTests
     public class SideChainTestBase
     {
         protected static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public string InitAccount;
         public ContractServices MainServices;
-        public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
-
-        public List<string> Miners;
-        public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
-        public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
         public ContractServices SideAServices;
         public ContractServices SideBServices;
         public List<ContractServices> SideServices;
+        public List<string> Miners;
         public TokenContractImplContainer.TokenContractImplStub TokenContractImplStub;
+        public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
+        public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
+        public string InitAccount;
+        public string TestAccount = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
+        public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
+        public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
 
         public TokenContractContainer.TokenContractStub TokenContractStub;
 

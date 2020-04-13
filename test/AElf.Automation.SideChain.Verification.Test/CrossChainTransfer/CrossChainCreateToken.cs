@@ -19,12 +19,12 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             MainChainService = InitMainChainServices();
             SideChainServices = InitSideChainServices();
             TokenSymbols = new List<string>();
-            ChainValidateTxInfo = new Dictionary<int, CrossChainTransactionInfo>();
+            ChainValidateTxInfo = new Dictionary<ContractServices, CrossChainTransactionInfo>();
             ChainCreateTxInfo = new Dictionary<string, CrossChainTransactionInfo>();
         }
 
-        private Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; }
-        private Dictionary<int, CrossChainTransactionInfo> ChainValidateTxInfo { get; }
+        private Dictionary<string, CrossChainTransactionInfo> ChainCreateTxInfo { get; set; }
+        private Dictionary<ContractServices, CrossChainTransactionInfo> ChainValidateTxInfo { get; }
 
 
         public void DoCrossChainCreateToken()
@@ -49,6 +49,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
         {
             foreach (var sideChainService in SideChainServices)
             {
+                if (!CheckSideChainPrivilegePreserved(sideChainService)) continue;
                 var symbol = sideChainService.PrimaryTokenSymbol;
                 var tokenInfo = sideChainService.TokenService.GetTokenInfo(symbol);
                 var validateTransaction = sideChainService.NodeManager.GenerateRawTransaction(
@@ -71,20 +72,20 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     Assert.IsTrue(false,
                         $"Validate chain {sideChainService.ChainId} token symbol failed");
                 var validateTokenTx = new CrossChainTransactionInfo(txResult.BlockNumber, txId, validateTransaction);
-                ChainValidateTxInfo.Add(sideChainService.ChainId, validateTokenTx);
+                ChainValidateTxInfo.Add(sideChainService, validateTokenTx);
                 Logger.Info($"Validate {sideChainService.ChainId} chain {symbol} token");
             }
         }
 
         private void ValidateTokenSymbol()
         {
-            foreach (var sideChainService in SideChainServices)
+            foreach (var sideChainService in ChainValidateTxInfo.Keys)
             {
                 var validate = CheckTokenExisted(sideChainService);
                 if (validate.Count == 0) continue;
                 var symbol = sideChainService.PrimaryTokenSymbol;
                 //verify side chain token address
-                var chainTxInfo = ChainValidateTxInfo[sideChainService.ChainId];
+                var chainTxInfo = ChainValidateTxInfo[sideChainService];
 
                 var mainHeight = MainChainCheckSideChainBlockIndex(sideChainService, chainTxInfo.BlockHeight);
                 var crossChainMerkleProofContext =

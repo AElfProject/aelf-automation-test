@@ -40,6 +40,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private static string RpcUrl { get; } = "52.90.147.175:8000";
         private string Symbol { get; } = "TEST";
+        
+//        private List<string> SideChainSymbol = new List<string> {"EPC","EDA","EDB","EDC","EDD"};
+        private List<string> SideChainSymbol = new List<string> {"STA", "STB"};
 
         [TestInitialize]
         public void Initialize()

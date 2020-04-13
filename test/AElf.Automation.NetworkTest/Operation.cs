@@ -66,6 +66,17 @@ namespace AElf.Automation.NetworkTest
                     Logger.Info($"{node} add peer {n} {result}");
                 }
             }
+            
+            foreach (var e in AllEndpoint.Where(e => !operatedNodeEndpoint.Contains(e)))
+            {
+                var newNodeManager = new NodeManager(e);
+                foreach (var node in operatedNodeEndpoint)
+                {
+                    var n = node.Replace("8000", "6800");
+                    var result = newNodeManager.NetAddPeer(n);
+                    Logger.Info($"{e} add peer {n} {result}");
+                }
+            }
         }
 
         public void GetPeer()

@@ -101,41 +101,41 @@ namespace AElf.Automation.EconomicSystemTest
             }
 
             //Transfer candidate 200_000
-            foreach (var bp in BpNodeAddress)
-            {
-                var balance = Behaviors.GetBalance(bp);
-                if (balance.Balance < 10000_00000000 && bp != InitAccount)
-                {
-                    Behaviors.TokenService.SetAccount(InitAccount);
-                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 20000_00000000L,
-                        To = AddressHelper.Base58StringToAddress(bp),
-                        Memo = "Transfer token for announcement."
-                    });
-
-                    Behaviors.TokenService.CheckTransactionResultList();
-                }
-            }
-
-            foreach (var full in FullNodeAddress)
-            {
-                var balance = Behaviors.GetBalance(full);
-                if (balance.Balance < 100000_00000000)
-                {
-                    Behaviors.TokenService.SetAccount(InitAccount);
-                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                    {
-                        Symbol = "ELF",
-                        Amount = 20_0000_00000000L,
-                        To = AddressHelper.Base58StringToAddress(full),
-                        Memo = "Transfer token for announcement."
-                    });
-
-                    Behaviors.TokenService.CheckTransactionResultList();
-                }
-            }
+//            foreach (var bp in BpNodeAddress)
+//            {
+//                var balance = Behaviors.GetBalance(bp);
+//                if (balance.Balance < 10000_00000000 && bp != InitAccount)
+//                {
+//                    Behaviors.TokenService.SetAccount(InitAccount);
+//                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+//                    {
+//                        Symbol = "ELF",
+//                        Amount = 20000_00000000L,
+//                        To = AddressHelper.Base58StringToAddress(bp),
+//                        Memo = "Transfer token for announcement."
+//                    });
+//
+//                    Behaviors.TokenService.CheckTransactionResultList();
+//                }
+//            }
+//
+//            foreach (var full in FullNodeAddress)
+//            {
+//                var balance = Behaviors.GetBalance(full);
+//                if (balance.Balance < 100000_00000000)
+//                {
+//                    Behaviors.TokenService.SetAccount(InitAccount);
+//                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+//                    {
+//                        Symbol = "ELF",
+//                        Amount = 20_0000_00000000L,
+//                        To = AddressHelper.Base58StringToAddress(full),
+//                        Memo = "Transfer token for announcement."
+//                    });
+//
+//                    Behaviors.TokenService.CheckTransactionResultList();
+//                }
+//            }
 
 //            PrepareUserAccountAndBalance(30);
 

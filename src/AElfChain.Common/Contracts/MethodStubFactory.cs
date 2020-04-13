@@ -89,7 +89,7 @@ namespace AElfChain.Common.Contracts
                                 NonIndexed = ByteString.FromBase64(o.NonIndexed)
                             }).ToArray()
                         },
-                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom),
+                        Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
                         Status = status,
                         ReturnValue = (resultDto.ReturnValue ?? "").ToByteString()

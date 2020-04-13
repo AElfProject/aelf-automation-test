@@ -22,6 +22,8 @@ namespace AElfChain.Common.Contracts
         CalculateOrganizationAddress,
         ValidateProposerInWhiteList,
         ValidateOrganizationExist,
+        GetMethodFee,
+        GetMethodFeeController,
 
         //Action
         CreateOrganization,

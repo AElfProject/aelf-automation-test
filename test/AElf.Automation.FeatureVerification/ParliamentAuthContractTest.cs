@@ -33,7 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-        private static string RpcUrl { get; } = "http://18.223.158.83:8000";
+        private static string RpcUrl { get; } = "http://52.90.147.175:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -117,7 +117,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("f2437bef3e0ad87773c9d504a0de2dd088ee154c19a00ff40951c77b630cf8d4")]
+        [DataRow("56dbad640a677142bbc057767c2ce43baff5efb5084ec89fb4bbae2b3920c19c")]
         public void GetProposal(string proposalId)
         {
             var result =

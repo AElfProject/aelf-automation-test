@@ -403,7 +403,13 @@ namespace AElf.Automation.SideChain.Verification
             return indexParentBlock > transactionHeight;
         }
 
-        protected void UnlockAccounts(ContractServices services, List<string> accountList)
+        protected bool CheckSideChainPrivilegePreserved(ContractServices services)
+        {
+            return MainChainService.CrossChainService.GetChainInitializationData(services.ChainId)
+                .ChainCreatorPrivilegePreserved;
+        }
+
+        protected void UnlockAccounts(ContractServices services,List<string> accountList)
         {
             services.NodeManager.ListAccounts();
             foreach (var account in accountList)
