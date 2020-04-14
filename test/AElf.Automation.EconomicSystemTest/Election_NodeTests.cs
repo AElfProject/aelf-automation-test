@@ -45,6 +45,7 @@ namespace AElf.Automation.EconomicSystemTest
             }
 
             var candidateList = Behaviors.GetCandidates();
+            _logger.Info($"{candidateList.Value.Count}");
             foreach (var publicKey in candidateList.Value)
                 _logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
@@ -71,6 +72,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void NodeAnnounceElectionAction()
         {
             var candidates = Election.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates, new Empty());
+            var miners = Consensus.GetCurrentMinersPubkey();
             var publicKeysList = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
             var initialPubkeys = Consensus.GetInitialMinersPubkey();
             var count = 0;
@@ -91,6 +93,43 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
                 if (count == 3)
                     break;
+            }
+
+            var isChanged = ScenarioConfig.ReadInformation.NewNode.IsChanged;
+            if (miners.Count == candidates.Value.Count && isChanged)
+            {
+                var newNodeLis = ScenarioConfig.ReadInformation.NewNode.AccountInfos;
+                foreach (var node in newNodeLis)
+                {
+                    var accountManager = Services.NodeManager.AccountManager;
+                    //check account exist
+                    var exist = accountManager.AccountIsExist(node.Account);
+                    if (!exist)
+                    {
+                        $"Account {node} not exist, please copy account file into folder: {CommonHelper.GetCurrentDataDir()}/keys"
+                            .WriteErrorLine();
+                        throw new FileNotFoundException();
+                    }
+                    //get public key
+                    var publicKey = accountManager.GetPublicKey(node.Account, node.Password);
+                    node.PublicKey = publicKey;
+
+                    Services.NodeManager.AccountManager.UnlockAccount(node.Account);
+                    var balance = Token.GetUserBalance(node.Account);
+                    if (balance <= 100000_00000000)
+                    {
+                        Token.TransferBalance(AllNodes.First().Account, node.Account, 200000_0000000);
+                    }
+                    var election = Election.GetNewTester(node.Account, node.Password);
+                    var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                    if (electionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
+                    {
+                        Logger.Info($"User {node.Account} announcement election success.");
+                        var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
+                        newCandidates.ShouldContain(node.PublicKey,
+                            "Check candidates info failed after announce election.");
+                    }
+                }
             }
         }
 
@@ -189,7 +228,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //update scheme
             Profit.GetTreasurySchemes(Treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
-            
+
             foreach (var (key, value) in Schemes)
             {
                 Address address;

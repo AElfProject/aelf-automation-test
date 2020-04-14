@@ -68,5 +68,17 @@
     "SpecifyEndpoint": {
         "enable": true,
         "service_url": "http://192.168.197.40:8000"
+    },
+    "NewNode":
+    {
+        "IsChanged": false,
+        "AccountInfos": [
+            {
+                "name": "",
+                "endpoint": "",
+                "account": "",
+                "password": ""
+            }
+        ]
     }
 }

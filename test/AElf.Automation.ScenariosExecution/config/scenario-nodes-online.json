@@ -68,5 +68,29 @@
     "SpecifyEndpoint": {
         "enable": true,
         "service_url": "http://52.90.147.175:8000"
+    },
+    "NewNode":
+    {
+        "IsChanged": true,
+        "AccountInfos": [
+            {
+                "name": "1.美国东部(弗吉尼亚北部)",
+                "endpoint": "52.90.147.175:8000",
+                "account": "2mTDfKiuKFmNc7FzK2wqLkoZtJRM633KE3Yxq2RSb51Vvbsfec",
+                "password": "123"
+            },
+            {
+                "name": "2.美国东部(俄亥俄)",
+                "endpoint": "18.223.158.83:8000",
+                "account": "2gfVsyYbLPehmVjZxKHZfxp9AMRUEV6KFHkZDgdU7VZf64teew",
+                "password": "123"
+            },
+            {
+                "name": "3.美国西部(加利福尼亚北部)",
+                "endpoint": "13.52.177.95:8000",
+                "account": "2bmNbLLR94QATnweMcVwLpUAPXt21x8k4zyMxQ7fXSySsrhUNm",
+                "password": "123"
+            }
+        ]
     }
 }
