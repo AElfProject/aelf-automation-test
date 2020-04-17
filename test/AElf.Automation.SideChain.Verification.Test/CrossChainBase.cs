@@ -49,7 +49,25 @@ namespace AElf.Automation.SideChain.Verification
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
         protected static List<string> TokenSymbols { get; set; }
+        protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
+            bool interrupted = false)
+        {
+            foreach (var action in actions)
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"Execute action {action.Method.Name} got exception: {e.Message}", e);
+                    if (interrupted)
+                        break;
+                }
 
+            if (sleepSeconds != 0)
+                Thread.Sleep(1000 * sleepSeconds);
+        }
+        
         protected ContractServices InitMainChainServices()
         {
             if (MainChainService != null) return MainChainService;

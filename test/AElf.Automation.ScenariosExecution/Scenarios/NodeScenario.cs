@@ -101,6 +101,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 var newNodeLis = ScenarioConfig.ReadInformation.NewNode.AccountInfos;
                 foreach (var node in newNodeLis)
                 {
+                    if (publicKeysList.Concat(initialPubkeys).Contains(node.PublicKey))
+                        continue;
                     var accountManager = Services.NodeManager.AccountManager;
                     //check account exist
                     var exist = accountManager.AccountIsExist(node.Account);

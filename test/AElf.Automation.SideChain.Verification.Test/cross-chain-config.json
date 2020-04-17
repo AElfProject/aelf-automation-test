@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Offline1",
+    "TestEnvironment": "Offline2",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -42,7 +42,7 @@
             "Config": "nodes-env2-main",
             "MainChainInfos":
             {
-                "MainChainUrl": "http://192.168.197.29:8000",
+                "MainChainUrl": "http://192.168.197.53:8000",
                 "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
                 "Password": "123"
             },
@@ -73,20 +73,6 @@
     ],
     "CreateTokenNumber": 0,
     "VerifySideChainNumber": 1,
-    "VerifyBlockNumber": 1,
-    "TransferAccount":5,
-    "TestCases": [
-        {
-            "name": "CrossChainVerifyMainChain",
-            "enable": false
-        },
-        {
-            "name": "CrossChainVerifySideChain",
-            "enable": false
-        },
-        {
-            "name": "CrossChainTransfer",
-            "enable": true
-        }
-    ]
+    "VerifyBlockNumber": 100,
+    "TransferAccount":10
 }
