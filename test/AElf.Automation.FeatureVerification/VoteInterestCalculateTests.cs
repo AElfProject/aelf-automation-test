@@ -65,7 +65,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 nameof(ContractManager.TokenconverterStub.ChangeConnectorController),
                 new AuthorityInfo
                 {
-                    ContractAddress = beforeController.ContractAddress,
+                    ContractAddress = ContractManager.Association.Contract,
                     OwnerAddress = organizationAddress.ConvertAddress()
                 },
                 ContractManager.CallAddress);

@@ -31,7 +31,8 @@ namespace AElf.Automation.EconomicSystemTest
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             Behaviors.TokenService.TransferBalance(InitAccount, account, 1000_00000000);
             var voteResult = Behaviors.UserVote(account, FullNodeAddress[no], 120, amount);
-
+            var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
+            _logger.Info($"vote id is: {voteId}");
             voteResult.ShouldNotBeNull();
             voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
@@ -40,7 +41,7 @@ namespace AElf.Automation.EconomicSystemTest
         public void Withdraw()
         {
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
-            var txId = "273b6025f64b86dd8a00579246155a40be9fdf121f79e72101a700bfd270159e";
+            var voteId = "e4c5a5fd3638b8559ae70d1c8c002be1ef7ade981701b954688d789c0e7b91b6";
             Behaviors.ElectionService.SetAccount(account);
             var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
             var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
@@ -49,7 +50,7 @@ namespace AElf.Automation.EconomicSystemTest
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
-                    HashHelper.HexStringToHash(txId));
+                    HashHelper.HexStringToHash(voteId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = result.GetTransactionFee().Item2;
             var afterVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");

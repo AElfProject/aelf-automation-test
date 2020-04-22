@@ -87,9 +87,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-            if (balance > 1000_00000000) return;
+            if (balance > 10000_00000000) return;
             TokenService.SetAccount(TokenService.CallAddress);
-            TokenService.TransferBalance(TokenService.CallAddress, account, 1000_00000000, symbol);
+            TokenService.TransferBalance(TokenService.CallAddress, account, 10000_00000000, symbol);
         }
 
         public void IssueToken(string creator, string account)

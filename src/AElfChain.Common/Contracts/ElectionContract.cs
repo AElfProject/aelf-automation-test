@@ -28,7 +28,8 @@ namespace AElfChain.Common.Contracts
         GetMinersCount,
         GetVotesInformationWithRecords,
         GetElectorVoteWithAllRecords,
-        GetNextElectCountDown
+        GetNextElectCountDown,
+        GetElectorVote
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>

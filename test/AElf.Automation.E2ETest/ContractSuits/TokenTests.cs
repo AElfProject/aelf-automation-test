@@ -8,6 +8,7 @@ using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -215,6 +216,81 @@ namespace AElf.Automation.E2ETest.ContractSuits
             getBalanceResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterCpu = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, "CPU");
             beforeCpu.ShouldBe(afterCpu + 5000_0000);
+        }
+
+        [TestMethod]
+        public async Task ChangeMethodFeeController()
+        {
+            const string method = nameof(TokenMethod.GetBalance);
+            var referendum = ContractManager.Referendum;
+            var authorityManager = new AuthorityManager(NodeManager);
+            var defaultController = await ContractManager.TokenImplStub.GetMethodFeeController.CallAsync(new Empty());
+            defaultController.ContractAddress.ShouldBe(ContractManager.ParliamentAuth.Contract);
+            
+            var newOrganization = ReferendumOrganization;
+            var proposer = referendum.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000, "ELF");
+            var input = new AuthorityInfo
+            {
+                OwnerAddress = newOrganization,
+                ContractAddress = ContractManager.Referendum.Contract
+            };
+            var changeResult = authorityManager.ExecuteTransactionWithAuthority(ContractManager.Token.ContractAddress,
+                nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), input, proposer.GetFormatted(),
+                defaultController.OwnerAddress);
+            changeResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var changeInput = new MethodFees
+            {
+                MethodName = method,
+                Fees =
+                {
+                    new MethodFee
+                    {
+                        Symbol = "NET",
+                        BasicFee = 10000000
+                    }
+                }
+            };
+            var changeProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
+                nameof(ContractManager.TokenImplStub.SetMethodFee), changeInput,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000_00000000, "ELF");
+            referendum.SetAccount(proposer.GetFormatted());
+            var changeApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, changeProposalId);
+            changeApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var changeReleaseResult = referendum.ReleaseProposal(changeProposalId, proposer.GetFormatted());
+            changeReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var methodFee =
+                ContractManager.Token.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
+                {
+                    Value = method
+                });
+            methodFee.MethodName.ShouldBe(method);
+            methodFee.Fees.Contains(new MethodFee
+            {
+                Symbol = "NET",
+                BasicFee = 10000000
+            }).ShouldBeTrue();
+            
+            //recover
+            var recoverInput = new AuthorityInfo
+            {
+                ContractAddress = defaultController.ContractAddress,
+                OwnerAddress = defaultController.OwnerAddress
+            };
+            var recoverProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
+                nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), recoverInput,
+                newOrganization, proposer.GetFormatted());
+
+            referendum.SetAccount(proposer.GetFormatted());
+            var recoverApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, recoverProposalId);
+            recoverApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var recoverReleaseResult = referendum.ReleaseProposal(recoverProposalId, proposer.GetFormatted());
+            recoverReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]

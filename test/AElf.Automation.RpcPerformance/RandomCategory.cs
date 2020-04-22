@@ -43,7 +43,7 @@ namespace AElf.Automation.RpcPerformance
             LimitTransaction = limitTransaction;
         }
 
-        public void InitExecCommand(int userCount = 200)
+        public void InitExecCommand(int userCount = 100)
         {
             Logger.Info("Host Url: {0}", BaseUrl);
             Logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));

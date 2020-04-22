@@ -41,9 +41,9 @@ namespace AElf.Automation.SideChain.Verification.Verify
             Logger.Info(
                 $"Main chain {MainChainService.ChainId} index side chain {services.ChainId} height {indexSideHeight}");
 
-            if (_verifyBlock >= indexSideHeight)
+            if (_verifyBlock >= indexSideHeight && _verifyBlock!= 1)
             {
-                _verifyBlock = indexSideHeight - 3000;
+                _verifyBlock = indexSideHeight > 3000 ? indexSideHeight - 3000 : 1;
                 Logger.Info($"Reset the verify block height:{_verifyBlock}");
             }
 

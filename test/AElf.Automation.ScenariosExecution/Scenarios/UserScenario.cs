@@ -13,6 +13,7 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
+using Shouldly;
 
 namespace AElf.Automation.ScenariosExecution.Scenarios
 {
@@ -159,6 +160,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         {
             var beforeElfBalance = Token.GetUserBalance(account);
             var beforeVoteBalance = Token.GetUserBalance(account, "VOTE");
+            var beforeVoteShareBalance = Token.GetUserBalance(account, "SHARE");
 
             var beforeCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
             if (beforeElfBalance < amount * 10000_0000) // balance not enough, bp transfer again
@@ -188,8 +190,15 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             }, out var existed);
             if (existed) return;
             if (voteResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
+            var voteId =  Hash.Parser.ParseFrom(
+                ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
+            var accountPubkey = Services.NodeManager.GetAccountPublicKey(account);
+            var electorResult = election.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVote, new StringValue {Value = accountPubkey});
+            electorResult.ActiveVotingRecordIds.ShouldContain(voteId);
+            
             var afterElfBalance = Token.GetUserBalance(account);
             var afterVoteBalance = Token.GetUserBalance(account, "VOTE");
+            var afterVoteShareBalance = Token.GetUserBalance(account, "SHARE");
             var transactionFee = voteResult.GetDefaultTransactionFee();
             var afterCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
 
@@ -207,6 +216,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             {
                 Logger.Error(
                     $"User vote receive VOTE token balance check failed. VOTE: {beforeVoteBalance}/{afterVoteBalance - amount}");
+                checkResult = false;
+            }
+            
+            if (afterVoteShareBalance != beforeVoteShareBalance + amount)
+            {
+                Logger.Error(
+                    $"User vote receive SHARE token balance check failed. SHARE: {beforeVoteShareBalance}/{afterVoteShareBalance - amount}");
                 checkResult = false;
             }
 

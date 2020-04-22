@@ -91,7 +91,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         "Check candidates info failed after announce election.");
                 }
 
-                if (count == 3)
+                if (count == 4)
                     break;
             }
 

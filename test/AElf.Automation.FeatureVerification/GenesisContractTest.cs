@@ -5,6 +5,7 @@ using Acs0;
 using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -17,6 +18,7 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -34,7 +36,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Member { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
         public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        private static string MainRpcUrl { get; } = "http://52.90.147.175:8000";
+        private static string MainRpcUrl { get; } = "http://192.168.197.14:8000";
         private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
         private static string SideRpcUrl2 { get; } = "http://192.168.197.14:8002";
         private string Type { get; } = "Main";
@@ -46,7 +48,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ContractTest_");
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
 
             #endregion
 
@@ -235,7 +237,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_OrganizationProposalContractWithOtherOrganization_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.TestContract.BasicUpdate1");
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var contractProposalInfo = ProposalNewContract(Tester, OtherAccount, input);
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
@@ -306,7 +308,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalUpdate_MinerProposalUpdateContract_Success()
         {
-            var input = ContractUpdateInput("AElf.Contracts.MultiToken4", Tester.ReferendumService.ContractAddress);
+            var input = ContractUpdateInput("AElf.Contracts.MultiToken", Tester.ReferendumService.ContractAddress);
             var contractProposalInfo = ProposalUpdateContract(Tester, InitAccount, input);
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, InitAccount);
@@ -364,7 +366,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var changeAddress = CreateAssociationOrganization(Tester);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(Tester.AssociationService.ContractAddress),
+                ContractAddress = Tester.AssociationService.Contract,
                 OwnerAddress = changeAddress
             };
 
@@ -392,16 +394,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
             contractDeploymentController.OwnerAddress.ShouldBe(changeAddress);
+            contractDeploymentController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Owner address is {contractDeploymentController.OwnerAddress} ");
         }
 
         [TestMethod]
         public void ChangeCodeCheckController()
         {
-            var changeAddress = CreateParliamentOrganization(Tester);
+            var changeAddress = CreateAssociationOrganization(Tester);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(Tester.ParliamentService.ContractAddress),
+                ContractAddress = Tester.AssociationService.Contract,
                 OwnerAddress = changeAddress
             };
 
@@ -429,6 +432,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             contractCodeCheckController.OwnerAddress.ShouldBe(changeAddress);
+            contractCodeCheckController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
@@ -436,8 +440,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void CheckController()
         {
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
+            contractCodeCheckController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
@@ -519,7 +524,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     },
                     ProposerWhiteList = new ProposerWhiteList
                     {
-                        Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
+                        Proposers = {OtherAccount.ConvertAddress()}
                     }
                 });
             var organizationAddress =
@@ -547,6 +552,33 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
             Logger.Info($"Association organization is: {organizationAddress}");
+            return organizationAddress;
+        }
+        
+        public Address CreateOrganization()
+        {
+            var Referendum = Tester.ReferendumService;
+            var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
+                new AElf.Contracts.Referendum.CreateOrganizationInput()
+                {
+                    TokenSymbol = Tester.TokenService.GetPrimaryTokenSymbol(),
+                    ProposalReleaseThreshold = new ProposalReleaseThreshold
+                    {
+                        MaximalAbstentionThreshold = 100,
+                        MinimalVoteThreshold = 1000,
+                        MinimalApprovalThreshold = 1000,
+                        MaximalRejectionThreshold = 100
+                    },
+                    ProposerWhiteList = new ProposerWhiteList
+                    {
+                        Proposers = {InitAccount.ConvertAddress()}
+                    }
+                });
+            var returnValue = result.ReturnValue;
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
+            Logger.Info($"organization address is : {organizationAddress}");
+
             return organizationAddress;
         }
 

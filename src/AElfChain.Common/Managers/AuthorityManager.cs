@@ -166,8 +166,15 @@ namespace AElfChain.Common.Managers
 
         public List<string> GetCurrentMiners()
         {
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
-            return currentMiners;
+            var minerList = new List<string>();
+                var miners =
+                    _consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+                foreach (var minersPubkey in miners.Pubkeys)
+                {
+                    var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
+                    minerList.Add(miner.GetFormatted());
+                }
+                return minerList;
         }
 
         public List<string> GetMinApproveMiners()
