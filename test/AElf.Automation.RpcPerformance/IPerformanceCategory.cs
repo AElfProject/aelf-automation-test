@@ -8,7 +8,7 @@ namespace AElf.Automation.RpcPerformance
         int ThreadCount { get; }
         int ExeTimes { get; }
         string BaseUrl { get; }
-        void InitExecCommand(int userCount = 200);
+        void InitExecCommand(int userCount = 150);
         void DeployContractsWithAuthority();
         void SideChainDeployContractsWithCreator();
         void SideChainDeployContractsWithAuthority();
