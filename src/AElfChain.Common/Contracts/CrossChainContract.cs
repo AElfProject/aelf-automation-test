@@ -1,6 +1,7 @@
 using Acs1;
 using Acs7;
 using AElf.Contracts.CrossChain;
+using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -19,6 +20,7 @@ namespace AElfChain.Common.Contracts
         AdjustIndexingFeePrice,
         ChangeCrossChainIndexingController,
         ChangeSideChainLifetimeController,
+        ChangeSideChainIndexingFeeController,
 
         //View
         GetChainStatus,
@@ -108,9 +110,9 @@ namespace AElfChain.Common.Contracts
                 CrossChainContractMethod.GetSideChainLifetimeController, new Empty());
         }
 
-        public GetSideChainIndexingFeeControllerOutput GetSideChainIndexingFeeController(int chainId)
+        public AuthorityInfo GetSideChainIndexingFeeController(int chainId)
         {
-            return CallViewMethod<GetSideChainIndexingFeeControllerOutput>(
+            return CallViewMethod<AuthorityInfo>(
                 CrossChainContractMethod.GetSideChainIndexingFeeController, new Int32Value {Value = chainId});
         }
 

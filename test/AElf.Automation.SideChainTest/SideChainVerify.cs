@@ -16,6 +16,7 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChainTests
 {
@@ -582,6 +583,19 @@ namespace AElf.Automation.SideChainTests
         }
 
         #endregion
+        
+        [TestMethod]
+        public void SideChainVerifyMainChain()
+        {
+            var block = AsyncHelper.RunSync(() => MainServices.NodeManager.ApiClient.GetBlockByHeightAsync(100));
+            var transaction = AsyncHelper.RunSync(() =>
+                MainServices.NodeManager.ApiClient.GetTransactionResultsAsync(block.BlockHash)).First();
+            var verifyInput =
+                GetMainChainTransactionVerificationInput(transaction.BlockNumber, transaction.TransactionId);
+            var result = SideAServices.CrossChainService.CallViewMethod<BoolValue>(
+                    CrossChainContractMethod.VerifyTransaction, verifyInput).Value;
+            result.ShouldBeTrue();
+        }
 
         #region private
 
@@ -717,6 +731,21 @@ namespace AElf.Automation.SideChainTests
                     });
             _logger.Info("Get CrossChain Merkle Proof");
             return crossChainMerkleProofContext;
+        }
+        
+        private VerifyTransactionInput GetMainChainTransactionVerificationInput(long blockHeight, string txId)
+        {
+            var merklePath = GetMerklePath(blockHeight, txId,MainServices,out var hash);
+            if (merklePath == null) return null;
+
+            var verificationInput = new VerifyTransactionInput
+            {
+                ParentChainHeight = blockHeight,
+                TransactionId = HashHelper.HexStringToHash(txId),
+                VerifiedChainId = MainServices.ChainId,
+                Path = merklePath
+            };
+            return verificationInput;
         }
 
         #endregion

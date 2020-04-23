@@ -115,8 +115,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var proposer = NodeInfoHelper.Config.Nodes.First().Account;
-            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).AuthorityInfo
-                .OwnerAddress;
+            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).OwnerAddress;
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {
                 IndexingFee = 10,
