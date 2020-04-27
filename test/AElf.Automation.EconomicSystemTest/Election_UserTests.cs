@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -25,12 +27,12 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(1, 200_00000000)]
+        [DataRow(2, 100)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             Behaviors.TokenService.TransferBalance(InitAccount, account, 1000_00000000);
-            var voteResult = Behaviors.UserVote(account, FullNodeAddress[no], 120, amount);
+            var voteResult = Behaviors.UserVote(InitAccount, FullNodeAddress[no], 120, amount);
             var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
             _logger.Info($"vote id is: {voteId}");
             voteResult.ShouldNotBeNull();
@@ -94,9 +96,16 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void Get_Current_Miners()
         {
-            var miners = Behaviors.GetCurrentMiners();
-            foreach (var publicKey in miners.Pubkeys)
-                _logger.Info($"Miner PublicKey: {publicKey.ToByteArray().ToHex()}");
+            var minerList = new List<string>();
+            var miners =
+                Behaviors.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            foreach (var minersPubkey in miners.Pubkeys)
+            {
+                var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
+                minerList.Add(miner.GetFormatted());
+            }
+            foreach (var miner in minerList)
+                _logger.Info($"Miner is : {miner}");
         }
 
 

@@ -16,7 +16,7 @@ namespace AElf.Automation.E2ETest
     public class ContractTestBase
     {
         public static string MainConfig = "nodes-env1-main";
-        public static string SideConfig = "nodes-env2-side1";
+        public static string SideConfig = "nodes-env1-side1";
         public static Address AssociationOrganization;
         public static Address ReferendumOrganization;
 
@@ -30,15 +30,18 @@ namespace AElf.Automation.E2ETest
             var firstBp = ConfigNodes.First();
 
             NodeManager = new NodeManager(firstBp.Endpoint);
+            AuthorityManager = new AuthorityManager(NodeManager);
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();
-            AssociationOrganization = CreateAssociationOrganization();
-            ReferendumOrganization = CreateReferendumOrganization();
+            AssociationOrganization = AuthorityManager.CreateAssociationOrganization();
+            ReferendumOrganization = AuthorityManager.CreateReferendumOrganization();
         }
 
         public INodeManager NodeManager { get; set; }
         public ContractManager ContractManager { get; set; }
+        public AuthorityManager AuthorityManager { get; set; }
+
         public EnvCheck EnvCheck { get; set; }
         public ILog Logger { get; set; }
 
@@ -54,57 +57,6 @@ namespace AElf.Automation.E2ETest
                 ContractManager.Token.TransferBalance(ContractManager.CallAddress, node.Account, 100000000000,
                     symbol);
             }
-        }
-
-        private Address CreateAssociationOrganization()
-        {
-             var miners = ContractManager.Authority.GetCurrentMiners();
-            var association = ContractManager.Association;
-            var members = ConfigNodes.Select(l => l.Account).ToList().Select(member => member.ConvertAddress()).Take(3);
-            //create association organization
-            var enumerable = members as Address[] ?? members.ToArray();
-            var createInput = new CreateOrganizationInput
-            {
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MaximalAbstentionThreshold = 1,
-                    MaximalRejectionThreshold = 1,
-                    MinimalApprovalThreshold = 2,
-                    MinimalVoteThreshold = 2
-                },
-                ProposerWhiteList = new ProposerWhiteList {Proposers = {miners.First().ConvertAddress()}},
-                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {enumerable}}
-            };
-            association.SetAccount(miners.First());
-            var result = association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
-                createInput);
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            return organizationAddress;
-        }
-        
-        private Address CreateReferendumOrganization()
-        {
-            var proposer = ConfigNodes.First().Account.ConvertAddress();
-            var referendum = ContractManager.Referendum;
-            //create referendum organization
-            var createInput = new AElf.Contracts.Referendum.CreateOrganizationInput
-            {
-                TokenSymbol = "ELF",
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MaximalAbstentionThreshold = 1000,
-                    MaximalRejectionThreshold = 1000,
-                    MinimalApprovalThreshold = 2000,
-                    MinimalVoteThreshold = 2000
-                },
-                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}}
-            };
-            var result = referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
-                createInput);
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            return organizationAddress;
         }
     }
 }

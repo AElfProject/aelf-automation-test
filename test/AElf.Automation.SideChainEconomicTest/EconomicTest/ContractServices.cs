@@ -32,7 +32,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
+        public ParliamentContract ParliamentService { get; set; }
 
         public string CallAddress { get; }
 
@@ -100,8 +100,8 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             //CrossChain contract
             CrossChainService = GenesisService.GetCrossChainContract();
 
-            //ParliamentAuth contract
-            ParliamentService = GenesisService.GetParliamentAuthContract();
+            //Parliament contract
+            ParliamentService = GenesisService.GetParliamentContract();
         }
     }
 }

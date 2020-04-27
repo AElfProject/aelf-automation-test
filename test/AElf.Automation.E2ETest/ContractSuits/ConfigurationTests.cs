@@ -1,20 +1,14 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
-using Acs3;
-using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
-using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
-using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
 
 namespace AElf.Automation.E2ETest.ContractSuits
 {
@@ -108,7 +102,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var input = new AuthorityInfo
             {
-                ContractAddress = ContractManager.ParliamentAuth.Contract,
+                ContractAddress = ContractManager.Parliament.Contract,
                 OwnerAddress = defaultOwner
             };
             //recover

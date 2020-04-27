@@ -9,11 +9,13 @@ namespace AElf.Automation.RpcPerformance
         int ExeTimes { get; }
         string BaseUrl { get; }
         void InitExecCommand(int userCount = 150);
+        void CrossTransferToInitAccount();
         void DeployContractsWithAuthority();
         void SideChainDeployContractsWithCreator();
         void SideChainDeployContractsWithAuthority();
         void DeployContracts();
-        void InitializeContracts();
+        void InitializeMainContracts();
+        void InitializeSideChainToken();
         void PrintContractInfo();
         void ExecuteOneRoundTransactionTask();
         void ExecuteOneRoundTransactionsTask();

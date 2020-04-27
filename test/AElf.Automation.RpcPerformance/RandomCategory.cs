@@ -8,14 +8,17 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -33,6 +36,7 @@ namespace AElf.Automation.RpcPerformance
 
             AccountList = new List<AccountInfo>();
             ContractList = new List<ContractInfo>();
+            MainContractList = new List<ContractInfo>();
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
 
@@ -41,6 +45,55 @@ namespace AElf.Automation.RpcPerformance
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             LimitTransaction = limitTransaction;
+        }
+
+        public void CrossTransferToInitAccount()
+        {
+            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            var bps = NodeInfoHelper.Config.Nodes;
+            var initAccount = bps.First().Account;
+            var token = new TokenContract(NodeManager, initAccount, SystemTokenAddress);
+            var initBalance = token.GetUserBalance(initAccount, primaryToken);
+            if (initBalance > 50000000_00000000) return;
+            Logger.Info($"{initAccount} balance is {initBalance}, need cross transfer first");
+            var mainUrl = RpcConfig.ReadInformation.ChainTypeOption.MainChainUrl;
+            MainNodeManager = new NodeManager(mainUrl);
+            var mainChainId = ChainHelper.ConvertBase58ToChainId(MainNodeManager.GetChainId());
+            var mainGenesis = MainNodeManager.GetGenesisContract();
+            var mainToken = mainGenesis.GetTokenContract();
+            var crossChainManager = new CrossChainManager(MainNodeManager, NodeManager, initAccount);
+
+            //cross chain transfer 
+            var amount = 100000000_00000000;
+            var raw = crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount);
+            var txId = MainNodeManager.SendTransaction(raw);
+            var result = MainNodeManager.CheckTransactionResult(txId);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            // create input 
+
+            var merklePath = crossChainManager.GetMerklePath(result.BlockNumber,
+                txId, out var root);
+
+            var crossChainCreateToken = new CrossChainReceiveTokenInput
+            {
+                MerklePath = merklePath,
+                FromChainId = mainChainId,
+                ParentChainHeight = result.BlockNumber,
+                TransferTransactionBytes = raw.ToByteString()
+            };
+
+            //check last transaction index 
+            crossChainManager.CheckSideChainBlockIndex(result.BlockNumber);
+
+            //side chain receive 
+
+            var receiveResult =
+                token.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, crossChainCreateToken);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            initBalance = token.GetUserBalance(initAccount, primaryToken);
+            Logger.Info($"{initAccount} balance is {initBalance}");
         }
 
         public void InitExecCommand(int userCount = 150)
@@ -94,7 +147,7 @@ namespace AElf.Automation.RpcPerformance
             throw new NotImplementedException();
         }
 
-        public void InitializeContracts()
+        public void InitializeMainContracts()
         {
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
             var bps = NodeInfoHelper.Config.Nodes;
@@ -172,6 +225,202 @@ namespace AElf.Automation.RpcPerformance
                     var balance = token.GetUserBalance(user.Account, symbol);
                     if (balance == amount)
                         Logger.Info($"Issue token {symbol} to '{user.Account}' with amount {amount} success.");
+                    else if (balance == 0)
+                        Logger.Warn($"User '{user.Account}' without any {symbol} token.");
+                    else
+                        Logger.Error($"User {user.Account} {symbol} token balance not correct.");
+                }
+            }
+        }
+
+        public void InitializeSideChainToken()
+        {
+            var mainUrl = RpcConfig.ReadInformation.ChainTypeOption.MainChainUrl;
+            MainNodeManager = new NodeManager(mainUrl);
+            var mainChainId = ChainHelper.ConvertBase58ToChainId(MainNodeManager.GetChainId());
+            var bps = NodeInfoHelper.Config.Nodes;
+            var initAccount = bps.First().Account;
+            var mainGenesis = MainNodeManager.GetGenesisContract();
+            var mainToken = mainGenesis.GetTokenContract();
+            //create all token on main chain
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                var contract = new ContractInfo(initAccount, mainToken.ContractAddress);
+                var contractPath = contract.ContractAddress;
+                var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(MainNodeManager);
+                contract.Symbol = symbol;
+                MainContractList.Add(contract);
+                var balance = mainToken.GetUserBalance(initAccount);
+                mainToken.SetAccount(initAccount);
+                var transactionId = mainToken.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
+                {
+                    Symbol = symbol,
+                    TokenName = $"elf token {symbol}",
+                    TotalSupply = 10_0000_0000_00000000L,
+                    Decimals = 8,
+                    Issuer = initAccount.ConvertAddress(),
+                    IsBurnable = true
+                });
+                TxIdList.Add(transactionId);
+            }
+
+            Monitor.CheckTransactionsStatus(TxIdList, -1, MainNodeManager);
+
+            // issue all token to init account
+            var amount = 10_0000_0000_00000000L;
+            foreach (var contract in MainContractList)
+            {
+                var account = contract.Owner;
+                var contractPath = contract.ContractAddress;
+                var symbol = contract.Symbol;
+                var transactionId = mainToken.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
+                {
+                    Amount = amount,
+                    Memo = $"Issue balance - {Guid.NewGuid()}",
+                    Symbol = symbol,
+                    To = initAccount.ConvertAddress()
+                });
+                TxIdList.Add(transactionId);
+            }
+
+            Monitor.CheckTransactionsStatus(TxIdList, -1, MainNodeManager);
+
+            //create token on main chain
+            var crossChainManager = new CrossChainManager(MainNodeManager, NodeManager, initAccount);
+            var txInfos = new Dictionary<string, TransactionResultDto>();
+            foreach (var contract in MainContractList)
+            {
+                var raw = crossChainManager.ValidateTokenSymbol(contract.Symbol);
+                var txId = MainNodeManager.SendTransaction(raw);
+                var result = MainNodeManager.CheckTransactionResult(txId);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                txInfos.Add(raw, result);
+            }
+
+            // create input 
+            var crossChainCreateTokenInputList = new List<CrossChainCreateTokenInput>();
+            foreach (var txInfo in txInfos)
+            {
+                var merklePath = crossChainManager.GetMerklePath(txInfo.Value.BlockNumber,
+                    txInfo.Value.TransactionId, out var root);
+
+                var crossChainCreateToken = new CrossChainCreateTokenInput
+                {
+                    FromChainId = mainChainId,
+                    MerklePath = merklePath,
+                    TransactionBytes = txInfo.Key.ToByteString(),
+                    ParentChainHeight = txInfo.Value.BlockNumber
+                };
+                crossChainCreateTokenInputList.Add(crossChainCreateToken);
+            }
+
+            //check last transaction index 
+            var last = txInfos.Last();
+            crossChainManager.CheckSideChainBlockIndex(last.Value.BlockNumber);
+
+            //cross create token
+            var sideContract = new ContractInfo(initAccount, SystemTokenAddress);
+            var sideContractPath = sideContract.ContractAddress;
+            var sideToken = new TokenContract(NodeManager, initAccount, sideContractPath);
+            foreach (var crossChainCreateTokenInput in crossChainCreateTokenInputList)
+            {
+                var result =
+                    sideToken.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken, crossChainCreateTokenInput);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            }
+
+            //check token on side chain 
+            foreach (var contractInfo in MainContractList)
+            {
+                var tokenInfo = sideToken.GetTokenInfo(contractInfo.Symbol);
+                tokenInfo.ShouldNotBe(new TokenInfo());
+            }
+
+            //cross chain transfer 
+            var transferTxInfos = new Dictionary<string, TransactionResultDto>();
+            foreach (var contract in MainContractList)
+            {
+                var raw = crossChainManager.CrossChainTransfer(contract.Symbol, amount, initAccount);
+                var txId = MainNodeManager.SendTransaction(raw);
+                var result = MainNodeManager.CheckTransactionResult(txId);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                transferTxInfos.Add(raw, result);
+            }
+
+            // create input 
+            var crossChainReceiveTokenInputList = new List<CrossChainReceiveTokenInput>();
+            foreach (var txInfo in transferTxInfos)
+            {
+                var merklePath = crossChainManager.GetMerklePath(txInfo.Value.BlockNumber,
+                    txInfo.Value.TransactionId, out var root);
+
+                var crossChainCreateToken = new CrossChainReceiveTokenInput
+                {
+                    MerklePath = merklePath,
+                    FromChainId = mainChainId,
+                    ParentChainHeight = txInfo.Value.BlockNumber,
+                    TransferTransactionBytes = txInfo.Key.ToByteString()
+                };
+                crossChainReceiveTokenInputList.Add(crossChainCreateToken);
+            }
+
+            //check last transaction index 
+            last = transferTxInfos.Last();
+            crossChainManager.CheckSideChainBlockIndex(last.Value.BlockNumber);
+
+            //side chain receive 
+            foreach (var crossChainReceiveTokenInput in crossChainReceiveTokenInputList)
+            {
+                var result =
+                    sideToken.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, crossChainReceiveTokenInput);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            }
+
+            //transfer token to other accounts 
+            foreach (var main in MainContractList)
+            {
+                var contract = new ContractInfo(initAccount, SystemTokenAddress);
+                var symbol = main.Symbol;
+                contract.Symbol = symbol;
+                ContractList.Add(contract);
+            }
+
+            var transferAmount = 10_0000_0000_00000000L / AccountList.Count;
+            foreach (var contract in ContractList)
+            {
+                var account = contract.Owner;
+                var contractPath = contract.ContractAddress;
+                var symbol = contract.Symbol;
+                foreach (var user in AccountList)
+                {
+                    if (user.Account.Equals(initAccount)) continue;
+                    var transactionId = sideToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    {
+                        Amount = transferAmount,
+                        Memo = $"transfer balance - {Guid.NewGuid()}",
+                        Symbol = symbol,
+                        To = user.Account.ConvertAddress()
+                    });
+                    TxIdList.Add(transactionId);
+                }
+            }
+
+            Monitor.CheckTransactionsStatus(TxIdList);
+
+            //check user token randomly
+            foreach (var contract in ContractList)
+            {
+                var contractPath = contract.ContractAddress;
+                var symbol = contract.Symbol;
+                var token = new TokenContract(NodeManager, AccountList.First().Account, contractPath);
+                foreach (var user in AccountList)
+                {
+                    var rd = CommonHelper.GenerateRandomNumber(1, 6);
+                    if (rd != 5) continue;
+                    //verify token
+                    var balance = token.GetUserBalance(user.Account, symbol);
+                    if (balance == amount)
+                        Logger.Info($"Issue token {symbol} to '{user.Account}' with amount {transferAmount} success.");
                     else if (balance == 0)
                         Logger.Warn($"User '{user.Account}' without any {symbol} token.");
                     else
@@ -573,6 +822,9 @@ namespace AElf.Automation.RpcPerformance
         #region Public Property
 
         public INodeManager NodeManager { get; private set; }
+        public INodeManager MainNodeManager { get; private set; }
+        public CrossChainManager CrossChainManager { get; set; }
+
         public AElfClient ApiClient => NodeManager.ApiClient;
         private ExecutionSummary Summary { get; set; }
         private NodeStatusMonitor Monitor { get; set; }
@@ -581,6 +833,8 @@ namespace AElf.Automation.RpcPerformance
         private string SystemTokenAddress { get; set; }
         private List<AccountInfo> AccountList { get; }
         private string KeyStorePath { get; }
+        private List<ContractInfo> MainContractList { get; }
+
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }

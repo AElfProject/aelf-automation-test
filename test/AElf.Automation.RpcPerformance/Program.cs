@@ -59,11 +59,13 @@ namespace AElf.Automation.RpcPerformance
                     nodeSummary.ContinuousCheckTransactionPerformance(new CancellationToken());
                     return;
                 }
-
+                var chainId = nodeManager.GetChainId();
+                if (chainId.Equals("tDVV"))
+                    performance.CrossTransferToInitAccount();
                 performance.InitExecCommand(150 + GroupCount);
+                
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = nodeManager.IsMainChain();
-                var chainId = nodeManager.GetChainId();
                 if (authority)
                 {
                     if (isMainChain)
@@ -78,8 +80,11 @@ namespace AElf.Automation.RpcPerformance
                     performance.DeployContracts();
                 }
 
-                performance.InitializeContracts();
-
+                if (chainId.Equals("AELF"))
+                    performance.InitializeMainContracts();
+                else
+                    performance.InitializeSideChainToken();
+                
                 ExecuteTransactionPerformanceTask(performance, ExecuteMode);
             }
             catch (TimeoutException e)

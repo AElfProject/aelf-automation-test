@@ -196,14 +196,14 @@ namespace AElfChain.Common.Managers
         public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => Genesis.GetConsensusStub();
         public CrossChainContract CrossChain => Genesis.GetCrossChainContract();
         public CrossChainContractContainer.CrossChainContractStub CrossChainStub => Genesis.GetCrossChainStub();
-        public ParliamentAuthContract ParliamentAuth => Genesis.GetParliamentAuthContract();
+        public ParliamentContract Parliament => Genesis.GetParliamentContract();
 
         public ParliamentContractContainer.ParliamentContractStub ParliamentAuthStub =>
             Genesis.GetParliamentAuthStub();
 
-        public AssociationAuthContract Association => Genesis.GetAssociationAuthContract();
+        public AssociationContract Association => Genesis.GetAssociationAuthContract();
         public AssociationContractContainer.AssociationContractStub AssociationStub => Genesis.GetAssociationAuthStub();
-        public ReferendumAuthContract Referendum => Genesis.GetReferendumAuthContract();
+        public ReferendumContract Referendum => Genesis.GetReferendumAuthContract();
 
         public ReferendumContractContainer.ReferendumContractStub ReferendumStub =>
             Genesis.GetReferendumAuthStub();

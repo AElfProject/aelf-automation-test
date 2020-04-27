@@ -297,11 +297,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
 
         [TestMethod]
+        [Ignore]
         public async Task ChangeSymbolsToPayTxSizeFeeController()
         {
             var defaultController =
                 await ContractManager.TokenImplStub.GetSymbolsToPayTXSizeFeeController.CallAsync(new Empty());
-            defaultController.ContractAddress.ShouldBe(ContractManager.ParliamentAuth.Contract);
+            defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
 
             var newOrganization = CreateAssociationOrganization();
             var input = new AuthorityInfo
@@ -381,7 +382,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var defaultController =
                 await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());
             defaultController.RootController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
-            defaultController.ParliamentController.ContractAddress.ShouldBe(ContractManager.ParliamentAuth.Contract);
+            defaultController.ParliamentController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
 
             var newOrganization = CreateAssociationOrganization();
             var proposer = ContractManager.Association.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
@@ -411,9 +412,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
             var releaseRet =
-                ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+                ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
             var id = ProposalCreated.Parser
                 .ParseFrom(releaseRet.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
                     .NonIndexed).ProposalId;
@@ -548,7 +549,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
             parliamentProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentProposal.Output;
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
 
             var releaseResult = await ContractManager.ParliamentAuthStub.Release.SendAsync(parliamentProposalId);
             var id = ProposalCreated.Parser
@@ -573,8 +574,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
             var miners = ContractManager.Authority.GetCurrentMiners();
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         private async Task<Hash> ApproveToRootForDeveloperFeeByMiddleLayer(Hash input)
@@ -601,7 +602,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
             var newCreateProposalRet = await ContractManager.ParliamentAuthStub.Release.SendAsync(parliamentProposalId);
             var middleProposalId = ProposalCreated.Parser
                 .ParseFrom(newCreateProposalRet.TransactionResult.Logs
@@ -625,8 +626,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
 
             approveLeafProposalInput = new CreateProposalInput
             {
@@ -641,8 +642,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         private async Task ReleaseToRootForDeveloperFeeByTwoLayer(Hash input)
@@ -660,8 +661,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         #endregion
@@ -691,9 +692,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
             var releaseRet =
-                ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+                ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
             var id = ProposalCreated.Parser
                 .ParseFrom(releaseRet.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
                     .NonIndexed).ProposalId;
@@ -716,8 +717,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         private async Task VoteToReferendum(Hash input)
@@ -743,8 +744,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            var ret = ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            var ret = ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
             var id = ProposalCreated.Parser
                 .ParseFrom(ret.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
                     .NonIndexed).ProposalId;
@@ -764,8 +765,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         private async Task ReleaseToRootForUserFeeByTwoLayer(Hash input)
@@ -783,8 +784,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
 
-            ContractManager.ParliamentAuth.MinersApproveProposal(parliamentProposalId, Miners);
-            ContractManager.ParliamentAuth.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, Miners);
+            ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
         }
 
         private async Task InitializeReferendumAllowance()
@@ -799,7 +800,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
-        public Address CreateAssociationOrganization()
+        private Address CreateAssociationOrganization()
         {
             var miners = ContractManager.Authority.GetCurrentMiners();
             var association = ContractManager.Association;

@@ -44,20 +44,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         public INodeManager NodeManager { get; set; }
+        public AuthorityManager AuthorityManager { get; set; }
         public ContractManager ContractManager { get; set; }
         public InterestCalculate InterestInstance { get; set; }
 
         public List<string> Reviwers { get; set; }
 
         [TestMethod]
-        [DataRow("65ngL8Rp8mZQHCXqht9GH3xT4tk9CaU95hHaMNE1VmqR7dJ4W")]
-        public async Task ChangeOrganization_Test(string organizationAddress)
+        public async Task ChangeOrganization_Test()
         {
+            var newControllerAddress = AuthorityManager.CreateAssociationOrganization(Reviwers);
             //Query manager address
             var beforeController =
                 await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {beforeController}");
-            beforeController.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
+            beforeController.OwnerAddress.ShouldBe(ContractManager.Parliament.GetGenesisOwnerAddress());
 
             //Set manager address
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
@@ -66,7 +67,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 new AuthorityInfo
                 {
                     ContractAddress = ContractManager.Association.Contract,
-                    OwnerAddress = organizationAddress.ConvertAddress()
+                    OwnerAddress = newControllerAddress
                 },
                 ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -75,14 +76,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var afterController =
                 await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {afterController}");
-            afterController.OwnerAddress.ShouldBe(organizationAddress.ConvertAddress());
+            afterController.OwnerAddress.ShouldBe(newControllerAddress);
         }
 
         [TestMethod]
         [DataRow("65ngL8Rp8mZQHCXqht9GH3xT4tk9CaU95hHaMNE1VmqR7dJ4W")]
         public async Task RevertOrganization_Test(string organizationAddress)
         {
-            var defaultOrganization = ContractManager.ParliamentAuth.GetGenesisOwnerAddress();
+            var defaultOrganization = ContractManager.Parliament.GetGenesisOwnerAddress();
             //revert back
             var controller =
                 await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
@@ -106,7 +107,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var orgAddress =
                 await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"Manager address: {orgAddress}");
-            orgAddress.OwnerAddress.ShouldBe(ContractManager.ParliamentAuth.GetGenesisOwnerAddress());
+            orgAddress.OwnerAddress.ShouldBe(ContractManager.Parliament.GetGenesisOwnerAddress());
         }
 
         [TestMethod]
@@ -238,18 +239,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task CreateAssociationOrg_Test()
-        {
-            await CreateNewAssociationOrganization();
-        }
-
-        [TestMethod]
-        public async Task CreateParliamentOrg_Test()
-        {
-            await CreateNewParliamentOrganization();
-        }
-
-        [TestMethod]
         public async Task PrepareSomeTokenForTest()
         {
             var nodeAccounts = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
@@ -271,64 +260,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     txResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 }
             }
-        }
-
-        private async Task<Address> CreateNewAssociationOrganization()
-        {
-            var minimalApproveThreshold = 2;
-            var minimalVoteThreshold = 3;
-            var maximalAbstentionThreshold = 1;
-            var maximalRejectionThreshold = 1;
-            var createOrganizationInput = new CreateOrganizationInput
-            {
-                OrganizationMemberList = new OrganizationMemberList
-                {
-                    OrganizationMembers = {Reviwers.Select(o => o.ConvertAddress())}
-                },
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MinimalApprovalThreshold = minimalApproveThreshold,
-                    MinimalVoteThreshold = minimalVoteThreshold,
-                    MaximalAbstentionThreshold = maximalAbstentionThreshold,
-                    MaximalRejectionThreshold = maximalRejectionThreshold
-                },
-                ProposerWhiteList = new ProposerWhiteList
-                {
-                    Proposers = {Reviwers.Select(o => o.ConvertAddress())}
-                }
-            };
-            var transactionResult =
-                await ContractManager.AssociationStub.CreateOrganization.SendAsync(createOrganizationInput);
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var organization = transactionResult.Output;
-            Logger.Info($"Organization address: {organization.GetFormatted()}");
-
-            return organization;
-        }
-
-        private async Task<Address> CreateNewParliamentOrganization()
-        {
-            var minimalApprovalThreshold = 7500;
-            var maximalAbstentionThreshold = 2500;
-            var maximalRejectionThreshold = 2500;
-            var minimalVoteThreshold = 7500;
-
-            var createOrganizationInput = new AElf.Contracts.Parliament.CreateOrganizationInput
-            {
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MinimalApprovalThreshold = minimalApprovalThreshold,
-                    MaximalAbstentionThreshold = maximalAbstentionThreshold,
-                    MaximalRejectionThreshold = maximalRejectionThreshold,
-                    MinimalVoteThreshold = minimalVoteThreshold
-                }
-            };
-            var transactionResult =
-                await ContractManager.ParliamentAuthStub.CreateOrganization.SendAsync(createOrganizationInput);
-            var organizationAddress = transactionResult.Output;
-            Logger.Info($"ParliamentAuth address: {organizationAddress}");
-
-            return organizationAddress;
         }
     }
 

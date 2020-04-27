@@ -20,7 +20,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public void ParliamentCreateTest()
         {
-            var parliament = ContractManager.ParliamentAuth;
+            var parliament = ContractManager.Parliament;
             //create parliament organization
             var createInput = new CreateOrganizationInput
             {
@@ -147,7 +147,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public void ParliamentChangeWhiteList_False()
         {
-            var parliament = ContractManager.ParliamentAuth;
+            var parliament = ContractManager.Parliament;
             var miners = ContractManager.Authority.GetCurrentMiners();
             //create parliament organization
             var createInput = new CreateOrganizationInput
@@ -199,7 +199,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public void ParliamentChangeWhiteList()
         {
-            var parliament = ContractManager.ParliamentAuth;
+            var parliament = ContractManager.Parliament;
             var defaultAddress = parliament.GetGenesisOwnerAddress();
             var existResult =
                 parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
@@ -227,7 +227,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public void ParliamentChangeReleaseThreshold()
         {
-            var parliament = ContractManager.ParliamentAuth;
+            var parliament = ContractManager.Parliament;
             var defaultAddress = parliament.GetGenesisOwnerAddress();
             var existResult =
                 parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);

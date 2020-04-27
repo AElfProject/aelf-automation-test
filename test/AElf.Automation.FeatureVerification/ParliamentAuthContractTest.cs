@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ParliamentAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public ParliamentAuthContract Parliament;
+        public ParliamentContract Parliament;
         public string Symbol;
         public TokenContract Token;
         public INodeManager NodeManager { get; set; }
@@ -49,7 +49,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeManager = new NodeManager(RpcUrl);
             ApiClient = NodeManager.ApiClient;
             var contractServices = new ContractManager(NodeManager, InitAccount);
-            Parliament = contractServices.ParliamentAuth;
+            Parliament = contractServices.Parliament;
             Token = contractServices.Token;
             Symbol = contractServices.Token.GetPrimaryTokenSymbol();
             Miners = contractServices.Authority.GetCurrentMiners();

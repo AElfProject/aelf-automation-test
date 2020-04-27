@@ -224,9 +224,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const string method = nameof(TokenMethod.GetBalance);
             var referendum = ContractManager.Referendum;
             var authorityManager = new AuthorityManager(NodeManager);
-            var defaultController = await ContractManager.TokenImplStub.GetMethodFeeController.CallAsync(new Empty());
-            defaultController.ContractAddress.ShouldBe(ContractManager.ParliamentAuth.Contract);
-            
+            var defaultController = await ContractManager.ParliamentAuthStub.GetMethodFeeController.CallAsync(new Empty());
+            defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
             var newOrganization = ReferendumOrganization;
             var proposer = referendum.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
             ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
@@ -253,11 +252,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     }
                 }
             };
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000_00000000, "ELF");
             var changeProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.SetMethodFee), changeInput,
                 newOrganization, proposer.GetFormatted());
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
-                2000_00000000, "ELF");
             referendum.SetAccount(proposer.GetFormatted());
             var changeApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, changeProposalId);
             changeApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -275,17 +274,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Symbol = "NET",
                 BasicFee = 10000000
             }).ShouldBeTrue();
-            
-            //recover
+//            recover
             var recoverInput = new AuthorityInfo
             {
                 ContractAddress = defaultController.ContractAddress,
                 OwnerAddress = defaultController.OwnerAddress
             };
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000_00000000, "ELF");
             var recoverProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), recoverInput,
                 newOrganization, proposer.GetFormatted());
-
             referendum.SetAccount(proposer.GetFormatted());
             var recoverApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, recoverProposalId);
             recoverApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -361,15 +360,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 tokenInfo.IsProfitable.ShouldBeTrue();
                 tokenInfo.IssueChainId.ShouldBe(ChainHelper.ConvertBase58ToChainId(chainId));
             }
-        }
-
-        [TestMethod]
-        public async Task SetProfitReceivingInformation_Test()
-        {
-            var address = ContractManager.Profit.Contract;
-            var result =
-                await ContractManager.TokenImplStub.GetProfitReceivingInformation.CallAsync(address);
-            result.ShouldBe(new ProfitReceivingInformation());
         }
     }
 }

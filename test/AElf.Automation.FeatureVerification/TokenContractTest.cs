@@ -10,6 +10,7 @@ using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -18,11 +19,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class TokenContractTest
     {
         private readonly List<string> ResourceSymbol = new List<string>
-            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC","ELF"};
 
         private TokenContractContainer.TokenContractStub _bpTokenSub;
         private GenesisContract _genesisContract;
-        private ParliamentAuthContract _parliamentAuthContract;
+        private ParliamentContract _parliamentContract;
         private TokenConverterContractContainer.TokenConverterContractStub _testTokenConverterSub;
         private TokenContractContainer.TokenContractStub _testTokenSub;
 
@@ -55,7 +56,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
-            _parliamentAuthContract = _genesisContract.GetParliamentAuthContract(InitAccount);
+            _parliamentContract = _genesisContract.GetParliamentContract(InitAccount);
             _tokenConverterContract = _genesisContract.GetTokenConverterContract(InitAccount);
 
             _tokenSub = _genesisContract.GetTokenStub(InitAccount);
@@ -124,7 +125,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var otherTokenBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(TestAccount),
-                Symbol = "EPC"
+                Symbol = Symbol
             });
 
             Logger.Info($"user ELF balance is {balance} user EPC balance is {otherTokenBalance}");
@@ -132,7 +133,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = await _testTokenConverterSub.Buy.SendAsync(new BuyInput
             {
                 Amount = 1_00000000,
-                Symbol = "EPC"
+                Symbol = Symbol
             });
             var size = result.Transaction.CalculateSize();
             Logger.Info($"transfer size is: {size}");
@@ -146,7 +147,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var afterOtherTokenBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
                 Owner = AddressHelper.Base58StringToAddress(TestAccount),
-                Symbol = "EPC"
+                Symbol = Symbol
             });
 
             Logger.Info(
@@ -165,12 +166,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ResourceConnectorSymbol = Symbol,
                 NativeVirtualBalance = 100_0000_00000000
             };
-            var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
-            var proposal = _parliamentAuthContract.CreateProposal(_tokenConverterContract.ContractAddress,
+            var organization = _parliamentContract.GetGenesisOwnerAddress();
+            var proposal = _parliamentContract.CreateProposal(_tokenConverterContract.ContractAddress,
                 nameof(TokenConverterMethod.AddPairConnector), input, organization, BpAccount);
             var miners = AuthorityManager.GetCurrentMiners();
-            _parliamentAuthContract.MinersApproveProposal(proposal, miners);
-            var result = _parliamentAuthContract.ReleaseProposal(proposal, BpAccount);
+            _parliamentContract.MinersApproveProposal(proposal, miners);
+            var result = _parliamentContract.ReleaseProposal(proposal, BpAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var ELFamout = await GetNeededDeposit(amount);
@@ -215,12 +216,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 VirtualBalance = 100_0000_00000000
             };
 
-            var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
-            var proposal = _parliamentAuthContract.CreateProposal(_tokenConverterContract.ContractAddress,
+            var organization = _parliamentContract.GetGenesisOwnerAddress();
+            var proposal = _parliamentContract.CreateProposal(_tokenConverterContract.ContractAddress,
                 nameof(TokenConverterMethod.UpdateConnector), input, organization, BpAccount);
             var miners = AuthorityManager.GetCurrentMiners();
-            _parliamentAuthContract.MinersApproveProposal(proposal, miners);
-            var result = _parliamentAuthContract.ReleaseProposal(proposal, BpAccount);
+            _parliamentContract.MinersApproveProposal(proposal, miners);
+            var result = _parliamentContract.ReleaseProposal(proposal, BpAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
@@ -281,7 +282,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var manager = await _tokenConverterSub.GetControllerForManageConnector.CallAsync(new Empty());
             Logger.Info($"manager is {manager.OwnerAddress}");
-            var organization = _parliamentAuthContract.GetGenesisOwnerAddress();
+            var organization = _parliamentContract.GetGenesisOwnerAddress();
             Logger.Info($"organization is {organization}");
         }
 
@@ -293,6 +294,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        [DataRow("2WHXRoLRjbUTDQsuqR5CntygVfnDb125qdJkudev4kVNbLhTdG")]
         public async Task Acs8ContractTest(string acs8Contract)
         {
             foreach (var s in ResourceSymbol)

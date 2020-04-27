@@ -20,7 +20,7 @@ namespace AElf.Automation.ProposalTest
         {
             Initialize();
             GetMiners();
-            Parliament = Services.ParliamentAuth;
+            Parliament = Services.Parliament;
             Parliament.SetAccount(Miners.First());
             Token = Services.Token;
         }
@@ -28,7 +28,7 @@ namespace AElf.Automation.ProposalTest
         private List<Address> OrganizationList { get; set; }
         private Dictionary<Address, List<Hash>> ProposalList { get; set; }
         private Dictionary<Address, long> BalanceInfo { get; set; }
-        private ParliamentAuthContract Parliament { get; }
+        private ParliamentContract Parliament { get; }
         private TokenContract Token { get; }
 
         public void ParliamentJob()
@@ -110,7 +110,7 @@ namespace AElf.Automation.ProposalTest
             }
 
             foreach (var organization in OrganizationList)
-                Logger.Info($"ParliamentAuth Organization : {organization}");
+                Logger.Info($"Parliament Organization : {organization}");
         }
 
         private void CreateProposal()
@@ -279,7 +279,7 @@ namespace AElf.Automation.ProposalTest
 
         private void CheckTheBalance()
         {
-            Logger.Info("After ParliamentAuth test, check the balance of organization address:");
+            Logger.Info("After Parliament test, check the balance of organization address:");
             foreach (var balanceInfo in BalanceInfo)
             {
                 var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
@@ -287,7 +287,7 @@ namespace AElf.Automation.ProposalTest
                 Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
 
-            Logger.Info("After ParliamentAuth test, check the balance of tester:");
+            Logger.Info("After Parliament test, check the balance of tester:");
             foreach (var tester in Tester)
             {
                 var balance = Token.GetUserBalance(tester, TokenSymbol);

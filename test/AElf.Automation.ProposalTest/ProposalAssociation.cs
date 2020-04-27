@@ -27,7 +27,7 @@ namespace AElf.Automation.ProposalTest
         private Dictionary<KeyValuePair<Address, Organization>, List<Hash>> ProposalList { get; set; }
         private List<OrganizationMemberList> OrganizationMemberInfos { get; set; }
         private Dictionary<Address, long> BalanceInfo { get; set; }
-        private AssociationAuthContract Association { get; }
+        private AssociationContract Association { get; }
         private TokenContract Token { get; }
 
         public void AssociationJob()
@@ -337,6 +337,7 @@ namespace AElf.Automation.ProposalTest
                     var account = AddressHelper.Base58StringToAddress(AssociationTester[randomNo]);
                     if (reviewers.Contains(account))
                         continue;
+                    Services.NodeManager.UnlockAccount(account.GetFormatted());
                     reviewers.Add(account);
                 }
 

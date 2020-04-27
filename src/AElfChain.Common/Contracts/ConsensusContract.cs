@@ -11,6 +11,7 @@ namespace AElfChain.Common.Contracts
     {
         GetRoundInformation,
         GetCurrentTermNumber,
+        SetMaximumMinersCount,
         IsCandidate,
         GetVotesCount,
         GetTicketsCount,

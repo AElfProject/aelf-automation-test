@@ -31,7 +31,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void CreateSideThroughOrganization()
         {
-            var associationOrganization = CreateAssociationOrganization(MainServices);
+            var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
             MainServices.TokenService.TransferBalance(InitAccount, OtherAccount, 5000_00000000, "ELF");
             MainServices.TokenService.TransferBalance(InitAccount, associationOrganization.GetFormatted(), 500000000,
                 "ELF");
@@ -97,7 +97,7 @@ namespace AElf.Automation.SideChainTests
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
             creator.ShouldBe(associationOrganization);
-            _logger.Info($"chainId : {chainId}");
+            Logger.Info($"chainId : {chainId}");
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace AElf.Automation.SideChainTests
                 IsProfitable = true
             };
             var proposal = RequestSideChainCreation(MainServices, OtherAccount, "123", 1, 1000000, true, tokenInfo);
-            _logger.Info($"proposal id is: {proposal}");
+            Logger.Info($"proposal id is: {proposal}");
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace AElf.Automation.SideChainTests
                 .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(OrganizationCreated)))
                     .NonIndexed)).OrganizationAddress;
             creator.ShouldBe(OtherAccount.ConvertAddress());
-            _logger.Info($"SideChain id is {chainId}, controller address is {organization}");
+            Logger.Info($"SideChain id is {chainId}, controller address is {organization}");
         }
 
         [TestMethod]
@@ -209,7 +209,7 @@ namespace AElf.Automation.SideChainTests
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
 
-            _logger.Info($"Side chain id is {chainId}, creator is {creator}");
+            Logger.Info($"Side chain id is {chainId}, creator is {creator}");
         }
 
         [TestMethod]
@@ -238,7 +238,7 @@ namespace AElf.Automation.SideChainTests
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
 
-            _logger.Info($"Side chain id is {chainId}, creator is {creator}");
+            Logger.Info($"Side chain id is {chainId}, creator is {creator}");
         }
 
         [TestMethod]
@@ -249,7 +249,7 @@ namespace AElf.Automation.SideChainTests
             var proposalId =
                 HashHelper.HexStringToHash("006844e445373e45cd196cffc696744eba46f6ea2741826b3817558771578cd2");
             var result = MainServices.AssociationService.CheckProposal(proposalId);
-            _logger.Info(
+            Logger.Info(
                 $"proposal message is {result.ToBeReleased} {result.ApprovalCount}");
         }
 
@@ -258,7 +258,7 @@ namespace AElf.Automation.SideChainTests
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var sideChainInfo = MainServices.CrossChainService.GetChainInitializationData(chainId);
-            _logger.Info($"{sideChainInfo.Creator},{sideChainInfo.ChainCreatorPrivilegePreserved}");
+            Logger.Info($"{sideChainInfo.Creator},{sideChainInfo.ChainCreatorPrivilegePreserved}");
         }
 
         [TestMethod]
@@ -268,7 +268,17 @@ namespace AElf.Automation.SideChainTests
         {
             var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
             var status = MainServices.CrossChainService.GetChainStatus(intChainId).Status;
-            _logger.Info($"side chain is {status}");
+            Logger.Info($"side chain is {status}");
+        }
+        
+        [TestMethod]
+        [DataRow("tDVW")]
+        [DataRow("tDVV")]
+        public void CheckSideChainBalance(string chainId)
+        {
+            var intChainId = ChainHelper.ConvertBase58ToChainId(chainId);
+            var balance  = MainServices.CrossChainService.GetSideChainBalance(intChainId);
+            Logger.Info($"side chain is {balance}");
         }
 
         [TestMethod]
@@ -284,7 +294,7 @@ namespace AElf.Automation.SideChainTests
             });
             approve.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var status = Recharge(MainServices, InitAccount, intChainId, 200000);
-            _logger.Info($" Transaction is {status.Status}");
+            Logger.Info($" Transaction is {status.Status}");
         }
 
         [TestMethod]
@@ -313,13 +323,24 @@ namespace AElf.Automation.SideChainTests
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVX");
             var input = new Int32Value {Value = chainId};
             var organization = MainServices.CrossChainService.GetSideChainLifetimeController();
-            var createProposal = MainServices.AssociationService.CreateProposal(
-                MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.DisposeSideChain),
-                input, organization.OwnerAddress, OtherAccount);
-            MainServices.AssociationService.ApproveWithAssociation(createProposal, organization.OwnerAddress);
-            MainServices.AssociationService.ReleaseProposal(createProposal, OtherAccount);
+            if (organization.ContractAddress.Equals(MainServices.ParliamentService.Contract))
+            {
+                var result = AuthorityManager.ExecuteTransactionWithAuthority(
+                    MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.DisposeSideChain),
+                    input, InitAccount, organization.OwnerAddress);
+                result.Status.ShouldBe(TransactionResultStatus.Mined);
+            }else if (organization.ContractAddress.Equals(MainServices.AssociationService.Contract))
+            {
+                var createProposal = MainServices.AssociationService.CreateProposal(
+                    MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.DisposeSideChain),
+                    input, organization.OwnerAddress, InitAccount);
+                MainServices.AssociationService.ApproveWithAssociation(createProposal, organization.OwnerAddress);
+                MainServices.AssociationService.ReleaseProposal(createProposal, InitAccount);
+            }
+            
             var chainStatue = MainServices.CrossChainService.GetChainStatus(chainId).Status;
             chainStatue.ShouldBe(SideChainStatus.Terminated);
+            CheckBalance(InitAccount);
         }
 
         [TestMethod]
@@ -328,10 +349,10 @@ namespace AElf.Automation.SideChainTests
         {
             var balance = GetBalance(MainServices, MainServices.CrossChainService.ContractAddress,
                 NodeOption.NativeTokenSymbol);
-            _logger.Info($"side chain balance is {balance}");
+            Logger.Info($"side chain balance is {balance}");
 
             var userBalance = GetBalance(MainServices, account, NodeOption.NativeTokenSymbol);
-            _logger.Info($"user balance is {userBalance}");
+            Logger.Info($"user balance is {userBalance}");
         }
 
         [TestMethod]
@@ -353,7 +374,7 @@ namespace AElf.Automation.SideChainTests
 //                    MainServices.AssociationService.GetOrganization(createSideChainIndexingFeeController);
 //                associationInfo.OrganizationAddress.Equals(association).ShouldBeTrue();
 //            }
-
+            var controllerInfo = MainServices.AssociationService.GetOrganization(association);
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {
                 IndexingFee = (int) (checkPrice + 1),
@@ -365,26 +386,27 @@ namespace AElf.Automation.SideChainTests
                 InitAccount);
             MainServices.AssociationService.SetAccount(InitAccount);
             MainServices.AssociationService.ApproveProposal(proposalId, InitAccount);
-            var getLifeTimeInfo = MainServices.CrossChainService.GetSideChainLifetimeController();
-            var lifeTimeController = getLifeTimeInfo.OwnerAddress;
-            var lifeTimeControllerContract = getLifeTimeInfo.ContractAddress;
-            if (lifeTimeControllerContract.Equals(MainServices.ParliamentService.ContractAddress.ConvertAddress()))
+            var getIndexControllerInfo = MainServices.CrossChainService.GetCrossChainIndexingController();
+            var indexController = getIndexControllerInfo.OwnerAddress;
+            var indexControllerContract = getIndexControllerInfo.ContractAddress;
+            controllerInfo.ProposerWhiteList.Proposers.Contains(indexController).ShouldBeTrue();
+            if (indexControllerContract.Equals(MainServices.ParliamentService.ContractAddress.ConvertAddress()))
             {
                 var approveProposalId = MainServices.ParliamentService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
-                    lifeTimeController, InitAccount);
+                    indexController, InitAccount);
                 foreach (var miner in Miners) MainServices.ParliamentService.ApproveProposal(approveProposalId, miner);
 
                 MainServices.ParliamentService.ReleaseProposal(approveProposalId, InitAccount);
             }
             else
             {
-                var proposer = MainServices.AssociationService.GetOrganization(lifeTimeController).ProposerWhiteList
+                var proposer = MainServices.AssociationService.GetOrganization(indexController).ProposerWhiteList
                     .Proposers.First();
                 var approveProposalId = MainServices.AssociationService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
-                    lifeTimeController, proposer.GetFormatted());
-                ApproveWithAssociation(MainServices, approveProposalId, lifeTimeController);
+                    indexController, proposer.GetFormatted());
+                ApproveWithAssociation(MainServices, approveProposalId, indexController);
                 MainServices.AssociationService.ReleaseProposal(approveProposalId, proposer.GetFormatted());
             }
 
@@ -399,12 +421,12 @@ namespace AElf.Automation.SideChainTests
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var lifeController = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
-            _logger.Info($"life controller is {lifeController}");
+            Logger.Info($"life controller is {lifeController}");
             var controllerInfo = MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId);
             var info = MainServices.AssociationService.GetOrganization(controllerInfo.OwnerAddress);
-            _logger.Info(
+            Logger.Info(
                 $"proposer are : {info.ProposerWhiteList.Proposers}, members are {info.OrganizationMemberList.OrganizationMembers}");
-            _logger.Info($"indexing fee controller is {controllerInfo.OwnerAddress}");
+            Logger.Info($"indexing fee controller is {controllerInfo.OwnerAddress}");
 
             var checkPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
@@ -445,7 +467,7 @@ namespace AElf.Automation.SideChainTests
             MainServices.AssociationService.ReleaseProposal(createProposalToApproveByCreator, OtherAccount);
 
             var proposalStatue = MainServices.AssociationService.CheckProposal(proposalId).ToBeReleased;
-            _logger.Info($"Adjust indexing fee proposal statue is {proposalStatue}");
+            Logger.Info($"Adjust indexing fee proposal statue is {proposalStatue}");
 
             // create proposal to release
             var createProposalToRelease = MainServices.AssociationService.CreateProposal(
@@ -462,39 +484,45 @@ namespace AElf.Automation.SideChainTests
         public void ChangeSideChainIndexingFeeController()
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVW");
-            var associationOrganization = CreateAssociationOrganization(MainServices);
-            var input = new AuthorityInfo
+            var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
+            var input = new ChangeSideChainIndexingFeeControllerInput
             {
-                ContractAddress = MainServices.AssociationService.Contract,
-                OwnerAddress = associationOrganization
+                AuthorityInfo = new AuthorityInfo
+                {
+                    ContractAddress = MainServices.AssociationService.Contract,
+                    OwnerAddress = associationOrganization
+                },
+                ChainId = chainId
             };
             var controllerOrganization =
-                MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;
+                MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId);
 
             var createProposal = MainServices.AssociationService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress,
-                nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController), input, controllerOrganization,
+                nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController), input,
+                controllerOrganization.OwnerAddress,
                 InitAccount);
             MainServices.AssociationService.SetAccount(InitAccount);
             MainServices.AssociationService.ApproveProposal(createProposal, InitAccount);
 
-            var getLifeTimeInfo = MainServices.CrossChainService.GetSideChainLifetimeController();
-            var lifeTimeController = getLifeTimeInfo.OwnerAddress;
-            var lifeTimeControllerContract = getLifeTimeInfo.ContractAddress;
-            if (lifeTimeControllerContract.Equals(MainServices.ParliamentService.ContractAddress.ConvertAddress()))
+            var getIndexControllerInfo = MainServices.CrossChainService.GetCrossChainIndexingController();
+            var indexController = getIndexControllerInfo.OwnerAddress;
+            var indexControllerContract = getIndexControllerInfo.ContractAddress;
+            if (indexControllerContract.Equals(MainServices.ParliamentService.ContractAddress.ConvertAddress()))
             {
                 var approveProposalId = MainServices.ParliamentService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), createProposal,
-                    lifeTimeController, InitAccount);
+                    indexController, InitAccount);
                 foreach (var miner in Miners) MainServices.ParliamentService.ApproveProposal(approveProposalId, miner);
 
                 MainServices.ParliamentService.ReleaseProposal(approveProposalId, InitAccount);
             }
 
             MainServices.AssociationService.ReleaseProposal(createProposal, InitAccount);
-            controllerOrganization =
+
+            var updateControllerOrganization =
                 MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;
-            controllerOrganization.ShouldBe(associationOrganization);
+            updateControllerOrganization.ShouldBe(associationOrganization);
 
             //change index fee
             var proposer = MainServices.AssociationService.GetOrganization(associationOrganization).ProposerWhiteList
@@ -512,7 +540,78 @@ namespace AElf.Automation.SideChainTests
             MainServices.AssociationService.ApproveWithAssociation(changeProposal, associationOrganization);
             var changeRelease =
                 MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.GetFormatted());
+            changeRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var afterPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
+            afterPrice.ShouldBe(checkPrice + 1);
 
+            //recover
+            var recoverInput = new AuthorityInfo
+            {
+                ContractAddress = controllerOrganization.ContractAddress,
+                OwnerAddress = controllerOrganization.OwnerAddress
+            };
+
+            var recoverProposal = MainServices.AssociationService.CreateProposal(
+                MainServices.CrossChainService.ContractAddress,
+                nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController),
+                recoverInput, associationOrganization, proposer.GetFormatted());
+            MainServices.AssociationService.ApproveWithAssociation(recoverProposal, associationOrganization);
+            var recoverRelease =
+                MainServices.AssociationService.ReleaseProposal(recoverProposal, proposer.GetFormatted());
+            recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var recoverController =
+                MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;
+            recoverController.ShouldBe(controllerOrganization.OwnerAddress);
+        }
+        
+        [TestMethod]
+        public void ChangeSideChainIndexingControllerToParliament()
+        {
+            var chainId = ChainHelper.ConvertBase58ToChainId("tDVW");
+            var getIndexControllerInfo = MainServices.CrossChainService.GetCrossChainIndexingController();
+            var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
+            var proposer = MainServices.AssociationService.GetOrganization(associationOrganization).ProposerWhiteList
+                .Proposers.First();
+            
+            var input = new ChangeSideChainIndexingFeeControllerInput
+            {
+                AuthorityInfo = new AuthorityInfo
+                {
+                    ContractAddress = getIndexControllerInfo.ContractAddress,
+                    OwnerAddress = getIndexControllerInfo.OwnerAddress
+                },
+                ChainId = chainId
+            };
+            var controllerOrganization =
+                MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId);
+            
+            var changeProposal = MainServices.AssociationService.CreateProposal(
+                MainServices.CrossChainService.ContractAddress,
+                nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController),
+                input, associationOrganization, proposer.GetFormatted());
+            MainServices.AssociationService.ApproveWithAssociation(changeProposal, associationOrganization);
+            var changeRelease =
+                MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.GetFormatted());
+            changeRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var updateController =
+                MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;
+            updateController.ShouldBe(getIndexControllerInfo.OwnerAddress);
+            
+            //change index fee
+            var checkPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
+            var adjustIndexingFeeInput = new AdjustIndexingFeeInput
+            {
+                IndexingFee = (int) (checkPrice + 1),
+                SideChainId = chainId
+            };
+
+            var changeFeeProposal = MainServices.ParliamentService.CreateProposal(
+                MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.AdjustIndexingFeePrice),
+                adjustIndexingFeeInput, getIndexControllerInfo.OwnerAddress, Miners.First());
+            MainServices.ParliamentService.MinersApproveProposal(changeFeeProposal,Miners);
+            var changeFeeRelease =
+                MainServices.ParliamentService.ReleaseProposal(changeFeeProposal, Miners.First());
+            changeFeeRelease.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
             afterPrice.ShouldBe(checkPrice + 1);
         }
@@ -520,10 +619,10 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void ChangeLifeController()
         {
-            var associationOrganization = CreateAssociationOrganization(MainServices);
+            var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(MainServices.AssociationService.ContractAddress),
+                ContractAddress = MainServices.AssociationService.Contract,
                 OwnerAddress = associationOrganization
             };
             var controllerOrganization = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
@@ -542,10 +641,10 @@ namespace AElf.Automation.SideChainTests
         public void ChangeLifeControllerWithOtherController()
         {
             TransferToken(MainServices, InitAccount, OtherAccount, 10000_00000000, "ELF");
-            var associationOrganization = CreateAssociationOrganization(MainServices);
+            var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(MainServices.AssociationService.ContractAddress),
+                ContractAddress = MainServices.AssociationService.Contract,
                 OwnerAddress = associationOrganization
             };
             var controllerOrganization = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
@@ -560,10 +659,10 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void ChangeIndexingController()
         {
-            var parliamentOrganization = CreateParliamentOrganization(MainServices);
+            var parliamentOrganization = AuthorityManager.CreateNewParliamentOrganization();
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(MainServices.ParliamentService.ContractAddress),
+                ContractAddress = MainServices.ParliamentService.Contract,
                 OwnerAddress = parliamentOrganization
             };
             var defaultOrganization = MainServices.CrossChainService.GetCrossChainIndexingController().OwnerAddress;

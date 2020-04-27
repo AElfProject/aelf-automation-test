@@ -130,13 +130,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var defaultOrganization =
                 (await MainManager.CrossChainStub.GetSideChainLifetimeController.CallAsync(new Empty()))
                 .OwnerAddress;
-            var approveProposalId = MainManager.ParliamentAuth.CreateProposal(
+            var approveProposalId = MainManager.Parliament.CreateProposal(
                 MainManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = MainManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners) MainManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
+            foreach (var miner in currentMiners) MainManager.Parliament.ApproveProposal(approveProposalId, miner);
 
-            MainManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
+            MainManager.Parliament.ReleaseProposal(approveProposalId, proposer);
             MainManager.Association.ReleaseProposal(proposalId, proposer);
 
             var afterCheckPrice = MainManager.CrossChain.GetSideChainIndexingFeePrice(chainId);

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
@@ -11,10 +12,12 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -36,11 +39,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             MainManager = new ContractManager(MainNode, bpNode.Account);
             SideManager = new ContractManager(SideNode, bpNode.Account);
+            AuthoritySideManager = new AuthorityManager(SideNode);
         }
 
         public INodeManager MainNode { get; set; }
         public INodeManager SideNode { get; set; }
-
+        public AuthorityManager AuthoritySideManager { get; set; }
         public ContractManager MainManager { get; set; }
         public ContractManager SideManager { get; set; }
 
@@ -49,53 +53,62 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void UpdateRentalTest()
         {
-            var authority = new AuthorityManager(SideNode);
-            var token = Genesis.GetTokenContract();
-            var organization = authority.GetGenesisOwnerAddress();
-            var bps = authority.GetCurrentMiners();
-            authority.ExecuteTransactionWithAuthority(token.ContractAddress, nameof(TokenMethod.UpdateRental),
-                new UpdateRentalInput
-                {
-                    Rental =
+            var input = new UpdateRentalInput
+            {
+                Rental =
                     {
                         {"CPU", 1000},
                         {"RAM", 500},
                         {"DISK", 4},
                         {"NET", 2}
                     }
-                }, organization, bps, bps.First());
+            };
+           ProposalThroughController(input,nameof(TokenMethod.UpdateRental));
         }
 
         [TestMethod]
-        public async Task NewOrg_UpdateRentalTest()
+        public async Task Change_UpdateRentalTest()
         {
             var proposer = SideManager.CallAddress;
-            var defaultOrganization = SideManager.ParliamentAuth.GetGenesisOwnerAddress();
-            var association = await CreateNewAssociationOrganization(defaultOrganization, SideManager.CallAccount);
+            var stub = Genesis.GetTokenImplStub();
+            var token = Genesis.GetTokenContract();
+            var defaultOrganization = await stub.GetSideChainRentalControllerCreateInfo.CallAsync(new Empty());
+            var newController = SideManager.Parliament.GetGenesisOwnerAddress();
+            var input = new AuthorityInfo
+            {
+                OwnerAddress = newController,
+                ContractAddress = SideManager.Parliament.Contract
+            };
+            ProposalThroughController(input,nameof(TokenContractImplContainer.TokenContractImplStub.ChangeSideChainRentalController));
+            
+            // use changed organization send update transaction
             var updateRentalInput = new UpdateRentalInput
             {
                 Rental =
                 {
-                    {"CPU", 1000},
-                    {"RAM", 500},
-                    {"DISK", 4},
-                    {"NET", 2}
+                    {"CPU", 2000},
+                    {"RAM", 200},
+                    {"DISK", 8},
+                    {"NET", 4}
                 }
             };
-            var proposalId = SideManager.Association.CreateProposal(
-                SideManager.Token.ContractAddress,
-                nameof(TokenMethod.UpdateRental), updateRentalInput, association,
-                proposer);
-            SideManager.Association.SetAccount(proposer);
-            SideManager.Association.ApproveProposal(proposalId, proposer);
-            var approveProposalId = SideManager.ParliamentAuth.CreateProposal(
-                SideManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
-                defaultOrganization, proposer);
-            var currentMiners = SideManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners) SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
-
-            SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
-            SideManager.Association.ReleaseProposal(proposalId, proposer);
+            var update = AuthoritySideManager.ExecuteTransactionWithAuthority(token.ContractAddress,
+                nameof(TokenMethod.UpdateRental), updateRentalInput, proposer, newController);
+            update.Status.ShouldBe(TransactionResultStatus.Mined);
+            var unitValueInfo = await stub.GetOwningRentalUnitValue.CallAsync(new Empty());
+            unitValueInfo.ResourceUnitValue["CPU"].Equals(2000).ShouldBeTrue();
+            
+            //recover
+            var recoverInput = new AuthorityInfo
+            {
+                OwnerAddress = defaultOrganization.OwnerAddress,
+                ContractAddress = defaultOrganization.ContractAddress
+            };
+            var recover = AuthoritySideManager.ExecuteTransactionWithAuthority(token.ContractAddress,
+                nameof(TokenContractImplContainer.TokenContractImplStub.ChangeSideChainRentalController), recoverInput, proposer, newController);
+            update.Status.ShouldBe(TransactionResultStatus.Mined);
+            var recoverOrganization = await stub.GetSideChainRentalControllerCreateInfo.CallAsync(new Empty());
+            recoverOrganization.ShouldBe(defaultOrganization);
         }
 
         [TestMethod]
@@ -109,22 +122,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task UpdateRentedResources()
         {
-            var token = Genesis.GetTokenImplStub();
-            var transactionResult = await token.UpdateRentedResources.SendAsync(new UpdateRentedResourcesInput
+            var input = new UpdateRentedResourcesInput
             {
                 ResourceAmount =
                 {
+                    {"NET",2048},
                     {"CPU", 2},
                     {"RAM", 4},
                     {"DISK", 512}
                 }
-            });
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-            var resourceUsage = await token.GetResourceUsage.CallAsync(new Empty());
-            resourceUsage.Value["CPU"].ShouldBe(2);
-            resourceUsage.Value["RAM"].ShouldBe(4);
-            resourceUsage.Value["DISK"].ShouldBe(512);
+            };
+            ProposalThroughController(input,nameof(TokenMethod.UpdateRentedResourceToken));
         }
 
         [TestMethod]
@@ -216,6 +224,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"Organization address: {organization.GetFormatted()}");
 
             return organization;
+        }
+
+        private void ProposalThroughController(IMessage input,string method) 
+        {
+            var token = Genesis.GetTokenContract();
+            var association = Genesis.GetAssociationAuthContract();
+            var stub = Genesis.GetTokenImplStub();
+            var controller =
+                AsyncHelper.RunSync(() => stub.GetSideChainRentalControllerCreateInfo.CallAsync(new Empty()));
+            var organization = controller.OwnerAddress;
+            var controllerInfo = association.GetOrganization(organization);
+            var proposer = SideManager.CallAccount;
+            controllerInfo.ProposerWhiteList.Proposers.Contains(proposer).ShouldBeTrue();
+            
+            //create proposal 
+            var createProposal = association.CreateProposal(token.ContractAddress, method,
+                input, organization, proposer.GetFormatted());
+            association.Approve(createProposal, proposer.GetFormatted());
+            
+            //create parliament approve proposal
+            var parliament = controllerInfo.ProposerWhiteList.Proposers.Where(p => !p.Equals(proposer)).ToList();
+            var approveProposal = AuthoritySideManager.ExecuteTransactionWithAuthority(association.ContractAddress,
+                nameof(AssociationMethod.Approve), createProposal, proposer.GetFormatted(), parliament.First());
+            approveProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //check proposal
+            var proposalInfo = association.CheckProposal(createProposal);
+            proposalInfo.ToBeReleased.ShouldBeTrue();
+            
+            //release
+            var release = association.ReleaseProposal(createProposal, proposer.GetFormatted());
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }
 }

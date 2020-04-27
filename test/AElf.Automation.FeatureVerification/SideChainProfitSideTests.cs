@@ -78,6 +78,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        public async Task Withdraw()
+        { 
+            var beforeBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
+            var result = await SideManager.TokenHolderStub.Withdraw.SendAsync(SideManager.Consensus.Contract);
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
+            afterBalance.ShouldBe(beforeBalance + 100);
+        }
+
+        [TestMethod]
         [DataRow("SCPU")]
         [DataRow("SRAM")]
         public async Task CreateNewToken_And_Contribute_Test(string symbol)

@@ -37,9 +37,9 @@ namespace AElfChain.Common.Contracts
         GetProposerWhiteList
     }
 
-    public class ParliamentAuthContract : BaseContract<ParliamentMethod>
+    public class ParliamentContract : BaseContract<ParliamentMethod>
     {
-        public ParliamentAuthContract(INodeManager nm, string callAddress, string contractAddress) :
+        public ParliamentContract(INodeManager nm, string callAddress, string contractAddress) :
             base(nm, contractAddress)
         {
             Logger = Log4NetHelper.GetLogger();
