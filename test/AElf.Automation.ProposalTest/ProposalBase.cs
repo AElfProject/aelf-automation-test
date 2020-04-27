@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -88,6 +89,8 @@ namespace AElf.Automation.ProposalTest
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
             testUsers.AddRange(newAccounts);
+            foreach (var account in testUsers)
+                nodeManager.UnlockAccount(account);
             return testUsers;
         }
 
@@ -103,6 +106,8 @@ namespace AElf.Automation.ProposalTest
 
             var newAccounts = GenerateTestUsers(nodeManager, _config.UserCount - testUsers.Count);
             testUsers.AddRange(newAccounts);
+            foreach (var account in testUsers)
+                nodeManager.UnlockAccount(account);
             return testUsers;
         }
 
@@ -182,17 +187,26 @@ namespace AElf.Automation.ProposalTest
             foreach (var tester in Tester)
             {
                 var balance = Services.Token.GetUserBalance(tester, TokenSymbol);
-                if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
+                if (balance >= 10000_00000000 && tester.Equals(InitAccount))
+                {
+                    Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
+                    continue;
+                }
+
+                Services.Token.TransferBalance(InitAccount, tester, 20000_00000000, TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
-                Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
 
             foreach (var tester in AssociationTester)
             {
                 var balance = Services.Token.GetUserBalance(tester, TokenSymbol);
-                if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount, tester, 1000_00000000, TokenSymbol);
+                if (balance >= 10000_00000000 && tester.Equals(InitAccount))
+                {
+                    Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
+                    continue;
+                }
+
+                Services.Token.TransferBalance(InitAccount, tester, 20000_00000000, TokenSymbol);
                 balance = Services.Token.GetUserBalance(tester);
                 Logger.Info($"Tester {tester} {TokenSymbol} balance is {balance}");
             }
@@ -200,8 +214,13 @@ namespace AElf.Automation.ProposalTest
             foreach (var miner in Miners)
             {
                 var balance = Services.Token.GetUserBalance(miner, TokenSymbol);
-                if (balance >= 1000_00000000) continue;
-                Services.Token.TransferBalance(InitAccount, miner, 1000_00000000, TokenSymbol);
+                if (balance > 10000_00000000 && miner.Equals(InitAccount))
+                {
+                    Logger.Info($"Miner {miner} {TokenSymbol} balance is {balance}");
+                    continue;
+                }
+
+                Services.Token.TransferBalance(InitAccount, miner, 20000_00000000, TokenSymbol);
 
                 balance = Services.Token.GetUserBalance(miner);
                 Logger.Info($"Miner {miner} {TokenSymbol} balance is {balance}");

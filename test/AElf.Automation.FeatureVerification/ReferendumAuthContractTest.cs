@@ -21,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class ReferendumAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
-        public ReferendumAuthContract Referendum;
+        public ReferendumContract Referendum;
         public string Symbol = "ELF";
         protected ContractTester Tester;
         public TokenContract Token;

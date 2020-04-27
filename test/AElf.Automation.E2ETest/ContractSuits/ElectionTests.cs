@@ -125,7 +125,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(120)).ToTimestamp()
             });
             voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var voteId = voteResult.TransactionResult.TransactionId;
+            var voteId =
+                Hash.Parser.ParseFrom(
+                    ByteArrayHelper.HexStringToByteArray(voteResult.TransactionResult.ReturnValue.ToHex()));
 
             //GetElectorVote
             var electorResult = await electionTester.GetElectorVote.CallAsync(new StringValue
@@ -136,7 +138,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             electorResult.ActiveVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             electorResult.AllVotedVotesAmount.ShouldBeGreaterThanOrEqualTo(50);
             electorResult.Pubkey.ToByteArray().ToHex().ShouldBe(testerPubkey);
-
+            
             //GetElectorVoteWithRecords
             var voteWithRecords = await electionTester.GetElectorVoteWithRecords.CallAsync(new StringValue
             {

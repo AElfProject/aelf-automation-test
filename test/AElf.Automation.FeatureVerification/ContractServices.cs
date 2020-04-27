@@ -39,9 +39,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ProfitContract ProfitService { get; set; }
         public ElectionContract ElectionService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
-        public AssociationAuthContract AssociationAuthService { get; set; }
-        public ReferendumAuthContract ReferendumAuthService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
+        public AssociationContract AssociationService { get; set; }
+        public ReferendumContract ReferendumService { get; set; }
+        public ParliamentContract ParliamentService { get; set; }
         public ConfigurationContract ConfigurationService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
 
@@ -57,14 +57,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Consensus contract
             ConsensusService = GenesisService.GetConsensusContract();
 
-            //ParliamentAuth contract
-            ParliamentService = GenesisService.GetParliamentAuthContract();
+            //Parliament contract
+            ParliamentService = GenesisService.GetParliamentContract();
 
             //AssociationAuth contract
-            AssociationAuthService = GenesisService.GetAssociationAuthContract();
+            AssociationService = GenesisService.GetAssociationAuthContract();
 
             //Referendum contract
-            ReferendumAuthService = GenesisService.GetReferendumAuthContract();
+            ReferendumService = GenesisService.GetReferendumAuthContract();
 
             ConfigurationService = GenesisService.GetConfigurationContract();
             CrossChainService = GenesisService.GetCrossChainContract();

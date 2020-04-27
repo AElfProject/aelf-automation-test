@@ -34,7 +34,6 @@ namespace AElf.Automation.SideChain.Verification
     {
         [JsonProperty("TestEnvironment")] public string TestEnvironment { get; set; }
         [JsonProperty("EnvironmentInfo")] public List<EnvironmentInfo> EnvironmentInfos { get; set; }
-        [JsonProperty("TestCases")] public List<TestCase> TestCases { get; set; }
         [JsonProperty("CreateTokenNumber")] public int CreateTokenNumber { get; set; }
 
         [JsonProperty("VerifySideChainNumber")]

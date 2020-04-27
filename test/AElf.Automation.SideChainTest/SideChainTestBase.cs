@@ -25,20 +25,19 @@ namespace AElf.Automation.SideChainTests
 {
     public class SideChainTestBase
     {
-        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
+        public AuthorityManager AuthorityManager;
+        public AuthorityManager SideAuthorityManager;
         public ContractServices MainServices;
         public ContractServices SideAServices;
         public ContractServices SideBServices;
         public List<ContractServices> SideServices;
         public List<string> Miners;
-        public TokenContractImplContainer.TokenContractImplStub TokenContractImplStub;
-        public TokenContractImplContainer.TokenContractImplStub side1TokenContractStub;
-        public TokenContractImplContainer.TokenContractImplStub side2TokenContractStub;
-        public string InitAccount;
-        public string TestAccount = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
-        public string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        public string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
-
+        public static string InitAccount;
+        public static string TestAccount = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
+        public static string OtherAccount = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
+        public static string MemberAccount = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
+        public List<string> Members;
         public TokenContractContainer.TokenContractStub TokenContractStub;
 
         protected void Initialize()
@@ -50,9 +49,13 @@ namespace AElf.Automation.SideChainTests
             var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
             var password = ConfigInfoHelper.Config.MainChainInfos.Password;
             var sideUrls = ConfigInfoHelper.Config.SideChainInfos.Select(l => l.SideChainUrl).ToList();
-            _logger.Info($"url :{mainUrl}");
+            Members = new List<string> {InitAccount, TestAccount, OtherAccount, MemberAccount};
+            Logger.Info($"url :{mainUrl}");
 
             MainServices = new ContractServices(mainUrl, InitAccount, password);
+            AuthorityManager = new AuthorityManager(MainServices.NodeManager);
+//            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager);
+
             SideServices = new List<ContractServices>();
             foreach (var side in sideUrls)
             {
@@ -64,20 +67,8 @@ namespace AElf.Automation.SideChainTests
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
 
             TokenContractStub = MainServices.TokenContractStub;
-            TokenContractImplStub = MainServices.TokenImplContractStub;
-            side1TokenContractStub = SideAServices.TokenImplContractStub;
-            side2TokenContractStub = SideBServices.TokenImplContractStub;
             Miners = new List<string>();
-            Miners = new AuthorityManager(MainServices.NodeManager, InitAccount).GetCurrentMiners();
-
-//            foreach (var miner in Miners)
-//            {
-//                foreach (var service in SideServices)
-//                {
-//                    service.TokenService.IssueBalance(InitAccount, miner, 10000_00000000,
-//                        service.TokenService.GetPrimaryTokenSymbol());
-//                }
-//            }
+            Miners = AuthorityManager.GetCurrentMiners();
         }
 
         #region Other Method
@@ -152,7 +143,7 @@ namespace AElf.Automation.SideChainTests
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (!transactionIds[num].Equals(txId)) continue;
                 index = num;
-                _logger.Info($"The transaction index is {index}");
+                Logger.Info($"The transaction index is {index}");
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
@@ -255,63 +246,16 @@ namespace AElf.Automation.SideChainTests
             var miners = GetMiners(services);
             foreach (var miner in miners)
             {
+                if(miner.GetFormatted().Equals(InitAccount)) continue;
                 services.ParliamentService.SetAccount(miner.GetFormatted(), "123");
+                var balance = services.TokenService.GetUserBalance(miner.GetFormatted());
+                if (balance< 1000_00000000)
+                {
+                    services.TokenService.TransferBalance(InitAccount, miner.GetFormatted(), 1000_00000000);
+                }
                 var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
-        }
-
-        protected Address CreateAssociationOrganization(ContractServices services)
-        {
-            var address = services.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
-                new CreateOrganizationInput
-                {
-                    ProposalReleaseThreshold = new ProposalReleaseThreshold
-                    {
-                        MaximalAbstentionThreshold = 1,
-                        MaximalRejectionThreshold = 1,
-                        MinimalApprovalThreshold = 2,
-                        MinimalVoteThreshold = 2
-                    },
-                    OrganizationMemberList = new OrganizationMemberList
-                    {
-                        OrganizationMembers =
-                        {
-                            AddressHelper.Base58StringToAddress(OtherAccount),
-                            AddressHelper.Base58StringToAddress(InitAccount),
-                            AddressHelper.Base58StringToAddress(MemberAccount)
-                        }
-                    },
-                    ProposerWhiteList = new ProposerWhiteList
-                    {
-                        Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
-                    }
-                });
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
-            _logger.Info($"Association organization is: {organizationAddress}");
-            return organizationAddress;
-        }
-
-        protected Address CreateParliamentOrganization(ContractServices services)
-        {
-            var miners = GetMiners(services);
-            services.ParliamentService.SetAccount(miners.First().GetFormatted());
-            var address = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
-                new Contracts.Parliament.CreateOrganizationInput
-                {
-                    ProposalReleaseThreshold = new ProposalReleaseThreshold
-                    {
-                        MaximalAbstentionThreshold = 1000,
-                        MaximalRejectionThreshold = 1000,
-                        MinimalApprovalThreshold = 3000,
-                        MinimalVoteThreshold = 3000
-                    },
-                    ProposerAuthorityRequired = false,
-                    ParliamentMemberProposingAllowed = true
-                });
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
-            return organizationAddress;
         }
 
         protected void ApproveWithAssociation(ContractServices tester, Hash proposalId, Address association)
@@ -325,6 +269,7 @@ namespace AElf.Automation.SideChainTests
                 tester.AssociationService.SetAccount(member.GetFormatted());
                 var approve =
                     tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
+                approve.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 if (tester.AssociationService.CheckProposal(proposalId).ToBeReleased) return;
             }
         }
@@ -352,16 +297,9 @@ namespace AElf.Automation.SideChainTests
             ApproveWithAssociation(tester, proposal, organizationAddress);
             ReleaseWithAssociation(tester, proposal, proposer);
         }
-
-        protected Address CreateAssociationController(string creator, CreateOrganizationInput input)
-        {
-            var address = MainServices.AssociationService.CreateOrganization(input);
-            return address;
-        }
-
         #endregion
 
-        #region ParliamentAuth Method
+        #region Parliament Method
 
         protected TransactionResultDto Approve(ContractServices services, string account, string proposalId)
         {

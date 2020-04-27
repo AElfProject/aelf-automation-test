@@ -40,7 +40,7 @@ namespace AElf.Automation.EconomicSystemTest
 
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractManager(NodeManager, InitAccount);
-            Behaviors = new Behaviors(contractServices);
+            Behaviors = new Behaviors(contractServices,InitAccount);
 
             #endregion
 
@@ -76,6 +76,11 @@ namespace AElf.Automation.EconomicSystemTest
             FullNodeAddress.Add("2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV");
             FullNodeAddress.Add("2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX");
             FullNodeAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
+            
+            FullNodeAddress.Add("2mTDfKiuKFmNc7FzK2wqLkoZtJRM633KE3Yxq2RSb51Vvbsfec");
+            FullNodeAddress.Add("2gfVsyYbLPehmVjZxKHZfxp9AMRUEV6KFHkZDgdU7VZf64teew");
+            FullNodeAddress.Add("2bmNbLLR94QATnweMcVwLpUAPXt21x8k4zyMxQ7fXSySsrhUNm");
+
 
             //Get candidate infos
             NodesPublicKeys = new List<string>();

@@ -11,10 +11,27 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
     {
         public void CrossChainTransferMainChainJob()
         {
-            foreach (var token in PrimaryTokens) CrossChainTransferOnMainChain(token);
-            foreach (var symbol in TokenSymbols) CrossChainTransferOnMainChain(symbol);
+            ExecuteStandaloneTask(new Action[]
+            {
+                CrossChainTransferOnMainChain
+            });
         }
 
+        private void CrossChainTransferOnMainChain()
+        {
+            Logger.Info("MainChain CrossTransfer to SideChain:");
+            try
+            {
+                foreach (var token in PrimaryTokens) CrossChainTransferOnMainChain(token);
+                if (TokenSymbols.Count == 0) return;
+                foreach (var symbol in TokenSymbols) CrossChainTransferOnMainChain(symbol);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"TransferAction: {e.Message}");
+            }
+        }
+        
         private void CrossChainTransferOnMainChain(string symbol)
         {
             Logger.Info($"Main chain transfer {symbol} each side chain account");

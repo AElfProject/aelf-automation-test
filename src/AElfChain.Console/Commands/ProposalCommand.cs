@@ -60,7 +60,7 @@ namespace AElfChain.Console.Commands
             var hashInput = Prompt.Input<string>("Input ProposalId");
             var proposalId = HashHelper.HexStringToHash(hashInput);
             var miners = Services.Authority.GetMinApproveMiners();
-            Services.ParliamentAuth.MinersApproveProposal(proposalId, miners);
+            Services.Parliament.MinersApproveProposal(proposalId, miners);
         }
 
         private void ReleaseProposal()

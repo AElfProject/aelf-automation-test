@@ -1,3 +1,4 @@
+using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Managers;
 
@@ -18,6 +19,7 @@ namespace AElf.Automation.EconomicSystemTest
 
         public readonly ConsensusContract ConsensusService;
         public readonly ContractManager ContractManager;
+        public readonly AuthorityManager AuthorityManager;
 
         public readonly ElectionContract ElectionService;
         public readonly INodeManager NodeManager;
@@ -27,9 +29,10 @@ namespace AElf.Automation.EconomicSystemTest
         public readonly TreasuryContract Treasury;
         public readonly VoteContract VoteService;
 
-        public Behaviors(ContractManager contractManager)
+        public Behaviors(ContractManager contractManager,string account)
         {
             NodeManager = contractManager.NodeManager;
+            AuthorityManager = new AuthorityManager(NodeManager,account);
             ContractManager = contractManager;
 
             ElectionService = ContractManager.Election;

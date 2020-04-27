@@ -1,16 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
+using Acs3;
+using AElf.Contracts.Association;
+using AElf.Types;
 using AElfChain.Common;
+using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.E2ETest
 {
     public class ContractTestBase
     {
-        public static string MainConfig = "nodes-env2-main";
-        public static string SideConfig = "nodes-env2-side1";
+        public static string MainConfig = "nodes-env1-main";
+        public static string SideConfig = "nodes-env1-side1";
+        public static Address AssociationOrganization;
+        public static Address ReferendumOrganization;
 
         public ContractTestBase()
         {
@@ -22,13 +30,18 @@ namespace AElf.Automation.E2ETest
             var firstBp = ConfigNodes.First();
 
             NodeManager = new NodeManager(firstBp.Endpoint);
+            AuthorityManager = new AuthorityManager(NodeManager);
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();
+            AssociationOrganization = AuthorityManager.CreateAssociationOrganization();
+            ReferendumOrganization = AuthorityManager.CreateReferendumOrganization();
         }
 
         public INodeManager NodeManager { get; set; }
         public ContractManager ContractManager { get; set; }
+        public AuthorityManager AuthorityManager { get; set; }
+
         public EnvCheck EnvCheck { get; set; }
         public ILog Logger { get; set; }
 

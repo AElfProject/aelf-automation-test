@@ -19,7 +19,7 @@ namespace AElf.Automation.SideChainCreate
         public readonly ConsensusContract ConsensusService;
         public readonly CrossChainContract CrossChainService;
         public readonly string NativeSymbol;
-        public readonly ParliamentAuthContract ParliamentService;
+        public readonly ParliamentContract ParliamentService;
         public readonly TokenContract TokenService;
         public string Creator;
         public string Password;

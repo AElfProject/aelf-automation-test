@@ -24,7 +24,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class AssociationAuthContractTest
     {
         private static readonly ILog _logger = Log4NetHelper.GetLogger();
-        private AssociationAuthContract Association;
+        private AssociationContract Association;
         private ContractManager ContractManager;
         private List<string> Miners;
         public string Symbol = NodeOption.NativeTokenSymbol;
@@ -224,10 +224,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
 
             var associationContract = ContractManager.Association.ContractAddress;
-            var createProposal = ContractManager.ParliamentAuth.CreateProposal(associationContract, "SetMethodFee",
+            var createProposal = ContractManager.Parliament.CreateProposal(associationContract, "SetMethodFee",
                 input, controller.OwnerAddress, InitAccount);
-            ContractManager.ParliamentAuth.MinersApproveProposal(createProposal, Miners);
-            var release = ContractManager.ParliamentAuth.ReleaseProposal(createProposal, InitAccount);
+            ContractManager.Parliament.MinersApproveProposal(createProposal, Miners);
+            var release = ContractManager.Parliament.ReleaseProposal(createProposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
 
             methodFee = await ContractManager.AssociationStub.GetMethodFee.CallAsync(new StringValue
@@ -271,11 +271,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractAddress = associationContract.ConvertAddress(),
                 OwnerAddress = newController
             };
-            var createProposal = ContractManager.ParliamentAuth.CreateProposal(associationContract,
+            var createProposal = ContractManager.Parliament.CreateProposal(associationContract,
                 nameof(AssociationMethod.ChangeMethodFeeController),
                 changeInput, controller.OwnerAddress, InitAccount);
-            ContractManager.ParliamentAuth.MinersApproveProposal(createProposal, Miners);
-            var release = ContractManager.ParliamentAuth.ReleaseProposal(createProposal, InitAccount);
+            ContractManager.Parliament.MinersApproveProposal(createProposal, Miners);
+            var release = ContractManager.Parliament.ReleaseProposal(createProposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
             controller.ContractAddress.ShouldBe(associationContract.ConvertAddress());

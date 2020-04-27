@@ -48,8 +48,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var proposer = NodeInfoHelper.Config.Nodes.First().Account;
-            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).AuthorityInfo
-                .OwnerAddress;
+            var association = MainManager.CrossChain.GetSideChainIndexingFeeController(chainId).OwnerAddress;
             var adjustIndexingFeeInput = new AdjustIndexingFeeInput
             {
                 IndexingFee = 10,
@@ -62,15 +61,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             MainManager.Association.SetAccount(proposer);
             MainManager.Association.ApproveProposal(proposalId, proposer);
             var defaultOrganization =
-                (await MainManager.CrossChainStub.GetSideChainLifetimeController.CallAsync(new Empty()))
-                .OwnerAddress;
-            var approveProposalId = MainManager.ParliamentAuth.CreateProposal(
+                (await MainManager.CrossChainStub.GetCrossChainIndexingController.CallAsync(new Empty())).OwnerAddress;
+            var approveProposalId = MainManager.Parliament.CreateProposal(
                 MainManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = MainManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners) MainManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
+            foreach (var miner in currentMiners) MainManager.Parliament.ApproveProposal(approveProposalId, miner);
 
-            MainManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
+            MainManager.Parliament.ReleaseProposal(approveProposalId, proposer);
             MainManager.Association.ReleaseProposal(proposalId, proposer);
 
             var afterCheckPrice = MainManager.CrossChain.GetSideChainIndexingFeePrice(chainId);
@@ -81,7 +79,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task AdoptSideChain_RentalFee_Test()
         {
             var proposer = SideManager.CallAddress;
-            var defaultOrganization = SideManager.ParliamentAuth.GetGenesisOwnerAddress();
+            var defaultOrganization = SideManager.Parliament.GetGenesisOwnerAddress();
             var association = await CreateAssociationOrganization(defaultOrganization, SideManager.CallAccount);
             var updateRentalInput = new UpdateRentalInput
             {
@@ -99,13 +97,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 proposer);
             SideManager.Association.SetAccount(proposer);
             SideManager.Association.ApproveProposal(proposalId, proposer);
-            var approveProposalId = SideManager.ParliamentAuth.CreateProposal(
+            var approveProposalId = SideManager.Parliament.CreateProposal(
                 SideManager.Association.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
                 defaultOrganization, proposer);
             var currentMiners = SideManager.Authority.GetCurrentMiners();
-            foreach (var miner in currentMiners) SideManager.ParliamentAuth.ApproveProposal(approveProposalId, miner);
+            foreach (var miner in currentMiners) SideManager.Parliament.ApproveProposal(approveProposalId, miner);
 
-            var parliamentResult = SideManager.ParliamentAuth.ReleaseProposal(approveProposalId, proposer);
+            var parliamentResult = SideManager.Parliament.ReleaseProposal(approveProposalId, proposer);
             parliamentResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var associationResult = SideManager.Association.ReleaseProposal(proposalId, proposer);

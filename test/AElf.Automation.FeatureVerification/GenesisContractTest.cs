@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs0;
 using Acs1;
 using Acs3;
 using AElf.Contracts.Association;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -17,6 +19,7 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -30,14 +33,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         public INodeManager NM { get; set; }
         public ContractManager MainManager { get; set; }
-        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        public string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        public string Member { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
-        public string OtherAccount { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
-        private static string MainRpcUrl { get; } = "http://52.90.147.175:8000";
+        public static string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public static string Creator { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        public static string Member { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
+        public static string OtherAccount { get; } = "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo";
+        
+        public readonly List<string> Members = new List<string>{InitAccount,Member,OtherAccount};
+        private static string MainRpcUrl { get; } = "http://192.168.197.14:8000";
         private static string SideRpcUrl { get; } = "http://192.168.197.14:8001";
         private static string SideRpcUrl2 { get; } = "http://192.168.197.14:8002";
-        private string Type { get; } = "Main";
+        private string Type { get; } = "Side1";
 
         [TestInitialize]
         public void Initialize()
@@ -46,16 +51,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ContractTest_");
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
 
             #endregion
 
-            NM = new NodeManager(MainRpcUrl);
+            NM = new NodeManager(SideRpcUrl);
             var services = new ContractServices(NM, InitAccount, Type);
             MainManager = new ContractManager(NM, InitAccount);
 
             Tester = new ContractTester(services);
-            if (Type == "Side" && !isOrganization)
+            if (Type == "Side2" && !isOrganization)
             {
                 Tester.IssueTokenToMiner(Creator);
                 Tester.IssueToken(Creator, Member);
@@ -67,7 +72,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Tester.TokenService.GetPrimaryTokenSymbol());
                 Tester.TokenService.TransferBalance(OtherAccount, InitAccount, 100_00000000,
                     Tester.TokenService.GetPrimaryTokenSymbol());
-                var creator = CreateAssociationOrganization(Tester);
+                var creator = Tester.AuthorityManager.CreateAssociationOrganization(Members);
                 IssueTokenToMinerThroughOrganization(Tester, OtherAccount, creator);
             }
             else
@@ -111,6 +116,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             release.Status.ShouldBe(TransactionResultStatus.Failed);
             release.Error.Contains("Proposer authority validation failed.").ShouldBeTrue();
         }
+        
+        // ContractDeploymentAuthorityRequired == false
+        [TestMethod]
+        public void DeploySmartContract_AuthorityRequiredFalse()
+        {
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            var result = Tester.GenesisService.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,input);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+
 
         [TestMethod]
         public void DeploySmartContract_UserDeploy()
@@ -128,14 +143,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var organization = GetGenesisOwnerAddress(Tester);
             var proposal = Tester.ParliamentService.CreateProposal(Tester.GenesisService.ContractAddress,
-                nameof(GenesisMethod.DeploySmartContract), input,
+                nameof(GenesisMethod.DeploySystemSmartContract), input,
                 organization, InitAccount);
             ApproveByMiner(Tester, proposal);
             var release = Tester.ParliamentService.ReleaseProposal(proposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Failed);
             release.Error.Contains("Contract proposing data not found.").ShouldBeTrue();
         }
-        
+
         [TestMethod]
         public async Task ProposalDeploy_MinerProposalContract_Success_stub()
         {
@@ -235,7 +250,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalDeploy_OrganizationProposalContractWithOtherOrganization_Success()
         {
-            var input = ContractDeploymentInput("AElf.Contracts.TestContract.BasicUpdate1");
+            var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var contractProposalInfo = ProposalNewContract(Tester, OtherAccount, input);
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
@@ -306,7 +321,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalUpdate_MinerProposalUpdateContract_Success()
         {
-            var input = ContractUpdateInput("AElf.Contracts.MultiToken4", Tester.ReferendumService.ContractAddress);
+            var input = ContractUpdateInput("AElf.Contracts.MultiToken", Tester.ReferendumService.ContractAddress);
             var contractProposalInfo = ProposalUpdateContract(Tester, InitAccount, input);
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, InitAccount);
@@ -351,7 +366,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ProposalUpdate_OtherUserUpdate_Failed()
         {
-            var input = ContractUpdateInput("AElf.Contracts.MultiToken4", Tester.ReferendumService.ContractAddress);
+            var input = ContractUpdateInput("AElf.Contracts.MultiToken", Tester.ReferendumService.ContractAddress);
             Tester.GenesisService.SetAccount(OtherAccount);
             var result = Tester.GenesisService.ExecuteMethodWithResult(GenesisMethod.ProposeUpdateContract, input);
             result.Status.ShouldBe("FAILED");
@@ -361,10 +376,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ChangeContractDeploymentController()
         {
-            var changeAddress = CreateAssociationOrganization(Tester);
+            var changeAddress = Tester.AuthorityManager.CreateAssociationOrganization(Members);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(Tester.AssociationService.ContractAddress),
+                ContractAddress = Tester.AssociationService.Contract,
                 OwnerAddress = changeAddress
             };
 
@@ -392,16 +407,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
             contractDeploymentController.OwnerAddress.ShouldBe(changeAddress);
+            contractDeploymentController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Owner address is {contractDeploymentController.OwnerAddress} ");
         }
 
         [TestMethod]
         public void ChangeCodeCheckController()
         {
-            var changeAddress = CreateParliamentOrganization(Tester);
+            var changeAddress = Tester.AuthorityManager.CreateAssociationOrganization(Members);
             var input = new AuthorityInfo
             {
-                ContractAddress = AddressHelper.Base58StringToAddress(Tester.ParliamentService.ContractAddress),
+                ContractAddress = Tester.AssociationService.Contract,
                 OwnerAddress = changeAddress
             };
 
@@ -429,6 +445,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
                     new Empty());
             contractCodeCheckController.OwnerAddress.ShouldBe(changeAddress);
+            contractCodeCheckController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
@@ -436,8 +453,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void CheckController()
         {
             var contractCodeCheckController =
-                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetCodeCheckController,
+                Tester.GenesisService.CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController,
                     new Empty());
+            contractCodeCheckController.ContractAddress.ShouldBe(Tester.AssociationService.Contract);
             Logger.Info($"Code check controller address is {contractCodeCheckController.OwnerAddress} ");
         }
 
@@ -494,62 +512,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
             proposalWhiteList.Proposers.Contains(Member.ConvertAddress()).ShouldBeTrue();
         }
 
+        [TestMethod]
+        public void CheckContractInfo()
+        {
+            var contract = "2RHf2fxsnEaM3wb6N1yGqPupNZbcCY98LgWbGSFWmWzgEs5Sjo";
+            var tokenContract =
+                Tester.GenesisService.CallViewMethod<ContractInfo>(GenesisMethod.GetContractInfo,
+                    contract.ConvertAddress());
+            tokenContract.Category.ShouldBe(0);
+            tokenContract.IsSystemContract.ShouldBeFalse();
+            tokenContract.SerialNumber.ShouldNotBe(0L);
+            tokenContract.Author.ShouldBe(Tester.GenesisService.Contract);
+            tokenContract.Version.ShouldBe(2);
+        }
+
         #region private method
-
-        private Address CreateAssociationOrganization(ContractTester tester)
-        {
-            var address = tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
-                new CreateOrganizationInput
-                {
-                    ProposalReleaseThreshold = new ProposalReleaseThreshold
-                    {
-                        MaximalAbstentionThreshold = 1,
-                        MaximalRejectionThreshold = 1,
-                        MinimalApprovalThreshold = 2,
-                        MinimalVoteThreshold = 3
-                    },
-                    OrganizationMemberList = new OrganizationMemberList
-                    {
-                        OrganizationMembers =
-                        {
-                            OtherAccount.ConvertAddress(),
-                            InitAccount.ConvertAddress(),
-                            Member.ConvertAddress()
-                        }
-                    },
-                    ProposerWhiteList = new ProposerWhiteList
-                    {
-                        Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
-                    }
-                });
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
-            Logger.Info($"Association organization is: {organizationAddress}");
-            return organizationAddress;
-        }
-
-        private Address CreateParliamentOrganization(ContractTester tester)
-        {
-            var miners = tester.GetMiners();
-            tester.ParliamentService.SetAccount(miners.First());
-            var address = tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
-                new AElf.Contracts.Parliament.CreateOrganizationInput
-                {
-                    ProposalReleaseThreshold = new ProposalReleaseThreshold
-                    {
-                        MaximalAbstentionThreshold = 1000,
-                        MaximalRejectionThreshold = 1000,
-                        MinimalApprovalThreshold = 3000,
-                        MinimalVoteThreshold = 3000
-                    },
-                    ProposerAuthorityRequired = false
-                });
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(address.ReturnValue));
-            Logger.Info($"Association organization is: {organizationAddress}");
-            return organizationAddress;
-        }
-
 
         private Address GetGenesisOwnerAddress(ContractTester tester)
         {

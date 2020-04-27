@@ -6,6 +6,7 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -45,8 +46,9 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1)
+        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1,INodeManager nodeManager = null)
         {
+            if (nodeManager == null) nodeManager = NodeManager;
             if (checkTimes == -1)
                 checkTimes = RpcConfig.ReadInformation.Timeout * 10;
             if (checkTimes == 0)
@@ -57,8 +59,7 @@ namespace AElf.Automation.RpcPerformance
             for (var i = length - 1; i >= 0; i--)
             {
                 var i1 = i;
-                var transactionResult =
-                    AsyncHelper.RunSync(() => NodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                var transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
                 var resultStatus = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (resultStatus)
                 {
@@ -88,20 +89,20 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (listCount == transactionIds.Count && checkTimes == 0)
                     throw new TimeoutException("Transaction status always keep pending or not existed.");
-                CheckTransactionsStatus(transactionIds, checkTimes);
+                CheckTransactionsStatus(transactionIds, checkTimes,nodeManager);
             }
 
             if (transactionIds.Count == 1)
             {
                 Console.Write($"\rLast one: {transactionIds[0]}");
                 var transactionResult =
-                    AsyncHelper.RunSync(() => NodeManager.ApiClient.GetTransactionResultAsync(transactionIds[0]));
+                    AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[0]));
                 var txResult = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (txResult)
                 {
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.Unexecutable:
-                        CheckTransactionsStatus(transactionIds, checkTimes);
+                        CheckTransactionsStatus(transactionIds, checkTimes,nodeManager);
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:

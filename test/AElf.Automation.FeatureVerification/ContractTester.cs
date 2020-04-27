@@ -9,7 +9,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 {
     public class ContractTester
     {
-        public readonly AssociationAuthContract AssociationService;
+        public readonly AssociationContract AssociationService;
         public readonly ConfigurationContract ConfigurationService;
         public readonly ConsensusContract ConsensusService;
         public readonly ContractServices ContractServices;
@@ -18,9 +18,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly ElectionContract ElectionService;
         public readonly GenesisContract GenesisService;
         public readonly INodeManager NodeManager;
-        public readonly ParliamentAuthContract ParliamentService;
+        public readonly AuthorityManager AuthorityManager;
+        public readonly ParliamentContract ParliamentService;
         public readonly ProfitContract ProfitService;
-        public readonly ReferendumAuthContract ReferendumService;
+        public readonly ReferendumContract ReferendumService;
         public readonly TokenContract TokenService;
         public readonly VoteContract VoteService;
 
@@ -29,6 +30,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
+            AuthorityManager = new AuthorityManager(NodeManager);
 
             GenesisService = ContractServices.GenesisService;
             ElectionService = ContractServices.ElectionService;
@@ -36,9 +38,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ProfitService = ContractServices.ProfitService;
             TokenService = ContractServices.TokenService;
             ConsensusService = ContractServices.ConsensusService;
-            AssociationService = ContractServices.AssociationAuthService;
+            AssociationService = ContractServices.AssociationService;
             ParliamentService = ContractServices.ParliamentService;
-            ReferendumService = ContractServices.ReferendumAuthService;
+            ReferendumService = ContractServices.ReferendumService;
             ConfigurationService = ContractServices.ConfigurationService;
             CrossChainService = ContractServices.CrossChainService;
         }
@@ -64,9 +66,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (balance > 1000_00000000) continue;
+                if (balance > 10000_00000000) continue;
                 TokenService.SetAccount(ContractServices.CallAddress);
-                TokenService.IssueBalance(account, miner, 1000_00000000, symbol);
+                TokenService.IssueBalance(account, miner, 20000_00000000, symbol);
             }
         }
 
@@ -77,9 +79,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 1000_00000000) continue;
+                if (account == miner || balance > 10000_00000000) continue;
                 TokenService.SetAccount(account);
-                TokenService.TransferBalance(account, miner, 1000_000000000, symbol);
+                TokenService.TransferBalance(account, miner, 20000_000000000, symbol);
             }
         }
 
@@ -87,9 +89,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
-            if (balance > 1000_00000000) return;
+            if (balance > 10000_00000000) return;
             TokenService.SetAccount(TokenService.CallAddress);
-            TokenService.TransferBalance(TokenService.CallAddress, account, 1000_00000000, symbol);
+            TokenService.TransferBalance(TokenService.CallAddress, account, 20000_00000000, symbol);
         }
 
         public void IssueToken(string creator, string account)
@@ -97,7 +99,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbol = TokenService.GetPrimaryTokenSymbol();
             var balance = TokenService.GetUserBalance(account, symbol);
             if (balance > 10000_00000000) return;
-            TokenService.IssueBalance(creator, account, 1000_00000000, symbol);
+            TokenService.IssueBalance(creator, account, 20000_00000000, symbol);
         }
     }
 }

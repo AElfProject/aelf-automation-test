@@ -27,7 +27,7 @@ namespace AElf.Automation.SideChain.Verification
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
+        public ParliamentContract ParliamentService { get; set; }
 
         public string CallAddress { get; }
         public Address CallAccount { get; }
@@ -44,10 +44,10 @@ namespace AElf.Automation.SideChain.Verification
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChain);
             CrossChainService = new CrossChainContract(NodeManager, CallAddress, crossChainAddress.GetFormatted());
 
-            //ParliamentAuth contract
+            //Parliament contract
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
-                new ParliamentAuthContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
+                new ParliamentContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
 
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);

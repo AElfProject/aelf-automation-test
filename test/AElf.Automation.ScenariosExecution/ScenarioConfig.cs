@@ -31,6 +31,21 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("Contracts")] public List<ContractItem> Contracts { get; set; }
     }
 
+    public class AccountInfo
+    {
+        [JsonProperty("name")] public string Name { get; set; }
+        [JsonProperty("endpoint")] public string EndPoint { get; set; }
+        [JsonProperty("account")] public string Account { get; set; }
+        [JsonProperty("password")] public string Password { get; set; }
+        [JsonIgnore] public string PublicKey { get; set; }
+    }
+
+    public class NewNode
+    {
+        [JsonProperty("IsChanged")] public bool IsChanged { get; set; }
+        [JsonProperty("AccountInfos")] public List<AccountInfo> AccountInfos { get; set; }
+    }
+
     public class ScenarioConfig
     {
         [JsonProperty("TestCases")] public List<TestCase> TestCases { get; set; }
@@ -38,6 +53,7 @@ namespace AElf.Automation.ScenariosExecution
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("SpecifyEndpoint")] public SpecifyEndpoint SpecifyEndpoint { get; set; }
         [JsonProperty("ContractsInfo")] public ContractsInfo ContractsInfo { get; set; }
+        [JsonProperty("NewNode")] public NewNode NewNode { get; set; }
 
         public static ScenarioConfig ReadInformation =>
             ConfigHelper<ScenarioConfig>.GetConfigInfo("scenario-nodes.json");

@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading;
 using Acs0;
 using Acs3;
+using AElf;
 using AElf.Client.Dto;
+using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -24,7 +26,9 @@ namespace AElfChain.Common.Managers
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly ConsensusContract _consensus;
         private readonly GenesisContract _genesis;
-        private readonly ParliamentAuthContract _parliament;
+        private readonly ParliamentContract _parliament;
+        private readonly AssociationContract _association;
+        private readonly ReferendumContract _referendum;
         private readonly TokenContract _token;
         private NodesInfo _info;
 
@@ -35,7 +39,9 @@ namespace AElfChain.Common.Managers
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
             _token = _genesis.GetTokenContract();
-            _parliament = _genesis.GetParliamentAuthContract();
+            _parliament = _genesis.GetParliamentContract();
+            _association = _genesis.GetAssociationAuthContract();
+            _referendum = _genesis.GetReferendumAuthContract();
 
             CheckBpBalance();
         }
@@ -166,8 +172,15 @@ namespace AElfChain.Common.Managers
 
         public List<string> GetCurrentMiners()
         {
-            var currentMiners = _info.GetMinerNodes(_consensus).Select(o => o.Account).ToList();
-            return currentMiners;
+            var minerList = new List<string>();
+                var miners =
+                    _consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+                foreach (var minersPubkey in miners.Pubkeys)
+                {
+                    var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
+                    minerList.Add(miner.GetFormatted());
+                }
+                return minerList;
         }
 
         public List<string> GetMinApproveMiners()
@@ -186,7 +199,92 @@ namespace AElfChain.Common.Managers
         {
             return _parliament.GetGenesisOwnerAddress();
         }
+        
+        public Address CreateNewParliamentOrganization()
+        {
+            var minimalApprovalThreshold = 7500;
+            var maximalAbstentionThreshold = 2500;
+            var maximalRejectionThreshold = 2500;
+            var minimalVoteThreshold = 7500;
 
+            var createOrganizationInput = new AElf.Contracts.Parliament.CreateOrganizationInput
+            {
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MinimalApprovalThreshold = minimalApprovalThreshold,
+                    MaximalAbstentionThreshold = maximalAbstentionThreshold,
+                    MaximalRejectionThreshold = maximalRejectionThreshold,
+                    MinimalVoteThreshold = minimalVoteThreshold
+                }
+            };
+            var transactionResult =
+                _parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,createOrganizationInput);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(transactionResult.ReturnValue));
+            Logger.Info($"Parliament address: {organizationAddress}");
+
+            return organizationAddress;
+        }
+        
+        public Address CreateAssociationOrganization(IEnumerable<string> members = null)
+        {
+            if (members == null)
+            {
+                members = NodeInfoHelper.Config.Nodes.Select(l => l.Account).ToList().Take(3);
+            }
+//            create association organization
+            var enumerable = members.Select(o => o.ConvertAddress());
+            var addresses = enumerable as Address[] ?? enumerable.ToArray();
+            var createInput = new CreateOrganizationInput
+            {
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MaximalAbstentionThreshold = 1,
+                    MaximalRejectionThreshold = 1,
+                    MinimalApprovalThreshold = 2,
+                    MinimalVoteThreshold = 2
+                },
+                ProposerWhiteList = new ProposerWhiteList {Proposers = {addresses.First()}},
+                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {addresses}}
+            };
+            _association.SetAccount(addresses.First().GetFormatted());
+            var result = _association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
+                createInput);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
+            return organizationAddress;
+        }
+        
+        public Address CreateReferendumOrganization(Address proposer = null)
+        {
+            var lists = NodeInfoHelper.Config.Nodes;
+            if (proposer == null)
+            {
+                var members = lists.Select(l => l.Account).ToList()
+                    .Select(member => member.ConvertAddress()).Take(3);
+                proposer = members.First();
+            }
+            //create referendum organization
+            var createInput = new AElf.Contracts.Referendum.CreateOrganizationInput
+            {
+                TokenSymbol = "ELF",
+                ProposalReleaseThreshold = new ProposalReleaseThreshold
+                {
+                    MaximalAbstentionThreshold = 1000,
+                    MaximalRejectionThreshold = 1000,
+                    MinimalApprovalThreshold = 2000,
+                    MinimalVoteThreshold = 2000
+                },
+                ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}}
+            };
+            _referendum.SetAccount(lists.First().Account);
+            var result = _referendum.ExecuteMethodWithResult(ReferendumMethod.CreateOrganization,
+                createInput);
+            var organizationAddress =
+                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
+            return organizationAddress;
+        }
+        
         public long GetPeriod()
         {
             return _consensus.GetCurrentTermInformation();

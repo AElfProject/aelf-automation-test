@@ -12,7 +12,7 @@ namespace AElfChain.Common.Contracts
             return new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
         }
 
-        public static ParliamentAuthContract GetParliamentAuthContract(
+        public static ParliamentContract GetParliamentContract(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -20,7 +20,7 @@ namespace AElfChain.Common.Contracts
 
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
-            return new ParliamentAuthContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
+            return new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
         }
 
         public static ProfitContract GetProfitContract(this GenesisContract genesis, string caller = "")
@@ -104,7 +104,7 @@ namespace AElfChain.Common.Contracts
             return new CrossChainContract(genesis.NodeManager, caller, cross.GetFormatted());
         }
 
-        public static AssociationAuthContract GetAssociationAuthContract(
+        public static AssociationContract GetAssociationAuthContract(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -112,10 +112,10 @@ namespace AElfChain.Common.Contracts
 
             var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
-            return new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
+            return new AssociationContract(genesis.NodeManager, caller, association.GetFormatted());
         }
 
-        public static ReferendumAuthContract GetReferendumAuthContract(
+        public static ReferendumContract GetReferendumAuthContract(
             this GenesisContract genesis, string caller = "")
         {
             if (caller == "")
@@ -123,7 +123,7 @@ namespace AElfChain.Common.Contracts
 
             var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
 
-            return new ReferendumAuthContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+            return new ReferendumContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
         }
 
         public static ConfigurationContract GetConfigurationContract(this GenesisContract genesis, string caller = "")

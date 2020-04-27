@@ -33,6 +33,14 @@ namespace AElf.Automation.EconomicSystemTest
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
         }
+        
+        
+        [TestMethod]
+        public void AnnouncementNode()
+        {
+            var result = Behaviors.AnnouncementElection(FullNodeAddress[0]);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
 
         [TestMethod]
         public void NodeAnnounceElectionAction()
@@ -45,6 +53,7 @@ namespace AElf.Automation.EconomicSystemTest
             }
 
             var candidateList = Behaviors.GetCandidates();
+            _logger.Info($"{candidateList.Value.Count}");
             foreach (var publicKey in candidateList.Value)
                 _logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
         }
@@ -55,6 +64,17 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var miners = Behaviors.GetMinersCount();
             miners.ShouldBe(3);
+        }
+        
+        
+        [TestMethod]
+        public void SetMaximumMinersCount()
+        {
+            var consensus = Behaviors.ConsensusService;
+            var input = new Int32Value {Value = 6};
+            var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
+                nameof(ConsensusMethod.SetMaximumMinersCount), input, InitAccount);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -101,7 +121,7 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(5)]
+        [DataRow(0)]
         public void QuitElection(int nodeId)
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;

@@ -34,15 +34,15 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationProposerWhiteList
     }
 
-    public class ReferendumAuthContract : BaseContract<ReferendumMethod>
+    public class ReferendumContract : BaseContract<ReferendumMethod>
     {
-        public ReferendumAuthContract(INodeManager nodeManager, string callAddress, string electionAddress)
+        public ReferendumContract(INodeManager nodeManager, string callAddress, string electionAddress)
             : base(nodeManager, electionAddress)
         {
             SetAccount(callAddress);
         }
 
-        public ReferendumAuthContract(INodeManager nodeManager, string callAddress)
+        public ReferendumContract(INodeManager nodeManager, string callAddress)
             : base(nodeManager, "AElf.Contracts.ReferendumAuth", callAddress)
         {
         }

@@ -27,7 +27,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var miners = ContractManager.Authority.GetCurrentMiners();
             var parliamentStub =
-                ContractManager.ParliamentAuth.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(
+                ContractManager.Parliament.GetTestStub<ParliamentContractContainer.ParliamentContractStub>(
                     miners.First());
             var createManagerController =
                 await parliamentStub.CreateOrganization.SendAsync(new CreateOrganizationInput

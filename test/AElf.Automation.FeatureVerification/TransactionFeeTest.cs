@@ -1,11 +1,16 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using Acs1;
+using Acs3;
+using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
+using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -16,6 +21,7 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
 using TokenInfo = AElf.Contracts.MultiToken.TokenInfo;
@@ -27,10 +33,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
+        private INodeManager SideNodeManager { get; set; }
         private AuthorityManager AuthorityManager { get; set; }
+        private AuthorityManager SideAuthority { get; set; }
+        private ContractManager ContractManager { get; set; }
 
         private TokenContract _tokenContract;
-        private TokenContract _tokenTestContract;
         private GenesisContract _genesisContract;
         private TreasuryContract _treasury;
         private ProfitContract _profit;
@@ -46,6 +54,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string TestAccount { get; } = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
         private static string RpcUrl { get; } = "192.168.197.14:8000";
+        private static string SideRpcUrl { get; } = "192.168.197.14:8002";
+
         private string Symbol { get; } = "TEST";
         private long SymbolFee = 100000000;
 
@@ -60,12 +70,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             NodeInfoHelper.SetConfig("nodes-env1-main");
 
             NodeManager = new NodeManager(RpcUrl);
+            SideNodeManager = new NodeManager(SideRpcUrl);
+            ContractManager = new ContractManager(SideNodeManager, InitAccount);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
+            SideAuthority = new AuthorityManager(SideNodeManager, InitAccount);
+
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
-            _tokenTestContract = new TokenContract(NodeManager, InitAccount,
-                "uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe");
-            _tokenTestSub = _tokenTestContract.GetTestStub<TokenContractContainer.TokenContractStub>(InitAccount);
+            _tokenTestSub = _tokenContract.GetTestStub<TokenContractContainer.TokenContractStub>(InitAccount);
+            _tokenContractImpl = _genesisContract.GetTokenImplStub();
+
             CreateAndIssueToken(1000_00000000);
             SetTokenContractMethodFee();
             _treasury = _genesisContract.GetTreasuryContract(InitAccount);
@@ -73,7 +87,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _profit.GetTreasurySchemes(_treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
 
-                _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
+            _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
             _acs8ContractA = new TransactionFeesContract(NodeManager, InitAccount,
                 "q6B5hzdSMaXZqjrYHVakngmL1xfUoWyfQnDttf4ktxoRSTUC7");
             _acs8ContractB = new TransactionFeesContract(NodeManager, InitAccount,
@@ -176,6 +190,25 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
         }
 
+        [TestMethod]
+        public async Task TakeResourceTokenBack()
+        {
+            var balance = _tokenContract.GetUserBalance(_acs8ContractA.ContractAddress, "READ");
+            Logger.Info($"Contract A READ balance : {balance}");
+
+            _tokenContract.TransferBalance(InitAccount, TestAccount, 1000_00000000);
+            var other = _genesisContract.GetTokenImplStub(TestAccount);
+            var takeBack = await other.TakeResourceTokenBack.SendAsync(new TakeResourceTokenBackInput
+            {
+                ContractAddress = _acs8ContractA.Contract,
+                ResourceTokenSymbol = "READ",
+                Amount = 100_00000000
+            });
+            takeBack.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterBalance = _tokenContract.GetUserBalance(_acs8ContractA.ContractAddress, "READ");
+            afterBalance.ShouldBe(balance - 100_00000000);
+        }
+
         #endregion
 
         #region ACS1
@@ -183,8 +216,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task Acs1ContractTest()
         {
-            var balance = _tokenContract.GetUserBalance(InitAccount, Symbol);
-            var result = await _tokenTestSub.Approve.SendAsync(new ApproveInput
+            GetMethodFee();
+            _tokenContract.TransferBalance(InitAccount, TestAccount, 100000000, Symbol);
+            var balance = _tokenContract.GetUserBalance(TestAccount, Symbol);
+
+            var test = _genesisContract.GetTokenStub(TestAccount);
+            var result = await test.Approve.SendAsync(new ApproveInput
             {
                 Spender = _tokenContract.Contract,
                 Symbol = Symbol,
@@ -201,14 +238,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 if (symbol == Symbol)
                     amount.ShouldBe(SymbolFee);
             }
+
             var afterBalance = _tokenContract.GetUserBalance(InitAccount, Symbol);
-            afterBalance.ShouldBe(balance-SymbolFee);
+            afterBalance.ShouldBe(balance - SymbolFee);
         }
 
         #endregion
 
         #region BP ClaimProfits 
-        
+
         [TestMethod]
         public void ClaimProfits()
         {
@@ -219,14 +257,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var profitsInfo = new Dictionary<string, long>();
             foreach (var miner in miners)
             {
-                if(miner.Equals(InitAccount)) continue;
+                if (miner.Equals(InitAccount)) continue;
                 var amount = _profit.GetProfitAmount(miner, schemeId);
                 profitsInfo.Add(miner, amount);
             }
 
             foreach (var miner in miners)
             {
-                if(miner.Equals(InitAccount)) continue;
+                if (miner.Equals(InitAccount)) continue;
                 var minerBalance = _tokenContract.GetUserBalance(miner);
                 _profit.SetAccount(miner);
                 var profitResult = _profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
@@ -285,13 +323,147 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var period = AuthorityManager.GetPeriod();
                 var schemesId = Schemes[scheme.Key].SchemeId;
-                var address = _profit.GetSchemeAddress(schemesId, period-1);
+                var address = _profit.GetSchemeAddress(schemesId, period - 1);
                 var balance = _tokenContract.GetUserBalance(address.GetFormatted());
-                var testBalance = _tokenContract.GetUserBalance(address.GetFormatted(),Symbol);
+                var testBalance = _tokenContract.GetUserBalance(address.GetFormatted(), Symbol);
 
                 var amount = _profit.GetProfitAmount(InitAccount, schemesId);
-                Logger.Info($"{scheme.Key} ELF balance is :{balance} TEST balance is {testBalance}\n amount is {amount}");
+                Logger.Info(
+                    $"{scheme.Key} ELF balance is :{balance} TEST balance is {testBalance}\n amount is {amount}");
             }
+        }
+
+        #endregion
+
+        #region Side Chain Developer Fee
+
+        [TestMethod]
+        public async Task ChangeDeveloperFeeController()
+        {
+            var miners = SideAuthority.GetCurrentMiners();
+            var defaultController =
+                await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());
+            defaultController.RootController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
+            defaultController.ParliamentController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
+            defaultController.DeveloperController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
+            var parliamentController = defaultController.ParliamentController.OwnerAddress;
+            var developerController = defaultController.DeveloperController.OwnerAddress;
+            var parliamentProposer = miners.First();
+            ContractManager.Association.GetOrganization(developerController).ProposerWhiteList
+                .Proposers.Contains(parliamentController).ShouldBeTrue();
+
+            var newOrganization = AuthorityManager.CreateAssociationOrganization();
+            var proposer = ContractManager.Association.GetOrganization(newOrganization).ProposerWhiteList.Proposers
+                .First();
+            var input = new AuthorityInfo
+            {
+                ContractAddress = ContractManager.Association.Contract,
+                OwnerAddress = newOrganization
+            };
+            var createNestProposalInput = new CreateProposalInput
+            {
+                ToAddress = ContractManager.Token.Contract,
+                Params = input.ToByteString(),
+                OrganizationAddress = defaultController.RootController.OwnerAddress,
+                ContractMethodName = nameof(TokenContractImplContainer.TokenContractImplStub.ChangeDeveloperController),
+                ExpiredTime = KernelHelper.GetUtcNow().AddHours(1)
+            };
+
+            var createProposalInput = new CreateProposalInput
+            {
+                ToAddress = ContractManager.Association.Contract,
+                Params = createNestProposalInput.ToByteString(),
+                OrganizationAddress = parliamentController,
+                ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.CreateProposal),
+                ExpiredTime = KernelHelper.GetUtcNow().AddHours(1)
+            };
+            var parliamentCreateProposal =
+                await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
+            parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var parliamentProposalId = parliamentCreateProposal.Output;
+            ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, miners);
+            var releaseRet =
+                ContractManager.Parliament.ReleaseProposal(parliamentProposalId, ContractManager.CallAddress);
+            var id = ProposalCreated.Parser
+                .ParseFrom(releaseRet.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
+                    .NonIndexed).ProposalId;
+
+            //create approve parliament proposal
+            var parliamentApproveProposal = ContractManager.Parliament.CreateProposal(
+                ContractManager.Association.ContractAddress,
+                nameof(AssociationMethod.Approve), id, parliamentController, parliamentProposer);
+            ContractManager.Parliament.MinersApproveProposal(parliamentApproveProposal, miners);
+            var parliamentReleaseProposal =
+                ContractManager.Parliament.ReleaseProposal(parliamentApproveProposal, parliamentProposer);
+            parliamentReleaseProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            //create approve developer proposal
+            var createDeveloperNestProposalInput = new CreateProposalInput
+            {
+                ToAddress = ContractManager.Association.Contract,
+                Params = id.ToByteString(),
+                OrganizationAddress = developerController,
+                ContractMethodName = nameof(AssociationMethod.Approve),
+                ExpiredTime = KernelHelper.GetUtcNow().AddHours(1)
+            };
+
+            var developerCreateProposal = ContractManager.Parliament.CreateProposal(
+                ContractManager.Association.ContractAddress, nameof(ParliamentMethod.CreateProposal),
+                createDeveloperNestProposalInput, parliamentController, parliamentProposer);
+            ContractManager.Parliament.MinersApproveProposal(developerCreateProposal, miners);
+            var developerCreateReleaseProposal =
+                ContractManager.Parliament.ReleaseProposal(developerCreateProposal, parliamentProposer);
+            developerCreateReleaseProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+            var developerCreateId = ProposalCreated.Parser
+                .ParseFrom(developerCreateReleaseProposal.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
+                    .NonIndexed).ProposalId;
+            //developer approve
+            var developerApproveProposal = ContractManager.Parliament.CreateProposal(
+                ContractManager.Association.ContractAddress, nameof(ParliamentMethod.Approve),
+                developerCreateId, parliamentController, parliamentProposer);
+            ContractManager.Parliament.MinersApproveProposal(developerApproveProposal, miners);
+            var developerApproveReleaseProposal =
+                ContractManager.Parliament.ReleaseProposal(developerApproveProposal, parliamentProposer);
+            developerApproveReleaseProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+            //developer release
+            var developerReleaseProposal = ContractManager.Parliament.CreateProposal(
+                ContractManager.Association.ContractAddress, nameof(ParliamentMethod.Release),
+                developerCreateId, parliamentController, parliamentProposer);
+            ContractManager.Parliament.MinersApproveProposal(developerReleaseProposal, miners);
+            var developerReleaseReleaseProposal =
+                ContractManager.Parliament.ReleaseProposal(developerReleaseProposal, parliamentProposer);
+            developerReleaseReleaseProposal.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            //release
+            var releaseProposal = ContractManager.Parliament.CreateProposal(
+                ContractManager.Association.ContractAddress, nameof(AssociationMethod.Release), id,
+                parliamentController, parliamentProposer);
+            ContractManager.Parliament.MinersApproveProposal(releaseProposal, miners);
+            var release =
+                ContractManager.Parliament.ReleaseProposal(releaseProposal, parliamentProposer);
+            release.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var updateController =
+                await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());
+            updateController.RootController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
+            updateController.RootController.OwnerAddress.ShouldBe(newOrganization);
+
+            //recover
+            var recoverInput = new AuthorityInfo
+            {
+                OwnerAddress = defaultController.RootController.OwnerAddress,
+                ContractAddress = defaultController.RootController.ContractAddress
+            };
+            var recoverProposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
+                nameof(TokenContractImplContainer.TokenContractImplStub.ChangeDeveloperController), recoverInput,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Association.ApproveWithAssociation(recoverProposalId, newOrganization);
+            var recoverRelease =
+                ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.GetFormatted());
+            recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var recoverController =
+                await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());
+            recoverController.RootController.OwnerAddress.ShouldBe(defaultController.RootController.OwnerAddress);
         }
 
         #endregion
@@ -310,7 +482,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 1000_00000000
                 });
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                _tokenContract.TransferBalance(InitAccount, _acs8ContractA.ContractAddress, 1000_00000000, symbol);
+
+                var transferResult = await _tokenContractImpl.AdvanceResourceToken.SendAsync(
+                    new AdvanceResourceTokenInput
+                    {
+                        ContractAddress = _acs8ContractA.Contract,
+                        ResourceTokenSymbol = symbol,
+                        Amount = 1000_00000000
+                    });
+                transferResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 var rBalance = _tokenContract.GetUserBalance(_acs8ContractA.ContractAddress, symbol);
                 rBalance.ShouldBe(beforeBalance + 1000_00000000);
             }
@@ -326,8 +506,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Amount = 200_00000000
                 }));
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                _tokenContract.TransferBalance(InitAccount, _acs8ContractA.ContractAddress, 50_00000000, symbol);
-                _tokenContract.TransferBalance(InitAccount, _acs8ContractB.ContractAddress, 50_00000000, symbol);
+                _tokenContract.TransferBalance(InitAccount, _acs8ContractA.ContractAddress, 100_00000000, symbol);
+                _tokenContract.TransferBalance(InitAccount, _acs8ContractB.ContractAddress, 100_00000000, symbol);
             }
         }
 
@@ -338,13 +518,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private void SetTokenContractMethodFee()
         {
-            var fee = _tokenTestContract.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
+            var fee = _tokenContract.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
             {
                 Value = nameof(TokenMethod.Approve)
             });
-            if (fee.Fees.Count > 0) return;
+//            if (fee.Fees.Count > 0) return;
             var organization =
-                _tokenTestContract.CallViewMethod<AuthorityInfo>(TokenMethod.GetMethodFeeController, new Empty())
+                _tokenContract.CallViewMethod<AuthorityInfo>(TokenMethod.GetMethodFeeController, new Empty())
                     .OwnerAddress;
             var input = new MethodFees
             {
@@ -354,14 +534,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     new MethodFee
                     {
                         BasicFee = SymbolFee,
-                        Symbol = "TEST"
+                        Symbol = Symbol
                     }
                 }
             };
-            var result = AuthorityManager.ExecuteTransactionWithAuthority(_tokenTestContract.ContractAddress,
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(_tokenContract.ContractAddress,
                 "SetMethodFee", input,
                 InitAccount, organization);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        private void GetMethodFee()
+        {
+            var fee = _tokenContract.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
+            {
+                Value = nameof(TokenMethod.Approve)
+            });
+            Logger.Info(JsonConvert.SerializeObject(fee));
         }
 
         private void CreateAndIssueToken(long amount)
@@ -379,16 +568,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 IsProfitable = true
             });
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var testResult = _tokenTestContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-            {
-                Issuer = AddressHelper.Base58StringToAddress(InitAccount),
-                Symbol = Symbol,
-                Decimals = 8,
-                IsBurnable = true,
-                TokenName = "TEST symbol",
-                TotalSupply = 100000000_00000000,
-                IsProfitable = true
-            });
 
             var balance = _tokenContract.GetUserBalance(InitAccount, Symbol);
             var issueResult = _tokenContract.IssueBalance(InitAccount, InitAccount, amount, Symbol);

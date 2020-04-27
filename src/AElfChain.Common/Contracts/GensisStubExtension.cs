@@ -52,7 +52,7 @@ namespace AElfChain.Common.Contracts
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
             var contract =
-                new ParliamentAuthContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
+                new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
 
             return contract
                 .GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
@@ -187,7 +187,7 @@ namespace AElfChain.Common.Contracts
             var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
             var contract =
-                new AssociationAuthContract(genesis.NodeManager, caller, association.GetFormatted());
+                new AssociationContract(genesis.NodeManager, caller, association.GetFormatted());
 
             return contract.GetTestStub<AssociationContractContainer.AssociationContractStub>(caller);
         }
@@ -201,7 +201,7 @@ namespace AElfChain.Common.Contracts
             var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
 
             var contract =
-                new ReferendumAuthContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+                new ReferendumContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
 
             return contract
                 .GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);

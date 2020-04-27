@@ -22,7 +22,7 @@ namespace AElf.Automation.SideChainCreate
         public TokenContract TokenService { get; set; }
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
-        public ParliamentAuthContract ParliamentService { get; set; }
+        public ParliamentContract ParliamentService { get; set; }
 
         public string CallAddress { get; set; }
         public Address CallAccount { get; set; }
@@ -40,8 +40,8 @@ namespace AElf.Automation.SideChainCreate
             //CrossChain contract
             CrossChainService = GenesisService.GetCrossChainContract();
 
-            //ParliamentAuth contract
-            ParliamentService = GenesisService.GetParliamentAuthContract();
+            //Parliament contract
+            ParliamentService = GenesisService.GetParliamentContract();
         }
     }
 }

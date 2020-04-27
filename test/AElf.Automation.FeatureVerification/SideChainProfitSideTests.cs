@@ -40,7 +40,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void Prepare_TestToken()
         {
             const long BALANCE = 5000_00000000L;
-            var symbols = new[] {"STA", "ELF", "RAM", "CPU"};
+            var symbols = new[] {"ELF"};
             var secondBp = NodeInfoHelper.Config.Nodes[1].Account;
             foreach (var symbol in symbols)
                 SideManager.Token.TransferBalance(SideManager.CallAddress, secondBp, BALANCE, symbol);
@@ -78,6 +78,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        public async Task Withdraw()
+        { 
+            var beforeBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
+            var result = await SideManager.TokenHolderStub.Withdraw.SendAsync(SideManager.Consensus.Contract);
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
+            afterBalance.ShouldBe(beforeBalance + 100);
+        }
+
+        [TestMethod]
         [DataRow("SCPU")]
         [DataRow("SRAM")]
         public async Task CreateNewToken_And_Contribute_Test(string symbol)
@@ -102,23 +112,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var bpUsers = SideManager.Authority.GetCurrentMiners();
             foreach (var bp in bpUsers)
             {
-                if (bp == SideManager.CallAddress) continue;
+                var balance = SideManager.Token.GetUserBalance(bp, symbol);
+                if (bp == SideManager.CallAddress || balance > 1000000_00000000) continue;
                 var issueResult = await SideManager.TokenImplStub.Issue.SendAsync(new IssueInput
                 {
                     To = bp.ConvertAddress(),
-                    Amount = 5000000_00000000L,
+                    Amount = 5000000_00000000,
                     Symbol = symbol,
                     Memo = "issue token"
                 });
                 issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
                 //query result
-                var balance = SideManager.Token.GetUserBalance(bp, symbol);
+                balance = SideManager.Token.GetUserBalance(bp, symbol);
                 Logger.Info($"Account: {bp}, {symbol}={balance}");
-
-                //distribute
-                await Contribute_SideChainDividendsPool_Test(symbol, 1000000_00000000L);
             }
+            //distribute
+            await Contribute_SideChainDividendsPool_Test(symbol, 1000000_00000000);
+
         }
 
         [TestMethod]
@@ -136,6 +147,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = symbol
             });
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var balance = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = secondBp.ConvertAddress(),
+                Symbol = symbol
+            });
+            Logger.Info($"Account: {secondBp}, {symbol}={balance}");
+
+            var allowance = await tokenStub.GetAllowance.CallAsync(new GetAllowanceInput
+            {
+                Owner = secondBp.ConvertAddress(),
+                Spender = SideManager.Consensus.Contract,
+                Symbol = symbol
+            });
+            Logger.Info($"Account: {secondBp}, {symbol}={allowance}");
 
             var contributeResult =
                 await consensusStub.ContributeToSideChainDividendsPool.SendAsync(
@@ -159,7 +185,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("CPU")]
+        [DataRow("SCPU")]
         public async Task ClaimProfit_Test(string symbol)
         {
             var profitMap = await SideManager.TokenHolderStub.GetProfitsMap.CallAsync(new ClaimProfitsInput

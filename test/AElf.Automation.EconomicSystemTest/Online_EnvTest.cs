@@ -30,7 +30,7 @@ namespace AElf.Automation.EconomicSystemTest
 
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractManager(NodeManager, InitAccount);
-            Behaviors = new Behaviors(contractServices);
+            Behaviors = new Behaviors(contractServices,InitAccount);
 
             #endregion
         }

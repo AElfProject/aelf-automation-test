@@ -38,15 +38,15 @@ namespace AElfChain.Common.Contracts
         ChangeMethodFeeController
     }
 
-    public class AssociationAuthContract : BaseContract<AssociationMethod>
+    public class AssociationContract : BaseContract<AssociationMethod>
     {
-        public AssociationAuthContract(INodeManager nodeManager, string callAddress, string electionAddress)
+        public AssociationContract(INodeManager nodeManager, string callAddress, string electionAddress)
             : base(nodeManager, electionAddress)
         {
             SetAccount(callAddress);
         }
 
-        public AssociationAuthContract(INodeManager nodeManager, string callAddress)
+        public AssociationContract(INodeManager nodeManager, string callAddress)
             : base(nodeManager, "AElf.Contracts.AssociationAuth", callAddress)
         {
         }

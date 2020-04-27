@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 
@@ -11,9 +12,25 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
     {
         public void CrossChainTransferSideChainJob()
         {
-            foreach (var symbol in PrimaryTokens) CrossChainTransferOnSideChain(symbol);
-            if (TokenSymbols.Count < 1) return;
-            foreach (var symbol in TokenSymbols) CrossChainTransferOnSideChain(symbol);
+            ExecuteStandaloneTask(new Action[]
+            {
+                CrossChainTransferOnSideChain
+            });
+        }
+
+        private void CrossChainTransferOnSideChain()
+        {
+            Logger.Info("SideChain CrossTransfer to SideChain and MainChain:");
+            try
+            {
+                foreach (var symbol in PrimaryTokens) CrossChainTransferOnSideChain(symbol);
+                if (TokenSymbols.Count < 1) return;
+                foreach (var symbol in TokenSymbols) CrossChainTransferOnSideChain(symbol);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"TransferAction: {e.Message}");
+            }
         }
 
         private void CrossChainTransferOnSideChain(string symbol)

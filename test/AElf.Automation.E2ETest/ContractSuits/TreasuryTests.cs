@@ -2,8 +2,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
 using Acs3;
+using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
-using AElf.Contracts.Parliament;
+using AElf.Contracts.Referendum;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Treasury;
 using AElf.Types;
@@ -13,6 +14,7 @@ using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
+using GetWelfareRewardAmountSampleInput = AElf.Contracts.Treasury.GetWelfareRewardAmountSampleInput;
 
 namespace AElf.Automation.E2ETest.ContractSuits
 {
@@ -120,31 +122,56 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task ModifyVoteInterest_Test()
         {
-            var interestList = await ContractManager.TreasuryStub.GetVoteWeightSetting.CallAsync(new Empty());
-            interestList.VoteWeightInterestInfos.Count.ShouldBe(3);
+            var interestList = await ContractManager.ElectionStub.GetVoteWeightSetting.CallAsync(new Empty());
+//            interestList.VoteWeightInterestInfos.Count.ShouldBe(1);
             var newInterest = new VoteWeightInterestList();
             newInterest.VoteWeightInterestInfos.Add(new VoteWeightInterest
             {
-                Capital = 1000,
-                Interest = 16,
-                Day = 400
+                Capital = 1100,
+                Interest = 15,
+                Day = 500
             });
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.SetVoteWeightInterest),
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.SetVoteWeightInterest),
                 newInterest,
                 ContractManager.CallAddress);
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            interestList = await ContractManager.TreasuryStub.GetVoteWeightSetting.CallAsync(new Empty());
-            interestList.VoteWeightInterestInfos.Count.ShouldBe(1);
-            interestList.VoteWeightInterestInfos[0].Capital.ShouldBe(1000);
-            interestList.VoteWeightInterestInfos[0].Interest.ShouldBe(16);
-            interestList.VoteWeightInterestInfos[0].Day.ShouldBe(400);
+            interestList = await ContractManager.ElectionStub.GetVoteWeightSetting.CallAsync(new Empty());
+            interestList.VoteWeightInterestInfos[0].Capital.ShouldBe(1100);
+            interestList.VoteWeightInterestInfos[0].Interest.ShouldBe(15);
+            interestList.VoteWeightInterestInfos[0].Day.ShouldBe(500);
+        }
+
+        [TestMethod]
+        public async Task SetVoteWeightProportion_Test()
+        {
+            var defaultSetting = await ContractManager.ElectionStub.GetVoteWeightProportion.CallAsync(new Empty());
+            defaultSetting.TimeProportion.ShouldBe(2);
+            defaultSetting.AmountProportion.ShouldBe(1);        
+            var input = new VoteWeightProportion
+            {
+                TimeProportion = 3,
+                AmountProportion = 3
+            };
+            
+            var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.SetVoteWeightProportion),
+                input,
+                ContractManager.CallAddress);
+            authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var updateSetting = await ContractManager.ElectionStub.GetVoteWeightProportion.CallAsync(new Empty());
+            updateSetting.TimeProportion.ShouldBe(3);
+            updateSetting.AmountProportion.ShouldBe(3);       
         }
 
         [TestMethod]
         public async Task TransferAuthorizationForVoteInterest_Test()
         {
+            var referendum = ContractManager.Referendum;
+            var proposer = ConfigNodes.First().Account.ConvertAddress();
             var newInterest = new VoteWeightInterestList();
             newInterest.VoteWeightInterestInfos.Add(new VoteWeightInterest
             {
@@ -154,70 +181,134 @@ namespace AElf.Automation.E2ETest.ContractSuits
             });
             
             var miners = ContractManager.Authority.GetCurrentMiners();
-            var defaultController =
-                await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
-            var newOrganization = CreateParliamentOrganization();
+            var defaultController = ContractManager.Parliament.GetGenesisOwnerAddress();
+            var newOrganization = ReferendumOrganization;
             var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Election.ContractAddress,
                 nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
                 new AuthorityInfo
                 {
-                    ContractAddress = defaultController.ContractAddress,
+                    ContractAddress = ContractManager.Referendum.Contract,
                     OwnerAddress = newOrganization
                 },
                 miners.First());
             authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var result = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Treasury.ContractAddress,
-                nameof(TreasuryContractContainer.TreasuryContractStub.SetVoteWeightInterest),
-                newInterest, newOrganization, miners,
-                miners.First());
-            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            var interestProposalId = referendum.CreateProposal( ContractManager.Election.ContractAddress,
+                nameof(ElectionContractContainer.ElectionContractStub.SetVoteWeightInterest), newInterest,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000_00000000, "ELF");
+            referendum.SetAccount(proposer.GetFormatted());
+            var interestApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, interestProposalId);
+            interestApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            var interestReleaseResult = referendum.ReleaseProposal(interestProposalId, proposer.GetFormatted());
+            interestReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var interestList = await ContractManager.TreasuryStub.GetVoteWeightSetting.CallAsync(new Empty());
+            var interestList = await ContractManager.ElectionStub.GetVoteWeightSetting.CallAsync(new Empty());
             interestList.VoteWeightInterestInfos.Count.ShouldBe(1);
             interestList.VoteWeightInterestInfos[0].Capital.ShouldBe(1000);
             interestList.VoteWeightInterestInfos[0].Interest.ShouldBe(16);
             interestList.VoteWeightInterestInfos[0].Day.ShouldBe(400);
 
             //recover back
-            var defaultOwner = ContractManager.Authority.GetGenesisOwnerAddress();
-            authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
-                ContractManager.Election.ContractAddress,
-                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController),
-                new AuthorityInfo
-                {
-                    ContractAddress = defaultController.ContractAddress,
-                    OwnerAddress = defaultOwner
-                }, newOrganization, miners,
-                ContractManager.CallAddress);
-            authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var input = new AuthorityInfo
+            {
+                ContractAddress = ContractManager.Parliament.Contract,
+                OwnerAddress = defaultController
+            };
+            var proposalId = referendum.CreateProposal(ContractManager.Election.ContractAddress,
+                nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController), input,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000, "ELF");
+            referendum.SetAccount(proposer.GetFormatted());
+            var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
+            approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var controller =
+                await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
+            controller.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
         }
 
-        private Address CreateParliamentOrganization()
+        [TestMethod]
+        public async Task ChangeTreasuryController()
         {
-            var parliament = ContractManager.ParliamentAuth;
-            var createInput = new CreateOrganizationInput
-            {
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MaximalAbstentionThreshold = 2500,
-                    MaximalRejectionThreshold = 2500,
-                    MinimalApprovalThreshold = 7500,
-                    MinimalVoteThreshold = 10000
-                },
-                ProposerAuthorityRequired = true,
-                ParliamentMemberProposingAllowed = true
-            };
+            var referendum = ContractManager.Referendum;
+            var proposer = ConfigNodes.First().Account.ConvertAddress();
             var miners = ContractManager.Authority.GetCurrentMiners();
-            parliament.SetAccount(miners.First());
-            var result = parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,
-                createInput);
-            var organizationAddress =
-                Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            return organizationAddress;
+            var newOrganization = ReferendumOrganization;
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000, "ELF");
+            
+            var defaultController = await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
+            defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
+            var input = new AuthorityInfo
+            {
+                ContractAddress = ContractManager.Referendum.Contract,
+                OwnerAddress = newOrganization
+            };
+            var authorityResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Treasury.ContractAddress,
+                nameof(ContractManager.TreasuryStub.ChangeTreasuryController),
+                input,
+                ContractManager.CallAddress);;
+            authorityResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            //SetDividendPoolWeightSetting
+            var dividendPoolWeight =
+                await ContractManager.TreasuryStub.GetDividendPoolWeightProportion.CallAsync(new Empty());
+            dividendPoolWeight.BackupSubsidyProportionInfo.Proportion.ShouldBe(5);
+            dividendPoolWeight.CitizenWelfareProportionInfo.Proportion.ShouldBe(75);
+            dividendPoolWeight.MinerRewardProportionInfo.Proportion.ShouldBe(20);
 
+            var setInput = new DividendPoolWeightSetting
+            {
+                BackupSubsidyWeight = 10,
+                CitizenWelfareWeight = 70,
+                MinerRewardWeight = 20
+            };
+            var setDividendId = referendum.CreateProposal( ContractManager.Treasury.ContractAddress,
+                nameof(TreasuryContractContainer.TreasuryContractStub.SetDividendPoolWeightSetting),setInput,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000_00000000, "ELF");
+            referendum.SetAccount(proposer.GetFormatted());
+            var setApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, setDividendId);
+            setApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            var setReleaseResult = referendum.ReleaseProposal(setDividendId, proposer.GetFormatted());
+            setReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var updateDividendPoolWeight =
+                await ContractManager.TreasuryStub.GetDividendPoolWeightProportion.CallAsync(new Empty());
+            updateDividendPoolWeight.BackupSubsidyProportionInfo.Proportion.ShouldBe(10);
+            updateDividendPoolWeight.CitizenWelfareProportionInfo.Proportion.ShouldBe(70);
+            updateDividendPoolWeight.MinerRewardProportionInfo.Proportion.ShouldBe(20);
+            
+            //recover back
+            var recoverInput = new AuthorityInfo
+            {
+                ContractAddress = ContractManager.Parliament.Contract,
+                OwnerAddress = defaultController.OwnerAddress
+            };
+            var proposalId = referendum.CreateProposal(ContractManager.Treasury.ContractAddress,
+                nameof(ContractManager.TreasuryStub.ChangeTreasuryController), recoverInput,
+                newOrganization, proposer.GetFormatted());
+            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                2000, "ELF");
+            referendum.SetAccount(proposer.GetFormatted());
+            var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
+            approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var controller =
+                await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
+            controller.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
         }
     }
 }

@@ -28,6 +28,12 @@ namespace AElf.Automation.RpcPerformance
         public int MaxTransactionSelect { get; set; }
     }
 
+    public class ChainTypeOption
+    {
+        [JsonProperty("is_side_chain")] public bool isSideChain { get; set; }
+        [JsonProperty("main_chain_url")] public string MainChainUrl { get; set; }
+    }
+
     public class RpcConfig
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
@@ -49,6 +55,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("RequestRandomEndpoint")]
         public RandomTransactionOption RandomEndpointOption { get; set; }
 
+        [JsonProperty("ChainType")] public ChainTypeOption ChainTypeOption { get; set; }
         public static RpcConfig ReadInformation => ConfigHelper<RpcConfig>.GetConfigInfo("rpc-performance.json");
     }
 }

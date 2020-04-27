@@ -19,7 +19,7 @@ namespace AElf.Automation.ProposalTest
 
             TaskCollection.Add(RunContinueJobWithInterval(proposalParliament.ParliamentJob, 100));
             TaskCollection.Add(RunContinueJobWithInterval(proposalAssociation.AssociationJob, 120));
-            TaskCollection.Add(RunContinueJobWithInterval(proposalReferendum.ReferendumJob, 240));
+            TaskCollection.Add(RunContinueJobWithInterval(proposalReferendum.ReferendumJob, 300));
 
             Task.WaitAll(TaskCollection.ToArray());
         }
