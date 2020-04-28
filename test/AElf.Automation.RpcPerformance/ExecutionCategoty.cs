@@ -47,10 +47,7 @@ namespace AElf.Automation.RpcPerformance
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             LimitTransaction = limitTransaction;
         }
-        public void CrossTransferToInitAccount()
-        {
-            
-        }
+
         public void InitExecCommand(int userCount = 200)
         {
             Logger.Info("Host Url: {0}", BaseUrl);

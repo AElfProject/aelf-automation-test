@@ -8,7 +8,6 @@ using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
-using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -116,6 +115,12 @@ namespace AElfChain.Common.Managers
                 _token.ContractAddress, TokenMethod.CrossChainTransfer.ToString(),
                 crossChainTransferInput);
             return rawTx;
+        }
+
+        public bool CheckPrivilegePreserved(int chainId)
+        {
+           var sideChainData = _crossChain.GetChainInitializationData(chainId);
+           return sideChainData.ChainCreatorPrivilegePreserved;
         }
 
         public long MainChainCheckSideChainBlockIndex(long txHeight,CrossChainContract mainChainCross=null)

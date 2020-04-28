@@ -9,7 +9,6 @@ namespace AElf.Automation.RpcPerformance
         int ExeTimes { get; }
         string BaseUrl { get; }
         void InitExecCommand(int userCount = 150);
-        void CrossTransferToInitAccount();
         void DeployContractsWithAuthority();
         void SideChainDeployContractsWithCreator();
         void SideChainDeployContractsWithAuthority();

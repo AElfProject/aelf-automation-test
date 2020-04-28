@@ -60,8 +60,6 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
                 var chainId = nodeManager.GetChainId();
-                if (chainId.Equals("tDVV"))
-                    performance.CrossTransferToInitAccount();
                 performance.InitExecCommand(150 + GroupCount);
                 
                 var authority = NodeInfoHelper.Config.RequireAuthority;

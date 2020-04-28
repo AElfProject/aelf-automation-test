@@ -47,55 +47,6 @@ namespace AElf.Automation.RpcPerformance
             LimitTransaction = limitTransaction;
         }
 
-        public void CrossTransferToInitAccount()
-        {
-            var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            var bps = NodeInfoHelper.Config.Nodes;
-            var initAccount = bps.First().Account;
-            var token = new TokenContract(NodeManager, initAccount, SystemTokenAddress);
-            var initBalance = token.GetUserBalance(initAccount, primaryToken);
-            if (initBalance > 50000000_00000000) return;
-            Logger.Info($"{initAccount} balance is {initBalance}, need cross transfer first");
-            var mainUrl = RpcConfig.ReadInformation.ChainTypeOption.MainChainUrl;
-            MainNodeManager = new NodeManager(mainUrl);
-            var mainChainId = ChainHelper.ConvertBase58ToChainId(MainNodeManager.GetChainId());
-            var mainGenesis = MainNodeManager.GetGenesisContract();
-            var mainToken = mainGenesis.GetTokenContract();
-            var crossChainManager = new CrossChainManager(MainNodeManager, NodeManager, initAccount);
-
-            //cross chain transfer 
-            var amount = 100000000_00000000;
-            var raw = crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount);
-            var txId = MainNodeManager.SendTransaction(raw);
-            var result = MainNodeManager.CheckTransactionResult(txId);
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-
-            // create input 
-
-            var merklePath = crossChainManager.GetMerklePath(result.BlockNumber,
-                txId, out var root);
-
-            var crossChainCreateToken = new CrossChainReceiveTokenInput
-            {
-                MerklePath = merklePath,
-                FromChainId = mainChainId,
-                ParentChainHeight = result.BlockNumber,
-                TransferTransactionBytes = raw.ToByteString()
-            };
-
-            //check last transaction index 
-            crossChainManager.CheckSideChainBlockIndex(result.BlockNumber);
-
-            //side chain receive 
-
-            var receiveResult =
-                token.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, crossChainCreateToken);
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-
-            initBalance = token.GetUserBalance(initAccount, primaryToken);
-            Logger.Info($"{initAccount} balance is {initBalance}");
-        }
-
         public void InitExecCommand(int userCount = 150)
         {
             Logger.Info("Host Url: {0}", BaseUrl);
@@ -115,6 +66,8 @@ namespace AElf.Automation.RpcPerformance
             TokenMonitor = new TesterTokenMonitor(NodeManager);
             SystemTokenAddress = TokenMonitor.SystemToken.ContractAddress;
 
+            var chainId = NodeManager.GetChainId();
+            CrossTransferToInitAccount(chainId);
             //Transfer token for approve
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
             var enumerable = bps as string[] ?? bps.ToArray();
@@ -388,8 +341,6 @@ namespace AElf.Automation.RpcPerformance
             var transferAmount = 10_0000_0000_00000000L / AccountList.Count;
             foreach (var contract in ContractList)
             {
-                var account = contract.Owner;
-                var contractPath = contract.ContractAddress;
                 var symbol = contract.Symbol;
                 foreach (var user in AccountList)
                 {
@@ -643,6 +594,56 @@ namespace AElf.Automation.RpcPerformance
                     exceptionTimes--;
                 }
             }
+        }
+        
+        private void CrossTransferToInitAccount(string chainId)
+        {
+            var bps = NodeInfoHelper.Config.Nodes;
+            var initAccount = bps.First().Account;
+            var isSideChain = RpcConfig.ReadInformation.ChainTypeOption.isSideChain;
+            if (!isSideChain) return;
+            var mainUrl = RpcConfig.ReadInformation.ChainTypeOption.MainChainUrl;
+            MainNodeManager = new NodeManager(mainUrl);
+            var mainChainId = ChainHelper.ConvertBase58ToChainId(MainNodeManager.GetChainId());
+            var primaryToken = MainNodeManager.GetPrimaryTokenSymbol();
+            var crossChainManager = new CrossChainManager(MainNodeManager, NodeManager, initAccount);
+            var id = ChainHelper.ConvertBase58ToChainId(chainId);
+            if (crossChainManager.CheckPrivilegePreserved(id)) return;
+
+            var token = new TokenContract(NodeManager, initAccount, SystemTokenAddress);
+            var initBalance = token.GetUserBalance(initAccount, primaryToken);
+            if (initBalance > 8000_0000_00000000) return;
+            Logger.Info($"{initAccount} balance is {initBalance}, need cross transfer first");
+            
+            //cross chain transfer 
+            var amount = 10000_0000_00000000;
+            var raw = crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount);
+            var txId = MainNodeManager.SendTransaction(raw);
+            var result = MainNodeManager.CheckTransactionResult(txId);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            // create input 
+            var merklePath = crossChainManager.GetMerklePath(result.BlockNumber,
+                txId, out var root);
+
+            var crossChainCreateToken = new CrossChainReceiveTokenInput
+            {
+                MerklePath = merklePath,
+                FromChainId = mainChainId,
+                ParentChainHeight = result.BlockNumber,
+                TransferTransactionBytes = raw.ToByteString()
+            };
+
+            //check last transaction index 
+            crossChainManager.CheckSideChainBlockIndex(result.BlockNumber);
+
+            //side chain receive 
+
+            var receiveResult =
+                token.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, crossChainCreateToken);
+            receiveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            initBalance = token.GetUserBalance(initAccount, primaryToken);
+            Logger.Info($"{initAccount} balance is {initBalance}");
         }
 
         private void ExecuteTransactionTask(int threadNo, int times)
