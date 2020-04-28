@@ -370,7 +370,7 @@ namespace AElf.Automation.RpcPerformance
                     if (rd != 5) continue;
                     //verify token
                     var balance = token.GetUserBalance(user.Account, symbol);
-                    if (balance == amount)
+                    if (balance == transferAmount)
                         Logger.Info($"Issue token {symbol} to '{user.Account}' with amount {transferAmount} success.");
                     else if (balance == 0)
                         Logger.Warn($"User '{user.Account}' without any {symbol} token.");
