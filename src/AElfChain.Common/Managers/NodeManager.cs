@@ -34,13 +34,21 @@ namespace AElfChain.Common.Managers
             return _baseUrl;
         }
 
-        public void UpdateApiUrl(string url)
+        public bool UpdateApiUrl(string url)
         {
             _baseUrl = url;
             ApiClient = AElfClientExtension.GetClient(url);
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            if (!check)
+            {
+                Logger.Warn($"Url:{url} is not connected!");
+                return false;
+            }
+
             _chainId = GetChainId();
 
             Logger.Info($"Request url updated to: {url}");
+            return true;
         }
 
         public string GetChainId()

@@ -11,7 +11,7 @@ namespace AElfChain.Common.Managers
         AccountManager AccountManager { get; }
         TransactionManager TransactionManager { get; }
         string GetApiUrl();
-        void UpdateApiUrl(string url);
+        bool UpdateApiUrl(string url);
         string GetChainId();
         string GetGenesisContractAddress();
 

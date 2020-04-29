@@ -569,7 +569,14 @@ namespace AElf.Automation.RpcPerformance
                 var serviceUrl = randomTransactionOption.GetRandomEndpoint();
                 if (serviceUrl == NodeManager.GetApiUrl())
                     continue;
-                NodeManager.UpdateApiUrl(serviceUrl);
+                var checkTimes = randomTransactionOption.EndpointList.Count;
+                while (!NodeManager.UpdateApiUrl(serviceUrl) && checkTimes >0)
+                {
+                    var errorUrlIndex = randomTransactionOption.EndpointList.IndexOf(serviceUrl.Replace("http://",""));
+                    var nextIndex = errorUrlIndex == randomTransactionOption.EndpointList.Count - 1 ? 0 : errorUrlIndex + 1;
+                    serviceUrl = randomTransactionOption.GetRandomEndpoint(nextIndex);
+                    checkTimes--;
+                }
                 try
                 {
                     var transactionPoolCount =
@@ -595,12 +602,12 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
         }
-        
+
         private void CrossTransferToInitAccount(string chainId)
         {
             var bps = NodeInfoHelper.Config.Nodes;
             var initAccount = bps.First().Account;
-            var isSideChain = RpcConfig.ReadInformation.ChainTypeOption.isSideChain;
+            var isSideChain = RpcConfig.ReadInformation.ChainTypeOption.IsSideChain;
             if (!isSideChain) return;
             var mainUrl = RpcConfig.ReadInformation.ChainTypeOption.MainChainUrl;
             MainNodeManager = new NodeManager(mainUrl);
@@ -614,7 +621,7 @@ namespace AElf.Automation.RpcPerformance
             var initBalance = token.GetUserBalance(initAccount, primaryToken);
             if (initBalance > 8000_0000_00000000) return;
             Logger.Info($"{initAccount} balance is {initBalance}, need cross transfer first");
-            
+
             //cross chain transfer 
             var amount = 10000_0000_00000000;
             var raw = crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount);
