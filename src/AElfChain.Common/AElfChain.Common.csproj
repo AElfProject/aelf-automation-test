@@ -52,7 +52,7 @@
 
     <ItemGroup>
         <!--AElf packages-->
-        <PackageReference Include="AElf.Types" Version="0.9.3-18347" />
+        <PackageReference Include="AElf.Types" Version="1.0.0-preview1" />
         <PackageReference Include="AElf.CSharp.Core" Version="0.9.3-18347" />
         <PackageReference Include="AElf.Cryptography" Version="0.9.3-18347" />
         <PackageReference Include="AElf.Client" Version="0.1.4" />

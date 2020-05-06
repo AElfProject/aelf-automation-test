@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AElf.Client" Version="0.1.4"/>
+        <PackageReference Include="AElf.Types" Version="1.0.0-preview1"/>
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4"/>
+        <None Update="config\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>

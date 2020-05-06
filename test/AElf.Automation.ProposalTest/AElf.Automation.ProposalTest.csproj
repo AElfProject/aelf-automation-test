@@ -11,7 +11,7 @@
 
     <ItemGroup>
       <PackageReference Include="AElf.Client" Version="0.1.4" />
-      <PackageReference Include="AElf.Types" Version="0.9.3-18347" />
+      <PackageReference Include="AElf.Types" Version="1.0.0-preview1" />
       <PackageReference Include="FluentScheduler" Version="5.3.0" />
     </ItemGroup>
 

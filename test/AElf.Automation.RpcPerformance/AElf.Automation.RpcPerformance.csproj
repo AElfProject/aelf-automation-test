@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AElf.Client" Version="0.1.4" />
-    <PackageReference Include="AElf.Types" Version="0.9.3-18347" />
+    <PackageReference Include="AElf.Types" Version="1.0.0-preview1" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
