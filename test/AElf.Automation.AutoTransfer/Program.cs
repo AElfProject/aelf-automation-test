@@ -32,11 +32,11 @@ namespace AElf.Automation.AutoTransfer
             Log4NetHelper.LogInit(fileName);
             // var Logger = Log4NetHelper.GetLogger();
             _nodeManager = new NodeManager(_config.ServiceUrl, CommonHelper.GetCurrentDataDir());
-            _contractManager = new ContractManager(_nodeManager, _config.SendAccount);
             // Connect
             AsyncHelper.RunSync(_nodeManager.ApiClient.GetChainStatusAsync);
             // Load all account
             var accounts = LoadAllUnlockedAccount();
+            _contractManager = new ContractManager(_nodeManager, _config.SendAccount);
             CheckAccountBalance(accounts);
 
             var count = 0;
@@ -68,24 +68,28 @@ namespace AElf.Automation.AutoTransfer
                     ? new AccountInfo(acc, _config.AccountPassword)
                     : new AccountInfo(acc, string.Empty);
             }).ToList();
-            accounts.ForEach(acc =>
+
+            if (accounts.All(acc => acc.Account != _config.SendAccount))
             {
-                if (_nodeManager.UnlockAccount(acc.Account, acc.Password))
+                throw new Exception($"Config account: {_config.SendAccount} not found");
+            }
+            
+            var index = 0;
+            while (unlockAccounts.Count < _config.AccountCount)
+            {
+                var i = index++;
+
+                if (i < accounts.Count && _nodeManager.UnlockAccount(accounts[i].Account, accounts[i].Password))
                 {
-                    unlockAccounts.Add(acc);
+                    unlockAccounts.Add(accounts[i]);
+                    continue;
                 }
-            });
-            while (unlockAccounts.Count < _config.AccountAmount)
-            {
+
                 var newAccount = new AccountInfo(_nodeManager.NewAccount(), string.Empty);
                 _nodeManager.UnlockAccount(newAccount.Account);
                 unlockAccounts.Add(newAccount);
             }
-
-            while (unlockAccounts.Count > _config.AccountAmount)
-            {
-                unlockAccounts.RemoveAt(unlockAccounts.Count - 1);
-            }
+            
             return unlockAccounts;
         }
 

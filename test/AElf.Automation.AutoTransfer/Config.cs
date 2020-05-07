@@ -5,6 +5,6 @@ namespace AElf.Automation.AutoTransfer
         public string ServiceUrl { get; set; }
         public string SendAccount { get; set; }
         public string AccountPassword { get; set; }
-        public int AccountAmount { get; set; }
+        public int AccountCount { get; set; }
     }
 }
