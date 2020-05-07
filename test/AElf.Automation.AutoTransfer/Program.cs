@@ -22,35 +22,29 @@ namespace AElf.Automation.AutoTransfer
         private Config _config;
         private NodeManager _nodeManager;
         private Random _random = new Random(DateTime.Now.Millisecond);
+        private ContractManager _contractManager;
 
         private void OnExecute(CommandLineApplication app)
         {
             _config = ConfigHelper<Config>.GetConfigInfo("appsettings.json");
-            var baseUrl = _config.ServiceUrl;
-            var sendAccount = _config.SendAccount;
-            var sendAccountPassword = _config.AccountPassword;
             //Init Logger
             var fileName = $"AutoTransfer_{DateTime.Now.Hour:00}";
             Log4NetHelper.LogInit(fileName);
             // var Logger = Log4NetHelper.GetLogger();
-            _nodeManager = new NodeManager(baseUrl, CommonHelper.GetCurrentDataDir());
+            _nodeManager = new NodeManager(_config.ServiceUrl, CommonHelper.GetCurrentDataDir());
+            _contractManager = new ContractManager(_nodeManager, _config.SendAccount);
             // Connect
             AsyncHelper.RunSync(_nodeManager.ApiClient.GetChainStatusAsync);
             // Load all account
-            var accounts = _nodeManager.ListAccounts().Select(acc =>
-            {
-                return acc == sendAccount
-                    ? new AccountInfo(acc, sendAccountPassword)
-                    : new AccountInfo(acc, string.Empty);
-            }).ToList();
-            UnlockAccounts(accounts);
+            var accounts = LoadAllUnlockedAccount();
             CheckAccountBalance(accounts);
-            
+
             var count = 0;
             while (++count > 0)
             {
                 Console.WriteLine("----Begin----");
-                Console.WriteLine($"Loop batch send count: {count}{Environment.NewLine}");
+                Console.WriteLine($"Loop batch send count: {count}");
+                Console.WriteLine($"Tasks count: {accounts.Count}{Environment.NewLine}");
                 var accountTasks = new List<Task>();
                 accounts.ForEach(acc =>
                 {
@@ -65,21 +59,45 @@ namespace AElf.Automation.AutoTransfer
             }
         }
 
-        private void UnlockAccounts(List<AccountInfo> accounts)
+        private List<AccountInfo> LoadAllUnlockedAccount()
         {
-            accounts.ForEach(acc => { _nodeManager.UnlockAccount(acc.Account, acc.Password); });
+            var unlockAccounts = new List<AccountInfo>();
+            var accounts = _nodeManager.ListAccounts().Select(acc =>
+            {
+                return acc == _config.SendAccount
+                    ? new AccountInfo(acc, _config.AccountPassword)
+                    : new AccountInfo(acc, string.Empty);
+            }).ToList();
+            accounts.ForEach(acc =>
+            {
+                if (_nodeManager.UnlockAccount(acc.Account, acc.Password))
+                {
+                    unlockAccounts.Add(acc);
+                }
+            });
+            while (unlockAccounts.Count < _config.AccountAmount)
+            {
+                var newAccount = new AccountInfo(_nodeManager.NewAccount(), string.Empty);
+                _nodeManager.UnlockAccount(newAccount.Account);
+                unlockAccounts.Add(newAccount);
+            }
+
+            while (unlockAccounts.Count > _config.AccountAmount)
+            {
+                unlockAccounts.RemoveAt(unlockAccounts.Count - 1);
+            }
+            return unlockAccounts;
         }
 
         private void CheckAccountBalance(List<AccountInfo> accounts)
         {
-            var token = new ContractManager(_nodeManager, _config.SendAccount).Token;
+            var token = _contractManager.Token;
             accounts.ForEach(acc =>
             {
                 if (acc.Account != _config.SendAccount)
                 {
-                    var contractManager = new ContractManager(_nodeManager, acc.Account);
                     var balance = token.GetUserBalance(acc.Account);
-                    if (balance < 1000000L * 100000000L)
+                    if (balance < 1_000_000L * 100_000_000L)
                     {
                         var rawTransaction = _nodeManager.GenerateRawTransaction(_config.SendAccount,
                             token.ContractAddress,
@@ -87,7 +105,7 @@ namespace AElf.Automation.AutoTransfer
                             new TransferInput
                             {
                                 To = acc.Account.ConvertAddress(),
-                                Amount = 1000000L * 100000000L - balance,
+                                Amount = 1_000_000L * 100_000_000L - balance,
                                 Symbol = "ELF",
                                 Memo = $"{nameof(CheckAccountBalance)} - {Guid.NewGuid()}"
                             });
@@ -99,48 +117,40 @@ namespace AElf.Automation.AutoTransfer
 
         private void SendTransactionRandomly(List<AccountInfo> accountInfos)
         {
-            var token = new ContractManager(_nodeManager, _config.SendAccount).Token;
-            var seed = _random.Next(0, 4);
-            var sendAccount = accountInfos[seed];
-            var receiveAccount = accountInfos.Where(acc => acc != sendAccount).ToList();
-            Console.WriteLine($"SendAccount: {sendAccount.Account}{Environment.NewLine}");
-            receiveAccount.ForEach(acc =>
+            var token = _contractManager.Token;
+            var sendReceivePairs = new List<KeyValuePair<AccountInfo, AccountInfo>>();
+            var sendCount = _random.Next(1, accountInfos.Count + 1);
+            while (sendCount-- > 0)
             {
-                var amount = 100000000L * _random.Next(1, 100); 
+                var sendAccountIndex = _random.Next(0, accountInfos.Count);
+                var receiveAccountIndex = _random.Next(0, accountInfos.Count);
+                while (sendAccountIndex == receiveAccountIndex)
+                {
+                    receiveAccountIndex = _random.Next(0, accountInfos.Count);
+                }
+                sendReceivePairs.Add(new KeyValuePair<AccountInfo, AccountInfo>(accountInfos[sendAccountIndex], accountInfos[receiveAccountIndex]));
+            }
+
+            for (int i = 0; i < sendReceivePairs.Count; i++)
+            {
+                var amount = 100_000_000L * _random.Next(1, 100);
+                var (sendAccount, receiveAccount) = sendReceivePairs[i];
                 var rawTransaction = _nodeManager.GenerateRawTransaction(sendAccount.Account,
                     token.ContractAddress,
                     "Transfer",
                     new TransferInput
                     {
-                        To = acc.Account.ConvertAddress(),
+                        To = receiveAccount.Account.ConvertAddress(),
                         Amount = amount,
                         Symbol = "ELF",
                         Memo = $"transfer test - {Guid.NewGuid()}"
                     });
                 _nodeManager.SendTransaction(rawTransaction);
-                Console.WriteLine($"Receive account: {acc.Account}{Environment.NewLine}" +
+                Console.WriteLine($"Tx {i + 1}/{sendReceivePairs.Count}{Environment.NewLine}" +
+                                  $"Send account: {sendAccount.Account}{Environment.NewLine}" +
+                                  $"Receive account: {receiveAccount.Account}{Environment.NewLine}" +
                                   $"Amount: {amount}");
-
-            });
+            }
         }
-    }
-
-    public class Config
-    {
-        public string ServiceUrl { get; set; }
-        public string SendAccount { get; set; }
-        public string AccountPassword { get; set; }
-    }
-
-    public class AccountInfo
-    {
-        public AccountInfo(string account, string accountPassword)
-        {
-            Account = account;
-            Password = accountPassword;
-        }
-
-        public string Account { get; }
-        public string Password { get; }
     }
 }
