@@ -38,19 +38,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string BpAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string TestAccount { get; } = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
-
-        private static string RpcUrl { get; } = "52.90.147.175:8000";
-        private string Symbol { get; } = "TEST";
         
-//        private List<string> SideChainSymbol = new List<string> {"EPC","EDA","EDB","EDC","EDD"};
-        private List<string> SideChainSymbol = new List<string> {"STA", "STB"};
-
+        private static string RpcUrl { get; } = "192.168.197.14:8000";
+        private string Symbol { get; } = "TEST";
+        private string Symbol1 { get; } = "NOPROFIT";
+        private string Symbol2 { get; } = "NOWHITE";
+        
         [TestInitialize]
         public void Initialize()
         {
             Log4NetHelper.LogInit("ContractTest");
             Logger = Log4NetHelper.GetLogger();
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
 
             NodeManager = new NodeManager(RpcUrl);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
@@ -155,16 +154,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task AddConnector()
+        public async Task AddListConnector()
         {
-            var amount = 9000000_00000000;
+            var list = new List<string>(){Symbol,Symbol1,Symbol2};
+            foreach (var symbol in list)
+            {
+                await AddConnector(symbol);
+            }
+        }
+
+        [TestMethod]
+        public async Task AddConnector(string symbol)
+        {
+            var amount = 80000000_0000000000;
             await CreateToken(amount);
             var input = new PairConnectorParam
             {
                 NativeWeight = "0.05",
                 ResourceWeight = "0.05",
-                ResourceConnectorSymbol = Symbol,
-                NativeVirtualBalance = 100_0000_00000000
+                ResourceConnectorSymbol = symbol,
+                NativeVirtualBalance = 100000000_00000000,
             };
             var organization = _parliamentContract.GetGenesisOwnerAddress();
             var proposal = _parliamentContract.CreateProposal(_tokenConverterContract.ContractAddress,
@@ -174,7 +183,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = _parliamentContract.ReleaseProposal(proposal, BpAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var ELFamout = await GetNeededDeposit(amount);
+            var ELFamout = await GetNeededDeposit(amount,symbol);
             Logger.Info($"Need ELF : {ELFamout}");
             (await _bpTokenSub.Approve.SendAsync(new ApproveInput
             {
@@ -186,13 +195,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             (await _bpTokenSub.Approve.SendAsync(new ApproveInput
             {
                 Spender = _tokenConverterContract.Contract,
-                Symbol = Symbol,
+                Symbol = symbol,
                 Amount = amount
             })).TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var buildInput = new ToBeConnectedTokenInfo
             {
-                TokenSymbol = Symbol,
+                TokenSymbol = symbol,
                 AmountToTokenConvert = amount
             };
 
@@ -201,7 +210,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var tokenConverterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Symbol = Symbol,
+                Symbol = symbol,
                 Owner = _tokenConverterContract.Contract
             });
             tokenConverterBalance.Balance.ShouldBe(amount);
@@ -212,8 +221,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var input = new Connector
             {
-                Symbol = "STA",
-                VirtualBalance = 100_0000_00000000
+                Symbol = Symbol,
+                VirtualBalance = 100_0000_00000000,
             };
 
             var organization = _parliamentContract.GetGenesisOwnerAddress();
@@ -314,6 +323,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private async Task CreateToken(long amount)
         {
+            if (!_tokenContract.GetTokenInfo(Symbol).Equals(new TokenInfo())) return;
             var result = await _bpTokenSub.Create.SendAsync(new CreateInput
             {
                 Issuer = AddressHelper.Base58StringToAddress(BpAccount),
@@ -337,11 +347,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             balance.ShouldBe(amount);
         }
 
-        private async Task<long> GetNeededDeposit(long amount)
+        private async Task<long> GetNeededDeposit(long amount,string symbol)
         {
             var result = await _tokenConverterSub.GetNeededDeposit.CallAsync(new ToBeConnectedTokenInfo
             {
-                TokenSymbol = Symbol,
+                TokenSymbol = symbol,
                 AmountToTokenConvert = amount
             });
             return result.NeedAmount;

@@ -39,8 +39,7 @@ namespace AElfChain.Common.Managers
         
         public INodeManager NodeManager { get; set; }
         public INodeManager ValidationNodeManager { get; set; }
-
-
+        
         public MerklePath GetMerklePath(long blockNumber, string txId, out Hash root)
         {
             var index = 0;

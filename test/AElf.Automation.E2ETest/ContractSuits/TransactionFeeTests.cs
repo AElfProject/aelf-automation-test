@@ -494,8 +494,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
         private async Task InitializeAuthorizedOrganization()
         {
-            await ContractManager.TokenImplStub.InitializeAuthorizedController.SendAsync(new Empty());
-            //initializeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+//            await ContractManager.TokenImplStub.InitializeAuthorizedController.SendAsync(new Empty());
+//            initializeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             DeveloperFeeAddresses =
                 await ContractManager.TokenImplStub.GetDeveloperFeeController.CallAsync(new Empty());

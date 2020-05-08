@@ -207,28 +207,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("SAPP")]
-        public async Task DeveloperReceiveProfit_Test(string symbol)
-        {
-            Logger.Info("=>DeveloperReceiveProfit_Test");
-            var beforeBalance = ContractManager.Token.GetUserBalance(NodesAccounts[0], symbol);
-
-            var tokenStub = ContractManager.Genesis.GetTokenImplStub(NodesAccounts[0]);
-            var profits = ContractManager.Token.GetUserBalance(DAppContract.ContractAddress, symbol);
-            var receiveResult = await tokenStub.ReceiveProfits.SendAsync(new ReceiveProfitsInput
-            {
-                ContractAddress = DAppContract.Contract,
-                Symbol = symbol,
-                Amount = profits / 2
-            });
-            receiveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-            var afterBalance = ContractManager.Token.GetUserBalance(NodesAccounts[0], symbol);
-            Logger.Info($"Contract Profit: {profits}, Developer account balance: {beforeBalance} => {afterBalance}");
-            GetDAppContractBalance();
-        }
-
-        [TestMethod]
         [DataRow(new[] {0, 1, 2, 3})]
         public async Task InvestorReceiveResourceProfit_Test(int[] idArray)
         {
@@ -361,7 +339,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             await SignUp_Deposit_RegistProfit_Test();
             await NodesSignUp_Test();
             await Use_Test(new[] {0, 1, 2, 3});
-            await DeveloperReceiveProfit_Test(PrimarySymbol);
             await InvestorReceiveProfit_Test(new[] {0, 1, 2, 3});
         }
 

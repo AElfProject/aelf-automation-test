@@ -361,11 +361,12 @@ namespace AElfChain.Common.Managers
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            foreach (var bp in bps.Skip(1))
+            var initAccount = _info.Nodes.First().Account;
+            foreach (var bp in bps)
             {
                 var balance = _token.GetUserBalance(bp, primaryToken);
                 if (balance < 1000_00000000)
-                    _token.TransferBalance(bps[0], bp, 10000_00000000 - balance, primaryToken);
+                    _token.TransferBalance(initAccount, bp, 10000_00000000 - balance, primaryToken);
             }
         }
 

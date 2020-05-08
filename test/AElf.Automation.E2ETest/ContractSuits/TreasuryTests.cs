@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
+using Acs10;
 using Acs3;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
@@ -65,8 +66,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             balance.ShouldBe(0);
 
             //query treasury balance
-            var treasuryBalance = await ContractManager.TreasuryStub.GetCurrentTreasuryBalance.CallAsync(new Empty());
-            treasuryBalance.Value.ShouldBeGreaterThanOrEqualTo(100_00000000);
+            var treasuryBalance = await ContractManager.TreasuryStub.GetUndistributedDividends.CallAsync(new Empty());
+            treasuryBalance.Value.First().Value.ShouldBeGreaterThanOrEqualTo(100_00000000);
         }
 
         [TestMethod]

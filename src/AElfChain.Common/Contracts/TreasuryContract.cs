@@ -17,7 +17,7 @@ namespace AElfChain.Common.Contracts
 
         //View
         GetTreasurySchemeId,
-        GetCurrentTreasuryBalance,
+        GetUndistributedDividends,
         GetMinerRewardWeightProportion,
         GetDividendPoolWeightProportion
     }
@@ -33,7 +33,7 @@ namespace AElfChain.Common.Contracts
         
         public long GetCurrentTreasuryBalance()
         {
-            var result = CallViewMethod<SInt64Value>(TreasuryMethod.GetCurrentTreasuryBalance,new Empty());
+            var result = CallViewMethod<SInt64Value>(TreasuryMethod.GetUndistributedDividends,new Empty());
             return result.Value;
         }
     }

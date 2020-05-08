@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
+using Acs10;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Treasury;
@@ -45,7 +46,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetDistributingSymbolList_Test()
         {
-            var beforeList = await ContractManager.TreasuryStub.GetDistributingSymbolList.CallAsync(new Empty());
+            var beforeList = await ContractManager.TreasuryStub.GetSymbolList.CallAsync(new Empty());
             beforeList.Value.ShouldBe(new[] {"ELF"});
             var symbolList = new SymbolList
             {
@@ -53,53 +54,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.SetDistributingSymbolList),
+                nameof(ContractManager.TreasuryStub.SetSymbolList),
                 symbolList, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //Query distribute symbol list
-            var queryResult = await ContractManager.TreasuryStub.GetDistributingSymbolList.CallAsync(new Empty());
+            var queryResult = await ContractManager.TreasuryStub.GetSymbolList.CallAsync(new Empty());
             queryResult.Value.ShouldBe(symbolList.Value);
-        }
-
-        [TestMethod]
-        [DataRow("SCPU")]
-        [DataRow("SRAM")]
-        public async Task Prepare_NewToken_Test(string symbol)
-        {
-            const long supply = 10_00000000_00000000L;
-
-            //create
-            var createResult = await ContractManager.TokenImplStub.Create.SendAsync(new CreateInput
-            {
-                Decimals = 8,
-                IsBurnable = true,
-                IsProfitable = true,
-                IssueChainId = ChainHelper.ConvertBase58ToChainId(NodeManager.GetChainId()),
-                Issuer = ContractManager.CallAccount,
-                Symbol = symbol,
-                TokenName = $"Test Token {symbol}",
-                TotalSupply = supply
-            });
-            createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-            //issue
-            var bpUsers = ContractManager.Authority.GetCurrentMiners();
-            foreach (var bp in bpUsers)
-            {
-                var issueResult = await ContractManager.TokenImplStub.Issue.SendAsync(new IssueInput
-                {
-                    To = bp.ConvertAddress(),
-                    Amount = 5000000_00000000L,
-                    Symbol = symbol,
-                    Memo = "issue token"
-                });
-                issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
-                //query result
-                var balance = ContractManager.Token.GetUserBalance(bp, symbol);
-                Logger.Info($"Account: {bp}, {symbol}={balance}");
-            }
         }
 
         [TestMethod]

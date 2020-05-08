@@ -18,9 +18,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             if (type.Equals("Main"))
             {
-                //Profit contract
-                ProfitService = GenesisService.GetProfitContract();
-
                 //Vote contract
                 VoteService = GenesisService.GetVoteContract();
 
@@ -29,6 +26,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 //TokenConverter contract
                 TokenConverterService = GenesisService.GetTokenConverterContract();
+
+                TreasuryContract = GenesisService.GetTreasuryContract();
             }
         }
 
@@ -44,6 +43,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ParliamentContract ParliamentService { get; set; }
         public ConfigurationContract ConfigurationService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
+        public TreasuryContract TreasuryContract { get; set; }
+        public TokenHolderContract TokenHolderContract { get; set; }
+
 
         public string CallAddress { get; set; }
 
@@ -68,6 +70,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             ConfigurationService = GenesisService.GetConfigurationContract();
             CrossChainService = GenesisService.GetCrossChainContract();
+            TokenHolderContract = GenesisService.GetTokenHolderContract();
+            //Profit contract
+            ProfitService = GenesisService.GetProfitContract();
         }
     }
 }

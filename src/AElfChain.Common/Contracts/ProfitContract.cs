@@ -36,13 +36,14 @@ namespace AElfChain.Common.Contracts
     {
         Treasury,
 
-        MinerReward,
-        BackupSubsidy,
-        CitizenWelfare,
-
-        MinerBasicReward,
-        VotesWeightReward,
-        ReElectionReward
+        MinerReward, //6
+        BackupSubsidy,//2
+        CitizenWelfare,//2
+        
+//MinerReward: MinerBasicReward,VotesWeightReward,ReElectionReward
+        MinerBasicReward,//4
+        VotesWeightReward,//1
+        ReElectionReward//1
     }
 
     public class ProfitContract : BaseContract<ProfitMethod>
