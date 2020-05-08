@@ -9,8 +9,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AElf.Client" Version="0.1.4" />
-        <PackageReference Include="AElf.Types" Version="0.9.3-18347" />
+        <PackageReference Include="AElf.Client" Version="0.1.5" />
+        <PackageReference Include="AElf.Types" Version="1.0.0-preview2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
         <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />

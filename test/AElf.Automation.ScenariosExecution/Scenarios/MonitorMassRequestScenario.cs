@@ -82,8 +82,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             Parallel.ForEach(contracts,
                 contract =>
                 {
-                    $"QueryContractInfo: Contract={contract.GetFormatted()}".WriteSuccessLine();
-                    AsyncHelper.RunSync(() => ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
+                    $"QueryContractInfo: Contract={contract.ToBase58()}".WriteSuccessLine();
+                    AsyncHelper.RunSync(() => ApiClient.GetContractFileDescriptorSetAsync(contract.ToBase58()));
                 });
         }
 

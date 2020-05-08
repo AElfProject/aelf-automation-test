@@ -20,7 +20,7 @@ namespace AElfChain.Common.DtoExtension
         {
             try
             {
-                return AddressHelper.Base58StringToAddress(address);
+                return Address.FromBase58(address);
             }
             catch (Exception e)
             {
@@ -51,7 +51,7 @@ namespace AElfChain.Common.DtoExtension
             hash = new Hash();
             try
             {
-                hash = HashHelper.HexStringToHash(info);
+                hash = Hash.LoadFromHex(info);
                 return true;
             }
             catch (Exception)

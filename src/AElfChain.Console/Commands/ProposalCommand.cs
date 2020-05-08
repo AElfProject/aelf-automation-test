@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AElf;
+using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Newtonsoft.Json;
@@ -44,7 +45,7 @@ namespace AElfChain.Console.Commands
         private void QueryProposalInfo()
         {
             var hashInput = Prompt.Input<string>("Input ProposalId");
-            var proposalId = HashHelper.HexStringToHash(hashInput);
+            var proposalId = Hash.LoadFromHex(hashInput);
             var proposalInfo = AsyncHelper.RunSync(() => Services.ParliamentAuthStub.GetProposal.CallAsync(proposalId));
 
             $"ProposalId: {proposalId} info".WriteSuccessLine();
@@ -58,7 +59,7 @@ namespace AElfChain.Console.Commands
         private void MinersApproveProposal()
         {
             var hashInput = Prompt.Input<string>("Input ProposalId");
-            var proposalId = HashHelper.HexStringToHash(hashInput);
+            var proposalId = Hash.LoadFromHex(hashInput);
             var miners = Services.Authority.GetMinApproveMiners();
             Services.Parliament.MinersApproveProposal(proposalId, miners);
         }

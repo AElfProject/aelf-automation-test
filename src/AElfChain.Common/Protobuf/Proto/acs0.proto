@@ -94,7 +94,7 @@ message ContractCodeCheckInput{
     bool is_contract_deployment = 2;
     string code_check_release_method = 3;
     aelf.Hash proposed_contract_input_hash = 4;
-    int32 category = 5;
+    sint32 category = 5;
 }
 
 // Events
@@ -111,6 +111,7 @@ message ContractDeployed
     aelf.Hash code_hash = 2 [(aelf.is_indexed) = true];
     aelf.Address address = 3;
     int32 version = 4;
+    aelf.Hash Name = 5;
 }
 
 message CodeCheckRequired
@@ -118,7 +119,7 @@ message CodeCheckRequired
     option (aelf.is_event) = true;
     bytes code = 1;
     aelf.Hash proposed_contract_input_hash = 2;
-    int32 category = 3;
+    sint32 category = 3;
 }
 
 message CodeUpdated

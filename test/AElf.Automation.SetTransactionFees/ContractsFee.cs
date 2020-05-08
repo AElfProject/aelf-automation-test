@@ -50,7 +50,7 @@ namespace AElf.Automation.SetTransactionFees
                 }
 
                 var contractFee =
-                    new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.GetFormatted());
+                    new ContractMethodFee(NodeManager, authority, contractInfo, contractAddress.ToBase58());
                 var primaryToken = NodeManager.GetPrimaryTokenSymbol();
                 contractFee.SetContractFees(primaryToken, amount, genesisOwner, miners, Caller);
             }
@@ -73,7 +73,7 @@ namespace AElf.Automation.SetTransactionFees
 
                 foreach (var method in contractInfo.ActionMethodNames)
                 {
-                    var feeResult = NodeManager.QueryView<MethodFees>(Caller, contractAddress.GetFormatted(),
+                    var feeResult = NodeManager.QueryView<MethodFees>(Caller, contractAddress.ToBase58(),
                         "GetMethodFee", new StringValue
                         {
                             Value = method

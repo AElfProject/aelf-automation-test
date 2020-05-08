@@ -4,6 +4,7 @@ using System.Linq;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
@@ -19,7 +20,7 @@ namespace AElf.Automation.ScenariosExecution
         {
             NodeManager = nodeManager;
             CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+            CallAccount = callAddress.ConvertAddress();
 
             //get all contract services
             GetAllContractServices();

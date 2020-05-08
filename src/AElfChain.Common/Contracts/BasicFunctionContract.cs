@@ -77,7 +77,7 @@ namespace AElfChain.Common.Contracts
                 return contract;
             }
 
-            return new BasicFunctionContract(nodeManager, callAddress, addressList.First().GetFormatted());
+            return new BasicFunctionContract(nodeManager, callAddress, addressList.First().ToBase58());
         }
     }
 }

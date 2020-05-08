@@ -197,14 +197,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var interestProposalId = referendum.CreateProposal( ContractManager.Election.ContractAddress,
                 nameof(ElectionContractContainer.ElectionContractStub.SetVoteWeightInterest), newInterest,
-                newOrganization, proposer.GetFormatted());
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                newOrganization, proposer.ToBase58());
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000_00000000, "ELF");
-            referendum.SetAccount(proposer.GetFormatted());
+            referendum.SetAccount(proposer.ToBase58());
             var interestApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, interestProposalId);
             interestApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
-            var interestReleaseResult = referendum.ReleaseProposal(interestProposalId, proposer.GetFormatted());
+            var interestReleaseResult = referendum.ReleaseProposal(interestProposalId, proposer.ToBase58());
             interestReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var interestList = await ContractManager.ElectionStub.GetVoteWeightSetting.CallAsync(new Empty());
@@ -221,14 +221,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var proposalId = referendum.CreateProposal(ContractManager.Election.ContractAddress,
                 nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController), input,
-                newOrganization, proposer.GetFormatted());
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                newOrganization, proposer.ToBase58());
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000, "ELF");
-            referendum.SetAccount(proposer.GetFormatted());
+            referendum.SetAccount(proposer.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
-            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.ToBase58());
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var controller =
                 await ContractManager.ElectionStub.GetVoteWeightInterestController.CallAsync(new Empty());
@@ -242,7 +242,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposer = ConfigNodes.First().Account.ConvertAddress();
             var miners = ContractManager.Authority.GetCurrentMiners();
             var newOrganization = ReferendumOrganization;
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000, "ELF");
             
             var defaultController = await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
@@ -274,14 +274,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var setDividendId = referendum.CreateProposal( ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetDividendPoolWeightSetting),setInput,
-                newOrganization, proposer.GetFormatted());
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                newOrganization, proposer.ToBase58());
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000_00000000, "ELF");
-            referendum.SetAccount(proposer.GetFormatted());
+            referendum.SetAccount(proposer.ToBase58());
             var setApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, setDividendId);
             setApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
-            var setReleaseResult = referendum.ReleaseProposal(setDividendId, proposer.GetFormatted());
+            var setReleaseResult = referendum.ReleaseProposal(setDividendId, proposer.ToBase58());
             setReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
             var updateDividendPoolWeight =
@@ -298,14 +298,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var proposalId = referendum.CreateProposal(ContractManager.Treasury.ContractAddress,
                 nameof(ContractManager.TreasuryStub.ChangeTreasuryController), recoverInput,
-                newOrganization, proposer.GetFormatted());
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+                newOrganization, proposer.ToBase58());
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000, "ELF");
-            referendum.SetAccount(proposer.GetFormatted());
+            referendum.SetAccount(proposer.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
-            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.ToBase58());
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var controller =
                 await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());

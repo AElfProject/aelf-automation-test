@@ -63,10 +63,10 @@ namespace AElfChain.Common.Contracts
                 var transactionResult = resultDto.Logs == null
                     ? new TransactionResult
                     {
-                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
+                        TransactionId = Hash.LoadFromHex(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
-                            : Hash.FromString(resultDto.BlockHash),
+                            : HashHelper.ComputeFrom(resultDto.BlockHash),
                         BlockNumber = resultDto.BlockNumber,
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),
                         Error = resultDto.Error ?? "",
@@ -75,10 +75,10 @@ namespace AElfChain.Common.Contracts
                     }
                     : new TransactionResult
                     {
-                        TransactionId = HashHelper.HexStringToHash(resultDto.TransactionId),
+                        TransactionId = Hash.LoadFromHex(resultDto.TransactionId),
                         BlockHash = resultDto.BlockHash == null
                             ? null
-                            : Hash.FromString(resultDto.BlockHash),
+                            : HashHelper.ComputeFrom(resultDto.BlockHash),
                         BlockNumber = resultDto.BlockNumber,
                         Logs =
                         {

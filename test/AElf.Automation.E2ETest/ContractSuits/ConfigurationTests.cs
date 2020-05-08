@@ -74,10 +74,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             
             foreach (var member in enumerable)
             {
-                var balance = ContractManager.Token.GetUserBalance(member.GetFormatted());
+                var balance = ContractManager.Token.GetUserBalance(member.ToBase58());
                 if (balance< 10_00000000)
                 {
-                    ContractManager.Token.TransferBalance(ContractManager.CallAddress, member.GetFormatted(), 100_00000000);
+                    ContractManager.Token.TransferBalance(ContractManager.CallAddress, member.ToBase58(), 100_00000000);
                 }
             }
 
@@ -87,12 +87,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 Value = new Int32Value {Value = beforeValue + 10}.ToByteString()
             };
             var setConfigurationProposal = association.CreateProposal(ContractManager.Configuration.ContractAddress,
-                nameof(ConfigurationMethod.SetConfiguration), setConfigurationInput, newControllerManager, proposer.GetFormatted());
+                nameof(ConfigurationMethod.SetConfiguration), setConfigurationInput, newControllerManager, proposer.ToBase58());
             foreach (var member in enumerable)
             {
-                association.ApproveProposal(setConfigurationProposal, member.GetFormatted());
+                association.ApproveProposal(setConfigurationProposal, member.ToBase58());
             }
-            var setConfigurationRelease = association.ReleaseProposal(setConfigurationProposal, proposer.GetFormatted());
+            var setConfigurationRelease = association.ReleaseProposal(setConfigurationProposal, proposer.ToBase58());
             setConfigurationRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
             var afterTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
@@ -107,13 +107,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             //recover
             var setManagerResult = association.CreateProposal(ContractManager.Configuration.ContractAddress,
-                nameof(ConfigurationMethod.ChangeConfigurationController), input, newControllerManager, proposer.GetFormatted());
+                nameof(ConfigurationMethod.ChangeConfigurationController), input, newControllerManager, proposer.ToBase58());
             foreach (var member in enumerable)
             {
-                association.ApproveProposal(setManagerResult, member.GetFormatted());
+                association.ApproveProposal(setManagerResult, member.ToBase58());
             }
 
-            var release = association.ReleaseProposal(setManagerResult, proposer.GetFormatted());
+            var release = association.ReleaseProposal(setManagerResult, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
             owner = await ContractManager.TokenconverterStub.GetControllerForManageConnector.CallAsync(new Empty());

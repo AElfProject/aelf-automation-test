@@ -228,7 +228,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
             var newOrganization = ReferendumOrganization;
             var proposer = referendum.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000, "ELF");
             var input = new AuthorityInfo
             {
@@ -236,7 +236,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 ContractAddress = ContractManager.Referendum.Contract
             };
             var changeResult = authorityManager.ExecuteTransactionWithAuthority(ContractManager.Token.ContractAddress,
-                nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), input, proposer.GetFormatted(),
+                nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), input, proposer.ToBase58(),
                 defaultController.OwnerAddress);
             changeResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
@@ -252,15 +252,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     }
                 }
             };
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000_00000000, "ELF");
             var changeProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.SetMethodFee), changeInput,
-                newOrganization, proposer.GetFormatted());
-            referendum.SetAccount(proposer.GetFormatted());
+                newOrganization, proposer.ToBase58());
+            referendum.SetAccount(proposer.ToBase58());
             var changeApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, changeProposalId);
             changeApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var changeReleaseResult = referendum.ReleaseProposal(changeProposalId, proposer.GetFormatted());
+            var changeReleaseResult = referendum.ReleaseProposal(changeProposalId, proposer.ToBase58());
             changeReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             
             var methodFee =
@@ -280,15 +280,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 ContractAddress = defaultController.ContractAddress,
                 OwnerAddress = defaultController.OwnerAddress
             };
-            ContractManager.Token.ApproveToken(proposer.GetFormatted(), referendum.ContractAddress,
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
                 2000_00000000, "ELF");
             var recoverProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), recoverInput,
-                newOrganization, proposer.GetFormatted());
-            referendum.SetAccount(proposer.GetFormatted());
+                newOrganization, proposer.ToBase58());
+            referendum.SetAccount(proposer.ToBase58());
             var recoverApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, recoverProposalId);
             recoverApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var recoverReleaseResult = referendum.ReleaseProposal(recoverProposalId, proposer.GetFormatted());
+            var recoverReleaseResult = referendum.ReleaseProposal(recoverProposalId, proposer.ToBase58());
             recoverReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
@@ -338,7 +338,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var economicContract =
                 await ContractManager.GenesisStub.GetContractAddressByName.CallAsync(
-                    Hash.FromString("AElf.ContractNames.Economic"));
+                    HashHelper.ComputeFrom("AElf.ContractNames.Economic"));
             resourceInfos.Value.ShouldAllBe(o => o.Issuer == economicContract);
         }
 
@@ -346,7 +346,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task CheckAllResourcesToken_Test()
         {
             var chainId = NodeManager.GetChainId();
-            var hash = Hash.FromString("AElf.ContractNames.Economic");
+            var hash = HashHelper.ComputeFrom("AElf.ContractNames.Economic");
             var economicContract = await ContractManager.GenesisStub.GetContractAddressByName.CallAsync(hash);
             var resourceSymbols = new[] {"CPU", "RAM", "DISK", "NET", "WRITE", "READ", "STORAGE", "TRAFFIC"};
             foreach (var symbol in resourceSymbols)

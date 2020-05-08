@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
-using AElf.Contracts.MultiToken;
+using AElf.Contracts.Vote;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -27,18 +28,24 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(2, 100)]
+        [DataRow(0, 100)]
         public void Vote_One_Candidates_ForBP(int no, long amount)
         {
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             Behaviors.TokenService.TransferBalance(InitAccount, account, 1000_00000000);
-            var voteResult = Behaviors.UserVote(InitAccount, FullNodeAddress[no], 120, amount);
+            var voteResult = Behaviors.UserVote(account, FullNodeAddress[no], 150, amount);
             var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
-            _logger.Info($"vote id is: {voteId}");
+            var logVoteId = Voted.Parser
+                .ParseFrom(ByteString.FromBase64(voteResult.Logs.First(l => l.Name.Equals(nameof(Voted))).NonIndexed))
+                .VoteId;
+            var voteRecord = Behaviors.VoteService.CallViewMethod<VotingRecord>(VoteMethod.GetVotingRecord, voteId);
+            voteRecord.Amount.ShouldBe(amount);
+            _logger.Info($"vote id is: {voteId}\n" +
+                         $"{logVoteId}");
             voteResult.ShouldNotBeNull();
             voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
-
+        
         [TestMethod]
         public void Withdraw()
         {
@@ -52,7 +59,7 @@ namespace AElf.Automation.EconomicSystemTest
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
-                    HashHelper.HexStringToHash(voteId));
+                    Hash.LoadFromHex(voteId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = result.GetTransactionFee().Item2;
             var afterVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
@@ -102,7 +109,7 @@ namespace AElf.Automation.EconomicSystemTest
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                minerList.Add(miner.GetFormatted());
+                minerList.Add(miner.ToBase58());
             }
             foreach (var miner in minerList)
                 _logger.Info($"Miner is : {miner}");

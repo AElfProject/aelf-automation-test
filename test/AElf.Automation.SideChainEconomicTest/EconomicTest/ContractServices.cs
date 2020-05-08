@@ -5,6 +5,7 @@ using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
@@ -36,7 +37,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
         public string CallAddress { get; }
 
-        public Address CallAccount => AddressHelper.Base58StringToAddress(CallAddress);
+        public Address CallAccount => CallAddress.ConvertAddress();
 
         public void GetTokenInfos()
         {
@@ -78,7 +79,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 {
                     result.MerklePathNodes.Select(o => new MerklePathNode
                     {
-                        Hash = HashHelper.HexStringToHash(o.Hash),
+                        Hash = Hash.LoadFromHex(o.Hash),
                         IsLeftChildNode = o.IsLeftChildNode
                     })
                 }

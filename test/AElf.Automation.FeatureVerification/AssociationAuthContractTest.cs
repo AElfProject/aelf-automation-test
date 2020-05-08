@@ -111,7 +111,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                    AddressHelper.Base58StringToAddress(organizationAddress));
+                    organizationAddress.ConvertAddress());
             foreach (var member in organization.OrganizationMemberList.OrganizationMembers) _logger.Info($"{member}");
 
             _logger.Info(
@@ -126,16 +126,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Symbol = Symbol,
                 Amount = 100,
-                To = AddressHelper.Base58StringToAddress(ReviewAccount1),
+                To = ReviewAccount1.ConvertAddress(),
                 Memo = "Transfer"
             };
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
-                ToAddress = AddressHelper.Base58StringToAddress(ContractManager.Token.ContractAddress),
+                ToAddress = ContractManager.Token.Contract,
                 Params = transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
-                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress),
+                OrganizationAddress = organizationAddress.ConvertAddress(),
                 ProposalDescriptionUrl = "http://192.168.197.27"
             };
 
@@ -153,7 +153,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result =
                 ContractManager.Association.CallViewMethod<ProposalOutput>(AssociationMethod.GetProposal,
-                    HashHelper.HexStringToHash(proposalId));
+                    Hash.LoadFromHex(proposalId));
             var toBeRelease = result.ToBeReleased;
 
             _logger.Info($"proposal is {toBeRelease}");
@@ -165,12 +165,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Association.SetAccount(ReviewAccount1);
             var result = Association.ExecuteMethodWithResult(AssociationMethod.Approve,
-                HashHelper.HexStringToHash(proposalId));
+                Hash.LoadFromHex(proposalId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var byteString =
                 ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(ReceiptCreated))).NonIndexed);
             var info = ReceiptCreated.Parser.ParseFrom(byteString);
-            info.ProposalId.ShouldBe(HashHelper.HexStringToHash(proposalId));
+            info.ProposalId.ShouldBe(Hash.LoadFromHex(proposalId));
             info.ReceiptType.ShouldBe(nameof(AssociationMethod.Approve));
             info.Address.ShouldBe(ReviewAccount1.ConvertAddress());
         }
@@ -181,7 +181,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Association.SetAccount(ReviewAccount1);
             var result = Association.ExecuteMethodWithResult(AssociationMethod.Release,
-                HashHelper.HexStringToHash(proposalId));
+                Hash.LoadFromHex(proposalId));
             Assert.AreSame(result.Status, "MINED");
         }
 

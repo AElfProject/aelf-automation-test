@@ -57,7 +57,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                minerList.Add(miner.GetFormatted());
+                minerList.Add(miner.ToBase58());
             }
 
             return minerList;

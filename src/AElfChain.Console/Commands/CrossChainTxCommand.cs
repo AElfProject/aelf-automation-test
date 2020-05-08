@@ -105,8 +105,8 @@ namespace AElfChain.Console.Commands
             var transactionResult = await SideContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
-                    Address = AddressHelper.Base58StringToAddress(SideContract.Token.ContractAddress),
-                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                    Address = SideContract.Token.Contract,
+                    SystemContractHashName = HashHelper.ComputeFrom("AElf.ContractNames.Token")
                 });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var validateBlockNumber = transactionResult.TransactionResult.BlockNumber;
@@ -123,8 +123,7 @@ namespace AElfChain.Console.Commands
             {
                 FromChainId = SideContract.ChainId,
                 ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
-                TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(SideContract.Token.ContractAddress),
+                TokenContractAddress = SideContract.Token.Contract,
                 TransactionBytes = ByteString.CopyFrom(transactionResult.Transaction.ToByteArray()),
                 MerklePath = merklePath
             };
@@ -141,8 +140,8 @@ namespace AElfChain.Console.Commands
             var transactionResult = await MainContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
-                    Address = AddressHelper.Base58StringToAddress(MainContract.Token.ContractAddress),
-                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                    Address = MainContract.Token.Contract,
+                    SystemContractHashName = HashHelper.ComputeFrom("AElf.ContractNames.Token")
                 });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var validateBlockNumber = transactionResult.TransactionResult.BlockNumber;

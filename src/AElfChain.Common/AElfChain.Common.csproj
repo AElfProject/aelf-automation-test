@@ -53,10 +53,10 @@
 
     <ItemGroup>
         <!--AElf packages-->
-        <PackageReference Include="AElf.Types" Version="0.9.3-18347" />
-        <PackageReference Include="AElf.CSharp.Core" Version="0.9.3-18347" />
-        <PackageReference Include="AElf.Cryptography" Version="0.9.3-18347" />
-        <PackageReference Include="AElf.Client" Version="0.1.4" />
+        <PackageReference Include="AElf.Types" Version="1.0.0-preview2" />
+        <PackageReference Include="AElf.CSharp.Core" Version="1.0.0-preview2" />
+        <PackageReference Include="AElf.Cryptography" Version="1.0.0-preview2" />
+        <PackageReference Include="AElf.Client" Version="0.1.5" />
         <!--end packages-->
 
         <PackageReference Include="Volo.Abp.Core" Version="2.3.0" />

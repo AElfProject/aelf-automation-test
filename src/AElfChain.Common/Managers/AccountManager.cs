@@ -41,7 +41,7 @@ namespace AElfChain.Common.Managers
             var pubKey = keypair.PublicKey;
             var address = Address.FromPublicKey(pubKey);
 
-            var accountInfo = address.GetFormatted();
+            var accountInfo = address.ToBase58();
             _accounts.Add(accountInfo);
             Logger.Info($"New account '{accountInfo}' generated.");
 

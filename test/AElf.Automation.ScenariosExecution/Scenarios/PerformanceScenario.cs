@@ -108,7 +108,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //query content
             var randomAddress = Testers[GenerateRandomNumber(0, Testers.Count - 1)];
             var result1 = Performance.CallViewMethod<ReadOutput>(PerformanceMethod.QueryReadInfo,
-                AddressHelper.Base58StringToAddress(randomAddress));
+                randomAddress.ConvertAddress());
             if (string.IsNullOrEmpty(result1.Content))
                 result1.Content.WriteSuccessLine();
 

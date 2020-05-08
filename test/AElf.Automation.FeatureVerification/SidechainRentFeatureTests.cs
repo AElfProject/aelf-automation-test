@@ -221,7 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 await SideManager.AssociationStub.CreateOrganization.SendAsync(createOrganizationInput);
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var organization = transactionResult.Output;
-            Logger.Info($"Organization address: {organization.GetFormatted()}");
+            Logger.Info($"Organization address: {organization.ToBase58()}");
 
             return organization;
         }
@@ -240,13 +240,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             
             //create proposal 
             var createProposal = association.CreateProposal(token.ContractAddress, method,
-                input, organization, proposer.GetFormatted());
-            association.Approve(createProposal, proposer.GetFormatted());
+                input, organization, proposer.ToBase58());
+            association.Approve(createProposal, proposer.ToBase58());
             
             //create parliament approve proposal
             var parliament = controllerInfo.ProposerWhiteList.Proposers.Where(p => !p.Equals(proposer)).ToList();
             var approveProposal = AuthoritySideManager.ExecuteTransactionWithAuthority(association.ContractAddress,
-                nameof(AssociationMethod.Approve), createProposal, proposer.GetFormatted(), parliament.First());
+                nameof(AssociationMethod.Approve), createProposal, proposer.ToBase58(), parliament.First());
             approveProposal.Status.ShouldBe(TransactionResultStatus.Mined);
             
             //check proposal
@@ -254,7 +254,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             proposalInfo.ToBeReleased.ShouldBeTrue();
             
             //release
-            var release = association.ReleaseProposal(createProposal, proposer.GetFormatted());
+            var release = association.ReleaseProposal(createProposal, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }

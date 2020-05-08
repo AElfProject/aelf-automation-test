@@ -105,8 +105,7 @@ namespace AElf.Automation.SideChainTests
             {
                 FromChainId = SideAServices.ChainId,
                 ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
-                TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(SideAServices.TokenService.ContractAddress),
+                TokenContractAddress = SideAServices.TokenService.Contract,
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
                 MerklePath = merklePath
             };
@@ -146,7 +145,7 @@ namespace AElf.Automation.SideChainTests
                 FromChainId = MainServices.ChainId,
                 ParentChainHeight = txResult.BlockNumber,
                 TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(MainServices.TokenService.ContractAddress),
+                    SideAServices.TokenService.Contract,
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
                 MerklePath = merklePath
             };
@@ -205,7 +204,7 @@ namespace AElf.Automation.SideChainTests
                 FromChainId = MainServices.ChainId,
                 ParentChainHeight = txResult.BlockNumber,
                 TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(MainServices.TokenService.ContractAddress),
+                    SideAServices.TokenService.Contract,
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
                 MerklePath = merklePath
             }; 
@@ -213,12 +212,12 @@ namespace AElf.Automation.SideChainTests
             //create proposal
             var proposer = SideAServices.AssociationService.GetOrganization(newController).ProposerWhiteList.Proposers
                 .First();
-            SideAServices.TokenService.TransferBalance(InitAccount, proposer.GetFormatted(), 5000_000000000);
+            SideAServices.TokenService.TransferBalance(InitAccount, proposer.ToBase58(), 5000_000000000);
             var createProposalResult =
                 SideAServices.AssociationService.CreateProposal(SideAServices.TokenService.ContractAddress,
-                    nameof(TokenMethod.RegisterCrossChainTokenContractAddress), registerInput, newController, proposer.GetFormatted());
+                    nameof(TokenMethod.RegisterCrossChainTokenContractAddress), registerInput, newController, proposer.ToBase58());
             SideAServices.AssociationService.ApproveWithAssociation(createProposalResult,newController);
-            var release = SideAServices.AssociationService.ReleaseProposal(createProposalResult, proposer.GetFormatted());
+            var release = SideAServices.AssociationService.ReleaseProposal(createProposalResult, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             Logger.Info(
@@ -233,9 +232,9 @@ namespace AElf.Automation.SideChainTests
             var recoverProposalResult =
                 SideAServices.AssociationService.CreateProposal(SideAServices.TokenService.ContractAddress,
                     nameof(TokenContractImplContainer.TokenContractImplStub
-                        .ChangeCrossChainTokenContractRegistrationController), recoverInput, newController, proposer.GetFormatted());
+                        .ChangeCrossChainTokenContractRegistrationController), recoverInput, newController, proposer.ToBase58());
             SideAServices.AssociationService.ApproveWithAssociation(recoverProposalResult,newController);
-            var recoverRelease = SideAServices.AssociationService.ReleaseProposal(recoverProposalResult, proposer.GetFormatted());
+            var recoverRelease = SideAServices.AssociationService.ReleaseProposal(recoverProposalResult, proposer.ToBase58());
             recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
             var recoverController = await tokenImplStub.GetCrossChainTokenContractRegistrationController.CallAsync(new Empty());
@@ -269,7 +268,7 @@ namespace AElf.Automation.SideChainTests
                 FromChainId = SideAServices.ChainId,
                 ParentChainHeight = crossChainMerkleProofContextA.BoundParentChainHeight,
                 TokenContractAddress =
-                    AddressHelper.Base58StringToAddress(SideAServices.TokenService.ContractAddress),
+                    SideAServices.TokenService.Contract,
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
                 MerklePath = sideChainMerklePathA
             };
@@ -300,7 +299,7 @@ namespace AElf.Automation.SideChainTests
 
         public void MainChainCrossChainTransferSideChain(ContractServices sideService)
         {
-            var symbols = new[] {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+            var symbols = new[] {"ELF"};
             var txInfos = new Dictionary<TransactionResultDto, string>();
             foreach (var symbol in symbols)
             {
@@ -308,9 +307,9 @@ namespace AElf.Automation.SideChainTests
                 {
                     Symbol = symbol,
                     IssueChainId = MainServices.ChainId,
-                    Amount = 100_00000000,
+                    Amount = 10000_00000000,
                     Memo = "cross chain transfer",
-                    To = AddressHelper.Base58StringToAddress(InitAccount),
+                    To = InitAccount.ConvertAddress(),
                     ToChainId = sideService.ChainId
                 };
                 // execute cross chain transfer
@@ -374,7 +373,7 @@ namespace AElf.Automation.SideChainTests
                 IssueChainId = services.ChainId,
                 Amount = amount,
                 Memo = "cross chain transfer",
-                To = AddressHelper.Base58StringToAddress(InitAccount),
+                To = InitAccount.ConvertAddress(),
                 ToChainId = MainServices.ChainId
             };
 
@@ -426,7 +425,7 @@ namespace AElf.Automation.SideChainTests
                 IssueChainId = SideAServices.ChainId,
                 Amount = 1000,
                 Memo = "cross chain transfer",
-                To = AddressHelper.Base58StringToAddress(InitAccount),
+                To = InitAccount.ConvertAddress(),
                 ToChainId = SideBServices.ChainId
             };
             // execute cross chain transfer
@@ -711,7 +710,7 @@ namespace AElf.Automation.SideChainTests
             var createProposalInput = new CreateProposalInput
             {
                 OrganizationAddress = organizationAddress,
-                ToAddress = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
+                ToAddress = services.TokenService.Contract,
                 ContractMethodName = TokenMethod.RegisterCrossChainTokenContractAddress.ToString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                 Params = input.ToByteString()
@@ -727,7 +726,7 @@ namespace AElf.Automation.SideChainTests
             var miners = GetMiners(services);
             foreach (var miner in miners)
             {
-                services.ParliamentService.SetAccount(miner.GetFormatted());
+                services.ParliamentService.SetAccount(miner.ToBase58());
                 var approveResult =
                     services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 if (approveResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
@@ -764,7 +763,7 @@ namespace AElf.Automation.SideChainTests
             var verificationInput = new VerifyTransactionInput
             {
                 ParentChainHeight = blockHeight,
-                TransactionId = HashHelper.HexStringToHash(txId),
+                TransactionId = Hash.LoadFromHex(txId),
                 VerifiedChainId = MainServices.ChainId,
                 Path = merklePath
             };

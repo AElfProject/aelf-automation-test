@@ -42,7 +42,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 {
                     Value = chainId
                 });
-                ConfigNodes.Select(o => o.Account).ShouldContain(creator.GetFormatted());
+                ConfigNodes.Select(o => o.Account).ShouldContain(creator.ToBase58());
             }
         }
 

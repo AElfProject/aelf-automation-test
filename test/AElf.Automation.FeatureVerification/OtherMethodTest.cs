@@ -61,9 +61,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var stream = new MemoryStream();
             address.WriteTo(stream);
 
-            var value = address.GetFormatted();
+            var value = address.ToBase58();
 
-            var hash = HashHelper.HexStringToHash("a6d05b63cb36687116e8d2ed791e9806652c370d40184f43a7e4fda08f5e29b1");
+            var hash = Hash.LoadFromHex("a6d05b63cb36687116e8d2ed791e9806652c370d40184f43a7e4fda08f5e29b1");
             var jsonInfo = JsonFormatter.Default.Format(hash);
 
             var convertHash = JsonParser.Default.Parse(jsonInfo, Hash.Descriptor);
@@ -174,7 +174,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 RefBlockHash = block.BlockHash
             });
             var transactionId =
-                Hash.FromRawBytes(ByteArrayHelper.HexStringToByteArray(createRaw.RawTransaction));
+                HashHelper.ComputeFrom(ByteArrayHelper.HexStringToByteArray(createRaw.RawTransaction));
             var signature = nodeManager.TransactionManager.Sign(token.CallAddress, transactionId.ToByteArray())
                 .ToByteArray().ToHex();
             var rawTransactionResult =
@@ -219,64 +219,64 @@ namespace AElf.Automation.Contracts.ScenarioTest
             binaryWriter.Write(contractResult.Code.ToByteArray());
         }
 
-        [TestMethod]
-        public void GetHashCodeTest()
-        {
-            //byte string
-            var byteString = ByteString.CopyFromUtf8("test info");
-            Logger.Info($"ByteString => {byteString.GetHashCode()}");
-            //string value
-            var message = "proto buf string test info";
-            var stringInfo = new StringValue
-            {
-                Value = message
-            };
-            Logger.Info($"StringValue => {stringInfo.GetHashCode()}/{message.GetHashCode()}");
-
-            //int3 value
-            var value = int.MaxValue;
-            var int32Info = new Int32Value
-            {
-                Value = value
-            };
-            Logger.Info($"Int32Value => {int32Info.GetHashCode()}/{value.GetHashCode()}");
-
-            //int64 value
-            var data = long.MaxValue;
-            var int64Info = new Int64Value
-            {
-                Value = data
-            };
-            Logger.Info($"Int64Value => {int64Info.GetHashCode()}/{data.GetHashCode()}");
-
-            //enum
-            var enumData = Color.Blue;
-            var enumInfo = new EnumInput
-            {
-                Info = enumData
-            };
-            Logger.Info($"EnumInput => {enumInfo.GetHashCode()}/{enumData.GetHashCode()}");
-
-            //map
-            var map1 = new MapStringInput
-            {
-                Info =
-                {
-                    {"key1", "test1"},
-                    {"key2", "test1"},
-                    {"key3", "test1"}
-                }
-            };
-            var map2 = new MapStringInput
-            {
-                Info =
-                {
-                    {"key1", "test1"},
-                    {"key2", "test2"}
-                }
-            };
-            Logger.Info($"MapStringInput => {map1.GetHashCode()}/{map2.GetHashCode()}");
-        }
+//        [TestMethod]
+//        public void GetHashCodeTest()
+//        {
+//            //byte string
+//            var byteString = ByteString.CopyFromUtf8("test info");
+//            Logger.Info($"ByteString => {byteString.GetHashCode()}");
+//            //string value
+//            var message = "proto buf string test info";
+//            var stringInfo = new StringValue
+//            {
+//                Value = message
+//            };
+//            Logger.Info($"StringValue => {stringInfo.GetHashCode()}/{message.GetHashCode()}");
+//
+//            //int3 value
+//            var value = int.MaxValue;
+//            var int32Info = new Int32Value
+//            {
+//                Value = value
+//            };
+//            Logger.Info($"Int32Value => {int32Info.GetHashCode()}/{value.GetHashCode()}");
+//
+//            //int64 value
+//            var data = long.MaxValue;
+//            var int64Info = new Int64Value
+//            {
+//                Value = data
+//            };
+//            Logger.Info($"Int64Value => {int64Info.GetHashCode()}/{data.GetHashCode()}");
+//
+//            //enum
+//            var enumData = Color.Blue;
+//            var enumInfo = new EnumInput
+//            {
+//                Info = enumData
+//            };
+//            Logger.Info($"EnumInput => {enumInfo.GetHashCode()}/{enumData.GetHashCode()}");
+//
+//            //map
+//            var map1 = new MapStringInput
+//            {
+//                Info =
+//                {
+//                    {"key1", "test1"},
+//                    {"key2", "test1"},
+//                    {"key3", "test1"}
+//                }
+//            };
+//            var map2 = new MapStringInput
+//            {
+//                Info =
+//                {
+//                    {"key1", "test1"},
+//                    {"key2", "test2"}
+//                }
+//            };
+//            Logger.Info($"MapStringInput => {map1.GetHashCode()}/{map2.GetHashCode()}");
+//        }
 
         [TestMethod]
         public void UpdateCodeHash_Test()

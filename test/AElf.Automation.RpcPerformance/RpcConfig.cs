@@ -10,12 +10,14 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("enable_random")] public bool EnableRandom { get; set; }
         [JsonProperty("endpoint_list")] public List<string> EndpointList { get; set; }
 
-        public string GetRandomEndpoint()
+        public string GetRandomEndpoint(int rdNo = 0)
         {
-            var rd = new Random(Guid.NewGuid().GetHashCode());
-            var rdNo = rd.Next(0, EndpointList.Count);
+            if (rdNo == 0)
+            {
+                var rd = new Random(Guid.NewGuid().GetHashCode());
+                rdNo = rd.Next(0, EndpointList.Count);
+            }
             var serviceUrl = EndpointList[rdNo];
-
             return serviceUrl.Contains("http://") ? serviceUrl : $"http://{serviceUrl}";
         }
     }
@@ -30,7 +32,7 @@ namespace AElf.Automation.RpcPerformance
 
     public class ChainTypeOption
     {
-        [JsonProperty("is_side_chain")] public bool isSideChain { get; set; }
+        [JsonProperty("is_side_chain")] public bool IsSideChain { get; set; }
         [JsonProperty("main_chain_url")] public string MainChainUrl { get; set; }
     }
 

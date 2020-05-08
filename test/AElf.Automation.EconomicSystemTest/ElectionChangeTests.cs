@@ -114,7 +114,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var genesis = NodeManager.GetGenesisContract();
             ElectionContractStub = genesis.GetElectionStub(Tester);
-            var voteId = HashHelper.HexStringToHash(hash);
+            var voteId = Hash.LoadFromHex(hash);
             var transactionResult = await ElectionContractStub.ChangeVotingOption.SendAsync(new ChangeVotingOptionInput
             {
                 CandidatePubkey = FullUserPubKey2,
@@ -137,7 +137,7 @@ namespace AElf.Automation.EconomicSystemTest
             ElectionContractStub = genesis.GetElectionStub(Tester);
             var before = Token.GetUserBalance(Tester);
             var result = await ElectionContractStub.Withdraw.SendAsync(
-                HashHelper.HexStringToHash(hash));
+                Hash.LoadFromHex(hash));
             var after = Token.GetUserBalance(Tester);
             Logger.Info($"Balance change: {before} => {after}");
         }

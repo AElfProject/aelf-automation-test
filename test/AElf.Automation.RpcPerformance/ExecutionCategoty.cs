@@ -117,7 +117,7 @@ namespace AElf.Automation.RpcPerformance
                             var byteString =
                                 ByteString.FromBase64(transactionResult.Logs
                                     .First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
-                            var contractPath = ContractDeployed.Parser.ParseFrom(byteString).Address.GetFormatted();
+                            var contractPath = ContractDeployed.Parser.ParseFrom(byteString).Address.ToBase58();
                             ContractList.Add(new ContractInfo(AccountList[item.Id].Account, contractPath));
                             break;
                         }
@@ -156,7 +156,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     var contractAddress =
                         authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
-                    ContractList.Add(new ContractInfo(miners[i], contractAddress.GetFormatted()));
+                    ContractList.Add(new ContractInfo(miners[i], contractAddress.ToBase58()));
                 }
             else
                 for (var i = 0; i < ThreadCount;)
@@ -165,7 +165,7 @@ namespace AElf.Automation.RpcPerformance
                     {
                         var contractAddress =
                             authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken");
-                        ContractList.Add(new ContractInfo(miner, contractAddress.GetFormatted()));
+                        ContractList.Add(new ContractInfo(miner, contractAddress.ToBase58()));
                         i++;
                         if (i == ThreadCount) break;
                     }
@@ -182,7 +182,7 @@ namespace AElf.Automation.RpcPerformance
                 var authority = new AuthorityManager(NodeManager, account);
                 var creator = NodeInfoHelper.Config.Nodes.First().Account;
                 var contractAddress = authority.DeployContractWithAuthority(creator, "AElf.Contracts.MultiToken.dll");
-                ContractList.Add(new ContractInfo(creator, contractAddress.GetFormatted()));
+                ContractList.Add(new ContractInfo(creator, contractAddress.ToBase58()));
                 Thread.Sleep(60000);
             }
         }
@@ -194,7 +194,7 @@ namespace AElf.Automation.RpcPerformance
                 var account = AccountList[i].Account;
                 var authority = new AuthorityManager(NodeManager, account);
                 var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
-                ContractList.Add(new ContractInfo(account, contractAddress.GetFormatted()));
+                ContractList.Add(new ContractInfo(account, contractAddress.ToBase58()));
             }
         }
 

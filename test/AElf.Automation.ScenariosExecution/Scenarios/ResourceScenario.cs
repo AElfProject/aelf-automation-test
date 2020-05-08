@@ -152,31 +152,31 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 Token.SetAccount(user);
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Spender = TokenConverter.Contract,
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Spender = TokenConverter.Contract,
                     Symbol = "WRITE",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Spender = TokenConverter.Contract,
                     Symbol = "READ",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Spender = TokenConverter.Contract,
                     Symbol = "TRAFFIC",
                     Amount = 100_000_00000000
                 });
                 Token.ExecuteMethodWithTxId(TokenMethod.Approve, new ApproveInput
                 {
-                    Spender = AddressHelper.Base58StringToAddress(TokenConverter.ContractAddress),
+                    Spender = TokenConverter.Contract,
                     Symbol = "STORAGE",
                     Amount = 100_000_00000000
                 });

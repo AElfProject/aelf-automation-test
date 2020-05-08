@@ -145,7 +145,7 @@ namespace AElfChain.Common.Contracts
             var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
             foreach (var member in members)
             {
-                SetAccount(member.GetFormatted());
+                SetAccount(member.ToBase58());
                 var approve = ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
                 approve.Status.ShouldBe("MINED");
                 if (CheckProposal(proposalId).ToBeReleased) return;

@@ -193,7 +193,7 @@ namespace AElfChain.Common.Contracts.Serializer
             hash = new Hash();
             try
             {
-                hash = HashHelper.HexStringToHash(info);
+                hash = Hash.LoadFromHex(info);
                 return true;
             }
             catch (Exception)

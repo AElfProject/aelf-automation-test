@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Acs0;
 using Acs1;
+using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Genesis;
 using AElf.Types;
@@ -72,7 +73,7 @@ namespace AElfChain.Common.Contracts
             var codeArray = contractReader.Read(contractFileName);
 
             var contractOwner = GetContractAuthor(contractAddress);
-            if (contractOwner.GetFormatted() != account)
+            if (contractOwner.ToBase58() != account)
                 Logger.Error("Account have no permission to update.");
 
             SetAccount(account);
@@ -99,7 +100,7 @@ namespace AElfChain.Common.Contracts
             var hash = NameProviderInfos[name];
             var address = CallViewMethod<Address>(GenesisMethod.GetContractAddressByName, hash);
             _systemContractAddresses[name] = address;
-            var addString = address != new Address() ? address.GetFormatted() : "null";
+            var addString = address != new Address() ? address.ToBase58() : "null";
             Logger.Info($"{name} contract address: {addString}");
 
             return address;
@@ -194,19 +195,19 @@ namespace AElfChain.Common.Contracts
             var dic = new Dictionary<NameProvider, Hash>
             {
                 {NameProvider.Genesis, Hash.Empty},
-                {NameProvider.Election, Hash.FromString("AElf.ContractNames.Election")},
-                {NameProvider.Profit, Hash.FromString("AElf.ContractNames.Profit")},
-                {NameProvider.Vote, Hash.FromString("AElf.ContractNames.Vote")},
-                {NameProvider.Treasury, Hash.FromString("AElf.ContractNames.Treasury")},
-                {NameProvider.Token, Hash.FromString("AElf.ContractNames.Token")},
-                {NameProvider.TokenHolder, Hash.FromString("AElf.ContractNames.TokenHolder")},
-                {NameProvider.TokenConverter, Hash.FromString("AElf.ContractNames.TokenConverter")},
-                {NameProvider.Consensus, Hash.FromString("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentAuth, Hash.FromString("AElf.ContractNames.Parliament")},
-                {NameProvider.CrossChain, Hash.FromString("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationAuth, Hash.FromString("AElf.ContractNames.Association")},
-                {NameProvider.Configuration, Hash.FromString("AElf.ContractNames.Configuration")},
-                {NameProvider.ReferendumAuth, Hash.FromString("AElf.ContractNames.Referendum")}
+                {NameProvider.Election, HashHelper.ComputeFrom("AElf.ContractNames.Election")},
+                {NameProvider.Profit, HashHelper.ComputeFrom("AElf.ContractNames.Profit")},
+                {NameProvider.Vote, HashHelper.ComputeFrom("AElf.ContractNames.Vote")},
+                {NameProvider.Treasury,HashHelper.ComputeFrom("AElf.ContractNames.Treasury")},
+                {NameProvider.Token, HashHelper.ComputeFrom("AElf.ContractNames.Token")},
+                {NameProvider.TokenHolder, HashHelper.ComputeFrom("AElf.ContractNames.TokenHolder")},
+                {NameProvider.TokenConverter, HashHelper.ComputeFrom("AElf.ContractNames.TokenConverter")},
+                {NameProvider.Consensus, HashHelper.ComputeFrom("AElf.ContractNames.Consensus")},
+                {NameProvider.ParliamentAuth, HashHelper.ComputeFrom("AElf.ContractNames.Parliament")},
+                {NameProvider.CrossChain, HashHelper.ComputeFrom("AElf.ContractNames.CrossChain")},
+                {NameProvider.AssociationAuth, HashHelper.ComputeFrom("AElf.ContractNames.Association")},
+                {NameProvider.Configuration, HashHelper.ComputeFrom("AElf.ContractNames.Configuration")},
+                {NameProvider.ReferendumAuth, HashHelper.ComputeFrom("AElf.ContractNames.Referendum")}
             };
 
             return dic;

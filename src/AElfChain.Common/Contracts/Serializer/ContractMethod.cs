@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf;
+using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf.Reflection;
@@ -82,7 +83,7 @@ namespace AElfChain.Common.Contracts.Serializer
                     inputJson["value"] = inputs[0].ConvertAddress().Value.ToBase64();
                     break;
                 case "Hash":
-                    inputJson["value"] = HashHelper.HexStringToHash(inputs[0]).Value.ToBase64();
+                    inputJson["value"] = Hash.LoadFromHex(inputs[0]).Value.ToBase64();
                     break;
                 default:
                     for (var i = 0; i < InputFields.Count; i++)
@@ -100,7 +101,7 @@ namespace AElfChain.Common.Contracts.Serializer
                             else if (type.MessageType.Name == "Hash")
                                 inputJson[InputFields[i].JsonName] = new JObject
                                 {
-                                    ["value"] = HashHelper.HexStringToHash(inputs[i]).Value.ToBase64()
+                                    ["value"] = Hash.LoadFromHex(inputs[i]).Value.ToBase64()
                                 };
                             else
                                 inputJson[InputFields[i].JsonName] = inputs[i];

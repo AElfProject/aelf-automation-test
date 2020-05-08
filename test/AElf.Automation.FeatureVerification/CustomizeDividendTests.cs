@@ -169,11 +169,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
 
                 Logger.Info(
-                    $"BasicReward Profit: {ContractManager.Token.GetUserBalance(basicAddress.GetFormatted(), "ELF")}");
+                    $"BasicReward Profit: {ContractManager.Token.GetUserBalance(basicAddress.ToBase58(), "ELF")}");
                 Logger.Info(
-                    $"ReElection Profit: {ContractManager.Token.GetUserBalance(electionAddress.GetFormatted(), "ELF")}");
+                    $"ReElection Profit: {ContractManager.Token.GetUserBalance(electionAddress.ToBase58(), "ELF")}");
                 Logger.Info(
-                    $"VoteWeight Profit: {ContractManager.Token.GetUserBalance(voteAddress.GetFormatted(), "ELF")}");
+                    $"VoteWeight Profit: {ContractManager.Token.GetUserBalance(voteAddress.ToBase58(), "ELF")}");
             }
         }
     }

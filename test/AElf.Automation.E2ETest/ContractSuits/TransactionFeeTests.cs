@@ -463,9 +463,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             var proposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(TokenContractImplContainer.TokenContractImplStub.UpdateCoefficientsForSender), updateInput,
-                newOrganization, proposer.GetFormatted());
+                newOrganization, proposer.ToBase58());
             ContractManager.Association.ApproveWithAssociation(proposalId,newOrganization);
-            var release = ContractManager.Association.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var release = ContractManager.Association.ReleaseProposal(proposalId, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             
             var userCoefficient =
@@ -483,9 +483,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var recoverProposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(TokenContractImplContainer.TokenContractImplStub.ChangeUserFeeController), recoverInput,
-                newOrganization, proposer.GetFormatted());
+                newOrganization, proposer.ToBase58());
             ContractManager.Association.ApproveWithAssociation(recoverProposalId,newOrganization);
-            var recoverRelease = ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.GetFormatted());
+            var recoverRelease = ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.ToBase58());
             recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var recoverController =
                 await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());

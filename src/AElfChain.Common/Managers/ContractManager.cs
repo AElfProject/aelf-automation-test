@@ -127,11 +127,11 @@ namespace AElfChain.Common.Managers
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
+                var transactionId = Hash.LoadFromHex(transactionIds[num]);
                 var txRes = transactionStatus[num];
                 var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
-                var txIdWithStatus = Hash.FromRawBytes(rawBytes);
+                var txIdWithStatus = HashHelper.ComputeFrom(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (!transactionIds[num].Equals(txId)) continue;
                 index = num;
@@ -169,7 +169,7 @@ namespace AElfChain.Common.Managers
                 foreach (var key in contracts.Keys)
                 {
                     if (contracts[key].Equals(new Address())) continue;
-                    _systemContracts.Add(key.ToString(), contracts[key].GetFormatted());
+                    _systemContracts.Add(key.ToString(), contracts[key].ToBase58());
                 }
             }
 

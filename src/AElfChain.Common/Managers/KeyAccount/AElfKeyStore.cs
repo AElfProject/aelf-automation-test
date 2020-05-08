@@ -189,9 +189,9 @@ namespace AElfChain.Common.Managers
             CreateKeystoreDirectory();
 
             var address = Address.FromPublicKey(keyPair.PublicKey);
-            var fullPath = GetKeyFileFullPath(address.GetFormatted());
+            var fullPath = GetKeyFileFullPath(address.ToBase58());
             //save cache
-            await CacheAccount.WriteCache(address.GetFormatted(), keyPair.PrivateKey);
+            await CacheAccount.WriteCache(address.ToBase58(), keyPair.PrivateKey);
 
             await Task.Run(() =>
             {
@@ -201,7 +201,7 @@ namespace AElfChain.Common.Managers
                 {
                     scryptResult = _keyStoreService.EncryptAndGenerateDefaultKeyStoreAsJson(password,
                         keyPair.PrivateKey,
-                        address.GetFormatted());
+                        address.ToBase58());
                     if (!scryptResult.IsNullOrWhiteSpace())
                         break;
 

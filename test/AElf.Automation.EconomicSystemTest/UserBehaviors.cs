@@ -23,14 +23,14 @@ namespace AElf.Automation.EconomicSystemTest
             var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                 new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(account),
+                    Owner = account.ConvertAddress(),
                     Symbol = NodeOption.NativeTokenSymbol
                 }).Balance;
             
             var beforeVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                 new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(account),
+                    Owner =  account.ConvertAddress(),
                     Symbol = "VOTE"
                 }).Balance;
 
@@ -46,13 +46,13 @@ namespace AElf.Automation.EconomicSystemTest
             
             var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(account),
+                Owner =  account.ConvertAddress(),
                 Symbol = NodeOption.NativeTokenSymbol
             }).Balance;
             
             var afterVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(account),
+                Owner =  account.ConvertAddress(),
                 Symbol = "VOTE"
             }).Balance;
             
@@ -163,7 +163,7 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 Symbol = symbol,
                 Amount = amount,
-                To = AddressHelper.Base58StringToAddress(to),
+                To = to.ConvertAddress(),
                 Memo = $"transfer {from}=>{to} with amount {amount}."
             });
         }
@@ -176,7 +176,7 @@ namespace AElf.Automation.EconomicSystemTest
                 Symbol = symbol,
                 Decimals = 2,
                 IsBurnable = true,
-                Issuer = AddressHelper.Base58StringToAddress(issuer),
+                Issuer = issuer.ConvertAddress(),
                 TokenName = tokenName,
                 TotalSupply = 100_0000
             });
@@ -191,7 +191,7 @@ namespace AElf.Automation.EconomicSystemTest
                 Symbol = symbol,
                 Amount = 100,
                 Memo = "Issue",
-                To = AddressHelper.Base58StringToAddress(toAddress)
+                To = toAddress.ConvertAddress()
             });
 
             return issue;
@@ -204,7 +204,7 @@ namespace AElf.Automation.EconomicSystemTest
             var approve = TokenService.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
             {
                 Symbol = symbol,
-                Spender = AddressHelper.Base58StringToAddress(to),
+                Spender = to.ConvertAddress(),
                 Amount = amount
             });
             return approve;
@@ -217,7 +217,7 @@ namespace AElf.Automation.EconomicSystemTest
             var unapprove = TokenService.ExecuteMethodWithResult(TokenMethod.UnApprove, new UnApproveInput
             {
                 Symbol = symbol,
-                Spender = AddressHelper.Base58StringToAddress(to),
+                Spender = to.ConvertAddress(),
                 Amount = amount
             });
             return unapprove;
@@ -229,8 +229,8 @@ namespace AElf.Automation.EconomicSystemTest
             var transferFrom = TokenService.ExecuteMethodWithResult(TokenMethod.TransferFrom, new TransferFromInput
             {
                 Symbol = symbol,
-                From = AddressHelper.Base58StringToAddress(from),
-                To = AddressHelper.Base58StringToAddress(to),
+                From =from.ConvertAddress(),
+                To = to.ConvertAddress(),
                 Amount = amount,
                 Memo = $"transferfrom: from {from} to {to}"
             });

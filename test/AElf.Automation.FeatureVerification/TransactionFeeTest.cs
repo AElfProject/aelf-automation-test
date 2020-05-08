@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 using Acs1;
 using Acs3;
@@ -148,7 +146,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var feeReceiver = await SideContractManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
             foreach (var symbol in _resourceSymbol)
             {
-                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.GetFormatted(), symbol);
+                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
                 Logger.Info($"fee receiver {symbol} balance : {balance}");
             }
             
@@ -165,7 +163,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             
             foreach (var symbol in _resourceSymbol)
             {
-                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.GetFormatted(), symbol);
+                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
                 Logger.Info($"After fee receiver {symbol} balance : {balance}");
             }
             
@@ -392,8 +390,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var period = AuthorityManager.GetPeriod();
                 var schemesId = Schemes[scheme.Key].SchemeId;
                 var address = _profit.GetSchemeAddress(schemesId, period - 1);
-                var balance = _tokenContract.GetUserBalance(address.GetFormatted());
-                var testBalance = _tokenContract.GetUserBalance(address.GetFormatted(), Symbol);
+                var balance = _tokenContract.GetUserBalance(address.ToBase58());
+                var testBalance = _tokenContract.GetUserBalance(address.ToBase58(), Symbol);
 
                 var amount = _profit.GetProfitAmount(InitAccount, schemesId);
                 Logger.Info(
@@ -524,10 +522,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var recoverProposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(TokenContractImplContainer.TokenContractImplStub.ChangeDeveloperController), recoverInput,
-                newOrganization, proposer.GetFormatted());
+                newOrganization, proposer.ToBase58());
             ContractManager.Association.ApproveWithAssociation(recoverProposalId, newOrganization);
             var recoverRelease =
-                ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.GetFormatted());
+                ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.ToBase58());
             recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var recoverController =
                 await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());
@@ -647,7 +645,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var result = _tokenContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
             {
-                Issuer = AddressHelper.Base58StringToAddress(InitAccount),
+                Issuer = InitAccount.ConvertAddress(),
                 Symbol = Symbol,
                 Decimals = 8,
                 IsBurnable = true,

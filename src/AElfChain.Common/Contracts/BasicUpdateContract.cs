@@ -79,7 +79,7 @@ namespace AElfChain.Common.Contracts
                 return contract;
             }
 
-            return new BasicUpdateContract(nodeManager, callAddress, addressList.First().GetFormatted());
+            return new BasicUpdateContract(nodeManager, callAddress, addressList.First().ToBase58());
         }
 
         public BasicUpdateContractContainer.BasicUpdateContractStub GetBasicUpdateStub(string callAddress = null)

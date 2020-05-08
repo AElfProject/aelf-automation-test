@@ -122,7 +122,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result =
                 Parliament.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
-                    HashHelper.HexStringToHash(proposalId));
+                    Hash.LoadFromHex(proposalId));
             var toBeRelease = result.ToBeReleased;
             var time = result.ExpiredTime;
             var organizationAddress = result.OrganizationAddress;
@@ -153,7 +153,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 Parliament.SetAccount(miner);
                 var result =
-                    Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
+                    Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, Hash.LoadFromHex(proposalId)
                     );
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
@@ -173,7 +173,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             Parliament.SetAccount(Full);
             var result =
-                Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, HashHelper.HexStringToHash(proposalId)
+                Parliament.ExecuteMethodWithResult(ParliamentMethod.Approve, Hash.LoadFromHex(proposalId)
                 );
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
@@ -185,7 +185,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Parliament.SetAccount(TestAccount);
             var result =
-                Parliament.ExecuteMethodWithResult(ParliamentMethod.Release, HashHelper.HexStringToHash(proposalId));
+                Parliament.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadFromHex(proposalId));
             result.Status.ShouldBe("MINED");
         }
 
@@ -193,7 +193,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetOrganization()
         {
             var info = Parliament.GetOrganization(
-                AddressHelper.Base58StringToAddress("aeXhTqNwLWxCG6AzxwnYKrPMWRrzZBskW3HWVD9YREMx1rJxG"));
+                "aeXhTqNwLWxCG6AzxwnYKrPMWRrzZBskW3HWVD9YREMx1rJxG".ConvertAddress());
             _logger.Info($"{info.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
             _logger.Info($"{info.ProposalReleaseThreshold.MaximalRejectionThreshold}");
             _logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");

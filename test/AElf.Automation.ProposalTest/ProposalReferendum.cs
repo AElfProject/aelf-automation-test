@@ -119,7 +119,7 @@ namespace AElf.Automation.ProposalTest
             ProposalList = new Dictionary<Address, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
-                var balance = Token.GetUserBalance(organizationAddress.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(organizationAddress.ToBase58(), Symbol);
                 if (balance < 100 * OrganizationList.Count) continue;
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
@@ -144,7 +144,7 @@ namespace AElf.Automation.ProposalTest
                     };
 
                     var proposer = Referendum.GetOrganization(organizationAddress).ProposerWhiteList.Proposers.First();
-                    Referendum.SetAccount(proposer.GetFormatted());
+                    Referendum.SetAccount(proposer.ToBase58());
                     var txId = Referendum.ExecuteMethodWithTxId(ReferendumMethod.CreateProposal, createProposalInput);
                     txIdList.Add(txId);
                 }
@@ -311,16 +311,16 @@ namespace AElf.Automation.ProposalTest
             foreach (var (key, value) in ProposalList)
             {
                 var sender = Referendum.GetOrganization(key).ProposerWhiteList.Proposers.First();
-                Referendum.SetAccount(sender.GetFormatted());
+                Referendum.SetAccount(sender.ToBase58());
                 foreach (var proposalId in value)
                 {
                     var toBeReleased = Referendum.CheckProposal(proposalId).ToBeReleased;
                     if (!toBeReleased) continue;
-                    var balance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                    var balance = Token.GetUserBalance(key.ToBase58(), Symbol);
                     var result = Referendum.ExecuteMethodWithResult(ReferendumMethod.Release,
                         proposalId);
                     result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                    var newBalance = Token.GetUserBalance(key.GetFormatted(), Symbol);
+                    var newBalance = Token.GetUserBalance(key.ToBase58(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }
             }
@@ -355,7 +355,7 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("After Referendum test, check the balance of organization address:");
             foreach (var balanceInfo in BalanceInfo)
             {
-                var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(balanceInfo.Key.ToBase58(), Symbol);
                 balance.ShouldBe(balanceInfo.Value);
                 Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
@@ -374,15 +374,15 @@ namespace AElf.Automation.ProposalTest
             BalanceInfo = new Dictionary<Address, long>();
             foreach (var organization in OrganizationList)
             {
-                var balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(organization.ToBase58(), Symbol);
                 if (balance >= 1000_00000000)
                 {
                     BalanceInfo.Add(organization, balance);
                     continue;
                 }
 
-                Token.TransferBalance(InitAccount, organization.GetFormatted(), 1000_00000000, Symbol);
-                balance = Token.GetUserBalance(organization.GetFormatted(), Symbol);
+                Token.TransferBalance(InitAccount, organization.ToBase58(), 1000_00000000, Symbol);
+                balance = Token.GetUserBalance(organization.ToBase58(), Symbol);
                 BalanceInfo.Add(organization, balance);
                 Logger.Info($"{organization} {Symbol} token balance is {balance}");
             }

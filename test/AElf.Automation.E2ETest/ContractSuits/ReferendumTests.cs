@@ -62,7 +62,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //creat proposal
             var proposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationThreshold), changeInput,
-                organizationAddress, proposer.GetFormatted());
+                organizationAddress, proposer.ToBase58());
             var proposalInfo = referendum.CheckProposal(proposalId);
             proposalInfo.Proposer.ShouldBe(proposer);
             proposalInfo.ToBeReleased.ShouldBeFalse();
@@ -85,20 +85,20 @@ namespace AElf.Automation.E2ETest.ContractSuits
             // approve/abstention/rejection 
             var approveMember = members.First().ConvertAddress();
             var approveMemberBalance =
-                token.GetUserBalance(approveMember.GetFormatted(), symbol);
+                token.GetUserBalance(approveMember.ToBase58(), symbol);
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            var approveTokenResult = token.ApproveToken(approveMember.GetFormatted(), referendum.ContractAddress,
+            var approveTokenResult = token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress,
                 approveToken, symbol);
             var approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
-            referendum.SetAccount(approveMember.GetFormatted());
+            referendum.SetAccount(approveMember.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var approveFee = approveResult.GetDefaultTransactionFee();
-            var afterBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
+            var afterBalance = token.GetUserBalance(approveMember.ToBase58(), symbol);
             afterBalance.ShouldBe(approveMemberBalance - approveTokenFee - approveFee - approveToken);
 
-            var otherMiners = members.Where(m => !approveMember.GetFormatted().Equals(m)).ToList();
+            var otherMiners = members.Where(m => !approveMember.ToBase58().Equals(m)).ToList();
             var abstentionMember = otherMiners.First();
             var abstentionMemberBalance =
                 token.GetUserBalance(abstentionMember, symbol);
@@ -135,7 +135,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             proposalInfo.ToBeReleased.ShouldBeTrue();
 
             //release 
-            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var releaseResult = referendum.ReleaseProposal(proposalId, proposer.ToBase58());
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             organization =
@@ -146,12 +146,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(3000);
 
             //reclaimVoteToken
-            referendum.SetAccount(approveMember.GetFormatted());
-            var beforeBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
+            referendum.SetAccount(approveMember.ToBase58());
+            var beforeBalance = token.GetUserBalance(approveMember.ToBase58(), symbol);
             var approveReclaim = referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken, proposalId);
             approveReclaim.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var reclaimFee = approveReclaim.GetDefaultTransactionFee();
-            var afterApproveReclaimBalance = token.GetUserBalance(approveMember.GetFormatted(), symbol);
+            var afterApproveReclaimBalance = token.GetUserBalance(approveMember.ToBase58(), symbol);
             afterApproveReclaimBalance.ShouldBe(beforeBalance + approveToken - reclaimFee);
 
             referendum.SetAccount(abstentionMember);
@@ -181,17 +181,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //creat proposal
             var revertProposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationThreshold), revertInput,
-                organizationAddress, proposer.GetFormatted());
+                organizationAddress, proposer.ToBase58());
             organization =
                 referendum.GetOrganization(organizationAddress);
             approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            token.ApproveToken(approveMember.GetFormatted(), referendum.ContractAddress, approveToken,
+            token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress, approveToken,
                 symbol);
-            referendum.SetAccount(approveMember.GetFormatted());
+            referendum.SetAccount(approveMember.ToBase58());
             var approveRevertResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, revertProposalId);
             approveRevertResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            referendum.SetAccount(proposer.GetFormatted());
-            var revertRelease = referendum.ReleaseProposal(revertProposalId, proposer.GetFormatted());
+            referendum.SetAccount(proposer.ToBase58());
+            var revertRelease = referendum.ReleaseProposal(revertProposalId, proposer.ToBase58());
             revertRelease.Status.ShouldBe(TransactionResultStatus.Mined);
 
             organization =
@@ -242,17 +242,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var proposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationProposerWhiteList), changeProposerInput, organizationAddress,
-                proposer.GetFormatted());
+                proposer.ToBase58());
 
             var approveMember = enumerable.First();
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            token.ApproveToken(approveMember.GetFormatted(), referendum.ContractAddress,
+            token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress,
                 approveToken, symbol);
-            referendum.SetAccount(approveMember.GetFormatted());
+            referendum.SetAccount(approveMember.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-            var release = referendum.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var release = referendum.ReleaseProposal(proposalId, proposer.ToBase58());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
             organization =
                 referendum.GetOrganization(organizationAddress);
@@ -265,17 +265,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var revertProposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationProposerWhiteList), revertProposerInput, organizationAddress,
-                newProposer.GetFormatted());
+                newProposer.ToBase58());
 
             var otherApproveMember = enumerable.Last();
-            var approveTokenResult = token.ApproveToken(otherApproveMember.GetFormatted(), referendum.ContractAddress,
+            var approveTokenResult = token.ApproveToken(otherApproveMember.ToBase58(), referendum.ContractAddress,
                 approveToken, symbol);
             approveTokenResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            referendum.SetAccount(otherApproveMember.GetFormatted());
+            referendum.SetAccount(otherApproveMember.ToBase58());
             approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, revertProposalId);
             approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-            var revertRelease = referendum.ReleaseProposal(revertProposalId, newProposer.GetFormatted());
+            var revertRelease = referendum.ReleaseProposal(revertProposalId, newProposer.ToBase58());
             revertRelease.Status.ShouldBe(TransactionResultStatus.Mined);
             organization =
                 referendum.GetOrganization(organizationAddress);

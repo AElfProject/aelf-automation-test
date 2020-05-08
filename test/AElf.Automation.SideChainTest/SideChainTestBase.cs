@@ -135,11 +135,11 @@ namespace AElf.Automation.SideChainTests
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
+                var transactionId = Hash.LoadFromHex(transactionIds[num]);
                 var txRes = transactionStatus[num];
                 var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
-                var txIdWithStatus = Hash.FromRawBytes(rawBytes);
+                var txIdWithStatus = HashHelper.ComputeFrom(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (!transactionIds[num].Equals(txId)) continue;
                 index = num;
@@ -159,8 +159,8 @@ namespace AElf.Automation.SideChainTests
                 services.CallAddress, services.GenesisService.ContractAddress,
                 GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                 {
-                    Address = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
-                    SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                    Address =services.TokenService.Contract,
+                    SystemContractHashName = HashHelper.ComputeFrom("AElf.ContractNames.Token")
                 });
             return validateTransaction;
         }
@@ -194,7 +194,7 @@ namespace AElf.Automation.SideChainTests
             services.CrossChainService.SetAccount(creator, password);
             var issue = new SideChainTokenInitialIssue
             {
-                Address = AddressHelper.Base58StringToAddress(creator),
+                Address = creator.ConvertAddress(),
                 Amount = 10_0000_0000_0000
             };
             var result =
@@ -237,7 +237,7 @@ namespace AElf.Automation.SideChainTests
         {
             var result =
                 services.ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
-                    HashHelper.HexStringToHash(proposalId));
+                    Hash.LoadFromHex(proposalId));
             return result;
         }
 
@@ -246,12 +246,12 @@ namespace AElf.Automation.SideChainTests
             var miners = GetMiners(services);
             foreach (var miner in miners)
             {
-                if(miner.GetFormatted().Equals(InitAccount)) continue;
-                services.ParliamentService.SetAccount(miner.GetFormatted(), "123");
-                var balance = services.TokenService.GetUserBalance(miner.GetFormatted());
+                if(miner.ToBase58().Equals(InitAccount)) continue;
+                services.ParliamentService.SetAccount(miner.ToBase58(), "123");
+                var balance = services.TokenService.GetUserBalance(miner.ToBase58());
                 if (balance< 1000_00000000)
                 {
-                    services.TokenService.TransferBalance(InitAccount, miner.GetFormatted(), 1000_00000000);
+                    services.TokenService.TransferBalance(InitAccount, miner.ToBase58(), 1000_00000000);
                 }
                 var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -266,7 +266,7 @@ namespace AElf.Automation.SideChainTests
             var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
             foreach (var member in members)
             {
-                tester.AssociationService.SetAccount(member.GetFormatted());
+                tester.AssociationService.SetAccount(member.ToBase58());
                 var approve =
                     tester.AssociationService.ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
                 approve.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -288,7 +288,7 @@ namespace AElf.Automation.SideChainTests
         {
             var approveInput = new ApproveInput
             {
-                Spender = AddressHelper.Base58StringToAddress(tester.CrossChainService.ContractAddress),
+                Spender = tester.CrossChainService.Contract,
                 Symbol = "ELF",
                 Amount = amount
             };
@@ -305,7 +305,7 @@ namespace AElf.Automation.SideChainTests
         {
             services.ParliamentService.SetAccount(account);
             var result = services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve,
-                HashHelper.HexStringToHash(proposalId));
+                Hash.LoadFromHex(proposalId));
 
             return result;
         }
@@ -331,7 +331,7 @@ namespace AElf.Automation.SideChainTests
             var transfer = services.TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = symbol,
-                To = AddressHelper.Base58StringToAddress(spender),
+                To = spender.ConvertAddress(),
                 Amount = amount,
                 Memo = "Transfer Token"
             });
@@ -346,7 +346,7 @@ namespace AElf.Automation.SideChainTests
                 new ApproveInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Spender = AddressHelper.Base58StringToAddress(services.CrossChainService.ContractAddress),
+                    Spender = services.CrossChainService.Contract,
                     Amount = amount
                 });
 
@@ -367,7 +367,7 @@ namespace AElf.Automation.SideChainTests
             var balance = services.TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
                 new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(account),
+                    Owner = account.ConvertAddress(),
                     Symbol = symbol
                 });
             return balance;

@@ -287,7 +287,7 @@ namespace AElfChain.Common.Contracts
             var authority = new AuthorityManager(NodeManager, CallAddress);
             var miner = authority.GetCurrentMiners().First();
             var contractAddress = authority.DeployContractWithAuthority(miner, FileName);
-            ContractAddress = contractAddress.GetFormatted();
+            ContractAddress = contractAddress.ToBase58();
         }
 
         private string GenerateBroadcastRawTx(string method, IMessage inputParameter)

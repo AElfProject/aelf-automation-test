@@ -25,7 +25,7 @@ namespace AElfChain.Common.Contracts
 
             var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
-            var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
+            var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.ToBase58());
 
             return contract.GetTestStub<AEDPoSContractContainer.AEDPoSContractStub>(caller);
         }
@@ -38,7 +38,7 @@ namespace AElfChain.Common.Contracts
 
             var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
-            var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
+            var contract = new ConsensusContract(genesis.NodeManager, caller, consensus.ToBase58());
 
             return contract.GetTestStub<AEDPoSContractImplContainer.AEDPoSContractImplStub>(caller);
         }
@@ -52,7 +52,7 @@ namespace AElfChain.Common.Contracts
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
             var contract =
-                new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
+                new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.ToBase58());
 
             return contract
                 .GetTestStub<ParliamentContractContainer.ParliamentContractStub>(caller);
@@ -66,7 +66,7 @@ namespace AElfChain.Common.Contracts
 
             var profit = genesis.GetContractAddressByName(NameProvider.Profit);
 
-            var contract = new ProfitContract(genesis.NodeManager, caller, profit.GetFormatted());
+            var contract = new ProfitContract(genesis.NodeManager, caller, profit.ToBase58());
 
             return contract.GetTestStub<ProfitContractContainer.ProfitContractStub>(caller);
         }
@@ -79,7 +79,7 @@ namespace AElfChain.Common.Contracts
 
             var token = genesis.GetContractAddressByName(NameProvider.Token);
 
-            var contract = new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
+            var contract = new TokenContract(genesis.NodeManager, caller, token.ToBase58());
 
             return contract.GetTestStub<TokenContractContainer.TokenContractStub>(caller);
         }
@@ -92,7 +92,7 @@ namespace AElfChain.Common.Contracts
 
             var token = genesis.GetContractAddressByName(NameProvider.Token);
 
-            var contract = new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
+            var contract = new TokenContract(genesis.NodeManager, caller, token.ToBase58());
 
             return contract.GetTestStub<TokenContractImplContainer.TokenContractImplStub>(caller);
         }
@@ -106,7 +106,7 @@ namespace AElfChain.Common.Contracts
 
             var tokenHolder = genesis.GetContractAddressByName(NameProvider.TokenHolder);
 
-            var contract = new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.GetFormatted());
+            var contract = new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.ToBase58());
 
             return contract.GetTestStub<TokenHolderContractContainer.TokenHolderContractStub>(caller);
         }
@@ -120,7 +120,7 @@ namespace AElfChain.Common.Contracts
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
 
             var contract =
-                new TokenConverterContract(genesis.NodeManager, caller, tokenConverter.GetFormatted());
+                new TokenConverterContract(genesis.NodeManager, caller, tokenConverter.ToBase58());
 
             return contract
                 .GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(caller);
@@ -134,7 +134,7 @@ namespace AElfChain.Common.Contracts
 
             var treasury = genesis.GetContractAddressByName(NameProvider.Treasury);
 
-            var contract = new TreasuryContract(genesis.NodeManager, caller, treasury.GetFormatted());
+            var contract = new TreasuryContract(genesis.NodeManager, caller, treasury.ToBase58());
 
             return contract.GetTestStub<TreasuryContractContainer.TreasuryContractStub>(caller);
         }
@@ -147,7 +147,7 @@ namespace AElfChain.Common.Contracts
 
             var vote = genesis.GetContractAddressByName(NameProvider.Vote);
 
-            var contract = new VoteContract(genesis.NodeManager, caller, vote.GetFormatted());
+            var contract = new VoteContract(genesis.NodeManager, caller, vote.ToBase58());
 
             return contract.GetTestStub<VoteContractContainer.VoteContractStub>(caller);
         }
@@ -160,7 +160,7 @@ namespace AElfChain.Common.Contracts
 
             var election = genesis.GetContractAddressByName(NameProvider.Election);
 
-            var contract = new ElectionContract(genesis.NodeManager, caller, election.GetFormatted());
+            var contract = new ElectionContract(genesis.NodeManager, caller, election.ToBase58());
 
             return contract.GetTestStub<ElectionContractContainer.ElectionContractStub>(caller);
         }
@@ -173,7 +173,7 @@ namespace AElfChain.Common.Contracts
 
             var cross = genesis.GetContractAddressByName(NameProvider.CrossChain);
 
-            var contract = new CrossChainContract(genesis.NodeManager, caller, cross.GetFormatted());
+            var contract = new CrossChainContract(genesis.NodeManager, caller, cross.ToBase58());
 
             return contract.GetTestStub<CrossChainContractContainer.CrossChainContractStub>(caller);
         }
@@ -187,7 +187,7 @@ namespace AElfChain.Common.Contracts
             var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
             var contract =
-                new AssociationContract(genesis.NodeManager, caller, association.GetFormatted());
+                new AssociationContract(genesis.NodeManager, caller, association.ToBase58());
 
             return contract.GetTestStub<AssociationContractContainer.AssociationContractStub>(caller);
         }
@@ -201,7 +201,7 @@ namespace AElfChain.Common.Contracts
             var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
 
             var contract =
-                new ReferendumContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+                new ReferendumContract(genesis.NodeManager, caller, referendumAuth.ToBase58());
 
             return contract
                 .GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);
@@ -216,7 +216,7 @@ namespace AElfChain.Common.Contracts
             var configuration = genesis.GetContractAddressByName(NameProvider.Configuration);
 
             var contract =
-                new ConfigurationContract(genesis.NodeManager, caller, configuration.GetFormatted());
+                new ConfigurationContract(genesis.NodeManager, caller, configuration.ToBase58());
 
             return contract.GetTestStub<ConfigurationContainer.ConfigurationStub>(caller);
         }

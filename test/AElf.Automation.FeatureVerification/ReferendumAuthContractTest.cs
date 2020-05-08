@@ -105,10 +105,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = nameof(TokenMethod.Transfer),
-                ToAddress = AddressHelper.Base58StringToAddress(Tester.TokenService.ContractAddress),
+                ToAddress = Tester.TokenService.Contract,
                 Params = transferInput.ToByteString(),
                 ExpiredTime = DateTime.UtcNow.AddMinutes(60).ToTimestamp(),
-                OrganizationAddress = AddressHelper.Base58StringToAddress(organizationAddress)
+                OrganizationAddress = organizationAddress.ConvertAddress()
             };
 
             Referendum.SetAccount(InitAccount);
@@ -127,7 +127,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result =
                 Referendum.CallViewMethod<ProposalOutput>(ReferendumMethod.GetProposal,
-                    HashHelper.HexStringToHash(proposalId));
+                    Hash.LoadFromHex(proposalId));
             var toBeRelease = result.ToBeReleased;
             var time = result.ExpiredTime;
 
@@ -147,7 +147,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             approveResult.Status.ShouldBe("MINED");
             Referendum.SetAccount(InitAccount);
             var result =
-                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, HashHelper.HexStringToHash(proposalId));
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, Hash.LoadFromHex(proposalId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var balance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
             _logger.Info($"{InitAccount} token balance is {balance}");
@@ -159,7 +159,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Referendum.SetAccount(TestAccount);
             var result =
-                Referendum.ExecuteMethodWithResult(ReferendumMethod.Release, HashHelper.HexStringToHash(proposalId));
+                Referendum.ExecuteMethodWithResult(ReferendumMethod.Release, Hash.LoadFromHex(proposalId));
             result.Status.ShouldBe("MINED");
         }
 
@@ -174,7 +174,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Referendum.SetAccount(account);
             var result =
                 Referendum.ExecuteMethodWithResult(ReferendumMethod.ReclaimVoteToken,
-                    HashHelper.HexStringToHash(proposalId));
+                    Hash.LoadFromHex(proposalId));
             result.Status.ShouldBe("MINED");
 
             var balance = Tester.TokenService.GetUserBalance(account, Symbol);

@@ -51,7 +51,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var contractInfo = await ContractManager.GenesisStub.GetContractInfo.CallAsync(tokenAddress);
             var registrationInfo =
                 await ContractManager.GenesisStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
-            var codeHash = Hash.FromRawBytes(registrationInfo.Code.ToByteArray());
+            var codeHash = HashHelper.ComputeFrom(registrationInfo.Code.ToByteArray());
             tokenHash.ShouldBe(codeHash);
             contractInfo.CodeHash.ShouldBe(codeHash);
         }

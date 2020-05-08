@@ -23,7 +23,7 @@ namespace AElfChain.Common.Contracts
                 if (SystemContracts.ContainsKey(contract)) continue;
                 var contractDescriptor =
                     AsyncHelper.RunSync(() =>
-                        genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.GetFormatted()));
+                        genesis.ApiClient.GetContractFileDescriptorSetAsync(contract.ToBase58()));
                 var systemContractHandler = new CustomContractSerializer(contractDescriptor);
                 var methods = systemContractHandler.GetContractMethods();
                 SystemContracts.Add(contract, methods);

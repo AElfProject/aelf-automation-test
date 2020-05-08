@@ -63,7 +63,7 @@ namespace AElfChain.Common.Contracts
                 return contract;
             }
 
-            return new PerformanceContract(nodeManager, callAddress, addressList.First().GetFormatted());
+            return new PerformanceContract(nodeManager, callAddress, addressList.First().ToBase58());
         }
     }
 }

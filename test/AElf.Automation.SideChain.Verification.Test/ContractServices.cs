@@ -1,5 +1,6 @@
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 
 namespace AElf.Automation.SideChain.Verification
@@ -15,7 +16,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             NodeManager = new NodeManager(url, keyStore);
             CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+            CallAccount = callAddress.ConvertAddress();
             NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();
             var chainInfo = GetChainInfo();
@@ -38,20 +39,20 @@ namespace AElf.Automation.SideChain.Verification
 
             //Token contract
             var tokenAddress = GenesisService.GetContractAddressByName(NameProvider.Token);
-            TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.GetFormatted());
+            TokenService = new TokenContract(NodeManager, CallAddress, tokenAddress.ToBase58());
 
             //CrossChain contract
             var crossChainAddress = GenesisService.GetContractAddressByName(NameProvider.CrossChain);
-            CrossChainService = new CrossChainContract(NodeManager, CallAddress, crossChainAddress.GetFormatted());
+            CrossChainService = new CrossChainContract(NodeManager, CallAddress, crossChainAddress.ToBase58());
 
             //Parliament contract
             var parliamentAuthAddress = GenesisService.GetContractAddressByName(NameProvider.ParliamentAuth);
             ParliamentService =
-                new ParliamentContract(NodeManager, CallAddress, parliamentAuthAddress.GetFormatted());
+                new ParliamentContract(NodeManager, CallAddress, parliamentAuthAddress.ToBase58());
 
             //Consensus contract
             var consensusAddress = GenesisService.GetContractAddressByName(NameProvider.Consensus);
-            ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.GetFormatted());
+            ConsensusService = new ConsensusContract(NodeManager, CallAddress, consensusAddress.ToBase58());
         }
 
         private ChainInfo GetChainInfo()

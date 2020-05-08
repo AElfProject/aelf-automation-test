@@ -123,10 +123,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 //        private string UpdateTestContractAuthor(Address contract)
 //        {
 //            var owner = Genesis.GetContractAuthor(contract);
-//            var ownerCandidates = Testers.FindAll(o => o != owner.GetFormatted()).ToList();
+//            var ownerCandidates = Testers.FindAll(o => o != owner.ToBase58()).ToList();
 //            var id = GenerateRandomNumber(0, Testers.Count - 2);
 //
-//            Genesis.SetAccount(owner.GetFormatted());
+//            Genesis.SetAccount(owner.ToBase58());
 //            var updateResult = Genesis.ExecuteMethodWithResult(GenesisMethod.ChangeContractAuthor,
 //                new ChangeContractAuthorInput
 //                {
@@ -135,17 +135,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 //                });
 //
 //            if (updateResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
-//                return owner.GetFormatted();
+//                return owner.ToBase58();
 //
 //            var newOwner = Genesis.GetContractAuthor(contract);
-//            if (newOwner.GetFormatted() == ownerCandidates[id])
+//            if (newOwner.ToBase58() == ownerCandidates[id])
 //                Logger.Info($"Contract '{contract}' owner updated successful.");
 //            else
 //            {
 //                Logger.Error($"Contract '{contract}' owner updated failed.");
 //            }
 //
-//            return newOwner.GetFormatted();
+//            return newOwner.ToBase58();
 //        }
         private bool UpdateTestContractCode(Address contract, string contractName)
         {
@@ -154,7 +154,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             //update to update contract
             try
             {
-                AuthorityManager.UpdateContractWithAuthority(miner, contract.GetFormatted(), contractName);
+                AuthorityManager.UpdateContractWithAuthority(miner, contract.ToBase58(), contractName);
                 return true;
             }
             catch (Exception)

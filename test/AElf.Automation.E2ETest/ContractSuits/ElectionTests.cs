@@ -61,7 +61,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             {
                 //announce election
                 var miners = await ContractManager.ConsensusStub.GetCurrentMinerList.CallAsync(new Empty());
-                var minersAccount = miners.Pubkeys.Select(o => Address.FromPublicKey(o.ToByteArray()).GetFormatted())
+                var minersAccount = miners.Pubkeys.Select(o => Address.FromPublicKey(o.ToByteArray()).ToBase58())
                     .ToList();
                 foreach (var account in nodeAccounts)
                 {
@@ -91,7 +91,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     candidates = await ContractManager.ElectionStub.GetCandidates.CallAsync(new Empty());
                     candidatesPubkey = candidates.Value.Select(o => o.ToByteArray().ToHex()).ToList();
                     var candidateAccounts =
-                        candidates.Value.Select(o => Address.FromPublicKey(o.ToByteArray()).GetFormatted());
+                        candidates.Value.Select(o => Address.FromPublicKey(o.ToByteArray()).ToBase58());
                     candidateAccounts.ShouldContain(account);
                     break;
                 }
