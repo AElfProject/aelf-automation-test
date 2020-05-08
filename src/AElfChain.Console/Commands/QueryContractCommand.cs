@@ -18,7 +18,7 @@ namespace AElfChain.Console.Commands
             var contracts = Services.Genesis.GetAllSystemContracts();
             foreach (var key in contracts.Keys)
             {
-                var address = contracts[key] == new Address() ? "None" : contracts[key].GetFormatted();
+                var address = contracts[key] == new Address() ? "None" : contracts[key].ToBase58();
                 $"Contract name: {key.ToString().PadRight(16)} Address: {address}".WriteSuccessLine();
             }
         }

@@ -69,7 +69,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Amount = amount,
                     Symbol = NodeOption.NativeTokenSymbol,
-                    To = AddressHelper.Base58StringToAddress(to),
+                    To = to.ConvertAddress(),
                     Memo = $"T-{Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return;
@@ -302,7 +302,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     var txResult1 = token.ExecuteMethodWithResult(TokenMethod.Approve, new ApproveInput
                     {
                         Amount = 1000_00000000,
-                        Spender = AddressHelper.Base58StringToAddress(to),
+                        Spender = to.ConvertAddress(),
                         Symbol = NodeOption.NativeTokenSymbol
                     });
                     //check allowance
@@ -398,7 +398,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 200_000_00000000,
-                    To = AddressHelper.Base58StringToAddress(fullNode.Account),
+                    To = fullNode.Account.ConvertAddress(),
                     Memo = "Transfer for announcement event"
                 });
             }
@@ -416,7 +416,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = 500_000_00000000 - balance,
-                    To = AddressHelper.Base58StringToAddress(user),
+                    To = user.ConvertAddress(),
                     Memo = $"{Guid.NewGuid()}"
                 });
                 Thread.Sleep(10);

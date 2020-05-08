@@ -45,7 +45,7 @@ namespace AElfChain.Common.Contracts
         {
             var factory = new MethodStubFactory(_nodeManager)
             {
-                SenderAddress = Address.FromPublicKey(keyPair.PublicKey).GetFormatted(),
+                SenderAddress = Address.FromPublicKey(keyPair.PublicKey).ToBase58(),
                 Contract = contractAddress
             };
 

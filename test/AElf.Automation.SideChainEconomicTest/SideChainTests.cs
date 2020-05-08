@@ -19,7 +19,7 @@ namespace AElf.Automation.SideChainEconomicTest
         {
             var authority = new AuthorityManager(SideA.NodeManager, SideA.CallAddress);
             var deployContract = authority.DeployContractWithAuthority(SideA.CallAddress, Acs8ContractName);
-            var acs8Contract = deployContract.GetFormatted();
+            var acs8Contract = deployContract.ToBase58();
             Logger.Info($"Acs8 contract address: {acs8Contract}");
 
             var genesisSide = SideA.GenesisService.GetGensisStub();

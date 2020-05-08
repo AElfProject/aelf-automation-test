@@ -213,7 +213,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var deploymentInput = ContractDeploymentInput("AElf.Contracts.MultiToken1");
             Tester.AssociationService.SetAccount(OtherAccount);
-            var creator = AddressHelper.Base58StringToAddress("s31xt16WnoYEhLxgSx7Jofy3ZkezEaf5mSieKd7LpR99NsKaW");
+            var creator = ("s31xt16WnoYEhLxgSx7Jofy3ZkezEaf5mSieKd7LpR99NsKaW").ConvertAddress();
             var associationCreateProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ProposeNewContract), deploymentInput,
                 creator, OtherAccount);
@@ -254,11 +254,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractProposalInfo = ProposalNewContract(Tester, OtherAccount, input);
 //            var contractProposalInfo = new ReleaseContractInput
 //            {
-//                ProposalId = HashHelper.HexStringToHash("9d6ee285b090b4f1261eeb76dfac83055b50fcff01507596f3201aa18f1a44da"),
-//                ProposedContractInputHash = HashHelper.HexStringToHash("ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")
+//                ProposalId = Hash.LoadFromHex("9d6ee285b090b4f1261eeb76dfac83055b50fcff01507596f3201aa18f1a44da"),
+//                ProposedContractInputHash = Hash.LoadFromHex("ad8b21fcc5ab497942cffe3de55fae9de62dc6bd16eb5f2cb81248c8a7684eb9")
 //            };
             var organizationAddress =
-                AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
+                ("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW").ConvertAddress();
             Tester.AssociationService.ApproveWithAssociation(contractProposalInfo.ProposalId, organizationAddress);
             var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, OtherAccount);
             release.Status.ShouldBe("MINED");
@@ -274,8 +274,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             "ce3b565c1003b2a61937c540ff7e9db15a4f63dcd7ee6ffdff31b1a47eab4ad1")]
         public void ReleaseDeployCodeCheck(string proposal, string hash)
         {
-            var proposalId = HashHelper.HexStringToHash(proposal);
-            var proposalHash = HashHelper.HexStringToHash(hash);
+            var proposalId = Hash.LoadFromHex(proposal);
+            var proposalHash = Hash.LoadFromHex(hash);
             var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
@@ -295,14 +295,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             "6e256995ba37bf00314ff85cc666bff225292e70d3c7a734bc0f28c67904eaa7")]
         public void ReleaseDeployCodeCheckWithOrganization(string proposal, string hash)
         {
-            var proposalId = HashHelper.HexStringToHash(proposal);
-            var proposalHash = HashHelper.HexStringToHash(hash);
+            var proposalId = Hash.LoadFromHex(proposal);
+            var proposalHash = Hash.LoadFromHex(hash);
             var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
                 ProposalId = proposalId
             };
-            var creator = AddressHelper.Base58StringToAddress("s31xt16WnoYEhLxgSx7Jofy3ZkezEaf5mSieKd7LpR99NsKaW");
+            var creator = ("s31xt16WnoYEhLxgSx7Jofy3ZkezEaf5mSieKd7LpR99NsKaW").ConvertAddress();
             var releaseProposal = Tester.AssociationService.CreateProposal(
                 Tester.GenesisService.ContractAddress, nameof(GenesisMethod.ReleaseCodeCheckedContract),
                 releaseApprovedContractInput,
@@ -337,8 +337,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             "d65391e08082dff24e708caf5c4a664a57998f7f35e6fc9ea7b6ae118f0e2191")]
         public void ReleaseUpdateCodeCheck(string proposal, string hash)
         {
-            var proposalId = HashHelper.HexStringToHash(proposal);
-            var proposalHash = HashHelper.HexStringToHash(hash);
+            var proposalId = Hash.LoadFromHex(proposal);
+            var proposalHash = Hash.LoadFromHex(hash);
             var releaseApprovedContractInput = new ReleaseContractInput
             {
                 ProposedContractInputHash = proposalHash,
@@ -396,7 +396,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.ChangeContractDeploymentController),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = AddressHelper.Base58StringToAddress(Tester.GenesisService.ContractAddress),
+                    ToAddress = Tester.GenesisService.Contract,
                     OrganizationAddress = contractDeploymentController.OwnerAddress
                 });
             var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
@@ -434,7 +434,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ContractMethodName = nameof(GenesisMethod.ChangeCodeCheckController),
                     ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                     Params = input.ToByteString(),
-                    ToAddress = AddressHelper.Base58StringToAddress(Tester.GenesisService.ContractAddress),
+                    ToAddress = Tester.GenesisService.Contract,
                     OrganizationAddress = contractCodeCheckController.OwnerAddress
                 });
             var proposalId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(proposal.ReturnValue));
@@ -463,7 +463,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("f28e51e01bbddb77b0a647680a55d700f6d7a78d38fab8a0cb62f1f73367345c")]
         public void CheckProposal(string proposalId)
         {
-            var proposal = HashHelper.HexStringToHash(proposalId);
+            var proposal = Hash.LoadFromHex(proposalId);
             var result = Tester.ParliamentService.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                 proposal);
             Logger.Info($"{result.ToBeReleased}");
@@ -478,8 +478,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var address =
                 Tester.GenesisService.CallViewMethod<Address>(GenesisMethod.GetContractAuthor,
-                    AddressHelper.Base58StringToAddress(contract));
-            Logger.Info($"{address.GetFormatted()}");
+                    contract.ConvertAddress());
+            Logger.Info($"{address.ToBase58()}");
         }
 
         [TestMethod]
@@ -601,7 +601,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var input = new ContractUpdateInput
             {
-                Address = AddressHelper.Base58StringToAddress(contractAddress),
+                Address = contractAddress.ConvertAddress(),
                 Code = ByteString.CopyFrom(codeArray)
             };
 
@@ -620,7 +620,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     Amount = 1000_00000000,
                     Symbol = symbol,
-                    To = AddressHelper.Base58StringToAddress(miner)
+                    To = miner.ConvertAddress()
                 };
                 var createProposal = tester.AssociationService.CreateProposal(tester.TokenService.ContractAddress,
                     nameof(TokenMethod.Issue), input, organization, account);

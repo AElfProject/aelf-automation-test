@@ -55,7 +55,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
 
         private bool CheckTokenAddress()
         {
-            var mainTokenAddress = AddressHelper.Base58StringToAddress(MainChainService.TokenService.ContractAddress);
+            var mainTokenAddress = MainChainService.TokenService.Contract;
             foreach (var sideChainService in SideChainServices)
             {
                 var mainAddress = MainChainService.TokenService.CallViewMethod<Address>(
@@ -65,7 +65,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         ChainId = sideChainService.ChainId
                     });
                 var sideTokenAddress =
-                    AddressHelper.Base58StringToAddress(sideChainService.TokenService.ContractAddress);
+                   sideChainService.TokenService.Contract;
                 if (!mainAddress.Equals(sideTokenAddress)) return false;
                 Logger.Info($"{MainChainService.ChainId} already register {mainAddress}.");
 
@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                             ChainId = sideService.ChainId
                         });
                     var side1TokenAddress =
-                        AddressHelper.Base58StringToAddress(sideService.TokenService.ContractAddress);
+                       sideService.TokenService.Contract;
                     if (!sideAddress1.Equals(side1TokenAddress)) return false;
                     Logger.Info($"{sideChainService.ChainId} already register {sideAddress1}.");
                 }
@@ -105,8 +105,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     sideChainService.CallAddress, sideChainService.GenesisService.ContractAddress,
                     GenesisMethod.ValidateSystemContractAddress.ToString(), new ValidateSystemContractAddressInput
                     {
-                        Address = AddressHelper.Base58StringToAddress(sideChainService.TokenService.ContractAddress),
-                        SystemContractHashName = Hash.FromString("AElf.ContractNames.Token")
+                        Address = sideChainService.TokenService.Contract,
+                        SystemContractHashName = HashHelper.ComputeFrom("AElf.ContractNames.Token")
                     });
                 var sideTxId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
                 var txResult = sideChainService.NodeManager.CheckTransactionResult(sideTxId);
@@ -203,7 +203,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     FromChainId = sideChainService.ChainId,
                     ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
                     TokenContractAddress =
-                        AddressHelper.Base58StringToAddress(sideChainService.TokenService.ContractAddress),
+                        sideChainService.TokenService.Contract,
                     TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(chainTxInfo.RawTx)),
                     MerklePath = merklePath
                 };
@@ -232,7 +232,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     FromChainId = sideChainService.ChainId,
                     ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
                     TokenContractAddress =
-                        AddressHelper.Base58StringToAddress(sideChainService.TokenService.ContractAddress),
+                        sideChainService.TokenService.Contract,
                     TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(chainTxInfo.RawTx)),
                     MerklePath = sideChainMerklePath
                 };
@@ -310,7 +310,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             var createProposalInput = new CreateProposalInput
             {
                 OrganizationAddress = organizationAddress,
-                ToAddress = AddressHelper.Base58StringToAddress(services.TokenService.ContractAddress),
+                ToAddress = services.TokenService.Contract,
                 ContractMethodName = TokenMethod.RegisterCrossChainTokenContractAddress.ToString(),
                 ExpiredTime = DateTime.UtcNow.AddDays(1).ToTimestamp(),
                 Params = input.ToByteString()
@@ -330,7 +330,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             {
                 var proposalStatue = services.ParliamentService.CheckProposal(proposalId);
                 if (proposalStatue.ToBeReleased) goto Release;
-                services.ParliamentService.SetAccount(miner.GetFormatted());
+                services.ParliamentService.SetAccount(miner.ToBase58());
                 var approveResult =
                     services.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
                 if (approveResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Failed)

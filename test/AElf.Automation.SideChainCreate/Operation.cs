@@ -9,6 +9,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 
@@ -46,8 +47,8 @@ namespace AElf.Automation.SideChainCreate
 
             foreach (var miner in miners)
             {
-                var balance = TokenService.GetUserBalance(miner.GetFormatted());
-                if (miner.GetFormatted().Equals(initAccount) || balance > amount) continue;
+                var balance = TokenService.GetUserBalance(miner.ToBase58());
+                if (miner.ToBase58().Equals(initAccount) || balance > amount) continue;
                 TokenService.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
                 {
                     Symbol = NativeSymbol,
@@ -64,7 +65,7 @@ namespace AElf.Automation.SideChainCreate
                 Symbol = NativeSymbol,
                 Amount = amount,
                 Memo = "Transfer to creator",
-                To = AddressHelper.Base58StringToAddress(Creator)
+                To = Creator.ConvertAddress()
             });
         }
 
@@ -76,7 +77,7 @@ namespace AElf.Automation.SideChainCreate
                 new ApproveInput
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
-                    Spender = AddressHelper.Base58StringToAddress(CrossChainService.ContractAddress),
+                    Spender = CrossChainService.Contract,
                     Amount = amount
                 });
         }
@@ -86,7 +87,7 @@ namespace AElf.Automation.SideChainCreate
         {
             CrossChainService.SetAccount(Creator, Password);
             var sideChainTokenInitialIssue = new SideChainTokenInitialIssue
-                {Address = AddressHelper.Base58StringToAddress(Creator), Amount = 1000_0000_00000000};
+                {Address = Creator.ConvertAddress(), Amount = 1000_0000_00000000};
             var result =
                 CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
                     new SideChainCreationRequest
@@ -114,7 +115,7 @@ namespace AElf.Automation.SideChainCreate
             var miners = GetMiners();
             foreach (var miner in miners)
             {
-                ParliamentService.SetAccount(miner.GetFormatted(), "123");
+                ParliamentService.SetAccount(miner.ToBase58(), "123");
                 var result = ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
             }
         }

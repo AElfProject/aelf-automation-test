@@ -68,7 +68,7 @@ namespace AElfChain.Common.Contracts
                 return contract;
             }
 
-            return new BasicWithParallelContract(nodeManager, callAddress, addressList.First().GetFormatted());
+            return new BasicWithParallelContract(nodeManager, callAddress, addressList.First().ToBase58());
         }
     }
 }

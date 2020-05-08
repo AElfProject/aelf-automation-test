@@ -106,7 +106,7 @@ namespace AElf.Automation.SideChain.Verification
                 Symbol = services.PrimaryTokenSymbol,
                 Amount = 10000_00000000,
                 Memo = "Issue side chain token",
-                To = AddressHelper.Base58StringToAddress(account)
+                To = account.ConvertAddress()
             });
         }
 
@@ -119,7 +119,7 @@ namespace AElf.Automation.SideChain.Verification
                 Symbol = services.PrimaryTokenSymbol,
                 Amount = 10000_00000000,
                 Memo = "transfer side chain token",
-                To = AddressHelper.Base58StringToAddress(account)
+                To = account.ConvertAddress()
             });
         }
 
@@ -166,11 +166,11 @@ namespace AElf.Automation.SideChain.Verification
             var txIdsWithStatus = new List<Hash>();
             for (var num = 0; num < transactionIds.Count; num++)
             {
-                var transactionId = HashHelper.HexStringToHash(transactionIds[num]);
+                var transactionId = Hash.LoadFromHex(transactionIds[num]);
                 var txRes = transactionStatus[num];
                 var rawBytes = transactionId.ToByteArray().Concat(Encoding.UTF8.GetBytes(txRes))
                     .ToArray();
-                var txIdWithStatus = Hash.FromRawBytes(rawBytes);
+                var txIdWithStatus = HashHelper.ComputeFrom(rawBytes);
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (transactionIds[num] != txId) continue;
                 index = num;
@@ -208,7 +208,7 @@ namespace AElf.Automation.SideChain.Verification
                 IssueChainId = services.ChainId,
                 Amount = amount,
                 Memo = "cross chain transfer",
-                To = AddressHelper.Base58StringToAddress(toAccount),
+                To = toAccount.ConvertAddress(),
                 ToChainId = toChainId
             };
             // execute cross chain transfer
@@ -238,7 +238,7 @@ namespace AElf.Automation.SideChain.Verification
                 IssueChainId = issueChainId,
                 Amount = amount,
                 Memo = "cross chain transfer",
-                To = AddressHelper.Base58StringToAddress(toAccount),
+                To = toAccount.ConvertAddress(),
                 ToChainId = toChainId
             };
             // execute cross chain transfer

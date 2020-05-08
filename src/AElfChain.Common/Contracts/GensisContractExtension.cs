@@ -9,7 +9,7 @@ namespace AElfChain.Common.Contracts
 
             var consensus = genesis.GetContractAddressByName(NameProvider.Consensus);
 
-            return new ConsensusContract(genesis.NodeManager, caller, consensus.GetFormatted());
+            return new ConsensusContract(genesis.NodeManager, caller, consensus.ToBase58());
         }
 
         public static ParliamentContract GetParliamentContract(
@@ -20,7 +20,7 @@ namespace AElfChain.Common.Contracts
 
             var parliamentAuth = genesis.GetContractAddressByName(NameProvider.ParliamentAuth);
 
-            return new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.GetFormatted());
+            return new ParliamentContract(genesis.NodeManager, caller, parliamentAuth.ToBase58());
         }
 
         public static ProfitContract GetProfitContract(this GenesisContract genesis, string caller = "")
@@ -30,7 +30,7 @@ namespace AElfChain.Common.Contracts
 
             var profit = genesis.GetContractAddressByName(NameProvider.Profit);
 
-            return new ProfitContract(genesis.NodeManager, caller, profit.GetFormatted());
+            return new ProfitContract(genesis.NodeManager, caller, profit.ToBase58());
         }
 
         public static TokenContract GetTokenContract(this GenesisContract genesis, string caller = "")
@@ -40,7 +40,7 @@ namespace AElfChain.Common.Contracts
 
             var token = genesis.GetContractAddressByName(NameProvider.Token);
 
-            return new TokenContract(genesis.NodeManager, caller, token.GetFormatted());
+            return new TokenContract(genesis.NodeManager, caller, token.ToBase58());
         }
 
         public static TokenHolderContract GetTokenHolderContract(this GenesisContract genesis, string caller = "")
@@ -50,7 +50,7 @@ namespace AElfChain.Common.Contracts
 
             var tokenHolder = genesis.GetContractAddressByName(NameProvider.TokenHolder);
 
-            return new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.GetFormatted());
+            return new TokenHolderContract(genesis.NodeManager, caller, tokenHolder.ToBase58());
         }
 
         public static TokenConverterContract GetTokenConverterContract(
@@ -61,7 +61,7 @@ namespace AElfChain.Common.Contracts
 
             var tokenConverter = genesis.GetContractAddressByName(NameProvider.TokenConverter);
 
-            return new TokenConverterContract(genesis.NodeManager, caller, tokenConverter.GetFormatted());
+            return new TokenConverterContract(genesis.NodeManager, caller, tokenConverter.ToBase58());
         }
 
         public static TreasuryContract GetTreasuryContract(this GenesisContract genesis, string caller = "")
@@ -71,7 +71,7 @@ namespace AElfChain.Common.Contracts
 
             var treasury = genesis.GetContractAddressByName(NameProvider.Treasury);
 
-            return new TreasuryContract(genesis.NodeManager, caller, treasury.GetFormatted());
+            return new TreasuryContract(genesis.NodeManager, caller, treasury.ToBase58());
         }
 
         public static VoteContract GetVoteContract(this GenesisContract genesis, string caller = "")
@@ -81,7 +81,7 @@ namespace AElfChain.Common.Contracts
 
             var vote = genesis.GetContractAddressByName(NameProvider.Vote);
 
-            return new VoteContract(genesis.NodeManager, caller, vote.GetFormatted());
+            return new VoteContract(genesis.NodeManager, caller, vote.ToBase58());
         }
 
         public static ElectionContract GetElectionContract(this GenesisContract genesis, string caller = "")
@@ -91,7 +91,7 @@ namespace AElfChain.Common.Contracts
 
             var election = genesis.GetContractAddressByName(NameProvider.Election);
 
-            return new ElectionContract(genesis.NodeManager, caller, election.GetFormatted());
+            return new ElectionContract(genesis.NodeManager, caller, election.ToBase58());
         }
 
         public static CrossChainContract GetCrossChainContract(this GenesisContract genesis, string caller = "")
@@ -101,7 +101,7 @@ namespace AElfChain.Common.Contracts
 
             var cross = genesis.GetContractAddressByName(NameProvider.CrossChain);
 
-            return new CrossChainContract(genesis.NodeManager, caller, cross.GetFormatted());
+            return new CrossChainContract(genesis.NodeManager, caller, cross.ToBase58());
         }
 
         public static AssociationContract GetAssociationAuthContract(
@@ -112,7 +112,7 @@ namespace AElfChain.Common.Contracts
 
             var association = genesis.GetContractAddressByName(NameProvider.AssociationAuth);
 
-            return new AssociationContract(genesis.NodeManager, caller, association.GetFormatted());
+            return new AssociationContract(genesis.NodeManager, caller, association.ToBase58());
         }
 
         public static ReferendumContract GetReferendumAuthContract(
@@ -123,7 +123,7 @@ namespace AElfChain.Common.Contracts
 
             var referendumAuth = genesis.GetContractAddressByName(NameProvider.ReferendumAuth);
 
-            return new ReferendumContract(genesis.NodeManager, caller, referendumAuth.GetFormatted());
+            return new ReferendumContract(genesis.NodeManager, caller, referendumAuth.ToBase58());
         }
 
         public static ConfigurationContract GetConfigurationContract(this GenesisContract genesis, string caller = "")
@@ -133,7 +133,7 @@ namespace AElfChain.Common.Contracts
 
             var configuration = genesis.GetContractAddressByName(NameProvider.Configuration);
 
-            return new ConfigurationContract(genesis.NodeManager, caller, configuration.GetFormatted());
+            return new ConfigurationContract(genesis.NodeManager, caller, configuration.ToBase58());
         }
     }
 }

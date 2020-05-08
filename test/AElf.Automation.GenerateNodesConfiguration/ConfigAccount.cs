@@ -28,7 +28,7 @@ namespace AElf.Automation.NodesConfigGen
             _node.PublicKey = pubKey.ToHex();
 
             var addr = Address.FromPublicKey(pubKey);
-            _node.Account = addr.GetFormatted();
+            _node.Account = addr.ToBase58();
 
             return _node.Account;
         }

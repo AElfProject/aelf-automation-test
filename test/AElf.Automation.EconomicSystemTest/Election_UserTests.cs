@@ -59,7 +59,7 @@ namespace AElf.Automation.EconomicSystemTest
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
-                    HashHelper.HexStringToHash(voteId));
+                    Hash.LoadFromHex(voteId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = result.GetTransactionFee().Item2;
             var afterVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
@@ -109,7 +109,7 @@ namespace AElf.Automation.EconomicSystemTest
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                minerList.Add(miner.GetFormatted());
+                minerList.Add(miner.ToBase58());
             }
             foreach (var miner in minerList)
                 _logger.Info($"Miner is : {miner}");

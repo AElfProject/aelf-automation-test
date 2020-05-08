@@ -141,7 +141,7 @@ namespace AElf.Automation.ProposalTest
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                Miners.Add(miner.GetFormatted());
+                Miners.Add(miner.ToBase58());
             }
 
             MinersCount = Miners.Count;

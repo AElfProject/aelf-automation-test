@@ -31,7 +31,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 From = AddressExtension.Generate(),
                 To = AddressExtension.Generate(),
                 MethodName = $"Method-{Guid.NewGuid()}",
-                Params = ByteString.CopyFrom(Hash.FromString(Guid.NewGuid().ToString()).ToByteArray()),
+                Params = ByteString.CopyFrom(HashHelper.ComputeFrom(Guid.NewGuid().ToString()).ToByteArray()),
                 RefBlockNumber = 10
             };
 

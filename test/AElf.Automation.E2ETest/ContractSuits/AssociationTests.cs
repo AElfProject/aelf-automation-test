@@ -61,7 +61,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //creat proposal
             var proposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationThreshold), changeInput,
-                organizationAddress, proposer.GetFormatted());
+                organizationAddress, proposer.ToBase58());
             var proposalInfo = association.CheckProposal(proposalId);
             proposalInfo.Proposer.ShouldBe(enumerable.First());
             proposalInfo.ToBeReleased.ShouldBeFalse();
@@ -86,20 +86,20 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var approveMember = enumerable.Take((int) minimalApprovalThreshold).ToList();
             foreach (var member in approveMember)
             {
-                association.SetAccount(member.GetFormatted());
+                association.SetAccount(member.ToBase58());
                 var approveResult = association.ExecuteMethodWithResult(AssociationMethod.Approve, proposalId);
                 approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
 
             var otherMiners = enumerable.Where(m => !approveMember.Contains(m)).ToList();
             var abstentionMember = otherMiners.First();
-            association.SetAccount(abstentionMember.GetFormatted());
+            association.SetAccount(abstentionMember.ToBase58());
             var abstentionResult = association.ExecuteMethodWithResult(AssociationMethod.Abstain, proposalId);
             abstentionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var rejectionMembers = otherMiners.Where(r => !abstentionMember.Equals(r)).ToList();
             var rejectionMember = rejectionMembers.First();
-            association.SetAccount(rejectionMember.GetFormatted());
+            association.SetAccount(rejectionMember.ToBase58());
             var rejectResult = association.ExecuteMethodWithResult(AssociationMethod.Reject, proposalId);
             rejectResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
@@ -110,7 +110,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             proposalInfo.RejectionCount.ShouldBe(1);
 
             //release 
-            var releaseResult = association.ReleaseProposal(proposalId, proposer.GetFormatted());
+            var releaseResult = association.ReleaseProposal(proposalId, proposer.ToBase58());
             releaseResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             organization =
@@ -131,10 +131,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //creat proposal
             var revertProposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationThreshold), revertInput,
-                organizationAddress, proposer.GetFormatted());
+                organizationAddress, proposer.ToBase58());
             association.ApproveWithAssociation(revertProposalId, organizationAddress);
-            association.SetAccount(proposer.GetFormatted());
-            var revertRelease = association.ReleaseProposal(revertProposalId, proposer.GetFormatted());
+            association.SetAccount(proposer.ToBase58());
+            var revertRelease = association.ReleaseProposal(revertProposalId, proposer.ToBase58());
             revertRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             organization =
@@ -184,10 +184,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var proposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationProposerWhiteList), changeProposerInput, organizationAddress,
-                proposer.GetFormatted());
+                proposer.ToBase58());
             association.ApproveWithAssociation(proposalId, organizationAddress);
-            association.SetAccount(proposer.GetFormatted());
-            var release = association.ReleaseProposal(proposalId, proposer.GetFormatted());
+            association.SetAccount(proposer.ToBase58());
+            var release = association.ReleaseProposal(proposalId, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             organization =
                 association.GetOrganization(organizationAddress);
@@ -199,10 +199,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var changeMemberProposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationMember), changeMemberInput, organizationAddress,
-                newProposer.GetFormatted());
+                newProposer.ToBase58());
             association.ApproveWithAssociation(changeMemberProposalId, organizationAddress);
-            association.SetAccount(newProposer.GetFormatted());
-            var changeMemberRelease = association.ReleaseProposal(changeMemberProposalId, newProposer.GetFormatted());
+            association.SetAccount(newProposer.ToBase58());
+            var changeMemberRelease = association.ReleaseProposal(changeMemberProposalId, newProposer.ToBase58());
             changeMemberRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             organization =
                 association.GetOrganization(organizationAddress);
@@ -215,10 +215,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var revertProposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationProposerWhiteList), revertProposerInput, organizationAddress,
-                newProposer.GetFormatted());
+                newProposer.ToBase58());
             association.ApproveWithAssociation(revertProposalId, organizationAddress);
-            association.SetAccount(newProposer.GetFormatted());
-            var revertRelease = association.ReleaseProposal(revertProposalId, newProposer.GetFormatted());
+            association.SetAccount(newProposer.ToBase58());
+            var revertRelease = association.ReleaseProposal(revertProposalId, newProposer.ToBase58());
             revertRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             organization =
                 association.GetOrganization(organizationAddress);
@@ -230,10 +230,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
             };
             var revertMemberProposalId = association.CreateProposal(association.ContractAddress,
                 nameof(AssociationMethod.ChangeOrganizationMember), revertMemberInput, organizationAddress,
-                proposer.GetFormatted());
+                proposer.ToBase58());
             association.ApproveWithAssociation(revertMemberProposalId, organizationAddress);
-            association.SetAccount(proposer.GetFormatted());
-            var revertMemberRelease = association.ReleaseProposal(revertMemberProposalId, proposer.GetFormatted());
+            association.SetAccount(proposer.ToBase58());
+            var revertMemberRelease = association.ReleaseProposal(revertMemberProposalId, proposer.ToBase58());
             revertMemberRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             organization =
                 association.GetOrganization(organizationAddress);

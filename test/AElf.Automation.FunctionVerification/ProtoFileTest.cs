@@ -1,5 +1,6 @@
 using System;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Contracts.Serializer;
 using AElfChain.Common.DtoExtension;
@@ -70,7 +71,7 @@ namespace AElf.Automation.ContractsTesting
                     else if (type.MessageType.Name == "Hash")
                         jsonObject[methodInfo.InputFields[i].Name] = new JObject
                         {
-                            ["value"] = HashHelper.HexStringToHash(parameterInput[i]).Value.ToBase64()
+                            ["value"] = Hash.LoadFromHex(parameterInput[i]).Value.ToBase64()
                         };
                 }
                 else

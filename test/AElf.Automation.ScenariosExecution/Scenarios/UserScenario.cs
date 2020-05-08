@@ -171,7 +171,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 {
                     Symbol = NodeOption.NativeTokenSymbol,
                     Amount = transferAmount,
-                    To = AddressHelper.Base58StringToAddress(account),
+                    To = account.ConvertAddress(),
                     Memo = $"Transfer={Guid.NewGuid()}"
                 });
                 if (transferTxResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;

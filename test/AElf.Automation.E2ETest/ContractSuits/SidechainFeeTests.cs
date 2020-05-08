@@ -122,7 +122,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         {
             var primaryToken = SideManager.Token.GetPrimaryTokenSymbol();
             var creator = SideManager.CallAccount;
-            var tokenStub = SideManager.Genesis.GetTokenImplStub(creator.GetFormatted());
+            var tokenStub = SideManager.Genesis.GetTokenImplStub(creator.ToBase58());
             var transactionResult = await tokenStub.SetFeeReceiver.SendAsync(creator);
             if (transactionResult.TransactionResult.Status == TransactionResultStatus.Failed)
             {
@@ -135,7 +135,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //prepare test token
             var balance = SideManager.Token.GetUserBalance(tester, primaryToken);
             if (balance == 0)
-                SideManager.Token.TransferBalance(creator.GetFormatted(), tester, 5_00000000L, primaryToken);
+                SideManager.Token.TransferBalance(creator.ToBase58(), tester, 5_00000000L, primaryToken);
 
             transactionResult = await tokenStub.Approve.SendAsync(new ApproveInput
             {
@@ -177,7 +177,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 await SideManager.AssociationStub.CreateOrganization.SendAsync(createOrganizationInput);
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var organization = transactionResult.Output;
-            Logger.Info($"Organization address: {organization.GetFormatted()}");
+            Logger.Info($"Organization address: {organization.ToBase58()}");
 
             return organization;
         }

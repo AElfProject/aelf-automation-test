@@ -58,7 +58,7 @@ namespace AElfChain.Common.Contracts
                 return contract;
             }
 
-            return new TransactionFeesContract(nodeManager, callAddress, addressList.First().GetFormatted());
+            return new TransactionFeesContract(nodeManager, callAddress, addressList.First().ToBase58());
         }
     }
 }

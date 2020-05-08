@@ -128,7 +128,7 @@ namespace AElf.Automation.ProposalTest
             ProposalList = new Dictionary<KeyValuePair<Address, Organization>, List<Hash>>();
             foreach (var organizationAddress in OrganizationList)
             {
-                var balance = Token.GetUserBalance(organizationAddress.Key.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(organizationAddress.Key.ToBase58(), Symbol);
                 if (balance < 100 * OrganizationList.Count) continue;
                 var txIdList = new List<string>();
                 foreach (var toOrganizationAddress in OrganizationList)
@@ -144,7 +144,7 @@ namespace AElf.Automation.ProposalTest
 
                     var createProposalInput = new CreateProposalInput
                     {
-                        ToAddress = AddressHelper.Base58StringToAddress(Token.ContractAddress),
+                        ToAddress = Token.ContractAddress.ConvertAddress(),
                         OrganizationAddress = organizationAddress.Key,
                         ContractMethodName = TokenMethod.Transfer.ToString(),
                         ExpiredTime = KernelHelper.GetUtcNow().AddHours(2),
@@ -152,7 +152,7 @@ namespace AElf.Automation.ProposalTest
                     };
 
                     var sender = organizationAddress.Value.ProposerWhiteList.Proposers.First();
-                    Association.SetAccount(sender.GetFormatted());
+                    Association.SetAccount(sender.ToBase58());
                     var txId = Association.ExecuteMethodWithTxId(AssociationMethod.CreateProposal,
                         createProposalInput);
                     txIdList.Add(txId);
@@ -204,9 +204,9 @@ namespace AElf.Automation.ProposalTest
                     var approveMember = members.Take((int) approveCount).ToList();
                     foreach (var member in approveMember)
                     {
-                        var txId = Association.Approve(proposalId, member.GetFormatted());
+                        var txId = Association.Approve(proposalId, member.ToBase58());
                         var approveInfo =
-                            new ApproveInfo(nameof(AssociationMethod.Approve), member.GetFormatted(), txId);
+                            new ApproveInfo(nameof(AssociationMethod.Approve), member.ToBase58(), txId);
                         approveTxInfos.Add(approveInfo);
                     }
 
@@ -218,9 +218,9 @@ namespace AElf.Automation.ProposalTest
                     }
 
                     var abstentionMember = otherMembers.First();
-                    var abstentionTxId = Association.Abstain(proposalId, abstentionMember.GetFormatted());
+                    var abstentionTxId = Association.Abstain(proposalId, abstentionMember.ToBase58());
                     var abstentionInfo =
-                        new ApproveInfo(nameof(AssociationMethod.Abstain), abstentionMember.GetFormatted(),
+                        new ApproveInfo(nameof(AssociationMethod.Abstain), abstentionMember.ToBase58(),
                             abstentionTxId);
                     approveTxInfos.Add(abstentionInfo);
 
@@ -233,8 +233,8 @@ namespace AElf.Automation.ProposalTest
 
                     foreach (var rm in rejectionMiners)
                     {
-                        var txId = Association.Reject(proposalId, rm.GetFormatted());
-                        var rejectInfo = new ApproveInfo(nameof(AssociationMethod.Reject), rm.GetFormatted(), txId);
+                        var txId = Association.Reject(proposalId, rm.ToBase58());
+                        var rejectInfo = new ApproveInfo(nameof(AssociationMethod.Reject), rm.ToBase58(), txId);
                         approveTxInfos.Add(rejectInfo);
                     }
 
@@ -276,11 +276,11 @@ namespace AElf.Automation.ProposalTest
                 {
                     var toBeReleased = Association.CheckProposal(proposalId).ToBeReleased;
                     if (!toBeReleased) continue;
-                    var balance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
-                    Association.SetAccount(sender.GetFormatted());
+                    var balance = Token.GetUserBalance(key.Key.ToBase58(), Symbol);
+                    Association.SetAccount(sender.ToBase58());
                     var result = Association.ExecuteMethodWithResult(AssociationMethod.Release, proposalId);
                     result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                    var newBalance = Token.GetUserBalance(key.Key.GetFormatted(), Symbol);
+                    var newBalance = Token.GetUserBalance(key.Key.ToBase58(), Symbol);
                     newBalance.ShouldBe(balance - 100);
                 }
             }
@@ -291,7 +291,7 @@ namespace AElf.Automation.ProposalTest
             Logger.Info("After Association test, check the balance of organization address:");
             foreach (var balanceInfo in BalanceInfo)
             {
-                var balance = Token.GetUserBalance(balanceInfo.Key.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(balanceInfo.Key.ToBase58(), Symbol);
                 balance.ShouldBe(balanceInfo.Value);
                 Logger.Info($"{balanceInfo.Key} {Symbol} balance is {balance}");
             }
@@ -309,15 +309,15 @@ namespace AElf.Automation.ProposalTest
             BalanceInfo = new Dictionary<Address, long>();
             foreach (var organization in OrganizationList)
             {
-                var balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                var balance = Token.GetUserBalance(organization.Key.ToBase58(), Symbol);
                 if (balance >= 100_00000000)
                 {
                     BalanceInfo.Add(organization.Key, balance);
                     continue;
                 }
 
-                Token.TransferBalance(InitAccount, organization.Key.GetFormatted(), 100_00000000, Symbol);
-                balance = Token.GetUserBalance(organization.Key.GetFormatted(), Symbol);
+                Token.TransferBalance(InitAccount, organization.Key.ToBase58(), 100_00000000, Symbol);
+                balance = Token.GetUserBalance(organization.Key.ToBase58(), Symbol);
                 BalanceInfo.Add(organization.Key, balance);
                 Logger.Info($"{organization.Key} {Symbol} token balance is {balance}");
             }
@@ -334,10 +334,10 @@ namespace AElf.Automation.ProposalTest
                 for (var j = 0; j < membersCount; j++)
                 {
                     var randomNo = GenerateRandomNumber(0, AssociationTester.Count - 1);
-                    var account = AddressHelper.Base58StringToAddress(AssociationTester[randomNo]);
+                    var account = AssociationTester[randomNo].ConvertAddress();
                     if (reviewers.Contains(account))
                         continue;
-                    Services.NodeManager.UnlockAccount(account.GetFormatted());
+                    Services.NodeManager.UnlockAccount(account.ToBase58());
                     reviewers.Add(account);
                 }
 
@@ -348,11 +348,11 @@ namespace AElf.Automation.ProposalTest
 
                 foreach (var reviewer in reviewers)
                 {
-                    var balance = Token.GetUserBalance(reviewer.GetFormatted(), TokenSymbol);
+                    var balance = Token.GetUserBalance(reviewer.ToBase58(), TokenSymbol);
                     if (balance >= 100_00000000)
                         continue;
-                    Token.TransferBalance(InitAccount, reviewer.GetFormatted(), 100_00000000, TokenSymbol);
-                    balance = Token.GetUserBalance(reviewer.GetFormatted(), TokenSymbol);
+                    Token.TransferBalance(InitAccount, reviewer.ToBase58(), 100_00000000, TokenSymbol);
+                    balance = Token.GetUserBalance(reviewer.ToBase58(), TokenSymbol);
                     Logger.Info($"{reviewer} {TokenSymbol} token balance is {balance}");
                 }
 

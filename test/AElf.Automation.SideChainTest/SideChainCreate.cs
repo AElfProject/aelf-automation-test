@@ -33,7 +33,7 @@ namespace AElf.Automation.SideChainTests
         {
             var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
             MainServices.TokenService.TransferBalance(InitAccount, OtherAccount, 5000_00000000, "ELF");
-            MainServices.TokenService.TransferBalance(InitAccount, associationOrganization.GetFormatted(), 500000000,
+            MainServices.TokenService.TransferBalance(InitAccount, associationOrganization.ToBase58(), 500000000,
                 "ELF");
 
             ApproveAndTransferOrganizationBalanceAsync(MainServices, associationOrganization, 400000, OtherAccount);
@@ -43,12 +43,12 @@ namespace AElf.Automation.SideChainTests
                 TokenName = "Side chain token STC",
                 Decimals = 8,
                 IsBurnable = true,
-                Issuer = AddressHelper.Base58StringToAddress(InitAccount),
+                Issuer = InitAccount.ConvertAddress(),
                 TotalSupply = 10_00000000_00000000
             };
             var issueAccount = new SideChainTokenInitialIssue
             {
-                Address = AddressHelper.Base58StringToAddress(OtherAccount),
+                Address = OtherAccount.ConvertAddress(),
                 Amount = 1000_0000_00000000
             };
             var issueOrganization = new SideChainTokenInitialIssue
@@ -110,7 +110,7 @@ namespace AElf.Automation.SideChainTests
                 TokenName = "Side chain token STC",
                 Decimals = 8,
                 IsBurnable = true,
-                Issuer = AddressHelper.Base58StringToAddress(OtherAccount),
+                Issuer = OtherAccount.ConvertAddress(),
                 TotalSupply = 10_00000000_00000000,
                 IsProfitable = true
             };
@@ -122,7 +122,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("512f7b0371f4bf13f224c13d61c95d68bca278c5854ef5e29c7f61e7f29159a0")]
         public void ApproveProposalThroughOtherAuthory(string proposalId)
         {
-            var proposal = HashHelper.HexStringToHash(proposalId);
+            var proposal = Hash.LoadFromHex(proposalId);
             var input = new CreateOrganizationInput
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
@@ -136,14 +136,12 @@ namespace AElf.Automation.SideChainTests
                 {
                     OrganizationMembers =
                     {
-                        AddressHelper.Base58StringToAddress(OtherAccount),
-                        AddressHelper.Base58StringToAddress(InitAccount),
-                        AddressHelper.Base58StringToAddress(MemberAccount)
+                        OtherAccount.ConvertAddress(),InitAccount.ConvertAddress(),MemberAccount.ConvertAddress()
                     }
                 },
                 ProposerWhiteList = new ProposerWhiteList
                 {
-                    Proposers = {AddressHelper.Base58StringToAddress(OtherAccount)}
+                    Proposers = {OtherAccount.ConvertAddress()}
                 }
             };
             var organization = MainServices.AssociationService.CalculateOrganizationAddress(input);
@@ -154,7 +152,7 @@ namespace AElf.Automation.SideChainTests
         [DataRow("4c075565962d2c8f90fe45817145ce0b3eafe65b818daccabf91f3d3ed9cce1c")]
         public void ApproveProposal(string proposalId)
         {
-            var proposal = HashHelper.HexStringToHash(proposalId);
+            var proposal = Hash.LoadFromHex(proposalId);
             ApproveProposal(MainServices, proposal);
         }
 
@@ -168,7 +166,7 @@ namespace AElf.Automation.SideChainTests
                     CrossChainContractMethod.ReleaseSideChainCreation,
                     new ReleaseSideChainCreationInput
                     {
-                        ProposalId = HashHelper.HexStringToHash(proposalId)
+                        ProposalId = Hash.LoadFromHex(proposalId)
                     });
             var release = result.Logs.First(l => l.Name.Contains(nameof(SideChainCreatedEvent)))
                 .NonIndexed;
@@ -247,7 +245,7 @@ namespace AElf.Automation.SideChainTests
 //            var proposalId = ProposalCreated.Parser
 //                .ParseFrom(ByteString.FromBase64("CiIKIMO8feW9yiU85cN3SXgfIzJ5Od35XIhfYvwsmHmAcuhM")).ProposalId;
             var proposalId =
-                HashHelper.HexStringToHash("006844e445373e45cd196cffc696744eba46f6ea2741826b3817558771578cd2");
+                Hash.LoadFromHex("006844e445373e45cd196cffc696744eba46f6ea2741826b3817558771578cd2");
             var result = MainServices.AssociationService.CheckProposal(proposalId);
             Logger.Info(
                 $"proposal message is {result.ToBeReleased} {result.ApprovalCount}");
@@ -405,9 +403,9 @@ namespace AElf.Automation.SideChainTests
                     .Proposers.First();
                 var approveProposalId = MainServices.AssociationService.CreateProposal(
                     MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve), proposalId,
-                    indexController, proposer.GetFormatted());
+                    indexController, proposer.ToBase58());
                 ApproveWithAssociation(MainServices, approveProposalId, indexController);
-                MainServices.AssociationService.ReleaseProposal(approveProposalId, proposer.GetFormatted());
+                MainServices.AssociationService.ReleaseProposal(approveProposalId, proposer.ToBase58());
             }
 
             MainServices.AssociationService.ReleaseProposal(proposalId, InitAccount);
@@ -441,7 +439,7 @@ namespace AElf.Automation.SideChainTests
                 ContractMethodName = nameof(CrossChainContractMethod.AdjustIndexingFeePrice),
                 OrganizationAddress = controllerInfo.OwnerAddress,
                 ExpiredTime = KernelHelper.GetUtcNow().AddDays(1),
-                ToAddress = AddressHelper.Base58StringToAddress(MainServices.CrossChainService.ContractAddress)
+                ToAddress = MainServices.CrossChainService.Contract
             };
             var createProposalToAdjust = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.CreateProposal),
@@ -459,7 +457,7 @@ namespace AElf.Automation.SideChainTests
             MainServices.AssociationService.ReleaseProposal(createProposalToApprove, OtherAccount);
 
             //create proposal to Approve by creator
-            var creator = AddressHelper.Base58StringToAddress("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW");
+            var creator = ("2EBXKkQfGz4fD1xacTiAXp7JksTpECTXJy5MSuYyEzdLbsanZW").ConvertAddress();
             var createProposalToApproveByCreator = MainServices.AssociationService.CreateProposal(
                 MainServices.AssociationService.ContractAddress, nameof(AssociationMethod.Approve),
                 proposalId, creator, OtherAccount);
@@ -536,10 +534,10 @@ namespace AElf.Automation.SideChainTests
 
             var changeProposal = MainServices.AssociationService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress, nameof(CrossChainContractMethod.AdjustIndexingFeePrice),
-                adjustIndexingFeeInput, associationOrganization, proposer.GetFormatted());
+                adjustIndexingFeeInput, associationOrganization, proposer.ToBase58());
             MainServices.AssociationService.ApproveWithAssociation(changeProposal, associationOrganization);
             var changeRelease =
-                MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.GetFormatted());
+                MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.ToBase58());
             changeRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var afterPrice = MainServices.CrossChainService.GetSideChainIndexingFeePrice(chainId);
             afterPrice.ShouldBe(checkPrice + 1);
@@ -554,10 +552,10 @@ namespace AElf.Automation.SideChainTests
             var recoverProposal = MainServices.AssociationService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress,
                 nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController),
-                recoverInput, associationOrganization, proposer.GetFormatted());
+                recoverInput, associationOrganization, proposer.ToBase58());
             MainServices.AssociationService.ApproveWithAssociation(recoverProposal, associationOrganization);
             var recoverRelease =
-                MainServices.AssociationService.ReleaseProposal(recoverProposal, proposer.GetFormatted());
+                MainServices.AssociationService.ReleaseProposal(recoverProposal, proposer.ToBase58());
             recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var recoverController =
                 MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;
@@ -588,10 +586,10 @@ namespace AElf.Automation.SideChainTests
             var changeProposal = MainServices.AssociationService.CreateProposal(
                 MainServices.CrossChainService.ContractAddress,
                 nameof(CrossChainContractMethod.ChangeSideChainIndexingFeeController),
-                input, associationOrganization, proposer.GetFormatted());
+                input, associationOrganization, proposer.ToBase58());
             MainServices.AssociationService.ApproveWithAssociation(changeProposal, associationOrganization);
             var changeRelease =
-                MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.GetFormatted());
+                MainServices.AssociationService.ReleaseProposal(changeProposal, proposer.ToBase58());
             changeRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var updateController =
                 MainServices.CrossChainService.GetSideChainIndexingFeeController(chainId).OwnerAddress;

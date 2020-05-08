@@ -65,7 +65,7 @@ namespace AElf.Automation.RpcPerformance
             var minersList = authorityManager.GetCurrentMiners();
             var gensisOwner = authorityManager.GetGenesisOwnerAddress();
             var transactionResult = authorityManager.ExecuteTransactionWithAuthority(
-                _configurationContractAddress.GetFormatted(),
+                _configurationContractAddress.ToBase58(),
                 nameof(configurationStub.SetConfiguration),
                 new SetConfigurationInput
                 {

@@ -114,9 +114,9 @@ namespace AElf.Automation.EconomicSystemTest
             for (var i = 0; i < 1000_000; i++)
             {
                 if (TransactionHub.Count > 10000) return;
-                TransactionHub.TryAdd(Hash.FromString(Guid.NewGuid().ToString()), new QueuedTransaction
+                TransactionHub.TryAdd(HashHelper.ComputeFrom(Guid.NewGuid().ToString()), new QueuedTransaction
                 {
-                    TransactionId = Hash.FromString(Guid.NewGuid().ToString()),
+                    TransactionId = HashHelper.ComputeFrom(Guid.NewGuid().ToString()),
                     Transaction = new Transaction
                     {
                         From = AddressExtension.Generate(),

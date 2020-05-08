@@ -1,5 +1,6 @@
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 
 namespace AElf.Automation.SideChainCreate
@@ -12,7 +13,7 @@ namespace AElf.Automation.SideChainCreate
         {
             NodeManager = new NodeManager(url);
             CallAddress = callAddress;
-            CallAccount = AddressHelper.Base58StringToAddress(callAddress);
+            CallAccount = callAddress.ConvertAddress();
 
             NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();

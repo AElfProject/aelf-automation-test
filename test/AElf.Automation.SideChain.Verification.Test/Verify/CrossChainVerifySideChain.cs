@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Acs7;
 using AElf.Client.Dto;
+using AElf.Types;
 using AElfChain.Common.Contracts;
 using Google.Protobuf.WellKnownTypes;
 using Volo.Abp.Threading;
@@ -128,7 +129,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
 
             var verificationInput = new VerifyTransactionInput
             {
-                TransactionId = HashHelper.HexStringToHash(txId),
+                TransactionId = Hash.LoadFromHex(txId),
                 VerifiedChainId = services.ChainId,
                 Path = merklePath
             };

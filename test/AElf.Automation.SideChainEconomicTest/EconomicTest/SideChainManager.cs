@@ -5,6 +5,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
@@ -74,7 +75,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 
             //transfer some other owner
             var account = chain.NodeManager.AccountManager.GetRandomAccount();
-            var address = AddressHelper.Base58StringToAddress(account);
+            var address = account.ConvertAddress();
             await tokenTester.Transfer.SendAsync(new TransferInput
             {
                 Symbol = tokenSymbol,

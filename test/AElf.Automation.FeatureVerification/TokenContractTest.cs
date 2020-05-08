@@ -5,6 +5,7 @@ using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -71,7 +72,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task NewStubTest_Call()
         {
             var tokenContractAddress =
-                AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+                ("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM").ConvertAddress();
             var tester = new ContractTesterFactory(NodeManager);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var tokenInfo = await tokenStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
@@ -85,14 +86,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task NewStubTest_Execution()
         {
             var tokenContractAddress =
-                AddressHelper.Base58StringToAddress("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM");
+                ("WnV9Gv3gioSh3Vgaw8SSB96nV8fWUNxuVozCf6Y14e7RXyGaM").ConvertAddress();
             var tester = new ContractTesterFactory(NodeManager);
             var tokenStub = tester.Create<TokenContractContainer.TokenContractStub>(tokenContractAddress, InitAccount);
             var transactionResult = await tokenStub.Transfer.SendAsync(new TransferInput
             {
                 Amount = 100,
                 Symbol = NodeOption.NativeTokenSymbol,
-                To = AddressHelper.Base58StringToAddress(TestAccount),
+                To = TestAccount.ConvertAddress(),
                 Memo = "Test transfer with new sdk"
             });
             transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -100,7 +101,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //query balance
             var result = await tokenStub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(TestAccount),
+                Owner = TestAccount.ConvertAddress(),
                 Symbol = NodeOption.NativeTokenSymbol
             });
             result.Balance.ShouldBeGreaterThanOrEqualTo(100);
@@ -119,12 +120,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var balance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(TestAccount),
+                Owner = TestAccount.ConvertAddress(),
                 Symbol = NodeManager.GetNativeTokenSymbol()
             });
             var otherTokenBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(TestAccount),
+                Owner = TestAccount.ConvertAddress(),
                 Symbol = Symbol
             });
 
@@ -140,13 +141,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var afterBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(TestAccount),
+                Owner = TestAccount.ConvertAddress(),
                 Symbol = NodeManager.GetNativeTokenSymbol()
             });
 
             var afterOtherTokenBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(TestAccount),
+                Owner = TestAccount.ConvertAddress(),
                 Symbol = Symbol
             });
 
@@ -300,14 +301,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var s in ResourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = AddressHelper.Base58StringToAddress(acs8Contract), Symbol = s});
+                    {Owner = acs8Contract.ConvertAddress(), Symbol = s});
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
 
             foreach (var s in ResourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = AddressHelper.Base58StringToAddress(acs8Contract), Symbol = s});
+                    {Owner = acs8Contract.ConvertAddress(), Symbol = s});
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
         }
@@ -316,7 +317,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = await _bpTokenSub.Create.SendAsync(new CreateInput
             {
-                Issuer = AddressHelper.Base58StringToAddress(BpAccount),
+                Issuer = BpAccount.ConvertAddress(),
                 Symbol = Symbol,
                 Decimals = 8,
                 IsBurnable = true,
@@ -330,7 +331,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Amount = amount,
                 Symbol = Symbol,
-                To = AddressHelper.Base58StringToAddress(BpAccount)
+                To =  BpAccount.ConvertAddress()
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var balance = _tokenContract.GetUserBalance(BpAccount, Symbol);

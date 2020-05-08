@@ -223,7 +223,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
         private void GetLastTermBalanceInformation(long termNumber)
         {
             var treasuryAddress = Profit.GetSchemeAddress(Schemes[SchemeType.Treasury].SchemeId, termNumber);
-            var treasuryBalance = Token.GetUserBalance(treasuryAddress.GetFormatted());
+            var treasuryBalance = Token.GetUserBalance(treasuryAddress.ToBase58());
 
             var balanceMessage = $"\r\nTerm number: {termNumber}" +
                                  $"\r\nTreasury balance is {treasuryBalance}";
@@ -247,7 +247,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                         break;
                 }
 
-                var balance = Token.GetUserBalance(address.GetFormatted());
+                var balance = Token.GetUserBalance(address.ToBase58());
                 balanceMessage += $"\r\n{key} balance is {balance}";
             }
 

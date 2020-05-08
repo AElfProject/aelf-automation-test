@@ -4,6 +4,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using PubkeyList = AElf.Contracts.Election.PubkeyList;
 
@@ -32,7 +33,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var balance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
             {
-                Owner = AddressHelper.Base58StringToAddress(account),
+                Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             });
             return balance;

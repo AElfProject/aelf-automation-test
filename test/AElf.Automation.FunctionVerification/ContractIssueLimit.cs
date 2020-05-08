@@ -4,6 +4,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
@@ -42,7 +43,7 @@ namespace AElf.Automation.ContractsTesting
             {
                 Amount = 1000,
                 Symbol = NodeOption.NativeTokenSymbol,
-                To = AddressHelper.Base58StringToAddress(_account),
+                To = _account.ConvertAddress(),
                 Memo = $"T-{Guid.NewGuid()}"
             });
             transferBalance.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -61,7 +62,7 @@ namespace AElf.Automation.ContractsTesting
             const string symbol = "CELF";
 
             var tokenStub = _stub.Create<TokenContractContainer.TokenContractStub>(
-                AddressHelper.Base58StringToAddress(_contractAddress), _account);
+                _contractAddress.ConvertAddress(), _account);
 
             //create
             var createResult = await tokenStub.Create.SendAsync(new CreateInput
@@ -70,7 +71,7 @@ namespace AElf.Automation.ContractsTesting
                 TokenName = $"elf token {symbol}",
                 TotalSupply = 8000_000,
                 Decimals = 2,
-                Issuer = AddressHelper.Base58StringToAddress(_account),
+                Issuer = _account.ConvertAddress(),
                 IsBurnable = true
             });
             createResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -80,7 +81,7 @@ namespace AElf.Automation.ContractsTesting
             {
                 Symbol = symbol,
                 Amount = 8000_000,
-                To = AddressHelper.Base58StringToAddress(_account),
+                To = _account.ConvertAddress(),
                 Memo = $"I-{Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -112,7 +113,7 @@ namespace AElf.Automation.ContractsTesting
             {
                 Symbol = symbol,
                 Amount = totalBurn - 1000,
-                To = AddressHelper.Base58StringToAddress(_account),
+                To = _account.ConvertAddress(),
                 Memo = $"I-{Guid.NewGuid()}"
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -136,7 +137,7 @@ namespace AElf.Automation.ContractsTesting
             var balanceInfo = await tester.GetBalance.CallAsync(new GetBalanceInput
             {
                 Symbol = symbol,
-                Owner = AddressHelper.Base58StringToAddress(account)
+                Owner = account.ConvertAddress()
             });
             Logger.Info($"Balance info: {balanceInfo.Balance}");
         }

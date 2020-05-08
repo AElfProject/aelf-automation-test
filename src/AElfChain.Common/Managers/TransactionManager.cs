@@ -47,7 +47,7 @@ namespace AElfChain.Common.Managers
         public Transaction SignTransaction(Transaction tx)
         {
             var txData = tx.GetHash().ToByteArray();
-            tx.Signature = Sign(tx.From.GetFormatted(), txData);
+            tx.Signature = Sign(tx.From.ToBase58(), txData);
             return tx;
         }
 

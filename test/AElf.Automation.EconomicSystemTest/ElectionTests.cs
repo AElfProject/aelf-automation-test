@@ -4,6 +4,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
@@ -177,7 +178,7 @@ namespace AElf.Automation.EconomicSystemTest
                     Amount = 20_0000_00000000,
                     Memo = "transfer for balance test",
                     Symbol = NodeOption.NativeTokenSymbol,
-                    To = AddressHelper.Base58StringToAddress(acc)
+                    To = acc.ConvertAddress()
                 });
 
             Behaviors.TokenService.CheckTransactionResultList();
@@ -188,7 +189,7 @@ namespace AElf.Automation.EconomicSystemTest
                     new GetBalanceInput
                     {
                         Symbol = NodeOption.NativeTokenSymbol,
-                        Owner = AddressHelper.Base58StringToAddress(userAcc)
+                        Owner = userAcc.ConvertAddress()
                     });
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }

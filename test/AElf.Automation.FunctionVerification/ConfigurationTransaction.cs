@@ -4,6 +4,7 @@ using Acs0;
 using AElf.Contracts.Configuration;
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
@@ -46,10 +47,10 @@ namespace AElf.Automation.ContractsTesting
         private void GetConfigurationStub()
         {
             var addressInfo = _genesisContract.GetContractAddressByName(NameProvider.Configuration);
-            var address = addressInfo == new Address() ? DeployConfigurationContract() : addressInfo.GetFormatted();
+            var address = addressInfo == new Address() ? DeployConfigurationContract() : addressInfo.ToBase58();
 
             _configurationStub = _stub.Create<ConfigurationContainer.ConfigurationStub>(
-                AddressHelper.Base58StringToAddress(address), _account);
+                address.ConvertAddress(), _account);
         }
 
         private string DeployConfigurationContract()
@@ -70,7 +71,7 @@ namespace AElf.Automation.ContractsTesting
                     .NonIndexed);
             var deployAddress = ContractDeployed.Parser.ParseFrom(byteString).Address;
 
-            return deployAddress.GetFormatted();
+            return deployAddress.ToBase58();
         }
 
         public void SetTransactionLimit(int transactionCount)

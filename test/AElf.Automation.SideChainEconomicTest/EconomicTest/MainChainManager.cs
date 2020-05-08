@@ -42,7 +42,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public async Task BuyResources(string account, long amount)
         {
             var tokenConverter = Genesis.GetContractAddressByName(NameProvider.TokenConverter);
-            var tokenContract = new TokenConverterContract(NodeManager, account, tokenConverter.GetFormatted());
+            var tokenContract = new TokenConverterContract(NodeManager, account, tokenConverter.ToBase58());
             var converter =
                 tokenContract.GetTestStub<TokenConverterContractContainer.TokenConverterContractStub>(
                     account);

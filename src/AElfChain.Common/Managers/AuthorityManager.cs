@@ -178,7 +178,7 @@ namespace AElfChain.Common.Managers
                 foreach (var minersPubkey in miners.Pubkeys)
                 {
                     var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                    minerList.Add(miner.GetFormatted());
+                    minerList.Add(miner.ToBase58());
                 }
                 return minerList;
         }
@@ -247,7 +247,7 @@ namespace AElfChain.Common.Managers
                 ProposerWhiteList = new ProposerWhiteList {Proposers = {addresses.First()}},
                 OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {addresses}}
             };
-            _association.SetAccount(addresses.First().GetFormatted());
+            _association.SetAccount(addresses.First().ToBase58());
             var result = _association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 createInput);
             var organizationAddress =
@@ -410,7 +410,7 @@ namespace AElfChain.Common.Managers
         {
             while (true)
             {
-                var hash = Hash.FromRawBytes(code);
+                var hash = HashHelper.ComputeFrom(code);
                 var registration =
                     _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration,
                         hash);

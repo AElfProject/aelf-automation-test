@@ -57,12 +57,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = NodeManager.GetNativeTokenSymbol()
                 });
                 var otherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = resource
                 });
 
@@ -78,13 +78,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = NodeManager.GetNativeTokenSymbol()
                 });
 
                 var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = resource
                 });
 
@@ -100,12 +100,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = NodeManager.GetNativeTokenSymbol()
                 });
                 var otherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = resource
                 });
 
@@ -121,13 +121,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = NodeManager.GetNativeTokenSymbol()
                 });
 
                 var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
-                    Owner = AddressHelper.Base58StringToAddress(InitAccount),
+                    Owner = InitAccount.ConvertAddress(),
                     Symbol = resource
                 });
 
