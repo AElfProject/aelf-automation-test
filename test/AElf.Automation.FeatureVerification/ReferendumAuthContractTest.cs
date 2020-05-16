@@ -29,7 +29,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public AElfClient ApiClient { get; set; }
         public List<string> UserList { get; set; }
 
-        public string InitAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
+        public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
 
         private static string RpcUrl { get; } = "http://192.168.197.14:8000";
@@ -139,17 +139,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("95fc268ccfdd5da9f173c93725aae35fa2fccb8eff0237065e0283eedfb28d65")]
         public void Approve(string proposalId)
         {
-            var beforeBalance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
-            _logger.Info($"{InitAccount} token balance is {beforeBalance}");
+            var beforeBalance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
+            if (beforeBalance < 1000_00000000)
+            {
+                Tester.TokenService.TransferBalance(InitAccount, TestAccount, 1000_00000000);
+                beforeBalance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
+            }
+            _logger.Info($"{TestAccount} token balance is {beforeBalance}");
 
-            var approveResult = Token.ApproveToken(InitAccount, Referendum.ContractAddress, 1000,
+            var approveResult = Token.ApproveToken(TestAccount, Referendum.ContractAddress, 100,
                 Token.GetPrimaryTokenSymbol());
             approveResult.Status.ShouldBe("MINED");
-            Referendum.SetAccount(InitAccount);
+            var approveFee = approveResult.GetDefaultTransactionFee();
+            
+            Referendum.SetAccount(TestAccount);
             var result =
                 Referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, Hash.LoadFromHex(proposalId));
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var balance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
+            var fee = result.GetDefaultTransactionFee();
+            var balance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
+            balance.ShouldBe(beforeBalance - 100 - fee - approveFee);
             _logger.Info($"{InitAccount} token balance is {balance}");
         }
 

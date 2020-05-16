@@ -103,16 +103,13 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void Get_Current_Miners()
         {
-            var minerList = new List<string>();
             var miners =
                 Behaviors.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                minerList.Add(miner.ToBase58());
+                _logger.Info($"Miner is : {miner} \n PublicKey: {minersPubkey.ToHex()}");
             }
-            foreach (var miner in minerList)
-                _logger.Info($"Miner is : {miner}");
         }
 
 

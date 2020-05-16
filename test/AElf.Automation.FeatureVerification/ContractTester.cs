@@ -26,7 +26,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public readonly VoteContract VoteService;
         public readonly TreasuryContract TreasuryContract;
         public readonly TokenHolderContract TokenHolderContract;
-
+        public readonly TokenConverterContract TokenConverterContract;
 
         public ContractTester(ContractServices contractServices)
         {
@@ -47,6 +47,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             CrossChainService = ContractServices.CrossChainService;
             TreasuryContract = ContractServices.TreasuryContract;
             TokenHolderContract = ContractServices.TokenHolderContract;
+            TokenConverterContract = ContractServices.TokenConverterService;
         }
 
         public List<string> GetMiners()

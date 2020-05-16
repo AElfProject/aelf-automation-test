@@ -165,7 +165,7 @@ namespace AElfChain.Common.Managers
             var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease, caller);
             release.Status.ShouldBe("MINED");
             var byteString =
-                ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).NonIndexed);
+                ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).Indexed.First());
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
             Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
         }
