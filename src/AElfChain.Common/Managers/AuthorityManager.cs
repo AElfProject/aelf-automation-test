@@ -413,7 +413,7 @@ namespace AElfChain.Common.Managers
             {
                 var hash = HashHelper.ComputeFrom(code);
                 var registration =
-                    _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistration,
+                    _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistrationByCodeHash,
                         hash);
                 if (registration.Equals(new SmartContractRegistration())) return code;
                 code = CodeInjectHelper.ChangeContractCodeHash(code);

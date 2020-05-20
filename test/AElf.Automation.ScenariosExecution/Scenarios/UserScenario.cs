@@ -163,7 +163,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var beforeVoteShareBalance = Token.GetUserBalance(account, "SHARE");
 
             var beforeCandidateVote = Election.GetCandidateVoteCount(candidatePublicKey);
-            if (beforeElfBalance < amount * 10000_0000) // balance not enough, bp transfer again
+            if (beforeElfBalance < amount) // balance not enough, bp transfer again
             {
                 const long transferAmount = 1_0000_00000000L;
                 var token = Token.GetNewTester(AllNodes.First().Account);
@@ -205,10 +205,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var checkResult = true;
 
             //check vote result process
-            if (beforeElfBalance != afterElfBalance + amount * 10000_0000L + transactionFee)
+            if (beforeElfBalance != afterElfBalance + amount + transactionFee)
             {
                 Logger.Error(
-                    $"User vote cost balance check failed. ELF: {beforeElfBalance}/{afterElfBalance + amount * 10000_0000L + transactionFee}");
+                    $"User vote cost balance check failed. ELF: {beforeElfBalance}/{afterElfBalance + amount + transactionFee}");
                 checkResult = false;
             }
 

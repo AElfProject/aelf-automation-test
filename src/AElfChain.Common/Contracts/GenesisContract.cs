@@ -37,10 +37,10 @@ namespace AElfChain.Common.Contracts
         GetContractAuthor,
         GetContractHash,
         GetContractAddressByName,
-        GetSmartContractRegistration,
         GetSmartContractRegistrationByAddress,
         GetContractDeploymentController,
-        GetCodeCheckController
+        GetCodeCheckController,
+        GetSmartContractRegistrationByCodeHash
     }
 
     public class GenesisContract : BaseContract<GenesisMethod>
