@@ -50,12 +50,24 @@ namespace AElf.Automation.AutoTransfer
                 {
                     accountTasks.Add(Task.Run(() =>
                     {
-                        SendTransactionRandomly(accounts);
+                        try
+                        {
+                            SendTransactionRandomly(accounts);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
                     }));
                 });
                 Task.WaitAll(accountTasks.ToArray());
                 Console.WriteLine($"----End----{Environment.NewLine}");
                 Thread.Sleep(_random.Next(500, 2000));
+
+                if (count % 100 == 0)
+                {
+                    CheckAccountBalance(accounts);
+                }
             }
         }
 
