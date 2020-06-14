@@ -15,7 +15,7 @@
     },
     {
       "Environment": "Offline2",
-      "Url": "http://192.168.197.40:8000",
+      "Url": "http://192.168.197.21:8000",
       "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "Password": "123"
     },
