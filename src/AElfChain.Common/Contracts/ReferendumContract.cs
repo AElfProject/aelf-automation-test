@@ -20,6 +20,7 @@ namespace AElfChain.Common.Contracts
         CalculateOrganizationAddress,
         ValidateOrganizationExist,
         ValidateProposerInWhiteList,
+        GetProposalVirtualAddress,
 
         //Action
         Initialize,
@@ -104,6 +105,11 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<ProposalOutput>(ReferendumMethod.GetProposal,
                 proposalId);
+        }
+
+        public Address GetProposalVirtualAddress(Hash proposalId)
+        {
+            return CallViewMethod<Address>(ReferendumMethod.GetProposalVirtualAddress, proposalId);
         }
     }
 }

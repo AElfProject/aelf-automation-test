@@ -33,7 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-        private static string RpcUrl { get; } = "http://52.90.147.175:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.14:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -42,7 +42,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ParliamentTest_");
-            NodeInfoHelper.SetConfig("nodes-online-test-main");
+            NodeInfoHelper.SetConfig("nodes-env1-main");
 
             #endregion
 
@@ -134,12 +134,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _logger.Info($"proposal organization is {organizationAddress}");
             _logger.Info($"proposal method name is {contractMethodName}");
             _logger.Info($"proposal to address is {toAddress}");
+            _logger.Info($"proposer is {result.Proposer}");
         }
 
         [TestMethod]
-        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
-            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
-        public void Approve(string proposalId, string contractAddress)
+        [DataRow("0160c62bcdc9b616e742fb5ff9de67226fe25a4f9ae906287be6332c81ef5c02")]
+        public void Approve(string proposalId)
         {
             foreach (var miner in Miners)
             {
@@ -160,9 +160,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("daa3215f3832e61b4360caebd976c97419644bae4af647645b0b8e33033fca5b",
-            "F5d3S7YJhSLvcBWtGw6nJ6Rx64MBgK4RpdMt6EAEDcns36qYs")]
-        public void ApproveWithFullNode(string proposalId, string contractAddress)
+        [DataRow("0160c62bcdc9b616e742fb5ff9de67226fe25a4f9ae906287be6332c81ef5c02")]
+        public void ApproveWithFullNode(string proposalId)
         {
             var balance = Token.GetUserBalance(Full, Symbol);
             if (balance <= 0)
@@ -179,11 +178,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("d00bea66e43d59df5a73c272379fd91a2a6f918b2a3375629d5f39184dba5422",
-            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
-        public void Release(string proposalId, string contractAddress)
+        [DataRow("0160c62bcdc9b616e742fb5ff9de67226fe25a4f9ae906287be6332c81ef5c02")]
+        public void Release(string proposalId)
         {
-            Parliament.SetAccount(TestAccount);
+            var proposalInfo =
+                Parliament.CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
+                    Hash.LoadFromHex(proposalId));
+            Parliament.SetAccount(proposalInfo.Proposer.ToBase58());
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadFromHex(proposalId));
             result.Status.ShouldBe("MINED");

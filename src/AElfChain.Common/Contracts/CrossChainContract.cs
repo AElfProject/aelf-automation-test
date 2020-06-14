@@ -36,7 +36,8 @@ namespace AElfChain.Common.Contracts
         GetSideChainIndexingFeeController,
         GetSideChainLifetimeController,
         GetCrossChainIndexingController,
-        GetChainInitializationData
+        GetChainInitializationData,
+        GetSideChainIndexingFeeDebt
     }
 
     public class CrossChainContract : BaseContract<CrossChainContractMethod>

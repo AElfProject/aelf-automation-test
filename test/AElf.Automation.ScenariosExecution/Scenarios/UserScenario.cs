@@ -108,16 +108,17 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             $"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}".WriteSuccessLine();
 
             //Get user profit amount
-            var profitAmount = Profit.GetProfitAmount(account, schemeId);
-            if (profitAmount == 0)
+            var profitMap = Profit.GetProfitsMap(account, schemeId);
+            if (profitMap.Equals(new ReceivedProfitsMap()))
                 return;
-
+            var profitAmount = profitMap.Value["ELF"];
             Logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
             var beforeBalance = Token.GetUserBalance(account);
             var profit = Profit.GetNewTester(account);
             var profitResult = profit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
             {
-                SchemeId = schemeId
+                SchemeId = schemeId,
+                Beneficiary = account.ConvertAddress()
             }, out var existed);
             if (existed) return; //if found tx existed and return
             if (profitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;

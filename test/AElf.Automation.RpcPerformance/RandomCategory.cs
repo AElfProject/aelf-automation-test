@@ -435,7 +435,6 @@ namespace AElf.Automation.RpcPerformance
 
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
-            var randomTransactionOption = RpcConfig.ReadInformation.RandomEndpointOption;
             //add transaction performance check process
             var testers = AccountList.Select(o => o.Account).ToList();
             var cts = new CancellationTokenSource();
@@ -444,75 +443,20 @@ namespace AElf.Automation.RpcPerformance
             {
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
                 Task.Run(() => TokenMonitor.ExecuteTokenCheckTask(testers, token), token),
+                Task.Run(() => GeneratedTransaction(useTxs, cts, token), token),
                 Task.Run(() =>
                 {
-                    Logger.Info("Begin generate multi requests.");
-                    var enableRandom = RpcConfig.ReadInformation.EnableRandomTransaction;
-
-                    try
+                    Thread.Sleep(20000);
+                    for (int i = 1; i > 0; i++)
                     {
-                        for (var r = 1; r > 0; r++) //continuous running
-                        {
-                            var stopwatch = Stopwatch.StartNew();
-                            //set random tx sending each round
-                            var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
-                            try
-                            {
-                                Logger.Info("Execution transaction request round: {0}", r);
-                                if (useTxs)
-                                {
-                                    //multi task for SendTransactions query
-                                    var txsTasks = new List<Task>();
-                                    for (var i = 0; i < ThreadCount; i++)
-                                    {
-                                        var j = i;
-                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
-                                    }
+                        var transactionsList = GetTransactions();
+                        Logger.Info($"Check transaction result {i}:");
+                        var txsTasks = transactionsList
+                            .Select(transactions => Task.Run(() => CheckTransaction(transactions), token)).ToList();
+                        Task.WaitAll(txsTasks.ToArray<Task>());
 
-                                    Task.WaitAll(txsTasks.ToArray<Task>());
-                                }
-                                else
-                                {
-                                    //multi task for SendTransaction query
-                                    for (var i = 0; i < ThreadCount; i++)
-                                    {
-                                        var j = i;
-                                        GenerateRawTransactionQueue(j, exeTimes);
-                                        Logger.Info(
-                                            $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
-                                        var txTasks = new List<Task>();
-                                        for (var k = 0; k < ThreadCount; k++)
-                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
-
-                                        Task.WaitAll(txTasks.ToArray<Task>());
-                                    }
-                                }
-                            }
-                            catch (AggregateException exception)
-                            {
-                                Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
-                            }
-                            catch (Exception e)
-                            {
-                                var message = "Execute continuous transaction got exception." +
-                                              $"\r\nMessage: {e.Message}" +
-                                              $"\r\nStackTrace: {e.StackTrace}";
-                                Logger.Error(message);
-                            }
-
-                            stopwatch.Stop();
-                            TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
-
-                            Monitor.CheckNodeHeightStatus(!randomTransactionOption
-                                .EnableRandom); //random mode, don't check node height
-                            UpdateRandomEndpoint(); //update sent transaction to random endpoint
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e.Message);
-                        Logger.Error("Cancel all tasks due to transaction execution exception.");
-                        cts.Cancel(); //cancel all tasks
+                        while (!QueueTransaction.Any())
+                            Thread.Sleep(10000);
                     }
                 }, token)
             };
@@ -538,6 +482,85 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+        }
+
+        private void GeneratedTransaction(bool useTxs, CancellationTokenSource cts, CancellationToken token)
+        {
+            Logger.Info("Begin generate multi requests.");
+            var enableRandom = RpcConfig.ReadInformation.EnableRandomTransaction;
+            var randomTransactionOption = RpcConfig.ReadInformation.RandomEndpointOption;
+            QueueTransaction = new Queue<List<Dictionary<string, List<string>>>>();
+            try
+            {
+                for (var r = 1; r > 0; r++) //continuous running
+                {
+                    var stopwatch = Stopwatch.StartNew();
+                    //set random tx sending each round
+                    var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
+                    try
+                    {
+                        Logger.Info("Execution transaction request round: {0}", r);
+                        if (useTxs)
+                        {
+                            //multi task for SendTransactions query
+                            var txsTasks = new List<Dictionary<string, List<string>>>();
+                            var transactions = new Dictionary<string, List<string>>();
+                            for (var i = 0; i < ThreadCount; i++)
+                            {
+                                var j = i;
+                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token).Result);
+                            }
+                            QueueTransaction.Enqueue(txsTasks);
+                        }
+                        else
+                        {
+                            //multi task for SendTransaction query
+                            for (var i = 0; i < ThreadCount; i++)
+                            {
+                                var j = i;
+                                GenerateRawTransactionQueue(j, exeTimes);
+                                Logger.Info(
+                                    $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
+                                var txTasks = new List<Task>();
+                                for (var k = 0; k < ThreadCount; k++)
+                                    txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
+
+                                Task.WaitAll(txTasks.ToArray<Task>());
+                            }
+                        }
+                    }
+                    catch (AggregateException exception)
+                    {
+                        Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+                    }
+                    catch (Exception e)
+                    {
+                        var message = "Execute continuous transaction got exception." +
+                                      $"\r\nMessage: {e.Message}" +
+                                      $"\r\nStackTrace: {e.StackTrace}";
+                        Logger.Error(message);
+                    }
+
+                    stopwatch.Stop();
+                    TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
+
+                    Monitor.CheckNodeHeightStatus(!randomTransactionOption
+                        .EnableRandom); //random mode, don't check node height
+                    UpdateRandomEndpoint(); //update sent transaction to random endpoint
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                Logger.Error("Cancel all tasks due to transaction execution exception.");
+                cts.Cancel(); //cancel all tasks
+            }
+        }
+
+        private List<Dictionary<string, List<string>>> GetTransactions()
+        {
+            var transactionLists = QueueTransaction.Dequeue();
+            return transactionLists;
         }
 
         private void UnlockAllAccounts(int count)
@@ -570,13 +593,16 @@ namespace AElf.Automation.RpcPerformance
                 if (serviceUrl == NodeManager.GetApiUrl())
                     continue;
                 var checkTimes = randomTransactionOption.EndpointList.Count;
-                while (!NodeManager.UpdateApiUrl(serviceUrl) && checkTimes >0)
+                while (!NodeManager.UpdateApiUrl(serviceUrl) && checkTimes > 0)
                 {
-                    var errorUrlIndex = randomTransactionOption.EndpointList.IndexOf(serviceUrl.Replace("http://",""));
-                    var nextIndex = errorUrlIndex == randomTransactionOption.EndpointList.Count - 1 ? 0 : errorUrlIndex + 1;
+                    var errorUrlIndex = randomTransactionOption.EndpointList.IndexOf(serviceUrl.Replace("http://", ""));
+                    var nextIndex = errorUrlIndex == randomTransactionOption.EndpointList.Count - 1
+                        ? 0
+                        : errorUrlIndex + 1;
                     serviceUrl = randomTransactionOption.GetRandomEndpoint(nextIndex);
                     checkTimes--;
                 }
+
                 try
                 {
                     var transactionPoolCount =
@@ -685,18 +711,19 @@ namespace AElf.Automation.RpcPerformance
             Monitor.CheckTransactionsStatus(txIdList);
         }
 
-        private void ExecuteBatchTransactionTask(int threadNo, int times)
+        private Dictionary<string,List<string>> ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
+            var transactionsWhitRpc = new Dictionary<string,List<string>>();
 
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
                 Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return;
+                return transactionsWhitRpc;
             }
 
             var rawTransactionList = new List<string>();
@@ -727,12 +754,38 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
+            var rpc = NodeManager.ApiClient.BaseUrl;
             Logger.Info(transactions);
+            transactionsWhitRpc[rpc] = transactions;
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
-            Thread.Sleep(10);
+            Thread.Sleep(1000);
+            return transactionsWhitRpc;
+        }
+
+        private void CheckTransaction(Dictionary<string,List<string>> transactionsWithRpc)
+        {
+            if (transactionsWithRpc.Count < 1) return;
+            var rpc = transactionsWithRpc.Keys.First();
+            NodeManager.UpdateApiUrl(rpc);
+            Logger.Info($"Check transaction, the first transaction: {transactionsWithRpc[rpc].First()}");
+            var txIds = new List<string>();
+            foreach (var txId in transactionsWithRpc[rpc])
+            {
+                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
+                var status = transactionResult.Status.ConvertTransactionResultStatus();
+                if (status.Equals(TransactionResultStatus.NotExisted))
+                    txIds.Add(txId);
+            }
+
+            transactionsWithRpc[rpc] = txIds;
+            if (transactionsWithRpc[rpc].Count < 1) return;
+            foreach (var transaction in transactionsWithRpc[rpc])
+            {
+                Logger.Warn($"NotExisted transaction : {transaction}");
+            }
         }
 
         private void ExecuteAloneTransactionTask(int group)
@@ -845,6 +898,9 @@ namespace AElf.Automation.RpcPerformance
 
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
+
+        private new Queue<List<Dictionary<string, List<string>>>> QueueTransaction { get; set; }
+
         public int ThreadCount { get; }
         public int ExeTimes { get; }
         public bool LimitTransaction { get; }

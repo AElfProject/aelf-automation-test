@@ -3,121 +3,121 @@
   "Nodes": [
     {
       "name": "1.美国东部(弗吉尼亚北部)",
-      "endpoint": "54.84.43.173:8000",
+      "endpoint": "54.234.101.159:8000",
       "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     },
     {
       "name": "2.美国东部(俄亥俄)",
-      "endpoint": "18.216.250.242:8000",
+      "endpoint": "3.135.184.162:8000",
       "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
       "password": "123"
     },
     {
       "name": "3.美国西部(加利福尼亚北部)",
-      "endpoint": "54.193.21.209:8000",
+      "endpoint": "52.53.215.91:8000",
       "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
       "password": "123"
     },
     {
       "name": "4.美国西部(俄勒冈)",
-      "endpoint": "54.202.36.6:8000",
+      "endpoint": "34.220.189.200:8000",
       "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
       "password": "123"
     },
     {
       "name": "5.亚太区域(香港)",
-      "endpoint": "18.162.109.114:8000",
+      "endpoint": "18.163.188.56:8000",
       "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
       "password": "123"
     },
     {
       "name": "6.亚太区域(孟买)",
-      "endpoint": "13.232.234.224:8000",
+      "endpoint": "13.232.161.183:8000",
       "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
       "password": "123"
     },
     {
       "name": "7.亚太区域(首尔)",
-      "endpoint": "52.79.168.141:8000",
+      "endpoint": "15.164.227.237:8000",
       "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
       "password": "123"
     },
     {
       "name": "8.亚太区域(新加坡)",
-      "endpoint": "18.136.119.38:8000",
+      "endpoint": "52.77.231.24:8000",
       "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
       "password": "123"
     },
     {
       "name": "9.亚太区域(悉尼)",
-      "endpoint": "52.63.172.109:8000",
+      "endpoint": "54.252.233.247:8000",
       "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
       "password": "123"
     },
     {
       "name": "10.亚太区域(东京)",
-      "endpoint": "3.112.227.175:8000",
+      "endpoint": "13.231.174.99:8000",
       "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
       "password": "123"
     },
     {
       "name": "11.加拿大(中部)",
-      "endpoint": "99.79.48.179:8000",
+      "endpoint": "15.223.113.203:8000",
       "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
       "password": "123"
     },
     {
       "name": "12.欧洲(法兰克福)",
-      "endpoint": "18.196.46.174:8000",
+      "endpoint": "35.157.254.249:8000",
       "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
       "password": "123"
     },
     {
       "name": "13.欧洲(爱尔兰)",
-      "endpoint": "34.250.85.43:8000",
+      "endpoint": "54.154.254.143:8000",
       "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
       "password": "123"
     },
     {
       "name": "14.欧洲(伦敦)",
-      "endpoint": "3.9.172.39:8000",
+      "endpoint": "3.8.237.63:8000",
       "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
       "password": "123"
     },
     {
       "name": "15.欧洲(巴黎)",
-      "endpoint": "15.188.26.113:8000",
+      "endpoint": "15.236.201.192:8000",
       "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
       "password": "123"
     },
     {
       "name": "16.欧洲(斯德哥尔摩)",
-      "endpoint": "13.53.127.35:8000",
+      "endpoint": "13.49.21.75:8000",
       "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
       "password": "123"
     },
     {
       "name": "17.南美洲(圣保罗)",
-      "endpoint": "54.233.124.191:8000",
+      "endpoint": "18.230.23.248:8000",
       "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
       "password": "123"
     },
     {
       "name": "18.阿里-伦敦",
-      "endpoint": "8.208.20.137:8000",
+      "endpoint": "8.208.102.97:8000",
       "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
       "password": "123"
     },
     {
       "name": "19.阿里-吉隆坡",
-      "endpoint": "47.254.235.154:8000",
+      "endpoint": "47.254.238.211:8000",
       "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
       "password": "123"
     },
     {
       "name": "20.加拿大(中部)",
-      "endpoint": "35.182.250.3:8000",
+      "endpoint": "15.222.62.6:8000",
       "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
       "password": "123"
     }

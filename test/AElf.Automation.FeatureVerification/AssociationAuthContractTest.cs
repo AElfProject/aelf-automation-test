@@ -182,8 +182,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Association.SetAccount(ReviewAccount1);
             var result = Association.ExecuteMethodWithResult(AssociationMethod.Release,
                 Hash.LoadFromHex(proposalId));
-            Assert.AreSame(result.Status, "MINED");
-        }
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+           }
 
         [TestMethod]
         [DataRow("DCMn2iZ5VjDxg51wzpuJxcUDfarG1dnKwd4TngSH8TS2vJsE2")]

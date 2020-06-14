@@ -29,6 +29,7 @@ namespace AElfChain.Common.Contracts
         GetVotesInformationWithRecords,
         GetElectorVoteWithAllRecords,
         GetNextElectCountDown,
+        GetElectorVoteWithRecords,
         GetElectorVote
     }
 

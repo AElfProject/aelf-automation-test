@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Acs1;
 using Acs10;
@@ -113,16 +112,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var candidates = await MainManager.ElectionStub.GetCandidates.CallAsync(new Empty());
             var candidatePubkeys = candidates.Value.Select(o => o.ToHex()).ToList();
             var beforeShare = MainManager.Token.GetUserBalance(MainManager.CallAddress, "SHARE");
-                var electionStub = MainManager.Genesis.GetElectionStub();
-                var voteResult = await electionStub.Vote.SendAsync(new VoteMinerInput
-                {
-                    CandidatePubkey = candidatePubkeys[0],
-                    Amount = VOTE,
-                    EndTimestamp = KernelHelper.GetUtcNow().AddDays(120)
-                });
-                voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                var afterShare = MainManager.Token.GetUserBalance(MainManager.CallAddress, "SHARE");
-                afterShare.ShouldBe(beforeShare + VOTE);
+            var electionStub = MainManager.Genesis.GetElectionStub();
+            var voteResult = await electionStub.Vote.SendAsync(new VoteMinerInput
+            {
+                CandidatePubkey = candidatePubkeys[0],
+                Amount = VOTE,
+                EndTimestamp = KernelHelper.GetUtcNow().AddDays(120)
+            });
+            voteResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterShare = MainManager.Token.GetUserBalance(MainManager.CallAddress, "SHARE");
+            afterShare.ShouldBe(beforeShare + VOTE);
         }
 
         [TestMethod]
@@ -146,7 +145,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
-            
+
             treasuryBalance = await treasuryStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(treasuryBalance));
         }
@@ -164,7 +163,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var controller = await treasuryStub.GetTreasuryController.CallAsync(new Empty());
             var addSymbol = authority.ExecuteTransactionWithAuthority(MainManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetSymbolList),
-                new SymbolList {Value = {"ELF",Symbol}},
+                new SymbolList {Value = {"ELF", Symbol}},
                 account, controller.OwnerAddress);
             addSymbol.Status.ShouldBe(TransactionResultStatus.Mined);
 
@@ -200,24 +199,24 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 nameof(TokenContractImplContainer.TokenContractImplStub.SetMethodFee), input, MainManager.CallAddress,
                 feeController.OwnerAddress);
             addFeeSymbol.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             fee = await MainManager.TokenImplStub.GetMethodFee.CallAsync(new StringValue {Value = "Approve"});
             Logger.Info(JsonConvert.SerializeObject(fee));
         }
-        
+
         [TestMethod]
         public async Task CheckFeeSymbol()
         {
             var fee = await MainManager.TokenImplStub.GetMethodFee.CallAsync(new StringValue {Value = "Transfer"});
             Logger.Info(JsonConvert.SerializeObject(fee));
         }
-        
+
         [TestMethod]
         public void GetBalance()
         {
             var authority = new AuthorityManager(NodeManager);
             var miners = authority.GetCurrentMiners();
-            var symbolList = new List<string>(){Symbol,Symbol1,Symbol2};
+            var symbolList = new List<string>() {Symbol, Symbol1, Symbol2};
             foreach (var miner in miners)
             foreach (var symbol in symbolList)
             {
@@ -235,7 +234,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             await InitialMiners_VoteTest();
         }
 
-        public async Task CreateAndIssueAllNewSymbol(string symbol,bool profitable,bool isAbleWhite)
+        public async Task CreateAndIssueAllNewSymbol(string symbol, bool profitable, bool isAbleWhite)
         {
             var input = new CreateInput
             {
@@ -253,7 +252,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 input.LockWhiteList.Add(MainManager.TokenConverter.Contract);
             }
             var result = await MainManager.TokenStub.Create.SendAsync(input);
-            
+
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var issue = MainManager.Token.IssueBalance(MainManager.CallAddress, MainManager.CallAddress,
                 100000000_0000000000, symbol);

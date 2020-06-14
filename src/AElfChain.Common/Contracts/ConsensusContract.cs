@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Acs1;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Managers;
@@ -32,13 +33,17 @@ namespace AElfChain.Common.Contracts
         QueryMinedBlockCountInCurrentTerm,
         GetAvailableDividends,
         ContributeToSideChainDividendsPool,
+        GetMaximumBlocksCount,
+        GetMaximumMinersCount,
+        GetMaximumMinersCountController,
 
         AnnounceElection,
         QuitElection,
         Vote,
         ReceiveAllDividends,
         WithdrawAll,
-        InitialBalance
+        InitialBalance,
+        ChangeMaximumMinersCountController
     }
 
     public class ConsensusContract : BaseContract<ConsensusMethod>
@@ -69,6 +74,16 @@ namespace AElfChain.Common.Contracts
                 Value = 1
             });
             return roundInfo.RealTimeMinersInformation.Keys.ToList();
+        }
+
+        public Int32Value GetMaximumMinersCount()
+        {
+            return CallViewMethod<Int32Value>(ConsensusMethod.GetMaximumMinersCount, new Empty());
+        }
+        
+        public AuthorityInfo GetMaximumMinersCountController()
+        {
+            return CallViewMethod<AuthorityInfo>(ConsensusMethod.GetMaximumMinersCountController, new Empty());
         }
     }
 }

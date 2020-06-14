@@ -198,8 +198,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var interestProposalId = referendum.CreateProposal( ContractManager.Election.ContractAddress,
                 nameof(ElectionContractContainer.ElectionContractStub.SetVoteWeightInterest), newInterest,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
-                2000_00000000, "ELF");
+            var interestVirtualAddress = referendum.GetProposalVirtualAddress(interestProposalId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), interestVirtualAddress.ToBase58(),
+                2000, "ELF");
             referendum.SetAccount(proposer.ToBase58());
             var interestApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, interestProposalId);
             interestApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -222,7 +223,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposalId = referendum.CreateProposal(ContractManager.Election.ContractAddress,
                 nameof(ContractManager.ElectionStub.ChangeVoteWeightInterestController), input,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
+            var virtualAddress = referendum.GetProposalVirtualAddress(proposalId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), virtualAddress.ToBase58(),
                 2000, "ELF");
             referendum.SetAccount(proposer.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
@@ -242,9 +244,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposer = ConfigNodes.First().Account.ConvertAddress();
             var miners = ContractManager.Authority.GetCurrentMiners();
             var newOrganization = ReferendumOrganization;
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
-                2000, "ELF");
-            
+
             var defaultController = await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
             defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
             var input = new AuthorityInfo
@@ -275,8 +275,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var setDividendId = referendum.CreateProposal( ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetDividendPoolWeightSetting),setInput,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
-                2000_00000000, "ELF");
+            var virtualAddress = referendum.GetProposalVirtualAddress(setDividendId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), virtualAddress.ToBase58(),
+                2000, "ELF");
             referendum.SetAccount(proposer.ToBase58());
             var setApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, setDividendId);
             setApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -299,7 +300,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposalId = referendum.CreateProposal(ContractManager.Treasury.ContractAddress,
                 nameof(ContractManager.TreasuryStub.ChangeTreasuryController), recoverInput,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
+            var recoverVirtualAddress = referendum.GetProposalVirtualAddress(proposalId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), recoverVirtualAddress.ToBase58(),
                 2000, "ELF");
             referendum.SetAccount(proposer.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);

@@ -265,13 +265,24 @@ namespace AElfChain.Common.Managers
             {
                 var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
+                string message;
+                string errorMsg;
                 switch (status)
                 {
+                    case TransactionResultStatus.NodeValidationFailed:
+                        message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
+                        errorMsg = transactionResult.Error.Contains("\n")
+                            ? transactionResult.Error.Split("\n")[1]
+                            : transactionResult.Error;
+                        message += $"\r\nError Message: {errorMsg}";
+                        Logger.Error(message, true);
+                        return transactionResult;
                     case TransactionResultStatus.NotExisted:
                         notExist++;
                         if (notExist >= 20)
                             notExistSource.Cancel(); //Continue check and if status 'NotExisted' and cancel check
                         break;
+                    case TransactionResultStatus.PendingValidation:
                     case TransactionResultStatus.Pending:
                         if (notExist > 0) notExist = 0;
                         break;
@@ -283,11 +294,10 @@ namespace AElfChain.Common.Managers
                         return transactionResult;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Unexecutable:
-                        var message =
-                            $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
+                        message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
-                        var errorMsg = transactionResult.Error.Contains("\n")
+                        errorMsg = transactionResult.Error.Contains("\n")
                             ? transactionResult.Error.Split("\n")[1]
                             : transactionResult.Error;
                         message += $"\r\nError Message: {errorMsg}";
@@ -317,11 +327,17 @@ namespace AElfChain.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.PendingValidation:
                     case TransactionResultStatus.NotExisted:
                         Console.Write(
                             $"\r[Processing]: TransactionId={id}, Status: {status}, using time:{CommonHelper.ConvertMileSeconds(stopwatch.ElapsedMilliseconds)}");
                         transactionQueue.Enqueue(id);
                         Thread.Sleep(500);
+                        break;
+                    case TransactionResultStatus.NodeValidationFailed:
+                        Logger.Error(
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}. \nError: {transactionResult.Error}",
+                            true);
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(

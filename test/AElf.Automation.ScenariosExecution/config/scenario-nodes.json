@@ -47,7 +47,7 @@
         },
         {
             "case_name": "MassRequestScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 100
         }
     ],
@@ -72,7 +72,7 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": false,
-        "service_url": "http://192.168.197.40:8000"
+        "service_url": "http://192.168.197.14:8000"
     },
   "NewNode":
   {

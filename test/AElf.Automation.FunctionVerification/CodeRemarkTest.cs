@@ -48,6 +48,7 @@ namespace AElf.Automation.ContractsTesting
             for (var i = 0; i < 20; i++)
             {
                 var acc = NodeManager.GetRandomAccount();
+                if(acc.Equals(Tester)) continue;
                 accounts.Add(acc);
                 token.TransferBalance(Tester, acc, 10000_00000000);
             }

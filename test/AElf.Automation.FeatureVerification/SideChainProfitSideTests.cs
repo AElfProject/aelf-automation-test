@@ -68,6 +68,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var i = 1;
            foreach (var bp in bps)
             {
+                if(bp.Account.Equals(SideManager.CallAddress)) continue;
                 var amount = 100 * i;
                 await Register_Mortgage_Test(bp.Account, amount);
                 i++;
@@ -78,6 +79,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task Register_Mortgage_Test(string account,long amount)
         {
             var beforeBalance = SideManager.Token.GetUserBalance(account, "SHARE");
+            var stbBalance = SideManager.Token.GetUserBalance(account, "STB");
+            if (beforeBalance < amount)
+                SideManager.Token.TransferBalance(SideManager.CallAddress, account, amount, "SHARE");
+            if (stbBalance < 1000_00000000)
+                SideManager.Token.IssueBalance(SideManager.CallAddress, account, 1000_00000000, "STB");
             var stub = SideManager.Genesis.GetTokenImplStub(account);
             var approveResult = await stub.Approve.SendAsync(new ApproveInput
             {

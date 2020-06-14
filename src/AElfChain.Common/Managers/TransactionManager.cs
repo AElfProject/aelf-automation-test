@@ -78,16 +78,17 @@ namespace AElfChain.Common.Managers
         private static long _cachedHeight;
         private static string _cachedHash;
         private static string _chainId = string.Empty;
+        private static string _baseUrl = string.Empty;
 
         public static Transaction AddBlockReference(this Transaction transaction, string rpcAddress,
             string chainId = "AELF")
-        {
-            if (_cachedHeight == default || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
-                !_chainId.Equals(chainId))
+        {if (_cachedHeight == default || (DateTime.Now - _refBlockTime).TotalSeconds > 60 ||
+                !_chainId.Equals(chainId)||_baseUrl !=rpcAddress)
             {
                 _chainId = chainId;
                 (_cachedHeight, _cachedHash) = GetBlockReference(rpcAddress);
                 _refBlockTime = DateTime.Now;
+                _baseUrl = rpcAddress;
             }
 
             transaction.RefBlockNumber = _cachedHeight;

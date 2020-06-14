@@ -87,7 +87,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var approveMemberBalance =
                 token.GetUserBalance(approveMember.ToBase58(), symbol);
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            var approveTokenResult = token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress,
+            var virtualAddress = referendum.GetProposalVirtualAddress(proposalId);
+            var approveTokenResult = token.ApproveToken(approveMember.ToBase58(), virtualAddress.ToBase58(),
                 approveToken, symbol);
             var approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
@@ -103,7 +104,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var abstentionMemberBalance =
                 token.GetUserBalance(abstentionMember, symbol);
             var abstainToken = organization.ProposalReleaseThreshold.MaximalAbstentionThreshold;
-            approveTokenResult = token.ApproveToken(abstentionMember, referendum.ContractAddress,
+            approveTokenResult = token.ApproveToken(abstentionMember, virtualAddress.ToBase58(),
                 abstainToken,
                 symbol);
             approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
@@ -120,7 +121,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var rejectionMemberBalance =
                 token.GetUserBalance(rejectionMember, symbol);
             var rejectToken = organization.ProposalReleaseThreshold.MaximalRejectionThreshold;
-            approveTokenResult = token.ApproveToken(rejectionMember, referendum.ContractAddress,
+            approveTokenResult = token.ApproveToken(rejectionMember, virtualAddress.ToBase58(),
                 rejectToken, symbol);
             approveTokenFee = approveTokenResult.GetDefaultTransactionFee();
 
@@ -182,10 +183,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var revertProposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationThreshold), revertInput,
                 organizationAddress, proposer.ToBase58());
+            var revertVirtualAddress = referendum.GetProposalVirtualAddress(revertProposalId);
             organization =
                 referendum.GetOrganization(organizationAddress);
             approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress, approveToken,
+            token.ApproveToken(approveMember.ToBase58(), revertVirtualAddress.ToBase58(), approveToken,
                 symbol);
             referendum.SetAccount(approveMember.ToBase58());
             var approveRevertResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, revertProposalId);
@@ -243,10 +245,11 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposalId = referendum.CreateProposal(referendum.ContractAddress,
                 nameof(ReferendumMethod.ChangeOrganizationProposerWhiteList), changeProposerInput, organizationAddress,
                 proposer.ToBase58());
-
+            
+            var virtualAddress = referendum.GetProposalVirtualAddress(proposalId);
             var approveMember = enumerable.First();
             var approveToken = organization.ProposalReleaseThreshold.MinimalApprovalThreshold;
-            token.ApproveToken(approveMember.ToBase58(), referendum.ContractAddress,
+            token.ApproveToken(approveMember.ToBase58(), virtualAddress.ToBase58(),
                 approveToken, symbol);
             referendum.SetAccount(approveMember.ToBase58());
             var approveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, proposalId);
@@ -267,8 +270,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 nameof(ReferendumMethod.ChangeOrganizationProposerWhiteList), revertProposerInput, organizationAddress,
                 newProposer.ToBase58());
 
+            var revertVirtualAddress = referendum.GetProposalVirtualAddress(revertProposalId);
             var otherApproveMember = enumerable.Last();
-            var approveTokenResult = token.ApproveToken(otherApproveMember.ToBase58(), referendum.ContractAddress,
+            var approveTokenResult = token.ApproveToken(otherApproveMember.ToBase58(), revertVirtualAddress.ToBase58(),
                 approveToken, symbol);
             approveTokenResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             referendum.SetAccount(otherApproveMember.ToBase58());

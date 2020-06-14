@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Acs3;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
@@ -102,7 +103,8 @@ namespace AElfChain.Common.Contracts
                 var txId = tester.ExecuteMethodWithTxId(ParliamentMethod.Approve, proposalId);
                 approveTxIds.Add(txId);
             }
-
+            
+            Thread.Sleep(10000);
             NodeManager.CheckTransactionListResult(approveTxIds);
         }
 

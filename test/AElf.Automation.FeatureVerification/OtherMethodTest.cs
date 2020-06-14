@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
 using AElf.Contracts.Configuration;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TestContract.BasicUpdate;
@@ -35,7 +36,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void TestInitialize()
         {
             Log4NetHelper.LogInit();
+            NodeInfoHelper.SetConfig("nodes-env1-main");
+            var node = NodeInfoHelper.Config.Nodes.First();
+            var endpoint = "192.168.197.42:8000";
+            NodeManager = new NodeManager(endpoint);
+            MainManager = new ContractManager(NodeManager, node.Account);
         }
+        public INodeManager NodeManager { get; set; }
+        public ContractManager MainManager { get; set; }
 
         [TestMethod]
         public void ConvertFromHex()
@@ -83,7 +91,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var keyStore = AElfKeyStore.GetKeyStore();
             var accountManager = new AccountManager(keyStore);
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 2; i++)
             {
                 var accountInfo = accountManager.NewAccount(NodeOption.DefaultPassword);
                 Console.WriteLine($"Account: {accountInfo}");
@@ -209,7 +217,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SaveTokenContractFile()
         {
-            var nodeManager = new NodeManager("192.168.197.40:8000");
+            var nodeManager = new NodeManager("192.168.197.14:8000");
             NodeInfoHelper.SetConfig("nodes-env1-main.json");
             var contractManager = new ContractManager(nodeManager, nodeManager.GetRandomAccount());
             var tokenAddress = contractManager.Token.Contract;
@@ -317,6 +325,199 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var value = SInt32Value.Parser.ParseFrom(limitResult.Value).Value;
             Logger.Info($"Block transaction limit: {value}");
+        }
+        
+        [TestMethod]
+        public async Task ErrorTest()
+        {
+            var consensus = MainManager.ConsensusStub;
+            var token = MainManager.TokenStub;
+            var lib = await MainManager.NodeManager.ApiClient.GetChainStatusAsync();
+            try
+            {
+                var result1 = await token.ChargeResourceToken.SendAsync(new ChargeResourceTokenInput
+                {
+                    Caller = MainManager.CallAccount
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            try
+            {
+                var result2 = await token.ChargeTransactionFees.SendAsync(new ChargeTransactionFeesInput
+                {
+                    ContractAddress = MainManager.Token.Contract,
+                    MethodName = "Approve",
+                    PrimaryTokenSymbol = "ELF",
+                    TransactionSizeFee = 1000
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                var result3 = await token.CheckResourceToken.SendAsync(new Empty());
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            var bps = MainManager.Authority.GetCurrentMiners();
+            foreach (var bp in bps)
+            {
+                token = MainManager.Genesis.GetTokenStub(bp);
+                try
+                {
+                    var result4 = await token.ClaimTransactionFees.SendAsync(new TotalTransactionFeesMap
+                    {
+                        BlockHash = Hash.LoadFromHex(lib.LongestChainHash),
+                        BlockHeight = lib.LongestChainHeight
+                    });
+                }
+                catch (TimeoutException e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                try
+                {
+                    var result5 = await token.DonateResourceToken.SendAsync(new TotalResourceTokensMaps
+                    {
+                        BlockHash = Hash.LoadFromHex(lib.LongestChainHash),
+                        BlockHeight = lib.LongestChainHeight
+                    });
+                }
+                catch (TimeoutException e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
+            try
+            {
+                var result6 = await consensus.InitialAElfConsensusContract.SendAsync(
+                    new InitialAElfConsensusContractInput
+                    {
+                        IsSideChain = false,
+                        PeriodSeconds = 10000,
+                        MinerIncreaseInterval = 3000,
+                        IsTermStayOne = false
+                    });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            try
+            {
+                var result7 = await consensus.UpdateTinyBlockInformation.SendAsync(new TinyBlockInput
+                {
+                    RoundId = 15903896810,
+                    ActualMiningTime = DateTime.UtcNow.ToTimestamp(),
+                    ProducedBlocks = 146
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                var result12 = await consensus.UpdateValue.SendAsync(new UpdateValueInput
+                {
+                    ActualMiningTime = DateTime.UtcNow.ToTimestamp(),
+                    Signature = Hash.LoadFromHex("2b7463e72d76590fbf5f6ffe6f917d85199f154c86b3c4cb37168a768bae7bdd"),
+                    RoundId = 15903940450,
+                    OutValue = Hash.LoadFromHex("d77c217b2ab8267dcca0b4cd47092170363a3e821a399a8eadc2786847476a64"),
+                    ProducedBlocks = 9,
+                    ImpliedIrreversibleBlockHeight = lib.LastIrreversibleBlockHeight,
+                    PreviousInValue =
+                        Hash.LoadFromHex("cdaedd850d7b57c4329ffd9a7fc42ea9647bb678456364d3f2b78b0d3cbcd0e1"),
+                    SupposedOrderOfNextRound = 7,
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+
+            try
+            {
+                var result8 = await consensus.NextRound.SendAsync(new Round
+                {
+                    RoundNumber = 450,
+                    IsMinerListJustChanged = false,
+                    ConfirmedIrreversibleBlockHeight = lib.LastIrreversibleBlockHeight,
+                    RoundIdForValidation = 15903896810,
+                    ConfirmedIrreversibleBlockRoundNumber = 413,
+                    BlockchainAge = 16878,
+                    TermNumber = 11,
+                    ExtraBlockProducerOfPreviousRound =
+                        "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
+                    MainChainMinersRoundNumber = 415,
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                var result9 = await consensus.FirstRound.SendAsync(new Round
+                {
+                    RoundNumber = 448,
+                    IsMinerListJustChanged = false,
+                    ConfirmedIrreversibleBlockHeight = lib.LastIrreversibleBlockHeight,
+                    RoundIdForValidation = 15903896810,
+                    ConfirmedIrreversibleBlockRoundNumber = 446,
+                    BlockchainAge = 16878,
+                    TermNumber = 12,
+                    ExtraBlockProducerOfPreviousRound =
+                        "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
+                    MainChainMinersRoundNumber = 448,
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                var result10 = await consensus.UpdateConsensusInformation.SendAsync(new ConsensusInformation
+                {
+                    Value = ByteString.Empty
+                });
+            }
+            catch (TimeoutException e)
+            {
+                Console.WriteLine(e);
+            }
+
+            var result11 = await consensus.NextTerm.SendAsync(new Round
+            {
+                RoundNumber = 448,
+                IsMinerListJustChanged = false,
+                ConfirmedIrreversibleBlockHeight = lib.LastIrreversibleBlockHeight,
+                RoundIdForValidation = 15903896810,
+                ConfirmedIrreversibleBlockRoundNumber = 446,
+                BlockchainAge = 16878,
+                TermNumber = 12,
+                ExtraBlockProducerOfPreviousRound =
+                    "04b6c07711bc30cdf98c9f081e70591f98f2ba7ff971e5a146d47009a754dacceb46813f92bc82c700971aa93945f726a96864a2aa36da4030f097f806b5abeca4",
+                MainChainMinersRoundNumber = 448,
+            });
         }
     }
 }

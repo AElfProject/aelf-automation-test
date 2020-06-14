@@ -27,7 +27,7 @@
         },
         {
             "name": "full2",
-            "endpoint": "192.168.197.32:8000",
+            "endpoint": "192.168.197.41:8000",
             "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
             "password": "123"
         },
@@ -39,7 +39,7 @@
         },
         {
             "name": "full4",
-            "endpoint": "192.168.197.11:8000",
+            "endpoint": "192.168.197.13:8000",
             "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
             "password": "123"
         },
@@ -57,7 +57,7 @@
         },
         {
             "name": "full7",
-            "endpoint": "192.168.197.20:8000",
+            "endpoint": "192.168.197.29:8000",
             "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
             "password": "123"
         }

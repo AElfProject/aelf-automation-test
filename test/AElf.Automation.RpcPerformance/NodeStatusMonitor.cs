@@ -6,7 +6,6 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using Google.Protobuf;
 using log4net;
 using Volo.Abp.Threading;
 
@@ -70,10 +69,16 @@ namespace AElf.Automation.RpcPerformance
                         transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Pending:
+                    case TransactionResultStatus.PendingValidation:
                     case TransactionResultStatus.Unexecutable:
                         Console.Write(
                             $"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         Thread.Sleep(500);
+                        break;
+                    case TransactionResultStatus.NodeValidationFailed:
+                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}",true);
+                        Logger.Error($"Error message: {transactionResult.Error}", true);
+                        transactionIds.Remove(transactionIds[i]);
                         break;
                     case TransactionResultStatus.Failed:
                         Logger.Error(

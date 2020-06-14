@@ -103,6 +103,31 @@ namespace AElf.Automation.E2ETest.ContractSuits
         }
 
         [TestMethod]
+        public async Task ChangeIssuerTest()
+        {
+            var testAccount = ConfigNodes.Last().Account;
+            var symbol = await TokenCreateAndIssue_Test();
+            var tokenInfo = ContractManager.Token.GetTokenInfo(symbol);
+            var sub = ContractManager.Genesis.GetTokenStub(tokenInfo.Issuer.ToBase58());
+            var result = await sub.ChangeTokenIssuer.SendAsync(new ChangeTokenIssuerInput
+            {
+                NewTokenIssuer = testAccount.ConvertAddress(),
+                Symbol = tokenInfo.Symbol
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            tokenInfo = ContractManager.Token.GetTokenInfo(symbol);
+            tokenInfo.Issuer.ShouldBe(testAccount.ConvertAddress());
+            ContractManager.Token.SetAccount(testAccount);
+            var beforeBalance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
+            var issue = ContractManager.Token.IssueBalance(testAccount, ContractManager.CallAddress, 1000, symbol);
+            issue.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            var balance = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, symbol);
+            balance.ShouldBe(beforeBalance + 1000);
+        }
+
+        [TestMethod]
         public async Task TokenApproveAndUnApprove_Test()
         {
             var tester = NodeManager.NewAccount();
@@ -224,7 +249,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             const string method = nameof(TokenMethod.GetBalance);
             var referendum = ContractManager.Referendum;
             var authorityManager = new AuthorityManager(NodeManager);
-            var defaultController = await ContractManager.ParliamentAuthStub.GetMethodFeeController.CallAsync(new Empty());
+            var defaultController =
+                await ContractManager.ParliamentAuthStub.GetMethodFeeController.CallAsync(new Empty());
             defaultController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
             var newOrganization = ReferendumOrganization;
             var proposer = referendum.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
@@ -239,7 +265,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), input, proposer.ToBase58(),
                 defaultController.OwnerAddress);
             changeResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var changeInput = new MethodFees
             {
                 MethodName = method,
@@ -252,17 +278,20 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     }
                 }
             };
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
-                2000_00000000, "ELF");
+
             var changeProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.SetMethodFee), changeInput,
                 newOrganization, proposer.ToBase58());
+            var virtualAddress = referendum.GetProposalVirtualAddress(changeProposalId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), virtualAddress.ToBase58(),
+                2000_00000000, "ELF");
+
             referendum.SetAccount(proposer.ToBase58());
             var changeApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, changeProposalId);
             changeApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var changeReleaseResult = referendum.ReleaseProposal(changeProposalId, proposer.ToBase58());
             changeReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
+
             var methodFee =
                 ContractManager.Token.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
                 {
@@ -280,11 +309,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 ContractAddress = defaultController.ContractAddress,
                 OwnerAddress = defaultController.OwnerAddress
             };
-            ContractManager.Token.ApproveToken(proposer.ToBase58(), referendum.ContractAddress,
-                2000_00000000, "ELF");
             var recoverProposalId = referendum.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(ContractManager.TokenImplStub.ChangeMethodFeeController), recoverInput,
                 newOrganization, proposer.ToBase58());
+            var recoverVirtualAddress = referendum.GetProposalVirtualAddress(recoverProposalId);
+            ContractManager.Token.ApproveToken(proposer.ToBase58(), recoverVirtualAddress.ToBase58(),
+                2000_00000000, "ELF");
+
             referendum.SetAccount(proposer.ToBase58());
             var recoverApproveResult = referendum.ExecuteMethodWithResult(ReferendumMethod.Approve, recoverProposalId);
             recoverApproveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);

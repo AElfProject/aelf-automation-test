@@ -40,6 +40,7 @@ namespace AElfChain.Common.Contracts
         AdvanceResourceToken,
         UpdateRental,
         UpdateRentedResourceToken,
+        ChangeTokenIssuer,
 
         //View
         GetTokenInfo,

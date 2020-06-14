@@ -1,4 +1,5 @@
 using System.Linq;
+using Acs1;
 using AElf.Contracts.Election;
 using AElfChain.Common.Contracts;
 using AElf.Types;
@@ -38,8 +39,9 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void AnnouncementNode()
         {
+            Behaviors.TransferToken(InitAccount, FullNodeAddress[0], 10_1000_00000000);
             var result = Behaviors.AnnouncementElection(FullNodeAddress[0]);
-                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -47,6 +49,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             foreach (var user in FullNodeAddress)
             {
+                Behaviors.TransferToken(InitAccount, user, 10_1000_00000000);
                 var election = Behaviors.ElectionService.GetNewTester(user, "123");
                 var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
                 electionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -65,16 +68,93 @@ namespace AElf.Automation.EconomicSystemTest
             var miners = Behaviors.GetMinersCount();
             miners.ShouldBe(3);
         }
-        
-        
+
+
         [TestMethod]
         public void SetMaximumMinersCount()
         {
+            var amount = 10;
+            var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            _logger.Info($"{maximumBlocksCount}");
             var consensus = Behaviors.ConsensusService;
-            var input = new Int32Value {Value = 6};
+            var input = new Int32Value {Value = amount};
             var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
                 nameof(ConsensusMethod.SetMaximumMinersCount), input, InitAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
+            maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            maximumBlocksCount.ShouldBe(amount);
+        }
+        
+        [TestMethod]
+        public void SetMaximumMinersCountThroughAssociation()
+        {
+            var amount = 5;
+            var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            _logger.Info($"{maximumBlocksCount}");
+            var consensus = Behaviors.ConsensusService;
+            var association = Behaviors.ContractManager.Association;
+            var maximumMinersCountController = Behaviors.ConsensusService.GetMaximumMinersCountController();
+            var associationOrganization = maximumMinersCountController.OwnerAddress;
+            var input = new Int32Value {Value = amount};
+            var proposer = association.GetOrganization(associationOrganization).ProposerWhiteList.Proposers.First();
+            var proposalId = association.CreateProposal(consensus.ContractAddress,
+                nameof(ConsensusMethod.SetMaximumMinersCount), input, associationOrganization,
+                proposer.ToBase58());
+            association.ApproveWithAssociation(proposalId, associationOrganization);
+            var release = association.ReleaseProposal(proposalId, proposer.ToBase58());
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            maximumBlocksCount.ShouldBe(amount);
+        }
+
+        [TestMethod]
+        public void ChangeMaximumMinersCountController()
+        {
+            var parliament = Behaviors.ContractManager.Parliament;
+            var association = Behaviors.ContractManager.Association;
+            var consensus = Behaviors.ConsensusService;
+            var genesisOwnerAddress = parliament.GetGenesisOwnerAddress();
+            var maximumMinersCountController = Behaviors.ConsensusService.GetMaximumMinersCountController();
+            var oldInput = new AuthorityInfo
+            {
+                ContractAddress = parliament.Contract,
+                OwnerAddress = genesisOwnerAddress
+            };
+            var associationOrganization = Behaviors.AuthorityManager.CreateAssociationOrganization();
+            var input = new AuthorityInfo
+            {
+                ContractAddress = association.Contract,
+                OwnerAddress = associationOrganization
+            };
+            if (maximumMinersCountController.ContractAddress.Equals(parliament.Contract))
+            {
+                var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
+                    nameof(ConsensusMethod.ChangeMaximumMinersCountController), input, InitAccount);
+                result.Status.ShouldBe(TransactionResultStatus.Mined);
+                maximumMinersCountController = Behaviors.ConsensusService.GetMaximumMinersCountController();
+                maximumMinersCountController.ContractAddress.ShouldBe(association.Contract);
+                maximumMinersCountController.OwnerAddress.ShouldBe(associationOrganization);
+            }
+            else if (maximumMinersCountController.ContractAddress.Equals(association.Contract))
+            {
+                var proposer = association.GetOrganization(associationOrganization).ProposerWhiteList.Proposers.First();
+                var proposalId = association.CreateProposal(consensus.ContractAddress,
+                    nameof(ConsensusMethod.ChangeMaximumMinersCountController), oldInput, associationOrganization,
+                    proposer.ToBase58());
+                association.ApproveWithAssociation(proposalId, associationOrganization);
+                var release = association.ReleaseProposal(proposalId, proposer.ToBase58());
+                release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                maximumMinersCountController = Behaviors.ConsensusService.GetMaximumMinersCountController();
+                maximumMinersCountController.ContractAddress.ShouldBe(parliament.Contract);
+                maximumMinersCountController.OwnerAddress.ShouldBe(genesisOwnerAddress);
+            }
+        }
+
+        [TestMethod]
+        public void GetMaximumMinersCount()
+        {
+            var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            _logger.Info($"{maximumBlocksCount}");
         }
 
         [TestMethod]
@@ -83,7 +163,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
         }
-        
+
         [TestMethod]
         public void GetVoteStatus()
         {
@@ -91,10 +171,12 @@ namespace AElf.Automation.EconomicSystemTest
                 Behaviors.ConsensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetCurrentTermNumber,
                     new Empty()).Value;
             var candidateList = Behaviors.GetCandidates();
-            var voteMessage = $"TermNumber={termNumber}, candidates count is {candidateList.Value.Count}, got vote keys info: \r\n";
+            var voteMessage =
+                $"TermNumber={termNumber}, candidates count is {candidateList.Value.Count}, got vote keys info: \r\n";
             foreach (var fullNode in candidateList.Value)
             {
-                var candidateVote = Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVote,
+                var candidateVote = Behaviors.ElectionService.CallViewMethod<CandidateVote>(
+                    ElectionMethod.GetCandidateVote,
                     new StringValue
                     {
                         Value = fullNode.ToHex()
@@ -126,11 +208,10 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
             var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
-
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-
+            var fee = result.GetDefaultTransactionFee();
             var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
-            beforeBalance.ShouldBe(afterBalance - 100_000L);
+            beforeBalance.ShouldBe(afterBalance - 100000_00000000L + fee);
         }
 
         [TestMethod]

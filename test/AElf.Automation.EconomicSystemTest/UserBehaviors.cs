@@ -164,7 +164,7 @@ namespace AElf.Automation.EconomicSystemTest
                 Symbol = symbol,
                 Amount = amount,
                 To = to.ConvertAddress(),
-                Memo = $"transfer {from}=>{to} with amount {amount}."
+                Memo = $"{amount}."
             });
         }
 

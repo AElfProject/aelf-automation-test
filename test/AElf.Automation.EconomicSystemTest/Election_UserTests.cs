@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.Profit;
 using AElf.Contracts.Vote;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -45,12 +47,44 @@ namespace AElf.Automation.EconomicSystemTest
             voteResult.ShouldNotBeNull();
             voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
-        
+
+        [TestMethod]
+        public void CheckProfit()
+        {
+            var profit = Behaviors.ProfitService;
+            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+            var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var voteProfit =
+                profit.GetProfitDetails(account, schemeId);
+            if (voteProfit.Equals(new ProfitDetails())) return;
+            _logger.Info($"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}");
+
+            //Get user profit amount
+            var profitMap = profit.GetProfitsMap(account, schemeId);
+            if (profitMap.Equals(new ReceivedProfitsMap()))
+                return;
+            var profitAmount = profitMap.Value["ELF"];
+            _logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
+            var beforeBalance = Behaviors.TokenService.GetUserBalance(account);
+            var newProfit = profit.GetNewTester(account);
+            var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+            {
+                SchemeId = schemeId,
+                Beneficiary = account.ConvertAddress()
+            });
+            profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var fee = profitResult.GetDefaultTransactionFee();
+            var afterBalance =  Behaviors.TokenService.GetUserBalance(account);
+            afterBalance.ShouldBe(beforeBalance + profitAmount - fee);
+            var afterProfitAmount = profit.GetProfitsMap(account, schemeId);
+            afterProfitAmount.Equals(new ReceivedProfitsMap()).ShouldBeTrue();
+        }
+
         [TestMethod]
         public void Withdraw()
         {
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
-            var voteId = "e4c5a5fd3638b8559ae70d1c8c002be1ef7ade981701b954688d789c0e7b91b6";
+            var voteId = "5db223e1d2c2098b653fab2bea01437032419a2924ed2e414c8073fddca6899f";
             Behaviors.ElectionService.SetAccount(account);
             var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
             var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
@@ -105,6 +139,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var miners =
                 Behaviors.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            _logger.Info($"Miners count is : {miners.Pubkeys.Count}");
             foreach (var minersPubkey in miners.Pubkeys)
             {
                 var miner = Address.FromPublicKey(minersPubkey.ToByteArray());

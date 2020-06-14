@@ -10,7 +10,6 @@ using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
@@ -79,33 +78,67 @@ namespace AElf.Automation.SideChainTests
             Logger.Info($"chain tDVV index main chain {index3}\n chain tDVW index main chain {index4}");
         }
 
-        #region register
-        
         [TestMethod]
-        public async Task MainChainRegisterSideChain1()
+        public void GetSideChainIndexingFeeDebt()
         {
-            var rawTx = ValidateTokenAddress(SideAServices);
-            var txId = ExecuteMethodWithTxId(SideAServices, rawTx);
-            var txResult = SideAServices.NodeManager.CheckTransactionResult(txId);
+            var chainId = ChainHelper.ConvertBase58ToChainId("tDVW");
+            var indexingFeeDebt =
+                MainServices.CrossChainService.CallViewMethod<Int64Value>(
+                    CrossChainContractMethod.GetSideChainIndexingFeeDebt, new Int32Value{Value = chainId});
+            Logger.Info($"chain tDVW index fee debt {indexingFeeDebt.Value}");
+        }
+
+        #region register
+
+        [TestMethod]
+        public void GetCrossChainTransferTokenContractAddress()
+        {
+            var mainAddress = MainServices.TokenService.CallViewMethod<Address>(
+                TokenMethod.GetCrossChainTransferTokenContractAddress,
+                new GetCrossChainTransferTokenContractAddressInput
+                {
+                    ChainId = SideAServices.ChainId
+                });
+            var sideTokenAddress =
+                SideAServices.TokenService.Contract;
+            if (sideTokenAddress.Equals(mainAddress))
+                Logger.Info($"{MainServices.ChainId} already register {mainAddress}.");
+        }
+
+        [TestMethod]
+        public async Task MainChainRegisterSideChains()
+        {
+            foreach (var service in SideServices)
+            {
+                await MainChainRegisterSideChain(service);
+            }
+        }
+
+        [TestMethod]
+        public async Task MainChainRegisterSideChain(ContractServices services)
+        {
+            var rawTx = ValidateTokenAddress(services);
+            var txId = ExecuteMethodWithTxId(services, rawTx);
+            var txResult = services.NodeManager.CheckTransactionResult(txId);
 
             if (txResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
                 Assert.IsTrue(false,
-                    $"Validate chain {SideAServices.ChainId} token contract failed");
+                    $"Validate chain {services.ChainId} token contract failed");
             Logger.Info($"Validate Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId}");
             Logger.Info(
-                $"Validate chain {SideAServices.ChainId} token address {SideAServices.TokenService.ContractAddress}");
+                $"Validate chain {services.ChainId} token address {services.TokenService.ContractAddress}");
 
-            await MainChainCheckSideChainBlockIndex(SideAServices, txResult.BlockNumber);
-            var merklePath = GetMerklePath(txResult.BlockNumber, txId, SideAServices, out var root);
+            await MainChainCheckSideChainBlockIndex(services, txResult.BlockNumber);
+            var merklePath = GetMerklePath(txResult.BlockNumber, txId, services, out var root);
             if (merklePath == null)
                 Assert.IsTrue(false, "Can't get the merkle path.");
             var crossChainMerkleProofContext =
-                GetBoundParentChainHeightAndMerklePathByHeight(SideAServices, InitAccount, txResult.BlockNumber);
+                GetBoundParentChainHeightAndMerklePathByHeight(services, InitAccount, txResult.BlockNumber);
             var registerInput = new RegisterCrossChainTokenContractAddressInput
             {
-                FromChainId = SideAServices.ChainId,
+                FromChainId = services.ChainId,
                 ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight,
-                TokenContractAddress = SideAServices.TokenService.Contract,
+                TokenContractAddress = services.TokenService.Contract,
                 TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
                 MerklePath = merklePath
             };
@@ -113,11 +146,11 @@ namespace AElf.Automation.SideChainTests
                 .MerklePathNodes);
             Proposal(MainServices, registerInput);
             Logger.Info(
-                $"Main chain register chain {SideAServices.ChainId} token address {SideAServices.TokenService.ContractAddress}");
+                $"Main chain register chain {services.ChainId} token address {services.TokenService.ContractAddress}");
         }
 
         [TestMethod]
-        public void SideChain1RegisterMainChain()
+        public void SideChainRegisterMainChain()
         {
             var rawTx = ValidateTokenAddress(MainServices);
             var txId = ExecuteMethodWithTxId(MainServices, rawTx);
@@ -307,7 +340,7 @@ namespace AElf.Automation.SideChainTests
                 {
                     Symbol = symbol,
                     IssueChainId = MainServices.ChainId,
-                    Amount = 10000_00000000,
+                    Amount = 100000_00000000,
                     Memo = "cross chain transfer",
                     To = InitAccount.ConvertAddress(),
                     ToChainId = sideService.ChainId
@@ -361,16 +394,17 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public async Task AllSideChainTransferToMainChain()
         {
-            foreach (var service in SideServices) await SideChainCrossChainTransferMainChain(service, 10000_00000000);
+            foreach (var service in SideServices) await SideChainCrossChainTransferMainChain(service, 1_00000000);
         }
 
         public async Task SideChainCrossChainTransferMainChain(ContractServices services, long amount)
         {
             var symbol = services.TokenService.GetPrimaryTokenSymbol();
+            var symbolInfo = services.TokenService.GetTokenInfo(symbol);
             var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = symbol,
-                IssueChainId = services.ChainId,
+                IssueChainId = symbolInfo.IssueChainId,
                 Amount = amount,
                 Memo = "cross chain transfer",
                 To = InitAccount.ConvertAddress(),
