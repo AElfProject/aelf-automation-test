@@ -444,21 +444,21 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
                 Task.Run(() => TokenMonitor.ExecuteTokenCheckTask(testers, token), token),
                 Task.Run(() => GeneratedTransaction(useTxs, cts, token), token),
-                Task.Run(() =>
-                {
-                    Thread.Sleep(20000);
-                    for (int i = 1; i > 0; i++)
-                    {
-                        var transactionsList = GetTransactions();
-                        Logger.Info($"Check transaction result {i}:");
-                        var txsTasks = transactionsList
-                            .Select(transactions => Task.Run(() => CheckTransaction(transactions), token)).ToList();
-                        Task.WaitAll(txsTasks.ToArray<Task>());
-
-                        while (!QueueTransaction.Any())
-                            Thread.Sleep(10000);
-                    }
-                }, token)
+//                Task.Run(() =>
+//                {
+//                    Thread.Sleep(20000);
+//                    for (int i = 1; i > 0; i++)
+//                    {
+//                        var transactionsList = GetTransactions();
+//                        Logger.Info($"Check transaction result {i}:");
+//                        var txsTasks = transactionsList
+//                            .Select(transactions => Task.Run(() => CheckTransaction(transactions), token)).ToList();
+//                        Task.WaitAll(txsTasks.ToArray<Task>());
+//
+//                        while (!QueueTransaction.Any())
+//                            Thread.Sleep(10000);
+//                    }
+//                }, token)
             };
 
             Task.WaitAll(taskList.ToArray<Task>());
@@ -489,7 +489,7 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info("Begin generate multi requests.");
             var enableRandom = RpcConfig.ReadInformation.EnableRandomTransaction;
             var randomTransactionOption = RpcConfig.ReadInformation.RandomEndpointOption;
-            QueueTransaction = new Queue<List<Dictionary<string, List<string>>>>();
+//            QueueTransaction = new Queue<List<Dictionary<string, List<string>>>>();
             try
             {
                 for (var r = 1; r > 0; r++) //continuous running
@@ -503,14 +503,15 @@ namespace AElf.Automation.RpcPerformance
                         if (useTxs)
                         {
                             //multi task for SendTransactions query
-                            var txsTasks = new List<Dictionary<string, List<string>>>();
+                            var txTasks = new List<Task>();
                             var transactions = new Dictionary<string, List<string>>();
                             for (var i = 0; i < ThreadCount; i++)
                             {
                                 var j = i;
-                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token).Result);
+                                txTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                             }
-                            QueueTransaction.Enqueue(txsTasks);
+//                            QueueTransaction.Enqueue(txsTasks);
+                            Task.WaitAll(txTasks.ToArray<Task>());
                         }
                         else
                         {
@@ -557,11 +558,11 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private List<Dictionary<string, List<string>>> GetTransactions()
-        {
-            var transactionLists = QueueTransaction.Dequeue();
-            return transactionLists;
-        }
+//        private List<Dictionary<string, List<string>>> GetTransactions()
+//        {
+//            var transactionLists = QueueTransaction.Dequeue();
+//            return transactionLists;
+//        }
 
         private void UnlockAllAccounts(int count)
         {
@@ -711,7 +712,7 @@ namespace AElf.Automation.RpcPerformance
             Monitor.CheckTransactionsStatus(txIdList);
         }
 
-        private Dictionary<string,List<string>> ExecuteBatchTransactionTask(int threadNo, int times)
+        private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
@@ -723,7 +724,7 @@ namespace AElf.Automation.RpcPerformance
             if (!result)
             {
                 Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return transactionsWhitRpc;
+//                return transactionsWhitRpc;
             }
 
             var rawTransactionList = new List<string>();
@@ -754,35 +755,36 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
-            var rpc = NodeManager.ApiClient.BaseUrl;
+//            var rpc = NodeManager.ApiClient.BaseUrl;
             Logger.Info(transactions);
-            transactionsWhitRpc[rpc] = transactions;
+//            transactionsWhitRpc[rpc] = transactions;
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
             Thread.Sleep(1000);
-            return transactionsWhitRpc;
+//            return transactionsWhitRpc;
         }
 
         private void CheckTransaction(Dictionary<string,List<string>> transactionsWithRpc)
         {
-            if (transactionsWithRpc.Count < 1) return;
             var rpc = transactionsWithRpc.Keys.First();
             NodeManager.UpdateApiUrl(rpc);
             Logger.Info($"Check transaction, the first transaction: {transactionsWithRpc[rpc].First()}");
             var txIds = new List<string>();
+            var validationFailedCount = 0;
             foreach (var txId in transactionsWithRpc[rpc])
             {
                 var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 if (status.Equals(TransactionResultStatus.NotExisted))
                     txIds.Add(txId);
+                if (status.Equals(TransactionResultStatus.NodeValidationFailed))
+                    validationFailedCount += 1;
             }
-
-            transactionsWithRpc[rpc] = txIds;
-            if (transactionsWithRpc[rpc].Count < 1) return;
-            foreach (var transaction in transactionsWithRpc[rpc])
+            Logger.Warn($"NodeValidationFailed transaction count : {validationFailedCount}");
+            if (txIds.Count < 1) return;
+            foreach (var transaction in txIds)
             {
                 Logger.Warn($"NotExisted transaction : {transaction}");
             }
@@ -899,7 +901,7 @@ namespace AElf.Automation.RpcPerformance
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
 
-        private new Queue<List<Dictionary<string, List<string>>>> QueueTransaction { get; set; }
+//        private new Queue<List<Dictionary<string, List<string>>>> QueueTransaction { get; set; }
 
         public int ThreadCount { get; }
         public int ExeTimes { get; }
