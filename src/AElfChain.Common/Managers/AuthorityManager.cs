@@ -215,7 +215,9 @@ namespace AElfChain.Common.Managers
                     MaximalAbstentionThreshold = maximalAbstentionThreshold,
                     MaximalRejectionThreshold = maximalRejectionThreshold,
                     MinimalVoteThreshold = minimalVoteThreshold
-                }
+                },
+                ProposerAuthorityRequired = true,
+                ParliamentMemberProposingAllowed = true
             };
             var transactionResult =
                 _parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,createOrganizationInput);

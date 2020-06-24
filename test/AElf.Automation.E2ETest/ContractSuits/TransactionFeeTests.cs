@@ -385,7 +385,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             defaultController.ParliamentController.ContractAddress.ShouldBe(ContractManager.Parliament.Contract);
 
             var newOrganization = CreateAssociationOrganization();
-            var proposer = ContractManager.Association.GetOrganization(newOrganization).ProposerWhiteList.Proposers.First();
+            var proposer = ContractManager.Association.GetOrganization(newOrganization).ProposerWhiteList.Proposers
+                .First();
             var input = new AuthorityInfo
             {
                 ContractAddress = ContractManager.Association.Contract,
@@ -421,12 +422,12 @@ namespace AElf.Automation.E2ETest.ContractSuits
             await ApproveToRootForUserFeeByTwoLayer(id);
             await VoteToReferendum(id);
             await ReleaseToRootForUserFeeByTwoLayer(id);
-            
+
             var updateController =
                 await ContractManager.TokenImplStub.GetUserFeeController.CallAsync(new Empty());
             updateController.RootController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
             updateController.RootController.OwnerAddress.ShouldBe(newOrganization);
-            
+
             const int pieceUpperBound1 = 500000;
             const int pieceUpperBound2 = 800000;
             const int feeType = (int) FeeTypeEnum.Tx;
@@ -464,17 +465,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var proposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(TokenContractImplContainer.TokenContractImplStub.UpdateCoefficientsForSender), updateInput,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Association.ApproveWithAssociation(proposalId,newOrganization);
+            ContractManager.Association.ApproveWithAssociation(proposalId, newOrganization);
             var release = ContractManager.Association.ReleaseProposal(proposalId, proposer.ToBase58());
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
+
             var userCoefficient =
                 await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
             userCoefficient.FeeTokenType.ShouldBe(feeType);
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
-            
+
             //recover
             var recoverInput = new AuthorityInfo
             {
@@ -484,7 +485,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var recoverProposalId = ContractManager.Association.CreateProposal(ContractManager.Token.ContractAddress,
                 nameof(TokenContractImplContainer.TokenContractImplStub.ChangeUserFeeController), recoverInput,
                 newOrganization, proposer.ToBase58());
-            ContractManager.Association.ApproveWithAssociation(recoverProposalId,newOrganization);
+            ContractManager.Association.ApproveWithAssociation(recoverProposalId, newOrganization);
             var recoverRelease = ContractManager.Association.ReleaseProposal(recoverProposalId, proposer.ToBase58());
             recoverRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var recoverController =
@@ -749,6 +750,13 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var id = ProposalCreated.Parser
                 .ParseFrom(ret.Logs.First(l => l.Name.Contains(nameof(ProposalCreated)))
                     .NonIndexed).ProposalId;
+            var virtualAddress = ContractManager.Referendum.GetProposalVirtualAddress(id);
+            var approveTokenAmount =
+                ContractManager.Referendum.GetOrganization(UserFeeAddresses.ReferendumController.OwnerAddress)
+                    .ProposalReleaseThreshold.MinimalApprovalThreshold;
+            var tokenApprove = ContractManager.Token.ApproveToken(ContractManager.Referendum.CallAddress,
+                virtualAddress.ToBase58(), approveTokenAmount);
+            tokenApprove.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var approveResult = await ContractManager.ReferendumStub.Approve.SendAsync(id);
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 

@@ -39,7 +39,7 @@ namespace AElfChain.Common.Contracts
         ValidateTokenInfoExists,
         AdvanceResourceToken,
         UpdateRental,
-        UpdateRentedResourceToken,
+        UpdateRentedResources,
         ChangeTokenIssuer,
 
         //View

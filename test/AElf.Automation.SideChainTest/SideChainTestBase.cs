@@ -53,9 +53,6 @@ namespace AElf.Automation.SideChainTests
             Logger.Info($"url :{mainUrl}");
 
             MainServices = new ContractServices(mainUrl, InitAccount, password);
-            AuthorityManager = new AuthorityManager(MainServices.NodeManager);
-            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager);
-
             SideServices = new List<ContractServices>();
             foreach (var side in sideUrls)
             {
@@ -65,7 +62,9 @@ namespace AElf.Automation.SideChainTests
 
             SideAServices = SideServices.First();
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
-
+            
+            AuthorityManager = new AuthorityManager(MainServices.NodeManager);
+            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager);
             TokenContractStub = MainServices.TokenContractStub;
             Miners = new List<string>();
             Miners = AuthorityManager.GetCurrentMiners();

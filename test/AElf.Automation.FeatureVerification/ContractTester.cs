@@ -84,9 +84,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in miners)
             {
                 var balance = TokenService.GetUserBalance(miner, symbol);
-                if (account == miner || balance > 10000_00000000) continue;
+                if (account == miner || balance > 200_00000000) continue;
                 TokenService.SetAccount(account);
-                TokenService.TransferBalance(account, miner, 20000_000000000, symbol);
+                TokenService.TransferBalance(account, miner, 200_000000000, symbol);
             }
         }
 

@@ -1,9 +1,9 @@
 {
-    "GroupCount": 4,
-    "TransactionCount": 50,
+    "GroupCount": 3,
+    "TransactionCount":100,
     "EnableRandomTransaction": true,
     "ServiceUrl": "192.168.197.14:8000",
-    "SentTxLimit": 200,
+    "SentTxLimit": 500,
     "ExecuteMode": 4,
     "Timeout": 300,
     "RandomSenderTransaction": true,

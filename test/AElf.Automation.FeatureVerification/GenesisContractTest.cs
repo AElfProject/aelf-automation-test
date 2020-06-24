@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Acs0;
 using Acs1;
 using Acs3;
-using AElf.Contracts.Association;
-using AElf.Contracts.Referendum;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -19,7 +17,6 @@ using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
-using CreateOrganizationInput = AElf.Contracts.Association.CreateOrganizationInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -123,6 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void DeploySmartContract_AuthorityRequiredFalse()
         {
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
+            Tester.GenesisService.SetAccount(InitAccount);
             var result = Tester.GenesisService.ExecuteMethodWithResult(GenesisMethod.DeploySystemSmartContract,input);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }

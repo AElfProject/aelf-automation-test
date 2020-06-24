@@ -135,12 +135,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var afterOtherTokenBalance = await _testTokenSub.GetBalance.CallAsync(new GetBalanceInput
             {
-                Owner = TestAccount.ConvertAddress(),
+                Owner = InitAccount.ConvertAddress(),
                 Symbol = Symbol
             });
 
             Logger.Info(
-                $"After buy token, user ELF balance is {afterBalance} user EPC balance is {afterOtherTokenBalance}");
+                $"After buy token, user ELF balance is {afterBalance} user {Symbol} balance is {afterOtherTokenBalance}");
         }
 
         [TestMethod]
@@ -167,6 +167,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 NativeVirtualBalance = 100000000_00000000,
             };
             var organization = _parliamentContract.GetGenesisOwnerAddress();
+            var connectorController = await _tokenConverterSub.GetControllerForManageConnector.CallAsync(new Empty());
+            connectorController.ContractAddress.ShouldBe(_parliamentContract.Contract);
+            connectorController.OwnerAddress.ShouldBe(organization);
+            
             var proposal = _parliamentContract.CreateProposal(_tokenConverterContract.ContractAddress,
                 nameof(TokenConverterMethod.AddPairConnector), input, organization, BpAccount);
             var miners = AuthorityManager.GetCurrentMiners();
@@ -258,9 +262,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var result3 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 3});
             Logger.Info($"{result3}");
-
-            var result4 = await _tokenSub.GetCalculateFeeCoefficientsForContract.CallAsync(new Int32Value {Value = 4});
-            Logger.Info($"{result4}");
         }
 
         [TestMethod]
@@ -303,21 +304,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {Owner = acs8Contract.ConvertAddress(), Symbol = s});
                 Logger.Info($"{s} balance is {balance.Balance}");
             }
-
-            foreach (var s in ResourceSymbol)
-            {
-                var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = acs8Contract.ConvertAddress(), Symbol = s});
-                Logger.Info($"{s} balance is {balance.Balance}");
-            }
         }
 
         private async Task CreateToken(string symbol,long amount)
         {
             if (!_tokenContract.GetTokenInfo(symbol).Equals(new TokenInfo())) return;
-            var result = await _bpTokenSub.Create.SendAsync(new CreateInput
+            var result = await _tokenSub.Create.SendAsync(new CreateInput
             {
-                Issuer = BpAccount.ConvertAddress(),
+                Issuer = InitAccount.ConvertAddress(),
                 Symbol = symbol,
                 Decimals = 8,
                 IsBurnable = true,
@@ -330,7 +324,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private async Task IssueToken(string symbol, long amount)
         {
-            var issueResult = await _bpTokenSub.Issue.SendAsync(new IssueInput
+            var issueResult = await _tokenSub.Issue.SendAsync(new IssueInput
             {
                 Amount = amount,
                 Symbol = symbol,

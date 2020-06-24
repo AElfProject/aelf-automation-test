@@ -132,7 +132,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     {"DISK", 512}
                 }
             };
-            ProposalThroughController(input,nameof(TokenMethod.UpdateRentedResourceToken));
+            ProposalThroughController(input,nameof(TokenMethod.UpdateRentedResources));
         }
 
         [TestMethod]
@@ -190,40 +190,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balance = token.GetUserBalance(bps.First(), symbol);
                 Logger.Info($"{symbol}={balance}");
             }
-        }
-
-        private async Task<Address> CreateNewAssociationOrganization(Address parliamentOrgAddress, Address sideCreator)
-        {
-            var minimalApproveThreshold = 2;
-            var minimalVoteThreshold = 2;
-            var maximalAbstentionThreshold = 0;
-            var maximalRejectionThreshold = 0;
-            var list = new List<Address> {parliamentOrgAddress, sideCreator};
-            var createOrganizationInput = new CreateOrganizationInput
-            {
-                OrganizationMemberList = new OrganizationMemberList
-                {
-                    OrganizationMembers = {list}
-                },
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MinimalApprovalThreshold = minimalApproveThreshold,
-                    MinimalVoteThreshold = minimalVoteThreshold,
-                    MaximalAbstentionThreshold = maximalAbstentionThreshold,
-                    MaximalRejectionThreshold = maximalRejectionThreshold
-                },
-                ProposerWhiteList = new ProposerWhiteList
-                {
-                    Proposers = {list}
-                }
-            };
-            var transactionResult =
-                await SideManager.AssociationStub.CreateOrganization.SendAsync(createOrganizationInput);
-            transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var organization = transactionResult.Output;
-            Logger.Info($"Organization address: {organization.ToBase58()}");
-
-            return organization;
         }
 
         private void ProposalThroughController(IMessage input,string method) 

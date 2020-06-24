@@ -1,0 +1,247 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "1.美国东部(弗吉尼亚北部)",
+      "endpoint": "52.90.147.175:8000",
+      "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+      "password": "123"
+    },
+    {
+      "name": "2.美国东部(俄亥俄)",
+      "endpoint": "18.223.158.83:8000",
+      "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
+      "password": "123"
+    },
+    {
+      "name": "3.美国西部(加利福尼亚北部)",
+      "endpoint": "13.52.177.95:8000",
+      "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+      "password": "123"
+    },
+    {
+      "name": "4.美国西部(俄勒冈)",
+      "endpoint": "54.202.235.179:8000",
+      "account": "2bDM2Vr4HoiTkYzE4WJDeAB1GVYdybzjiovvMiwsrwgjSKiUXQ",
+      "password": "123"
+    },
+    {
+      "name": "5.亚太区域(香港)",
+      "endpoint": "18.162.41.20:8000",
+      "account": "2mDj4fQpKZFRY62HpPusS9VJAPxMdoygLGoMgUtuXY5PgiE9si",
+      "password": "123"
+    },
+    {
+      "name": "6.亚太区域(孟买)",
+      "endpoint": "52.66.209.107:8000",
+      "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+      "password": "123"
+    },
+    {
+      "name": "7.亚太区域(首尔)",
+      "endpoint": "52.78.196.168:8000",
+      "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+      "password": "123"
+    },
+    {
+      "name": "8.亚太区域(新加坡)",
+      "endpoint": "54.169.99.49:8000",
+      "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+      "password": "123"
+    },
+    {
+      "name": "9.亚太区域(悉尼)",
+      "endpoint": "13.236.178.147:8000",
+      "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+      "password": "123"
+    },
+    {
+      "name": "10.亚太区域(东京)",
+      "endpoint": "52.195.10.165:8000",
+      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+      "password": "123"
+    },
+    {
+      "name": "11.加拿大(中部)",
+      "endpoint": "35.182.252.147:8000",
+      "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
+      "password": "123"
+    },
+    {
+      "name": "12.欧洲(法兰克福)",
+      "endpoint": "52.57.232.61:8000",
+      "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
+      "password": "123"
+    },
+    {
+      "name": "13.欧洲(爱尔兰)",
+      "endpoint": "34.240.183.26:8000",
+      "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
+      "password": "123"
+    },
+    {
+      "name": "14.欧洲(伦敦)",
+      "endpoint": "3.8.154.91:8000",
+      "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
+      "password": "123"
+    },
+    {
+      "name": "15.欧洲(巴黎)",
+      "endpoint": "15.188.27.177:8000",
+      "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
+      "password": "123"
+    },
+    {
+      "name": "16.欧洲(斯德哥尔摩)",
+      "endpoint": "13.53.125.186:8000",
+      "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
+      "password": "123"
+    },
+    {
+      "name": "17.南美洲(圣保罗)",
+      "endpoint": "18.231.30.30:8000",
+      "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
+      "password": "123"
+    },
+    {
+      "name": "18.阿里-伦敦",
+      "endpoint": "8.208.23.245:8000",
+      "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
+      "password": "123"
+    },
+    {
+      "name": "19.阿里-吉隆坡",
+      "endpoint": "47.254.233.45:8000",
+      "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
+      "password": "123"
+    },
+    {
+      "name": "20.加拿大(中部)",
+      "endpoint": "35.182.249.243:8000",
+      "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
+      "password": "123"
+    },
+    {
+      "name": "21.美国东部(弗吉尼亚北部)",
+      "endpoint": "54.234.101.159:8000",
+      "account": "2fSR6hYAAytoYWmceiHCgt7dmr7EsomgdaF7GUaQJ2hhjQQY7w",
+      "password": "123"
+    },
+    {
+      "name": "22.美国东部(俄亥俄)",
+      "endpoint": "3.135.184.162:8000",
+      "account": "2fVa76M6zLzd1yFpZh6Qgt85TaJGBq5xRYV25GmzAsVWnjfHbq",
+      "password": "123"
+    },
+    {
+      "name": "23.美国西部(加利福尼亚北部)",
+      "endpoint": "52.53.215.91:8000",
+      "account": "2GjJqxH7t7BQu1avFPvEBjUFWk97PwL7nHqdPhh6wgP9bZ6mLy",
+      "password": "123"
+    },
+    {
+      "name": "24.美国西部(俄勒冈)",
+      "endpoint": "34.220.189.200:8000",
+      "account": "2kV8Nj4zUn7vQ8f3t6h337ZEo3yAeNTnvcyE6YsS9e28MzuHh7",
+      "password": "123"
+    },
+    {
+      "name": "25.亚太区域(香港)",
+      "endpoint": "18.163.188.56:8000",
+      "account": "2PGi3Fm32oRdZJDUrb6CjXFuPKqmpMeTBJBDKtHja13QNpSEoo",
+      "password": "123"
+    },
+    {
+      "name": "26.亚太区域(孟买)",
+      "endpoint": "13.232.161.183:8000",
+      "account": "2tThFmP75dziEuxeivtWxJ3CbVx2sFjhnoSuEu2tvmejkLaS52",
+      "password": "123"
+    },
+    {
+      "name": "27.亚太区域(首尔)",
+      "endpoint": "15.164.227.237:8000",
+      "account": "22RH4rsG3dewSPs42MiZVijtfZerLVQPCf55q9mq4BrHSAJQ9r",
+      "password": "123"
+    },
+    {
+      "name": "28.亚太区域(新加坡)",
+      "endpoint": "52.77.231.24:8000",
+      "account": "22RsyTA9SMSD84Cpf5CrzSNVfJRWTDNMWr9yy2vHAbCvgkHhJy",
+      "password": "123"
+    },
+    {
+      "name": "29.亚太区域(悉尼)",
+      "endpoint": "54.252.233.247:8000",
+      "account": "29hgrz2Tsju61HLQy2Symx74USe4tCtDAbR95ni7sEYmq4YogC",
+      "password": "123"
+    },
+    {
+      "name": "30.亚太区域(东京)",
+      "endpoint": "13.231.174.99:8000",
+      "account": "61QENsW67vy24akRYi6AGmmUEGGuZGTceodWPWDRrC7sDdSqD",
+      "password": "123"
+    },
+    {
+      "name": "31.加拿大(中部)",
+      "endpoint": "15.223.113.203:8000",
+      "account": "243xCo8KwjW3LAgrhBYYAPAeiQXWbm7m2EGSatoQVL4P8uzkGC",
+      "password": "123"
+    },
+    {
+      "name": "32.欧洲(法兰克福)",
+      "endpoint": "35.157.254.249:8000",
+      "account": "bMSV7kWxkZX6y39JagoEDU4ERY23adDDKrkQiPmYZCTfbHoNv",
+      "password": "123"
+    },
+    {
+      "name": "33.欧洲(爱尔兰)",
+      "endpoint": "54.154.254.143:8000",
+      "account": "Msm3CGTdd3fMu1nHvwAbuuJ7KCW9yGwTsWQ6nHREXg3U5mbxb",
+      "password": "123"
+    },
+    {
+      "name": "34.欧洲(伦敦)",
+      "endpoint": "3.8.237.63:8000",
+      "account": "QZQq8juxTXvKaC5n4T4ZjpCBe7AhkQDq8rWjKFMGxRQEnQPof",
+      "password": "123"
+    },
+    {
+      "name": "35.欧洲(巴黎)",
+      "endpoint": "15.236.201.192:8000",
+      "account": "uaq9a9zXTicyK2xLCXKKfcTxx6JfJEM577StoRvKaqnE8476c",
+      "password": "123"
+    },
+    {
+      "name": "36.欧洲(斯德哥尔摩)",
+      "endpoint": "13.49.21.75:8000",
+      "account": "ZWC5pPyAuPK69TZivb2abgCm2Q45pPt2k4F4fSXdpYiyg5gY",
+      "password": "123"
+    },
+    {
+      "name": "37.南美洲(圣保罗)",
+      "endpoint": "18.230.23.248:8000",
+      "account": "Jx2X1BVJ23WteQDwrUfWQ4Axq9Kb9un1aZNRsiUBWuMMfDWme",
+      "password": "123"
+    },
+    {
+      "name": "38.阿里-伦敦",
+      "endpoint": "8.208.102.97:8000",
+      "account": "NRkEotiGDaXGTwAphMUUCSBxf32QjL9Q57yGmHiANEUziCCx7",
+      "password": "123"
+    },
+    {
+      "name": "39.阿里-吉隆坡",
+      "endpoint": "47.254.238.211:8000",
+      "account": "Nhmm7kab6j6voDfzmeVN6BCo5Te8oTi5PW9qNeyT4ZnxnGJCa",
+      "password": "123"
+    },
+    {
+      "name": "40.加拿大(中部)",
+      "endpoint": "15.222.62.6:8000",
+      "account": "qUXuLD1xYPNmppfWJHp1fJR6FETqjQvJZGHu3whUjAugNWbXV",
+      "password": "123"
+    }
+  ],
+  "NativeTokenSymbol": "ELF",
+  "DefaultPassword": "123"
+}

@@ -62,8 +62,21 @@ namespace AElf.Automation.EconomicSystemTest
 
             return vote;
         }
-
-        public List<string> UserVoteWithTxIds(string account, string candidate, int lockTime, int times)
+        
+         public TransactionResultDto UserChangeVote(string account, string candidate, Hash voteId)
+        {
+            ElectionService.SetAccount(account);
+            var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.ChangeVotingOption, new ChangeVotingOptionInput
+            {
+                CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
+                VoteId = voteId
+            });
+            vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var fee = vote.GetDefaultTransactionFee();
+            return vote;
+        }
+         
+         public List<string> UserVoteWithTxIds(string account, string candidate, int lockTime, int times)
         {
             ElectionService.SetAccount(account);
             var list = new List<string>();

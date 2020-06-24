@@ -21,7 +21,7 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="AElf.Client" Version="0.1.5" />
-      <PackageReference Include="AElf.Types" Version="1.0.0-preview3-18425" />
+      <PackageReference Include="AElf.Types" Version="1.0.0-preview3" />
     </ItemGroup>
 
 </Project>

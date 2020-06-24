@@ -151,6 +151,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        public async Task GetUndistributedDividends()
+        {
+            var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);
+            var account = bps.First();
+            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var treasuryBalance = await treasuryStub.GetUndistributedDividends.CallAsync(new Empty());
+            Logger.Info(JsonConvert.SerializeObject(treasuryBalance));
+        }
+
+        [TestMethod]
         public async Task SetSymbolList()
         {
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);

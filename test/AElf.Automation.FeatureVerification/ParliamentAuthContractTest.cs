@@ -87,9 +87,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("4TbVeRPki6dQQWVoWHRibXKSPsLjYYgKc6sFnmUonFGewujEm",
-            "ZuTnjdqwK8vNcyypzn34YXfCeM1c6yDTGfrKvJuwmWqnSePSm")]
-        public void CreateProposal(string organizationAddress, string contractAddress)
+        [DataRow("22bLw3SzGKHnnwi83AURbDWeYBbvriXyasyJUdNHnC3RX5U8Lr")]
+        public void CreateProposal(string organizationAddress)
         {
             Token.TransferBalance(InitAccount, organizationAddress, 1000, Symbol);
             var transferInput = new TransferInput
@@ -117,7 +116,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("56dbad640a677142bbc057767c2ce43baff5efb5084ec89fb4bbae2b3920c19c")]
+        [DataRow("62e4a2a01d92b9c81a5696c6b15bdc1a50d55973220e2e6c8a1483e788abdebf")]
         public void GetProposal(string proposalId)
         {
             var result =
@@ -138,7 +137,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("0160c62bcdc9b616e742fb5ff9de67226fe25a4f9ae906287be6332c81ef5c02")]
+        [DataRow("62e4a2a01d92b9c81a5696c6b15bdc1a50d55973220e2e6c8a1483e788abdebf")]
         public void Approve(string proposalId)
         {
             foreach (var miner in Miners)

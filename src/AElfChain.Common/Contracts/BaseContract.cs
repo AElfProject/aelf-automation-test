@@ -29,8 +29,7 @@ namespace AElfChain.Common.Contracts
             NodeManager = nodeManager;
             FileName = fileName;
 
-            SetAccount(callAddress);
-            DeployContract();
+            DeployContract(callAddress);
         }
 
         /// <summary>
@@ -281,12 +280,11 @@ namespace AElfChain.Common.Contracts
 
         #region Private Methods
 
-        private void DeployContract()
+        private void DeployContract(string account)
         {
             Logger.Info("Deploy contract with authority mode.");
-            var authority = new AuthorityManager(NodeManager, CallAddress);
-            var miner = authority.GetCurrentMiners().First();
-            var contractAddress = authority.DeployContractWithAuthority(miner, FileName);
+            var authority = new AuthorityManager(NodeManager, account);
+            var contractAddress = authority.DeployContractWithAuthority(account, FileName);
             ContractAddress = contractAddress.ToBase58();
         }
 

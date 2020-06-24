@@ -2,18 +2,18 @@
     "TestCases": [
         {
             "case_name": "TokenScenario",
-            "enable": false,
-            "time_interval": 3
+            "enable": true,
+            "time_interval": 10
         },
         {
             "case_name": "ContractScenario",
-            "enable": false,
-            "time_interval": 30
+            "enable": true,
+            "time_interval": 2000
         },
         {
             "case_name": "ResourceScenario",
-            "enable": false,
-            "time_interval": 3
+            "enable": true,
+            "time_interval": 30
         },
         {
             "case_name": "NodeScenario",
@@ -23,7 +23,7 @@
         {
             "case_name": "UserScenario",
             "enable": true,
-            "time_interval": 10
+            "time_interval": 20
         },
         {
             "case_name": "ExceptionScenario",
@@ -72,7 +72,7 @@
     "Timeout": 300,
     "SpecifyEndpoint": {
         "enable": false,
-        "service_url": "http://192.168.197.14:8000"
+        "service_url": "http://192.168.197.21:8000"
     },
   "NewNode":
   {

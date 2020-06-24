@@ -53,7 +53,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private Dictionary<SchemeType, Scheme> Schemes { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        private string TestAccount { get; } = "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz";
+        private string TestAccount { get; } = "Nhmm7kab6j6voDfzmeVN6BCo5Te8oTi5PW9qNeyT4ZnxnGJCa";
         private static string RpcUrl { get; } = "192.168.197.14:8000";
         private static string SideRpcUrl { get; } = "192.168.197.14:8002";
 
@@ -190,7 +190,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var feeSymbol = ResourceTokenCharged.Parser.ParseFrom(resourceFee.NonIndexed).Symbol;
                 fees.Add(feeSymbol, feeAmount);
             }
-
             foreach (var fee in fees)
             {
                 Logger.Info($"transaction fee {fee.Key} is : {fee.Value}");

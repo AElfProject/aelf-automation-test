@@ -2,7 +2,6 @@ using System.Linq;
 using Acs1;
 using Acs3;
 using Acs7;
-using AElf.Contracts.Association;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
@@ -11,7 +10,6 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,7 +30,8 @@ namespace AElf.Automation.SideChainTests
         public void CreateSideThroughOrganization()
         {
             var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
-            MainServices.TokenService.TransferBalance(InitAccount, OtherAccount, 5000_00000000, "ELF");
+            foreach (var member in Members)
+                MainServices.TokenService.TransferBalance(InitAccount, member, 5000_00000000, "ELF");
             MainServices.TokenService.TransferBalance(InitAccount, associationOrganization.ToBase58(), 500000000,
                 "ELF");
             var proposer = MainServices.AssociationService.GetOrganization(associationOrganization).ProposerWhiteList
@@ -41,7 +40,7 @@ namespace AElf.Automation.SideChainTests
             var tokenInfo = new SideChainTokenInfo
             {
                 Symbol = "STD",
-                TokenName = "Side chain token STC",
+                TokenName = "Side chain token STD",
                 Decimals = 8,
                 IsBurnable = true,
                 Issuer = InitAccount.ConvertAddress(),
@@ -160,7 +159,13 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void RequestSideChainCreation()
         {
-            TokenApprove(MainServices, OtherAccount, 1000000);
+            foreach (var member in Members)
+                MainServices.TokenService.TransferBalance(InitAccount, member, 1000_000000000);
+            var controller = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
+            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
+                .First();
+            TokenApprove(MainServices, proposer.ToBase58(), 1000000);
+
             var tokenInfo = new SideChainTokenInfo
             {
                 Symbol = "STD",
@@ -171,7 +176,7 @@ namespace AElf.Automation.SideChainTests
                 TotalSupply = 10_00000000_00000000,
                 IsProfitable = true
             };
-            var proposal = RequestSideChainCreation(MainServices, OtherAccount, "123", 1, 1000000, true, tokenInfo);
+            var proposal = RequestSideChainCreation(MainServices, proposer.ToBase58(), "123", 1, 1000000, true, tokenInfo);
             Logger.Info($"proposal id is: {proposal}");
         }
 
@@ -180,29 +185,8 @@ namespace AElf.Automation.SideChainTests
         public void ApproveProposalThroughOtherAuthory(string proposalId)
         {
             var proposal = Hash.LoadFromHex(proposalId);
-            var input = new CreateOrganizationInput
-            {
-                ProposalReleaseThreshold = new ProposalReleaseThreshold
-                {
-                    MaximalAbstentionThreshold = 1,
-                    MaximalRejectionThreshold = 1,
-                    MinimalApprovalThreshold = 2,
-                    MinimalVoteThreshold = 2
-                },
-                OrganizationMemberList = new OrganizationMemberList
-                {
-                    OrganizationMembers =
-                    {
-                        OtherAccount.ConvertAddress(), InitAccount.ConvertAddress(), MemberAccount.ConvertAddress()
-                    }
-                },
-                ProposerWhiteList = new ProposerWhiteList
-                {
-                    Proposers = {OtherAccount.ConvertAddress()}
-                }
-            };
-            var organization = MainServices.AssociationService.CalculateOrganizationAddress(input);
-            ApproveWithAssociation(MainServices, proposal, organization);
+            var controller = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
+            ApproveWithAssociation(MainServices, proposal, controller);
         }
 
         [TestMethod]
@@ -217,7 +201,10 @@ namespace AElf.Automation.SideChainTests
         [DataRow("512f7b0371f4bf13f224c13d61c95d68bca278c5854ef5e29c7f61e7f29159a0")]
         public void ReleaseSideChainCreation(string proposalId)
         {
-            MainServices.CrossChainService.SetAccount(OtherAccount);
+            var controller = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
+            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
+                .First();
+            MainServices.CrossChainService.SetAccount(proposer.ToBase58());
             var result
                 = MainServices.CrossChainService.ExecuteMethodWithResult(
                     CrossChainContractMethod.ReleaseSideChainCreation,
@@ -232,11 +219,8 @@ namespace AElf.Automation.SideChainTests
                 .ParseFrom(byteString);
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
-            var organization = OrganizationCreated.Parser
-                .ParseFrom(ByteString.FromBase64(result.Logs.First(l => l.Name.Contains(nameof(OrganizationCreated)))
-                    .NonIndexed)).OrganizationAddress;
-            creator.ShouldBe(OtherAccount.ConvertAddress());
-            Logger.Info($"SideChain id is {chainId}, controller address is {organization}");
+            creator.ShouldBe(proposer);
+            Logger.Info($"SideChain id is {chainId}, creator {creator}");
         }
 
         [TestMethod]

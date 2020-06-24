@@ -153,8 +153,8 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void GetMaximumMinersCount()
         {
-            var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
-            _logger.Info($"{maximumBlocksCount}");
+            var maximumMinersCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            _logger.Info($"{maximumMinersCount}");
         }
 
         [TestMethod]
