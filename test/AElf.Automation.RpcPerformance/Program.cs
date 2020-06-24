@@ -60,7 +60,7 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
                 var chainId = nodeManager.GetChainId();
-                performance.InitExecCommand(20 + GroupCount);
+                performance.InitExecCommand(150 + GroupCount);
                 
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = nodeManager.IsMainChain();
