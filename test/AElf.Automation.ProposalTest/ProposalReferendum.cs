@@ -184,7 +184,7 @@ namespace AElf.Automation.ProposalTest
             var amount = 3000 * organizationCount * proposalCount;
             foreach (var tester in Tester)
             {
-                if (Token.GetAllowance(tester, Referendum.ContractAddress)> amount) continue;
+                if (Token.GetAllowance(tester, Referendum.ContractAddress) > amount) continue;
                 var result = Token.ApproveToken(tester, Referendum.ContractAddress,
                     amount, TokenSymbol);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -217,24 +217,19 @@ namespace AElf.Automation.ProposalTest
                         var rd = GenerateRandomNumber(100, (int) approveCount);
                         Referendum.SetAccount(tester);
                         var beforeBalance = Token.GetUserBalance(tester, TokenSymbol);
-                        long fee = 0;
+                        var fee = Token.ApproveToken(tester, virtualAddress, rd, TokenSymbol)
+                            .GetDefaultTransactionFee();
+                        Thread.Sleep(1000);
                         var voteAmount = Token.GetAllowance(tester, virtualAddress);
+                        Logger.Info($"Referendum proposal {proposalId} approve amount {voteAmount}");
 
-                        if (voteAmount < rd)
-                        {
-                            fee = Token.ApproveToken(tester, virtualAddress, rd, TokenSymbol)
-                                .GetDefaultTransactionFee();
-                            Thread.Sleep(1000);
-                            voteAmount = Token.GetAllowance(tester, virtualAddress);
-                        }
-                        Logger.Info($"Referendum capprove amount {voteAmount}");
                         var transaction = Referendum.Approve(proposalId, tester);
                         transaction.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                         var voteFee = transaction.GetDefaultTransactionFee();
                         var balance = Token.GetUserBalance(tester, TokenSymbol);
-//                        balance.ShouldBe(beforeBalance - rd - voteFee - fee);
+                        balance.ShouldBe(beforeBalance - voteAmount - voteFee - fee);
 
-                        var approveInfo = new ApproveInfo(nameof(ReferendumMethod.Approve), tester, proposalId, rd);
+                        var approveInfo = new ApproveInfo(nameof(ReferendumMethod.Approve), tester, proposalId, voteAmount);
                         voterInfos.Add(approveInfo);
                         approveTotal += rd;
                         approveTester.Add(tester);
@@ -252,23 +247,18 @@ namespace AElf.Automation.ProposalTest
                     var abstainTester = otherVoter.First();
                     Referendum.SetAccount(abstainTester);
                     var abBeforeBalance = Token.GetUserBalance(abstainTester, TokenSymbol);
-                    long abApproveTokenFee = 0;
+                    var abApproveTokenFee = Token.ApproveToken(abstainTester, virtualAddress, abrd, TokenSymbol)
+                        .GetDefaultTransactionFee();
                     var abstainAmount = Token.GetAllowance(abstainTester, virtualAddress);
-                    if (abstainAmount < abrd)
-                    {
-                        abApproveTokenFee =
-                            Token.ApproveToken(abstainTester, virtualAddress, abrd, TokenSymbol)
-                                .GetDefaultTransactionFee();
-                        abstainAmount = Token.GetAllowance(abstainTester, virtualAddress);
-                    }
-                    Logger.Info($"Referendum proposal {proposal} abstain amount {abstainAmount}");
+                    Logger.Info($"Referendum proposal {proposalId} abstain amount {abstainAmount}");
+
                     var abTransaction = Referendum.Abstain(proposalId, abstainTester);
                     var abVoteFee = abTransaction.GetDefaultTransactionFee();
                     var abBalance = Token.GetUserBalance(abstainTester, TokenSymbol);
-//                    abBalance.ShouldBe(abBeforeBalance - abrd - abVoteFee - abApproveTokenFee);
+                    abBalance.ShouldBe(abBeforeBalance - abstainAmount - abVoteFee - abApproveTokenFee);
 
                     var abstainInfo =
-                        new ApproveInfo(nameof(ReferendumMethod.Abstain), abstainTester, proposalId, abrd);
+                        new ApproveInfo(nameof(ReferendumMethod.Abstain), abstainTester, proposalId, abstainAmount);
                     voterInfos.Add(abstainInfo);
                     if (otherVoter.Count == 1)
                     {
@@ -284,25 +274,19 @@ namespace AElf.Automation.ProposalTest
                         if (rejectTotal >= rejectionCount) break;
                         Referendum.SetAccount(rejectionTester);
                         var rjBeforeBalance = Token.GetUserBalance(rejectionTester, TokenSymbol);
-                        long rjApproveTokenFee = 0;
+                        var rjApproveTokenFee = Token.ApproveToken(rejectionTester, virtualAddress, rjrd, TokenSymbol)
+                            .GetDefaultTransactionFee();
                         var rejectAmount = Token.GetAllowance(rejectionTester, virtualAddress);
-                        if (rejectAmount < rjrd)
-                        {
-                            rjApproveTokenFee =
-                                Token.ApproveToken(rejectionTester, virtualAddress, rjrd, TokenSymbol)
-                                    .GetDefaultTransactionFee();
-                            rejectAmount = Token.GetAllowance(rejectionTester, virtualAddress);
-                        }
-                        Logger.Info($"Referendum proposal {proposal} reject amount {rejectAmount}");
+                        Logger.Info($"Referendum proposal {proposalId} reject amount {rejectAmount}");
+
                         var rjTransaction = Referendum.Reject(proposalId, rejectionTester);
                         var rjVoteFee = rjTransaction.GetDefaultTransactionFee();
-
                         var rjBalance = Token.GetUserBalance(rejectionTester, TokenSymbol);
-//                        rjBalance.ShouldBe(rjBeforeBalance - rjrd - rjVoteFee - rjApproveTokenFee);
+                        rjBalance.ShouldBe(rjBeforeBalance - rejectAmount - rjVoteFee - rjApproveTokenFee);
 
                         var rejectionInfo = new ApproveInfo(nameof(ReferendumMethod.Reject), rejectionTester,
                             proposalId,
-                            rjrd);
+                            rejectAmount);
                         voterInfos.Add(rejectionInfo);
                     }
 
