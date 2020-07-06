@@ -2,12 +2,6 @@
   "TestEnvironment": "Online",
   "EnvironmentInfo": [
     {
-      "Environment": "Online",
-      "Url": "http://18.162.41.20:8000",
-      "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
-      "Password": "123"
-    },
-    {
       "Environment": "Offline1",
       "Url": "http://192.168.197.14:8000",
       "InitAccount": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",

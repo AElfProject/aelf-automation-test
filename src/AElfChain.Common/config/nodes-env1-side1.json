@@ -60,6 +60,66 @@
             "endpoint": "192.168.197.29:8001",
             "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
             "password": "123"
+        },
+        {
+            "name": "full8",
+            "endpoint": "192.168.197.11:8001",
+            "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
+            "password": "123"
+        },
+        {
+            "name": "full9",
+            "endpoint": "192.168.197.28:8001",
+            "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
+            "password": "123"
+        },
+        {
+            "name": "full10",
+            "endpoint": "192.168.197.30:8001",
+            "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
+            "password": "123"
+        },
+        {
+            "name": "full11",
+            "endpoint": "192.168.197.54:8001",
+            "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
+            "password": "123"
+        },
+        {
+            "name": "full12",
+            "endpoint": "192.168.197.20:8001",
+            "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
+            "password": "123"
+        },
+        {
+            "name": "full13",
+            "endpoint": "192.168.197.48:8001",
+            "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
+            "password": "123"
+        },
+        {
+            "name": "full14",
+            "endpoint": "192.168.197.49:8001",
+            "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
+            "password": "123"
+        },
+        {
+            "name": "full15",
+            "endpoint": "192.168.197.58:8001",
+            "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
+            "password": "123"
+        },
+        {
+            "name": "full16",
+            "endpoint": "192.168.197.15:8001",
+            "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
+            "password": "123"
+        },
+        {
+            "name": "full17",
+            "endpoint": "192.168.197.55:8001",
+            "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
+            "password": "123"
         }
     ],
     "NativeTokenSymbol" : "ELF",

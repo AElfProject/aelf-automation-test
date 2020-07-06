@@ -10,7 +10,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
@@ -135,9 +134,6 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined,
-                result.TransactionResult.TransactionId.ToHex);
-
             return result.TransactionResult;
         }
 
@@ -146,8 +142,6 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeUpdateContract.SendAsync(input));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-
             return result.TransactionResult;
         }
 

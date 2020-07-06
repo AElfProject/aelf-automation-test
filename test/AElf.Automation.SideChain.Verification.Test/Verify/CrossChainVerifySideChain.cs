@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Acs7;
 using AElf.Client.Dto;
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.SideChain.Verification.Verify
@@ -29,25 +32,9 @@ namespace AElf.Automation.SideChain.Verification.Verify
         
         private void VerifySideChainTransaction(ContractServices services)
         {
-            var sideChainBlockHeight = GetBlockHeight(services);
-            Logger.Info($"Side chain {services.ChainId} block height is {sideChainBlockHeight}");
-
-            if (_verifyBlock == 0) _verifyBlock = sideChainBlockHeight > 3000 ? sideChainBlockHeight - 3000 : 1;
-            Logger.Info($"Verify transaction with {_verifyBlock}");
-
             var sideChainTransactions = new Dictionary<long, List<string>>();
             var verifyInputs = new Dictionary<long, List<VerifyTransactionInput>>();
-
-            var indexSideHeight = GetIndexSideHeight(services);
-            Logger.Info(
-                $"Main chain {MainChainService.ChainId} index side chain {services.ChainId} height {indexSideHeight}");
-
-            if (_verifyBlock >= indexSideHeight && _verifyBlock!= 1)
-            {
-                _verifyBlock = indexSideHeight > 3000 ? indexSideHeight - 3000 : 1;
-                Logger.Info($"Reset the verify block height:{_verifyBlock}");
-            }
-
+            _verifyBlock = CheckVerifyBlockHeight(services);
             //Get side chain transactions
             for (var i = _verifyBlock; i < _verifyBlock + VerifyBlockNumber; i++)
             {
@@ -78,6 +65,12 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 {
                     var verifyInput =
                         GetSideChainTransactionVerificationInput(services, sideChainTransaction.Key, txId);
+                    while (verifyInput == null)
+                    {
+                        Thread.Sleep(10000);
+                        verifyInput =
+                            GetSideChainTransactionVerificationInput(services, sideChainTransaction.Key, txId);
+                    }
                     verifyInputList.Add(verifyInput);
                 }
 
@@ -119,6 +112,7 @@ namespace AElf.Automation.SideChain.Verification.Verify
             GetVerifyResult(MainChainService, mainVerifyResult);
 
             _verifyBlock += VerifyBlockNumber;
+            _verifyBlock = CheckVerifyBlockHeight(services);
         }
 
         private VerifyTransactionInput GetSideChainTransactionVerificationInput(ContractServices services,
@@ -134,12 +128,38 @@ namespace AElf.Automation.SideChain.Verification.Verify
                 Path = merklePath
             };
 
-            var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(services, blockHeight);
-            verificationInput.Path.MerklePathNodes.AddRange(
-                crossChainMerkleProofContext.MerklePathFromParentChain.MerklePathNodes);
+            try
+            {
+                var crossChainMerkleProofContext = GetCrossChainMerkleProofContext(services, blockHeight);
+                verificationInput.Path.MerklePathNodes.AddRange(
+                    crossChainMerkleProofContext.MerklePathFromParentChain.MerklePathNodes);
 
-            verificationInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
-            return verificationInput;
+                verificationInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
+                return verificationInput;
+            }
+            catch (Client.AElfClientException e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+
+        private long CheckVerifyBlockHeight(ContractServices services)
+        {
+            var sideChainBlockHeight = GetBlockHeight(services);
+            Logger.Info($"Side chain {services.ChainId} block height is {sideChainBlockHeight}");
+            var indexSideHeight = GetIndexSideHeight(services);
+            Logger.Info(
+                $"Main chain {MainChainService.ChainId} index side chain {services.ChainId} height {indexSideHeight}");
+            
+            if (_verifyBlock == 0) _verifyBlock = sideChainBlockHeight > 3000 ? sideChainBlockHeight - 3000 : 1;
+            Logger.Info($"Verify transaction with {_verifyBlock}");
+            
+            if (_verifyBlock < indexSideHeight || _verifyBlock == 1) return _verifyBlock;
+            _verifyBlock = indexSideHeight > 3000 ? indexSideHeight - 3000 : 1;
+            Logger.Info($"Reset the verify block height:{_verifyBlock}");
+
+            return _verifyBlock;
         }
     }
 }
