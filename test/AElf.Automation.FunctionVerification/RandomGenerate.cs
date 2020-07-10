@@ -1,13 +1,14 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Contracts.TestContract.RandomNumberProvider;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 
@@ -20,12 +21,17 @@ namespace AElf.Automation.ContractsTesting
         private readonly ConcurrentQueue<Hash> _hashQueue;
         private readonly INodeManager _nodeManager;
         private AEDPoSContractImplContainer.AEDPoSContractImplStub _consensusImplStub;
+        private RandomNumberProviderContract _randomNumberProviderContract;
+        private RandomNumberProviderContractContainer.RandomNumberProviderContractStub _randomNumberStub;
 
         public RandomGenerate(INodeManager nodeManager, string account)
         {
             _nodeManager = nodeManager;
             _hashQueue = new ConcurrentQueue<Hash>();
             _account = account;
+            _randomNumberProviderContract = new RandomNumberProviderContract(_nodeManager,account);
+            _randomNumberStub = _randomNumberProviderContract
+                .GetTestStub<RandomNumberProviderContractContainer.RandomNumberProviderContractStub>(account);
         }
 
         public async Task GenerateAndCheckRandomNumbers(int count)
@@ -35,17 +41,8 @@ namespace AElf.Automation.ContractsTesting
             GetConsensusStub();
             var tasks = new List<Task>
             {
-                Task.Run(async () =>
-                {
-                    for (var i = 0; i < count; i++)
-                    {
-                        var id = CommonHelper.GenerateRandomNumber(0, accounts.Count);
-                        _consensusImplStub = genesis.GetConsensusImplStub(accounts[id]);
-                        await GenerateRandomHash();
-                        await Task.Delay(500);
-                    }
-                }),
-                Task.Run(async () => await GetAllRandomHash())
+                Task.Run(async () => await GetRandomHashByHeight(count)),
+                Task.Run(async () => await GetRandomByte(count))
             };
             Task.WaitAll(tasks.ToArray());
 
@@ -55,47 +52,74 @@ namespace AElf.Automation.ContractsTesting
         private void GetConsensusStub()
         {
             var genesis = GenesisContract.GetGenesisContract(_nodeManager, _account);
-
+            
             _consensusImplStub = genesis.GetConsensusImplStub();
         }
-
-        private async Task GenerateRandomHash()
+        
+        private async Task GetRandomHashByHeight(int count)
         {
-            var roundInfo = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
-            Logger.Info($"Current round info: {roundInfo.Value}");
-            var randomOrder = await _consensusImplStub.RequestRandomNumber.SendAsync(new Hash());
-            if (!_hashQueue.Contains(randomOrder.Output.TokenHash))
-                _hashQueue.Enqueue(randomOrder.Output.TokenHash);
-            var blockHeight = randomOrder.Output.BlockHeight;
-            var tokenHash = randomOrder.Output.TokenHash;
-            Logger.Info($"Random token height: {blockHeight}, hash: {tokenHash}");
+            var height = await _nodeManager.ApiClient.GetBlockHeightAsync();
+            var checkHeight = height > count ? count : height;
+            for (var i = height; i > height - checkHeight; i--)
+            {
+                var randomHashResult = await _consensusImplStub.GetRandomHash.CallAsync(new Int64Value{Value = i});
+                if (!_hashQueue.Contains(randomHashResult))
+                    _hashQueue.Enqueue(randomHashResult);
+                else
+                    Logger.Error($"Random hash: height {i}=>{randomHashResult} is repeated.");
+                Logger.Info($"Random hash: height {i}=>{randomHashResult}");
+            }
         }
-
-        private async Task GetAllRandomHash()
+        
+        private async Task GetRandomByte(int count)
         {
-            await Task.Delay(10 * 1000);
-            while (_hashQueue.TryDequeue(out var tokenHash))
-                try
+            var height = await _nodeManager.ApiClient.GetBlockHeightAsync();
+            var checkHeight = height > count ? count : height;
+            for (var i = height; i > height - checkHeight; i--)
+            {
+                var blockHash = await _nodeManager.ApiClient.GetBlockByHeightAsync(i);
+                var byteString = Hash.LoadFromHex(blockHash.BlockHash).ToByteString();
+                
+                var randomBytes1 = await _randomNumberStub.GetRandomBytes.CallAsync(new GetRandomBytesInput
                 {
-                    var randomResult = await _consensusImplStub.GetRandomNumber.CallAsync(tokenHash);
-                    if (!randomResult.Equals(new Hash()))
-                    {
-                        Logger.Info($"Random hash: {tokenHash}=>{randomResult}");
-                        continue;
-                    }
-
-                    _hashQueue.Enqueue(tokenHash);
-                    var currentRound = await _consensusImplStub.GetCurrentRoundNumber.CallAsync(new Empty());
-                    var height = await _nodeManager.ApiClient.GetBlockHeightAsync();
-                    Logger.Info($"Current information: round={currentRound.Value}, height={height}");
-                    await Task.Delay(1000);
-                }
-                catch (Exception e)
+                    Kind = 1,
+                    Value = HashHelper.ComputeFrom("Test1").ToByteString()
+                }.ToBytesValue());
+                
+                var randomBytes = await _randomNumberStub.GetRandomBytes.CallAsync(new GetRandomBytesInput
                 {
-                    e.Message.WriteErrorLine();
-                    _hashQueue.Enqueue(tokenHash);
-                    await Task.Delay(1000);
-                }
+                    Kind = 1,
+                    Value = byteString
+                }.ToBytesValue());
+                
+                var randomHash = new Hash();
+                randomHash.MergeFrom(randomBytes.Value);
+                if (!_hashQueue.Contains(randomHash))
+                    _hashQueue.Enqueue(randomHash);
+                else
+                    Logger.Error($"Random hash: height {i}=>{randomHash} is repeated.");
+                Logger.Info($"Random hash: height {i}=>{randomHash}");
+            }
+            
+            var randomIntegers = new List<long>();
+            for (var i = height; i > height - checkHeight; i--)
+            {
+                var blockHash = await _nodeManager.ApiClient.GetBlockByHeightAsync(i);
+                var byteString = Hash.LoadFromHex(blockHash.BlockHash).ToByteString();
+                
+                var randomBytes = await _randomNumberStub.GetRandomBytes.CallAsync(new GetRandomBytesInput
+                {
+                    Kind = 2,
+                    Value = byteString
+                }.ToBytesValue());
+                var randomNumber = new Int64Value();
+                randomNumber.MergeFrom(randomBytes.Value);
+                if (!randomIntegers.Contains(randomNumber.Value))
+                    randomIntegers.Add(randomNumber.Value);
+                else
+                    Logger.Error($" block hash: height {i}=>{randomNumber} is repeated.");
+                Logger.Info($"block hash {blockHash.BlockHash}: height {i}=>{randomNumber}");
+            }
         }
 
         private List<string> GetAvailableAccounts()
