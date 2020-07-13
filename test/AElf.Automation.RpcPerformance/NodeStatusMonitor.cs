@@ -19,12 +19,16 @@ namespace AElf.Automation.RpcPerformance
         public NodeStatusMonitor(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            MaxValidateLimit = RpcConfig.ReadInformation.SentTxLimit;
+            LimitValidateLimit = RpcConfig.ReadInformation.SentTxLimit;
+            IsUpdate = RpcConfig.ReadInformation.UpdateTxLimit;
         }
 
         private INodeManager NodeManager { get; }
         private long BlockHeight { get; set; } = 1;
-        public static int MaxValidateLimit { private get; set; }
+        public static int MaxValidateLimit { private get; set; } = 5;
+        public static int LimitValidateLimit { private get; set; }
+        public static bool IsUpdate { get; set; }
+        public static int times { get; set; } = 1;
 
         public bool CheckTransactionPoolStatus(bool enable)
         {
@@ -34,6 +38,15 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (checkTimes >= 150) return false; //over check time and cancel current round execution            
                 var poolStatus = GetTransactionPoolTxCount();
+                if (IsUpdate && times == 1000)
+                {
+                    var old = MaxValidateLimit;
+                    var update = MaxValidateLimit * 3;
+                    MaxValidateLimit = update >= LimitValidateLimit ? LimitValidateLimit : update;
+                    Logger.Info($"Update tx limit {old} to {MaxValidateLimit}");
+                    times = 1;
+                }
+                times++;
                 if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
                     return true;
 

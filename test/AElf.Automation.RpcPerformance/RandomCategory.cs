@@ -47,7 +47,7 @@ namespace AElf.Automation.RpcPerformance
             LimitTransaction = limitTransaction;
         }
 
-        public void InitExecCommand(int userCount = 150)
+        public void InitExecCommand(int userCount = 20)
         {
             Logger.Info("Host Url: {0}", BaseUrl);
             Logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
@@ -437,6 +437,9 @@ namespace AElf.Automation.RpcPerformance
         {
             //add transaction performance check process
             var testers = AccountList.Select(o => o.Account).ToList();
+            var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
+            var enumerable = bps as string[] ?? bps.ToArray();
+            var setAccount = enumerable.First();
             var cts = new CancellationTokenSource();
             var token = cts.Token;
             var taskList = new List<Task>
@@ -444,6 +447,20 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
                 Task.Run(() => TokenMonitor.ExecuteTokenCheckTask(testers, token), token),
                 Task.Run(() => GeneratedTransaction(useTxs, cts, token), token),
+                Task.Run(() =>
+                {
+                    var transactionExecuteLimit = new TransactionExecuteLimit(NodeManager,setAccount );
+                    if (transactionExecuteLimit.WhetherUpdateLimit())
+                    {
+                        var index = 0;
+                        for (int i = 1; i > 0; i++)
+                        {
+                            Thread.Sleep(600000);
+                            transactionExecuteLimit.UpdateExecutionSelectTransactionLimit(index);
+                            index++;
+                        }
+                    }
+                },token),
                 Task.Run(() =>
                 {
                     for (int i = 1; i > 0; i++)

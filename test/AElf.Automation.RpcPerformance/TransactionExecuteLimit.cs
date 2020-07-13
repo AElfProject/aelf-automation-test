@@ -18,6 +18,9 @@ namespace AElf.Automation.RpcPerformance
         private readonly string _account;
         private readonly INodeManager _nodeManager;
         private readonly NodeTransactionOption _nodeTransactionOption;
+        private readonly int[] _limitCounts = {
+            5,6,5,5,7,5,6,8,5,7,7,9,9,10,11,12,14,17,20,23,24,27,30,30,25,30,35,35,40,50
+        };
 
         private Address _configurationContractAddress;
 
@@ -34,10 +37,25 @@ namespace AElf.Automation.RpcPerformance
             return _nodeTransactionOption.EnableLimit;
         }
 
+        public bool WhetherUpdateLimit()
+        {
+            return _nodeTransactionOption.IsChanged;
+        }
+
         public void SetExecutionSelectTransactionLimit()
         {
             var configurationStub = GetConfigurationContractStub();
             var limitCount = _nodeTransactionOption.MaxTransactionSelect;
+            AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
+        }
+        
+        public void UpdateExecutionSelectTransactionLimit(int index)
+        {
+            var configurationStub = GetConfigurationContractStub();
+            index = index >= _limitCounts.Length - 1 ? _limitCounts.Length - 1 : index + 1;
+            var limitCount = _limitCounts[index];
+            if (limitCount.Equals(50))
+                return;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
         }
 

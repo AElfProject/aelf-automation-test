@@ -28,6 +28,8 @@ namespace AElf.Automation.RpcPerformance
 
         [JsonProperty("max_transactions_select")]
         public int MaxTransactionSelect { get; set; }
+        [JsonProperty("is_changed")] public bool IsChanged { get; set; }
+        [JsonProperty("limit_count")] public string LimitCount { get; set; }
     }
 
     public class ChainTypeOption
@@ -40,12 +42,13 @@ namespace AElf.Automation.RpcPerformance
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
-
+        
         [JsonProperty("EnableRandomTransaction")]
         public bool EnableRandomTransaction { get; set; }
-
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; }
         [JsonProperty("SentTxLimit")] public int SentTxLimit { get; set; }
+        [JsonProperty("UpdateTxLimit")]
+        public bool UpdateTxLimit { get; set; }
         [JsonProperty("ExecuteMode")] public int ExecuteMode { get; set; }
         [JsonProperty("Timeout")] public int Timeout { get; set; }
 
