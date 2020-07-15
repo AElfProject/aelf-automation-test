@@ -1,11 +1,13 @@
 using System.Linq;
 using Acs1;
+using Acs10;
 using AElf.Contracts.Election;
 using AElfChain.Common.Contracts;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Shouldly;
 
 namespace AElf.Automation.EconomicSystemTest
@@ -203,7 +205,7 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(0)]
+        [DataRow(2)]
         public void QuitElection(int nodeId)
         {
             var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
@@ -227,6 +229,10 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var treasury = Behaviors.Treasury;
             Behaviors.ProfitService.GetTreasurySchemes(treasury.ContractAddress);
+            var treasuryAmount = treasury.GetCurrentTreasuryBalance();
+            var treasuryBalance = treasury.CallViewMethod<Dividends>(TreasuryMethod.GetUndistributedDividends, new Empty());
+            _logger.Info(JsonConvert.SerializeObject(treasuryBalance));
+            _logger.Info($"treasury  balance : {treasuryAmount}");
         }
 
         [TestMethod]

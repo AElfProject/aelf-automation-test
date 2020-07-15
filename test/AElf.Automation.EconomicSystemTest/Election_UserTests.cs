@@ -107,11 +107,19 @@ namespace AElf.Automation.EconomicSystemTest
             var candidates = Behaviors.GetCandidates();
             var account = Address.FromPublicKey(candidates.Value.First().ToByteArray());
             var schemeId = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
-            var profitMap = profit.GetProfitsMap(account.ToBase58(), schemeId);
-            if (profitMap.Equals(new ReceivedProfitsMap()))
-                return;
-            var profitAmount = profitMap.Value["ELF"];
-            _logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
+            long profitAmount = 0;
+
+            foreach (var candidate in FullNodeAddress)
+            {
+                var profitMap = profit.GetProfitsMap(candidate, schemeId);
+                if (profitMap.Equals(new ReceivedProfitsMap()))
+                    return;
+                var profitAmountFull = profitMap.Value["ELF"];
+                if (candidate.Equals(account.ToBase58()))
+                    profitAmount = profitAmountFull;
+                _logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
+            }
+            
             var beforeBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
             var newProfit = profit.GetNewTester(account.ToBase58());
             var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
