@@ -32,7 +32,9 @@ namespace AElf.Automation.NetworkTest
             foreach (var endpoint in operatedNodeEndpoint)
             {
                 var nodeManager = new NodeManager(endpoint);
-
+                var changed = nodeManager.UpdateApiUrl(endpoint);
+                if (changed == false) continue;
+                
                 foreach (var n in AllNodes.Where(n => !operatedNode.Contains(n)))
                 {
                     var peers = nodeManager.NetGetPeers().Select(o => o.IpAddress).ToList();
@@ -43,9 +45,11 @@ namespace AElf.Automation.NetworkTest
 
                 foreach (var e in AllEndpoint.Where(e => !operatedNodeEndpoint.Contains(e)))
                 {
-                    var newNodeManager = new NodeManager(e);
+                    var isChanged = nodeManager.UpdateApiUrl(e);
+                    if (isChanged == false) continue;
+                    
                     var removeNode = endpoint.Replace("8000", "6800");
-                    var result = newNodeManager.NetRemovePeer(removeNode);
+                    var result = nodeManager.NetRemovePeer(removeNode);
                     Logger.Info($"{e} remove peer {removeNode} {result}");
                 }
             }
@@ -54,10 +58,13 @@ namespace AElf.Automation.NetworkTest
         public void AddPeer(ICollection<string> operatedNode)
         {
             var operatedNodeEndpoint = operatedNode.Select(node => node.Replace("6800", "8000")).ToList();
+            var nodeManager = new NodeManager(operatedNodeEndpoint.First());
+
             foreach (var node in operatedNodeEndpoint)
             {
-                var nodeManager = new NodeManager(node);
-
+                var changed = nodeManager.UpdateApiUrl(node);
+                if (changed == false) continue;
+                
                 foreach (var n in AllNodes.Where(n => !operatedNode.Contains(n)))
                 {
                     var peers = nodeManager.NetGetPeers().Select(o => o.IpAddress).ToList();
@@ -69,11 +76,13 @@ namespace AElf.Automation.NetworkTest
             
             foreach (var e in AllEndpoint.Where(e => !operatedNodeEndpoint.Contains(e)))
             {
-                var newNodeManager = new NodeManager(e);
+                var changed = nodeManager.UpdateApiUrl(e);
+                if (changed == false) continue;
+                
                 foreach (var node in operatedNodeEndpoint)
                 {
                     var n = node.Replace("8000", "6800");
-                    var result = newNodeManager.NetAddPeer(n);
+                    var result = nodeManager.NetAddPeer(n);
                     Logger.Info($"{e} add peer {n} {result}");
                 }
             }
@@ -81,9 +90,11 @@ namespace AElf.Automation.NetworkTest
 
         public void GetPeer()
         {
+            var nodeManager = new NodeManager(AllEndpoint.First());
             foreach (var node in AllEndpoint)
             {
-                var nodeManager = new NodeManager(node);
+                var changed = nodeManager.UpdateApiUrl(node);
+                if (changed == false) continue;
                 var peers = nodeManager.NetGetPeers();
                 Logger.Info($"Node {node} peer: {peers.Count}");
                 foreach (var res in peers) Logger.Info(res.IpAddress);

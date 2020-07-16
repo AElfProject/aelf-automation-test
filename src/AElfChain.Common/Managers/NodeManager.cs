@@ -26,7 +26,11 @@ namespace AElfChain.Common.Managers
             _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
             ApiClient = AElfClientExtension.GetClient(baseUrl);
-            _chainId = GetChainId();
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            if (!check)
+                Logger.Warn($"Url:{baseUrl} is not connected!");
+            else
+                _chainId = GetChainId();
         }
 
         public string GetApiUrl()
