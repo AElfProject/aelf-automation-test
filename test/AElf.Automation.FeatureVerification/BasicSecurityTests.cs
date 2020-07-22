@@ -1,8 +1,8 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicSecurity;
-using AElf.Contracts.TestContract.BasicUpdate;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -20,9 +20,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        private readonly string ContractAddress = "2WHXRoLRjbUTDQsuqR5CntygVfnDb125qdJkudev4kVNbLhTdG";
-        private readonly string SecurityContractAddress = "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS";
+        private readonly string ContractAddress = "sr4zX6E7yVVL7HevExVcWv2ru3HSZakhsJMXfzxzfpnXofnZw";
+        private readonly string SecurityContractAddress = "DHo2K7oUXXq3kJRs1JpuwqBJP56gqoaeSKFfuvr9x8svf3vEJ";
+        //2RHf2fxsnEaM3wb6N1yGqPupNZbcCY98LgWbGSFWmWzgEs5Sjo
+        //2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS
 
+        //2u6Dd139bHvZJdZ835XnNKL5y6cxqzV9PEWD5fZdQXdFZLgevc
+        //2nyC8hqq3pGnRu8gJzCsTaxXB6snfGxmL2viimKXgEfYWGtjEh --debug
+        
+        //DHo2K7oUXXq3kJRs1JpuwqBJP56gqoaeSKFfuvr9x8svf3vEJ
+        //xsnQafDAhNTeYcooptETqWnYBksFGGXxfcQyJJ5tmu6Ak9ZZt --release
+        
         private INodeManager NodeManager { get; set; }
         public BasicFunctionContractContainer.BasicFunctionContractStub BasicFunctionContractStub { get; set; }
         public BasicSecurityContractContainer.BasicSecurityContractStub BasicSecurityContractStub { get; set; }
@@ -32,7 +40,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void TestInitialize()
         {
             Log4NetHelper.LogInit();
-            NodeManager = new NodeManager("192.168.197.21:8000");
+            NodeManager = new NodeManager("192.168.197.44:8000");
             var basicFunction = new BasicFunctionContract(NodeManager, Caller, ContractAddress);
             BasicFunctionContractStub = basicFunction.GetTestStub<BasicFunctionContractContainer.BasicFunctionContractStub>(Caller);
             var security = new BasicSecurityContract(NodeManager, Caller, SecurityContractAddress);
@@ -169,6 +177,192 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 nameof(SecurityMethod.TestBytesState), input,Caller);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
+
+        [TestMethod]
+        public async Task TestWhileLoop()
+        {
+            var result = await BasicSecurityContractStub.TestWhileInfiniteLoop.SendAsync(new Int32Input{Int32Value = 100});
+            result.Output.Int32Value.ShouldBe(100);
+            var result2 = await BasicSecurityContractStub.TestWhileInfiniteLoop.SendAsync(new Int32Input{Int32Value = 14999});
+            result2.Output.Int32Value.ShouldBe(14999);
+            var result3 = await BasicSecurityContractStub.TestWhileInfiniteLoop.SendAsync(new Int32Input{Int32Value = 15000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+
+        }
+
+        [TestMethod]
+        public async Task TestForLoop()
+        {
+            var result =
+                await BasicSecurityContractStub.TestForInfiniteLoop.SendAsync(new Int32Input {Int32Value = 14999});
+            result.Output.Int32Value.ShouldBe(14999);
+            var result2 = await BasicSecurityContractStub.TestForInfiniteLoop.SendAsync(new Int32Input{Int32Value = 15000});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result2.TransactionResult.Error.ShouldContain("BranchCount");
+            var result3 = await BasicSecurityContractStub.TestForInfiniteLoop.SendAsync(new Int32Input{Int32Value = 15001});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+        }
+
+        [TestMethod]
+        public async Task TestInfiniteLoopWithSend()
+        {
+            var result =
+                await BasicSecurityContractStub.TestInfiniteLoopWithSend.SendAsync(new Int32Input {Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result2 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithSend.SendAsync(new Int32Input {Int32Value = 2000});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            var result3 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithSend.SendAsync(new Int32Input {Int32Value = 5000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+
+        }
+
+        [TestMethod]
+        public async Task TestFunctionInfiniteLoop()
+        {
+            var result =
+                await BasicSecurityContractStub.TestFunctionInfiniteLoop.SendAsync(new Int32Input {Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result2 =
+                await BasicSecurityContractStub.TestFunctionInfiniteLoop.SendAsync(new Int32Input {Int32Value = 10000});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result3 =
+                await BasicSecurityContractStub.TestFunctionInfiniteLoop.SendAsync(new Int32Input {Int32Value = 15000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+        }
+
+        [TestMethod]
+        public async Task TestInfiniteRecursiveCall()
+        {
+            var result =
+                await BasicSecurityContractStub.TestInfiniteRecursiveCall.SendAsync(new Int32Input {Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result2 =
+                await BasicSecurityContractStub.TestInfiniteRecursiveCall.SendAsync(new Int32Input {Int32Value = 10000});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result3 =
+                await BasicSecurityContractStub.TestInfiniteRecursiveCall.SendAsync(new Int32Input {Int32Value = 15000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("CallCount");
+        }
         
+        [TestMethod]
+        public async Task TestInfiniteLoop()
+        {
+            var result =
+                await BasicSecurityContractStub.TestInfiniteLoop.SendAsync(new Int32Input {Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result2 =
+                await BasicSecurityContractStub.TestInfiniteLoop.SendAsync(new Int32Input {Int32Value = 380});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result3 =
+                await BasicSecurityContractStub.TestInfiniteLoop.SendAsync(new Int32Input {Int32Value = 10000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+        }
+
+        [TestMethod]
+        public async Task TestWhileInfiniteLoopWithState()
+        {
+            var result =
+                await BasicSecurityContractStub.TestWhileInfiniteLoopWithState.SendAsync(new Int32Input
+                    {Int32Value = 100});
+            result.Output.Int32Value.ShouldBe(98);
+            var result2 =
+                await BasicSecurityContractStub.TestWhileInfiniteLoopWithState.SendAsync(new Int32Input
+                    {Int32Value = 14999});
+            result2.Output.Int32Value.ShouldBe(14994);
+            var result3 =
+                await BasicSecurityContractStub.TestWhileInfiniteLoopWithState.SendAsync(new Int32Input
+                    {Int32Value = 15000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+        }
+
+        [TestMethod]
+        public async Task TestInfiniteLoopWithCall()
+        {
+            var result = await BasicSecurityContractStub.TestInfiniteLoopWithCall.SendAsync(new Int32Input{Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result1 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithCall.SendAsync(new Int32Input {Int32Value = 5000});
+            result1.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result2 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithCall.SendAsync(new Int32Input {Int32Value = 14999});
+            result2.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result2.TransactionResult.Error.ShouldContain("CallCount");
+        }
+        
+        [TestMethod]
+        public async Task TestInfiniteLoopWhitIf()
+        {
+            var result = await BasicSecurityContractStub.TestInfiniteLoopWhitIf.SendAsync(new Int32Input{Int32Value = 100});
+            result.Output.Int32Value.ShouldBe(100);
+            var result1 =
+                await BasicSecurityContractStub.TestInfiniteLoopWhitIf.SendAsync(new Int32Input {Int32Value = 14998});
+            result1.Output.Int32Value.ShouldBe(14998);
+            var result2 =
+                await BasicSecurityContractStub.TestInfiniteLoopWhitIf.SendAsync(new Int32Input {Int32Value = 14999});
+            result2.Output.Int32Value.ShouldBe(14999);
+            var result3 =
+                await BasicSecurityContractStub.TestInfiniteLoopWhitIf.SendAsync(new Int32Input {Int32Value = 15000});
+            result3.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result3.TransactionResult.Error.ShouldContain("BranchCount");
+        }
+        
+        [TestMethod]
+        public async Task TestInfiniteLoopWithSendInline()
+        {
+            var result = await BasicSecurityContractStub.TestInfiniteLoopWithSendInline.SendAsync(new Int32Input{Int32Value = 100});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result1 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithSendInline.SendAsync(new Int32Input {Int32Value = 1000});
+            result1.TransactionResult.Status.ShouldBe(TransactionResultStatus.NodeValidationFailed);
+        }
+        
+        [TestMethod]
+        public async Task TestInfiniteLoopWithSendVirtualInline()
+        {
+            var result = await BasicSecurityContractStub.TestInfiniteLoopWithSendVirtualInline.SendAsync(new Int32Input{Int32Value = 1000});
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var result1 =
+                await BasicSecurityContractStub.TestInfiniteLoopWithSendVirtualInline.SendAsync(new Int32Input {Int32Value = 2000});
+            result1.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+        
+
+        [TestMethod]
+        public async Task TestForeachLoop()
+        {
+            var result = await BasicSecurityContractStub.TestForeachInfiniteLoop.SendAsync(new StringInput{StringValue = "1234567890"});
+            result.Output.Int32Value.ShouldBe(4);
+            var str = GenerateCheckCode(15000);
+            str.Length.ShouldBe(15000);
+            var result1= await BasicSecurityContractStub.TestForeachInfiniteLoop.SendAsync(new StringInput{StringValue = str});
+            result1.Output.Int32Value.ShouldBe(4);
+        }
+
+        private string GenerateCheckCode(int num)
+        {
+            int number;
+            char code;
+            string checkCode = String.Empty;
+            Random random = new Random();
+            for (int i = 0; i < num; i++)
+            {
+                number = random.Next();
+                if (number % 2 == 0)
+                    code = (char) ('0' + (char) (number % 10));
+                else
+                    code = (char) ('A' + (char) (number % 26));
+                checkCode += code.ToString();
+            }
+
+            return checkCode;
+        }
     }
 }
