@@ -46,7 +46,6 @@ namespace AElf.Automation.SideChain.Verification
         }
 
         protected EnvCheck EnvCheck { get; set; }
-
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
         protected static List<string> TokenSymbols { get; set; }
         protected void ExecuteStandaloneTask(IEnumerable<Action> actions, int sleepSeconds = 0,
@@ -174,7 +173,7 @@ namespace AElf.Automation.SideChain.Verification
                 txIdsWithStatus.Add(txIdWithStatus);
                 if (transactionIds[num] != txId) continue;
                 index = num;
-                Logger.Info($"The transaction index is {index}");
+                Logger.Info($"The transaction {transactionId} index is {index}");
             }
 
             var bmt = BinaryMerkleTree.FromLeafNodes(txIdsWithStatus);
@@ -193,7 +192,6 @@ namespace AElf.Automation.SideChain.Verification
                     {
                         Value = blockHeight
                     });
-            Logger.Info("Get CrossChain Merkle Proof");
             return crossChainMerkleProofContext;
         }
 

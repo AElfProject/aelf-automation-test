@@ -62,7 +62,31 @@ service BasicSecurityContract {
     }
     rpc TestResetOtherTypeFields(ResetNestedInput) returns (ResetOtherTypeNestedOutput) {
     }
-    
+    rpc TestWhileInfiniteLoop(Int32Input) returns (Int32Output) {
+    }
+    rpc TestWhileInfiniteLoopWithState(Int32Input) returns (Int32Output) {
+    }
+    rpc TestForInfiniteLoop(Int32Input) returns (Int32Output) {
+    }
+    rpc TestForeachInfiniteLoop(StringInput) returns (Int32Output) {
+    }
+    rpc TestInfiniteRecursiveCall (Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestInfiniteLoopWithSend(Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestInfiniteLoopWithSendInline(Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestInfiniteLoopWithSendVirtualInline(Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestInfiniteLoopWithCall(Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestFunctionInfiniteLoop(Int32Input) returns (google.protobuf.Empty) {
+    }
+    rpc TestInfiniteLoop(Int32Input) returns (Int32Output) {
+    }
+    rpc TestInfiniteLoopWhitIf(Int32Input) returns (Int32Output) {
+    }
+
     //View
     rpc GetContractName(google.protobuf.Empty) returns (google.protobuf.StringValue){
         option (aelf.is_view) = true;

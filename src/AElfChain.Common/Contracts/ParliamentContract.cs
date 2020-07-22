@@ -28,6 +28,7 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationThreshold,
         ChangeOrganizationProposerWhiteList,
         ClearProposal,
+        ApproveMultiProposals,
 
         //View
         GetDefaultOrganizationAddress,

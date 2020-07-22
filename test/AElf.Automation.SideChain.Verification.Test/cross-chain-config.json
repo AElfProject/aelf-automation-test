@@ -2,24 +2,6 @@
     "TestEnvironment": "Offline2",
     "EnvironmentInfo": [
         {
-            "Environment": "Online",
-            "Config": "nodes-online-test-main",
-            "MainChainInfos":
-            {
-                "MainChainUrl": "http://54.202.235.179:8000",
-                "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
-                "Password": "123"
-            },
-            "SideChainInfos": [
-                {
-                    "SideChainUrl": "http://18.196.46.174:8000"
-                },
-                {
-                    "SideChainUrl": "http://34.252.106.106:8000"
-                }
-            ]
-        },
-        {
             "Environment": "Offline1",
             "Config": "nodes-env1-main",
             "MainChainInfos":

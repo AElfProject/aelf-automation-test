@@ -21,6 +21,8 @@ namespace AElfChain.Common.Contracts
         ChangeCrossChainIndexingController,
         ChangeSideChainLifetimeController,
         ChangeSideChainIndexingFeeController,
+        ProposeCrossChainIndexing,
+        ReleaseCrossChainIndexingProposal,
 
         //View
         GetChainStatus,

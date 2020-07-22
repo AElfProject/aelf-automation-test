@@ -340,7 +340,7 @@ namespace AElf.Automation.SideChainTests
                 {
                     Symbol = symbol,
                     IssueChainId = MainServices.ChainId,
-                    Amount = 100000_00000000,
+                    Amount = 1000000_00000000,
                     Memo = "cross chain transfer",
                     To = InitAccount.ConvertAddress(),
                     ToChainId = sideService.ChainId
@@ -683,7 +683,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void SideChainVerifyMainChain()
         {
-            var block = AsyncHelper.RunSync(() => MainServices.NodeManager.ApiClient.GetBlockByHeightAsync(100));
+            var block = AsyncHelper.RunSync(() => MainServices.NodeManager.ApiClient.GetBlockByHeightAsync(10000));
             var transaction = AsyncHelper.RunSync(() =>
                 MainServices.NodeManager.ApiClient.GetTransactionResultsAsync(block.BlockHash)).First();
             var verifyInput =
