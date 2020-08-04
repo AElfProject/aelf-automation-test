@@ -49,6 +49,7 @@
         <ProtoContract Include="Protobuf\Proto\configuration_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\referendum_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\dapp_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\finance_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>

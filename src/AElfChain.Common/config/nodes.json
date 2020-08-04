@@ -3,8 +3,8 @@
   "Nodes": [
     {
       "name": "bp1",
-      "endpoint": "192.168.197.56:8001",
-      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+      "endpoint": "192.168.199.109:8007",
+      "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     }
   ],
