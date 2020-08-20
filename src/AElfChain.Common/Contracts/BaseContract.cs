@@ -28,7 +28,8 @@ namespace AElfChain.Common.Contracts
         {
             NodeManager = nodeManager;
             FileName = fileName;
-
+            CallAddress = callAddress;
+            
             DeployContract(callAddress);
         }
 
@@ -206,14 +207,22 @@ namespace AElfChain.Common.Contracts
                 if (!result) break;
                 var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
+                var fee = transactionResult.GetDefaultTransactionFee();
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
+                            $"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
                         continue;
                     case TransactionResultStatus.Failed:
                     {
+                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
+                        Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
+                        continue;
+                    }
+                    case TransactionResultStatus.Conflict:
+                    {
+                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
                         Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;
                     }

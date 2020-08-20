@@ -350,6 +350,7 @@ namespace AElfChain.Common.Managers
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Failed:
+                    case TransactionResultStatus.Conflict:
                     case TransactionResultStatus.Unexecutable:
                         Logger.Error(
                             $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",

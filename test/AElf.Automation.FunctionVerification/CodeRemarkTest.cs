@@ -11,7 +11,7 @@ namespace AElf.Automation.ContractsTesting
 {
     public class CodeRemarkTest
     {
-//        public string ContractAddress = "2Nk2R2se5kVvb9QZwrQomc3iMEwc2TN9Z4TUmbgzMHsC7MkD7G";
+//        public string ContractAddress = "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS";
         public ILog Logger = Log4NetHelper.GetLogger();
         public string Tester = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 
@@ -27,6 +27,19 @@ namespace AElf.Automation.ContractsTesting
         public void ExecuteContractMethodTest()
         {
             //create
+            var elfTokenInfo = ParallelContract.GetTokenInfo("ELF");
+            if (elfTokenInfo.Equals(new TokenInfo()))
+                ParallelContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                {
+                    Symbol = "ELF",
+                    TotalSupply = 100000000000000000,
+                    Decimals = 8,
+                    IsBurnable = true,
+                    IsProfitable = true,
+                    TokenName = "fake ELF Token",
+                    Issuer = Tester.ConvertAddress()
+                });
+            
             var tokenInfo = ParallelContract.GetTokenInfo("PARALLEL");
             if (tokenInfo.Equals(new TokenInfo()))
                 ParallelContract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput

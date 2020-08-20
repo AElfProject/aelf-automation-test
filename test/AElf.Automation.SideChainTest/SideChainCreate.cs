@@ -718,7 +718,7 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void ChangeIndexingController()
         {
-            var parliamentOrganization = AuthorityManager.CreateNewParliamentOrganization();
+            var parliamentOrganization = AuthorityManager.CreateNewParliamentOrganization(InitAccount);
             var input = new AuthorityInfo
             {
                 ContractAddress = MainServices.ParliamentService.Contract,

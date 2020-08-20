@@ -1,24 +1,12 @@
 {
-  "Type": "Get",
+  "Type": "Add",
   "Nodes": 
   [
     {
-      "ListeningPort": "192.168.197.23:6800"
+      "ListeningPort": "192.168.197.44:6800"
     },
     {
-      "ListeningPort": "192.168.197.41:6800"
-    },
-    {
-      "ListeningPort": "192.168.197.16:6800"
-    },
-    {
-      "ListeningPort": "192.168.197.13:6800"
-    },
-    {
-      "ListeningPort": "192.168.197.26:6800"
-    },
-    {
-      "ListeningPort": "192.168.197.34:6800"
+      "ListeningPort": "192.168.197.45:6800"
     }
   ]
 }

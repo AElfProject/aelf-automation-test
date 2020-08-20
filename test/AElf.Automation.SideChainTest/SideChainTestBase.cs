@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-env205-main");
             InitAccount = ConfigInfoHelper.Config.MainChainInfos.Account;
             var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
             var password = ConfigInfoHelper.Config.MainChainInfos.Password;

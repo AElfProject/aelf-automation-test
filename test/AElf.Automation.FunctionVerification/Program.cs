@@ -42,30 +42,30 @@ namespace AElf.Automation.ContractsTesting
             Log4NetHelper.LogInit("ContractTest");
 
             //Node blocks analyze
-            var nodeManager = new NodeManager("54.183.221.226:8000");
-            var blockStatus = new NodeStatus(nodeManager);
-            blockStatus.GetBlocksInformation(740020, 742810);
-            Console.ReadLine();
+//            var nodeManager = new NodeManager("54.183.221.226:8000");
+//            var blockStatus = new NodeStatus(nodeManager);
+//            blockStatus.GetBlocksInformation(740020, 742810);
+//            Console.ReadLine();
 
             var nm = new NodeManager(Endpoint);
             var api = nm.ApiClient;
 
             //check transaction fee
-            var transactionFee = new AnalyzeTransactionFee();
-            transactionFee.QueryBlocksInfo(84762, 91690); //298840
-            transactionFee.QueryTransactionsInfo();
-            transactionFee.CalculateTotalFee();
-            Console.ReadLine();
-
-            //analyze size fee
-            var feeProvider = new TransactionFeeProvider();
-            feeProvider.CalculateTxFee();
-            Console.ReadLine();
-
-            //generate random number
-            var randGen = new RandomGenerate(nm, BpAccount);
-            AsyncHelper.RunSync(() => randGen.GenerateAndCheckRandomNumbers(1000));
-            Console.ReadLine();
+//            var transactionFee = new AnalyzeTransactionFee();
+//            transactionFee.QueryBlocksInfo(84762, 91690); //298840
+//            transactionFee.QueryTransactionsInfo();
+//            transactionFee.CalculateTotalFee();
+//            Console.ReadLine();
+//
+//            //analyze size fee
+//            var feeProvider = new TransactionFeeProvider();
+//            feeProvider.CalculateTxFee();
+//            Console.ReadLine();
+//
+//            //generate random number
+//            var randGen = new RandomGenerate(nm, BpAccount);
+//            AsyncHelper.RunSync(() => randGen.GenerateAndCheckRandomNumbers(1000));
+//            Console.ReadLine();
 
             //code remark test
             var codeRemark = new CodeRemarkTest(nm);
@@ -168,7 +168,7 @@ namespace AElf.Automation.ContractsTesting
         public string BpPassword { get; set; } = NodeOption.DefaultPassword;
 
         [Option("-e|--endpoint", Description = "Node service endpoint info")]
-        public string Endpoint { get; set; } = "http://18.212.240.254:8000";
+        public string Endpoint { get; set; } = "http://192.168.197.21:8000";
 
         #endregion
     }

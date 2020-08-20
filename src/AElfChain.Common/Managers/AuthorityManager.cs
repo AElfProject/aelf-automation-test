@@ -200,7 +200,7 @@ namespace AElfChain.Common.Managers
             return _parliament.GetGenesisOwnerAddress();
         }
         
-        public Address CreateNewParliamentOrganization()
+        public Address CreateNewParliamentOrganization(string account)
         {
             var minimalApprovalThreshold = 7500;
             var maximalAbstentionThreshold = 2500;
@@ -219,6 +219,7 @@ namespace AElfChain.Common.Managers
                 ProposerAuthorityRequired = true,
                 ParliamentMemberProposingAllowed = true
             };
+            _parliament.SetAccount(account);
             var transactionResult =
                 _parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,createOrganizationInput);
             var organizationAddress =
