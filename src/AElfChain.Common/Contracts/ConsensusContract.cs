@@ -38,6 +38,8 @@ namespace AElfChain.Common.Contracts
         GetMaximumMinersCount,
         GetMaximumMinersCountController,
         GetUndistributedDividends,
+        GetSymbolList,
+        GetDividends,
 
         AnnounceElection,
         QuitElection,
@@ -45,7 +47,8 @@ namespace AElfChain.Common.Contracts
         ReceiveAllDividends,
         WithdrawAll,
         InitialBalance,
-        ChangeMaximumMinersCountController
+        ChangeMaximumMinersCountController,
+        Donate
     }
 
     public class ConsensusContract : BaseContract<ConsensusMethod>
@@ -93,6 +96,20 @@ namespace AElfChain.Common.Contracts
             var unAmount = CallViewMethod<Dividends>(ConsensusMethod.GetUndistributedDividends, new Empty());
             Logger.Info($"UndistributedDividends amount:{unAmount}");
             return unAmount;
+        }
+        
+        public Dividends GetDividends()
+        {
+            var amount = CallViewMethod<Dividends>(ConsensusMethod.GetDividends, new Empty());
+            Logger.Info($"Dividends amount:{amount}");
+            return amount;
+        }
+        
+        public SymbolList GetSymbolList()
+        {
+            var check = CallViewMethod<SymbolList>(ConsensusMethod.GetSymbolList, new Empty());
+            Logger.Info($"Symbol list:{check}");
+            return check;
         }
     }
 }

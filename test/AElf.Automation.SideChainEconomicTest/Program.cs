@@ -49,6 +49,11 @@ namespace AElf.Automation.SideChainEconomicTest
             
             Logger.Info("Update Rent:");
             sideTest.UpdateSideChainRentalTest(sideTest.SideB);
+            
+            Logger.Info($"Donate {sideTest.SideA.NodeManager.GetChainId()}:");
+            sideTest.Donate(sideTest.SideA);
+            Logger.Info($"Donate {sideTest.SideB.NodeManager.GetChainId()}:");
+            sideTest.Donate(sideTest.SideB);
 
             TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractA), 20));
             TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractB),20));
@@ -78,10 +83,17 @@ namespace AElf.Automation.SideChainEconomicTest
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
             {
-                sideTest.CheckRent(sideTest.SideB);
+                sideTest.SideManager.QueryOwningRental(sideTest.SideB);
                 var list = sideTest.SideManager.CheckCreatorRentResourceBalance(sideTest.SideB);
                 if (list.Count!=0)
                     mainTest.TransferSideChainToken(mainTest.MainToSideB,sideTest.SideB,list);
+                Thread.Sleep(30000);
+            },10));
+            
+            TaskCollection.Add(RunContinueJobWithInterval(() =>
+            {
+                sideTest.CheckDistributed(sideTest.SideB);
+                sideTest.CheckDistributed(sideTest.SideB);
                 Thread.Sleep(30000);
             },10));
 

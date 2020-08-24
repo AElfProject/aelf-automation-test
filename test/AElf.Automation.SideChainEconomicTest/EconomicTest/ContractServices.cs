@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs10;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
@@ -12,6 +13,7 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
+using Shouldly;
 
 namespace AElf.Automation.SideChainEconomicTest.EconomicTest
 {
@@ -106,6 +108,26 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             TokenService.TransferBalance(from, to, amount, symbol);
         }
         
+        public void DonateSideChainDividendsPool(string symbol, long amount)
+        {
+            var init = CallAddress;
+            var approveResult = TokenService.ApproveToken(CallAddress,ConsensusService.ContractAddress,amount,symbol);
+            approveResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            var allowance = TokenService.GetAllowance(init, ConsensusService.ContractAddress, symbol);
+            Logger.Info($"Account: {init}, allowance: {symbol}={allowance}");
+
+            var contributeResult = ConsensusService.ExecuteMethodWithResult(ConsensusMethod.Donate, new DonateInput
+            {
+                Symbol = symbol,
+                Amount = amount
+            });
+                contributeResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var check = ConsensusService.GetSymbolList();
+            var unAmount = ConsensusService.GetUndistributedDividends(); 
+            Logger.Info($"Symbol list : {check}\n amount:{unAmount}");
+        }
+
         private void GetContractServices()
         {
             Logger.Info($"Get contract service from: {ApiClient.BaseUrl}");

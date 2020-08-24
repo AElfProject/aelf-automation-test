@@ -55,10 +55,29 @@ namespace AElf.Automation.SideChainEconomicTest
             SideManager.ProposalThroughController(services, input, nameof(TokenMethod.UpdateRental));
         }
 
-        public void CheckRent(ContractServices services)
+        public void Donate(ContractServices services)
         {
-            SideManager.QueryOwningRental(services);
-            var unAmount = services.ConsensusService.GetUndistributedDividends(); 
+            var check = services.ConsensusService.GetSymbolList();
+            var list = new List<string>();
+            foreach (var symbol in services.FeeResourceSymbols)
+            {
+                var status = check.Value.Contains(symbol);
+                if (status == false)
+                    list.Add(symbol);
+            }
+
+            if (list.Count == 0) return;
+            {
+                foreach (var symbol in list)
+                    services.DonateSideChainDividendsPool(symbol,1_00000000);
+            }
+            services.ConsensusService.GetSymbolList();
+        }
+
+        public void CheckDistributed(ContractServices services)
+        {
+            services.ConsensusService.GetUndistributedDividends(); 
+            services.ConsensusService.GetDividends();
         }
 
         public void ResourceFeeTest(TransactionFeesContract txContract)
@@ -86,7 +105,7 @@ namespace AElf.Automation.SideChainEconomicTest
             symbolList = list;
             return isNeedCrossTransfer;
         }
-        
+
         public bool CheckBalanceAndTransfer(ContractServices services)
         {
             var isNeedCrossTransfer = false;

@@ -63,7 +63,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 var balance = services.TokenService.GetUserBalance(services.CallAddress, symbol);
                 if(balance < 1000_00000000)
                     balanceList.Add(symbol);
-                Logger.Info($"Contract {services.CallAddress} {symbol} Token balance is {balance}");
+                Logger.Info($"Creator {services.CallAddress} {symbol} Token balance is {balance}");
             }
 
             return balanceList;
