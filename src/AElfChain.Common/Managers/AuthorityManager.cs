@@ -43,7 +43,7 @@ namespace AElfChain.Common.Managers
             _association = _genesis.GetAssociationAuthContract();
             _referendum = _genesis.GetReferendumAuthContract();
 
-            CheckBpBalance();
+            CheckBpBalance(caller);
         }
 
         public INodeManager NodeManager { get; set; }
@@ -359,17 +359,16 @@ namespace AElfChain.Common.Managers
             return proposal.ToBeReleased;
         }
 
-        private void CheckBpBalance()
+        private void CheckBpBalance(string caller)
         {
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            var initAccount = _info.Nodes.First().Account;
             foreach (var bp in bps)
             {
                 var balance = _token.GetUserBalance(bp, primaryToken);
                 if (balance < 1000_00000000)
-                    _token.TransferBalance(initAccount, bp, 10000_00000000 - balance, primaryToken);
+                    _token.TransferBalance(caller, bp, 10000_00000000 - balance, primaryToken);
             }
         }
 

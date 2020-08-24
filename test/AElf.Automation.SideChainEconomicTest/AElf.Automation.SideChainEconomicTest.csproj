@@ -15,4 +15,9 @@
       <PackageReference Include="AElf.Types" Version="1.0.0-preview3" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="side-economic-config.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Acs1;
+using Acs10;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Managers;
@@ -36,6 +37,7 @@ namespace AElfChain.Common.Contracts
         GetMaximumBlocksCount,
         GetMaximumMinersCount,
         GetMaximumMinersCountController,
+        GetUndistributedDividends,
 
         AnnounceElection,
         QuitElection,
@@ -84,6 +86,13 @@ namespace AElfChain.Common.Contracts
         public AuthorityInfo GetMaximumMinersCountController()
         {
             return CallViewMethod<AuthorityInfo>(ConsensusMethod.GetMaximumMinersCountController, new Empty());
+        }
+
+        public Dividends GetUndistributedDividends()
+        {
+            var unAmount = CallViewMethod<Dividends>(ConsensusMethod.GetUndistributedDividends, new Empty());
+            Logger.Info($"UndistributedDividends amount:{unAmount}");
+            return unAmount;
         }
     }
 }

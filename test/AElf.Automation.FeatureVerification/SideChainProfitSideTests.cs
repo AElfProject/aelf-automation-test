@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Acs10;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.Profit;
 using AElf.Contracts.TokenHolder;
 using AElf.Types;
 using AElfChain.Common;
@@ -15,6 +16,8 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
+using ClaimProfitsInput = AElf.Contracts.TokenHolder.ClaimProfitsInput;
+using ReceivedProfitsMap = AElf.Contracts.TokenHolder.ReceivedProfitsMap;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -307,6 +310,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info(scheme.SchemeId.ToHex());
 
             var schemeInfo = await SideManager.ProfitStub.GetScheme.CallAsync(scheme.SchemeId);
+            Logger.Info(schemeInfo);
+
+            var profit = await SideManager.ProfitStub.GetDistributedProfitsInfo.CallAsync(new SchemePeriod
+            {
+                Period = schemeInfo.CurrentPeriod,
+                SchemeId = scheme.SchemeId
+            });
+            Logger.Info(profit);
         }
     }
 }

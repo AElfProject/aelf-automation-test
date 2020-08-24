@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
+using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -16,16 +19,22 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
     {
         public static ILog Logger = Log4NetHelper.GetLogger();
         public readonly INodeManager NodeManager;
-
-        public readonly List<string> Symbols = new List<string> {"ELF", "CPU", "RAM", "NET", "DISK"};
+        public List<string> Symbols;
+        public readonly List<string> FeeResourceSymbols;
+        public readonly List<string> RentResourceSymbols;
 
         public ContractServices(string url, string callAddress, string password)
         {
             NodeManager = new NodeManager(url);
             CallAddress = callAddress;
-
+            
             NodeManager.UnlockAccount(CallAddress, password);
             GetContractServices();
+            FeeResourceSymbols = new List<string>
+                {"READ", "WRITE", "STORAGE", "TRAFFIC"};
+            RentResourceSymbols = new List<string>
+                {"CPU", "NET", "DISK", "RAM"};
+            Symbols = FeeResourceSymbols.Union(RentResourceSymbols).ToList();
         }
 
         public AElfClient ApiClient => NodeManager.ApiClient;
@@ -34,7 +43,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         public ConsensusContract ConsensusService { get; set; }
         public CrossChainContract CrossChainService { get; set; }
         public ParliamentContract ParliamentService { get; set; }
-
         public string CallAddress { get; }
 
         public Address CallAccount => CallAddress.ConvertAddress();
@@ -49,43 +57,55 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                     {
                         Symbol = symbol
                     });
-                Logger.Info($"Token balance: {symbol}={tokenInfo}");
+                Logger.Info($"Token info: {symbol}={tokenInfo}");
             }
         }
 
-        public void GetTokenBalances(string account)
+        public List<string> GetTokenBalances(string account,long amount = 0,List<string> symbols = null)
         {
-            Logger.Info($"Query account balance: {account}");
-            foreach (var symbol in Symbols)
+            Logger.Info($"On chain {NodeManager.GetChainId()} Query account balance: {account}");
+            var needCrossTransferToken = new List<string>();
+            if (symbols == null)
+                symbols = Symbols;
+            if (amount == 0)
+                amount = 10_00000000;
+            foreach (var symbol in symbols)
             {
                 var balance = TokenService.GetUserBalance(account, symbol);
                 Logger.Info($"Token balance: {symbol}={balance}");
+                if (balance < amount)
+                    needCrossTransferToken.Add(symbol);
             }
+            
+            return needCrossTransferToken;
         }
 
-        public void TransferResources(string from, string to, long amount)
+        public bool GetPrimaryToken(string account)
+        {
+            var isEnough = true;
+            var primaryToken = TokenService.GetPrimaryTokenSymbol();
+            var primaryTokenBalance = TokenService.GetUserBalance(account, primaryToken);
+            Logger.Info($"Token balance: {primaryToken}={primaryTokenBalance}");
+            if (primaryTokenBalance < 100_0000000)
+                isEnough = false;
+            return isEnough;
+        }
+
+        public void TransferResources(string from, string to, long amount, List<string> symbols = null)
+        {
+            Logger.Info($"Transfer token from={from} to={to}, amount={amount}");
+            if (symbols == null)
+                symbols = Symbols;
+            foreach (var symbol in symbols) TokenService.TransferBalance(from, to, amount, symbol);
+        }
+        
+        public void TransferPrimaryToken(string from, string to, long amount)
         {
             Logger.Info($"Transfer token from={from} to={to}");
-            foreach (var symbol in Symbols) TokenService.TransferBalance(from, to, amount, symbol);
+            var symbol = TokenService.GetPrimaryTokenSymbol(); 
+            TokenService.TransferBalance(from, to, amount, symbol);
         }
-
-        public async Task<MerklePath> GetMerklePath(string transactionId)
-        {
-            var result = await ApiClient.GetMerklePathByTransactionIdAsync(transactionId);
-
-            return new MerklePath
-            {
-                MerklePathNodes =
-                {
-                    result.MerklePathNodes.Select(o => new MerklePathNode
-                    {
-                        Hash = Hash.LoadFromHex(o.Hash),
-                        IsLeftChildNode = o.IsLeftChildNode
-                    })
-                }
-            };
-        }
-
+        
         private void GetContractServices()
         {
             Logger.Info($"Get contract service from: {ApiClient.BaseUrl}");

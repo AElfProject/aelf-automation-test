@@ -595,7 +595,7 @@ namespace AElf.Automation.RpcPerformance
             /*
             Parallel.For(0, count, i =>
             {
-                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                var result = FromNoeNodeManager.UnlockAccount(AccountList[i].Account);
                 if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });

@@ -243,9 +243,8 @@ namespace AElf.Automation.RpcPerformance
             var txInfos = new Dictionary<string, TransactionResultDto>();
             foreach (var contract in MainContractList)
             {
-                var raw = crossChainManager.ValidateTokenSymbol(contract.Symbol);
+                var result = crossChainManager.ValidateTokenSymbol(contract.Symbol, out string raw);
                 var txId = MainNodeManager.SendTransaction(raw);
-                var result = MainNodeManager.CheckTransactionResult(txId);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 txInfos.Add(raw, result);
             }
@@ -269,7 +268,7 @@ namespace AElf.Automation.RpcPerformance
 
             //check last transaction index 
             var last = txInfos.Last();
-            crossChainManager.CheckSideChainBlockIndex(last.Value.BlockNumber);
+            crossChainManager.CheckSideChainIndexMainChain(last.Value.BlockNumber);
 
             //cross create token
             var sideContract = new ContractInfo(initAccount, SystemTokenAddress);
@@ -293,9 +292,9 @@ namespace AElf.Automation.RpcPerformance
             var transferTxInfos = new Dictionary<string, TransactionResultDto>();
             foreach (var contract in MainContractList)
             {
-                var raw = crossChainManager.CrossChainTransfer(contract.Symbol, amount, initAccount);
+                var result = crossChainManager.CrossChainTransfer(contract.Symbol, amount, initAccount, initAccount,
+                    out string raw);
                 var txId = MainNodeManager.SendTransaction(raw);
-                var result = MainNodeManager.CheckTransactionResult(txId);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 transferTxInfos.Add(raw, result);
             }
@@ -319,7 +318,7 @@ namespace AElf.Automation.RpcPerformance
 
             //check last transaction index 
             last = transferTxInfos.Last();
-            crossChainManager.CheckSideChainBlockIndex(last.Value.BlockNumber);
+            crossChainManager.CheckSideChainIndexMainChain(last.Value.BlockNumber);
 
             //side chain receive 
             foreach (var crossChainReceiveTokenInput in crossChainReceiveTokenInputList)
@@ -454,6 +453,7 @@ namespace AElf.Automation.RpcPerformance
                             Thread.Sleep(1000);
                             transactionsList = GetTransactions();
                         }
+
                         Logger.Info($"Check transaction result {i}:");
                         var txsTasks = transactionsList
                             .Select(transactions => Task.Run(() => CheckTransaction(transactions), token)).ToList();
@@ -573,7 +573,7 @@ namespace AElf.Automation.RpcPerformance
             /*
             Parallel.For(0, count, i =>
             {
-                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                var result = FromNoeNodeManager.UnlockAccount(AccountList[i].Account);
                 if (!result)
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
@@ -645,8 +645,7 @@ namespace AElf.Automation.RpcPerformance
             var mainChainId = ChainHelper.ConvertBase58ToChainId(MainNodeManager.GetChainId());
             var primaryToken = MainNodeManager.GetPrimaryTokenSymbol();
             var crossChainManager = new CrossChainManager(MainNodeManager, NodeManager, initAccount);
-            var id = ChainHelper.ConvertBase58ToChainId(chainId);
-            if (crossChainManager.CheckPrivilegePreserved(id)) return;
+            if (crossChainManager.CheckPrivilegePreserved()) return;
 
             var token = new TokenContract(NodeManager, initAccount, SystemTokenAddress);
             var initBalance = token.GetUserBalance(initAccount, primaryToken);
@@ -655,9 +654,9 @@ namespace AElf.Automation.RpcPerformance
 
             //cross chain transfer 
             var amount = 10000_0000_00000000;
-            var raw = crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount);
+            var result =
+                crossChainManager.CrossChainTransfer(primaryToken, amount, initAccount, initAccount, out string raw);
             var txId = MainNodeManager.SendTransaction(raw);
-            var result = MainNodeManager.CheckTransactionResult(txId);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             // create input 
@@ -673,7 +672,7 @@ namespace AElf.Automation.RpcPerformance
             };
 
             //check last transaction index 
-            crossChainManager.CheckSideChainBlockIndex(result.BlockNumber);
+            crossChainManager.CheckSideChainIndexMainChain(result.BlockNumber);
 
             //side chain receive 
 
@@ -722,7 +721,7 @@ namespace AElf.Automation.RpcPerformance
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
-            var transactionsWhitRpc = new Dictionary<string,List<string>>();
+            var transactionsWhitRpc = new Dictionary<string, List<string>>();
 
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)

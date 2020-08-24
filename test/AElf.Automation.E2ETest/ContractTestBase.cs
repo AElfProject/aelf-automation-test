@@ -30,7 +30,7 @@ namespace AElf.Automation.E2ETest
             var firstBp = ConfigNodes.First();
 
             NodeManager = new NodeManager(firstBp.Endpoint);
-            AuthorityManager = new AuthorityManager(NodeManager);
+            AuthorityManager = new AuthorityManager(NodeManager,firstBp.Account);
             ContractManager = new ContractManager(NodeManager, firstBp.Account);
             EnvCheck = EnvCheck.GetDefaultEnvCheck();
             TransferToNodes();

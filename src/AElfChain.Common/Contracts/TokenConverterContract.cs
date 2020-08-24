@@ -1,3 +1,5 @@
+using AElf.Client.Dto;
+using AElf.Contracts.TokenConverter;
 using AElfChain.Common.Managers;
 
 namespace AElfChain.Common.Contracts
@@ -35,6 +37,17 @@ namespace AElfChain.Common.Contracts
             base(nodeManager, contractAddress)
         {
             SetAccount(callAddress);
+        }
+
+        public TransactionResultDto Buy(string buyer,string symbol,long amount)
+        {
+            var tester = GetNewTester(buyer);
+            var result = tester.ExecuteMethodWithResult(TokenConverterMethod.Buy, new BuyInput()
+            {
+                Symbol = symbol,
+                Amount = amount
+            });
+            return result;
         }
     }
 }

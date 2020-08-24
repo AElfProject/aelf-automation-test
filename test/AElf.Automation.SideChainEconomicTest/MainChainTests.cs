@@ -1,12 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using AElf.Contracts.MultiToken;
-using AElf.Types;
+using AElf.Automation.SideChainEconomicTest.EconomicTest;
 using AElfChain.Common.Contracts;
-using Google.Protobuf;
-using Shouldly;
+using AElfChain.Common.Managers;
 
 namespace AElf.Automation.SideChainEconomicTest
 {
@@ -20,52 +16,16 @@ namespace AElf.Automation.SideChainEconomicTest
             Main.GetTokenBalances(Main.CallAddress);
         }
 
-        public async Task Transfer_From_Main_To_Side()
+        public void PrepareSideChainToken(CrossChainManager manager, ContractServices services)
         {
-            Main.GetTokenBalances(Main.CallAddress);
-            var mainToken = Main.GenesisService.GetTokenStub();
-
-            var transactionResults = new Dictionary<Transaction, TransactionResult>();
-            //main chain transfer
-            foreach (var symbol in Main.Symbols)
-            {
-                var transactionResult = await mainToken.CrossChainTransfer.SendAsync(new CrossChainTransferInput
-                {
-                    Symbol = symbol,
-                    Amount = 2000_00000000,
-                    IssueChainId = ChainConstInfo.MainChainId,
-                    To = SideA.CallAccount,
-                    ToChainId = ChainConstInfo.SideChainIdA,
-                    Memo = $"cross chain transfer - {Guid.NewGuid()}"
-                });
-                transactionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                transactionResults.Add(transactionResult.Transaction, transactionResult.TransactionResult);
-            }
-
-            Main.GetTokenBalances(Main.CallAddress);
-
-            //wait index
-            await MainManager.WaitSideChainIndex(SideA, transactionResults.Values.Last().BlockNumber);
-
-            //side chain accept
-            SideA.GetTokenBalances(SideA.CallAddress);
-
-            var sideToken = SideA.GenesisService.GetTokenStub();
-            foreach (var (transaction, transactionResult) in transactionResults)
-            {
-                var rawInfo = transaction.ToByteArray().ToHex();
-                var merklePath = await Main.GetMerklePath(transactionResult.TransactionId.ToHex());
-                var receiveResult = await sideToken.CrossChainReceiveToken.SendAsync(new CrossChainReceiveTokenInput
-                {
-                    FromChainId = ChainConstInfo.MainChainId,
-                    ParentChainHeight = transactionResult.BlockNumber,
-                    MerklePath = merklePath,
-                    TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawInfo))
-                });
-                receiveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            }
-
-            SideA.GetTokenBalances(SideA.CallAddress);
+            Logger.Info($"Transfer resource token to side chain {services.NodeManager.GetChainId()}: ");
+            TransferToSideChain(manager, services, 20000_00000000);
+        }
+        
+        public void TransferSideChainToken(CrossChainManager manager, ContractServices services, List<string> symbols)
+        {
+            Logger.Info($"Transfer resource token to side chain {services.NodeManager.GetChainId()}: ");
+            TransferToSideChain(manager, services, 20000_00000000,symbols);
         }
     }
 }

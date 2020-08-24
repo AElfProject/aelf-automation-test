@@ -267,7 +267,19 @@ namespace AElfChain.Common.Managers
             var notExist = 0;
             while (!compositeCancel.IsCancellationRequested)
             {
-                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
+                TransactionResultDto transactionResult;
+                try
+                {
+                    transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(1000);
+                    Logger.Info($"Check {txId} again:");
+                    transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
+                }
+
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 string message;
                 string errorMsg;
@@ -326,7 +338,18 @@ namespace AElfChain.Common.Managers
             while (transactionQueue.TryDequeue(out var transactionId))
             {
                 var id = transactionId;
-                var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
+                TransactionResultDto transactionResult;
+                try
+                {
+                    transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(1000);
+                    Logger.Info($"Check {id} again:");
+                    transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
+                }
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
