@@ -35,6 +35,8 @@ namespace AElfChain.Common.Managers
         public AuthorityManager(INodeManager nodeManager, string caller = "")
         {
             GetConfigNodeInfo();
+            if (caller == "")
+                caller = _info.Nodes.First().Account;
             NodeManager = nodeManager;
             _genesis = GenesisContract.GetGenesisContract(nodeManager, caller);
             _consensus = _genesis.GetConsensusContract();
