@@ -34,7 +34,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string ReviewAccount2 { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
         public string ReviewAccount3 { get; } = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
 
-        private static string RpcUrl { get; } = "http://192.168.197.14:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.22:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -43,7 +43,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("AssociationTest_");
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-env2-main");
 
             #endregion
 
@@ -74,13 +74,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         OrganizationMembers =
                         {
                             ReviewAccount1.ConvertAddress(), ReviewAccount2.ConvertAddress(),
-                            ReviewAccount3.ConvertAddress(), InitAccount.ConvertAddress()
+                            ReviewAccount3.ConvertAddress(),InitAccount.ConvertAddress()
                         }
                     },
                     ProposerWhiteList = new ProposerWhiteList
                     {
-                        Proposers = {InitAccount.ConvertAddress()}
-                    }
+                        Proposers = {InitAccount.ConvertAddress(),ReviewAccount2.ConvertAddress()}
+                    },
+                    CreationToken = HashHelper.ComputeFrom("ABC")
                 });
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
@@ -95,18 +96,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 .ShouldBeTrue();
             organization.ProposerWhiteList.Proposers.Contains(InitAccount.ConvertAddress()).ShouldBeTrue();
             organization.ProposalReleaseThreshold.MinimalVoteThreshold.ShouldBe(3);
-            ContractManager.Token.SetAccount(InitAccount);
-            var transfer = ContractManager.Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
-            {
-                Symbol = Symbol,
-                Amount = 1000,
-                Memo = "transfer to Organization",
-                To = organizationAddress
-            });
+            organization.CreationToken.ShouldBe(HashHelper.ComputeFrom("ABC"));
+//            ContractManager.Token.SetAccount(InitAccount);
+//            var transfer = ContractManager.Token.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+//            {
+//                Symbol = Symbol,
+//                Amount = 1000,
+//                Memo = "transfer to Organization",
+//                To = organizationAddress
+//            });
         }
-
+//29FKHhfirdbYbF4Bzxt3BgYiA64RjC9i4xAyMQKz39jGqGbky2
+//251FcF7xUDqf9Md6jdqiJA4BnQJ63M1FTX8XrtE36WpvZqmS8c
+//9GPkEDvHUGYV1JDdL6kQQTtpojP9oPFxorXXLerXoXBoT3oUP
+//2uMzcQAXtV1KMPSpcQomh3UsyL77dJ1isqfzDTCcqcEV89QWY6
         [TestMethod]
-        [DataRow("2UicBDXQszyhSaimjj4sbqeMzEBMqLCx3vsjgR49WUyrcocZd9")]
+        [DataRow("hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL")]
         public void GetOrganization(string organizationAddress)
         {
             var organization =
@@ -116,10 +121,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _logger.Info(
                 $"{organization.OrganizationAddress} maximal abstention threshold is {organization.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
+            _logger.Info($"{organization}");
         }
 
         [TestMethod]
-        [DataRow("2UicBDXQszyhSaimjj4sbqeMzEBMqLCx3vsjgR49WUyrcocZd9")]
+        [DataRow("251FcF7xUDqf9Md6jdqiJA4BnQJ63M1FTX8XrtE36WpvZqmS8c")]
         public void CreateProposal(string organizationAddress)
         {
             var transferInput = new TransferInput
@@ -148,7 +154,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("913a971647aaaf121ee2e1d71c27c0f25eb8877b76e4994b9ec90600e4ae8e24")]
+        [DataRow("8b9bd67374186006aef1d4c443356865d6da6c7a5c6c5737747fe6103310e7bf")]
         public void GetProposal(string proposalId)
         {
             var result =
@@ -236,6 +242,56 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             methodFee.Fees.Select(f => f.BasicFee).First().ShouldBe(10000000);
             methodFee.Fees.Select(f => f.Symbol).First().ShouldBe("ELF");
+        }
+
+        [TestMethod]
+        public void ChangeMembers()
+        {
+            //hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL
+            //EMixpAyzLsY1LZZwQnhRbsTQyHiz5FRsHdZYYiuxinBK4Uhky
+            var organization = "hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL";
+            var input = new ChangeMemberInput
+            {
+                NewMember = ReviewAccount2.ConvertAddress(),
+                OldMember = ReviewAccount1.ConvertAddress()
+            };
+            var createProposal = Association.CreateProposal(Association.ContractAddress,
+                nameof(AssociationMethod.ChangeMember), input, organization.ConvertAddress(), InitAccount);
+            
+            var reviewers = Association.GetOrganization(organization.ConvertAddress());
+            foreach (var member in reviewers.OrganizationMemberList.OrganizationMembers)
+                Association.ApproveProposal(createProposal,member.ToBase58());
+            
+            var release = Association.ReleaseProposal(createProposal, InitAccount);
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+        
+        [TestMethod]
+        public void AddMembers()
+        {
+            var organization = "2uMzcQAXtV1KMPSpcQomh3UsyL77dJ1isqfzDTCcqcEV89QWY6";
+            var input = ReviewAccount1.ConvertAddress();
+            var createProposal = Association.CreateProposal(Association.ContractAddress,
+                nameof(AssociationMethod.AddMember), input, organization.ConvertAddress(), InitAccount);
+            var reviewers = Association.GetOrganization(organization.ConvertAddress());
+            foreach (var member in reviewers.OrganizationMemberList.OrganizationMembers)
+                Association.ApproveProposal(createProposal,member.ToBase58());
+            var release = Association.ReleaseProposal(createProposal, InitAccount);
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+        
+        [TestMethod]
+        public void RemoveMembers()
+        {
+            var organization = "hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL";
+            var input = InitAccount.ConvertAddress();
+            var createProposal = Association.CreateProposal(Association.ContractAddress,
+                nameof(AssociationMethod.RemoveMember), input, organization.ConvertAddress(), InitAccount);
+            var reviewers = Association.GetOrganization(organization.ConvertAddress());
+            foreach (var member in reviewers.OrganizationMemberList.OrganizationMembers)
+                Association.ApproveProposal(createProposal,member.ToBase58());
+            var release = Association.ReleaseProposal(createProposal, InitAccount);
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]

@@ -35,7 +35,10 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationThreshold,
         ChangeOrganizationMember,
         ChangeOrganizationProposerWhiteList,
-        ChangeMethodFeeController
+        ChangeMethodFeeController,
+        AddMember,
+        RemoveMember,
+        ChangeMember
     }
 
     public class AssociationContract : BaseContract<AssociationMethod>
