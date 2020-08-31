@@ -79,6 +79,17 @@ namespace AElf.Automation.SideChainEconomicTest
             services.ConsensusService.GetUndistributedDividends(); 
             services.ConsensusService.GetDividends();
         }
+        
+        public void CheckConsensusBalance(ContractServices services)
+        {
+            var consensus = services.ConsensusService;
+            Logger.Info($"{services.NodeManager.GetChainId()}: {consensus.ContractAddress}");
+            foreach (var symbol in services.FeeResourceSymbols)
+            {
+                var balance = services.TokenService.GetUserBalance(consensus.ContractAddress,symbol);
+                Logger.Info($" {consensus.ContractAddress} Token '{symbol}' balance = {balance}");
+            }
+        }
 
         public void ResourceFeeTest(TransactionFeesContract txContract)
         {
@@ -120,6 +131,32 @@ namespace AElf.Automation.SideChainEconomicTest
             }
             
             return isNeedCrossTransfer;
+        }
+        public void CheckMinersRentResource()
+        {
+            var miners = GetMiners();
+            foreach (var miner in miners)
+            foreach (var symbol in SideB.RentResourceSymbols)
+            {
+                var balance = SideA.TokenService.GetUserBalance(miner, symbol);
+                Logger.Info($"{miner}: {symbol}={balance}");
+            }
+        }
+
+        public void TakeBakeResource(ContractServices services,TransactionFeesContract txContract)
+        {
+            var symbols = services.FeeResourceSymbols;
+            var miners = GetMiners();
+            foreach (var miner in miners)
+            foreach (var symbol in symbols)
+            {
+                var balance = services.TokenService.GetUserBalance(miner,symbol);
+                if (balance <= 100_00000000) continue;
+                var transferAmount = balance - 100_00000000;
+                services.TokenService.SetAccount(miner);
+                services.TokenService.TransferBalance(miner, txContract.ContractAddress,
+                    transferAmount,symbol);
+            }
         }
 
         public void ResourceFeeTestJob(TransactionFeesContract txContract)

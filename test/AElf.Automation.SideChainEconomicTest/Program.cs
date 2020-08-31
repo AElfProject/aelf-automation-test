@@ -84,6 +84,7 @@ namespace AElf.Automation.SideChainEconomicTest
             TaskCollection.Add(RunContinueJobWithInterval(() =>
             {
                 sideTest.SideManager.QueryOwningRental(sideTest.SideB);
+                sideTest.CheckMinersRentResource();
                 var list = sideTest.SideManager.CheckCreatorRentResourceBalance(sideTest.SideB);
                 if (list.Count!=0)
                     mainTest.TransferSideChainToken(mainTest.MainToSideB,sideTest.SideB,list);
@@ -92,9 +93,21 @@ namespace AElf.Automation.SideChainEconomicTest
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
             {
+                sideTest.CheckDistributed(sideTest.SideA);
                 sideTest.CheckDistributed(sideTest.SideB);
-                sideTest.CheckDistributed(sideTest.SideB);
+                sideTest.CheckConsensusBalance(sideTest.SideA);
+                sideTest.CheckConsensusBalance(sideTest.SideB);
+                sideTest.CheckMinersRentResource();
+
                 Thread.Sleep(30000);
+            },10));
+            
+            TaskCollection.Add(RunContinueJobWithInterval(() =>
+            {
+                sideTest.TakeBakeResource(sideTest.SideA,acs8ContractA);
+                sideTest.TakeBakeResource(sideTest.SideB,acs8ContractB);
+
+                Thread.Sleep(300000);
             },10));
 
             Task.WaitAll(TaskCollection.ToArray());

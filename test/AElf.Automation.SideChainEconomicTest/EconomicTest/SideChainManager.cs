@@ -97,6 +97,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             var genesis = services.GenesisService;
             var token = genesis.GetTokenImplStub();
             var rental = AsyncHelper.RunSync(()=> token.GetOwningRental.CallAsync(new Empty()));
+            Logger.Info($"{services.NodeManager.GetChainId()} GetOwningRental");
             foreach (var item in rental.ResourceAmount) Logger.Info($"{item.Key}, {item.Value}");
         }
         
