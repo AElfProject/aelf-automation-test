@@ -275,7 +275,7 @@ namespace AElfChain.Common.Managers
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     Logger.Info($"Check {txId} again:");
                     transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 }
@@ -309,7 +309,6 @@ namespace AElfChain.Common.Managers
                         Thread.Sleep(1000); //wait 1 second to wait set best chain
                         return transactionResult;
                     case TransactionResultStatus.Failed:
-                    case TransactionResultStatus.Unexecutable:
                         message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
@@ -374,7 +373,6 @@ namespace AElfChain.Common.Managers
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Conflict:
-                    case TransactionResultStatus.Unexecutable:
                         Logger.Error(
                             $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",
                             true);

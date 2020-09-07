@@ -107,7 +107,14 @@ namespace AElf.Automation.SideChainEconomicTest
                 sideTest.TakeBakeResource(sideTest.SideA,acs8ContractA);
                 sideTest.TakeBakeResource(sideTest.SideB,acs8ContractB);
 
-                Thread.Sleep(300000);
+                Thread.Sleep(60000);
+            },10));
+            
+            TaskCollection.Add(RunContinueJobWithInterval(() =>
+            {
+                mainTest.TransferPrimaryToken(mainTest.MainToSideA);
+
+                Thread.Sleep(60000);
             },10));
 
             Task.WaitAll(TaskCollection.ToArray());

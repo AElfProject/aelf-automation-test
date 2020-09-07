@@ -27,5 +27,15 @@ namespace AElf.Automation.SideChainEconomicTest
             Logger.Info($"Transfer resource token to side chain {services.NodeManager.GetChainId()}: ");
             TransferToSideChain(manager, services, 20000_00000000,symbols);
         }
+        
+        public void TransferPrimaryToken(CrossChainManager manager)
+        {
+            if (SideA.GetPrimaryToken(SideA.CallAddress))
+                return;
+            Logger.Info($"Transfer primary token to side chain {SideA.NodeManager.GetChainId()}: ");
+            var primaryToken = SideA.TokenService.GetPrimaryTokenSymbol();
+            var symbols = new List<string>{primaryToken};
+            TransferToSideChain(manager, SideA, 20000_00000000,symbols);
+        }
     }
 }

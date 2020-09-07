@@ -147,7 +147,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             });
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
-                WaitOneBlock(txFees.ApiClient,txResult.BlockNumber);
+                txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
                 var txFee = txResult.GetResourceTokenFee();
                 var afterResource = txFees.QueryContractResource();
 
@@ -172,7 +172,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             });
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
-                WaitOneBlock(txFees.ApiClient,txResult.BlockNumber);
+                txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
                 var afterResource = txFees.QueryContractResource();
 
                 var txFee = txResult.GetResourceTokenFee();
@@ -199,7 +199,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             });
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
-                WaitOneBlock(txFees.ApiClient,txResult.BlockNumber);
+                txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
                 var afterResource = txFees.QueryContractResource();
 
                 var txFee = txResult.GetResourceTokenFee();
@@ -223,7 +223,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             });
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
-                WaitOneBlock(txFees.ApiClient,txResult.BlockNumber);
+                txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
                 var afterResource = txFees.QueryContractResource();
 
                 var txFee = txResult.GetResourceTokenFee();
@@ -232,17 +232,6 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 beforeResource["WRITE"].ShouldBe(afterResource["WRITE"] + txFee["WRITE"]);
                 beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + txFee["TRAFFIC"]);
                 beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + txFee["STORAGE"]);
-            }
-        }
-        
-        private void WaitOneBlock(AElfClient client,long blockHeight)
-        {
-            while (true)
-            {
-                var height = AsyncHelper.RunSync(client.GetBlockHeightAsync);
-                if (height >= blockHeight + 1)
-                    return;
-                Thread.Sleep(500);
             }
         }
     }

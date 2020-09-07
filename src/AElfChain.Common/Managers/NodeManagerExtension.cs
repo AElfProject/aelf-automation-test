@@ -67,6 +67,18 @@ namespace AElfChain.Common.Managers
                     $"\rBlock height: {chainStatus.BestChainHeight}, Lib height: {chainStatus.LastIrreversibleBlockHeight}");
             }
         }
+        
+        public static void WaitOneBlock(this INodeManager nodeManager,long blockHeight)
+        {
+            var client = nodeManager.ApiClient;
+            while (true)
+            {
+                var height = AsyncHelper.RunSync(client.GetBlockHeightAsync);
+                if (height > blockHeight + 1)
+                    return;
+                Thread.Sleep(500);
+            }
+        }
 
         public static void WaitCurrentHeightToLib(this INodeManager nodeManager)
         {
