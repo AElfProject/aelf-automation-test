@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Acs0;
 using Acs3;
-using Acs7;
+using AElf.Standards.ACS7;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -44,7 +44,7 @@ namespace AElf.Automation.SideChainTests
         {
             //Init Logger
             Log4NetHelper.LogInit();
-            NodeInfoHelper.SetConfig("nodes-env205-main");
+            NodeInfoHelper.SetConfig("nodes-env2-main");
             InitAccount = ConfigInfoHelper.Config.MainChainInfos.Account;
             var mainUrl = ConfigInfoHelper.Config.MainChainInfos.MainChainUrl;
             var password = ConfigInfoHelper.Config.MainChainInfos.Password;
@@ -63,8 +63,10 @@ namespace AElf.Automation.SideChainTests
             SideAServices = SideServices.First();
             SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
             
-            AuthorityManager = new AuthorityManager(MainServices.NodeManager);
-            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager);
+            AuthorityManager = new AuthorityManager(MainServices.NodeManager,InitAccount);
+            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager,InitAccount);
+            SideAuthorityManager = new AuthorityManager(SideBServices.NodeManager,InitAccount);
+
             TokenContractStub = MainServices.TokenContractStub;
             Miners = new List<string>();
             Miners = AuthorityManager.GetCurrentMiners();
@@ -160,24 +162,6 @@ namespace AElf.Automation.SideChainTests
                 {
                     Address = services.TokenService.Contract,
                     SystemContractHashName = HashHelper.ComputeFrom("AElf.ContractNames.Token")
-                });
-            return validateTransaction;
-        }
-
-        public async Task<string> ValidateTokenSymbol(ContractServices services, string symbol)
-        {
-            var tokenInfo = await TokenContractStub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
-            var validateTransaction = services.NodeManager.GenerateRawTransaction(
-                services.CallAddress, services.TokenService.ContractAddress,
-                TokenMethod.ValidateTokenInfoExists.ToString(), new ValidateTokenInfoExistsInput
-                {
-                    IsBurnable = tokenInfo.IsBurnable,
-                    Issuer = tokenInfo.Issuer,
-                    IssueChainId = tokenInfo.IssueChainId,
-                    Decimals = tokenInfo.Decimals,
-                    Symbol = tokenInfo.Symbol,
-                    TokenName = tokenInfo.TokenName,
-                    TotalSupply = tokenInfo.TotalSupply
                 });
             return validateTransaction;
         }

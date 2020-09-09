@@ -17,6 +17,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
 using log4net;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -67,7 +68,7 @@ namespace AElf.Automation.RpcPerformance
             SystemTokenAddress = TokenMonitor.SystemToken.ContractAddress;
 
             var chainId = NodeManager.GetChainId();
-            CrossTransferToInitAccount(chainId);
+            CrossTransferToInitAccount();
             //Transfer token for approve
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
             var enumerable = bps as string[] ?? bps.ToArray();
@@ -260,7 +261,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     FromChainId = mainChainId,
                     MerklePath = merklePath,
-                    TransactionBytes = txInfo.Key.ToByteString(),
+                    TransactionBytes = ByteStringHelper.FromHexString(txInfo.Key),
                     ParentChainHeight = txInfo.Value.BlockNumber
                 };
                 crossChainCreateTokenInputList.Add(crossChainCreateToken);
@@ -311,7 +312,7 @@ namespace AElf.Automation.RpcPerformance
                     MerklePath = merklePath,
                     FromChainId = mainChainId,
                     ParentChainHeight = txInfo.Value.BlockNumber,
-                    TransferTransactionBytes = txInfo.Key.ToByteString()
+                    TransferTransactionBytes = ByteStringHelper.FromHexString(txInfo.Key)
                 };
                 crossChainReceiveTokenInputList.Add(crossChainCreateToken);
             }
@@ -634,7 +635,7 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private void CrossTransferToInitAccount(string chainId)
+        private void CrossTransferToInitAccount()
         {
             var bps = NodeInfoHelper.Config.Nodes;
             var initAccount = bps.First().Account;
@@ -668,7 +669,7 @@ namespace AElf.Automation.RpcPerformance
                 MerklePath = merklePath,
                 FromChainId = mainChainId,
                 ParentChainHeight = result.BlockNumber,
-                TransferTransactionBytes = raw.ToByteString()
+                TransferTransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(raw))
             };
 
             //check last transaction index 

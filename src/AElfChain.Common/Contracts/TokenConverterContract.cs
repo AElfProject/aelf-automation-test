@@ -1,6 +1,8 @@
+using System;
 using AElf.Client.Dto;
 using AElf.Contracts.TokenConverter;
 using AElfChain.Common.Managers;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElfChain.Common.Contracts
 {
@@ -23,7 +25,9 @@ namespace AElfChain.Common.Contracts
         GetFeeRate,
         GetManagerAddress,
         GetBaseTokenSymbol,
-        GetConnector
+        GetConnector,
+        GetDepositConnectorBalance,
+        GetPairConnector
     }
 
     public class TokenConverterContract : BaseContract<TokenConverterMethod>
@@ -48,6 +52,24 @@ namespace AElfChain.Common.Contracts
                 Amount = amount
             });
             return result;
+        }
+
+        public long GetDepositConnectorBalance(string symbol)
+        {
+            var balance = CallViewMethod<Int64Value>(TokenConverterMethod.GetDepositConnectorBalance,
+                new StringValue {Value = symbol});
+            return balance.Value;
+        }
+
+        public string GetFeeRate()
+        {
+            return (CallViewMethod<StringValue>(TokenConverterMethod.GetFeeRate, new Empty())).Value;
+        }
+
+        public PairConnector GetPairConnector(string symbol)
+        {
+            return CallViewMethod<PairConnector>(TokenConverterMethod.GetPairConnector,
+                new TokenSymbol {Symbol = symbol});
         }
     }
 }

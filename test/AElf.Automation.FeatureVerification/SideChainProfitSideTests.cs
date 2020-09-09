@@ -43,6 +43,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public ContractManager SideManager { get; set; }
         public AuthorityManager AuthorityManager { get; set; }
 
+        private readonly List<string> ResourceSymbol = new List<string>
+            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
+
+
         [TestMethod]
         public void Prepare_TestToken()
         {
@@ -79,14 +83,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task Register_Mortgage_Test(string account,long amount)
+        public async Task Register_Mortgage_Test(string account, long amount)
         {
             var beforeBalance = SideManager.Token.GetUserBalance(account, "SHARE");
             var stbBalance = SideManager.Token.GetUserBalance(account, "STB");
             if (beforeBalance < amount)
+            {
                 SideManager.Token.TransferBalance(SideManager.CallAddress, account, amount, "SHARE");
-            if (stbBalance < 1000_00000000)
-                SideManager.Token.IssueBalance(SideManager.CallAddress, account, 1000_00000000, "STB");
+                beforeBalance = SideManager.Token.GetUserBalance(account, "SHARE");
+            }
+
+            if (stbBalance < 100_00000000)
+                SideManager.Token.TransferBalance(SideManager.CallAddress, account, 1000_00000000, "STB");
             var stub = SideManager.Genesis.GetTokenImplStub(account);
             var approveResult = await stub.Approve.SendAsync(new ApproveInput
             {
@@ -96,7 +104,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             });
             approveResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            var holder =  SideManager.Genesis.GetTokenHolderStub(account);
+            var holder = SideManager.Genesis.GetTokenHolderStub(account);
             var registerResult =
                 await holder.RegisterForProfits.SendAsync(new RegisterForProfitsInput
                 {
@@ -117,57 +125,68 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbol = SideManager.Token.GetPrimaryTokenSymbol();
             foreach (var node in nodes)
             {
-                var balance = SideManager.Token.GetUserBalance(node.Account,symbol);
+                var balance = SideManager.Token.GetUserBalance(node.Account, symbol);
                 if (balance > 1000_00000000) continue;
-                SideManager.Token.TransferBalance(nodes.First().Account, node.Account, 10000_00000000,symbol);
+                SideManager.Token.TransferBalance(nodes.First().Account, node.Account, 10000_00000000, symbol);
             }
-            var getReceiver =  await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
-            getReceiver.ShouldBe(new Address());
+
+            var getReceiver = await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+            if (!getReceiver.Equals(new Address()))
+            {
+                Logger.Info($"FeeReceiver: {getReceiver}");
+                return;
+            }
             var associationOrganization =
                 AuthorityManager.CreateAssociationOrganization(nodes.TakeLast(5).Select(a => a.Account).ToList());
             var setReceiver = await SideManager.TokenImplStub.SetFeeReceiver.SendAsync(associationOrganization);
             setReceiver.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            
-            getReceiver =  await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+
+            getReceiver = await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
             getReceiver.ShouldBe(associationOrganization);
+            Logger.Info($"FeeReceiver: {getReceiver}");
         }
 
         [TestMethod]
         public async Task GetReceiver()
         {
-            var getReceiver =  await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+            var getReceiver = await SideManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
             Logger.Info($"{getReceiver}");
         }
 
         [TestMethod]
         public void GetBalance()
         {
-            var receiver = "6jxDothi513oj2pJV4VBEnZsa9xnogw6tbNSS7A5GkcKuEPyk";
+            var receiver = "a1vLKESfgbqfnAX2Ej6b1kfuFkduB6AkN1Q5XnnhhusDUM6Tf";
             var symbol = SideManager.Token.GetPrimaryTokenSymbol();
-            var balance = SideManager.Token.GetUserBalance(receiver,symbol);
-            Logger.Info($"{balance}");
+            var balance = SideManager.Token.GetUserBalance(receiver, symbol);
+            var elfBalance = SideManager.Token.GetUserBalance(receiver);
+            Logger.Info($"{balance} {elfBalance}");
             var bps = NodeInfoHelper.Config.Nodes;
-            var symbols = new[] {"SHARE","TEST","CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC","ELF"};
+            var symbols = new[]
+                {"SHARE", "TEST", "CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC", "ELF"};
             foreach (var s in symbols)
             foreach (var bp in bps)
             {
                 var accountBalance = SideManager.Token.GetUserBalance(bp.Account, s);
                 Logger.Info($"{bp.Account} {s} balance is {accountBalance}");
-            }        
+            }
         }
 
         [TestMethod]
         public async Task Withdraw()
-        { 
-            var beforeBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
-            var result = await SideManager.TokenHolderStub.Withdraw.SendAsync(SideManager.Consensus.Contract);
+        {
+            var account = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
+            var beforeBalance = SideManager.Token.GetUserBalance(account, "SHARE");
+            var stub = SideManager.Genesis.GetTokenHolderStub(account);
+            var result = await stub.Withdraw.SendAsync(SideManager.Consensus.Contract);
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var afterBalance = SideManager.Token.GetUserBalance(SideManager.CallAddress, "SHARE");
+            var afterBalance = SideManager.Token.GetUserBalance(account, "SHARE");
             afterBalance.ShouldBe(beforeBalance + 100);
         }
-        
+
         [TestMethod]
-        [DataRow("READ", 700_00000000L)]
+        [DataRow("ELF", 100_00000000L)]
+
         public async Task Donate_SideChainDividendsPool_Test(string symbol, long amount)
         {
             var init = NodeInfoHelper.Config.Nodes[0].Account;
@@ -205,14 +224,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     });
             contributeResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var check = await consensusStub.GetSymbolList.CallAsync(new Empty());
-            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
+            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info($"Symbol list : {check}\n amount:{unAmount}");
         }
 
         [TestMethod]
         public async Task Query_User_ProfitSymbol_Test()
         {
-            var symbols = new[] {"READ", "WRITE", "STORAGE", "TRAFFIC","ELF","STB","CPU","RAM"};;
+            var symbols = new[] {"READ", "WRITE", "STORAGE", "TRAFFIC", "ELF", "STB", "CPU", "RAM","TEST"};
             var bps = NodeInfoHelper.Config.Nodes;
             foreach (var bp in bps)
             foreach (var symbol in symbols)
@@ -220,9 +239,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var balance = SideManager.Token.GetUserBalance(bp.Account, symbol);
                 Logger.Info($"{bp.Account} balance info: {symbol}={balance}");
             }
+
             var consensusStub = SideManager.Genesis.GetConsensusImplStub(bps.First().Account);
             var check = await consensusStub.GetSymbolList.CallAsync(new Empty());
-            var amount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
+            var amount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info($"Symbol list : {check}\n amount:{amount}");
         }
 
@@ -318,6 +338,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 SchemeId = scheme.SchemeId
             });
             Logger.Info(profit);
+
+            foreach (var symbol in ResourceSymbol)
+            {
+                var balance = SideManager.Token.GetUserBalance(SideManager.Consensus.ContractAddress, symbol);
+                Logger.Info($"{SideManager.Consensus.ContractAddress}: {symbol}: {balance}");
+            }
+
+            var init = NodeInfoHelper.Config.Nodes[0].Account;
+            var consensusStub = SideManager.Genesis.GetConsensusImplStub(init);
+            var check = await consensusStub.GetSymbolList.CallAsync(new Empty());
+            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
+            Logger.Info($"Symbol list : {check}\n amount:{unAmount}");
         }
     }
 }

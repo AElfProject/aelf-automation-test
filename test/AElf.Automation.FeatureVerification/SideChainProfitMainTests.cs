@@ -163,9 +163,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetSymbolList()
         {
-            var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);
-            var account = bps.First();
-            var authority = new AuthorityManager(NodeManager);
+            var account = NodeInfoHelper.Config.Nodes.Select(o => o.Account).First();
+            var authority = new AuthorityManager(NodeManager,account);
+            var bps = authority.GetCurrentMiners();
+            
             var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
             var symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(symbolList));
@@ -174,7 +175,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var addSymbol = authority.ExecuteTransactionWithAuthority(MainManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetSymbolList),
                 new SymbolList {Value = {"ELF", Symbol}},
-                account, controller.OwnerAddress);
+                bps.First(), controller.OwnerAddress);
             addSymbol.Status.ShouldBe(TransactionResultStatus.Mined);
 
             symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
@@ -253,8 +254,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Decimals = 10,
                 TotalSupply = 100000000_0000000000,
                 Issuer = MainManager.CallAccount,
-                IsBurnable = true,
-                IsProfitable = profitable
+                IsBurnable = true
             };
             if (isAbleWhite)
             {

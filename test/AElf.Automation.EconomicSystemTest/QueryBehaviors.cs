@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -76,6 +79,14 @@ namespace AElf.Automation.EconomicSystemTest
 
             return result;
         }
+        
+        public List<Address> GetCandidatesAddress()
+        {
+            var result =
+                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
+                    new Empty());
+            return result.Value.Select(pubkey => Address.FromPublicKey(pubkey.ToByteArray())).ToList();
+        }
 
         public ElectorVote GetVotesInformation(string voteAccount)
         {
@@ -119,26 +130,6 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         #endregion
-
-        #region Vote Method
-
-        #endregion
-
-        #region Consensus view Method
-
-        public MinerList GetCurrentMiners()
-        {
-            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            return miners;
-        }
-
-        public long GetCurrentTermInformation()
-        {
-            var round = ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
-
-            return round.TermNumber;
-        }
-
-        #endregion
+        
     }
 }

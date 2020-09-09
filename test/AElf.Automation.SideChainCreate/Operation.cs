@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acs1;
 using Acs3;
-using Acs7;
+using AElf.Standards.ACS7;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
 using AElf.Contracts.MultiToken;
@@ -100,7 +100,6 @@ namespace AElf.Automation.SideChainCreate
                         SideChainTokenSymbol = tokenInfo.Symbol,
                         SideChainTokenTotalSupply = tokenInfo.TotalSupply,
                         IsSideChainTokenBurnable = tokenInfo.IsBurnable,
-                        IsSideChainTokenProfitable = tokenInfo.IsProfitable,
                         InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
                         SideChainTokenInitialIssueList = {sideChainTokenInitialIssue}
                     });

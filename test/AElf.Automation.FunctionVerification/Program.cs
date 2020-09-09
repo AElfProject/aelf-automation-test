@@ -57,10 +57,10 @@ namespace AElf.Automation.ContractsTesting
 //            transactionFee.CalculateTotalFee();
 //            Console.ReadLine();
 //
-//            //analyze size fee
-//            var feeProvider = new TransactionFeeProvider();
-//            feeProvider.CalculateTxFee();
-//            Console.ReadLine();
+            //analyze size fee
+            var feeProvider = new TransactionFeeProvider();
+            feeProvider.CalculateTxFee();
+            Console.ReadLine();
 //
 //            //generate random number
 //            var randGen = new RandomGenerate(nm, BpAccount);

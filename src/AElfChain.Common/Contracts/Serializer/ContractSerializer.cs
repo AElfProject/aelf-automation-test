@@ -5,7 +5,6 @@ using Acs2;
 using Acs3;
 using Acs4;
 using Acs6;
-using Acs7;
 using Acs8;
 using AElf.Contracts.Association;
 using AElf.Contracts.Configuration;
@@ -29,6 +28,7 @@ using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
+using AElf.Standards.ACS7;
 using Google.Protobuf.Reflection;
 
 namespace AElfChain.Common.Contracts.Serializer

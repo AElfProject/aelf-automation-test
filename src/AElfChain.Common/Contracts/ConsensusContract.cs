@@ -40,6 +40,9 @@ namespace AElfChain.Common.Contracts
         GetUndistributedDividends,
         GetSymbolList,
         GetDividends,
+        GetCurrentWelfareReward,
+        GetMinedBlocksOfPreviousTerm,
+        GetCurrentMiningRewardPerBlock,
 
         AnnounceElection,
         QuitElection,
@@ -59,11 +62,18 @@ namespace AElfChain.Common.Contracts
             SetAccount(callAddress);
         }
 
-        public long GetCurrentTermInformation()
+        public Round GetCurrentTermInformation()
         {
             var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
 
-            return round.TermNumber;
+            return round;
+        }
+        
+        public Round GetRoundInformation(long roundNumber)
+        {
+            var round = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new Int64Value{Value = roundNumber});
+
+            return round;
         }
 
         public List<string> GetCurrentMinersPubkey()
@@ -110,6 +120,24 @@ namespace AElfChain.Common.Contracts
             var check = CallViewMethod<SymbolList>(ConsensusMethod.GetSymbolList, new Empty());
             Logger.Info($"Symbol list:{check}");
             return check;
+        }
+        
+        public Int64Value GetCurrentWelfareReward()
+        {
+            var roundMinedBlock = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentWelfareReward, new Empty());
+            return roundMinedBlock;
+        }
+        
+        public Int64Value GetMinedBlocksOfPreviousTerm()
+        {
+            var blocksOfPreviousTerm = CallViewMethod<Int64Value>(ConsensusMethod.GetMinedBlocksOfPreviousTerm, new Empty());
+            return blocksOfPreviousTerm;
+        }
+        
+        public Int64Value GetCurrentMiningRewardPerBlock()
+        {
+            var blocksOfPreviousTerm = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentMiningRewardPerBlock, new Empty());
+            return blocksOfPreviousTerm;
         }
     }
 }

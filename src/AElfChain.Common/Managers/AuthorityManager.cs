@@ -231,12 +231,11 @@ namespace AElfChain.Common.Managers
             return organizationAddress;
         }
         
-        public Address CreateAssociationOrganization(IEnumerable<string> members = null)
+        public Address CreateAssociationOrganization(IEnumerable<string> members = null,string token = "TEST")
         {
             if (members == null)
-            {
                 members = NodeInfoHelper.Config.Nodes.Select(l => l.Account).ToList().Take(3);
-            }
+            token = token == "TEST" ? "TEST" : token;
 //            create association organization
             var enumerable = members.Select(o => o.ConvertAddress());
             var addresses = enumerable as Address[] ?? enumerable.ToArray();
@@ -250,9 +249,9 @@ namespace AElfChain.Common.Managers
                     MinimalVoteThreshold = 2
                 },
                 ProposerWhiteList = new ProposerWhiteList {Proposers = {addresses.First()}},
-                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {addresses}}
+                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {addresses}},
+                CreationToken = HashHelper.ComputeFrom(token)
             };
-            _association.SetAccount(addresses.First().ToBase58());
             var result = _association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 createInput);
             var organizationAddress =
@@ -292,7 +291,7 @@ namespace AElfChain.Common.Managers
         
         public long GetPeriod()
         {
-            return _consensus.GetCurrentTermInformation();
+            return _consensus.GetCurrentTermInformation().TermNumber;
         }
 
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
@@ -366,6 +365,9 @@ namespace AElfChain.Common.Managers
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+            var callerBalance = _token.GetUserBalance(caller);
+            if (callerBalance <= 10000_00000000 * bps.Count)
+                return;
             foreach (var bp in bps)
             {
                 var balance = _token.GetUserBalance(bp, primaryToken);

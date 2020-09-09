@@ -21,7 +21,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class ReferendumAuthContractTest
     {
-        private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public ReferendumContract Referendum;
         public ReferendumContractContainer.ReferendumContractStub ReferendumStub;
 
@@ -35,9 +35,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string OtherAccount { get; } = "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2";
-
-
-        private static string RpcUrl { get; } = "http://192.168.199.205:8001";
+        
+        private static string RpcUrl { get; } = "http://192.168.197.21:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -80,7 +79,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var returnValue = result.ReturnValue;
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
-            _logger.Info($"organization address is : {organizationAddress}");
+            Logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
                 Referendum.CallViewMethod<Organization>(ReferendumMethod.GetOrganization,
@@ -122,7 +121,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     createProposalInput);
             var returnValue = result.ReturnValue;
             var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(returnValue));
-            _logger.Info($"Proposal is : {proposal}");
+            Logger.Info($"Proposal is : {proposal}");
         }
         
 
@@ -136,8 +135,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var toBeRelease = result.ToBeReleased;
             var time = result.ExpiredTime;
 
-            _logger.Info($"proposal is {toBeRelease}");
-            _logger.Info($"proposal expired time is {time} ");
+            Logger.Info($"proposal is {toBeRelease}");
+            Logger.Info($"proposal expired time is {time} ");
         }
         
         [TestMethod]
@@ -146,7 +145,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = await ReferendumStub.GetProposalVirtualAddress.CallAsync(Hash.LoadFromHex(proposalId));
             
-            _logger.Info($"proposal virtual address is: {result} ");
+            Logger.Info($"proposal virtual address is: {result} ");
         }
         
         [TestMethod]
@@ -159,7 +158,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.TokenService.TransferBalance(InitAccount, TestAccount, 1000_00000000);
                 beforeBalance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
             }
-            _logger.Info($"{InitAccount} token balance is {beforeBalance}");
+            Logger.Info($"{InitAccount} token balance is {beforeBalance}");
             var virtualAddress = await ReferendumStub.GetProposalVirtualAddress.CallAsync(Hash.LoadFromHex(proposalId));
             var approveResult = Token.ApproveToken(InitAccount, virtualAddress.ToBase58(), 1000,
                 Token.GetPrimaryTokenSymbol());
@@ -173,7 +172,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var fee = result.GetDefaultTransactionFee();
             var balance = Tester.TokenService.GetUserBalance(InitAccount, Token.GetPrimaryTokenSymbol());
             balance.ShouldBe(beforeBalance - 1000 - fee - approveFee);
-            _logger.Info($"{InitAccount} token balance is {balance}");
+            Logger.Info($"{InitAccount} token balance is {balance}");
 
             // var virtualBalance = Tester.TokenService.GetUserBalance(Referendum.ContractAddress);
             // virtualBalance.ShouldBe(1000);
@@ -189,7 +188,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.TokenService.TransferBalance(InitAccount, TestAccount, 1000_00000000);
                 beforeBalance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
             }
-            _logger.Info($"{TestAccount} token balance is {beforeBalance}");
+            Logger.Info($"{TestAccount} token balance is {beforeBalance}");
             var virtualAddress = await ReferendumStub.GetProposalVirtualAddress.CallAsync(Hash.LoadFromHex(proposalId));
             var approveResult = Token.ApproveToken(TestAccount,virtualAddress.ToBase58(), 50,
                 Token.GetPrimaryTokenSymbol());
@@ -203,7 +202,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var fee = result.GetDefaultTransactionFee();
             var balance = Tester.TokenService.GetUserBalance(TestAccount, Token.GetPrimaryTokenSymbol());
             balance.ShouldBe(beforeBalance - 50 - fee - approveFee);
-            _logger.Info($"{TestAccount} token balance is {balance}");
+            Logger.Info($"{TestAccount} token balance is {balance}");
         }
         
         [TestMethod]
@@ -216,7 +215,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Tester.TokenService.TransferBalance(InitAccount, OtherAccount, 1000_00000000);
                 beforeBalance = Tester.TokenService.GetUserBalance(OtherAccount, Token.GetPrimaryTokenSymbol());
             }
-            _logger.Info($"{OtherAccount} token balance is {beforeBalance}");
+            Logger.Info($"{OtherAccount} token balance is {beforeBalance}");
             var virtualAddress = await ReferendumStub.GetProposalVirtualAddress.CallAsync(Hash.LoadFromHex(proposalId));
             var approveResult = Token.ApproveToken(OtherAccount, virtualAddress.ToBase58(), 50,
                 Token.GetPrimaryTokenSymbol());
@@ -230,7 +229,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var fee = result.GetDefaultTransactionFee();
             var balance = Tester.TokenService.GetUserBalance(OtherAccount, Token.GetPrimaryTokenSymbol());
             balance.ShouldBe(beforeBalance - 50 - fee - approveFee);
-            _logger.Info($"{OtherAccount} token balance is {balance}");
+            Logger.Info($"{OtherAccount} token balance is {balance}");
         }
 
         [TestMethod]
@@ -249,7 +248,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void ReclaimVoteToken(string proposalId, string account)
         {
             var beforeBalance = Tester.TokenService.GetUserBalance(account, Symbol);
-            _logger.Info($"{account} token balance is {beforeBalance}");
+            Logger.Info($"{account} token balance is {beforeBalance}");
 
             Referendum.SetAccount(account);
             var result =
@@ -260,7 +259,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var balance = Tester.TokenService.GetUserBalance(account, Symbol);
             balance.ShouldBe(beforeBalance + 50 - fee);
-            _logger.Info($"{account} token balance is {balance}");
+            Logger.Info($"{account} token balance is {balance}");
         }
     }
 }

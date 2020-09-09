@@ -224,7 +224,6 @@ namespace AElf.Automation.RpcPerformance
                     Decimals = 8,
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true,
-                    IsProfitable = true,
                     IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
                 var balance = systemToken.GetUserBalance(account);
@@ -240,7 +239,6 @@ namespace AElf.Automation.RpcPerformance
                     Decimals = 2,
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true,
-                    IsProfitable = true,
                     IssueChainId = ChainHelper.ConvertBase58ToChainId(chainStatus.ChainId)
                 });
                 TxIdList.Add(transactionId);

@@ -141,10 +141,10 @@ namespace AElfChain.Common.Contracts
             return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
         }
 
-        public void ApproveWithAssociation(Hash proposalId, Address association)
+        public void ApproveWithAssociation(Hash proposalId, Address associationOrganization)
         {
             var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                association);
+                associationOrganization);
             var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
             foreach (var member in members)
             {

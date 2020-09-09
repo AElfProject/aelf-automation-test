@@ -60,7 +60,6 @@ namespace AElf.Automation.RpcPerformance
                 var balance = SystemToken.GetUserBalance(bp.Account, symbol);
                 if (balance < 8000_0000_00000000) continue;
                 SystemToken.SetAccount(bp.Account, bp.Password);
-                var count = 1;
                 foreach (var tester in testers)
                 {
                     if (tester == bp.Account) continue;
@@ -100,7 +99,7 @@ namespace AElf.Automation.RpcPerformance
             if (primaryToken != NodeOption.NativeTokenSymbol)
             {
                 var tokenInfo = SystemToken.GetTokenInfo(primaryToken);
-                var issueBalance = tokenInfo.TotalSupply - tokenInfo.Supply - tokenInfo.Burned;
+                var issueBalance = tokenInfo.TotalSupply - tokenInfo.Issued;
                 if (issueBalance >= 1000_00000000)
                 {
                     var account = SystemToken.CallAddress;

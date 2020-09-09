@@ -1,16 +1,19 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Acs1;
 using AElf.Contracts.TestContract.BasicFunction;
 using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.BouncyCastle.Bcpg;
 using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
@@ -20,17 +23,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private readonly string Caller = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
-        private readonly string ContractAddress = "sr4zX6E7yVVL7HevExVcWv2ru3HSZakhsJMXfzxzfpnXofnZw";
+        private readonly string ContractAddress = "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS";
         private readonly string SecurityContractAddress = "DHo2K7oUXXq3kJRs1JpuwqBJP56gqoaeSKFfuvr9x8svf3vEJ";
-        //2RHf2fxsnEaM3wb6N1yGqPupNZbcCY98LgWbGSFWmWzgEs5Sjo
-        //2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS
 
-        //2u6Dd139bHvZJdZ835XnNKL5y6cxqzV9PEWD5fZdQXdFZLgevc
-        //2nyC8hqq3pGnRu8gJzCsTaxXB6snfGxmL2viimKXgEfYWGtjEh --debug
-        
-        //DHo2K7oUXXq3kJRs1JpuwqBJP56gqoaeSKFfuvr9x8svf3vEJ
-        //xsnQafDAhNTeYcooptETqWnYBksFGGXxfcQyJJ5tmu6Ak9ZZt --release
-        
         private INodeManager NodeManager { get; set; }
         public BasicFunctionContractContainer.BasicFunctionContractStub BasicFunctionContractStub { get; set; }
         public BasicSecurityContractContainer.BasicSecurityContractStub BasicSecurityContractStub { get; set; }
@@ -47,6 +42,64 @@ namespace AElf.Automation.Contracts.ScenarioTest
             BasicSecurityContractStub =
                 security.GetTestStub<BasicSecurityContractContainer.BasicSecurityContractStub>(Caller);
 //            BasicSecurityContractStub.InitialBasicSecurityContract.SendAsync(Address.FromBase58(ContractAddress));
+        }
+
+        [TestMethod]
+        public async Task Initialize()
+        {
+            var result =
+                await BasicFunctionContractStub.InitialBasicFunctionContract.SendAsync(new InitialBasicContractInput
+                {
+                    Manager = Caller.ConvertAddress(),
+                    MaxValue = 1000,
+                    MinValue = 1
+                });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
+        public async Task SetMethodFee()
+        {
+            var symbol = "NOBURN";
+            var amount = 1_00000000000;
+            var fee = await BasicFunctionContractStub.GetMethodFee.CallAsync(new StringValue
+            {
+                Value = nameof(BasicFunctionContractStub.UpdateBetLimit)
+            });
+            Logger.Info(fee);
+//            if (fee.Fees.Count > 0) return;
+            var input = new MethodFees
+            {
+                MethodName = nameof(BasicFunctionContractStub.UpdateBetLimit),
+                Fees =
+                {
+                    new MethodFee
+                    {
+                        BasicFee = amount,
+                        Symbol = symbol
+                    }
+                }
+            };
+            var result = await BasicFunctionContractStub.SetMethodFee.SendAsync(input);
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
+        public async Task CheckFee()
+        {
+            var genesisService = GenesisContract.GetGenesisContract(NodeManager, Caller);
+            var token = genesisService.GetTokenContract();
+            var balance = token.GetUserBalance(Caller, "NOBURN");
+            var result = await BasicFunctionContractStub.UpdateBetLimit.SendAsync(new BetLimitInput
+            {
+                MaxValue = 200000,
+                MinValue = 10
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var afterBalance = token.GetUserBalance(Caller, "NOBURN");
+            Logger.Info($"{balance} {afterBalance}");
+
         }
 
         [TestMethod]

@@ -13,6 +13,8 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.VisualBasic.CompilerServices;
 using Sharprompt;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -194,7 +196,6 @@ namespace AElfChain.Console.Commands
                     Decimals = mainToken.Decimals,
                     Issuer = mainToken.Issuer,
                     IsBurnable = mainToken.IsBurnable,
-                    IsProfitable = mainToken.IsProfitable,
                     IssueChainId = mainToken.IssueChainId,
                     Symbol = mainToken.Symbol,
                     TokenName = mainToken.TokenName,
@@ -254,7 +255,6 @@ namespace AElfChain.Console.Commands
                         Decimals = mainToken.Decimals,
                         Issuer = mainToken.Issuer,
                         IsBurnable = mainToken.IsBurnable,
-                        IsProfitable = mainToken.IsProfitable,
                         IssueChainId = mainToken.IssueChainId,
                         Symbol = mainToken.Symbol,
                         TokenName = mainToken.TokenName,
@@ -400,6 +400,8 @@ namespace AElfChain.Console.Commands
                 "CreateTokens[Side]",
                 "Transfer[Main-Side]",
                 "Transfer[Side-Main]",
+                "CheckIndex[Main-Side]",
+                "CheckIndex[Side-Main]",
                 "Exit"
             };
         }

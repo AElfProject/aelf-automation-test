@@ -33,6 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string ReviewAccount1 { get; } = "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6";
         public string ReviewAccount2 { get; } = "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823";
         public string ReviewAccount3 { get; } = "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ";
+        public string NewMember { get; } = "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa";
 
         private static string RpcUrl { get; } = "http://192.168.197.22:8000";
 
@@ -51,9 +52,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ContractManager = new ContractManager(NodeManager, InitAccount);
             Association = ContractManager.Association;
             Miners = ContractManager.Authority.GetCurrentMiners();
-            ContractManager.Token.TransferBalance(InitAccount, ReviewAccount1, 1000_0000000, "ELF");
-            ContractManager.Token.TransferBalance(InitAccount, ReviewAccount2, 1000_0000000, "ELF");
-            ContractManager.Token.TransferBalance(InitAccount, ReviewAccount3, 1000_0000000, "ELF");
+        }
+
+        [TestMethod]
+        public void PrepareTest()
+        {
+            var token = ContractManager.Token;
+            token.TransferBalance(InitAccount, ReviewAccount1, 1000_0000000, "ELF");
+            token.TransferBalance(InitAccount, ReviewAccount2, 1000_0000000, "ELF");
+            token.TransferBalance(InitAccount, ReviewAccount3, 1000_0000000, "ELF");
+            token.TransferBalance(InitAccount, NewMember, 1000_0000000, "ELF");
         }
 
         [TestMethod]
@@ -106,10 +114,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 //                To = organizationAddress
 //            });
         }
-//29FKHhfirdbYbF4Bzxt3BgYiA64RjC9i4xAyMQKz39jGqGbky2
-//251FcF7xUDqf9Md6jdqiJA4BnQJ63M1FTX8XrtE36WpvZqmS8c
-//9GPkEDvHUGYV1JDdL6kQQTtpojP9oPFxorXXLerXoXBoT3oUP
-//2uMzcQAXtV1KMPSpcQomh3UsyL77dJ1isqfzDTCcqcEV89QWY6
+
         [TestMethod]
         [DataRow("hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL")]
         public void GetOrganization(string organizationAddress)
@@ -247,12 +252,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ChangeMembers()
         {
-            //hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL
-            //EMixpAyzLsY1LZZwQnhRbsTQyHiz5FRsHdZYYiuxinBK4Uhky
             var organization = "hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL";
             var input = new ChangeMemberInput
             {
-                NewMember = ReviewAccount2.ConvertAddress(),
+                NewMember = NewMember.ConvertAddress(),
                 OldMember = ReviewAccount1.ConvertAddress()
             };
             var createProposal = Association.CreateProposal(Association.ContractAddress,
@@ -269,7 +272,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void AddMembers()
         {
-            var organization = "2uMzcQAXtV1KMPSpcQomh3UsyL77dJ1isqfzDTCcqcEV89QWY6";
+            var organization = "hK7vZT8NsjLC6Jnt7Dq8urSvnaZ5SEyJK3cUZ6k8noXWav5cL";
             var input = ReviewAccount1.ConvertAddress();
             var createProposal = Association.CreateProposal(Association.ContractAddress,
                 nameof(AssociationMethod.AddMember), input, organization.ConvertAddress(), InitAccount);

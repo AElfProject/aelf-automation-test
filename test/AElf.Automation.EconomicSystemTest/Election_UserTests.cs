@@ -30,28 +30,39 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        public void Vote_One_Candidates_ForBP()
+        public void  Vote_One_Candidates_ForBP()
         {
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
-            var amount = 100_0000000;
-            Behaviors.TokenService.TransferBalance(InitAccount, account, 10000_00000000);
-            foreach (var full in FullNodeAddress.Take(4))
+            var amount = 1000_00000000;
+            long fee = 0;
+            var lockTime = 1;
+            var i = 1;
+            var transfer = Behaviors.TokenService.TransferBalance(InitAccount, account, 20000_00000000);
+            var transferFee = transfer.GetDefaultTransactionFee();
+            fee += transferFee;
+            foreach (var full in FullNodeAddress.Take(5))
             {
-                var voteResult = Behaviors.UserVote(InitAccount, full, 180, amount);
+//            var full = FullNodeAddress[1];
+                var voteResult = Behaviors.UserVote(account, full, lockTime*i, amount);
+                var voteFee = voteResult.GetDefaultTransactionFee();
+                fee += voteFee;
                 var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
                 var logVoteId = Voted.Parser
                     .ParseFrom(ByteString.FromBase64(voteResult.Logs.First(l => l.Name.Equals(nameof(Voted))).NonIndexed))
                     .VoteId;
                 var voteRecord = Behaviors.VoteService.CallViewMethod<VotingRecord>(VoteMethod.GetVotingRecord, voteId);
                 voteRecord.Amount.ShouldBe(amount);
-                _logger.Info($"vote id is: {voteId}\n" +
-                             $"{logVoteId}");
+                Logger.Info($"vote id is: {voteId}\n" +
+                             $"{logVoteId}\n" +
+                             $"{voteRecord.Amount}");
                 voteResult.ShouldNotBeNull();
                 voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var result =
                     Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords, new StringValue{Value = NodeManager.AccountManager.GetPublicKey(full)});
                 result.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(voteId);
+                i++;
             }
+            Logger.Info($"{fee}");
         }
         
         [TestMethod]
@@ -74,17 +85,18 @@ namespace AElf.Automation.EconomicSystemTest
             var profit = Behaviors.ProfitService;
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             var voteProfit =
                 profit.GetProfitDetails(account, schemeId);
             if (voteProfit.Equals(new ProfitDetails())) return;
-            _logger.Info($"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}");
+            Logger.Info($"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}");
 
             //Get user profit amount
             var profitMap = profit.GetProfitsMap(account, schemeId);
             if (profitMap.Equals(new ReceivedProfitsMap()))
                 return;
             var profitAmount = profitMap.Value["ELF"];
-            _logger.Info($"Profit amount: user {account} profit amount is {profitAmount}");
+            Logger.Info($"{term.TermNumber} Profit amount: user {account} profit amount is {profitAmount}");
             var beforeBalance = Behaviors.TokenService.GetUserBalance(account);
             var newProfit = profit.GetNewTester(account);
             var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
@@ -98,6 +110,7 @@ namespace AElf.Automation.EconomicSystemTest
             afterBalance.ShouldBe(beforeBalance + profitAmount - fee);
             var afterProfitAmount = profit.GetProfitsMap(account, schemeId);
             afterProfitAmount.Equals(new ReceivedProfitsMap()).ShouldBeTrue();
+            Logger.Info(fee);
         }
         
         [TestMethod]
@@ -106,18 +119,18 @@ namespace AElf.Automation.EconomicSystemTest
             var profit = Behaviors.ProfitService;
             var candidates = Behaviors.GetCandidates();
             var account = Address.FromPublicKey(candidates.Value.First().ToByteArray());
-            var schemeId = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
+            var schemeId = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
             long profitAmount = 0;
 
             foreach (var candidate in FullNodeAddress)
             {
                 var profitMap = profit.GetProfitsMap(candidate, schemeId);
                 if (profitMap.Equals(new ReceivedProfitsMap()))
-                    return;
+                    continue;
                 var profitAmountFull = profitMap.Value["ELF"];
                 if (candidate.Equals(account.ToBase58()))
                     profitAmount = profitAmountFull;
-                _logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
+                Logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
             }
             
             var beforeBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
@@ -132,12 +145,46 @@ namespace AElf.Automation.EconomicSystemTest
             var afterBalance =  Behaviors.TokenService.GetUserBalance(account.ToBase58());
             afterBalance.ShouldBe(beforeBalance + profitAmount - fee);
         }
+        
+        [TestMethod]
+        public void ClaimBackupSubsidyCandidates()
+        {
+            var profit = Behaviors.ProfitService;
+            var candidates = Behaviors.GetCandidates();
+            var MinerBasicReward = Behaviors.Schemes[SchemeType.MinerBasicReward].SchemeId;
+            var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
+            var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
+            var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;            
+            long profitAmount = 0;
+
+            foreach (var candidate in FullNodeAddress)
+            {
+                var profitMap = profit.GetProfitsMap(candidate, BackupSubsidy);
+                if (profitMap.Equals(new ReceivedProfitsMap()))
+                    continue;
+                var profitAmountFull = profitMap.Value["ELF"];
+                Logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
+                var beforeBalance = Behaviors.TokenService.GetUserBalance(candidate);
+                var newProfit = profit.GetNewTester(candidate);
+                var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+                {
+                    SchemeId = BackupSubsidy,
+                    Beneficiary = candidate.ConvertAddress()
+                });
+                profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var fee = profitResult.GetDefaultTransactionFee();
+                var afterBalance =  Behaviors.TokenService.GetUserBalance(candidate);
+                afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
+            }
+        }
 
         [TestMethod]
         public void Withdraw()
         {
-            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
-            var voteId = "5db223e1d2c2098b653fab2bea01437032419a2924ed2e414c8073fddca6899f";
+            var account = "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs";
+            var voteId = "2888302e588dd3506aca811d0b81f686feb12e3a7218578d62fd45fbac36edae";
+            var amount = 100000000000;
             Behaviors.ElectionService.SetAccount(account);
             var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
             var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
@@ -153,9 +200,9 @@ namespace AElf.Automation.EconomicSystemTest
             var afterShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
 
             var afterElfBalance = Behaviors.TokenService.GetUserBalance(account);
-            afterVoteBalance.ShouldBe(0);
-            afterShareBalance.ShouldBe(0);
-            afterElfBalance.ShouldBe(beforeElfBalance + beforeVoteBalance - fee);
+            afterVoteBalance.ShouldBe(beforeVoteBalance - amount);
+            afterShareBalance.ShouldBe(beforeShareBalance - amount);
+            afterElfBalance.ShouldBe(beforeElfBalance + amount - fee);
         }
 
         [TestMethod]
@@ -188,26 +235,12 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        public void Get_Current_Miners()
-        {
-            var miners =
-                Behaviors.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-            _logger.Info($"Miners count is : {miners.Pubkeys.Count}");
-            foreach (var minersPubkey in miners.Pubkeys)
-            {
-                var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                _logger.Info($"Miner is : {miner} \n PublicKey: {minersPubkey.ToHex()}");
-            }
-        }
-
-
-        [TestMethod]
         public void GetCurrentRoundInformation()
         {
             var roundInformation =
                 Behaviors.ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation,
                     new Empty());
-            _logger.Info(roundInformation.ToString());
+            Logger.Info(roundInformation.ToString());
         }
 
         [TestMethod]
@@ -220,7 +253,7 @@ namespace AElf.Automation.EconomicSystemTest
                         Amount = 1000_0000000,
                         LockTime = 365.Mul(86400)
                     });
-            _logger.Info(voteWeight.Value);
+            Logger.Info(voteWeight.Value);
         }
     }
 }

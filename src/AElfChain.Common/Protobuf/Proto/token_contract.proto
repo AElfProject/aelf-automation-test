@@ -31,8 +31,6 @@ service TokenContract {
     }
     rpc Burn (BurnInput) returns (google.protobuf.Empty) {
     }
-    rpc AddTokenWhiteList (AddTokeWhiteListInput) returns (google.protobuf.Empty) {
-    }
     rpc ChangeTokenIssuer (ChangeTokenIssuerInput) returns (google.protobuf.Empty) {
     }
 
@@ -51,11 +49,7 @@ service TokenContract {
     // ACS1 - Charge Transaction Fees
     rpc ClaimTransactionFees (TotalTransactionFeesMap) returns (google.protobuf.Empty) {
     }
-    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (google.protobuf.BoolValue) {
-    }
-    rpc SetSymbolsToPayTxSizeFee (SymbolListToPayTxSizeFee) returns (google.protobuf.Empty){
-    }
-    rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
+    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (ChargeTransactionFeesOutput) {
     }
 
     // ACS5 - Contract Method Call Threshold
@@ -70,6 +64,10 @@ service TokenContract {
     rpc ChargeResourceToken (ChargeResourceTokenInput) returns (google.protobuf.Empty) {
     }
     rpc CheckResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc SetSymbolsToPayTxSizeFee (SymbolListToPayTxSizeFee) returns (google.protobuf.Empty){
+    }
+    rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
     rpc UpdateCoefficientsForContract (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
@@ -120,6 +118,9 @@ service TokenContract {
     rpc GetLatestTotalResourceTokensMapsHash (google.protobuf.Empty) returns (aelf.Hash){
         option (aelf.is_view) = true;
     }
+    rpc IsTokenAvailableForMethodFee (google.protobuf.StringValue) returns (google.protobuf.BoolValue) {
+        option (aelf.is_view) = true;
+    }
 }
 
 message TokenInfo {
@@ -130,9 +131,8 @@ message TokenInfo {
     int32 decimals = 5;
     aelf.Address issuer = 6;
     bool is_burnable = 7;
-    bool is_profitable = 8;
     int32 issue_chain_id = 9;
-    int64 burned = 10;
+    int64 issued = 10;
 }
 
 message CreateInput {
@@ -143,8 +143,7 @@ message CreateInput {
     aelf.Address issuer = 5;
     bool is_burnable = 6;
     repeated aelf.Address lock_white_list = 7;
-    bool is_profitable = 8;
-    int32 issue_chain_id = 9;
+    int32 issue_chain_id = 8;
 }
 
 message RegisterNativeTokenInfoInput {
@@ -154,8 +153,7 @@ message RegisterNativeTokenInfoInput {
     int32 decimals = 4;
     aelf.Address issuer = 5;
     bool is_burnable = 6;
-    bool is_profitable = 7;
-    int32 issue_chain_id = 8;
+    int32 issue_chain_id = 7;
 }
 
 message SetPrimaryTokenSymbolInput {
@@ -299,6 +297,11 @@ message ChargeTransactionFeesInput {
     repeated SymbolToPayTxSizeFee symbols_to_pay_tx_size_fee = 5;
 }
 
+message ChargeTransactionFeesOutput {
+    bool success = 1;
+    string charging_information = 2;
+}
+
 message ExtraTokenListModified {
     option (aelf.is_event) = true;
     SymbolListToPayTxSizeFee symbol_list_to_pay_tx_size_fee = 1;
@@ -335,11 +338,6 @@ message CrossChainCreateTokenInput {
     int64 parent_chain_height = 2;
     bytes transaction_bytes = 3;
     aelf.MerklePath merkle_path = 4;
-}
-
-message AddTokeWhiteListInput{
-    string token_symbol = 1;
-    aelf.Address address = 2;
 }
 
 message InitializeFromParentChainInput {
@@ -479,8 +477,7 @@ message TokenCreated {
     int32 decimals = 4;
     aelf.Address issuer = 5;
     bool is_burnable = 6;
-    bool is_profitable = 7;
-    int32 issue_chain_id = 8;
+    int32 issue_chain_id = 7;
 }
 
 message Issued {

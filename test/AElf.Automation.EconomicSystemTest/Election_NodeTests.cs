@@ -1,14 +1,21 @@
+using System.Collections.Generic;
 using System.Linq;
 using Acs1;
 using Acs10;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
+using AElf.Contracts.Profit;
 using AElfChain.Common.Contracts;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using log4net.Repository.Hierarchy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
+using Volo.Abp.Threading;
+using PubkeyList = AElf.Contracts.Consensus.AEDPoS.PubkeyList;
 
 namespace AElf.Automation.EconomicSystemTest
 {
@@ -27,17 +34,6 @@ namespace AElf.Automation.EconomicSystemTest
             TestCleanUp();
         }
 
-        [TestMethod]
-        public void Announcement_AllNodes_Scenario()
-        {
-            foreach (var nodeAddress in FullNodeAddress)
-            {
-                var result = Behaviors.AnnouncementElection(nodeAddress);
-                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            }
-        }
-        
-        
         [TestMethod]
         public void AnnouncementNode()
         {
@@ -58,26 +54,17 @@ namespace AElf.Automation.EconomicSystemTest
             }
 
             var candidateList = Behaviors.GetCandidates();
-            _logger.Info($"{candidateList.Value.Count}");
+            Logger.Info($"{candidateList.Value.Count}");
             foreach (var publicKey in candidateList.Value)
-                _logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
+                Logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
         }
-
-
-        [TestMethod]
-        public void Get_Miners_Count()
-        {
-            var miners = Behaviors.GetMinersCount();
-            miners.ShouldBe(3);
-        }
-
 
         [TestMethod]
         public void SetMaximumMinersCount()
         {
-            var amount = 10;
+            var amount = 5;
             var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
-            _logger.Info($"{maximumBlocksCount}");
+            Logger.Info($"{maximumBlocksCount}");
             var consensus = Behaviors.ConsensusService;
             var input = new Int32Value {Value = amount};
             var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
@@ -92,7 +79,7 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var amount = 5;
             var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
-            _logger.Info($"{maximumBlocksCount}");
+            Logger.Info($"{maximumBlocksCount}");
             var consensus = Behaviors.ConsensusService;
             var association = Behaviors.ContractManager.Association;
             var maximumMinersCountController = Behaviors.ConsensusService.GetMaximumMinersCountController();
@@ -156,7 +143,7 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetMaximumMinersCount()
         {
             var maximumMinersCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
-            _logger.Info($"{maximumMinersCount}");
+            Logger.Info($"{maximumMinersCount}");
         }
 
         [TestMethod]
@@ -164,6 +151,12 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetVotesInformationResult(int nodeId)
         {
             var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
+        }
+
+        [TestMethod]
+        public void GetMiners()
+        {
+            GetCurrentMiners();
         }
 
         [TestMethod]
@@ -189,7 +182,7 @@ namespace AElf.Automation.EconomicSystemTest
                     $" {fullNode.ToHex()} All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
             }
 
-            _logger.Info(voteMessage);
+            Logger.Info(voteMessage);
         }
 
         [TestMethod]
@@ -220,19 +213,205 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetCandidates()
         {
             var candidates = Behaviors.GetCandidates();
-            _logger.Info($"Candidate count: {candidates.Value.Count}");
-            foreach (var candidate in candidates.Value) _logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
+            Logger.Info($"Candidate count: {candidates.Value.Count}");
+            foreach (var candidate in candidates.Value) Logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
         }
 
         [TestMethod]
-        public void GetTreasurySchemes()
+        public void GetTreasuryInfo()
         {
             var treasury = Behaviors.Treasury;
+            var profit = Behaviors.ProfitService;
             Behaviors.ProfitService.GetTreasurySchemes(treasury.ContractAddress);
             var treasuryAmount = treasury.GetCurrentTreasuryBalance();
-            var treasuryBalance = treasury.CallViewMethod<Dividends>(TreasuryMethod.GetUndistributedDividends, new Empty());
-            _logger.Info(JsonConvert.SerializeObject(treasuryBalance));
-            _logger.Info($"treasury  balance : {treasuryAmount}");
+            Logger.Info(JsonConvert.SerializeObject(treasuryAmount));
+            Logger.Info($"treasury dotnet balance : {treasuryAmount.Value["ELF"]}");
+            
+            var height = AsyncHelper.RunSync(() => NodeManager.ApiClient.GetBlockHeightAsync());
+            var dividends = treasury.GetDividends(height);
+            Logger.Info(JsonConvert.SerializeObject(dividends));
+            var treasuryBalance = Behaviors.TokenService.GetUserBalance(treasury.ContractAddress);
+            Logger.Info($"treasury  balance : {treasuryBalance}");
+            
+            var treasuryProfit =
+                profit.GetScheme(Schemes[SchemeType.Treasury].SchemeId);
+            Logger.Info(treasuryProfit);
+            
+            var minerRewardProfit =
+                profit.GetScheme(Schemes[SchemeType.MinerReward].SchemeId);
+            Logger.Info(minerRewardProfit);
+
+
+            var dividendPoolWeightProportion = treasury.GetDividendPoolWeightProportion();
+            var minerRewardWeightProportion = treasury.GetMinerRewardWeightProportion();
+        }
+
+        [TestMethod]
+        public void GetCurrentRoundMinedBlockBonus()
+        {
+            var round = Behaviors.ConsensusService.GetCurrentTermInformation();
+            var roundNumber = round.RoundNumber;
+            var term = round.TermNumber;
+            var blocksBonus = Behaviors.ConsensusService.GetCurrentWelfareReward().Value;
+            var blockCount = blocksBonus / 12500000;
+            Logger.Info($"{term} {roundNumber}: {blockCount} {blocksBonus}");
+        }
+
+        [TestMethod]
+        public void GetRoundInformation()
+        {
+            var round = Behaviors.ConsensusService.GetRoundInformation(663);
+            var blocksCount = round.RealTimeMinersInformation
+                .Values.Sum(minerInRound => minerInRound.ProducedBlocks);
+            var miningReward = Behaviors.ConsensusService.GetCurrentMiningRewardPerBlock().Value;
+            Logger.Info(miningReward);
+            var blocksBonus = blocksCount * miningReward;
+            Logger.Info($"{blocksCount}: {blocksBonus}");
+        }
+        
+
+        [TestMethod]
+        public void GetMinedBlocksOfPreviousTerm()
+        {
+            var blocks = Behaviors.ConsensusService.GetMinedBlocksOfPreviousTerm();
+            Logger.Info(blocks.Value);
+        }
+
+
+        [TestMethod]
+        public void CheckProfitCandidates()
+        {
+            var profit = Behaviors.ProfitService;
+            var MinerBasicReward = Behaviors.Schemes[SchemeType.MinerBasicReward].SchemeId;
+            var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
+            var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
+            var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
+            
+            long amount = 0;
+            long testAmount = 0;
+            
+            long backupAmount = 0;
+            long sumBasicRewardAmount = 0;
+            long sumReElectionRewardAmount = 0;
+            long sumVoteWeightRewardAmount = 0;
+            
+            long sumTestBasicRewardAmount = 0;
+            long sumTestReElectionRewardAmount = 0;
+            long sumTestVoteWeightRewardAmount = 0;
+            
+            var miners = GetCurrentMiners();
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+
+            foreach (var miner in miners)
+            {
+                var minerBasicReward = profit.GetProfitsMap(miner, MinerBasicReward);
+                long profitAmount = 0;
+                long testProfitAmount = 0;
+                if (!minerBasicReward.Equals(new ReceivedProfitsMap()))
+                {
+                    profitAmount = minerBasicReward.Value["ELF"];
+//                    testProfitAmount = minerBasicReward.Value["TEST"];
+                    Logger.Info($"MinerBasicReward amount: user {miner} profit amount is {profitAmount}, TEST amount is {testProfitAmount}");
+                }
+                sumBasicRewardAmount += profitAmount;
+                sumTestBasicRewardAmount += testProfitAmount;
+                amount += profitAmount;
+                testAmount += testProfitAmount;
+                
+                long reElectionRewardAmount = 0;
+                long testReElectionRewardAmount = 0;
+                var reElectionReward = profit.GetProfitsMap(miner, ReElectionReward);
+                if (!reElectionReward.Equals(new ReceivedProfitsMap()))
+                {
+                    reElectionRewardAmount = reElectionReward.Value["ELF"];
+//                    testReElectionRewardAmount = reElectionReward.Value["TEST"];
+                    Logger.Info($"ReElectionReward amount: user {miner} profit amount is {reElectionRewardAmount}, TEST amount is {testReElectionRewardAmount}");
+                }
+                sumReElectionRewardAmount += reElectionRewardAmount;
+                sumTestReElectionRewardAmount += testReElectionRewardAmount;
+
+                amount += reElectionRewardAmount;
+                testAmount += testReElectionRewardAmount;
+
+                long testVotesWeighRewardAmount = 0;
+                long votesWeightRewardAmount = 0;
+                
+                var votesWeightReward = profit.GetProfitsMap(miner, VotesWeightReward);
+                if (!votesWeightReward.Equals(new ReceivedProfitsMap()))
+                {
+                    votesWeightRewardAmount = votesWeightReward.Value["ELF"];
+//                    testVotesWeighRewardAmount = votesWeightReward.Value["TEST"];
+                    Logger.Info($"VotesWeightReward amount: user {miner} profit amount is {votesWeightRewardAmount}");
+                }
+
+                sumTestVoteWeightRewardAmount += testVotesWeighRewardAmount;
+                sumVoteWeightRewardAmount += votesWeightRewardAmount;
+                amount += votesWeightRewardAmount;
+                testAmount += testVotesWeighRewardAmount;
+            }
+            Logger.Info($"{term.TermNumber} {amount} MinerBasicReward (10%):{sumBasicRewardAmount}; ReElectionReward(5%):{sumReElectionRewardAmount}; VotesWeightReward(5%):{sumVoteWeightRewardAmount}");
+            Logger.Info($"{term.TermNumber} {testAmount} MinerBasicReward (10%):{sumTestBasicRewardAmount}; ReElectionReward(5%):{sumTestReElectionRewardAmount}; VotesWeightReward(5%):{sumTestVoteWeightRewardAmount}");
+
+
+            var candidates = Behaviors.GetCandidatesAddress();
+            foreach (var candidate in FullNodeAddress)
+            {
+                var backupSubsidy = profit.GetProfitsMap(candidate, BackupSubsidy);
+                long backupSubsidyAmount = 0;
+                if (!backupSubsidy.Equals(new ReceivedProfitsMap()))
+                {
+                    backupSubsidyAmount = backupSubsidy.Value["ELF"];
+                    Logger.Info($"BackupSubsidy amount: user {candidate} profit amount is {backupSubsidyAmount}");
+                }
+                backupAmount += backupSubsidyAmount;
+            }
+            Logger.Info($"{term.TermNumber} BackupSubsidy (5%):{backupAmount}");
+
+            var info = Behaviors.TokenService.GetTokenInfo("ELF");
+            Logger.Info(info);
+        }
+
+        [TestMethod]
+        public void ClaimMinerBasicReward()
+        {
+            var profit = Behaviors.ProfitService;
+            var MinerBasicReward = Behaviors.Schemes[SchemeType.MinerBasicReward].SchemeId;
+            var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
+            var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
+            var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var miners = GetCurrentMiners();
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+            long feeAmount = 0;
+            foreach (var miner in miners)
+            {
+                var profitMap = profit.GetProfitsMap(miner, ReElectionReward);
+                if (profitMap.Equals(new ReceivedProfitsMap()))
+                    continue;
+                var profitAmountFull = profitMap.Value["ELF"];
+                Logger.Info($"Profit amount: user {miner} profit amount is {profitAmountFull}");
+                var beforeBalance = Behaviors.TokenService.GetUserBalance(miner);
+                var newProfit = profit.GetNewTester(miner);
+                var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+                {
+                    SchemeId = ReElectionReward,
+                    Beneficiary = miner.ConvertAddress()
+                });
+                profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var fee = profitResult.GetDefaultTransactionFee();
+                var afterBalance =  Behaviors.TokenService.GetUserBalance(miner);
+                feeAmount += fee;
+//                afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
+            }
+            Logger.Info($"{term}: fee {feeAmount}");
+        }
+        
+
+        [TestMethod]
+        public void GetCurrentMiningRewardPerBlock()
+        {
+            var miningReward = Behaviors.ConsensusService.GetCurrentMiningRewardPerBlock();
+            Logger.Info(miningReward.Value);
         }
 
         [TestMethod]
@@ -241,14 +420,29 @@ namespace AElf.Automation.EconomicSystemTest
             foreach (var candidate in FullNodeAddress)
             {
                 var candidateResult = Behaviors.GetCandidateInformation(candidate);
-                _logger.Info("Candidate: ");
-                _logger.Info($"PublicKey: {candidateResult.Pubkey}");
-                _logger.Info($"Terms: {candidateResult.Terms}");
-                _logger.Info($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
-                _logger.Info($"ProducedBlocks: {candidateResult.ProducedBlocks}");
-                _logger.Info($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
-                _logger.Info($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
+                Logger.Info("Candidate: ");
+                Logger.Info($"PublicKey: {candidateResult.Pubkey}");
+                Logger.Info($"Terms: {candidateResult.Terms}");
+                Logger.Info($"ContinualAppointmentCount: {candidateResult.ContinualAppointmentCount}");
+                Logger.Info($"ProducedBlocks: {candidateResult.ProducedBlocks}");
+                Logger.Info($"MissedTimeSlots: {candidateResult.MissedTimeSlots}");
+                Logger.Info($"AnnouncementTransactionId: {candidateResult.AnnouncementTransactionId}");
             }
+        }
+        
+        private List<string> GetCurrentMiners()
+        {
+            var minerList = new List<string>();
+            var miners =
+                Behaviors.ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            Logger.Info($"Miners count is : {miners.Pubkeys.Count}");
+            foreach (var minersPubkey in miners.Pubkeys)
+            {
+                var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
+                minerList.Add(miner.ToBase58());
+                Logger.Info($"Miner is : {miner} \n PublicKey: {minersPubkey.ToHex()}");
+            }
+            return minerList;
         }
     }
 }

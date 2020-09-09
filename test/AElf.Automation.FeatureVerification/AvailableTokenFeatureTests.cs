@@ -139,7 +139,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = symbol,
                 Decimals = 8,
                 IsBurnable = true,
-                IsProfitable = true,
                 IssueChainId = ChainHelper.ConvertBase58ToChainId(NodeManager.GetChainId()),
                 Issuer = ContractManager.CallAccount,
                 TotalSupply = 10_0000_0000_00000000L

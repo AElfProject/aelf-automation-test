@@ -112,7 +112,6 @@ namespace AElfChain.Common.Managers
                     Issuer = tokenInfo.Issuer,
                     IsBurnable = tokenInfo.IsBurnable,
                     IssueChainId = tokenInfo.IssueChainId,
-                    IsProfitable = tokenInfo.IsProfitable,
                     Symbol = tokenInfo.Symbol,
                     TokenName = tokenInfo.TokenName,
                     TotalSupply = tokenInfo.TotalSupply

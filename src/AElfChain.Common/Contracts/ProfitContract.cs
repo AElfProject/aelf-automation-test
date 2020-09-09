@@ -30,21 +30,22 @@ namespace AElfChain.Common.Contracts
         GetProfitDetails,
         GetProfitsMap,
         GetProfitItem,
-        GetProfitAmount
+        GetProfitAmount,
+        GetDistributedProfitsInfo
     }
 
     public enum SchemeType
     {
         Treasury,
 
-        MinerReward, //6
-        BackupSubsidy,//2
-        CitizenWelfare,//2
+        MinerReward, //2
+        BackupSubsidy,//0.5
+        CitizenWelfare,//7.5
         
 //MinerReward: MinerBasicReward,VotesWeightReward,ReElectionReward
-        MinerBasicReward,//4
-        VotesWeightReward,//1
-        ReElectionReward//1
+        MinerBasicReward,//1
+        VotesWeightReward,//0.5
+        ReElectionReward//0.5
     }
 
     public class ProfitContract : BaseContract<ProfitMethod>
@@ -98,6 +99,13 @@ namespace AElfChain.Common.Contracts
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
             Logger.Info("Scheme collection info:");
             foreach (var (key, value) in Schemes) Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");
+        }
+
+        public Scheme GetScheme(Hash hash)
+        {
+            var scheme =
+                CallViewMethod<Scheme>(ProfitMethod.GetScheme,hash);
+            return scheme;
         }
 
         public ProfitDetails GetProfitDetails(string voteAddress, Hash profitId)

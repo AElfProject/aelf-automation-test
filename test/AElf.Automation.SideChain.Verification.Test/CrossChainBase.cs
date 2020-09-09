@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Acs7;
+using AElf.Standards.ACS7;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common;
@@ -126,7 +126,7 @@ namespace AElf.Automation.SideChain.Verification
         {
             var symbol = services.PrimaryTokenSymbol;
             var tokenInfo = services.TokenService.GetTokenInfo(symbol);
-            return tokenInfo.TotalSupply == tokenInfo.Supply + tokenInfo.Burned;
+            return tokenInfo.TotalSupply == tokenInfo.Issued;
         }
 
         protected string ExecuteMethodWithTxId(ContractServices services, string rawTx)

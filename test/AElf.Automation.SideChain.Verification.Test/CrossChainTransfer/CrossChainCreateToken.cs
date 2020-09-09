@@ -62,8 +62,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Decimals = tokenInfo.Decimals,
                         Symbol = tokenInfo.Symbol,
                         TokenName = tokenInfo.TokenName,
-                        TotalSupply = tokenInfo.TotalSupply,
-                        IsProfitable = tokenInfo.IsProfitable
+                        TotalSupply = tokenInfo.TotalSupply
                     });
 
                 var txId = ExecuteMethodWithTxId(sideChainService, validateTransaction);
@@ -139,8 +138,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         IsBurnable = true,
                         Issuer = MainChainService.CallAccount,
                         TokenName = "Token of test",
-                        TotalSupply = 10_0000_0000_00000000,
-                        IsProfitable = true
+                        TotalSupply = 10_0000_0000_00000000
                     });
                 createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var tokenInfo = MainChainService.TokenService.GetTokenInfo(symbol);
@@ -154,8 +152,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                         Decimals = tokenInfo.Decimals,
                         Symbol = tokenInfo.Symbol,
                         TokenName = tokenInfo.TokenName,
-                        TotalSupply = tokenInfo.TotalSupply,
-                        IsProfitable = tokenInfo.IsProfitable
+                        TotalSupply = tokenInfo.TotalSupply
                     });
                 var txId = ExecuteMethodWithTxId(MainChainService, validateTransaction);
                 var txResult = MainChainService.NodeManager.CheckTransactionResult(txId);

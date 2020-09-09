@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using Acs7;
+using AElf.Standards.ACS7;
 using AElfChain.Common;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -44,7 +44,6 @@ namespace AElf.Automation.SideChainCreate
                     TokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
                     Decimals = 8,
                     IsBurnable = true,
-                    IsProfitable = true,
                     Issuer = operation.Creator.ConvertAddress(),
                     TotalSupply = 10_00000000_00000000
                 };

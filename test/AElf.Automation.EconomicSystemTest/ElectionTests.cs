@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.Profit;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -14,15 +15,10 @@ namespace AElf.Automation.EconomicSystemTest
 {
     public class ElectionTests
     {
-        protected static readonly ILog _logger = Log4NetHelper.GetLogger();
+        protected static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         protected Behaviors Behaviors;
-
-//        protected static string RpcUrl { get; } = "http://192.168.197.14:8000";
-        protected static string RpcUrl { get; } = "http://52.90.147.175:8000";
-
-
-        //protected RpcApiHelper NodeManager { get; set; }   
+        protected static string RpcUrl { get; } = "http://192.168.197.21:8000";
         protected INodeManager NodeManager { get; set; }
         protected string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         protected List<string> BpNodeAddress { get; set; }
@@ -30,8 +26,8 @@ namespace AElf.Automation.EconomicSystemTest
         protected static List<string> UserList { get; set; }
         protected List<string> NodesPublicKeys { get; set; }
         protected List<CandidateInfo> CandidateInfos { get; set; }
-        protected Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
-
+        public Dictionary<SchemeType, Scheme> Schemes { get; set; }
+        
         protected void Initialize()
         {
             //Init Logger
@@ -42,7 +38,7 @@ namespace AElf.Automation.EconomicSystemTest
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices,InitAccount);
-
+            Schemes = ProfitContract.Schemes;
             #endregion
 
             #region Basic Preparation
@@ -92,7 +88,7 @@ namespace AElf.Automation.EconomicSystemTest
                 var account = BpNodeAddress[i];
                 var pubKey = NodeManager.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.Info($"{account}: {pubKey}");
+                Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -102,7 +98,7 @@ namespace AElf.Automation.EconomicSystemTest
                 var account = FullNodeAddress[i];
                 var pubKey = NodeManager.GetAccountPublicKey(account);
                 NodesPublicKeys.Add(pubKey);
-                _logger.Info($"{account}: {pubKey}");
+                Logger.Info($"{account}: {pubKey}");
                 CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
             }
 
@@ -194,7 +190,7 @@ namespace AElf.Automation.EconomicSystemTest
                 Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
             }
 
-            _logger.Info("All accounts prepared and unlocked.");
+            Logger.Info("All accounts prepared and unlocked.");
         }
 
         protected List<string> NewAccount(Behaviors services, int count)

@@ -29,6 +29,12 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationProposerWhiteList,
         ClearProposal,
         ApproveMultiProposals,
+        
+        //fee
+        ChangeMethodFeeController,
+        SetMethodFee,
+        GetMethodFee,
+        GetMethodFeeController,
 
         //View
         GetDefaultOrganizationAddress,
@@ -127,6 +133,11 @@ namespace AElfChain.Common.Contracts
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ParliamentMethod.GetOrganization, organization);
+        }
+        
+        public ProposerWhiteList GetProposerWhiteList()
+        {
+            return CallViewMethod<ProposerWhiteList>(ParliamentMethod.GetProposerWhiteList,new Empty());
         }
 
         public ProposalOutput CheckProposal(Hash proposalId)

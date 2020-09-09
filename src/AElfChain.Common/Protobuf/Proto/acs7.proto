@@ -9,6 +9,7 @@ import "google/protobuf/wrappers.proto";
 import public "google/protobuf/timestamp.proto";
 
 option (aelf.identity) = "acs7";
+option csharp_namespace = "AElf.Standards.ACS7";
 
 service ACS7 {
     
@@ -39,9 +40,6 @@ service ACS7 {
         option (aelf.is_view) = true;
     }
     rpc GetAllChainsIdAndHeight (google.protobuf.Empty) returns (SideChainIdAndHeightDict) {
-        option (aelf.is_view) = true;
-    }
-    rpc GetIndexedCrossChainBlockDataByHeight (google.protobuf.Int64Value) returns (CrossChainBlockData) {
         option (aelf.is_view) = true;
     }
     rpc GetIndexedSideChainBlockDataByHeight (google.protobuf.Int64Value) returns (IndexedSideChainBlockData) {
@@ -153,7 +151,6 @@ message SideChainCreationRequest {
     int64 side_chain_token_total_supply = 6;
     int32 side_chain_token_decimals = 7;
     bool is_side_chain_token_burnable = 8;
-    bool is_side_chain_token_profitable = 9;
     repeated SideChainTokenInitialIssue side_chain_token_initial_issue_list = 10;
     map<string, int32> initial_resource_amount = 11;
 }
@@ -170,7 +167,6 @@ message SideChainTokenInfo {
     int32 decimals = 4;
     aelf.Address issuer = 5;
     bool is_burnable = 6;
-    bool is_profitable = 7;
 }
 
 message RequestChainCreationOutput {

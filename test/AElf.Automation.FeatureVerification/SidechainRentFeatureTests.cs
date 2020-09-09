@@ -30,9 +30,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             Log4NetHelper.LogInit();
             Logger.InitLogHelper();
-            MainNode = new NodeManager("192.168.197.40:8000");
+            MainNode = new NodeManager("192.168.197.21:8000");
 
-            NodeInfoHelper.SetConfig("nodes-env2-side1");
+            NodeInfoHelper.SetConfig("nodes-env2-side2");
             var bpNode = NodeInfoHelper.Config.Nodes.First();
             SideNode = new NodeManager(bpNode.Endpoint);
             Genesis = SideNode.GetGenesisContract(bpNode.Account);
@@ -120,7 +120,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public async Task UpdateRentedResources()
+        public void UpdateRentedResources()
         {
             var input = new UpdateRentedResourcesInput
             {
@@ -157,13 +157,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var authority = new AuthorityManager(SideNode);
             var token = Genesis.GetTokenStub();
             var bps = authority.GetCurrentMiners();
-            var symbols = new[] {"CPU", "RAM", "DISK", "NET", "STB"};
+            var symbols = new[] {"CPU", "RAM", "DISK", "NET", "STB","READ", "WRITE", "STORAGE", "TRAFFIC"};
             foreach (var bp in bps)
             foreach (var symbol in symbols)
             {
                 var balance = await token.GetBalance.CallAsync(new GetBalanceInput
                     {Owner = bp.ConvertAddress(), Symbol = symbol});
                 Logger.Info($"{bp} {symbol}, {balance.Balance}");
+            }
+            foreach (var symbol in symbols)
+            {
+                var balance = await token.GetBalance.CallAsync(new GetBalanceInput
+                    {Owner = SideManager.CallAccount, Symbol = symbol});
+                Logger.Info($"{SideManager.CallAddress} {symbol}, {balance.Balance}");
             }
         }
 
