@@ -682,6 +682,35 @@ namespace AElf.Automation.SideChainTests
                 CrossChainContractMethod.VerifyTransaction, verifyInput).Value;
             result.ShouldBeTrue();
         }
+        
+        [TestMethod]
+        public void MainChainVerifySideChain()
+        {
+            var block = AsyncHelper.RunSync(() => SideAServices.NodeManager.ApiClient.GetBlockByHeightAsync(21740));
+            var transactions = AsyncHelper.RunSync(() =>
+                SideAServices.NodeManager.ApiClient.GetTransactionResultsAsync(block.BlockHash));
+
+            foreach (var transaction in transactions)
+            {
+                var merklePath = GetMerklePath(transaction.BlockNumber, transaction.TransactionId, SideAServices, out var root);
+                var verifyInput = new VerifyTransactionInput
+                {
+                    TransactionId = Hash.LoadFromHex(transaction.TransactionId),
+                    VerifiedChainId = SideAServices.ChainId,
+                    Path = merklePath
+                };
+                // verify side chain transaction
+                var crossChainMerkleProofContext = SideAServices.CrossChainService.GetCrossChainMerkleProofContext(transaction.BlockNumber);
+                verifyInput.Path.MerklePathNodes.AddRange(crossChainMerkleProofContext
+                    .MerklePathFromParentChain.MerklePathNodes);
+                verifyInput.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
+
+                var result = MainServices.CrossChainService.CallViewMethod<BoolValue>(
+                    CrossChainContractMethod.VerifyTransaction, verifyInput).Value;
+                result.ShouldBeTrue();
+            }
+        }
+
 
         #region private
         

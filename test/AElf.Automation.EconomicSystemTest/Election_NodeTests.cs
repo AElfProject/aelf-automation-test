@@ -41,6 +41,8 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void NodeAnnounceElectionAction()
         {
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+            Logger.Info($"Term: {term}");
             foreach (var user in FullNodeAddress)
             {
                 Behaviors.TransferToken(InitAccount, user, 10_1000_00000000);
@@ -195,14 +197,14 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow(2)]
-        public void QuitElection(int nodeId)
+        public void QuitElection()
         {
-            var beforeBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
-            var result = Behaviors.QuitElection(FullNodeAddress[nodeId]);
+            var candidate = FullNodeAddress.Last();
+            var beforeBalance = Behaviors.GetBalance(candidate).Balance;
+            var result = Behaviors.QuitElection(candidate);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = result.GetDefaultTransactionFee();
-            var afterBalance = Behaviors.GetBalance(FullNodeAddress[nodeId]).Balance;
+            var afterBalance = Behaviors.GetBalance(candidate).Balance;
             beforeBalance.ShouldBe(afterBalance - 100000_00000000L + fee);
         }
 
@@ -214,6 +216,18 @@ namespace AElf.Automation.EconomicSystemTest
             foreach (var candidate in candidates.Value) Logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
         }
         
+        [TestMethod]
+        public void CheckCandidatesTickets()
+        {
+            var voteRankList = Behaviors.GetDataCenterRankingList();
+            var rankInfo = voteRankList.DataCenters.OrderByDescending(o => o.Value).ToList();
+            Logger.Info(rankInfo.Count());
+            foreach (var info in rankInfo)
+            {
+                Logger.Info( $"PublicKey={info.Key}  Tickets={info.Value}");
+            }
+        }
+
         [TestMethod]
         public void GetTreasuryInfo()
         {

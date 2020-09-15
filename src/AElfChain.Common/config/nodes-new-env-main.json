@@ -2,126 +2,126 @@
   "RequireAuthority": true,
   "Nodes": [
     {
-      "name": "1.美国东部(弗吉尼亚北部)",
-      "endpoint": "54.234.101.159:8000",
+      "name": "bp1",
+      "endpoint": "192.168.66.128:8000",
       "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
       "password": "123"
     },
     {
-      "name": "2.美国东部(俄亥俄)",
-      "endpoint": "3.135.184.162:8000",
+      "name": "bp2",
+      "endpoint": "192.168.66.41:8000",
       "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
       "password": "123"
     },
     {
-      "name": "3.美国西部(加利福尼亚北部)",
-      "endpoint": "52.53.215.91:8000",
+      "name": "bp3",
+      "endpoint": "192.168.66.98:8000",
       "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
       "password": "123"
     },
     {
-      "name": "4.美国西部(俄勒冈)",
-      "endpoint": "34.220.189.200:8000",
+      "name": "bp4",
+      "endpoint": "192.168.66.229:8000",
       "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
       "password": "123"
     },
     {
-      "name": "5.亚太区域(香港)",
-      "endpoint": "18.163.188.56:8000",
+      "name": "full2",
+      "endpoint": "192.168.66.125:8000",
       "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
       "password": "123"
     },
     {
-      "name": "6.亚太区域(孟买)",
-      "endpoint": "13.232.161.183:8000",
+      "name": "full3",
+      "endpoint": "192.168.66.87:8000",
       "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
       "password": "123"
     },
     {
-      "name": "7.亚太区域(首尔)",
-      "endpoint": "15.164.227.237:8000",
+      "name": "full4",
+      "endpoint": "192.168.66.159:8000",
       "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
       "password": "123"
     },
     {
-      "name": "8.亚太区域(新加坡)",
-      "endpoint": "52.77.231.24:8000",
+      "name": "full5",
+      "endpoint": "192.168.67.63:8000",
       "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
       "password": "123"
     },
     {
-      "name": "9.亚太区域(悉尼)",
-      "endpoint": "54.252.233.247:8000",
+      "name": "full6",
+      "endpoint": "192.168.66.188:8000",
       "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
       "password": "123"
     },
     {
-      "name": "10.亚太区域(东京)",
-      "endpoint": "13.231.174.99:8000",
+      "name": "full7",
+      "endpoint": "192.168.67.68:8000",
       "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
       "password": "123"
     },
     {
-      "name": "11.加拿大(中部)",
-      "endpoint": "15.223.113.203:8000",
+      "name": "full8",
+      "endpoint": "192.168.66.239:8000",
       "account": "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq",
       "password": "123"
     },
     {
-      "name": "12.欧洲(法兰克福)",
-      "endpoint": "35.157.254.249:8000",
+      "name": "full9",
+      "endpoint": "192.168.66.86:8000",
       "account": "h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa",
       "password": "123"
     },
     {
-      "name": "13.欧洲(爱尔兰)",
-      "endpoint": "54.154.254.143:8000",
+      "name": "full10",
+      "endpoint": "192.168.67.27:8000",
       "account": "28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823",
       "password": "123"
     },
     {
-      "name": "14.欧洲(伦敦)",
-      "endpoint": "3.8.237.63:8000",
+      "name": "full11",
+      "endpoint": "192.168.67.86:8000",
       "account": "2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P",
       "password": "123"
     },
     {
-      "name": "15.欧洲(巴黎)",
-      "endpoint": "15.236.201.192:8000",
+      "name": "full12",
+      "endpoint": "192.168.67.196:8000",
       "account": "2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY",
       "password": "123"
     },
     {
-      "name": "16.欧洲(斯德哥尔摩)",
-      "endpoint": "13.49.21.75:8000",
+      "name": "full13",
+      "endpoint": "192.168.67.189:8000",
       "account": "W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo",
       "password": "123"
     },
     {
-      "name": "17.南美洲(圣保罗)",
-      "endpoint": "18.230.23.248:8000",
+      "name": "full14",
+      "endpoint": "192.168.67.142:8000",
       "account": "2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61",
       "password": "123"
     },
     {
-      "name": "18.阿里-伦敦",
-      "endpoint": "8.208.102.97:8000",
+      "name": "full15",
+      "endpoint": "192.168.67.205:8000",
       "account": "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV",
       "password": "123"
     },
     {
-      "name": "19.阿里-吉隆坡",
-      "endpoint": "47.254.238.211:8000",
+      "name": "full16",
+      "endpoint": "192.168.67.40:8000",
       "account": "2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX",
       "password": "123"
     },
     {
-      "name": "20.加拿大(中部)",
-      "endpoint": "15.222.62.6:8000",
+      "name": "full17",
+      "endpoint": "192.168.67.62:8000",
       "account": "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs",
       "password": "123"
     }
   ],
-  "NativeTokenSymbol": "ELF",
+  "NativeTokenSymbol" : "ELF",
   "DefaultPassword": "123"
 }

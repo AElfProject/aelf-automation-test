@@ -3,56 +3,50 @@
     "Nodes": [
         {
             "name": "bp1",
-            "endpoint": "192.168.199.205:8000",
+            "endpoint": "192.168.199.109:8000",
             "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "password": "123"
         },
         {
             "name": "bp2",
-            "endpoint": "192.168.199.205:8001",
+            "endpoint": "192.168.199.109:8001",
             "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
             "password": "123"
         },
         {
             "name": "bp3",
-            "endpoint": "192.168.199.205:8002",
+            "endpoint": "192.168.199.109:8002",
             "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
             "password": "123"
         },
         {
             "name": "bp4",
-            "endpoint": "192.168.199.205:8003",
+            "endpoint": "192.168.197.48:8003",
             "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
             "password": "123"
         },
         {
             "name": "bp5",
-            "endpoint": "192.168.199.205:8004",
+            "endpoint": "192.168.197.49:8004",
             "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
             "password": "123"
         },
         {
             "name": "bp6",
-            "endpoint": "192.168.199.205:8005",
+            "endpoint": "192.168.197.58:8005",
             "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
             "password": "123"
         },
         {
             "name": "bp7",
-            "endpoint": "192.168.199.205:8006",
+            "endpoint": "192.168.199.109:8006",
             "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
             "password": "123"
         },
         {
             "name": "bp8",
-            "endpoint": "192.168.199.205:8007",
+            "endpoint": "192.168.197.15:8006",
             "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
-            "password": "123"
-        },
-        {
-            "name": "bp9",
-            "endpoint": "192.168.199.205:8008",
-            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
             "password": "123"
         }
     ],

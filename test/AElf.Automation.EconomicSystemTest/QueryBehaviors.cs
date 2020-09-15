@@ -130,6 +130,29 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         #endregion
-        
+
+        #region Consensus view Method
+
+        public MinerList GetCurrentMiners()
+        {
+            var miners = ConsensusService.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            return miners;
+        }
+
+        public long GetCurrentTermInformation()
+        {
+            var round = ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
+
+            return round.TermNumber;
+        }
+
+        public DataCenterRankingList GetDataCenterRankingList()
+        {
+            var data = ElectionService.CallViewMethod<DataCenterRankingList>(ElectionMethod.GetDataCenterRankingList,
+                new Empty());
+            return data;
+        }
+
+        #endregion
     }
 }

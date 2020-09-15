@@ -10,6 +10,7 @@ namespace AElf.Automation.CheckTxStatus
         [JsonProperty("Password")] public string Password { get; set; }
         [JsonProperty("VerifyBlockNumber")] public int VerifyBlockNumber { get; set; }
         [JsonProperty("StartBlock")] public int StartBlock { get; set; }
+        [JsonProperty("ExceptContract")] public string ExceptContract { get; set; }
     }
 
     public static class ConfigInfoHelper

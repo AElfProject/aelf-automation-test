@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Description;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
@@ -8,6 +9,7 @@ using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -80,6 +82,8 @@ namespace AElf.Automation.EconomicSystemTest
         [DataRow("3f0e46bf7fe01f416444f1396827ea07217437aef29196252566bba3c0594c52")]
         public void ChangeUserVote(string hash)
         {
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+            Logger.Info($"Term: {term}");
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             var candidate = FullNodeAddress[1];
             var voteId = Hash.LoadFromHex(hash);
@@ -215,15 +219,21 @@ namespace AElf.Automation.EconomicSystemTest
             var afterElfBalance = Behaviors.TokenService.GetUserBalance(account);
             afterVoteBalance.ShouldBe(beforeVoteBalance - amount);
             afterShareBalance.ShouldBe(beforeShareBalance - amount);
-            afterElfBalance.ShouldBe(beforeElfBalance + amount - fee);
+            afterElfBalance.ShouldBe(beforeElfBalance +  amount - fee);
+            
+            var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var profit = Behaviors.ProfitService;
+            var voteProfit =
+                profit.GetProfitDetails(account, schemeId);
+            Logger.Info($"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}");
         }
 
         [TestMethod]
         public void Vote_All_Candidates_ForBP()
         {
-            foreach (var full in FullNodeAddress)
+            foreach (var full in FullNodeAddress.Take(4))
             {
-                var voteResult = Behaviors.UserVote(InitAccount, full, 100, 2000);
+                var voteResult = Behaviors.UserVote(InitAccount, full, 100, 2000_000000000);
 
                 voteResult.ShouldNotBeNull();
                 voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);

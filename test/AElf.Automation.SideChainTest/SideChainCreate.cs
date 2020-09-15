@@ -284,7 +284,7 @@ namespace AElf.Automation.SideChainTests
         {
             var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
             var sideChainInfo = MainServices.CrossChainService.GetChainInitializationData(chainId);
-            Logger.Info($"{sideChainInfo.Creator},{sideChainInfo.ChainCreatorPrivilegePreserved}");
+            Logger.Info($"{ sideChainInfo.CreationHeightOnParentChain},{sideChainInfo.Creator},{sideChainInfo.ChainCreatorPrivilegePreserved}");
         }
 
         [TestMethod]

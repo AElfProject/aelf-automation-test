@@ -192,7 +192,7 @@ namespace AElf.Automation.E2ETest.ApiSuits
         [TestMethod]
         public async Task SendRawTransaction()
         {
-            var from = "Jx2X1BVJ23WteQDwrUfWQ4Axq9Kb9un1aZNRsiUBWuMMfDWme";
+            var from = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
             var to = "JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE";
             var method = nameof(TokenMethod.Transfer);
             var bestChain = await Client.GetChainStatusAsync();
