@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Acs1;
-using Acs10;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
@@ -10,12 +8,10 @@ using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using log4net.Repository.Hierarchy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
-using PubkeyList = AElf.Contracts.Consensus.AEDPoS.PubkeyList;
 
 namespace AElf.Automation.EconomicSystemTest
 {
@@ -70,14 +66,15 @@ namespace AElf.Automation.EconomicSystemTest
             var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
                 nameof(ConsensusMethod.SetMaximumMinersCount), input, InitAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
-            maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
-            maximumBlocksCount.ShouldBe(amount);
+            var newMaximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
+            newMaximumBlocksCount.ShouldBe(maximumBlocksCount < amount ? maximumBlocksCount : amount);
+            Logger.Info($"{newMaximumBlocksCount}");
         }
         
         [TestMethod]
         public void SetMaximumMinersCountThroughAssociation()
         {
-            var amount = 5;
+            var amount = 4;
             var maximumBlocksCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
             Logger.Info($"{maximumBlocksCount}");
             var consensus = Behaviors.ConsensusService;
@@ -216,7 +213,7 @@ namespace AElf.Automation.EconomicSystemTest
             Logger.Info($"Candidate count: {candidates.Value.Count}");
             foreach (var candidate in candidates.Value) Logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
         }
-
+        
         [TestMethod]
         public void GetTreasuryInfo()
         {
@@ -232,7 +229,7 @@ namespace AElf.Automation.EconomicSystemTest
             Logger.Info(JsonConvert.SerializeObject(dividends));
             var treasuryBalance = Behaviors.TokenService.GetUserBalance(treasury.ContractAddress);
             Logger.Info($"treasury  balance : {treasuryBalance}");
-            
+
             var treasuryProfit =
                 profit.GetScheme(Schemes[SchemeType.Treasury].SchemeId);
             Logger.Info(treasuryProfit);
@@ -260,15 +257,14 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void GetRoundInformation()
         {
-            var round = Behaviors.ConsensusService.GetRoundInformation(663);
+            var round = Behaviors.ConsensusService.GetRoundInformation(56);
             var blocksCount = round.RealTimeMinersInformation
                 .Values.Sum(minerInRound => minerInRound.ProducedBlocks);
             var miningReward = Behaviors.ConsensusService.GetCurrentMiningRewardPerBlock().Value;
             Logger.Info(miningReward);
-            var blocksBonus = blocksCount * miningReward;
+            var blocksBonus = blocksCount * 12500000 ;
             Logger.Info($"{blocksCount}: {blocksBonus}");
         }
-        
 
         [TestMethod]
         public void GetMinedBlocksOfPreviousTerm()
@@ -281,6 +277,7 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void CheckProfitCandidates()
         {
+            var symbol = "ELF";
             var profit = Behaviors.ProfitService;
             var MinerBasicReward = Behaviors.Schemes[SchemeType.MinerBasicReward].SchemeId;
             var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
@@ -289,17 +286,10 @@ namespace AElf.Automation.EconomicSystemTest
             var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
             
             long amount = 0;
-            long testAmount = 0;
-            
             long backupAmount = 0;
             long sumBasicRewardAmount = 0;
             long sumReElectionRewardAmount = 0;
             long sumVoteWeightRewardAmount = 0;
-            
-            long sumTestBasicRewardAmount = 0;
-            long sumTestReElectionRewardAmount = 0;
-            long sumTestVoteWeightRewardAmount = 0;
-            
             var miners = GetCurrentMiners();
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
 
@@ -307,32 +297,23 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 var minerBasicReward = profit.GetProfitsMap(miner, MinerBasicReward);
                 long profitAmount = 0;
-                long testProfitAmount = 0;
                 if (!minerBasicReward.Equals(new ReceivedProfitsMap()))
                 {
-                    profitAmount = minerBasicReward.Value["ELF"];
-//                    testProfitAmount = minerBasicReward.Value["TEST"];
-                    Logger.Info($"MinerBasicReward amount: user {miner} profit amount is {profitAmount}, TEST amount is {testProfitAmount}");
+                    profitAmount = minerBasicReward.Value[symbol];
+                    Logger.Info($"MinerBasicReward amount: user {miner} profit {symbol} amount is {profitAmount}");
                 }
                 sumBasicRewardAmount += profitAmount;
-                sumTestBasicRewardAmount += testProfitAmount;
                 amount += profitAmount;
-                testAmount += testProfitAmount;
                 
                 long reElectionRewardAmount = 0;
-                long testReElectionRewardAmount = 0;
                 var reElectionReward = profit.GetProfitsMap(miner, ReElectionReward);
                 if (!reElectionReward.Equals(new ReceivedProfitsMap()))
                 {
-                    reElectionRewardAmount = reElectionReward.Value["ELF"];
-//                    testReElectionRewardAmount = reElectionReward.Value["TEST"];
-                    Logger.Info($"ReElectionReward amount: user {miner} profit amount is {reElectionRewardAmount}, TEST amount is {testReElectionRewardAmount}");
+                    reElectionRewardAmount = reElectionReward.Value[symbol];
+                    Logger.Info($"ReElectionReward amount: user {miner} profit {symbol} amount is {reElectionRewardAmount}");
                 }
                 sumReElectionRewardAmount += reElectionRewardAmount;
-                sumTestReElectionRewardAmount += testReElectionRewardAmount;
-
                 amount += reElectionRewardAmount;
-                testAmount += testReElectionRewardAmount;
 
                 long testVotesWeighRewardAmount = 0;
                 long votesWeightRewardAmount = 0;
@@ -340,35 +321,31 @@ namespace AElf.Automation.EconomicSystemTest
                 var votesWeightReward = profit.GetProfitsMap(miner, VotesWeightReward);
                 if (!votesWeightReward.Equals(new ReceivedProfitsMap()))
                 {
-                    votesWeightRewardAmount = votesWeightReward.Value["ELF"];
-//                    testVotesWeighRewardAmount = votesWeightReward.Value["TEST"];
-                    Logger.Info($"VotesWeightReward amount: user {miner} profit amount is {votesWeightRewardAmount}");
+                    votesWeightRewardAmount = votesWeightReward.Value[symbol];
+                    Logger.Info($"VotesWeightReward amount: user {miner} profit {symbol} amount is {votesWeightRewardAmount}");
                 }
-
-                sumTestVoteWeightRewardAmount += testVotesWeighRewardAmount;
+                
                 sumVoteWeightRewardAmount += votesWeightRewardAmount;
                 amount += votesWeightRewardAmount;
-                testAmount += testVotesWeighRewardAmount;
             }
             Logger.Info($"{term.TermNumber} {amount} MinerBasicReward (10%):{sumBasicRewardAmount}; ReElectionReward(5%):{sumReElectionRewardAmount}; VotesWeightReward(5%):{sumVoteWeightRewardAmount}");
-            Logger.Info($"{term.TermNumber} {testAmount} MinerBasicReward (10%):{sumTestBasicRewardAmount}; ReElectionReward(5%):{sumTestReElectionRewardAmount}; VotesWeightReward(5%):{sumTestVoteWeightRewardAmount}");
-
 
             var candidates = Behaviors.GetCandidatesAddress();
-            foreach (var candidate in FullNodeAddress)
+            foreach (var candidate in candidates)
             {
-                var backupSubsidy = profit.GetProfitsMap(candidate, BackupSubsidy);
+                var backupSubsidy = profit.GetProfitsMap(candidate.ToBase58(), BackupSubsidy);
                 long backupSubsidyAmount = 0;
                 if (!backupSubsidy.Equals(new ReceivedProfitsMap()))
                 {
-                    backupSubsidyAmount = backupSubsidy.Value["ELF"];
-                    Logger.Info($"BackupSubsidy amount: user {candidate} profit amount is {backupSubsidyAmount}");
+                    backupSubsidyAmount = backupSubsidy.Value[symbol];
+//                    testBackupSubsidyAmount = backupSubsidy.Value["TEST"];
+                    Logger.Info($"BackupSubsidy amount: user {candidate} profit {symbol} amount is {backupSubsidyAmount}");
                 }
                 backupAmount += backupSubsidyAmount;
             }
             Logger.Info($"{term.TermNumber} BackupSubsidy (5%):{backupAmount}");
 
-            var info = Behaviors.TokenService.GetTokenInfo("ELF");
+            var info = Behaviors.TokenService.GetTokenInfo(symbol);
             Logger.Info(info);
         }
 
@@ -389,7 +366,7 @@ namespace AElf.Automation.EconomicSystemTest
                 if (profitMap.Equals(new ReceivedProfitsMap()))
                     continue;
                 var profitAmountFull = profitMap.Value["ELF"];
-                Logger.Info($"Profit amount: user {miner} profit amount is {profitAmountFull}");
+                Logger.Info($"Profit amount: user {miner} profit {profitMap} ELF amount is {profitAmountFull}");
                 var beforeBalance = Behaviors.TokenService.GetUserBalance(miner);
                 var newProfit = profit.GetNewTester(miner);
                 var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
@@ -402,8 +379,15 @@ namespace AElf.Automation.EconomicSystemTest
                 var afterBalance =  Behaviors.TokenService.GetUserBalance(miner);
                 feeAmount += fee;
 //                afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
+                var claimProfit = profitResult.Logs.Where(l => l.Name.Contains(nameof(ProfitsClaimed))).ToList();
+                foreach (var cf in claimProfit)
+                {
+                    var period = ProfitsClaimed.Parser.ParseFrom(ByteString.FromBase64(cf.NonIndexed)).Period;
+                    Logger.Info(period);
+                }
+                Logger.Info(claimProfit);
             }
-            Logger.Info($"{term}: fee {feeAmount}");
+            Logger.Info($"{term.TermNumber}: fee {feeAmount}");
         }
         
 

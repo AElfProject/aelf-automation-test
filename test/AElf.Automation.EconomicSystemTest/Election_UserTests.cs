@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
@@ -30,41 +31,51 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        public void  Vote_One_Candidates_ForBP()
+        public void Vote_One_Candidates_ForBP()
         {
-            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             var amount = 1000_00000000;
             long fee = 0;
-            var lockTime = 1;
+            var lockTime = 90;
             var i = 1;
-            var transfer = Behaviors.TokenService.TransferBalance(InitAccount, account, 20000_00000000);
-            var transferFee = transfer.GetDefaultTransactionFee();
-            fee += transferFee;
-            foreach (var full in FullNodeAddress.Take(5))
+            var voterInfo = new Dictionary<string, string>();
+            foreach (var voter in Voter)
             {
-//            var full = FullNodeAddress[1];
-                var voteResult = Behaviors.UserVote(account, full, lockTime*i, amount);
+                var transfer = Behaviors.TokenService.TransferBalance(InitAccount, voter, 20000_00000000);
+                var transferFee = transfer.GetDefaultTransactionFee();
+                fee += transferFee;
+            }
+
+            for (int j = 0; j < Voter.Count; j++)
+                voterInfo.Add(FullNodeAddress[j], Voter[j]);
+
+            foreach (var (key, value) in voterInfo)
+            {
+//            var full = FullNodeAddress[0];
+                var voteResult = Behaviors.UserVote(value, key, lockTime * i, amount);
                 var voteFee = voteResult.GetDefaultTransactionFee();
                 fee += voteFee;
                 var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
                 var logVoteId = Voted.Parser
-                    .ParseFrom(ByteString.FromBase64(voteResult.Logs.First(l => l.Name.Equals(nameof(Voted))).NonIndexed))
+                    .ParseFrom(ByteString.FromBase64(
+                        voteResult.Logs.First(l => l.Name.Equals(nameof(Voted))).NonIndexed))
                     .VoteId;
                 var voteRecord = Behaviors.VoteService.CallViewMethod<VotingRecord>(VoteMethod.GetVotingRecord, voteId);
                 voteRecord.Amount.ShouldBe(amount);
                 Logger.Info($"vote id is: {voteId}\n" +
-                             $"{logVoteId}\n" +
-                             $"{voteRecord.Amount}");
+                            $"{logVoteId}\n" +
+                            $"{voteRecord.Amount}");
                 voteResult.ShouldNotBeNull();
                 voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var result =
-                    Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords, new StringValue{Value = NodeManager.AccountManager.GetPublicKey(full)});
+                    Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords,
+                        new StringValue {Value = NodeManager.AccountManager.GetPublicKey(key)});
                 result.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(voteId);
                 i++;
             }
+
             Logger.Info($"{fee}");
         }
-        
+
         [TestMethod]
         [DataRow("3f0e46bf7fe01f416444f1396827ea07217437aef29196252566bba3c0594c52")]
         public void ChangeUserVote(string hash)
@@ -72,10 +83,12 @@ namespace AElf.Automation.EconomicSystemTest
             var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
             var candidate = FullNodeAddress[1];
             var voteId = Hash.LoadFromHex(hash);
-            var transactionResult =  Behaviors.UserChangeVote(account,candidate,voteId);
+            var transactionResult = Behaviors.UserChangeVote(account, candidate, voteId);
             transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-            var voteResult =Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords, new StringValue{Value = NodeManager.AccountManager.GetPublicKey(candidate)});
+            var voteResult = Behaviors.ElectionService.CallViewMethod<CandidateVote>(
+                ElectionMethod.GetCandidateVoteWithRecords,
+                new StringValue {Value = NodeManager.AccountManager.GetPublicKey(candidate)});
             voteResult.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(voteId);
         }
 
@@ -106,13 +119,13 @@ namespace AElf.Automation.EconomicSystemTest
             });
             profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = profitResult.GetDefaultTransactionFee();
-            var afterBalance =  Behaviors.TokenService.GetUserBalance(account);
+            var afterBalance = Behaviors.TokenService.GetUserBalance(account);
             afterBalance.ShouldBe(beforeBalance + profitAmount - fee);
             var afterProfitAmount = profit.GetProfitsMap(account, schemeId);
             afterProfitAmount.Equals(new ReceivedProfitsMap()).ShouldBeTrue();
             Logger.Info(fee);
         }
-        
+
         [TestMethod]
         public void CheckProfitCandidates()
         {
@@ -132,7 +145,7 @@ namespace AElf.Automation.EconomicSystemTest
                     profitAmount = profitAmountFull;
                 Logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
             }
-            
+
             var beforeBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
             var newProfit = profit.GetNewTester(account.ToBase58());
             var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
@@ -142,10 +155,10 @@ namespace AElf.Automation.EconomicSystemTest
             });
             profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = profitResult.GetDefaultTransactionFee();
-            var afterBalance =  Behaviors.TokenService.GetUserBalance(account.ToBase58());
+            var afterBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
             afterBalance.ShouldBe(beforeBalance + profitAmount - fee);
         }
-        
+
         [TestMethod]
         public void ClaimBackupSubsidyCandidates()
         {
@@ -155,7 +168,7 @@ namespace AElf.Automation.EconomicSystemTest
             var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
             var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
             var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
-            var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;            
+            var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
             long profitAmount = 0;
 
             foreach (var candidate in FullNodeAddress)
@@ -174,7 +187,7 @@ namespace AElf.Automation.EconomicSystemTest
                 });
                 profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var fee = profitResult.GetDefaultTransactionFee();
-                var afterBalance =  Behaviors.TokenService.GetUserBalance(candidate);
+                var afterBalance = Behaviors.TokenService.GetUserBalance(candidate);
                 afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
             }
         }
@@ -189,7 +202,7 @@ namespace AElf.Automation.EconomicSystemTest
             var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
             var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
             beforeShareBalance.ShouldBe(beforeVoteBalance);
-            
+
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,

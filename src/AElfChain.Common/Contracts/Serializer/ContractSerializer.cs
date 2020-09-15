@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Acs0;
 using Acs1;
 using Acs2;
-using Acs3;
+using AElf.Standards.ACS3;
 using Acs4;
 using Acs6;
 using Acs8;

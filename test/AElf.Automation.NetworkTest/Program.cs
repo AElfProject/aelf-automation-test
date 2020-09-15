@@ -15,7 +15,7 @@ namespace AElf.Automation.NetworkTest
 
             //Init Logger
             Log4NetHelper.LogInit("NetworkTest_");
-            NodeInfoHelper.SetConfig("nodes-env2-main");
+            NodeInfoHelper.SetConfig("nodes-online-test-main-day");
 
             #endregion
 

@@ -350,7 +350,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 {
                     ContractAddress = MainManager.Token.Contract,
                     MethodName = "Approve",
-                    PrimaryTokenSymbol = "ELF",
                     TransactionSizeFee = 1000
                 });
             }

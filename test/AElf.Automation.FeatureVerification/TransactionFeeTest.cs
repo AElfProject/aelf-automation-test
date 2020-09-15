@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
@@ -157,6 +157,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var consensusStub = SideContractManager.Genesis.GetConsensusImplStub(InitAccount);
             var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
             Logger.Info($"Symbol amount:{unAmount}");
+
+            var genesis =  GenesisContract.GetGenesisContract(SideNodeManager, InitAccount);
+            var token = genesis.GetTokenContract();
+            token.TransferBalance(InitAccount, TestAccount, 2000_00000000,"TEST");
+            token.TransferBalance(InitAccount, TestAccount, 1_00000000);
             
             var cpuResult = await _acs8SubA.ReadCpuCountTest.SendAsync(new Int32Value {Value = 19});
             var size = cpuResult.Transaction.CalculateSize();

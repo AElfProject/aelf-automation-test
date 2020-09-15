@@ -38,18 +38,16 @@ namespace AElf.Automation.SideChainCreate
             operation.ApproveToken(approveTokenAmount);
             foreach (var sideChainInfo in sideChainInfos)
             {
-                var tokenInfo = new SideChainTokenInfo
+                var sideChainTokenCreationRequest = new SideChainTokenCreationRequest
                 {
-                    Symbol = sideChainInfo.TokenSymbol,
-                    TokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
-                    Decimals = 8,
-                    IsBurnable = true,
-                    Issuer = operation.Creator.ConvertAddress(),
-                    TotalSupply = 10_00000000_00000000
+                    SideChainTokenDecimals = 8,
+                    SideChainTokenName = $"Side chain token {sideChainInfo.TokenSymbol}",
+                    SideChainTokenSymbol = sideChainInfo.TokenSymbol,
+                    SideChainTokenTotalSupply = 10_00000000_00000000
                 };
                 var proposal = operation.RequestChainCreation(sideChainInfo.IndexingPrice,
                     sideChainInfo.LockedTokenAmount,
-                    sideChainInfo.IsPrivilegePreserved, tokenInfo);
+                    sideChainInfo.IsPrivilegePreserved, sideChainTokenCreationRequest);
                 Logger.Info($"Proposal is {proposal}");
                 operation.ApproveProposal(proposal);
                 var chainIdResult = operation.ReleaseSideChainCreation(proposal, out var organization);

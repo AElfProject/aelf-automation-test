@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Acs1;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Standards.ACS7;
 using AElf.Client.Dto;
 using AElf.Contracts.Consensus.AEDPoS;
@@ -124,8 +123,7 @@ namespace AElf.Automation.SideChainTests
                 await MainChainRegisterSideChain(service);
             }
         }
-
-        [TestMethod]
+        
         public async Task MainChainRegisterSideChain(ContractServices services)
         {
             var rawTx = ValidateTokenAddress(services);
@@ -338,14 +336,14 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void MainChainCrossChainTransferSideChainResourceToken()
         {
-//            foreach (var service in SideServices) 
-                MainChainCrossChainTransferSideChain(SideBServices);
+            foreach (var service in SideServices) 
+                MainChainCrossChainTransferSideChain(service);
         }
 
         public void MainChainCrossChainTransferSideChain(ContractServices sideService)
         {
-            var symbols = new[] {"SHARE"};
-            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+            var symbols = new[] {"ELF"};
+            var account = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
             var txInfos = new Dictionary<TransactionResultDto, string>();
             foreach (var symbol in symbols)
             {
@@ -354,7 +352,7 @@ namespace AElf.Automation.SideChainTests
                 {
                     Symbol = symbol,
                     IssueChainId = MainServices.ChainId,
-                    Amount = 2000_00000000,
+                    Amount = 100000_00000000,
                     Memo = "cross chain transfer",
                     To = InitAccount.ConvertAddress(),
                     ToChainId = sideService.ChainId

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -23,7 +23,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class AssociationAuthContractTest
     {
-        private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private AssociationContract Association;
         private ContractManager ContractManager;
         private List<string> Miners;
@@ -93,9 +93,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            _logger.Info($"organization address is : {organizationAddress}");
+            Logger.Info($"organization address is : {organizationAddress}");
             var fee = result.GetDefaultTransactionFee();
-            _logger.Info($"Transaction fee is {fee}");
+            Logger.Info($"Transaction fee is {fee}");
 
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
@@ -122,11 +122,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var organization =
                 ContractManager.Association.CallViewMethod<Organization>(AssociationMethod.GetOrganization,
                     organizationAddress.ConvertAddress());
-            foreach (var member in organization.OrganizationMemberList.OrganizationMembers) _logger.Info($"{member}");
+            foreach (var member in organization.OrganizationMemberList.OrganizationMembers) Logger.Info($"{member}");
 
-            _logger.Info(
+            Logger.Info(
                 $"{organization.OrganizationAddress} maximal abstention threshold is {organization.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
-            _logger.Info($"{organization}");
+            Logger.Info($"{organization}");
         }
 
         [TestMethod]
@@ -155,7 +155,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ContractManager.Association.ExecuteMethodWithResult(AssociationMethod.CreateProposal,
                     createProposalInput);
             var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            _logger.Info($"Proposal is : {proposal}");
+            Logger.Info($"Proposal is : {proposal}");
         }
 
         [TestMethod]
@@ -167,7 +167,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Hash.LoadFromHex(proposalId));
             var toBeRelease = result.ToBeReleased;
 
-            _logger.Info($"proposal is {toBeRelease}");
+            Logger.Info($"proposal is {toBeRelease}");
         }
 
         [TestMethod]
@@ -201,14 +201,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void GetBalance(string account)
         {
             var balance = ContractManager.Token.GetUserBalance(account, Symbol);
-            _logger.Info($"{account} balance is {balance}");
+            Logger.Info($"{account} balance is {balance}");
         }
 
         [TestMethod]
         public async Task GetMethodFeeController()
         {
             var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
-            _logger.Info($"{controller.ContractAddress} controller is {controller.OwnerAddress}");
+            Logger.Info($"{controller.ContractAddress} controller is {controller.OwnerAddress}");
         }
 
         [TestMethod]

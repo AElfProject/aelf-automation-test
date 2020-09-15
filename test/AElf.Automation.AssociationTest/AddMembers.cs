@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Types;
 using AElfChain.Common;

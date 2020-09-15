@@ -1,5 +1,5 @@
 {
-    "TestEnvironment": "Online",
+    "TestEnvironment": "Offline2",
     "EnvironmentInfo": [
         {
             "Environment": "Online",
@@ -21,7 +21,7 @@
         },
         {
             "Environment": "Other",
-            "ConfigFile": "nodes-env205-main",
+            "ConfigFile": "nodes-new-env-main",
             "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
             "Password": "123"
         }

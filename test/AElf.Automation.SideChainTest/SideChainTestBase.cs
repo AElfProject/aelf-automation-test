@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Acs0;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Standards.ACS7;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
@@ -172,7 +171,7 @@ namespace AElf.Automation.SideChainTests
 
         protected Hash RequestSideChainCreation(ContractServices services, string creator, string password,
             long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
-            SideChainTokenInfo tokenInfo)
+            SideChainTokenCreationRequest tokenInfo)
         {
             services.CrossChainService.SetAccount(creator, password);
             var issue = new SideChainTokenInitialIssue
@@ -187,11 +186,7 @@ namespace AElf.Automation.SideChainTests
                         IndexingPrice = indexingPrice,
                         LockedTokenAmount = lockedTokenAmount,
                         IsPrivilegePreserved = isPrivilegePreserved,
-                        SideChainTokenDecimals = tokenInfo.Decimals,
-                        SideChainTokenName = tokenInfo.TokenName,
-                        SideChainTokenSymbol = tokenInfo.Symbol,
-                        SideChainTokenTotalSupply = tokenInfo.TotalSupply,
-                        IsSideChainTokenBurnable = tokenInfo.IsBurnable,
+                        SideChainTokenCreationRequest = tokenInfo,
                         InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
                         SideChainTokenInitialIssueList = {issue}
                     });

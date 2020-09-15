@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Acs0;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;

@@ -31,18 +31,18 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Log4NetHelper.LogInit("SideChainProfitMain");
             Logger = Log4NetHelper.GetLogger();
 
-            NodeInfoHelper.SetConfig("nodes-env2-main");
+            NodeInfoHelper.SetConfig("nodes-env205-main");
             var node = NodeInfoHelper.Config.Nodes.First();
 
             NodeManager = new NodeManager(node.Endpoint);
             MainManager = new ContractManager(NodeManager, node.Account);
             MainManager.Profit.GetTreasurySchemes(MainManager.Treasury.ContractAddress);
             if (MainManager.Token.GetTokenInfo(Symbol).Equals(new TokenInfo()))
-                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol,true,true));
+                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol,true));
             if (MainManager.Token.GetTokenInfo(Symbol1).Equals(new TokenInfo()))
-                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol1,false,true));
+                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol1,true));
             if (MainManager.Token.GetTokenInfo(Symbol2).Equals(new TokenInfo()))
-                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol2,true,false));
+                AsyncHelper.RunSync(()=>CreateAndIssueAllNewSymbol(Symbol2,false));
         }
 
         private ILog Logger { get; }
@@ -138,6 +138,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbolList = new List<string>(){Symbol,Symbol1,Symbol2};
             foreach (var symbol in symbolList)
             {
+                MainManager.Token.ApproveToken(account, MainManager.Treasury.ContractAddress, 1000_00000000, symbol);
                 var result = await treasuryStub.Donate.SendAsync(new DonateInput
                 {
                     Symbol = symbol,
@@ -179,6 +180,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             addSymbol.Status.ShouldBe(TransactionResultStatus.Mined);
 
             symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
+            Logger.Info(JsonConvert.SerializeObject(symbolList));
+        }
+        
+        [TestMethod]
+        public async Task CheckSymbol()
+        {
+            var account = NodeInfoHelper.Config.Nodes.Select(o => o.Account).First();
+            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(symbolList));
         }
 
@@ -245,7 +255,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             await InitialMiners_VoteTest();
         }
 
-        public async Task CreateAndIssueAllNewSymbol(string symbol, bool profitable, bool isAbleWhite)
+        public async Task CreateAndIssueAllNewSymbol(string symbol, bool isAbleWhite)
         {
             var input = new CreateInput
             {

@@ -186,7 +186,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         [TestMethod]
         [DataRow("ELF", 100_00000000L)]
-
         public async Task Donate_SideChainDividendsPool_Test(string symbol, long amount)
         {
             var init = NodeInfoHelper.Config.Nodes[0].Account;

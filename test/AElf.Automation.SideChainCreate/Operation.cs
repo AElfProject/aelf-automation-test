@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Acs1;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Standards.ACS7;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.CrossChain;
@@ -83,7 +83,7 @@ namespace AElf.Automation.SideChainCreate
         }
 
         public Hash RequestChainCreation(long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
-            SideChainTokenInfo tokenInfo)
+            SideChainTokenCreationRequest sideChainTokenCreationRequest)
         {
             CrossChainService.SetAccount(Creator, Password);
             var sideChainTokenInitialIssue = new SideChainTokenInitialIssue
@@ -95,11 +95,7 @@ namespace AElf.Automation.SideChainCreate
                         IndexingPrice = indexingPrice,
                         LockedTokenAmount = lockedTokenAmount,
                         IsPrivilegePreserved = isPrivilegePreserved,
-                        SideChainTokenDecimals = tokenInfo.Decimals,
-                        SideChainTokenName = tokenInfo.TokenName,
-                        SideChainTokenSymbol = tokenInfo.Symbol,
-                        SideChainTokenTotalSupply = tokenInfo.TotalSupply,
-                        IsSideChainTokenBurnable = tokenInfo.IsBurnable,
+                        SideChainTokenCreationRequest = sideChainTokenCreationRequest,
                         InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
                         SideChainTokenInitialIssueList = {sideChainTokenInitialIssue}
                     });

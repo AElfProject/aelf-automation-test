@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
 using AElf.CSharp.Core.Extension;
