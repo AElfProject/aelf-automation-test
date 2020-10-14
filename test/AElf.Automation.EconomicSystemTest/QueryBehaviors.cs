@@ -91,7 +91,7 @@ namespace AElf.Automation.EconomicSystemTest
         public ElectorVote GetVotesInformation(string voteAccount)
         {
             var result =
-                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringValue
+                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithRecords, new StringValue
                 {
                     Value = NodeManager.GetAccountPublicKey(voteAccount)
                 });

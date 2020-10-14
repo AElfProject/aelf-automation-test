@@ -335,8 +335,14 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     Memo = $"TF-{Guid.NewGuid()}"
                 }, out var existed);
                 if (existed) return; //check tx whether existed
-                if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) return;
-
+                if (transactionResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined)
+                {
+                    if (!transactionResult.Error.Contains("Insufficient allowance.")) return;
+                    var checkAllowance = Token.GetAllowance(@from, to);
+                    Logger.Error($"from:{@from},to:{to},allowance:{checkAllowance}");
+                    return;
+                }
+                
                 var transactionFee = transactionResult.GetDefaultTransactionFee();
                 var afterFrom = Token.GetUserBalance(from);
                 var afterTo = Token.GetUserBalance(to);

@@ -50,7 +50,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void Prepare_TestToken()
         {
-            const long BALANCE = 1000_00000000L;
+            const long BALANCE = 1000L;
             var symbols = new[] {"SHARE"};
             var bps = NodeInfoHelper.Config.Nodes;
             foreach (var symbol in symbols)

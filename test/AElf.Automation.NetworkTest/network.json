@@ -1,24 +1,18 @@
 {
-  "Type": "Add",
+  "Type": "Remove",
   "Nodes": 
   [
     {
-      "ListeningPort": "52.25.146.244:6800"
+      "ListeningPort": "192.168.197.44:6800"
     },
     {
-      "ListeningPort": "18.163.101.133:6800"
+      "ListeningPort": "192.168.197.45:6800"
     },
     {
-      "ListeningPort": "13.232.219.147:6800"
+      "ListeningPort": "192.168.197.12:6800"
     },
     {
-      "ListeningPort": "15.165.11.30:6800"
-    },
-    {
-      "ListeningPort": "13.229.182.113:6800"
-    },
-    {
-      "ListeningPort": "3.25.149.82:6800"
+      "ListeningPort": "192.168.197.37:6800"
     }
   ]
 }

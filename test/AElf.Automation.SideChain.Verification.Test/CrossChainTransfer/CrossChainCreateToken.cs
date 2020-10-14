@@ -134,7 +134,7 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
                     new CreateInput
                     {
                         Symbol = symbol,
-                        Decimals = 2,
+                        Decimals = 8,
                         IsBurnable = true,
                         Issuer = MainChainService.CallAccount,
                         TokenName = "Token of test",

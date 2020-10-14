@@ -189,7 +189,8 @@ namespace AElf.Automation.SideChain.Verification.CrossChainTransfer
             foreach (var sideChainService in SideChainServices)
             {
                 var chainTxInfo = ChainValidateTxInfo[sideChainService.ChainId];
-
+                Logger.Info($"Validation tx height: {chainTxInfo.BlockHeight},id :{chainTxInfo.TxId}\n" +
+                            $"rawTx:{chainTxInfo.RawTx}");
                 Logger.Info("Check the index:");
                 MainChainCheckSideChainBlockIndex(sideChainService, chainTxInfo.BlockHeight);
                 var crossChainMerkleProofContext =

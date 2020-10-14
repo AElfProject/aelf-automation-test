@@ -76,7 +76,7 @@ namespace AElfChain.Common.Managers
                 var height = AsyncHelper.RunSync(client.GetBlockHeightAsync);
                 if (height > blockHeight + 1)
                     return;
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
         }
 

@@ -138,8 +138,9 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             if (account == "")
                 account = txFees.CallAddress;
-            var beforeResource = txFees.QueryContractResource();
             var randNo = CommonHelper.GenerateRandomNumber(1, 10);
+
+            var beforeResource = QueryContractResource(txFees,"Before ReadCpuCountTest");
             txFees.SetAccount(account);
             var txResult = txFees.ExecuteMethodWithResult(TxFeesMethod.ReadCpuCountTest, new Int32Value
             {
@@ -148,8 +149,8 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
                 txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
+                var afterResource = QueryContractResource(txFees,"After ReadCpuCountTest");
                 var txFee = txResult.GetResourceTokenFee();
-                var afterResource = txFees.QueryContractResource();
 
                 //assert result
                 beforeResource["READ"].ShouldBe(afterResource["READ"]+ txFee["READ"]);
@@ -163,8 +164,9 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             if (account == "")
                 account = txFees.CallAddress;
-            var beforeResource = txFees.QueryContractResource();
             var randNo = CommonHelper.GenerateRandomNumber(1, 10);
+            
+            var beforeResource = QueryContractResource(txFees,"Before WriteRamCountTest");
             txFees.SetAccount(account);
             var txResult = txFees.ExecuteMethodWithResult(TxFeesMethod.WriteRamCountTest, new Int32Value
             {
@@ -173,7 +175,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
                 txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
-                var afterResource = txFees.QueryContractResource();
+                var afterResource = QueryContractResource(txFees,"After WriteRamCountTest");
 
                 var txFee = txResult.GetResourceTokenFee();
                 //assert result
@@ -188,9 +190,10 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             if (account == "")
                 account = txFees.CallAddress;
-            var beforeResource = txFees.QueryContractResource();
             var randNo1 = CommonHelper.GenerateRandomNumber(1, 10);
             var randNo2 = CommonHelper.GenerateRandomNumber(1, 10);
+
+            var beforeResource = QueryContractResource(txFees, "Before ComplexCountTest");
             txFees.SetAccount(account);
             var txResult = txFees.ExecuteMethodWithResult(TxFeesMethod.ComplexCountTest, new ReadWriteInput
             {
@@ -200,7 +203,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             if (txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
             {
                 txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
-                var afterResource = txFees.QueryContractResource();
+                var afterResource = QueryContractResource(txFees, "After ComplexCountTest");
 
                 var txFee = txResult.GetResourceTokenFee();
                 //assert result
@@ -215,7 +218,8 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
         {
             if (account == "")
                 account = txFees.CallAddress;
-            var beforeResource = txFees.QueryContractResource();
+            var beforeResource = QueryContractResource(txFees, "Before NoReadWriteCountTest");
+            
             txFees.SetAccount(account);
             var txResult = txFees.ExecuteMethodWithResult(TxFeesMethod.NoReadWriteCountTest, new StringValue
             {
@@ -226,13 +230,22 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 txFees.NodeManager.WaitOneBlock(txResult.BlockNumber);
                 var afterResource = txFees.QueryContractResource();
 
-                var txFee = txResult.GetResourceTokenFee();
+                var txFee = QueryContractResource(txFees, "After NoReadWriteCountTest");
                 //assert result
                 beforeResource["READ"].ShouldBe(afterResource["READ"]+ txFee["READ"]);
                 beforeResource["WRITE"].ShouldBe(afterResource["WRITE"] + txFee["WRITE"]);
                 beforeResource["TRAFFIC"].ShouldBe(afterResource["TRAFFIC"] + txFee["TRAFFIC"]);
                 beforeResource["STORAGE"].ShouldBe(afterResource["STORAGE"] + txFee["STORAGE"]);
             }
+        }
+
+        private Dictionary<string,long> QueryContractResource(TransactionFeesContract txFees,string methodName)
+        {
+            Logger.Info($"{methodName} :");
+            var resources = txFees.QueryContractResource();
+            foreach (var resource in resources)
+                Logger.Info($"{resource.Key}: {resource.Value}");
+            return resources;
         }
     }
 }

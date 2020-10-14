@@ -263,7 +263,7 @@ namespace AElf.Automation.EconomicSystemTest
             var round = Behaviors.ConsensusService.GetCurrentTermInformation();
             var roundNumber = round.RoundNumber;
             var term = round.TermNumber;
-            var blocksBonus = Behaviors.ConsensusService.GetCurrentWelfareReward().Value;
+            var blocksBonus = Behaviors.ConsensusService.GetCurrentTermMiningReward().Value;
             var blockCount = blocksBonus / 12500000;
             Logger.Info($"{term} {roundNumber}: {blockCount} {blocksBonus}");
         }
@@ -376,7 +376,7 @@ namespace AElf.Automation.EconomicSystemTest
             long feeAmount = 0;
             foreach (var miner in miners)
             {
-                var profitMap = profit.GetProfitsMap(miner, ReElectionReward);
+                var profitMap = profit.GetProfitsMap(miner, MinerBasicReward);
                 if (profitMap.Equals(new ReceivedProfitsMap()))
                     continue;
                 var profitAmountFull = profitMap.Value["ELF"];
@@ -385,7 +385,7 @@ namespace AElf.Automation.EconomicSystemTest
                 var newProfit = profit.GetNewTester(miner);
                 var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
                 {
-                    SchemeId = ReElectionReward,
+                    SchemeId = MinerBasicReward,
                     Beneficiary = miner.ConvertAddress()
                 });
                 profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);

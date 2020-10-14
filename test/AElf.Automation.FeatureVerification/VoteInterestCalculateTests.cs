@@ -19,6 +19,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
+using GetWelfareRewardAmountSampleInput = AElf.Contracts.Treasury.GetWelfareRewardAmountSampleInput;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
@@ -231,7 +232,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             const long lockTime4 = 360 * 24 * 60 * 60;
             const long lockTime5 = 720 * 24 * 60 * 60;
 
-            var result = await ContractManager.ElectionStub.GetWelfareRewardAmountSample.CallAsync(
+            var result = await ContractManager.TreasuryStub.GetWelfareRewardAmountSample.CallAsync(
                 new GetWelfareRewardAmountSampleInput
                 {
                     Value = {lockTime1, lockTime2, lockTime3, lockTime4, lockTime5}

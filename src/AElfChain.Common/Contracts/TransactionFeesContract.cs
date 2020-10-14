@@ -16,9 +16,12 @@ namespace AElfChain.Common.Contracts
         WriteRamCountTest,
         NoReadWriteCountTest,
         ComplexCountTest,
-
+        
+        SetMethodFee,
         GetContractName,
-        QueryContractResource
+        QueryContractResource,
+        GetMethodFeeController,
+        GetMethodFee
     }
 
     public class TransactionFeesContract : BaseContract<TxFeesMethod>

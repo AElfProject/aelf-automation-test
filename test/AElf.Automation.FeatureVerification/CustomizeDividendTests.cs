@@ -5,6 +5,7 @@ using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Treasury;
+using AElf.Types;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -120,6 +121,32 @@ namespace AElf.Automation.Contracts.ScenarioTest
             weightOneCount.ShouldBe(2);
             var weightEightCount = subSchemes.Count(x => x.Shares == 6);
             weightEightCount.ShouldBe(1);
+        }
+
+        [TestMethod]
+        public async Task ChangeTreasuryController()
+        {
+            var newController = ContractManager.Authority.CreateAssociationOrganization();
+            var input = new AuthorityInfo
+            {
+                OwnerAddress = newController,
+                ContractAddress = ContractManager.Association.Contract
+            };
+            var change = ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Treasury.ContractAddress,
+                nameof(TreasuryContractContainer.TreasuryContractStub.ChangeTreasuryController),
+                input, ContractManager.CallAddress);
+            change.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var getController = await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
+            getController.ContractAddress.ShouldBe(ContractManager.Association.Contract);
+            getController.OwnerAddress.ShouldBe(newController);
+        }
+        
+        [TestMethod]
+        public async Task GetTreasuryController()
+        {
+            var getController = await ContractManager.TreasuryStub.GetTreasuryController.CallAsync(new Empty());
+            Logger.Info($"{getController.ContractAddress},{getController.OwnerAddress}");
         }
 
         [TestMethod]

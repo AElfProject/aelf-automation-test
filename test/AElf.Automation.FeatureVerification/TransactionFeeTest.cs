@@ -8,8 +8,6 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
-using AElf.Cryptography;
-using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfChain.Common;
@@ -21,7 +19,6 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -56,10 +53,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private Dictionary<SchemeType, Scheme> Schemes { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         private string TestAccount { get; } = "Nhmm7kab6j6voDfzmeVN6BCo5Te8oTi5PW9qNeyT4ZnxnGJCa";
-        private static string RpcUrl { get; } = "192.168.197.21:8000";
-        private static string SideRpcUrl { get; } = "192.168.197.21:8002";
+        private static string RpcUrl { get; } = "192.168.197.44:8000";
+        private static string SideRpcUrl { get; } = "192.168.197.44:8002";
 
-        private string Symbol { get; } = "TEST"; 
+        private string Symbol { get; } = "TEST";
         private long SymbolFee = 1_00000000;
 
         private List<string> _resourceSymbol = new List<string>
@@ -68,27 +65,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestInitialize]
         public void Initialize()
         {
-            Log4NetHelper.LogInit("ResourceTest");
+            Log4NetHelper.LogInit("TransactionFeeTest");
             Logger = Log4NetHelper.GetLogger();
             NodeInfoHelper.SetConfig("nodes-env2-main");
 
             NodeManager = new NodeManager(RpcUrl);
             SideNodeManager = new NodeManager(SideRpcUrl);
             ContractManager = new ContractManager(SideNodeManager, InitAccount);
-            SideContractManager = new ContractManager(SideNodeManager,InitAccount);
+            SideContractManager = new ContractManager(SideNodeManager, InitAccount);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
             SideAuthority = new AuthorityManager(SideNodeManager, InitAccount);
 
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
             _tokenContractImpl = _genesisContract.GetTokenImplStub();
-            
+
             _treasury = _genesisContract.GetTreasuryContract(InitAccount);
             _profit = _genesisContract.GetProfitContract(InitAccount);
             _profit.GetTreasurySchemes(_treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
 
-//            _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
+            _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
             _acs8ContractA = new TransactionFeesContract(SideNodeManager, InitAccount);
             _sideTokenContractImpl = SideContractManager.TokenImplStub;
 //            _acs8ContractB = new TransactionFeesContract(NodeManager, InitAccount,
@@ -117,9 +114,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"After treasury  balance : {afterTreasuryAmount}");
 
             cpuResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var elfFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
+            var baseFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
                 .First(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed);
-            fees.Add(elfFee.Symbol, elfFee.Amount);
+            var sizeFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
+                .Last(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed);
+            fees.Add(baseFee.Symbol, baseFee.Amount);
+            fees.Add(sizeFee.Symbol, sizeFee.Amount);
+
             var resourceFeeList = cpuResult.TransactionResult.Logs
                 .Where(l => l.Name.Equals(nameof(ResourceTokenCharged))).ToList();
             foreach (var resourceFee in resourceFeeList)
@@ -134,73 +135,82 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"transaction fee {fee.Key} is : {fee.Value}");
             }
         }
-        
+
         [TestMethod]
         public async Task Acs8ContractTestOnSide()
         {
             var fees = new Dictionary<string, long>();
 
             await AdvanceResourceTokenOnSideChain();
-            await  CheckSideDividends();
-            var feeReceiver = await SideContractManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+            await CheckSideDividends();
+//            var feeReceiver = await SideContractManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+//            foreach (var symbol in _resourceSymbol)
+//            {
+//                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
+//                Logger.Info($"fee receiver {symbol} balance : {balance}");
+//            }
+
             foreach (var symbol in _resourceSymbol)
             {
-                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
-                Logger.Info($"fee receiver {symbol} balance : {balance}");
-            }
-            
-            foreach (var symbol in _resourceSymbol)
-            {
-                var balance = SideContractManager.Token.GetUserBalance(SideContractManager.Consensus.ContractAddress, symbol);
+                var balance =
+                    SideContractManager.Token.GetUserBalance(SideContractManager.Consensus.ContractAddress, symbol);
                 Logger.Info($"fee consensus {symbol} balance : {balance}");
             }
+
             var consensusStub = SideContractManager.Genesis.GetConsensusImplStub(InitAccount);
-            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
+            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info($"Symbol amount:{unAmount}");
 
-            var genesis =  GenesisContract.GetGenesisContract(SideNodeManager, InitAccount);
+            var genesis = GenesisContract.GetGenesisContract(SideNodeManager, InitAccount);
             var token = genesis.GetTokenContract();
-            token.TransferBalance(InitAccount, TestAccount, 2000_00000000,"TEST");
+            token.TransferBalance(InitAccount, TestAccount, 2000_00000000, "TEST");
             token.TransferBalance(InitAccount, TestAccount, 1_00000000);
-            
+
             var cpuResult = await _acs8SubA.ReadCpuCountTest.SendAsync(new Int32Value {Value = 19});
             var size = cpuResult.Transaction.CalculateSize();
             Logger.Info(size);
-            
+
+//            foreach (var symbol in _resourceSymbol)
+//            {
+//                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
+//                Logger.Info($"After fee receiver {symbol} balance : {balance}");
+//            }
+
             foreach (var symbol in _resourceSymbol)
             {
-                var balance = SideContractManager.Token.GetUserBalance(feeReceiver.ToBase58(), symbol);
-                Logger.Info($"After fee receiver {symbol} balance : {balance}");
-            }
-            
-            foreach (var symbol in _resourceSymbol)
-            {
-                var balance = SideContractManager.Token.GetUserBalance(SideContractManager.Consensus.ContractAddress, symbol);
+                var balance =
+                    SideContractManager.Token.GetUserBalance(SideContractManager.Consensus.ContractAddress, symbol);
                 Logger.Info($"After consensus {symbol} balance : {balance}");
             }
-            
+
             consensusStub = SideContractManager.Genesis.GetConsensusImplStub(InitAccount);
-            unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
+            unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info($"Symbol amount:{unAmount}");
-            
+
             cpuResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            var elfFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
+            var baseFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
                 .First(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed);
-            fees.Add(elfFee.Symbol, elfFee.Amount);
+            var sizeFee = TransactionFeeCharged.Parser.ParseFrom(cpuResult.TransactionResult.Logs
+                .Last(l => l.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed);
+            fees.Add(baseFee.Symbol, baseFee.Amount);
+            fees.Add(sizeFee.Symbol, sizeFee.Amount);
+
             var resourceFeeList = cpuResult.TransactionResult.Logs
                 .Where(l => l.Name.Equals(nameof(ResourceTokenCharged))).ToList();
-            
+
             foreach (var resourceFee in resourceFeeList)
             {
                 var feeAmount = ResourceTokenCharged.Parser.ParseFrom(resourceFee.NonIndexed).Amount;
                 var feeSymbol = ResourceTokenCharged.Parser.ParseFrom(resourceFee.NonIndexed).Symbol;
                 fees.Add(feeSymbol, feeAmount);
             }
+
             foreach (var fee in fees)
             {
                 Logger.Info($"transaction fee {fee.Key} is : {fee.Value}");
             }
-            await  CheckSideDividends();
+
+            await CheckSideDividends();
         }
 
         [TestMethod]
@@ -211,7 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var treasuryAmount = _treasury.GetCurrentTreasuryBalance();
             Logger.Info($"treasury  balance : {treasuryAmount}");
             var cpuResult = await _acs8SubA.ReadCpuCountTest.SendAsync(new Int32Value {Value = 20});
-            
+
             var afterTreasuryAmount = _treasury.GetCurrentTreasuryBalance();
             Logger.Info($"After treasury  balance : {afterTreasuryAmount}");
 
@@ -258,7 +268,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"Contract {symbol} balance : {balance}");
             }
         }
-        
+
         [TestMethod]
         public void Acs8ContractTest_Owning()
         {
@@ -266,9 +276,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             for (int i = 0; i < 30; i++)
             {
                 var cpuResult =
-                    _acs8ContractA.ExecuteMethodWithTxId(TxFeesMethod.ReadCpuCountTest, new Int32Value {Value = (i+20)});
+                    _acs8ContractA.ExecuteMethodWithTxId(TxFeesMethod.ReadCpuCountTest,
+                        new Int32Value {Value = (i + 20)});
                 transactionList.Add(cpuResult);
             }
+
             NodeManager.CheckTransactionListResult(transactionList);
         }
 
@@ -294,14 +306,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
         #endregion
 
         #region ACS1
-        
+
         [TestMethod]
         public void SetTokenContractMethodFee()
         {
-            var symbol = "TEST";
+            var symbol = "ELF";
             var fee = _tokenContract.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
             {
-                Value = nameof(TokenMethod.Approve)
+                Value = nameof(TokenMethod.Transfer)
             });
             Logger.Info(fee);
 //            if (fee.Fees.Count > 0) return;
@@ -310,7 +322,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     .OwnerAddress;
             var input = new MethodFees
             {
-                MethodName = nameof(TokenMethod.Approve),
+                MethodName = nameof(TokenMethod.Transfer),
                 Fees =
                 {
                     new MethodFee
@@ -318,12 +330,54 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         BasicFee = SymbolFee,
                         Symbol = symbol
                     }
-                }
+                },
+                IsSizeFeeFree = false 
             };
             var result = AuthorityManager.ExecuteTransactionWithAuthority(_tokenContract.ContractAddress,
                 "SetMethodFee", input,
                 InitAccount, organization);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
+        public void SetFeeContractMethodFee()
+        {
+            var symbol = "TEST";
+            var fee = _acs8ContractA.CallViewMethod<MethodFees>(TxFeesMethod.GetMethodFee, new StringValue
+            {
+                Value = nameof(TxFeesMethod.ReadCpuCountTest)
+            });
+            Logger.Info(fee);
+            if (fee.Fees.Count > 0) return;
+
+            var input = new MethodFees
+            {
+                MethodName = nameof(TxFeesMethod.ReadCpuCountTest),
+                Fees =
+                {
+                    new MethodFee
+                    {
+                        BasicFee = 0,
+                        Symbol = symbol
+                    }
+                },
+                IsSizeFeeFree = true
+            };
+            var result = _acs8ContractA.ExecuteMethodWithResult(TxFeesMethod.SetMethodFee, input);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
+        public void CheckFee()
+        {
+//            Transfer method
+            var result = _tokenContract.TransferBalance(InitAccount, TestAccount, 100, "TEST");
+            var fee = result.GetDefaultTransactionFee();
+            var eventLogs = result.Logs;
+            var baseFee = TransactionFeeCharged.Parser.ParseFrom(
+                ByteString.FromBase64(eventLogs.First(n => n.Name.Equals(nameof(TransactionFeeCharged))).NonIndexed));
+            var symbol = baseFee.Symbol;
+            symbol.ShouldBe("TEST");
         }
 
         [TestMethod]
@@ -358,7 +412,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var afterBalance = _tokenContract.GetUserBalance(InitAccount, Symbol);
             afterBalance.ShouldBe(balance - SymbolFee);
         }
-        
+
         #endregion
 
         #region BP ClaimProfits 
@@ -416,8 +470,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var treasuryAmount = _treasury.GetCurrentTreasuryBalance();
             Logger.Info($"treasury  balance : {treasuryAmount}");
-            
-            var treasuryBalance = _tokenContract.GetUserBalance(_treasury.ContractAddress,"NOBURN");
+
+            var treasuryBalance = _tokenContract.GetUserBalance(_treasury.ContractAddress, "NOBURN");
             Logger.Info($"treasury  balance : {treasuryBalance}");
 
             var miners = AuthorityManager.GetCurrentMiners();
@@ -425,7 +479,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 var balance = _tokenContract.GetUserBalance(miner, "ELF");
                 Logger.Info($"{miner} balance : {balance}");
-                
+
                 var testBalance = _tokenContract.GetUserBalance(miner, "TEST");
                 Logger.Info($"{miner} balance : {testBalance}");
             }
@@ -446,22 +500,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var profitStub = genesis.GetProfitStub();
             var tokenHolder = genesis.GetTokenHolderStub();
             var token = genesis.GetTokenContract();
-            
+
             var check = await consensusStub.GetSymbolList.CallAsync(new Empty());
-            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty()); 
+            var unAmount = await consensusStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info($"Symbol list : {check}\n amount:{unAmount}");
-            
+
             var scheme = await tokenHolder.GetScheme.CallAsync(consensus.Contract);
             Logger.Info(scheme.SchemeId.ToHex());
             var schemeInfo = await profitStub.GetScheme.CallAsync(scheme.SchemeId);
             Logger.Info(schemeInfo);
-            
+
             foreach (var symbol in check.Value)
             {
-                var balance = token.GetUserBalance(consensus.ContractAddress,symbol);
-                var virtualBalance = token.GetUserBalance(schemeInfo.VirtualAddress.ToBase58(),symbol);
+                var balance = token.GetUserBalance(consensus.ContractAddress, symbol);
+                var virtualBalance = token.GetUserBalance(schemeInfo.VirtualAddress.ToBase58(), symbol);
 
-                Logger.Info($"{consensus.ContractAddress}: {symbol}={balance}\n {schemeInfo.VirtualAddress}: {symbol}={virtualBalance} ");
+                Logger.Info(
+                    $"{consensus.ContractAddress}: {symbol}={balance}\n {schemeInfo.VirtualAddress}: {symbol}={virtualBalance} ");
             }
             foreach (var symbol in _resourceSymbol)
             {
@@ -650,7 +705,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 rBalance.ShouldBe(beforeBalance + 1000_00000000);
             }
         }
-        
+
         private async Task AdvanceResourceTokenOnSideChain()
         {
             foreach (var symbol in _resourceSymbol)
@@ -700,7 +755,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info(JsonConvert.SerializeObject(fee));
         }
 
-        private void CreateAndIssueToken(long amount,string symbol)
+        private void CreateAndIssueToken(long amount, string symbol)
         {
             if (!_tokenContract.GetTokenInfo(symbol).Equals(new TokenInfo())) return;
 

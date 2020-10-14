@@ -55,8 +55,8 @@ namespace AElf.Automation.SideChainEconomicTest
             Logger.Info($"Donate {sideTest.SideB.NodeManager.GetChainId()}:");
             sideTest.Donate(sideTest.SideB);
 
-            TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractA), 20));
-            TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractB),20));
+            TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractA), 30));
+            TaskCollection.Add(RunContinueJobWithInterval(() => sideTest.ResourceFeeTestJob(acs8ContractB),30));
             TaskCollection.Add(RunContinueJobWithInterval(() =>
             {
                 var status = sideTest.CheckContractBalanceAndTransfer(sideTest.SideA,acs8ContractA,out List<string> symbols);
@@ -66,7 +66,7 @@ namespace AElf.Automation.SideChainEconomicTest
                     mainTest.MainManager.BuyResources(mainTest.Main.CallAddress, 100000,list);
                     mainTest.TransferSideChainToken(mainTest.MainToSideA,sideTest.SideA,symbols);
                 }
-                Thread.Sleep(30000);
+                Thread.Sleep(10000);
             },10));
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
@@ -78,7 +78,7 @@ namespace AElf.Automation.SideChainEconomicTest
                     mainTest.MainManager.BuyResources(mainTest.Main.CallAddress, 100000,list);
                     mainTest.TransferSideChainToken(mainTest.MainToSideB,sideTest.SideB,symbols);
                 }
-                Thread.Sleep(30000);
+                Thread.Sleep(10000);
             },10));
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
@@ -88,7 +88,7 @@ namespace AElf.Automation.SideChainEconomicTest
                 var list = sideTest.SideManager.CheckCreatorRentResourceBalance(sideTest.SideB);
                 if (list.Count!=0)
                     mainTest.TransferSideChainToken(mainTest.MainToSideB,sideTest.SideB,list);
-                Thread.Sleep(30000);
+                Thread.Sleep(10000);
             },10));
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
@@ -99,7 +99,7 @@ namespace AElf.Automation.SideChainEconomicTest
                 sideTest.CheckConsensusBalance(sideTest.SideB);
                 sideTest.CheckMinersRentResource();
 
-                Thread.Sleep(30000);
+                Thread.Sleep(20000);
             },10));
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
@@ -107,14 +107,14 @@ namespace AElf.Automation.SideChainEconomicTest
                 sideTest.TakeBakeResource(sideTest.SideA,acs8ContractA);
                 sideTest.TakeBakeResource(sideTest.SideB,acs8ContractB);
 
-                Thread.Sleep(60000);
+                Thread.Sleep(10000);
             },10));
             
             TaskCollection.Add(RunContinueJobWithInterval(() =>
             {
                 mainTest.TransferPrimaryToken(mainTest.MainToSideA);
 
-                Thread.Sleep(60000);
+                Thread.Sleep(10000);
             },10));
 
             Task.WaitAll(TaskCollection.ToArray());
@@ -134,7 +134,6 @@ namespace AElf.Automation.SideChainEconomicTest
                     catch (Exception e)
                     {
                         Logger.Error(e);
-                        break;
                     }
             }
 

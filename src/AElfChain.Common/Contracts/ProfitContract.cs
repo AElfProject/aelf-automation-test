@@ -132,8 +132,7 @@ namespace AElfChain.Common.Contracts
         
         public ReceivedProfitsMap GetProfitsMap(string account, Hash schemeId)
         {
-            var newTester = GetNewTester(account);
-            var profitsMap = newTester.CallViewMethod<ReceivedProfitsMap>(ProfitMethod.GetProfitsMap, new ClaimProfitsInput
+            var profitsMap = CallViewMethod<ReceivedProfitsMap>(ProfitMethod.GetProfitsMap, new ClaimProfitsInput
             {
                 SchemeId = schemeId,
                 Beneficiary = account.ConvertAddress()

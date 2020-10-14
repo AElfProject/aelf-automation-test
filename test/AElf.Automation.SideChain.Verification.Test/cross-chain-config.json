@@ -2,24 +2,6 @@
     "TestEnvironment": "Offline2",
     "EnvironmentInfo": [
         {
-            "Environment": "Offline1",
-            "Config": "nodes-env1-main",
-            "MainChainInfos":
-            {
-                "MainChainUrl": "http://192.168.197.14:8000",
-                "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
-                "Password": "123"
-            },
-            "SideChainInfos": [
-                {
-                    "SideChainUrl": "http://192.168.197.32:8001"
-                },
-                {
-                    "SideChainUrl": "http://192.168.197.11:8002"
-                }
-            ]
-        },
-        {
             "Environment": "Offline2",
             "Config": "nodes-env2-main",
             "MainChainInfos":
@@ -30,10 +12,10 @@
             },
             "SideChainInfos": [
                 {
-                    "SideChainUrl": "http://192.168.197.22:8001"
+                    "SideChainUrl": "http://192.168.197.44:8001"
                 },
                 {
-                    "SideChainUrl": "http://192.168.197.37:8002"
+                    "SideChainUrl": "http://192.168.197.47:8002"
                 }
             ]
         },
@@ -53,7 +35,7 @@
             ]
         }
     ],
-    "CreateTokenNumber": 0,
+    "CreateTokenNumber": 1,
     "VerifySideChainNumber": 1,
     "VerifyBlockNumber": 100,
     "TransferAccount":10

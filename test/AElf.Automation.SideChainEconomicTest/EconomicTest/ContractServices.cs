@@ -107,7 +107,27 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
             var symbol = TokenService.GetPrimaryTokenSymbol(); 
             TokenService.TransferBalance(from, to, amount, symbol);
         }
-        
+
+        public void AdvanceResourceToken(string from, string contracts, long amount, List<string> symbols = null)
+        {
+            if (symbols == null)
+                symbols = Symbols;
+            TokenService.SetAccount(from);
+            var contract = contracts.ConvertAddress();
+            foreach (var symbol in symbols)
+            {
+                var transferResult = TokenService.ExecuteMethodWithResult(TokenMethod.AdvanceResourceToken,
+                    new AdvanceResourceTokenInput
+                    {
+                        ContractAddress = contract,
+                        ResourceTokenSymbol = symbol,
+                        Amount = amount
+                    });
+                transferResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                Logger.Info($"AdvanceResourceToken from={from} to={contracts}, amount={amount}");
+            }
+        }
+
         public void DonateSideChainDividendsPool(string symbol, long amount)
         {
             var init = CallAddress;

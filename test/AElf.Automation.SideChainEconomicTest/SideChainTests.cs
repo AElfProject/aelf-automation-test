@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using AElf.Automation.SideChainEconomicTest.EconomicTest;
 using AElf.Contracts.MultiToken;
@@ -106,7 +105,7 @@ namespace AElf.Automation.SideChainEconomicTest
             var needTransferSymbols = symbols.Keys.Where(k => symbols[k] < 1000_00000000).ToList();
             var list = services.GetTokenBalances(services.CallAddress,2000_00000000, services.FeeResourceSymbols);
             if (needTransferSymbols.Count != 0 && list.Count == 0)
-                services.TransferResources(services.CallAddress, txContract.ContractAddress, 2000_00000000,
+                services.AdvanceResourceToken(services.CallAddress, txContract.ContractAddress, 2000_00000000,
                     needTransferSymbols);
             if (list.Count != 0)
             {
@@ -138,7 +137,7 @@ namespace AElf.Automation.SideChainEconomicTest
             foreach (var miner in miners)
             foreach (var symbol in SideB.RentResourceSymbols)
             {
-                var balance = SideA.TokenService.GetUserBalance(miner, symbol);
+                var balance = SideB.TokenService.GetUserBalance(miner, symbol);
                 Logger.Info($"{miner}: {symbol}={balance}");
             }
         }

@@ -275,7 +275,7 @@ namespace AElfChain.Common.Managers
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    Thread.Sleep(2000);
+                    Thread.Sleep(10000);
                     Logger.Info($"Check {txId} again:");
                     transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 }
@@ -288,7 +288,7 @@ namespace AElfChain.Common.Managers
                     case TransactionResultStatus.NodeValidationFailed:
                         message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
                         errorMsg = transactionResult.Error.Contains("\n")
-                            ? transactionResult.Error.Split("\n")[1]
+                            ? transactionResult.Error.Split("\n")[0]
                             : transactionResult.Error;
                         message += $"\r\nError Message: {errorMsg}";
                         Logger.Error(message, true);
@@ -345,7 +345,7 @@ namespace AElfChain.Common.Managers
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(5000);
                     Logger.Info($"Check {id} again:");
                     transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
                 }

@@ -40,7 +40,7 @@ namespace AElfChain.Common.Contracts
         GetUndistributedDividends,
         GetSymbolList,
         GetDividends,
-        GetCurrentWelfareReward,
+        GetCurrentTermMiningReward,
         GetMinedBlocksOfPreviousTerm,
         GetCurrentMiningRewardPerBlock,
 
@@ -122,9 +122,9 @@ namespace AElfChain.Common.Contracts
             return check;
         }
         
-        public Int64Value GetCurrentWelfareReward()
+        public Int64Value GetCurrentTermMiningReward()
         {
-            var roundMinedBlock = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentWelfareReward, new Empty());
+            var roundMinedBlock = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermMiningReward, new Empty());
             return roundMinedBlock;
         }
         

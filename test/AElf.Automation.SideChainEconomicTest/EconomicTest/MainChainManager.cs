@@ -59,7 +59,7 @@ namespace AElf.Automation.SideChainEconomicTest.EconomicTest
                 transactionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
                 var afterBalance = Token.GetUserBalance(account, symbol);
-                Logger.Info($"Token '{symbol}' balance: before = {beforeBalance}, after: {afterBalance}");
+                Logger.Info($"Token '{symbol}' balance: before = {beforeBalance}, after ={afterBalance}");
             }
         }
     }
