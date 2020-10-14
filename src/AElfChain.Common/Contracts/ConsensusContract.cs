@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Acs1;
-using Acs10;
+using AElf.Standards.ACS1;
+using AElf.Standards.ACS10;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Managers;

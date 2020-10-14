@@ -1,13 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
-using Acs10;
-using AElf.Standards.ACS3;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Referendum;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Treasury;
+using AElf.Standards.ACS10;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -46,7 +44,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             //donate
             var beforeBalance = ContractManager.Token.GetUserBalance(tester);
             var treasuryStub = ContractManager.Genesis.GetTreasuryStub(tester);
-            var donateResult = await treasuryStub.Donate.SendAsync(new DonateInput
+            var treasuryImplStub = ContractManager.Genesis.GetTreasuryImplStub(tester);
+
+            var donateResult = await treasuryImplStub.Donate.SendAsync(new DonateInput
             {
                 Symbol = "ELF",
                 Amount = 50_00000000
@@ -66,7 +66,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             balance.ShouldBe(0);
 
             //query treasury balance
-            var treasuryBalance = await ContractManager.TreasuryStub.GetUndistributedDividends.CallAsync(new Empty());
+            var treasuryBalance = await ContractManager.TreasuryImplStub.GetUndistributedDividends.CallAsync(new Empty());
             treasuryBalance.Value.First().Value.ShouldBeGreaterThanOrEqualTo(100_00000000);
         }
 

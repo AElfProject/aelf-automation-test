@@ -51,7 +51,7 @@ namespace AElfChain.Common.Contracts
         public Hash CreateProposal(string contractAddress, string method, IMessage input, Address organizationAddress,
             string caller = null)
         {
-            var tester = GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);
+            var tester = GetTestStub<ReferendumContractImplContainer.ReferendumContractImplStub>(caller);
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = method,
@@ -70,7 +70,7 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResult ReleaseProposal(Hash proposalId, string caller = null)
         {
-            var tester = GetTestStub<ReferendumContractContainer.ReferendumContractStub>(caller);
+            var tester = GetTestStub<ReferendumContractImplContainer.ReferendumContractImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.Release.SendAsync(proposalId));
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");

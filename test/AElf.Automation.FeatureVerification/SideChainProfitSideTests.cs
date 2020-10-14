@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs10;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TokenHolder;
+using AElf.Standards.ACS10;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;

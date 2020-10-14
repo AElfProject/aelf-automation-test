@@ -541,7 +541,7 @@ namespace AElf.Automation.SideChainTests
             var associationOrganization = AuthorityManager.CreateAssociationOrganization(Members);
             var input = new ChangeSideChainIndexingFeeControllerInput
             {
-                AuthorityInfo = new Acs1.AuthorityInfo
+                AuthorityInfo = new AuthorityInfo
                 {
                     ContractAddress = MainServices.AssociationService.Contract,
                     OwnerAddress = associationOrganization
@@ -629,7 +629,7 @@ namespace AElf.Automation.SideChainTests
 
             var input = new ChangeSideChainIndexingFeeControllerInput
             {
-                AuthorityInfo = new Acs1.AuthorityInfo
+                AuthorityInfo = new AuthorityInfo
                 {
                     ContractAddress = getIndexControllerInfo.ContractAddress,
                     OwnerAddress = getIndexControllerInfo.OwnerAddress

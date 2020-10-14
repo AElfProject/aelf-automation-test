@@ -46,7 +46,7 @@ namespace AElfChain.Console.Commands
         {
             var hashInput = Prompt.Input<string>("Input ProposalId");
             var proposalId = Hash.LoadFromHex(hashInput);
-            var proposalInfo = AsyncHelper.RunSync(() => Services.ParliamentAuthStub.GetProposal.CallAsync(proposalId));
+            var proposalInfo = AsyncHelper.RunSync(() => Services.ParliamentContractImplStub.GetProposal.CallAsync(proposalId));
 
             $"ProposalId: {proposalId} info".WriteSuccessLine();
             JsonConvert.SerializeObject(proposalInfo, Formatting.Indented).WriteSuccessLine();

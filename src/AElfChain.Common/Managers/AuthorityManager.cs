@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Standards.ACS3;
 using AElf;
 using AElf.Client.Dto;

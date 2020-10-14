@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Types;

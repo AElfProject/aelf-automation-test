@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Acs0;
-using Acs1;
+using AElf.Standards.ACS0;
+using AElf.Standards.ACS1;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Genesis;
@@ -132,7 +132,7 @@ namespace AElfChain.Common.Contracts
         public TransactionResult ProposeNewContract(ContractDeploymentInput input,
             string caller = null)
         {
-            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
+            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
             return result.TransactionResult;
         }
@@ -140,7 +140,7 @@ namespace AElfChain.Common.Contracts
         public TransactionResult ProposeUpdateContract(ContractUpdateInput input,
             string caller = null)
         {
-            var tester = GetTestStub<BasicContractZeroContainer.BasicContractZeroStub>(caller);
+            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeUpdateContract.SendAsync(input));
             return result.TransactionResult;
         }

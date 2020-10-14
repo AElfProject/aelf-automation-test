@@ -52,7 +52,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task GetCurrentWelfareReward_Test()
         {
-            var welfareReward = await ContractManager.ConsensusStub.GetCurrentWelfareReward.CallAsync(new Empty());
+            var welfareReward = await ContractManager.ConsensusImplStub.GetCurrentTermMiningReward.CallAsync(new Empty());
             welfareReward.Value.ShouldBeGreaterThan(0);
         }
 

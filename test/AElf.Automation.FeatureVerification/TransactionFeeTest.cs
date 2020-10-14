@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
+using AElf.Standards.ACS1;
 using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
@@ -584,11 +584,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 ToAddress = ContractManager.Association.Contract,
                 Params = createNestProposalInput.ToByteString(),
                 OrganizationAddress = parliamentController,
-                ContractMethodName = nameof(AssociationContractContainer.AssociationContractStub.CreateProposal),
+                ContractMethodName = nameof(AssociationContractImplContainer.AssociationContractImplStub.CreateProposal),
                 ExpiredTime = KernelHelper.GetUtcNow().AddHours(1)
             };
             var parliamentCreateProposal =
-                await ContractManager.ParliamentAuthStub.CreateProposal.SendAsync(createProposalInput);
+                await ContractManager.ParliamentContractImplStub.CreateProposal.SendAsync(createProposalInput);
             parliamentCreateProposal.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var parliamentProposalId = parliamentCreateProposal.Output;
             ContractManager.Parliament.MinersApproveProposal(parliamentProposalId, miners);

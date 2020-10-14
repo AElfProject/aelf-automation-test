@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -104,7 +104,7 @@ namespace AElfChain.Console.Commands
 
         private async Task MainChainRegisterSideChain()
         {
-            var transactionResult = await SideContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
+            var transactionResult = await SideContract.GenesisImplStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
                     Address = SideContract.Token.Contract,
@@ -139,7 +139,7 @@ namespace AElfChain.Console.Commands
 
         private async Task SideChainRegisterMainChain()
         {
-            var transactionResult = await MainContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
+            var transactionResult = await MainContract.GenesisImplStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
                     Address = MainContract.Token.Contract,
