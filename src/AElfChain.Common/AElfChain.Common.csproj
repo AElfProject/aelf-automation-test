@@ -53,6 +53,7 @@
         <ProtoContract Include="Protobuf\Proto\referendum_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\dapp_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\execution.proto" />
+        <ProtoContract Include="Protobuf\Proto\random_number_provider_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>
