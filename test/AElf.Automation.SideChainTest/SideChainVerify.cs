@@ -349,8 +349,8 @@ namespace AElf.Automation.SideChainTests
 
         public void MainChainCrossChainTransferSideChain(ContractServices sideService)
         {
-            var symbols = new[] {"READ", "WRITE", "STORAGE", "TRAFFIC"};
-            var account = "2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV";
+            var symbols = new[] {"ELF"};
+            var account = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
             var toAccount = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
             var txInfos = new Dictionary<TransactionResultDto, string>();
             foreach (var symbol in symbols)
@@ -459,10 +459,11 @@ namespace AElf.Automation.SideChainTests
             // get transaction info            
             var status = txResult.Status.ConvertTransactionResultStatus();
             status.ShouldBe(TransactionResultStatus.Mined);
+            var fee = txResult.GetDefaultTransactionFee();
             Logger.Info(
                 $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {MainServices.ChainId}");
             var afterSymbolInfo = services.TokenService.GetTokenInfo(symbol);
-            afterSymbolInfo.Supply.ShouldBe(symbolInfo.Supply - amount);
+            afterSymbolInfo.Supply.ShouldBe(symbolInfo.Supply - amount - fee);
 
             await MainChainCheckSideChainBlockIndex(services, txResult.BlockNumber);
             var merklePath = GetMerklePath(txResult.BlockNumber, txId, services, out var root);

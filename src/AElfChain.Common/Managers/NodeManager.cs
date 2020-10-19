@@ -170,7 +170,7 @@ namespace AElfChain.Common.Managers
             var codeArray = contractReader.Read(filename);
             var input = new ContractDeploymentInput
             {
-                Category = KernelHelper.CodeCoverageRunnerCategory,
+                Category = KernelHelper.DefaultRunnerCategory,
                 Code = ByteString.CopyFrom(codeArray)
             };
 

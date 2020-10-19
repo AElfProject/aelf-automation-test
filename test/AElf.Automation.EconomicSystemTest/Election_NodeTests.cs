@@ -3,6 +3,7 @@ using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
+using AElf.Contracts.TestContract.BasicSecurity;
 using AElfChain.Common.Contracts;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
@@ -150,6 +151,13 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetVotesInformationResult(int nodeId)
         {
             var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
+        }
+
+        [TestMethod]
+        public void GetMaximumBlocksCount()
+        {
+            var blocksCount = Behaviors.ConsensusService.GetMaximumBlocksCount();
+            Logger.Info(blocksCount);
         }
 
         [TestMethod]

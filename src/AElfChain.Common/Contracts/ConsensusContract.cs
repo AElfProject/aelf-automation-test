@@ -96,6 +96,11 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<Int32Value>(ConsensusMethod.GetMaximumMinersCount, new Empty());
         }
         
+        public Int32Value GetMaximumBlocksCount()
+        {
+            return CallViewMethod<Int32Value>(ConsensusMethod.GetMaximumBlocksCount, new Empty());
+        }
+        
         public AuthorityInfo GetMaximumMinersCountController()
         {
             return CallViewMethod<AuthorityInfo>(ConsensusMethod.GetMaximumMinersCountController, new Empty());

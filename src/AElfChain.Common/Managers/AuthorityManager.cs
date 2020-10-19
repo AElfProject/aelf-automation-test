@@ -77,8 +77,6 @@ namespace AElfChain.Common.Managers
                 Code = ByteString.CopyFrom(code),
                 Category = KernelHelper.DefaultRunnerCategory
             };
-            var approveUsers = GetMinApproveMiners();
-
             var proposalNewContact = _genesis.ProposeNewContract(input, caller);
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(proposalNewContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
@@ -92,8 +90,8 @@ namespace AElfChain.Common.Managers
                 ProposalId = proposalId,
                 ProposedContractInputHash = proposalHash
             };
-
-            var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
+            var approveUsers = GetMinApproveMiners();
+            var transactionResult = ApproveAndRelease(releaseInput, caller);
             transactionResult.Status.ShouldBe("MINED");
 
             var deployProposalId = ProposalCreated.Parser
@@ -132,8 +130,6 @@ namespace AElfChain.Common.Managers
                 Address = address.ConvertAddress(),
                 Code = ByteString.CopyFrom(code)
             };
-            var approveUsers = GetMinApproveMiners();
-
             var proposalUpdateContact = _genesis.ProposeUpdateContract(input, caller);
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
@@ -148,7 +144,7 @@ namespace AElfChain.Common.Managers
                 ProposedContractInputHash = proposalHash
             };
 
-            var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
+            var transactionResult = ApproveAndRelease(releaseInput, caller);
             var deployProposalId = ProposalCreated.Parser
                 .ParseFrom(ByteString.FromBase64(transactionResult.Logs
                     .First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed))
@@ -192,8 +188,9 @@ namespace AElfChain.Common.Managers
                 .Pubkeys.Count;
             var organization = _genesis.GetContractDeploymentController().OwnerAddress;
             var voteInfo = _parliament.GetOrganization(organization).ProposalReleaseThreshold.MinimalVoteThreshold;
-            var minNumber = (int) (minersCount * 10000 / voteInfo);
+            var minNumber = (int) (10000 / voteInfo * minersCount) + 1;
             var currentMiners = GetCurrentMiners();
+            minNumber = minNumber > currentMiners.Count ? currentMiners.Count : minNumber;
             return currentMiners.Take(minNumber).ToList();
         }
 
@@ -323,12 +320,18 @@ namespace AElfChain.Common.Managers
                 callUser);
         }
 
-        private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
-            string callUser)
+        private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, string callUser)
         {
+            var approveUsers = GetMinApproveMiners();
             //approve
-            _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
-
+            _parliament.MinersApproveProposal(input.ProposalId, approveUsers); 
+            var proposalInfo = _parliament.CheckProposal(input.ProposalId);
+            if (!proposalInfo.ToBeReleased && proposalInfo.ApprovalCount < approveUsers.Count) 
+            {
+                Logger.Info("Get approve users again:");
+                approveUsers = GetMinApproveMiners();
+                _parliament.MinersApproveProposal(input.ProposalId, approveUsers); 
+            }
             //release
             return _genesis.ReleaseApprovedContract(input, callUser);
         }
@@ -417,12 +420,12 @@ namespace AElfChain.Common.Managers
         {
             while (true)
             {
+                code = CodeInjectHelper.ChangeContractCodeHash(code);
                 var hash = HashHelper.ComputeFrom(code);
                 var registration =
                     _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistrationByCodeHash,
                         hash);
                 if (registration.Equals(new SmartContractRegistration())) return code;
-                code = CodeInjectHelper.ChangeContractCodeHash(code);
             }
         }
     }

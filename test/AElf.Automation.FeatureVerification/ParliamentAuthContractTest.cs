@@ -55,6 +55,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Symbol = contractServices.Token.GetPrimaryTokenSymbol();
             Miners = contractServices.Authority.GetCurrentMiners();
             MinersCount = Miners.Count;
+            AuthorityManager = new AuthorityManager(NodeManager,InitAccount);
         }
 
         [TestMethod]
@@ -227,6 +228,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
             result.Status.ShouldBe(TransactionResultStatus.Mined);
             var whiteList = Parliament.GetProposerWhiteList();
             Logger.Info($"White list {whiteList.Proposers} ");
+        }
+
+        [TestMethod]
+        public void ChangeOrganizationThreshold(string organizationAddress)
+        {
+            var info = Parliament.GetOrganization(organizationAddress.ConvertAddress());
+            Logger.Info($"Before change: {info}");
+
+            var input = new ProposalReleaseThreshold
+            {
+                MaximalAbstentionThreshold = 100,
+                MaximalRejectionThreshold = 100,
+                MinimalApprovalThreshold = 300,
+                MinimalVoteThreshold = 300
+            };
+            
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Parliament.ContractAddress,
+                nameof(ParliamentMethod.ChangeOrganizationThreshold), input, Full, organizationAddress.ConvertAddress());
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            info = Parliament.GetOrganization(organizationAddress.ConvertAddress());
+            Logger.Info($"After change: {info}");
         }
 
 

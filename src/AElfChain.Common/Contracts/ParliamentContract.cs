@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using AElf.Standards.ACS3;
@@ -108,8 +109,15 @@ namespace AElfChain.Common.Contracts
             {
                 if (user.Equals("2GRH6gYPhRu7SxYby56sxdXGVuAuXS5atfjRmeFPKWJB3VMJAw")) continue;
                 var tester = GetNewTester(user);
-                var txId = tester.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
-                txId.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                try
+                {
+                    var txId = tester.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);
+                    txId.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
 
             Thread.Sleep(10000);

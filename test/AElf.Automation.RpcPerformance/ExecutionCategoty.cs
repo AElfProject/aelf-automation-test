@@ -269,6 +269,7 @@ namespace AElf.Automation.RpcPerformance
         
         public void InitializeSideChainToken()
         {
+            InitializeMainContracts();
         }
 
         public void ExecuteOneRoundTransactionTask()
