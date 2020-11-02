@@ -21,6 +21,7 @@ using AElfChain.Common.Managers;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -146,14 +147,17 @@ namespace AElf.Automation.RpcPerformance
             throw new Exception("Deployed contract not executed successfully.");
         }
 
-        public void DeployContractsWithAuthority()
+        public void DeployContractsWithAuthority(bool isOnlyDeploy)
         {
             var account = AccountList[0].Account;
             var authority = new AuthorityManager(NodeManager, account);
             var miners = authority.GetCurrentMiners();
+            if (isOnlyDeploy)
+                ThreadCount = miners.Count;
             if (miners.Count >= ThreadCount)
                 for (var i = 0; i < ThreadCount; i++)
                 {
+                    Logger.Info($"{miners[i]} deploy contract:");
                     var contractAddress =
                         authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
                     ContractList.Add(new ContractInfo(miners[i], contractAddress.ToBase58()));
@@ -174,26 +178,35 @@ namespace AElf.Automation.RpcPerformance
                 }
         }
 
-        public void SideChainDeployContractsWithCreator()
+        public void SideChainDeployContractsWithCreator(bool isOnlyDeploy)
         {
+            var account = AccountList[0].Account;
+            var authority = new AuthorityManager(NodeManager, account);
+            var creator = NodeInfoHelper.Config.Nodes.First().Account;
+            if (isOnlyDeploy)
+                ThreadCount = 1;
             for (var i = 0; i < ThreadCount; i++)
             {
-                var account = AccountList[0].Account;
-                var authority = new AuthorityManager(NodeManager, account);
-                var creator = NodeInfoHelper.Config.Nodes.First().Account;
-                var contractAddress = authority.DeployContractWithAuthority(creator, "AElf.Contracts.MultiToken.dll");
+                var contractAddress = authority.DeployContractWithAuthority(creator, "AElf.Contracts.MultiToken");
                 ContractList.Add(new ContractInfo(creator, contractAddress.ToBase58()));
                 Thread.Sleep(60000);
             }
         }
 
-        public void SideChainDeployContractsWithAuthority()
+        public void SideChainDeployContractsWithAuthority(bool isOnlyDeploy)
         {
+            var creator = NodeInfoHelper.Config.Nodes.First().Account;
+
+            if (isOnlyDeploy)
+                ThreadCount = AccountList.Count;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
+                var balance = TokenMonitor.SystemToken.GetUserBalance(account);
+                if (balance < 1000_00000000)
+                    TokenMonitor.SystemToken.TransferBalance(creator,account,1000_00000000);
                 var authority = new AuthorityManager(NodeManager, account);
-                var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken.dll");
+                var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken");
                 ContractList.Add(new ContractInfo(account, contractAddress.ToBase58()));
             }
         }
@@ -203,7 +216,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var chainStatus = AsyncHelper.RunSync(NodeManager.ApiClient.GetChainStatusAsync);
             var genesis = GenesisContract.GetGenesisContract(NodeManager);
-            var systemToken  = genesis.GetTokenContract();
+            var systemToken = genesis.GetTokenContract();
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).ToList();
             //create all token
             foreach (var contract in ContractList)
@@ -212,7 +225,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(NodeManager);
                 contract.Symbol = symbol;
-                
+
                 var token = new TokenContract(NodeManager, account, contractPath);
                 //create fake ELF token, just for transaction fee
                 var primaryToken = NodeManager.GetPrimaryTokenSymbol();
@@ -229,8 +242,9 @@ namespace AElf.Automation.RpcPerformance
                 var balance = systemToken.GetUserBalance(account);
                 if (balance < 10000_00000000)
                 {
-                    systemToken.TransferBalance(bps.First(),account, 10000_00000000);
+                    systemToken.TransferBalance(bps.First(), account, 10000_00000000);
                 }
+
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,

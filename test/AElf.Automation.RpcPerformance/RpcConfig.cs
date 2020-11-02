@@ -17,6 +17,7 @@ namespace AElf.Automation.RpcPerformance
                 var rd = new Random(Guid.NewGuid().GetHashCode());
                 rdNo = rd.Next(0, EndpointList.Count);
             }
+
             var serviceUrl = EndpointList[rdNo];
             return serviceUrl.Contains("http://") ? serviceUrl : $"http://{serviceUrl}";
         }
@@ -52,6 +53,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("RandomSenderTransaction")]
         public bool RandomSenderTransaction { get; set; }
 
+        [JsonProperty("OnlyDeploy")] public bool OnlyDeploy { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
 
         [JsonProperty("RequestRandomEndpoint")]

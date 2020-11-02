@@ -84,15 +84,15 @@ namespace AElf.Automation.RpcPerformance
             TokenMonitor.TransferTokenForTest(AccountList.Select(o => o.Account).ToList());
         }
 
-        public void DeployContractsWithAuthority()
+        public void DeployContractsWithAuthority(bool isOnlyDeploy)
         {
         }
 
-        public void SideChainDeployContractsWithAuthority()
+        public void SideChainDeployContractsWithAuthority(bool isOnlyDeploy)
         {
         }
 
-        public void SideChainDeployContractsWithCreator()
+        public void SideChainDeployContractsWithCreator(bool isOnlyDeploy)
         {
         }
 
