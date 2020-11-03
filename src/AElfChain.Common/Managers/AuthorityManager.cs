@@ -80,6 +80,21 @@ namespace AElfChain.Common.Managers
             var approveUsers = GetMinApproveMiners();
 
             var proposalNewContact = _genesis.ProposeNewContract(input, caller);
+            if (proposalNewContact.Error.Contains("Already proposed."))
+            {
+                Logger.Info("Change code");
+                var newCode = CodeInjectHelper.ChangeContractCodeHash(code);
+                Logger.Info("Deploy again:");
+                input = new ContractDeploymentInput
+                {
+                    Code = ByteString.CopyFrom(newCode),
+                    Category = KernelHelper.DefaultRunnerCategory
+                };
+                approveUsers = GetMinApproveMiners();
+                proposalNewContact = _genesis.ProposeNewContract(input, caller);
+                proposalNewContact.Status.ShouldBe(TransactionResultStatus.Mined);
+            }
+
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(proposalNewContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
                 .ProposalId;
@@ -175,14 +190,15 @@ namespace AElfChain.Common.Managers
         public List<string> GetCurrentMiners()
         {
             var minerList = new List<string>();
-                var miners =
-                    _consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
-                foreach (var minersPubkey in miners.Pubkeys)
-                {
-                    var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
-                    minerList.Add(miner.ToBase58());
-                }
-                return minerList;
+            var miners =
+                _consensus.CallViewMethod<MinerList>(ConsensusMethod.GetCurrentMinerList, new Empty());
+            foreach (var minersPubkey in miners.Pubkeys)
+            {
+                var miner = Address.FromPublicKey(minersPubkey.ToByteArray());
+                minerList.Add(miner.ToBase58());
+            }
+
+            return minerList;
         }
 
         public List<string> GetMinApproveMiners()
@@ -201,7 +217,7 @@ namespace AElfChain.Common.Managers
         {
             return _parliament.GetGenesisOwnerAddress();
         }
-        
+
         public Address CreateNewParliamentOrganization(string account)
         {
             var minimalApprovalThreshold = 7500;
@@ -223,15 +239,15 @@ namespace AElfChain.Common.Managers
             };
             _parliament.SetAccount(account);
             var transactionResult =
-                _parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization,createOrganizationInput);
+                _parliament.ExecuteMethodWithResult(ParliamentMethod.CreateOrganization, createOrganizationInput);
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(transactionResult.ReturnValue));
             Logger.Info($"Parliament address: {organizationAddress}");
 
             return organizationAddress;
         }
-        
-        public Address CreateAssociationOrganization(IEnumerable<string> members = null,string token = "TEST")
+
+        public Address CreateAssociationOrganization(IEnumerable<string> members = null, string token = "TEST")
         {
             if (members == null)
                 members = NodeInfoHelper.Config.Nodes.Select(l => l.Account).ToList().Take(3);
@@ -258,7 +274,7 @@ namespace AElfChain.Common.Managers
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             return organizationAddress;
         }
-        
+
         public Address CreateReferendumOrganization(Address proposer = null)
         {
             var lists = NodeInfoHelper.Config.Nodes;
@@ -268,6 +284,7 @@ namespace AElfChain.Common.Managers
                     .Select(member => member.ConvertAddress()).Take(3);
                 proposer = members.First();
             }
+
             //create referendum organization
             var createInput = new AElf.Contracts.Referendum.CreateOrganizationInput
             {
@@ -288,7 +305,7 @@ namespace AElfChain.Common.Managers
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             return organizationAddress;
         }
-        
+
         public long GetPeriod()
         {
             return _consensus.GetCurrentTermInformation().TermNumber;
@@ -304,11 +321,12 @@ namespace AElfChain.Common.Managers
 
             //approve
             var proposalInfo = _parliament.CheckProposal(proposalId);
-            while (!proposalInfo.ToBeReleased) 
-            { 
+            while (!proposalInfo.ToBeReleased)
+            {
                 _parliament.MinersApproveProposal(proposalId, approveUsers);
                 proposalInfo = _parliament.CheckProposal(proposalId);
             }
+
             //release
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
@@ -326,10 +344,40 @@ namespace AElfChain.Common.Managers
         private TransactionResultDto ApproveAndRelease(ReleaseContractInput input, IEnumerable<string> approveUsers,
             string callUser)
         {
-            //approve
-            _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
+            try
+            {
+                var alreadyApprove = new List<string>();
+                //approve
+//            _parliament.MinersApproveProposal(input.ProposalId, approveUsers);
+                foreach (var user in approveUsers)
+                {
+                    var txId = _parliament.Approve(input.ProposalId, user);
+                    var result = NodeManager.CheckTransactionResult(txId);
+                    if (result.Status.ConvertTransactionResultStatus().Equals(TransactionResultStatus.Mined))
+                        alreadyApprove.Add(user);
+                }
 
-            //release
+                var info = _parliament.CheckProposal(input.ProposalId);
+                if (!info.ToBeReleased)
+                {
+                    var currentMiner = GetCurrentMiners();
+                    foreach (var miner in currentMiner)
+                    {
+                        if (alreadyApprove.Contains(miner))
+                            continue;
+                        var txId = _parliament.Approve(input.ProposalId, miner);
+                        var result = NodeManager.CheckTransactionResult(txId);
+                        info = _parliament.CheckProposal(input.ProposalId);
+                        if (info.ToBeReleased)
+                            return _genesis.ReleaseApprovedContract(input, callUser);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
             return _genesis.ReleaseApprovedContract(input, callUser);
         }
 
@@ -419,7 +467,8 @@ namespace AElfChain.Common.Managers
             {
                 var hash = HashHelper.ComputeFrom(code);
                 var registration =
-                    _genesis.CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistrationByCodeHash,
+                    _genesis.CallViewMethod<SmartContractRegistration>(
+                        GenesisMethod.GetSmartContractRegistrationByCodeHash,
                         hash);
                 if (registration.Equals(new SmartContractRegistration())) return code;
                 code = CodeInjectHelper.ChangeContractCodeHash(code);
