@@ -307,6 +307,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             Task.WaitAll(contractTasks.ToArray<Task>());
+            UpdateRandomEndpoint(); //update sent transaction to random endpoint
 
             exec.Stop();
             Logger.Info("End transaction execution at: {0}, execution time span is {1}",
