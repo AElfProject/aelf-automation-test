@@ -96,6 +96,8 @@ namespace AElf.Automation.RpcPerformance
                         {
                             Logger.Info($"Deploy round: {times}");
                             performance.DeployContractsWithAuthority(true);
+                            performance.InitializeMainContracts();
+                            performance.ExecuteOneRoundTransactionTask();
                             times++;
                         }
                     if (chainId.Equals("tDVW"))
