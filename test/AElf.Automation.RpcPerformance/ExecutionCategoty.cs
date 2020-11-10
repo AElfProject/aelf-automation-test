@@ -147,17 +147,20 @@ namespace AElf.Automation.RpcPerformance
             throw new Exception("Deployed contract not executed successfully.");
         }
 
-        public void DeployContractsWithAuthority(bool isOnlyDeploy)
+        public void DeployContractsWithAuthority()
         {
             ContractList = new List<ContractInfo>();
+            var bps = NodeInfoHelper.Config.Nodes;
+
             var account = AccountList[0].Account;
             var authority = new AuthorityManager(NodeManager, account);
             var miners = authority.GetCurrentMiners();
-            if (isOnlyDeploy)
-                ThreadCount = miners.Count;
             if (miners.Count >= ThreadCount)
                 for (var i = 0; i < ThreadCount; i++)
                 {
+                    var balance = TokenMonitor.SystemToken.GetUserBalance(miners[i]);
+                    if (balance < 1000_00000000)
+                        TokenMonitor.SystemToken.TransferBalance(bps.First().Account, miners[i], 10000_00000000, "ELF");
                     Logger.Info($"{miners[i]} deploy contract:");
                     var contractAddress =
                         authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
@@ -185,13 +188,11 @@ namespace AElf.Automation.RpcPerformance
                 }
         }
 
-        public void SideChainDeployContractsWithCreator(bool isOnlyDeploy)
+        public void SideChainDeployContractsWithCreator()
         {
             var account = AccountList[0].Account;
             var authority = new AuthorityManager(NodeManager, account);
             var creator = NodeInfoHelper.Config.Nodes.First().Account;
-            if (isOnlyDeploy)
-                ThreadCount = 1;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var contractAddress = authority.DeployContractWithAuthority(creator, "AElf.Contracts.MultiToken");
@@ -200,12 +201,9 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void SideChainDeployContractsWithAuthority(bool isOnlyDeploy)
+        public void SideChainDeployContractsWithAuthority()
         {
             var creator = NodeInfoHelper.Config.Nodes.First().Account;
-
-            if (isOnlyDeploy)
-                ThreadCount = AccountList.Count;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var account = AccountList[i].Account;
@@ -233,10 +231,15 @@ namespace AElf.Automation.RpcPerformance
                 var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(NodeManager);
                 contract.Symbol = symbol;
                 
-                Logger.Info(contractPath);
+                Logger.Info($"{contractPath} create test token: ");
                 var token = new TokenContract(NodeManager, account, contractPath);
                 //create fake ELF token, just for transaction fee
                 var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+                var balance = systemToken.GetUserBalance(account);
+                if (balance < 20000_00000000)
+                {
+                    systemToken.TransferBalance(bps.First(), account, 10000_00000000);
+                }
                 token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = primaryToken,
@@ -246,11 +249,6 @@ namespace AElf.Automation.RpcPerformance
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true
                 });
-                var balance = systemToken.GetUserBalance(account);
-                if (balance < 10000_00000000)
-                {
-                    systemToken.TransferBalance(bps.First(), account, 10000_00000000);
-                }
 
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
@@ -300,6 +298,7 @@ namespace AElf.Automation.RpcPerformance
             var exec = new Stopwatch();
             exec.Start();
             var contractTasks = new List<Task>();
+            ThreadCount = ContractList.Count;
             for (var i = 0; i < ThreadCount; i++)
             {
                 var j = i;
@@ -711,6 +710,7 @@ namespace AElf.Automation.RpcPerformance
 
         private void CheckTokenSymbol(List<ContractInfo> contractInfos)
         {
+            List<ContractInfo> removed = new List<ContractInfo>();
             foreach (var contract in contractInfos)
             {
                 var account = contract.Owner;
@@ -718,8 +718,32 @@ namespace AElf.Automation.RpcPerformance
                 var symbol = contract.Symbol;
 
                 var token = new TokenContract(NodeManager, account, contractPath);
+                var primaryToken = NodeManager.GetPrimaryTokenSymbol();
+
+                var primaryTokenInfo = token.GetTokenInfo(primaryToken);
                 var tokenInfo = token.GetTokenInfo(symbol);
-                if (tokenInfo.Equals(new TokenInfo()))
+                
+                if (primaryTokenInfo.Equals(new TokenInfo()))
+                {
+                    Logger.Info($"{primaryToken} is not existed. Create again");
+                    var txResult = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                    {
+                        Symbol = primaryToken,
+                        TokenName = $"fake token {primaryToken}",
+                        TotalSupply = 10_0000_0000_00000000L,
+                        Decimals = 8,
+                        Issuer = account.ConvertAddress(),
+                        IsBurnable = true
+                    });
+                    if (!txResult.Status.ConvertTransactionResultStatus().Equals(TransactionResultStatus.Mined))
+                    {
+                        Logger.Info($"Create {primaryToken} failed, remove {contractPath}");
+                        removed.Add(contract);
+                        continue;
+                    }
+                }
+                
+                if(tokenInfo.Equals(new TokenInfo()))
                 {
                     Logger.Info($"{symbol} is not existed. Create again");
                     var txResult = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
@@ -734,10 +758,14 @@ namespace AElf.Automation.RpcPerformance
                     if (!txResult.Status.ConvertTransactionResultStatus().Equals(TransactionResultStatus.Mined))
                     {
                         Logger.Info($"Create {symbol} failed, remove {contractPath}");
-                        contractInfos.Remove(contract);
+                        removed.Add(contract);
                     }
                 }
             }
+
+            if (removed.Count <= 0) return;
+            foreach (var r in removed)
+                contractInfos.Remove(r);
         }
 
         #endregion

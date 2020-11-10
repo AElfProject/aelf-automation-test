@@ -106,7 +106,8 @@ namespace AElfChain.Common.Managers
                 ProposalId = proposalId,
                 ProposedContractInputHash = proposalHash
             };
-
+            
+            Logger.Info($"To calculate the approve count: {approveUsers.Count}");
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
             if (!transactionResult.Equals(null))
             {
@@ -227,10 +228,12 @@ namespace AElfChain.Common.Managers
                 .CallViewMethod<PubkeyList>(ConsensusMethod.GetCurrentMinerPubkeyList, new Empty())
                 .Pubkeys.Count;
             var organization = _genesis.GetContractDeploymentController().OwnerAddress;
-            var voteInfo = _parliament.GetOrganization(organization).ProposalReleaseThreshold.MinimalVoteThreshold;
+            var organizationInfo = _parliament.GetOrganization(organization);
+            var voteInfo = organizationInfo.ProposalReleaseThreshold.MinimalVoteThreshold;
             var minNumber = (int) (minersCount * voteInfo / 10000) + 1;
             var currentMiners = GetCurrentMiners();
-            minNumber = minNumber > currentMiners.Count ? currentMiners.Count : minersCount;
+            minNumber = minNumber > currentMiners.Count ? currentMiners.Count : minNumber;
+
             return currentMiners.Take(minNumber).ToList();
         }
 
@@ -378,7 +381,9 @@ namespace AElfChain.Common.Managers
                     alreadyApprove.Add(user);
                 }
             }
-
+            Thread.Sleep(2000);
+            Logger.Info($"Except approve count :{enumerable.Length}, in fact approve count {alreadyApprove.Count}");
+            
             var info = _parliament.CheckProposal(input.ProposalId);
             if (info.ToBeReleased)
                 return _genesis.ReleaseApprovedContract(input, callUser);

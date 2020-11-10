@@ -9,9 +9,9 @@ namespace AElf.Automation.RpcPerformance
         int ExeTimes { get; }
         string BaseUrl { get; }
         void InitExecCommand(int userCount = 150);
-        void DeployContractsWithAuthority(bool isOnlyDeploy);
-        void SideChainDeployContractsWithCreator(bool isOnlyDeploy);
-        void SideChainDeployContractsWithAuthority(bool isOnlyDeploy);
+        void DeployContractsWithAuthority();
+        void SideChainDeployContractsWithCreator();
+        void SideChainDeployContractsWithAuthority();
         void DeployContracts();
         void InitializeMainContracts();
         void InitializeSideChainToken();

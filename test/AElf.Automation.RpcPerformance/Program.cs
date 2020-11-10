@@ -70,11 +70,11 @@ namespace AElf.Automation.RpcPerformance
                     if (authority)
                     {
                         if (isMainChain)
-                            performance.DeployContractsWithAuthority(false);
+                            performance.DeployContractsWithAuthority();
                         else if (chainId.Equals("tDVW"))
-                            performance.SideChainDeployContractsWithCreator(false);
+                            performance.SideChainDeployContractsWithCreator();
                         else
-                            performance.SideChainDeployContractsWithAuthority(false);
+                            performance.SideChainDeployContractsWithAuthority();
                     }
                     else
                     {
@@ -95,16 +95,16 @@ namespace AElf.Automation.RpcPerformance
                         while (true)
                         {
                             Logger.Info($"Deploy round: {times}");
-                            performance.DeployContractsWithAuthority(true);
+                            performance.DeployContractsWithAuthority();
                             performance.InitializeMainContracts();
                             performance.ExecuteOneRoundTransactionTask();
                             times++;
                         }
                     if (chainId.Equals("tDVW"))
                         while (true)
-                            performance.SideChainDeployContractsWithCreator(true);
+                            performance.SideChainDeployContractsWithCreator();
                     if (chainId.Equals("tDVV"))
-                        performance.SideChainDeployContractsWithAuthority(true);
+                        performance.SideChainDeployContractsWithAuthority();
                 }
             }
             catch (TimeoutException e)
