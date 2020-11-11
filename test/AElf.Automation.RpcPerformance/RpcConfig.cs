@@ -28,6 +28,8 @@ namespace AElf.Automation.RpcPerformance
 
         [JsonProperty("max_transactions_select")]
         public int MaxTransactionSelect { get; set; }
+        [JsonProperty("min_transactions_select")]
+        public int MinTransactionSelect { get; set; }
         [JsonProperty("is_changed")] public bool IsChanged { get; set; }
         [JsonProperty("limit_count")] public string LimitCount { get; set; }
     }

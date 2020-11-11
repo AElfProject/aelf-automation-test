@@ -436,6 +436,9 @@ namespace AElf.Automation.RpcPerformance
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             //add transaction performance check process
+            var nodeTransactionOption = RpcConfig.ReadInformation.NodeTransactionOption;
+            var max = nodeTransactionOption.MaxTransactionSelect;
+            var min = nodeTransactionOption.MinTransactionSelect;
             var testers = AccountList.Select(o => o.Account).ToList();
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account);
             var enumerable = bps as string[] ?? bps.ToArray();
@@ -455,7 +458,9 @@ namespace AElf.Automation.RpcPerformance
                         var index = 0;
                         for (int i = 1; i > 0; i++)
                         {
-                            Thread.Sleep(600000);
+                            if (index > max - min)
+                                index = 0;
+                            Thread.Sleep(1800000);
                             transactionExecuteLimit.UpdateExecutionSelectTransactionLimit(index);
                             index++;
                         }
@@ -632,7 +637,7 @@ namespace AElf.Automation.RpcPerformance
                         AsyncHelper.RunSync(NodeManager.ApiClient.GetTransactionPoolStatusAsync).Validated;
                     if (transactionPoolCount > maxLimit)
                     {
-                        Thread.Sleep(50);
+                        Thread.Sleep(5000);
                         Logger.Warn(
                             $"TxHub current transaction count:{transactionPoolCount}, current test limit number: {maxLimit}");
                         continue;
