@@ -382,7 +382,7 @@ namespace AElfChain.Common.Managers
                 }
             }
             Thread.Sleep(2000);
-            Logger.Info($"Except approve count :{enumerable.Length}, in fact approve count {alreadyApprove.Count}");
+            Logger.Info($"Except approve count {enumerable.Length}, in fact approve count {alreadyApprove.Count}");
             
             var info = _parliament.CheckProposal(input.ProposalId);
             if (info.ToBeReleased)

@@ -21,7 +21,6 @@ using AElfChain.Common.Managers;
 using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
-using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.RpcPerformance
@@ -237,9 +236,7 @@ namespace AElf.Automation.RpcPerformance
                 var primaryToken = NodeManager.GetPrimaryTokenSymbol();
                 var balance = systemToken.GetUserBalance(account);
                 if (balance < 20000_00000000)
-                {
-                    systemToken.TransferBalance(bps.First(), account, 10000_00000000);
-                }
+                    systemToken.TransferBalance(bps.First(), account, 20000_00000000);
                 token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = primaryToken,
@@ -298,8 +295,7 @@ namespace AElf.Automation.RpcPerformance
             var exec = new Stopwatch();
             exec.Start();
             var contractTasks = new List<Task>();
-            ThreadCount = ContractList.Count;
-            for (var i = 0; i < ThreadCount; i++)
+            for (var i = 0; i < ContractList.Count; i++)
             {
                 var j = i;
                 contractTasks.Add(Task.Run(() => ExecuteTransactionTask(j, ExeTimes)));
