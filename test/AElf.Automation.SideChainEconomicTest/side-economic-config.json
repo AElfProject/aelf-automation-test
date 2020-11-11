@@ -1,0 +1,24 @@
+{
+  "MainChainInfos":
+  {
+    "MainChainUrl": "http://192.168.197.44:8000",
+    "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+    "Password": "123"
+  },
+  "SideChainInfos": [
+    {
+      "Id":1, 
+      "SideChainUrl": "http://192.168.197.44:8001",
+      "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+      "Password": "123",
+      "Contract": ""
+    },
+    {
+      "Id":2,
+      "SideChainUrl": "http://192.168.197.44:8002",
+      "Creator": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+      "Password": "123",
+      "Contract": ""
+    }
+  ]
+}

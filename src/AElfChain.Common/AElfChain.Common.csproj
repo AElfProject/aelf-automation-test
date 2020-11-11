@@ -19,6 +19,9 @@
         <ProtoContract Include="Protobuf\Proto\acs8.proto" />
         <ProtoContract Include="Protobuf\Proto\acs9.proto" />
         <ProtoContract Include="Protobuf\Proto\acs10.proto" />
+        <ProtoContract Include="Protobuf\Proto\acs11.proto" />
+        <ProtoContract Include="Protobuf\Proto\authority_info.proto" />
+        <ProtoContract Include="Protobuf\Proto\code_check.proto" />
         <ProtoMessage Include="Protobuf\Proto\transaction_fee.proto" />
         <ProtoContract Include="Protobuf\Proto\acs5_plugin_test_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
@@ -49,10 +52,13 @@
         <ProtoContract Include="Protobuf\Proto\configuration_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\referendum_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\dapp_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\execution.proto" />
+        <ProtoContract Include="Protobuf\Proto\random_number_provider_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>
         <!--AElf packages-->
+        <PackageReference Include="AElf.Kernel.Types" Version="1.0.0-preview3" />
         <PackageReference Include="AElf.Types" Version="1.0.0-preview3" />
         <PackageReference Include="AElf.CSharp.Core" Version="1.0.0-preview3" />
         <PackageReference Include="AElf.Cryptography" Version="1.0.0-preview3" />

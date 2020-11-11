@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
+using AElf.CSharp.Core;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -22,15 +24,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
         private TokenContractContainer.TokenContractStub _tokenSub;
 
-        private readonly List<string> ResourceSymbol = new List<string>
+        private readonly List<string> _resourceSymbol = new List<string>
             {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC"};
 
         private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
         private string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
 //        private static string RpcUrl { get; } = "18.212.240.254:8000";
-        private static string RpcUrl { get; } = "192.168.197.14:8000";
-        private string Symbol { get; } = "TEST";
+        private static string RpcUrl { get; } = "192.168.197.21:8000";
+        private string Symbol { get; } = "RES";
 
         [TestInitialize]
         public void Initialize()
@@ -51,8 +53,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task BuyResource()
         {
             var token = _tokenContract.GetTokenInfo("ELF");
-            var burnedToken = token.Burned;
-            foreach (var resource in ResourceSymbol)
+            var supplyToken = token.Supply;
+            foreach (var resource in _resourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -75,15 +77,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var size = result.Transaction.CalculateSize();
                 Logger.Info($"transfer size is: {size}");
                 var fee = result.TransactionResult.GetDefaultTransactionFee();
-                var burnedFee = (long)(fee * 0.1);
-
                 var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
                     Owner = InitAccount.ConvertAddress(),
                     Symbol = NodeManager.GetNativeTokenSymbol()
                 });
 
-                var resourceFee =(long) ((balance.Balance - afterBalance.Balance + fee) * 0.005 * 0.5);
                 var afterOtherTokenBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
                     Owner = InitAccount.ConvertAddress(),
@@ -92,16 +91,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
                 Logger.Info(
                     $"After buy token, user ELF balance is {afterBalance} user {resource} balance is {afterOtherTokenBalance}");
-                token = _tokenContract.GetTokenInfo("ELF");
-                var afterBurnedToken = token.Burned;
-                afterBurnedToken.ShouldBeGreaterThan(burnedToken + burnedFee);
+                var afterToken = _tokenContract.GetTokenInfo("ELF");
+                var afterSupply = token.Supply;
+                Logger.Info($"Token info {afterToken}");
             }
         }
 
         [TestMethod]
         public async Task SellResource()
         {
-            foreach (var resource in ResourceSymbol)
+            foreach (var resource in _resourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -144,18 +143,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task BurnResourceToken()
         {
-            foreach (var symbol in ResourceSymbol)
+            foreach (var symbol in _resourceSymbol)
             {
+                var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
                 var result = await _tokenSub.Burn.SendAsync(new BurnInput
                 {
-                    Amount = 1000_00000000,
+                    Amount = 10_00000000,
                     Symbol = symbol
                 });
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
-                var info = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
-                info.Burned.ShouldBe(1000_00000000);
-                info.Supply.ShouldBe(info.TotalSupply - info.Burned);
+                var afterInfo = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = symbol});
+                afterInfo.Supply.ShouldBe(info.Supply - 10_00000000);
+                Logger.Info(afterInfo);
             }
         }
 
@@ -163,7 +163,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("uSXxaGWKDBPV6Z8EG8Et9sjaXhH1uMWEpVvmo2KzKEaueWzSe")]
         public async Task TransferResourceToContract(string contract)
         {
-            foreach (var resource in ResourceSymbol)
+            foreach (var resource in _resourceSymbol)
                 await _tokenSub.Transfer.SendAsync(new TransferInput
                 {
                     To = contract.ConvertAddress(),
@@ -172,7 +172,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     Memo = "transfer resource"
                 });
 
-            foreach (var resource in ResourceSymbol)
+            foreach (var resource in _resourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
                 {

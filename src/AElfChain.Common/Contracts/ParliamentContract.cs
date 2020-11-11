@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
@@ -28,6 +28,13 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationThreshold,
         ChangeOrganizationProposerWhiteList,
         ClearProposal,
+        ApproveMultiProposals,
+        
+        //fee
+        ChangeMethodFeeController,
+        SetMethodFee,
+        GetMethodFee,
+        GetMethodFeeController,
 
         //View
         GetDefaultOrganizationAddress,
@@ -126,6 +133,11 @@ namespace AElfChain.Common.Contracts
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ParliamentMethod.GetOrganization, organization);
+        }
+        
+        public ProposerWhiteList GetProposerWhiteList()
+        {
+            return CallViewMethod<ProposerWhiteList>(ParliamentMethod.GetProposerWhiteList,new Empty());
         }
 
         public ProposalOutput CheckProposal(Hash proposalId)

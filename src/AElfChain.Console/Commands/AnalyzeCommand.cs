@@ -259,7 +259,7 @@ namespace AElfChain.Console.Commands
 
             while (true)
             {
-                var termNo = Services.Consensus.GetCurrentTermInformation();
+                var termNo = Services.Consensus.GetCurrentTermInformation().TermNumber;
                 if (termNo != termNumber)
                 {
                     termNumber = termNo;

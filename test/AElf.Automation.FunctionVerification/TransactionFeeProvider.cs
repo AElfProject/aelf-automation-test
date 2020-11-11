@@ -15,27 +15,32 @@ namespace AElf.Automation.ContractsTesting
     {
         public TransactionFeeProvider()
         {
-            CpuService = new CpuCalculateCostStrategy();
+            WriteService = new WriteCalculateCostStrategy();
             StoService = new StoCalculateCostStrategy();
-            NetService = new NetCalculateCostStrategy();
-            RamService = new RamCalculateCostStrategy();
+            TrafficService = new TrafficCalculateCostStrategy();
+            ReadService = new ReadCalculateCostStrategy();
             TxService = new TxCalculateCostStrategy();
         }
 
-        private static ICalculateCostStrategy CpuService { get; set; }
+        private static ICalculateCostStrategy WriteService { get; set; }
         private static ICalculateCostStrategy StoService { get; set; }
-        private static ICalculateCostStrategy NetService { get; set; }
-        private static ICalculateCostStrategy RamService { get; set; }
+        private static ICalculateCostStrategy TrafficService { get; set; }
+        private static ICalculateCostStrategy ReadService { get; set; }
         private static ICalculateCostStrategy TxService { get; set; }
 
-        public static long CpuSizeFee(int size)
+        public static long WriteSizeFee(int size)
         {
-            return CpuService.GetCost(size);
+            return WriteService.GetCost(size);
         }
-
-        public static long NetSizeFee(int size)
+        
+        public static long ReadSizeFee(int size)
         {
-            return NetService.GetCost(size);
+            return ReadService.GetCost(size);
+        }
+        
+        public static long TrafficSizeFee(int size)
+        {
+            return TrafficService.GetCost(size);
         }
 
         public static long StoSizeFee(int size)
@@ -57,18 +62,29 @@ namespace AElf.Automation.ContractsTesting
                 1000, 1100, 1200, 1500, 2000, 5000, 100_000, 200_000, 500_000, 800_000, 900_000, 990_000, 999_000,
                 1000_000, 1000_001, 1100_000, 1200_000
             };
-            CalculateFee(sizeList, TransactionSizeFee, "tx_size");
-            CalculateFee(sizeList, NetSizeFee, "net_size");
+            CalculateFee(sizeList, TrafficSizeFee, "traffic_size");
+            CalculateFee(sizeList, StoSizeFee, "sto_size");
+            
+            //1000_000 5000_000
+            var txSizeList = new List<int>
+            {
+                100, 200, 300, 500, 600, 800, 900, 990,
+                1000, 1100, 1200, 1500, 2000, 5000, 100_000, 200_000, 500_000, 800_000, 900_000, 990_000, 999_000,
+                1000_000, 1000_001, 1100_000, 1200_000,
+                1500_000,2000_000,3000_000,4000_000,4500_000,4800_000,4900_000,4990_000,
+                5000_000,6000_000
+            };
+            CalculateFee(txSizeList, TransactionSizeFee, "tx_size");
 
-            //cpu,sto read size
+            //write,read size
             var readList = new List<int>
             {
                 1, 2, 3, 4, 5, 6, 7, 8, 9,
                 10, 11, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99,
                 100, 101, 110, 120, 150
             };
-            CalculateFee(readList, CpuSizeFee, "cpu_size");
-            CalculateFee(readList, StoSizeFee, "sto_size");
+            CalculateFee(readList, WriteSizeFee, "write_size");
+            CalculateFee(readList, ReadSizeFee, "read_size");
         }
 
         public void CalculateFee(List<int> sizes, Func<int, long> func, string fileName)
@@ -94,11 +110,11 @@ namespace AElf.Automation.ContractsTesting
 
     public enum FeeType
     {
-        Tx = 0,
-        Cpu,
-        Sto,
-        Ram,
-        Net
+        READ,
+        STORAGE,
+        WRITE,
+        TRAFFIC,
+        TX
     }
 
     public interface ICalculateFeeService : ISingletonDependency
@@ -157,11 +173,11 @@ namespace AElf.Automation.ContractsTesting
         {
             CalculatorDic = new Dictionary<FeeType, ICalculateCostStrategy>
             {
-                [FeeType.Cpu] = new CpuCalculateCostStrategy(),
-                [FeeType.Sto] = new StoCalculateCostStrategy(),
-                [FeeType.Net] = new NetCalculateCostStrategy(),
-                [FeeType.Ram] = new RamCalculateCostStrategy(),
-                [FeeType.Tx] = new TxCalculateCostStrategy()
+                [FeeType.WRITE] = new WriteCalculateCostStrategy(),
+                [FeeType.STORAGE] = new StoCalculateCostStrategy(),
+                [FeeType.READ] = new ReadCalculateCostStrategy(),
+                [FeeType.TRAFFIC] = new TrafficCalculateCostStrategy(),
+                [FeeType.TX] = new TxCalculateCostStrategy()
             };
         }
 
@@ -219,9 +235,9 @@ namespace AElf.Automation.ContractsTesting
 
     #region concrete stradegys
 
-    internal class CpuCalculateCostStrategy : CalculateCostStrategyBase
+    internal class WriteCalculateCostStrategy : CalculateCostStrategyBase
     {
-        public CpuCalculateCostStrategy()
+        public WriteCalculateCostStrategy()
         {
             CalculateAlgorithm = new CalculateAlgorithm().Add(10, new LinerCalculateWay
             {
@@ -235,9 +251,9 @@ namespace AElf.Automation.ContractsTesting
             }).Add(int.MaxValue, new PowerCalculateWay
             {
                 Power = 2,
-                ChangeSpanBase = 4, // scale  x axis         
-                Weight = 250, // unit weight,  means  (10 cpu count = 333 weight) 
-                WeightBase = 40,
+                ChangeSpanBase = 1, // scale  x axis         
+                Weight = 25, // unit weight,  means  (10 cpu count = 333 weight) 
+                WeightBase = 16,
                 Numerator = 1,
                 Denominator = 4,
                 Precision = 100000000L // 1 token = 100000000
@@ -252,14 +268,14 @@ namespace AElf.Automation.ContractsTesting
             CalculateAlgorithm = new CalculateAlgorithm().Add(1000000, new LinerCalculateWay
             {
                 Numerator = 1,
-                Denominator = 64,
-                ConstantValue = 10000
+                Denominator = 4,
+                ConstantValue = 100000
             }).Add(int.MaxValue, new PowerCalculateWay
             {
                 Power = 2,
-                ChangeSpanBase = 100,
-                Weight = 250,
-                WeightBase = 500,
+                ChangeSpanBase = 20000,
+                Weight = 1,
+                WeightBase = 1,
                 Numerator = 1,
                 Denominator = 64,
                 Precision = 100000000L
@@ -267,9 +283,9 @@ namespace AElf.Automation.ContractsTesting
         }
     }
 
-    internal class RamCalculateCostStrategy : CalculateCostStrategyBase
+    internal class ReadCalculateCostStrategy : CalculateCostStrategyBase
     {
-        public RamCalculateCostStrategy()
+        public ReadCalculateCostStrategy()
         {
             CalculateAlgorithm = new CalculateAlgorithm().Add(10, new LinerCalculateWay
             {
@@ -283,18 +299,18 @@ namespace AElf.Automation.ContractsTesting
             }).Add(int.MaxValue, new PowerCalculateWay
             {
                 Power = 2,
-                ChangeSpanBase = 2,
-                Weight = 250,
+                ChangeSpanBase = 1,
+                Weight = 25,
                 Numerator = 1,
                 Denominator = 4,
-                WeightBase = 40
+                WeightBase = 16
             }).Prepare();
         }
     }
 
-    internal class NetCalculateCostStrategy : CalculateCostStrategyBase
+    internal class TrafficCalculateCostStrategy : CalculateCostStrategyBase
     {
-        public NetCalculateCostStrategy()
+        public TrafficCalculateCostStrategy()
         {
             CalculateAlgorithm = new CalculateAlgorithm().Add(1000000, new LinerCalculateWay
             {
@@ -304,9 +320,9 @@ namespace AElf.Automation.ContractsTesting
             }).Add(int.MaxValue, new PowerCalculateWay
             {
                 Power = 2,
-                ChangeSpanBase = 100,
-                Weight = 250,
-                WeightBase = 500,
+                ChangeSpanBase = 20000,
+                Weight = 1,
+                WeightBase = 1,
                 Numerator = 1,
                 Denominator = 64,
                 Precision = 100000000L
@@ -321,16 +337,20 @@ namespace AElf.Automation.ContractsTesting
             CalculateAlgorithm = new CalculateAlgorithm().Add(1000000, new LinerCalculateWay
             {
                 Numerator = 1,
-                Denominator = 16 * 50,
+                Denominator = 800,
                 ConstantValue = 10000
+            }).Add(5000000, new LinerCalculateWay
+            {
+                Numerator = 1,
+                Denominator = 80
             }).Add(int.MaxValue, new PowerCalculateWay
             {
                 Power = 2,
-                ChangeSpanBase = 100,
+                ChangeSpanBase = 10000,
                 Weight = 1,
                 WeightBase = 1,
                 Numerator = 1,
-                Denominator = 16 * 50,
+                Denominator = 80,
                 Precision = 100000000L
             }).Prepare();
         }

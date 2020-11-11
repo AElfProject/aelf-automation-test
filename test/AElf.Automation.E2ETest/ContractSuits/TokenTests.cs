@@ -190,7 +190,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var afterTokenInfo = ContractManager.Token.GetTokenInfo(nativeSymbol);
 
             beforeBalance.ShouldBe(afterBalance + burnAmount + txFee);
-            afterTokenInfo.Burned.ShouldBeGreaterThanOrEqualTo(beforeTokenInfo.Burned + burnAmount);
+            afterTokenInfo.Issued.ShouldBe(beforeTokenInfo.Issued);
+            afterTokenInfo.Supply.ShouldBeLessThan(beforeTokenInfo.Supply - burnAmount);
         }
 
         [TestMethod]
@@ -388,7 +389,6 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 tokenInfo.Decimals.ShouldBe(8);
                 tokenInfo.Issuer.ShouldBe(economicContract);
                 tokenInfo.IsBurnable.ShouldBeTrue();
-                tokenInfo.IsProfitable.ShouldBeTrue();
                 tokenInfo.IssueChainId.ShouldBe(ChainHelper.ConvertBase58ToChainId(chainId));
             }
         }

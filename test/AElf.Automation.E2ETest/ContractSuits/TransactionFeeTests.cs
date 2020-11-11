@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
@@ -84,9 +83,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 }
             };
 
+            var miners = AuthorityManager.GetCurrentMiners();
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress, nameof(ContractManager.TokenStub.SetSymbolsToPayTxSizeFee),
-                availableTokenInfo, ContractManager.CallAddress);
+                availableTokenInfo, miners.First());
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var symbolListInfo = await QueryAvailableTokenInfos();
@@ -245,6 +245,17 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound1).ShouldBe(piece1);
             pieceCoefficientsList.First(o => o.Value[0] == pieceUpperBound2).ShouldBe(piece2);
+        }
+
+        [TestMethod]
+        public async Task GetCalculateFeeCoefficientsForSender()
+        {
+            const int feeType = (int) FeeTypeEnum.Tx;
+            var userCoefficient =
+                await ContractManager.TokenStub.GetCalculateFeeCoefficientsForSender.CallAsync(new Empty());
+            userCoefficient.FeeTokenType.ShouldBe(feeType);
+            var pieceCoefficientsList = userCoefficient.PieceCoefficientsList;
+            Logger.Info(pieceCoefficientsList);
         }
 
         [TestMethod]

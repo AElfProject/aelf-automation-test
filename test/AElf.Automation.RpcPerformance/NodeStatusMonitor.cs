@@ -71,7 +71,19 @@ namespace AElf.Automation.RpcPerformance
             for (var i = length - 1; i >= 0; i--)
             {
                 var i1 = i;
-                var transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                TransactionResultDto transactionResult;
+                try
+                {
+                    transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(2000);
+                    Logger.Info($"Try again {transactionIds[i1]}");
+                    transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                }
+                
                 var resultStatus = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (resultStatus)
                 {

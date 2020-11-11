@@ -7,7 +7,7 @@
         },
         {
             "case_name": "ContractScenario",
-            "enable": true,
+            "enable": false,
             "time_interval": 2000
         },
         {
@@ -71,8 +71,8 @@
     "UserCount": 120,
     "Timeout": 300,
     "SpecifyEndpoint": {
-        "enable": false,
-        "service_url": "http://192.168.197.21:8000"
+        "enable": true,
+        "service_url": "http://192.168.197.44:8000"
     },
   "NewNode":
   {

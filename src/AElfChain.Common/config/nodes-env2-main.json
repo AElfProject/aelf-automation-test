@@ -27,7 +27,7 @@
         },
         {
             "name": "full1",
-            "endpoint": "192.168.197.22:8000",
+            "endpoint": "192.168.197.54:8000",
             "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
             "password": "123"
         },
@@ -39,7 +39,7 @@
         },
         {
             "name": "full3",
-            "endpoint": "192.168.197.37:8000",
+            "endpoint": "192.168.197.13:8000",
             "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
             "password": "123"
         },

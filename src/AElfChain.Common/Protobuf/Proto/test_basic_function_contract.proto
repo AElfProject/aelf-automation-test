@@ -23,7 +23,11 @@ service BasicFunctionContract {
     }
     rpc UnlockToken(UnlockTokenInput) returns (google.protobuf.Empty) {
     }
+    rpc ApproveToken(ApproveTokenInput) returns (google.protobuf.Empty) {
+    }
     rpc ValidateOrigin(aelf.Address) returns (google.protobuf.Empty) {
+    }
+    rpc TestWhileInfiniteLoopOnFunction(LoopInput) returns (LoopOutput) {
     }
 
     //View
@@ -83,6 +87,17 @@ message UnlockTokenInput {
     string usage = 4;
     int64 amount = 5;
 }
+
+message ApproveTokenInput{
+    string symbol = 1;
+    int64 amount = 2;
+    aelf.Address spender = 3;
+}
+
+message LoopInput {
+    int32 int32_value = 1;
+}
+
 //Output
 
 message GetLockedTokenAmountInput {
@@ -110,4 +125,8 @@ message TransferTokenToContractInput {
     string symbol = 1;
     sint64 amount = 2;
     string memo = 3;
+}
+
+message LoopOutput{
+    int32 int32_value = 1;
 }

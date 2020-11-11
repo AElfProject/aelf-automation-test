@@ -1,6 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
+using AElf.Contracts.MultiToken;
+using AElf.CSharp.Core.Extension;
+using AElf.Kernel;
+using AElf.Types;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using Google.Protobuf;
+using Virgil.Crypto;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.CheckTxStatus
@@ -8,14 +16,19 @@ namespace AElf.Automation.CheckTxStatus
     public class TransactionCheck : NodeServices
     {
         private readonly INodeManager _nodeManager;
+        private readonly ContractManager _contractManager;
         private readonly long _startBlock;
         private readonly long _verifyBlock;
-
+        private readonly string _contractName;
+        private readonly string _account;
         public TransactionCheck()
         {
+            _account = Account;
             _nodeManager = new NodeManager(Url, AccountDir);
+            _contractManager = new ContractManager(_nodeManager,_account);
             _verifyBlock = VerifyBlockNumber;
             _startBlock = StartBlock;
+            _contractName = ExpectedContract;
         }
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
@@ -35,17 +48,32 @@ namespace AElf.Automation.CheckTxStatus
                 if (startBlock > currentBlock)
                     return;
                 var transactionList = new Dictionary<long, List<string>>();
+                var BloomList = new Dictionary<string, Bloom>();
+                var transactionBloomList = new Dictionary<string, Dictionary<string, Bloom>>();
 
                 var amount = verifyBlock + startBlock > currentBlock ? currentBlock : verifyBlock + startBlock;
 
                 //Get transactions
                 for (var i = startBlock; i < amount; i++)
                 {
+                    var transactionBloom = new Dictionary<string,Bloom>();
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
                         _nodeManager.ApiClient.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
 
+                    var blockBloomString = blockResult.Header.Bloom;
+                    var blockBloom = new Bloom(ByteString.FromBase64(blockBloomString).ToByteArray()); 
+                    BloomList.Add(blockResult.BlockHash,blockBloom);
+
+                    foreach (var txId in txIds)
+                    {
+                        var txIdInfo = AsyncHelper.RunSync(() =>
+                            _nodeManager.ApiClient.GetTransactionResultAsync(txId));
+                        var txBloom = new Bloom(ByteString.FromBase64(txIdInfo.Bloom).ToByteArray());
+                        transactionBloom.Add(txId,txBloom);
+                    }
+                    transactionBloomList.Add(blockResult.BlockHash,transactionBloom);
                     transactionList.Add(i, txIds);
                 }
 
@@ -95,9 +123,45 @@ namespace AElf.Automation.CheckTxStatus
                         Logger.Info(info);
                     }
                 }
+                
+                foreach (var bloom in BloomList)
+                {
+                    var expectedBloom = ExpectedBloom();
+                    if (expectedBloom.IsIn(bloom.Value))
+                    {
+                        Logger.Info($"{_account} Transfer transaction in block: {bloom.Key}");
+                        var keys = transactionBloomList.Keys.Where(h => h.Equals(bloom.Key)).ToList();
+                        foreach (var key in keys)
+                        {
+                            var txBlooms = transactionBloomList[key];
+                            foreach (var txBloom in txBlooms)
+                            {
+                                if (expectedBloom.IsIn(txBloom.Value))
+                                    Logger.Info(txBloom.Key);
+                            }
+                        }
+                    }
+                }
 
                 startBlock = verifyBlock + startBlock;
             }
         }
+
+        private Bloom ExpectedBloom()
+        {
+            switch (ExpectedContract) {
+                case "Token":
+                    
+                    var transferred = new Transferred
+                    {
+                        From = _account.ConvertAddress() // 如果用From = MyAddress, 会监听从我的地址转出的Transferred事件
+                    };
+                    var e = transferred.ToLogEvent(_contractManager.Token.Contract);
+                    var expectedBloom = e.GetBloom();
+                    return expectedBloom;
+            }
+            return null;
+        }
+
     }
 }

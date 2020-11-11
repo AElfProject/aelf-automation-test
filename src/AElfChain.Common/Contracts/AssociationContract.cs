@@ -1,9 +1,9 @@
 using System.Linq;
-using Acs3;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Association;
 using AElf.CSharp.Core.Extension;
+using AElf.Standards.ACS3;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -35,7 +35,10 @@ namespace AElfChain.Common.Contracts
         ChangeOrganizationThreshold,
         ChangeOrganizationMember,
         ChangeOrganizationProposerWhiteList,
-        ChangeMethodFeeController
+        ChangeMethodFeeController,
+        AddMember,
+        RemoveMember,
+        ChangeMember
     }
 
     public class AssociationContract : BaseContract<AssociationMethod>
@@ -138,10 +141,10 @@ namespace AElfChain.Common.Contracts
             return ExecuteMethodWithTxId(AssociationMethod.Reject, proposalId);
         }
 
-        public void ApproveWithAssociation(Hash proposalId, Address association)
+        public void ApproveWithAssociation(Hash proposalId, Address associationOrganization)
         {
             var organization = CallViewMethod<Organization>(AssociationMethod.GetOrganization,
-                association);
+                associationOrganization);
             var members = organization.OrganizationMemberList.OrganizationMembers.ToList();
             foreach (var member in members)
             {

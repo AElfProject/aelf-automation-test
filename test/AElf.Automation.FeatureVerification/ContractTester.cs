@@ -32,7 +32,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             NodeManager = contractServices.NodeManager;
             ContractServices = contractServices;
-            AuthorityManager = new AuthorityManager(NodeManager);
+            AuthorityManager = new AuthorityManager(NodeManager,contractServices.CallAddress);
 
             GenesisService = ContractServices.GenesisService;
             ElectionService = ContractServices.ElectionService;

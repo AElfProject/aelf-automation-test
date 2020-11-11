@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
 using AElf.Contracts.TokenConverter;
@@ -139,7 +139,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Symbol = symbol,
                 Decimals = 8,
                 IsBurnable = true,
-                IsProfitable = true,
                 IssueChainId = ChainHelper.ConvertBase58ToChainId(NodeManager.GetChainId()),
                 Issuer = ContractManager.CallAccount,
                 TotalSupply = 10_0000_0000_00000000L

@@ -16,7 +16,9 @@ namespace AElfChain.Common.Contracts
     public enum ConfigurationNameProvider
     {
         BlockTransactionLimit,
-        RequiredAcsInContracts
+        RequiredAcsInContracts,
+        StateSizeLimit,
+        ExecutionObserverThreshold
     }
 
     public class ConfigurationContract : BaseContract<ConfigurationMethod>

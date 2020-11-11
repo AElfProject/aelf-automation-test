@@ -31,8 +31,6 @@ service TokenContract {
     }
     rpc Burn (BurnInput) returns (google.protobuf.Empty) {
     }
-    rpc AddTokenWhiteList (AddTokeWhiteListInput) returns (google.protobuf.Empty) {
-    }
     rpc ChangeTokenIssuer (ChangeTokenIssuerInput) returns (google.protobuf.Empty) {
     }
 
@@ -51,11 +49,7 @@ service TokenContract {
     // ACS1 - Charge Transaction Fees
     rpc ClaimTransactionFees (TotalTransactionFeesMap) returns (google.protobuf.Empty) {
     }
-    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (google.protobuf.BoolValue) {
-    }
-    rpc SetSymbolsToPayTxSizeFee (SymbolListToPayTxSizeFee) returns (google.protobuf.Empty){
-    }
-    rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
+    rpc ChargeTransactionFees (ChargeTransactionFeesInput) returns (ChargeTransactionFeesOutput) {
     }
 
     // ACS5 - Contract Method Call Threshold
@@ -70,6 +64,10 @@ service TokenContract {
     rpc ChargeResourceToken (ChargeResourceTokenInput) returns (google.protobuf.Empty) {
     }
     rpc CheckResourceToken (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc SetSymbolsToPayTxSizeFee (SymbolListToPayTxSizeFee) returns (google.protobuf.Empty){
+    }
+    rpc UpdateCoefficientsForSender (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
     rpc UpdateCoefficientsForContract (UpdateCoefficientsInput) returns (google.protobuf.Empty) {
     }
@@ -132,7 +130,7 @@ message TokenInfo {
     bool is_burnable = 7;
     bool is_profitable = 8;
     int32 issue_chain_id = 9;
-    int64 burned = 10;
+    int64 issued = 10;
 }
 
 message CreateInput {
@@ -295,8 +293,12 @@ message ChargeTransactionFeesInput {
     string method_name = 1;
     aelf.Address contract_address = 2;
     int64 transaction_size_fee = 3;
-    string primary_token_symbol = 4;
-    repeated SymbolToPayTxSizeFee symbols_to_pay_tx_size_fee = 5;
+    repeated SymbolToPayTxSizeFee symbols_to_pay_tx_size_fee = 4;
+}
+
+message ChargeTransactionFeesOutput {
+    bool success = 1;
+    string charging_information = 2;
 }
 
 message ExtraTokenListModified {
@@ -335,11 +337,6 @@ message CrossChainCreateTokenInput {
     int64 parent_chain_height = 2;
     bytes transaction_bytes = 3;
     aelf.MerklePath merkle_path = 4;
-}
-
-message AddTokeWhiteListInput{
-    string token_symbol = 1;
-    aelf.Address address = 2;
 }
 
 message InitializeFromParentChainInput {

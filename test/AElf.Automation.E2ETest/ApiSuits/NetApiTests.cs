@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Client.Dto;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 
@@ -62,8 +63,8 @@ namespace AElf.Automation.E2ETest.ApiSuits
             var peers = await Client.GetPeersAsync(false);
             peers.Count.ShouldBeGreaterThanOrEqualTo(1);
             peers.Select(o => o.ProtocolVersion).ShouldAllBe(o => o == 1);
-            peers.Select(o => o.RequestMetrics).ShouldAllBe(o => o == null);
-
+            var metrics = peers.First().RequestMetrics;
+            peers.First().RequestMetrics.ShouldAllBe(o => o.Equals(new RequestMetric()));
             var peers1 = await Client.GetPeersAsync(true);
             peers1.Select(o => o.RequestMetrics).ShouldAllBe(o => o != null);
             peers1.Count.ShouldBe(peers.Count);

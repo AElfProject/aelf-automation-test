@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Configuration;
+using AElf.Kernel.CodeCheck;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;

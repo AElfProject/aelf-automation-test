@@ -1,5 +1,7 @@
 {
-  "Url": "http://52.66.209.107:8000",
-  "VerifyBlockNumber": 1000,
-  "StartBlock": 1
+  "Url": "http://192.168.197.21:8000",
+  "VerifyBlockNumber": 100,
+  "StartBlock": 50000,
+  "ExceptContract": "Token",
+  "Account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK"
 }

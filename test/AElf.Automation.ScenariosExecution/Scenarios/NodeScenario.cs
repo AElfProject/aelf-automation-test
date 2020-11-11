@@ -163,7 +163,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void NodeTakeProfitAction()
         {
-            var termNumber = Consensus.GetCurrentTermInformation();
+            var termNumber = Consensus.GetCurrentTermInformation().TermNumber;
             if (termNumber == _termNumber) return;
 
             var id = GenerateRandomNumber(0, AllNodes.Count - 1);
@@ -207,7 +207,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
 
         private void NodeQueryInformationAction()
         {
-            var termNumber = Consensus.GetCurrentTermInformation();
+            var termNumber = Consensus.GetCurrentTermInformation().TermNumber;
             if (_termNumber == termNumber)
                 return;
 

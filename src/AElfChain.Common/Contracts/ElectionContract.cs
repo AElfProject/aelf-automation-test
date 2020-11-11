@@ -1,4 +1,5 @@
 using AElf.Contracts.Election;
+using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 
@@ -34,7 +35,9 @@ namespace AElfChain.Common.Contracts
         GetElectorVoteWithRecords,
         GetElectorVote,
         GetVoteWeightSetting,
-        GetVoteWeightProportion
+        GetVoteWeightProportion,
+        GetDataCenterRankingList,
+        GetMinerElectionVotingItemId
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>
@@ -71,6 +74,13 @@ namespace AElfChain.Common.Contracts
             });
 
             return candidateVote.AllObtainedVotedVotesAmount;
+        }
+
+        public Hash GetMinerElectionVotingItemId()
+        {
+            var minerElectionVotingItemId = CallViewMethod<Hash>(ElectionMethod.GetMinerElectionVotingItemId, new Empty());
+
+            return minerElectionVotingItemId;
         }
     }
 }

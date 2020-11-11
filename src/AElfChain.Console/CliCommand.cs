@@ -139,7 +139,7 @@ namespace AElfChain.Console
             Commands.Add(new ResourceTradeCommand(NodeManager, ContractManager));
             Commands.Add(new SetConnectorCommand(NodeManager, ContractManager));
             Commands.Add(new SetTransactionFeeCommand(NodeManager, ContractManager));
-            Commands.Add(new TransactionLimitCommand(NodeManager, ContractManager));
+            Commands.Add(new ConfigurationCommand(NodeManager, ContractManager));
         }
 
         private void GetUsageInfo()

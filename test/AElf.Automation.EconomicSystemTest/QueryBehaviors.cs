@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
+using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -76,11 +79,19 @@ namespace AElf.Automation.EconomicSystemTest
 
             return result;
         }
+        
+        public List<Address> GetCandidatesAddress()
+        {
+            var result =
+                ElectionService.CallViewMethod<PubkeyList>(ElectionMethod.GetCandidates,
+                    new Empty());
+            return result.Value.Select(pubkey => Address.FromPublicKey(pubkey.ToByteArray())).ToList();
+        }
 
         public ElectorVote GetVotesInformation(string voteAccount)
         {
             var result =
-                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetVotesInformation, new StringValue
+                ElectionService.CallViewMethod<ElectorVote>(ElectionMethod.GetElectorVoteWithRecords, new StringValue
                 {
                     Value = NodeManager.GetAccountPublicKey(voteAccount)
                 });
@@ -120,10 +131,6 @@ namespace AElf.Automation.EconomicSystemTest
 
         #endregion
 
-        #region Vote Method
-
-        #endregion
-
         #region Consensus view Method
 
         public MinerList GetCurrentMiners()
@@ -137,6 +144,13 @@ namespace AElf.Automation.EconomicSystemTest
             var round = ConsensusService.CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
 
             return round.TermNumber;
+        }
+
+        public DataCenterRankingList GetDataCenterRankingList()
+        {
+            var data = ElectionService.CallViewMethod<DataCenterRankingList>(ElectionMethod.GetDataCenterRankingList,
+                new Empty());
+            return data;
         }
 
         #endregion

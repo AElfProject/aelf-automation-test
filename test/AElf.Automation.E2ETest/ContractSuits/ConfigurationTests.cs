@@ -1,7 +1,10 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Acs1;
 using AElf.Contracts.Configuration;
+using AElf.Contracts.MultiToken;
+using AElf.Kernel.SmartContractExecution;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
@@ -33,6 +36,79 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var afterValue = Int32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
             afterValue.ShouldBe(beforeValue + 30);
+        }
+
+        [TestMethod]
+        public async Task StateLimitSize_Test()
+        {
+            var stateSize = 100 * 1024;
+            var beforeStateLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.StateSizeLimit)});
+            var beforeValue = Int32Value.Parser.ParseFrom(beforeStateLimit.Value).Value;
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
+                new SetConfigurationInput
+                {
+                    Key = nameof(ConfigurationNameProvider.StateSizeLimit),
+                    Value = new Int32Value {Value = stateSize}.ToByteString()
+                }, ContractManager.CallAddress);
+            releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterStateLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.StateSizeLimit)});
+            var afterValue = Int32Value.Parser.ParseFrom(afterStateLimit.Value).Value;
+            afterValue.ShouldBe(stateSize);
+        }
+        
+        [TestMethod]
+        public async Task StateLimitSize_Failed_Test()
+        {
+            var executionBranchThreshold = 1000;
+            var executionCallThreshold = 100;
+            var beforeStateLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.StateSizeLimit)});
+            var beforeValue = Int32Value.Parser.ParseFrom(beforeStateLimit.Value).Value;
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
+                new SetConfigurationInput
+                {
+                    Key = nameof(ConfigurationNameProvider.StateSizeLimit),
+                    Value = new ExecutionObserverThreshold
+                    {
+                        ExecutionBranchThreshold = executionBranchThreshold,
+                        ExecutionCallThreshold = executionCallThreshold
+                    }.ToByteString()
+                }, ContractManager.CallAddress);
+            releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterStateLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.StateSizeLimit)});
+        }
+        
+        [TestMethod]
+        public async Task ExecutionObserverThreshold_Test()
+        {
+            var beforeObserverLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.ExecutionObserverThreshold)});
+            var beforeValue = ExecutionObserverThreshold.Parser.ParseFrom(beforeObserverLimit.Value);
+            var executionBranchThreshold = 1000;
+            var executionCallThreshold = 100;
+            
+            var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
+                new SetConfigurationInput
+                {
+                    Key = nameof(ConfigurationNameProvider.ExecutionObserverThreshold),
+                    Value = new ExecutionObserverThreshold
+                    {
+                        ExecutionBranchThreshold = executionBranchThreshold,
+                        ExecutionCallThreshold = executionCallThreshold
+                    }.ToByteString()
+                }, ContractManager.CallAddress);
+            releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            var afterObserverLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.ExecutionObserverThreshold)});
+            var afterValue = ExecutionObserverThreshold.Parser.ParseFrom(afterObserverLimit.Value);
+            afterValue.ExecutionBranchThreshold.ShouldBe(executionBranchThreshold);
+            afterValue.ExecutionCallThreshold.ShouldBe(executionCallThreshold);
         }
 
         [TestMethod]

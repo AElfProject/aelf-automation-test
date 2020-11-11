@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Acs3;
+using AElf.Standards.ACS3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
@@ -22,18 +22,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
     [TestClass]
     public class ParliamentAuthContractTest
     {
-        private static readonly ILog _logger = Log4NetHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
         public ParliamentContract Parliament;
         public string Symbol;
         public TokenContract Token;
         public INodeManager NodeManager { get; set; }
         public AElfClient ApiClient { get; set; }
+        public AuthorityManager AuthorityManager { get; set; }
         protected static int MinersCount { get; set; }
         protected List<string> Miners { get; set; }
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-        private static string RpcUrl { get; } = "http://192.168.197.14:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.21:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -42,7 +43,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             //Init Logger
             Log4NetHelper.LogInit("ParliamentTest_");
-            NodeInfoHelper.SetConfig("nodes-env1-main");
+            NodeInfoHelper.SetConfig("nodes-env2-main");
 
             #endregion
 
@@ -74,7 +75,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
             var organizationAddress =
                 Address.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            _logger.Info($"organization address is : {organizationAddress}");
+            Logger.Info($"organization address is : {organizationAddress}");
 
             var organization =
                 Parliament.GetOrganization(organizationAddress);
@@ -107,12 +108,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 OrganizationAddress = organizationAddress.ConvertAddress()
             };
 
-            Parliament.SetAccount(Miners.First());
+            Parliament.SetAccount(InitAccount);
             var result =
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.CreateProposal,
                     createProposalInput);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            _logger.Info($"Proposal is : {proposal}");
+            Logger.Info($"Proposal is : {proposal}");
         }
 
         [TestMethod]
@@ -128,12 +130,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractMethodName = result.ContractMethodName;
             var toAddress = result.ToAddress;
 
-            _logger.Info($"proposal is {toBeRelease}");
-            _logger.Info($"proposal expired time is {time} ");
-            _logger.Info($"proposal organization is {organizationAddress}");
-            _logger.Info($"proposal method name is {contractMethodName}");
-            _logger.Info($"proposal to address is {toAddress}");
-            _logger.Info($"proposer is {result.Proposer}");
+            Logger.Info($"proposal is {toBeRelease}");
+            Logger.Info($"proposal expired time is {time} ");
+            Logger.Info($"proposal organization is {organizationAddress}");
+            Logger.Info($"proposal method name is {contractMethodName}");
+            Logger.Info($"proposal to address is {toAddress}");
+            Logger.Info($"proposer is {result.Proposer}");
         }
 
         [TestMethod]
@@ -143,7 +145,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var miner in Miners)
             {
                 var balance = Token.GetUserBalance(miner, Symbol);
-                _logger.Info($"{miner} balance is {balance}");
+                Logger.Info($"{miner} balance is {balance}");
                 if (balance <= 0)
                 {
                     Token.SetAccount(InitAccount);
@@ -156,6 +158,26 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     );
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
+        }
+        
+        [TestMethod]
+        [DataRow("f455a613a34dc0dfc4ab02523498e6ea7f97f202691d6f8ff2f82d58fece4f09")]
+        public void Reject(string proposalId)
+        {
+            var miner = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
+            var balance = Token.GetUserBalance(miner, Symbol);
+                Logger.Info($"{miner} balance is {balance}");
+                if (balance <= 0)
+                {
+                    Token.SetAccount(InitAccount);
+                    Token.TransferBalance(InitAccount, miner, 1000_0000000, Symbol);
+                }
+
+                Parliament.SetAccount(miner);
+                var result =
+                    Parliament.ExecuteMethodWithResult(ParliamentMethod.Reject, Hash.LoadFromHex(proposalId)
+                    );
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
         [TestMethod]
@@ -188,16 +210,35 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Parliament.ExecuteMethodWithResult(ParliamentMethod.Release, Hash.LoadFromHex(proposalId));
             result.Status.ShouldBe("MINED");
         }
+        
+        [TestMethod]
+        public void ChangeParliamentWhiteList()
+        {
+            var defaultOrganization =
+                Parliament.GetGenesisOwnerAddress();
+            Logger.Info($"default address is {defaultOrganization} ");
+
+            var input = new ProposerWhiteList
+            {
+                Proposers = {Full.ConvertAddress(),InitAccount.ConvertAddress()}
+            };
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Parliament.ContractAddress,
+                nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), input, InitAccount, defaultOrganization);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            var whiteList = Parliament.GetProposerWhiteList();
+            Logger.Info($"White list {whiteList.Proposers} ");
+        }
+
 
         [TestMethod]
         public void GetOrganization()
         {
             var info = Parliament.GetOrganization(
                 "aeXhTqNwLWxCG6AzxwnYKrPMWRrzZBskW3HWVD9YREMx1rJxG".ConvertAddress());
-            _logger.Info($"{info.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
-            _logger.Info($"{info.ProposalReleaseThreshold.MaximalRejectionThreshold}");
-            _logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");
-            _logger.Info($"{info.ProposalReleaseThreshold.MinimalVoteThreshold}");
+            Logger.Info($"{info.ProposalReleaseThreshold.MaximalAbstentionThreshold}");
+            Logger.Info($"{info.ProposalReleaseThreshold.MaximalRejectionThreshold}");
+            Logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");
+            Logger.Info($"{info.ProposalReleaseThreshold.MinimalVoteThreshold}");
         }
     }
 }

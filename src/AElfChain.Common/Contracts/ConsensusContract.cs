@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Acs1;
+using Acs10;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Managers;
@@ -36,6 +37,12 @@ namespace AElfChain.Common.Contracts
         GetMaximumBlocksCount,
         GetMaximumMinersCount,
         GetMaximumMinersCountController,
+        GetUndistributedDividends,
+        GetSymbolList,
+        GetDividends,
+        GetCurrentTermMiningReward,
+        GetMinedBlocksOfPreviousTerm,
+        GetCurrentMiningRewardPerBlock,
 
         AnnounceElection,
         QuitElection,
@@ -43,7 +50,8 @@ namespace AElfChain.Common.Contracts
         ReceiveAllDividends,
         WithdrawAll,
         InitialBalance,
-        ChangeMaximumMinersCountController
+        ChangeMaximumMinersCountController,
+        Donate
     }
 
     public class ConsensusContract : BaseContract<ConsensusMethod>
@@ -54,11 +62,18 @@ namespace AElfChain.Common.Contracts
             SetAccount(callAddress);
         }
 
-        public long GetCurrentTermInformation()
+        public Round GetCurrentTermInformation()
         {
             var round = CallViewMethod<Round>(ConsensusMethod.GetCurrentRoundInformation, new Empty());
 
-            return round.TermNumber;
+            return round;
+        }
+        
+        public Round GetRoundInformation(long roundNumber)
+        {
+            var round = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new Int64Value{Value = roundNumber});
+
+            return round;
         }
 
         public List<string> GetCurrentMinersPubkey()
@@ -84,6 +99,45 @@ namespace AElfChain.Common.Contracts
         public AuthorityInfo GetMaximumMinersCountController()
         {
             return CallViewMethod<AuthorityInfo>(ConsensusMethod.GetMaximumMinersCountController, new Empty());
+        }
+
+        public Dividends GetUndistributedDividends()
+        {
+            var unAmount = CallViewMethod<Dividends>(ConsensusMethod.GetUndistributedDividends, new Empty());
+            Logger.Info($"UndistributedDividends amount:{unAmount}");
+            return unAmount;
+        }
+        
+        public Dividends GetDividends()
+        {
+            var amount = CallViewMethod<Dividends>(ConsensusMethod.GetDividends, new Empty());
+            Logger.Info($"Dividends amount:{amount}");
+            return amount;
+        }
+        
+        public SymbolList GetSymbolList()
+        {
+            var check = CallViewMethod<SymbolList>(ConsensusMethod.GetSymbolList, new Empty());
+            Logger.Info($"Symbol list:{check}");
+            return check;
+        }
+        
+        public Int64Value GetCurrentTermMiningReward()
+        {
+            var roundMinedBlock = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermMiningReward, new Empty());
+            return roundMinedBlock;
+        }
+        
+        public Int64Value GetMinedBlocksOfPreviousTerm()
+        {
+            var blocksOfPreviousTerm = CallViewMethod<Int64Value>(ConsensusMethod.GetMinedBlocksOfPreviousTerm, new Empty());
+            return blocksOfPreviousTerm;
+        }
+        
+        public Int64Value GetCurrentMiningRewardPerBlock()
+        {
+            var blocksOfPreviousTerm = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentMiningRewardPerBlock, new Empty());
+            return blocksOfPreviousTerm;
         }
     }
 }

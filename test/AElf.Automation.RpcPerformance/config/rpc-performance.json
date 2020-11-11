@@ -12,15 +12,14 @@
     "NodeTransactionLimit": {
         "enable_limit": true,
         "is_changed": true,
-        "max_transactions_select": 5
+        "min_transactions_select": 6,
+        "max_transactions_select": 50
     },
     "RequestRandomEndpoint": {
-        "enable_random": false,
+        "enable_random": true,
         "endpoint_list": [
-            "192.168.197.14:8000",
-            "192.168.197.42:8000",
-            "192.168.197.24:8000",
-            "192.168.197.23:8000"
+            "192.168.199.109:8001",
+            "192.168.199.109:8000"
         ]
     },
     "ChainType": {
