@@ -765,7 +765,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     Symbol = ContractList[threadNo].Symbol,
                     To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
+                    Amount = ((i + 1) % 4 + 1) * 1,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo =
