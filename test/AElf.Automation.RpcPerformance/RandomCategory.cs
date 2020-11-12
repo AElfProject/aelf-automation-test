@@ -460,7 +460,7 @@ namespace AElf.Automation.RpcPerformance
                         {
                             if (index > max - min)
                                 index = 0;
-                            Thread.Sleep(1800000);
+                            Thread.Sleep(300000);
                             transactionExecuteLimit.UpdateExecutionSelectTransactionLimit(index);
                             index++;
                         }
