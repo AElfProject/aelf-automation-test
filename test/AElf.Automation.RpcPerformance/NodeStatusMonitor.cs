@@ -82,7 +82,6 @@ namespace AElf.Automation.RpcPerformance
                         break;
                     case TransactionResultStatus.Pending:
                     case TransactionResultStatus.PendingValidation:
-                    case TransactionResultStatus.Unexecutable:
                         Console.Write(
                             $"\rTransaction: {transactionIds[i]}, Status: {resultStatus}{SpinInfo(checkTimes)}");
                         Thread.Sleep(500);
@@ -118,7 +117,6 @@ namespace AElf.Automation.RpcPerformance
                 switch (txResult)
                 {
                     case TransactionResultStatus.Pending:
-                    case TransactionResultStatus.Unexecutable:
                         CheckTransactionsStatus(transactionIds, checkTimes,nodeManager);
                         Thread.Sleep(500);
                         break;

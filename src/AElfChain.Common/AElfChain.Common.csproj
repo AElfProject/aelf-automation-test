@@ -58,10 +58,10 @@
 
     <ItemGroup>
         <!--AElf packages-->
-        <PackageReference Include="AElf.Kernel.Types" Version="1.0.0-preview3" />
-        <PackageReference Include="AElf.Types" Version="1.0.0-preview3" />
-        <PackageReference Include="AElf.CSharp.Core" Version="1.0.0-preview3" />
-        <PackageReference Include="AElf.Cryptography" Version="1.0.0-preview3" />
+        <PackageReference Include="AElf.Kernel.Types" Version="1.0.0-rc1" />
+        <PackageReference Include="AElf.Types" Version="1.0.0-rc1" />
+        <PackageReference Include="AElf.CSharp.Core" Version="1.0.0-rc1" />
+        <PackageReference Include="AElf.Cryptography" Version="1.0.0-rc1" />
         <PackageReference Include="AElf.Client" Version="0.1.5" />
         <!--end packages-->
 
