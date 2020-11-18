@@ -82,7 +82,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     var beforeBalance = ContractManager.Token.GetUserBalance(account);
 
                     var electionStub = ContractManager.Genesis.GetElectionStub(account);
-                    var announceResult = await electionStub.AnnounceElection.SendAsync(new Empty());
+                    var announceResult = await electionStub.AnnounceElection.SendAsync(account.ConvertAddress());
                     announceResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                     var transactionFee = announceResult.TransactionResult.GetDefaultTransactionFee();
                     var afterBalance = ContractManager.Token.GetUserBalance(account);

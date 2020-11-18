@@ -15,11 +15,12 @@ namespace AElfChain.Common.Contracts
         Withdraw,
         UpdateTermNumber,
         ChangeVotingOption,
+        ReplaceCandidatePubkey,
+        SetCandidateAdmin,
 
         //view
         GetCalculateVoteWeight,
         GetElectionResult,
-        GetVotesInformation,
         GetCandidateInformation,
         GetCandidates,
         GetCandidateVote,
@@ -29,7 +30,6 @@ namespace AElfChain.Common.Contracts
         GetVictories,
         GetTermSnapshot,
         GetMinersCount,
-        GetVotesInformationWithRecords,
         GetElectorVoteWithAllRecords,
         GetNextElectCountDown,
         GetElectorVoteWithRecords,
@@ -37,7 +37,10 @@ namespace AElfChain.Common.Contracts
         GetVoteWeightSetting,
         GetVoteWeightProportion,
         GetDataCenterRankingList,
-        GetMinerElectionVotingItemId
+        GetMinerElectionVotingItemId,
+        GetCandidateAdmin,
+        GetNewestPubkey,
+        GetReplacedPubkey
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>
@@ -81,6 +84,27 @@ namespace AElfChain.Common.Contracts
             var minerElectionVotingItemId = CallViewMethod<Hash>(ElectionMethod.GetMinerElectionVotingItemId, new Empty());
 
             return minerElectionVotingItemId;
+        }
+        
+        public Address GetCandidateAdmin(string pubkey)
+        {
+            var candidateAdmin = CallViewMethod<Address>(ElectionMethod.GetCandidateAdmin, new StringValue{Value = pubkey});
+
+            return candidateAdmin;
+        }
+        
+        public string GetNewestPubkey(string pubkey)
+        {
+            var newestPubkey = CallViewMethod<StringValue>(ElectionMethod.GetNewestPubkey, new StringValue{Value = pubkey});
+
+            return newestPubkey.Value;
+        }
+        
+        public string GetReplacedPubkey(string pubkey)
+        {
+            var replacedPubkey = CallViewMethod<StringValue>(ElectionMethod.GetReplacedPubkey, new StringValue{Value = pubkey});
+
+            return replacedPubkey.Value;
         }
     }
 }

@@ -20,14 +20,13 @@ namespace AElf.Automation.EconomicSystemTest
         protected Behaviors Behaviors;
         protected static string RpcUrl { get; } = "http://192.168.197.44:8000";
         protected INodeManager NodeManager { get; set; }
+        protected AuthorityManager AuthorityManager { get; set; }
         protected string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
+        protected List<string> ReplaceAddress { get; set; }
         protected List<string> Voter { get; set; }
-
         protected static List<string> UserList { get; set; }
-        protected List<string> NodesPublicKeys { get; set; }
-        protected List<CandidateInfo> CandidateInfos { get; set; }
         public Dictionary<SchemeType, Scheme> Schemes { get; set; }
         
         protected void Initialize()
@@ -40,6 +39,7 @@ namespace AElf.Automation.EconomicSystemTest
             NodeManager = new NodeManager(RpcUrl);
             var contractServices = new ContractManager(NodeManager, InitAccount);
             Behaviors = new Behaviors(contractServices,InitAccount);
+            AuthorityManager = Behaviors.AuthorityManager;
             Schemes = ProfitContract.Schemes;
             #endregion
 
@@ -63,6 +63,32 @@ namespace AElf.Automation.EconomicSystemTest
             FullNodeAddress.Add("EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB");
             FullNodeAddress.Add("2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx");
             FullNodeAddress.Add("2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6");
+//            FullNodeAddress.Add("2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P");
+//            FullNodeAddress.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
+//            FullNodeAddress.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
+//            FullNodeAddress.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823");
+
+            ReplaceAddress = new List<string>();
+            //node-1
+            ReplaceAddress.Add("2cv45MBBUHjZqHva2JMfrGWiByyScNbEBjgwKoudWQzp6vX8QX");
+//            ReplaceAddress.Add("2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61");
+//            ReplaceAddress.Add("2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY");
+            //node-2
+            ReplaceAddress.Add("91sb6pXzTP3JGAnYCM4jC6wh9UqyqGCQjwYmYEfiBh6s77c2y");
+
+            //node-3
+            ReplaceAddress.Add("69a7mLtphGDbyjABDn8Q8N37TiyRdqTZSP6uVMGtToaL4S7ji");
+
+            //node-4
+            ReplaceAddress.Add("QZjDh1KLNVkgGVdN2zTaeyY8fxEME2suRgNztwD6ioA65nx6Q");
+
+            //node-6
+            ReplaceAddress.Add("iTK4EBu5soTacHSAnFknv8q7Ujad89kZrJVJoKgVbQU6GnP23");
+
+            //node-8
+            ReplaceAddress.Add("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
+//            ReplaceAddress.Add("7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs");
+//            ReplaceAddress.Add("2mTDfKiuKFmNc7FzK2wqLkoZtJRM633KE3Yxq2RSb51Vvbsfec");
 
 //            FullNodeAddress.Add("2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P");
 //            FullNodeAddress.Add("2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61");
@@ -80,74 +106,13 @@ namespace AElf.Automation.EconomicSystemTest
 //            FullNodeAddress.Add("2bmNbLLR94QATnweMcVwLpUAPXt21x8k4zyMxQ7fXSySsrhUNm");
 
             Voter = new List<string>();
-            Voter.Add("2Dyh4ASm6z7CaJ1J1WyvMPe2sJx5TMBW8CMTKeVoTMJ3ugQi3P");
-            Voter.Add("2REajHMeW2DMrTdQWn89RQ26KQPRg91coCEtPP42EC9Cj7sZ61");
-            Voter.Add("YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq");
-            Voter.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
-            Voter.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823");
-            Voter.Add("2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY");
-            
-            //Get candidate infos
-            NodesPublicKeys = new List<string>();
-            CandidateInfos = new List<CandidateInfo>();
-            for (var i = 0; i < BpNodeAddress.Count; i++)
-            {
-                var name = $"Bp-{i + 1}";
-                var account = BpNodeAddress[i];
-                var pubKey = NodeManager.GetAccountPublicKey(account);
-                NodesPublicKeys.Add(pubKey);
-                Logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
-            }
+            Voter.Add("2gfVsyYbLPehmVjZxKHZfxp9AMRUEV6KFHkZDgdU7VZf64teew");
+            Voter.Add("2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV");
+//            Voter.Add("h6CRCFAhyozJPwdFRd7i8A5zVAqy171AVty3uMQUQp1MB9AKa");
+//            Voter.Add("28qLVdGMokanMAp9GwfEqiWnzzNifh8LS9as6mzJFX1gQBB823");
+//            Voter.Add("2G4L1S7KPfRscRP6zmd7AdVwtptVD3vR8YoF1ZHgPotDNbZnNY");
 
-            for (var i = 0; i < FullNodeAddress.Count; i++)
-            {
-                var name = $"Full-{i + 1}";
-                var account = FullNodeAddress[i];
-                var pubKey = NodeManager.GetAccountPublicKey(account);
-                NodesPublicKeys.Add(pubKey);
-                Logger.Info($"{account}: {pubKey}");
-                CandidateInfos.Add(new CandidateInfo {Name = name, Account = account, PublicKey = pubKey});
-            }
-
-            //Transfer candidate 200_000
-//            foreach (var bp in BpNodeAddress)
-//            {
-//                var balance = Behaviors.GetBalance(bp);
-//                if (balance.Balance < 10000_00000000 && bp != InitAccount)
-//                {
-//                    Behaviors.TokenService.SetAccount(InitAccount);
-//                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-//                    {
-//                        Symbol = "ELF",
-//                        Amount = 20000_00000000L,
-//                        To = AddressHelper.Base58StringToAddress(bp),
-//                        Memo = "Transfer token for announcement."
-//                    });
-//
-//                    Behaviors.TokenService.CheckTransactionResultList();
-//                }
-//            }
-//
-//            foreach (var full in FullNodeAddress)
-//            {
-//                var balance = Behaviors.GetBalance(full);
-//                if (balance.Balance < 100000_00000000)
-//                {
-//                    Behaviors.TokenService.SetAccount(InitAccount);
-//                    Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-//                    {
-//                        Symbol = "ELF",
-//                        Amount = 20_0000_00000000L,
-//                        To = AddressHelper.Base58StringToAddress(full),
-//                        Memo = "Transfer token for announcement."
-//                    });
-//
-//                    Behaviors.TokenService.CheckTransactionResultList();
-//                }
-//            }
-
-//            PrepareUserAccountAndBalance(30);
+            Logger.Info($"{NodeManager.ApiClient.BaseUrl}");
 
             #endregion
         }
@@ -163,71 +128,6 @@ namespace AElf.Automation.EconomicSystemTest
                 File.Delete(file);
             }
             */
-        }
-
-        protected void PrepareUserAccountAndBalance(int userAccount)
-        {
-            //Account preparation
-            UserList = NewAccount(Behaviors, userAccount);
-            UnlockAccounts(Behaviors, userAccount, UserList);
-
-            var balance = Behaviors.GetBalance(UserList[0]);
-            if (balance.Balance >= 20_0000_00000000)
-                return;
-
-            Behaviors.TokenService.SetAccount(BpNodeAddress[0]);
-            foreach (var acc in UserList)
-                Behaviors.TokenService.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                {
-                    Amount = 20_0000_00000000,
-                    Memo = "transfer for balance test",
-                    Symbol = NodeOption.NativeTokenSymbol,
-                    To = acc.ConvertAddress()
-                });
-
-            Behaviors.TokenService.CheckTransactionResultList();
-
-            foreach (var userAcc in UserList)
-            {
-                var callResult = Behaviors.TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
-                    new GetBalanceInput
-                    {
-                        Symbol = NodeOption.NativeTokenSymbol,
-                        Owner = userAcc.ConvertAddress()
-                    });
-                Console.WriteLine($"User-{userAcc} balance: " + callResult.Balance);
-            }
-
-            Logger.Info("All accounts prepared and unlocked.");
-        }
-
-        protected List<string> NewAccount(Behaviors services, int count)
-        {
-            var accountList = new List<string>();
-            for (var i = 0; i < count; i++)
-            {
-                var account = services.NodeManager.NewAccount();
-                accountList.Add(account);
-            }
-
-            return accountList;
-        }
-
-        protected void UnlockAccounts(Behaviors services, int count, List<string> accountList)
-        {
-            services.NodeManager.ListAccounts();
-            for (var i = 0; i < count; i++)
-            {
-                var result = services.NodeManager.UnlockAccount(accountList[i]);
-                Assert.IsTrue(result);
-            }
-        }
-
-        protected class CandidateInfo
-        {
-            public string Name { get; set; }
-            public string Account { get; set; }
-            public string PublicKey { get; set; }
         }
     }
 }

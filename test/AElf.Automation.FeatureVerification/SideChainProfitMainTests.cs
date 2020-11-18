@@ -100,7 +100,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var node in nonBps)
             {
                 var electionStub = MainManager.Genesis.GetElectionStub(node);
-                var announcementResult = await electionStub.AnnounceElection.SendAsync(new Empty());
+                var announcementResult = await electionStub.AnnounceElection.SendAsync(node.ConvertAddress());
                 announcementResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
         }

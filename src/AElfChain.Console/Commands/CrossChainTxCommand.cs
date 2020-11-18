@@ -76,6 +76,12 @@ namespace AElfChain.Console.Commands
                     case "Transfer[Side-Main]":
                         AsyncHelper.RunSync(TransferSide2Main);
                         break;
+                    case "CheckIndex[Main-Side]":
+                        AsyncHelper.RunSync(CheckIndexMainToSide);
+                        break;
+                    case "CheckIndex[Side-Main]":
+                        AsyncHelper.RunSync(CheckIndexSideToMain);
+                        break;
                     case "Exit":
                         quitCommand = true;
                         break;
@@ -388,6 +394,20 @@ namespace AElfChain.Console.Commands
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var afterBalance = MainContract.Token.GetUserBalance(to, symbol);
             Logger.Info($"{to} {symbol} balance: {beforeBalance} => {afterBalance}");
+        }
+
+        private async Task CheckIndexMainToSide()
+        {
+            var sideChainId = SideContract.ChainId;
+            var index = await MainContract.CrossChainStub.GetSideChainHeight.CallAsync(new Int32Value{Value = sideChainId});
+            Logger.Info($"Main chain index side chain {sideChainId} {index}");
+        }
+        
+        private async Task CheckIndexSideToMain()
+        {
+            var sideChainId = SideContract.ChainId;
+            var index = await SideContract.CrossChainStub.GetParentChainHeight.CallAsync(new Empty());
+            Logger.Info($"Side chain {sideChainId} index main chain {index}");
         }
 
         private IEnumerable<string> GetSubCommands()

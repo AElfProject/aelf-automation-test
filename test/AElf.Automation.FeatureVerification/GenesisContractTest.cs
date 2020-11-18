@@ -574,8 +574,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var miners = tester.GetMiners();
             foreach (var miner in miners)
             {
-                if (miner.Contains("2GRH6gYPhRu7SxYby56sxdXGVuAuXS5atfjRmeFPKWJB3VMJAw"))
-                    continue;
                 tester.ParliamentService.SetAccount(miner);
                 var approve =
                     tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);

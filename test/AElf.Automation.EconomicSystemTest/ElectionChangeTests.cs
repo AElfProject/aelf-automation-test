@@ -6,6 +6,7 @@ using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
+using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
@@ -79,10 +80,10 @@ namespace AElf.Automation.EconomicSystemTest
             var genesis = NodeManager.GetGenesisContract();
 
             ElectionContractStub = genesis.GetElectionStub(FullUser1);
-            await ElectionContractStub.AnnounceElection.SendAsync(new Empty());
+            await ElectionContractStub.AnnounceElection.SendAsync(FullUser1.ConvertAddress());
 
             ElectionContractStub = genesis.GetElectionStub(FullUser2);
-            await ElectionContractStub.AnnounceElection.SendAsync(new Empty());
+            await ElectionContractStub.AnnounceElection.SendAsync(FullUser2.ConvertAddress());
 
             var candidates = await ElectionContractStub.GetCandidates.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(candidates, Formatting.Indented));

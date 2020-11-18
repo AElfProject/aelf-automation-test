@@ -107,7 +107,6 @@ namespace AElfChain.Common.Contracts
             var approveTxIds = new List<string>();
             foreach (var user in callers)
             {
-                if (user.Equals("2GRH6gYPhRu7SxYby56sxdXGVuAuXS5atfjRmeFPKWJB3VMJAw")) continue;
                 var tester = GetNewTester(user);
                 try
                 {
