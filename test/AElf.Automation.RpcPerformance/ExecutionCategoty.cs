@@ -129,7 +129,6 @@ namespace AElf.Automation.RpcPerformance
                             break;
                         case TransactionResultStatus.Pending:
                         case TransactionResultStatus.NotExisted:
-                        case TransactionResultStatus.Unexecutable:
                             Logger.Warn($"Transaction {item.TxId} execution status: {status}.");
                             continue;
                         default:
