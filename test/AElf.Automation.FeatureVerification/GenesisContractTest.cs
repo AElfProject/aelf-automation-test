@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Standards.ACS3;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -152,7 +152,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task ProposalDeploy_MinerProposalContract_Success_stub()
         {
-            var genesis = MainManager.GenesisStub;
+            var genesis = MainManager.GenesisImplStub;
             var input = ContractDeploymentInput("AElf.Contracts.MultiToken");
             var result = await genesis.ProposeNewContract.SendAsync(input);
             var size = result.Transaction.CalculateSize();
@@ -574,8 +574,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var miners = tester.GetMiners();
             foreach (var miner in miners)
             {
-                if (miner.Contains("2GRH6gYPhRu7SxYby56sxdXGVuAuXS5atfjRmeFPKWJB3VMJAw"))
-                    continue;
                 tester.ParliamentService.SetAccount(miner);
                 var approve =
                     tester.ParliamentService.ExecuteMethodWithResult(ParliamentMethod.Approve, proposalId);

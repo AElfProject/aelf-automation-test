@@ -1,6 +1,6 @@
 using System.IO;
 using System.Linq;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Contracts.Configuration;
 using AElf.Types;
 using AElfChain.Common.Contracts;

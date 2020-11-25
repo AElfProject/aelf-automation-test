@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Client.Service;
@@ -170,7 +170,7 @@ namespace AElfChain.Common.Managers
             var codeArray = contractReader.Read(filename);
             var input = new ContractDeploymentInput
             {
-                Category = KernelHelper.CodeCoverageRunnerCategory,
+                Category = KernelHelper.DefaultRunnerCategory,
                 Code = ByteString.CopyFrom(codeArray)
             };
 

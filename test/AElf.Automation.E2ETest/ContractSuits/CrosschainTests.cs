@@ -14,7 +14,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task GetSideChainIdAndHeight_Test()
         {
-            var result = await ContractManager.CrossChainStub.GetSideChainIdAndHeight.CallAsync(new Empty());
+            var result = await ContractManager.CrossChainImplStub.GetSideChainIdAndHeight.CallAsync(new Empty());
             result.IdHeightDict.Count.ShouldBe(2);
             result.IdHeightDict.Values.ShouldAllBe(o => o > 1);
         }
@@ -23,7 +23,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetSideChainIndexingInformationList_Test()
         {
             var result =
-                await ContractManager.CrossChainStub.GetSideChainIndexingInformationList.CallAsync(new Empty());
+                await ContractManager.CrossChainImplStub.GetSideChainIndexingInformationList.CallAsync(new Empty());
             result.IndexingInformationList.Count.ShouldBe(2);
             var chainIds = result.IndexingInformationList.Select(o => o.ChainId).ToList();
             chainIds.ShouldContain(1866392);
@@ -34,7 +34,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetSideChainCreator_Test()
         {
             var chainIdAndHeightDict =
-                await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
+                await ContractManager.CrossChainImplStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {
@@ -50,7 +50,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetSideChainBalance_Test()
         {
             var chainIdAndHeightDict =
-                await ContractManager.CrossChainStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
+                await ContractManager.CrossChainImplStub.GetAllChainsIdAndHeight.CallAsync(new Empty());
             var chainIds = chainIdAndHeightDict.IdHeightDict.Keys;
             foreach (var chainId in chainIds)
             {

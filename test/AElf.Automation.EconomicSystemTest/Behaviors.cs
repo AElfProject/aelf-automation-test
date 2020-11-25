@@ -29,6 +29,7 @@ namespace AElf.Automation.EconomicSystemTest
         public readonly TokenContract TokenService;
         public readonly TreasuryContract Treasury;
         public readonly VoteContract VoteService;
+        public readonly ParliamentContract ParliamentService;
         public static Dictionary<SchemeType, Scheme> Schemes { get; set; }
         public Behaviors(ContractManager contractManager,string account)
         {
@@ -45,6 +46,8 @@ namespace AElf.Automation.EconomicSystemTest
             ConsensusService = ContractManager.Consensus;
             ProfitService.GetTreasurySchemes(Treasury.ContractAddress);
             Schemes = ProfitContract.Schemes;
+
+            ParliamentService = ContractManager.Parliament;
         }
     }
 }

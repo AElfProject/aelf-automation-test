@@ -221,7 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var contractManager = new ContractManager(nodeManager, nodeManager.GetRandomAccount());
             var tokenAddress = contractManager.Token.Contract;
             var contractResult =
-                await contractManager.GenesisStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
+                await contractManager.GenesisImplStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
             var binaryWriter = new BinaryWriter(new FileStream("TokenOrg.dll", FileMode.OpenOrCreate));
             binaryWriter.Write(contractResult.Code.ToByteArray());
         }

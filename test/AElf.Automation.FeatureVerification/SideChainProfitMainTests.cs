@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
-using Acs10;
+using AElf.Standards.ACS1;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.CSharp.Core.Extension;
+using AElf.Standards.ACS10;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -100,7 +100,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var node in nonBps)
             {
                 var electionStub = MainManager.Genesis.GetElectionStub(node);
-                var announcementResult = await electionStub.AnnounceElection.SendAsync(new Empty());
+                var announcementResult = await electionStub.AnnounceElection.SendAsync(node.ConvertAddress());
                 announcementResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
         }
@@ -130,7 +130,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);
             var account = bps.First();
             var authority = new AuthorityManager(NodeManager);
-            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var treasuryStub = MainManager.Genesis.GetTreasuryImplStub(account);
 
             var treasuryBalance = await treasuryStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(treasuryBalance));
@@ -156,7 +156,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var bps = NodeInfoHelper.Config.Nodes.Select(o => o.Account).Take(4);
             var account = bps.First();
-            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var treasuryStub = MainManager.Genesis.GetTreasuryImplStub(account);
             var treasuryBalance = await treasuryStub.GetUndistributedDividends.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(treasuryBalance));
         }
@@ -168,13 +168,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var authority = new AuthorityManager(NodeManager,account);
             var bps = authority.GetCurrentMiners();
             
-            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var treasuryStub = MainManager.Genesis.GetTreasuryImplStub(account);
             var symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(symbolList));
 
             var controller = await treasuryStub.GetTreasuryController.CallAsync(new Empty());
             var addSymbol = authority.ExecuteTransactionWithAuthority(MainManager.Treasury.ContractAddress,
-                nameof(TreasuryContractContainer.TreasuryContractStub.SetSymbolList),
+                nameof(TreasuryContractImplContainer.TreasuryContractImplStub.SetSymbolList),
                 new SymbolList {Value = {"ELF", Symbol}},
                 bps.First(), controller.OwnerAddress);
             addSymbol.Status.ShouldBe(TransactionResultStatus.Mined);
@@ -187,7 +187,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task CheckSymbol()
         {
             var account = NodeInfoHelper.Config.Nodes.Select(o => o.Account).First();
-            var treasuryStub = MainManager.Genesis.GetTreasuryStub(account);
+            var treasuryStub = MainManager.Genesis.GetTreasuryImplStub(account);
             var symbolList = await treasuryStub.GetSymbolList.CallAsync(new Empty());
             Logger.Info(JsonConvert.SerializeObject(symbolList));
         }

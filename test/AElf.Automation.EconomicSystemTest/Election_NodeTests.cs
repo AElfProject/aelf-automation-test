@@ -3,9 +3,11 @@ using System.Linq;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.Election;
 using AElf.Contracts.Profit;
+using AElf.Contracts.TestContract.BasicSecurity;
 using AElfChain.Common.Contracts;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,8 +35,9 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void AnnouncementNode()
         {
-            Behaviors.TransferToken(InitAccount, FullNodeAddress[0], 10_1000_00000000);
-            var result = Behaviors.AnnouncementElection(FullNodeAddress[0]);
+            var account = FullNodeAddress[3];
+            Behaviors.TransferToken(InitAccount, account, 10_1000_00000000);
+            var result = Behaviors.AnnouncementElection(account,account);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
@@ -42,12 +45,13 @@ namespace AElf.Automation.EconomicSystemTest
         public void NodeAnnounceElectionAction()
         {
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
-            Logger.Info($"Term: {term}");
+            Logger.Info($"Term: {term.TermNumber}");
             foreach (var user in FullNodeAddress)
             {
                 Behaviors.TransferToken(InitAccount, user, 10_1000_00000000);
-                var election = Behaviors.ElectionService.GetNewTester(user, "123");
-                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                var election = Behaviors.ElectionService.GetNewTester(user);
+                var parliament = Behaviors.ParliamentService.GetGenesisOwnerAddress();
+                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, parliament);
                 electionResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
 
@@ -55,6 +59,129 @@ namespace AElf.Automation.EconomicSystemTest
             Logger.Info($"{candidateList.Value.Count}");
             foreach (var publicKey in candidateList.Value)
                 Logger.Info($"Candidate PublicKey: {publicKey.ToByteArray().ToHex()}");
+        }
+
+        [TestMethod]
+        public void SetAdmin()
+        {
+            var newAdmin = Behaviors.ParliamentService.GetGenesisOwnerAddress();
+            foreach (var full in BpNodeAddress)
+            {
+//            var full = BpNodeAddress[1];
+                var pubkey = Behaviors.NodeManager.GetAccountPublicKey(full);
+                var admin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+
+                if (admin.Equals(new Address()))
+                {
+                    admin = full.ConvertAddress();
+                }
+                Behaviors.ElectionService.SetAccount(admin.ToBase58());
+                var result = Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.SetCandidateAdmin,
+                    new SetCandidateAdminInput
+                    {
+                        Admin = newAdmin,
+                        Pubkey = pubkey
+                    });
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var checkAdmin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+                checkAdmin.ShouldBe(newAdmin);
+            }
+        }
+
+        [TestMethod]
+        public void SetAdmin_ThroughParliament()
+        {
+            var account = InitAccount;
+            var pubkey = Behaviors.NodeManager.GetAccountPublicKey(account);
+            var admin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+            var organization = Behaviors.ParliamentService.GetGenesisOwnerAddress();
+            var newAdmin = Behaviors.ParliamentService.GetGenesisOwnerAddress();
+            var input = new SetCandidateAdminInput
+            {
+                Admin = newAdmin,
+                Pubkey = pubkey
+            };
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Behaviors.ElectionService.ContractAddress,
+                nameof(ElectionMethod.SetCandidateAdmin), input, InitAccount, organization);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            var checkAdmin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+            checkAdmin.ShouldBe(newAdmin);
+        }
+
+        [TestMethod]
+        public void ReplacePubkey()
+        {
+            Behaviors.ElectionService.SetAccount(FullNodeAddress[1]);
+            var oldPubkey = Behaviors.NodeManager.GetAccountPublicKey(FullNodeAddress[1]);
+            var newPubkey = Behaviors.NodeManager.GetAccountPublicKey(ReplaceAddress[4]);
+            Logger.Info($"{oldPubkey}");
+                var result = Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.ReplaceCandidatePubkey,
+                    new ReplaceCandidatePubkeyInput
+                    {
+                        OldPubkey = oldPubkey,
+                        NewPubkey = newPubkey
+                    });
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var checkKey = Behaviors.ElectionService.GetNewestPubkey(oldPubkey);
+                checkKey.ShouldBe(newPubkey);
+        }
+        
+        [TestMethod]
+        public void ReplacePubkey_throughParliament()
+        {
+            var account = BpNodeAddress[4];
+            var newAccount = ReplaceAddress[4];
+            var oldPubkey = Behaviors.NodeManager.GetAccountPublicKey(account);
+            var newPubkey = Behaviors.NodeManager.GetAccountPublicKey(newAccount);
+            Logger.Info($"{oldPubkey}");
+            Logger.Info($"{newPubkey}");
+            
+
+            var pubkey = Behaviors.NodeManager.GetAccountPublicKey(account);
+            var admin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+            Logger.Info($"{admin}");
+            var input = new ReplaceCandidatePubkeyInput
+            {
+                OldPubkey = oldPubkey,
+                NewPubkey = newPubkey
+            };
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Behaviors.ElectionService.ContractAddress,
+                nameof(ElectionMethod.ReplaceCandidatePubkey), input, InitAccount, admin);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            var checkKey = Behaviors.ElectionService.GetNewestPubkey(oldPubkey);
+            checkKey.ShouldBe(newPubkey);
+
+            var replacedKey = Behaviors.ElectionService.GetReplacedPubkey(newPubkey);
+            replacedKey.ShouldBe(oldPubkey);
+        }
+
+        [TestMethod]
+        public void Quit_throughParliament()
+        {
+            var quitAccount = FullNodeAddress[2];
+            var balanceOfAccount = Behaviors.TokenService.GetUserBalance(quitAccount);
+            var quitPubkey = Behaviors.NodeManager.GetAccountPublicKey(quitAccount);
+            Logger.Info($"{quitPubkey}");
+            var admin = Behaviors.ElectionService.GetCandidateAdmin(quitPubkey);
+            Logger.Info($"{admin}");
+
+            var input = new StringValue {Value = quitPubkey};
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Behaviors.ElectionService.ContractAddress,
+                nameof(ElectionMethod.QuitElection), input, InitAccount, admin);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var afterBalance = Behaviors.TokenService.GetUserBalance(quitAccount);
+            afterBalance.ShouldBe(balanceOfAccount + 10_0000_00000000);
+        }
+
+        [TestMethod]
+        public void Transfer()
+        {
+            for (var i =0; i< ReplaceAddress.Count; i++)
+            {
+                var newBalance = Behaviors.TokenService.GetUserBalance(ReplaceAddress[i]);
+                Logger.Info($"{ReplaceAddress[i]} : {newBalance}");
+            }
         }
 
         [TestMethod]
@@ -153,8 +280,23 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
+        public void GetMaximumBlocksCount()
+        {
+            var blocksCount = Behaviors.ConsensusService.GetMaximumBlocksCount();
+            Logger.Info(blocksCount);
+        }
+
+        [TestMethod]
         public void GetMiners()
         {
+            var termNumber =
+                Behaviors.ConsensusService.CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermNumber,
+                    new Empty()).Value;
+            var candidateList = Behaviors.GetCandidates();
+            var voteMessage =
+                $"TermNumber={termNumber}, candidates count is {candidateList.Value.Count}";
+            Logger.Info(voteMessage);
+
             GetCurrentMiners();
         }
 
@@ -162,7 +304,7 @@ namespace AElf.Automation.EconomicSystemTest
         public void GetVoteStatus()
         {
             var termNumber =
-                Behaviors.ConsensusService.CallViewMethod<SInt64Value>(ConsensusMethod.GetCurrentTermNumber,
+                Behaviors.ConsensusService.CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermNumber,
                     new Empty()).Value;
             var candidateList = Behaviors.GetCandidates();
             var voteMessage =
@@ -175,33 +317,51 @@ namespace AElf.Automation.EconomicSystemTest
                     {
                         Value = fullNode.ToHex()
                     });
+                var address = Address.FromPublicKey(fullNode.ToByteArray());
                 if (candidateVote.Equals(new CandidateVote()))
                     continue;
                 voteMessage +=
-                    $" {fullNode.ToHex()} All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
+                    $" {fullNode.ToHex()} = {address} All tickets: {candidateVote.AllObtainedVotedVotesAmount}, Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
             }
 
             Logger.Info(voteMessage);
         }
 
         [TestMethod]
+        public void GetTermSnapshot()
+        {
+            var termNumber =
+                Behaviors.ConsensusService.CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermNumber,
+                    new Empty()).Value;
+            if (termNumber.Equals(1)) return; 
+            
+            var snapshot =
+                Behaviors.ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
+                    new GetTermSnapshotInput{TermNumber = termNumber -2});
+            Logger.Info($"{snapshot.ElectionResult},{snapshot.MinedBlocks},{snapshot.EndRoundNumber}");
+        }
+
+        [TestMethod]
         public void GetVictories()
         {
             var victories = Behaviors.GetVictories();
-
             var publicKeys = victories.Value.Select(o => o.ToByteArray().ToHex()).ToList();
-
-            publicKeys.Contains(Behaviors.NodeManager.GetAccountPublicKey(FullNodeAddress[0])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.NodeManager.GetAccountPublicKey(FullNodeAddress[1])).ShouldBeTrue();
-            publicKeys.Contains(Behaviors.NodeManager.GetAccountPublicKey(FullNodeAddress[2])).ShouldBeTrue();
+            foreach (var p in publicKeys)
+            {
+                var account = Address.FromPublicKey(ByteArrayHelper.HexStringToByteArray(p));
+                Logger.Info($"{account}: {p}");
+            }
         }
 
         [TestMethod]
         public void QuitElection()
         {
-            var candidate = FullNodeAddress.Last();
+            var candidate = BpNodeAddress.First();
             var beforeBalance = Behaviors.GetBalance(candidate).Balance;
-            var result = Behaviors.QuitElection(candidate);
+            var pubkey = Behaviors.NodeManager.GetAccountPublicKey(candidate);
+            var admin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
+          
+            var result = Behaviors.QuitElection(admin.ToBase58(),candidate);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = result.GetDefaultTransactionFee();
             var afterBalance = Behaviors.GetBalance(candidate).Balance;
@@ -345,6 +505,7 @@ namespace AElf.Automation.EconomicSystemTest
             Logger.Info($"{term.TermNumber} {amount} MinerBasicReward (10%):{sumBasicRewardAmount}; ReElectionReward(5%):{sumReElectionRewardAmount}; VotesWeightReward(5%):{sumVoteWeightRewardAmount}");
 
             var candidates = Behaviors.GetCandidatesAddress();
+            candidates.Add(FullNodeAddress[3].ConvertAddress());
             foreach (var candidate in candidates)
             {
                 var backupSubsidy = profit.GetProfitsMap(candidate.ToBase58(), BackupSubsidy);
@@ -374,6 +535,7 @@ namespace AElf.Automation.EconomicSystemTest
             var miners = GetCurrentMiners();
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             long feeAmount = 0;
+            Behaviors.TransferToken(InitAccount, ReplaceAddress[0],1000_000000000);
             foreach (var miner in miners)
             {
                 var profitMap = profit.GetProfitsMap(miner, MinerBasicReward);
@@ -396,10 +558,9 @@ namespace AElf.Automation.EconomicSystemTest
                 var claimProfit = profitResult.Logs.Where(l => l.Name.Contains(nameof(ProfitsClaimed))).ToList();
                 foreach (var cf in claimProfit)
                 {
-                    var period = ProfitsClaimed.Parser.ParseFrom(ByteString.FromBase64(cf.NonIndexed)).Period;
-                    Logger.Info(period);
+                    var info = ProfitsClaimed.Parser.ParseFrom(ByteString.FromBase64(cf.NonIndexed));
+                    Logger.Info($"{info.Period}: {info.Amount}");
                 }
-                Logger.Info(claimProfit);
             }
             Logger.Info($"{term.TermNumber}: fee {feeAmount}");
         }

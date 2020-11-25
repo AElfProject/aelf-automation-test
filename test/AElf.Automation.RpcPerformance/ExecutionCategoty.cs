@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -129,7 +129,6 @@ namespace AElf.Automation.RpcPerformance
                             break;
                         case TransactionResultStatus.Pending:
                         case TransactionResultStatus.NotExisted:
-                        case TransactionResultStatus.Unexecutable:
                             Logger.Warn($"Transaction {item.TxId} execution status: {status}.");
                             continue;
                         default:

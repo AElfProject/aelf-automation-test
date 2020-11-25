@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Cryptography;
@@ -52,7 +53,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task GetCurrentWelfareReward_Test()
         {
-            var welfareReward = await ContractManager.ConsensusStub.GetCurrentWelfareReward.CallAsync(new Empty());
+            var welfareReward = await ContractManager.ConsensusImplStub.GetCurrentTermMiningReward.CallAsync(new Empty());
             welfareReward.Value.ShouldBeGreaterThan(0);
         }
 
@@ -80,9 +81,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task Miner_Test()
         {
-            var minerPubkey = await ContractManager.ConsensusStub.GetCurrentMinerPubkey.CallAsync(new Empty());
+            var minerPubkey = await ContractManager.ConsensusStub.GetCurrentMinerPubkeyList.CallAsync(new Empty());
             var otherTest = Address.FromPublicKey(CryptoHelper.GenerateKeyPair().PublicKey);
-            var minerAccount = Address.FromPublicKey(ByteArrayHelper.HexStringToByteArray(minerPubkey.Value));
+            var minerAccount = Address.FromPublicKey(ByteArrayHelper.HexStringToByteArray(minerPubkey.Pubkeys.First()));
 
             var isCurrentMiner = await ContractManager.ConsensusStub.IsCurrentMiner.CallAsync(otherTest);
             isCurrentMiner.Value.ShouldBeFalse();

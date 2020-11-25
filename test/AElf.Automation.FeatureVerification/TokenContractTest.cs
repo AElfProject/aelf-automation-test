@@ -534,7 +534,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK","TEST",1000000000_000000000                                                                                                                                                                                                                                                                                                                                                                                                                                                                 )]
+        [DataRow("28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK","AEUSD",1000000000_000)]
         public async Task IssueToken(string account,string symbol, long amount)
         {
             var balance = _tokenContract.GetUserBalance(account, symbol);

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf.Standards.ACS3;
 using AElf;
 using AElf.Client.Dto;
@@ -439,14 +439,14 @@ namespace AElfChain.Common.Managers
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            var callerBalance = _token.GetUserBalance(caller);
-            if (callerBalance <= 10000_00000000 * bps.Count)
+            var callerBalance = _token.GetUserBalance(caller,primaryToken);
+            if (callerBalance <= 1000_00000000 * bps.Count)
                 return;
             foreach (var bp in bps)
             {
                 var balance = _token.GetUserBalance(bp, primaryToken);
                 if (balance < 1000_00000000)
-                    _token.TransferBalance(caller, bp, 10000_00000000 - balance, primaryToken);
+                    _token.TransferBalance(caller, bp, 1000_00000000 - balance, primaryToken);
             }
         }
 

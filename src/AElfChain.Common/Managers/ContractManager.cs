@@ -180,42 +180,52 @@ namespace AElfChain.Common.Managers
 
         public GenesisContract Genesis { get; set; }
         public BasicContractZeroContainer.BasicContractZeroStub GenesisStub { get; set; }
+        public BasicContractZeroImplContainer.BasicContractZeroImplStub GenesisImplStub => Genesis.GetGenesisImplStub();
         public TokenContract Token => Genesis.GetTokenContract();
         public TokenContractContainer.TokenContractStub TokenStub => Genesis.GetTokenStub();
         public TokenContractImplContainer.TokenContractImplStub TokenImplStub => Genesis.GetTokenImplStub();
         public TokenHolderContract TokenHolder => Genesis.GetTokenHolderContract();
         public TokenHolderContractContainer.TokenHolderContractStub TokenHolderStub => Genesis.GetTokenHolderStub();
+        public TokenHolderContractImplContainer.TokenHolderContractImplStub TokenHolderImplStub => Genesis.GetTokenHolderImplStub();
         public TokenConverterContract TokenConverter => Genesis.GetTokenConverterContract();
-
         public TokenConverterContractContainer.TokenConverterContractStub TokenconverterStub =>
             Genesis.GetTokenConverterStub();
-
+        public TokenConverterContractImplContainer.TokenConverterContractImplStub TokenconverterImplStub =>
+            Genesis.GetTokenConverterImplStub();
         public ConfigurationContract Configuration => Genesis.GetConfigurationContract();
         public ConfigurationContainer.ConfigurationStub ConfigurationStub => Genesis.GetConfigurationStub();
+        public ConfigurationImplContainer.ConfigurationImplStub ConfigurationImplStub => Genesis.GetConfigurationImplStub();
         public ConsensusContract Consensus => Genesis.GetConsensusContract();
         public AEDPoSContractContainer.AEDPoSContractStub ConsensusStub => Genesis.GetConsensusStub();
+        public AEDPoSContractImplContainer.AEDPoSContractImplStub ConsensusImplStub => Genesis.GetConsensusImplStub();
         public CrossChainContract CrossChain => Genesis.GetCrossChainContract();
         public CrossChainContractContainer.CrossChainContractStub CrossChainStub => Genesis.GetCrossChainStub();
+        public CrossChainContractImplContainer.CrossChainContractImplStub CrossChainImplStub => Genesis.GetCrossChainImplStub();
         public ParliamentContract Parliament => Genesis.GetParliamentContract();
-
         public ParliamentContractContainer.ParliamentContractStub ParliamentAuthStub =>
             Genesis.GetParliamentAuthStub();
-
+        public ParliamentContractImplContainer.ParliamentContractImplStub ParliamentContractImplStub =>
+            Genesis.GetParliamentAuthImplStub();
         public AssociationContract Association => Genesis.GetAssociationAuthContract();
         public AssociationContractContainer.AssociationContractStub AssociationStub => Genesis.GetAssociationAuthStub();
+        public AssociationContractImplContainer.AssociationContractImplStub AssociationImplStub => Genesis.GetAssociationAuthImplStub();
         public ReferendumContract Referendum => Genesis.GetReferendumAuthContract();
-
         public ReferendumContractContainer.ReferendumContractStub ReferendumStub =>
             Genesis.GetReferendumAuthStub();
-
+        public ReferendumContractImplContainer.ReferendumContractImplStub ReferendumImplStub =>
+            Genesis.GetReferendumAuthImplStub();
         public ElectionContract Election => Genesis.GetElectionContract();
         public ElectionContractContainer.ElectionContractStub ElectionStub => Genesis.GetElectionStub();
+        public ElectionContractImplContainer.ElectionContractImplStub ElectionContractImplStub => Genesis.GetElectionImplStub();
         public VoteContract Vote => Genesis.GetVoteContract();
         public VoteContractContainer.VoteContractStub VoteStub => Genesis.GetVoteStub();
+        public VoteContractImplContainer.VoteContractImplStub VoteImplStub => Genesis.GetVoteImplStub();
         public ProfitContract Profit => Genesis.GetProfitContract();
         public ProfitContractContainer.ProfitContractStub ProfitStub => Genesis.GetProfitStub();
+        public ProfitContractImplContainer.ProfitContractImplStub ProfitImplStub => Genesis.GetProfitImplStub();
         public TreasuryContract Treasury => Genesis.GetTreasuryContract();
         public TreasuryContractContainer.TreasuryContractStub TreasuryStub => Genesis.GetTreasuryStub();
+        public TreasuryContractImplContainer.TreasuryContractImplStub TreasuryImplStub => Genesis.GetTreasuryImplStub();
 
         #endregion
     }

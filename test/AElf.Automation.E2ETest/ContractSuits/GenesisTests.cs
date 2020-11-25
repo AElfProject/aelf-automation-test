@@ -14,14 +14,14 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetContractInfo_Test()
         {
             var genesis = ContractManager.NodeManager.GetGenesisContract();
-            var contract = await ContractManager.GenesisStub.GetContractInfo.CallAsync(genesis.Contract);
+            var contract = await ContractManager.GenesisImplStub.GetContractInfo.CallAsync(genesis.Contract);
             contract.Category.ShouldBe(0);
             contract.IsSystemContract.ShouldBeTrue();
             contract.SerialNumber.ShouldBe(0L);
             contract.Author.ShouldBe(genesis.Contract);
 
             var tokenContract =
-                await ContractManager.GenesisStub.GetContractInfo.CallAsync(ContractManager.Token.Contract);
+                await ContractManager.GenesisImplStub.GetContractInfo.CallAsync(ContractManager.Token.Contract);
             tokenContract.Category.ShouldBe(0);
             tokenContract.IsSystemContract.ShouldBeTrue();
             tokenContract.SerialNumber.ShouldNotBe(0L);
@@ -31,7 +31,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task CurrentContractSerialNumber()
         {
-            var serialNumber = await ContractManager.GenesisStub.CurrentContractSerialNumber.CallAsync(new Empty());
+            var serialNumber = await ContractManager.GenesisImplStub.CurrentContractSerialNumber.CallAsync(new Empty());
             serialNumber.Value.ShouldBeGreaterThan(1U);
         }
 
@@ -39,7 +39,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetContractAuthor_Test()
         {
             var tokenAuthor =
-                await ContractManager.GenesisStub.GetContractAuthor.CallAsync(ContractManager.Token.Contract);
+                await ContractManager.GenesisImplStub.GetContractAuthor.CallAsync(ContractManager.Token.Contract);
             tokenAuthor.ShouldBe(ContractManager.Genesis.Contract);
         }
 
@@ -47,10 +47,10 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetContractHash_Test()
         {
             var tokenAddress = ContractManager.Token.Contract;
-            var tokenHash = await ContractManager.GenesisStub.GetContractHash.CallAsync(tokenAddress);
-            var contractInfo = await ContractManager.GenesisStub.GetContractInfo.CallAsync(tokenAddress);
+            var tokenHash = await ContractManager.GenesisImplStub.GetContractHash.CallAsync(tokenAddress);
+            var contractInfo = await ContractManager.GenesisImplStub.GetContractInfo.CallAsync(tokenAddress);
             var registrationInfo =
-                await ContractManager.GenesisStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
+                await ContractManager.GenesisImplStub.GetSmartContractRegistrationByAddress.CallAsync(tokenAddress);
             var codeHash = HashHelper.ComputeFrom(registrationInfo.Code.ToByteArray());
             tokenHash.ShouldBe(codeHash);
             contractInfo.CodeHash.ShouldBe(codeHash);

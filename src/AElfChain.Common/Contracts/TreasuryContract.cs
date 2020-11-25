@@ -1,4 +1,4 @@
-using Acs10;
+using AElf.Standards.ACS10;
 using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Contracts.Treasury;
 using AElf.Types;

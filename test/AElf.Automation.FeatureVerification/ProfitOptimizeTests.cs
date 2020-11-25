@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
-using Acs10;
+using AElf.Standards.ACS1;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Treasury;
+using AElf.Standards.ACS10;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -46,7 +46,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetDistributingSymbolList_Test()
         {
-            var beforeList = await ContractManager.TreasuryStub.GetSymbolList.CallAsync(new Empty());
+            var beforeList = await ContractManager.TreasuryImplStub.GetSymbolList.CallAsync(new Empty());
             beforeList.Value.ShouldBe(new[] {"ELF"});
             var symbolList = new SymbolList
             {
@@ -54,12 +54,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var transactionResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Treasury.ContractAddress,
-                nameof(ContractManager.TreasuryStub.SetSymbolList),
+                nameof(ContractManager.TreasuryImplStub.SetSymbolList),
                 symbolList, ContractManager.CallAddress);
             transactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
 
             //Query distribute symbol list
-            var queryResult = await ContractManager.TreasuryStub.GetSymbolList.CallAsync(new Empty());
+            var queryResult = await ContractManager.TreasuryImplStub.GetSymbolList.CallAsync(new Empty());
             queryResult.Value.ShouldBe(symbolList.Value);
         }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AElf.Standards.ACS3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
@@ -34,7 +33,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string TestAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
         public string Full { get; } = "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws";
-        private static string RpcUrl { get; } = "http://192.168.197.21:8000";
+        private static string RpcUrl { get; } = "http://192.168.197.44:8000";
 
         [TestInitialize]
         public void Initialize()
@@ -55,6 +54,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Symbol = contractServices.Token.GetPrimaryTokenSymbol();
             Miners = contractServices.Authority.GetCurrentMiners();
             MinersCount = Miners.Count;
+            AuthorityManager = new AuthorityManager(NodeManager,InitAccount);
         }
 
         [TestMethod]
@@ -229,6 +229,27 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"White list {whiteList.Proposers} ");
         }
 
+        [TestMethod]
+        public void ChangeOrganizationThreshold(string organizationAddress)
+        {
+            var info = Parliament.GetOrganization(organizationAddress.ConvertAddress());
+            Logger.Info($"Before change: {info}");
+
+            var input = new ProposalReleaseThreshold
+            {
+                MaximalAbstentionThreshold = 100,
+                MaximalRejectionThreshold = 100,
+                MinimalApprovalThreshold = 300,
+                MinimalVoteThreshold = 300
+            };
+            
+            var result = AuthorityManager.ExecuteTransactionWithAuthority(Parliament.ContractAddress,
+                nameof(ParliamentMethod.ChangeOrganizationThreshold), input, Full, organizationAddress.ConvertAddress());
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            info = Parliament.GetOrganization(organizationAddress.ConvertAddress());
+            Logger.Info($"After change: {info}");
+        }
+
 
         [TestMethod]
         public void GetOrganization()
@@ -239,6 +260,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"{info.ProposalReleaseThreshold.MaximalRejectionThreshold}");
             Logger.Info($"{info.ProposalReleaseThreshold.MinimalApprovalThreshold}");
             Logger.Info($"{info.ProposalReleaseThreshold.MinimalVoteThreshold}");
+            Logger.Info($"{info.ProposerAuthorityRequired}");
         }
     }
 }

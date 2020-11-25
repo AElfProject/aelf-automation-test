@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
+using AElf.Standards.ACS1;
 using AElf.Contracts.Configuration;
 using AElf.Contracts.MultiToken;
 using AElf.Kernel.SmartContractExecution;
@@ -109,6 +109,24 @@ namespace AElf.Automation.E2ETest.ContractSuits
             var afterValue = ExecutionObserverThreshold.Parser.ParseFrom(afterObserverLimit.Value);
             afterValue.ExecutionBranchThreshold.ShouldBe(executionBranchThreshold);
             afterValue.ExecutionCallThreshold.ShouldBe(executionCallThreshold);
+        }
+
+        [TestMethod]
+        public async Task GetAllConfiguration()
+        {
+            var limitResult =
+                await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                    {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
+            var value = Int32Value.Parser.ParseFrom(limitResult.Value).Value;
+            
+            var observerLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.ExecutionObserverThreshold)});
+            var observerValue = ExecutionObserverThreshold.Parser.ParseFrom(observerLimit.Value);
+
+            var stateLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
+                {Value = nameof(ConfigurationNameProvider.StateSizeLimit)});
+            var stateValue = Int32Value.Parser.ParseFrom(stateLimit.Value).Value;
+            Logger.Info($"{value},{observerValue},{stateValue}");
         }
 
         [TestMethod]

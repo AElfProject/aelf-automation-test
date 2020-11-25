@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs1;
+using AElf.Standards.ACS1;
 using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
 using AElf.Contracts.MultiToken;
@@ -207,20 +207,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task GetMethodFeeController()
         {
-            var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            var controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             Logger.Info($"{controller.ContractAddress} controller is {controller.OwnerAddress}");
         }
 
         [TestMethod]
         public async Task SetMethodFeeThroughDefaultController()
         {
-            var methodFee = await ContractManager.AssociationStub.GetMethodFee.CallAsync(new StringValue
+            var methodFee = await ContractManager.AssociationImplStub.GetMethodFee.CallAsync(new StringValue
             {
                 Value = nameof(AssociationMethod.CreateOrganization)
             });
             methodFee.ShouldBe(new MethodFees());
 
-            var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            var controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             var input = new MethodFees
             {
                 MethodName = nameof(AssociationMethod.CreateOrganization),
@@ -241,7 +241,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var release = ContractManager.Parliament.ReleaseProposal(createProposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
 
-            methodFee = await ContractManager.AssociationStub.GetMethodFee.CallAsync(new StringValue
+            methodFee = await ContractManager.AssociationImplStub.GetMethodFee.CallAsync(new StringValue
             {
                 Value = nameof(AssociationMethod.CreateOrganization)
             });
@@ -300,7 +300,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task ChangeMethodFeeController()
         {
-            var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            var controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             var input = new CreateOrganizationInput
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
@@ -336,7 +336,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ContractManager.Parliament.MinersApproveProposal(createProposal, Miners);
             var release = ContractManager.Parliament.ReleaseProposal(createProposal, InitAccount);
             release.Status.ShouldBe(TransactionResultStatus.Mined);
-            controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             controller.ContractAddress.ShouldBe(associationContract.ConvertAddress());
             controller.OwnerAddress.ShouldBe(newController);
         }
@@ -344,13 +344,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task SetMethodFeeThroughNewController()
         {
-            var methodFee = await ContractManager.AssociationStub.GetMethodFee.CallAsync(new StringValue
+            var methodFee = await ContractManager.AssociationImplStub.GetMethodFee.CallAsync(new StringValue
             {
                 Value = nameof(AssociationMethod.CreateOrganization)
             });
             methodFee.Fees.Select(l => l.BasicFee).First().ShouldBe(10000000);
 
-            var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            var controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             var input = new MethodFees
             {
                 MethodName = nameof(AssociationMethod.CreateOrganization),
@@ -371,7 +371,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var release = ContractManager.Association.ReleaseProposal(createProposal, InitAccount);
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-            methodFee = await ContractManager.AssociationStub.GetMethodFee.CallAsync(new StringValue
+            methodFee = await ContractManager.AssociationImplStub.GetMethodFee.CallAsync(new StringValue
             {
                 Value = nameof(AssociationMethod.CreateOrganization)
             });
@@ -382,7 +382,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task ChangeMethodFeeControllerThroughOtherController()
         {
-            var controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            var controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             var input = new CreateOrganizationInput
             {
                 ProposalReleaseThreshold = new ProposalReleaseThreshold
@@ -418,7 +418,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ContractManager.Association.ApproveWithAssociation(createProposal, controller.OwnerAddress);
             var release = ContractManager.Association.ReleaseProposal(createProposal, InitAccount);
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            controller = await ContractManager.AssociationStub.GetMethodFeeController.CallAsync(new Empty());
+            controller = await ContractManager.AssociationImplStub.GetMethodFeeController.CallAsync(new Empty());
             controller.ContractAddress.ShouldBe(associationContract.ConvertAddress());
             controller.OwnerAddress.ShouldBe(newController);
         }

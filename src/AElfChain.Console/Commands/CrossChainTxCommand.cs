@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Acs0;
+using AElf.Standards.ACS0;
 using AElf;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -76,6 +76,12 @@ namespace AElfChain.Console.Commands
                     case "Transfer[Side-Main]":
                         AsyncHelper.RunSync(TransferSide2Main);
                         break;
+                    case "CheckIndex[Main-Side]":
+                        AsyncHelper.RunSync(CheckIndexMainToSide);
+                        break;
+                    case "CheckIndex[Side-Main]":
+                        AsyncHelper.RunSync(CheckIndexSideToMain);
+                        break;
                     case "Exit":
                         quitCommand = true;
                         break;
@@ -104,7 +110,7 @@ namespace AElfChain.Console.Commands
 
         private async Task MainChainRegisterSideChain()
         {
-            var transactionResult = await SideContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
+            var transactionResult = await SideContract.GenesisImplStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
                     Address = SideContract.Token.Contract,
@@ -139,7 +145,7 @@ namespace AElfChain.Console.Commands
 
         private async Task SideChainRegisterMainChain()
         {
-            var transactionResult = await MainContract.GenesisStub.ValidateSystemContractAddress.SendAsync(
+            var transactionResult = await MainContract.GenesisImplStub.ValidateSystemContractAddress.SendAsync(
                 new ValidateSystemContractAddressInput
                 {
                     Address = MainContract.Token.Contract,
@@ -388,6 +394,20 @@ namespace AElfChain.Console.Commands
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var afterBalance = MainContract.Token.GetUserBalance(to, symbol);
             Logger.Info($"{to} {symbol} balance: {beforeBalance} => {afterBalance}");
+        }
+
+        private async Task CheckIndexMainToSide()
+        {
+            var sideChainId = SideContract.ChainId;
+            var index = await MainContract.CrossChainStub.GetSideChainHeight.CallAsync(new Int32Value{Value = sideChainId});
+            Logger.Info($"Main chain index side chain {sideChainId} {index}");
+        }
+        
+        private async Task CheckIndexSideToMain()
+        {
+            var sideChainId = SideContract.ChainId;
+            var index = await SideContract.CrossChainStub.GetParentChainHeight.CallAsync(new Empty());
+            Logger.Info($"Side chain {sideChainId} index main chain {index}");
         }
 
         private IEnumerable<string> GetSubCommands()

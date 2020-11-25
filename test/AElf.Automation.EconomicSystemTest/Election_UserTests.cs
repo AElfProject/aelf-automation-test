@@ -78,9 +78,48 @@ namespace AElf.Automation.EconomicSystemTest
 
             Logger.Info($"{term.TermNumber}, {fee}");
         }
+        
+         [TestMethod]
+        public void One_Vote_One_Candidates_ForBP()
+        {
+            var amount = 1000_00000000;
+            long fee = 0;
+            var lockTime = 60;
+            var i = 1;
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+            var voter = Voter.First();
+            var candidate = FullNodeAddress[0];
+            var transfer = Behaviors.TokenService.TransferBalance(InitAccount, voter, 20000_00000000);
+                var transferFee = transfer.GetDefaultTransactionFee();
+                fee = transferFee;
+                
+            
+                var voteResult = Behaviors.UserVote(voter, candidate, lockTime * i, amount);
+                var voteFee = voteResult.GetDefaultTransactionFee();
+                fee += voteFee;
+                var voteId = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(voteResult.ReturnValue));
+                var logVoteId = Voted.Parser
+                    .ParseFrom(ByteString.FromBase64(
+                        voteResult.Logs.First(l => l.Name.Equals(nameof(Voted))).NonIndexed))
+                    .VoteId;
+                var voteRecord = Behaviors.VoteService.CallViewMethod<VotingRecord>(VoteMethod.GetVotingRecord, voteId);
+                voteRecord.Amount.ShouldBe(amount);
+                Logger.Info($"vote id is: {voteId}\n" +
+                            $"{logVoteId}\n" +
+                            $"{voteRecord.Amount}\n" +
+                            $"time: {lockTime * i}");
+                voteResult.ShouldNotBeNull();
+                voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var result =
+                    Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords,
+                        new StringValue {Value = NodeManager.AccountManager.GetPublicKey(candidate)});
+                result.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(voteId);
+                Logger.Info($"{result.ObtainedActiveVotedVotesAmount}");
+                Logger.Info($"{term.TermNumber}, {fee}");
+        }
 
         [TestMethod]
-        [DataRow("3f0e46bf7fe01f416444f1396827ea07217437aef29196252566bba3c0594c52")]
+        [DataRow("9e40e8a0491d7a2aa3332b1c3410861c0e87e101e44d5a09ae10758e0e34bc54")]
         public void ChangeUserVote(string hash)
         {
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
@@ -197,12 +236,14 @@ namespace AElf.Automation.EconomicSystemTest
             var account = "7BSmhiLtVqHSUVGuYdYbsfaZUGpkL2ingvCmVPx66UR5L5Lbs";
             var voteId = "2888302e588dd3506aca811d0b81f686feb12e3a7218578d62fd45fbac36edae";
             var amount = 100000000000;
-            Behaviors.ElectionService.SetAccount(account);
+            var votesInfo = Behaviors.GetVotesInformation(account);
+            var voteIds = votesInfo.ActiveVotingRecordIds;
             var beforeVoteBalance = Behaviors.TokenService.GetUserBalance(account, "VOTE");
             var beforeShareBalance = Behaviors.TokenService.GetUserBalance(account, "SHARE");
             beforeShareBalance.ShouldBe(beforeVoteBalance);
 
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
+            Behaviors.ElectionService.SetAccount(BpNodeAddress[1]);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
                     Hash.LoadFromHex(voteId));
