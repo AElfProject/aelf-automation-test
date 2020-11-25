@@ -81,7 +81,8 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (publicKeysList.Concat(initialPubkeys).Contains(fullNode.PublicKey))
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
-                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection,
+                    fullNode.Account.ConvertAddress());
                 if (electionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                 {
                     count++;
@@ -112,6 +113,7 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                             .WriteErrorLine();
                         throw new FileNotFoundException();
                     }
+
                     //get public key
                     var publicKey = accountManager.GetPublicKey(node.Account, node.Password);
                     node.PublicKey = publicKey;
@@ -122,8 +124,10 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                     {
                         Token.TransferBalance(AllNodes.First().Account, node.Account, 200000_0000000);
                     }
+
                     var election = Election.GetNewTester(node.Account, node.Password);
-                    var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection, new Empty());
+                    var electionResult = election.ExecuteMethodWithResult(ElectionMethod.AnnounceElection,
+                        node.Account.ConvertAddress());
                     if (electionResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined)
                     {
                         Logger.Info($"User {node.Account} announcement election success.");
@@ -152,7 +156,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
                 if (!candidatesKeysList.Contains(fullNode.PublicKey) || minerKeysList.Contains(fullNode.PublicKey))
                     continue;
                 var election = Election.GetNewTester(fullNode.Account, fullNode.Password);
-                var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new Empty());
+                var quitPubkey = Election.NodeManager.GetAccountPublicKey(fullNode.Account);
+                Logger.Info($"Quite public key: {quitPubkey}");
+                var quitResult = election.ExecuteMethodWithResult(ElectionMethod.QuitElection, new StringValue{Value = quitPubkey});
                 if (quitResult.Status.ConvertTransactionResultStatus() != TransactionResultStatus.Mined) continue;
                 Logger.Info($"User {fullNode.Account} quit election success.");
                 var newCandidates = UserScenario.GetCandidates(Election); //update candidates list
