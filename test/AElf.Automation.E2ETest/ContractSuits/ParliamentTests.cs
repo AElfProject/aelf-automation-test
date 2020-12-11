@@ -10,6 +10,7 @@ using AElfChain.Common.Helpers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.BouncyCastle.Bcpg;
 using Shouldly;
 
 namespace AElf.Automation.E2ETest.ContractSuits
@@ -144,6 +145,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization.ProposalReleaseThreshold.MaximalAbstentionThreshold.ShouldBe(3000);
         }
 
+        // Only defaultOrganization can change White List
         [TestMethod]
         public void ParliamentChangeWhiteList_False()
         {
@@ -193,7 +195,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
 
             parliament.MinersApproveProposal(proposalId, miners);
             var release = parliament.ExecuteMethodWithResult(ParliamentMethod.Release, proposalId);
-            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Failed);
+            release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            release.Error.ShouldContain("No permission");
         }
 
         [TestMethod]

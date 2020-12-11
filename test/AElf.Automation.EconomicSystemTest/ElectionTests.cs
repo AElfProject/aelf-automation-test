@@ -26,7 +26,6 @@ namespace AElf.Automation.EconomicSystemTest
         protected List<string> FullNodeAddress { get; set; }
         protected List<string> ReplaceAddress { get; set; }
         protected List<string> Voter { get; set; }
-        protected static List<string> UserList { get; set; }
         public Dictionary<SchemeType, Scheme> Schemes { get; set; }
         
         protected void Initialize()

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
 using AElf.Contracts.MultiToken;
@@ -234,9 +235,10 @@ namespace AElf.Automation.E2ETest.ApiSuits
             rawTransactionResult.Transaction.To.ShouldBe(to);
             rawTransactionResult.TransactionId.ShouldBe(transactionId.ToHex());
             Logger.Info($"Transaction id : {rawTransactionResult.TransactionId}");
-
+            Thread.Sleep(5000);
             var status = await Client.GetTransactionResultAsync(rawTransactionResult.TransactionId);
-            status.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            status.Status.ConvertTransactionResultStatus().ShouldNotBe(TransactionResultStatus.NodeValidationFailed);
+            Logger.Info(status.Status);
         }
     }
 }

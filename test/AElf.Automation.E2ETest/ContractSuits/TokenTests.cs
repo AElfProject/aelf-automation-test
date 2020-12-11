@@ -197,7 +197,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
         [TestMethod]
         public async Task SetAndGetMethodFee_Test()
         {
-            const string method = nameof(TokenMethod.GetBalance);
+            const string method = nameof(TokenMethod.Transfer);
             var releaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
                 ContractManager.Token.ContractAddress,
                 "SetMethodFee", new MethodFees
@@ -234,14 +234,31 @@ namespace AElf.Automation.E2ETest.ContractSuits
             });
             buyResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var beforeCpu = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, "CPU");
-            var getBalanceResult = await ContractManager.TokenStub.GetBalance.SendAsync(new GetBalanceInput
+            var transferResult = await ContractManager.TokenStub.Transfer.SendAsync(new TransferInput
             {
-                Owner = ContractManager.CallAccount,
-                Symbol = "CPU"
+                Symbol = "ELF",
+                To = AssociationOrganization,
+                Amount = 1000
             });
-            getBalanceResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            transferResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterCpu = ContractManager.Token.GetUserBalance(ContractManager.CallAddress, "CPU");
             beforeCpu.ShouldBe(afterCpu + 5000_0000);
+            
+            var recoverReleaseResult = ContractManager.Authority.ExecuteTransactionWithAuthority(
+                ContractManager.Token.ContractAddress,
+                "SetMethodFee", new MethodFees
+                {
+                    MethodName = method,
+                    Fees = { }
+                }, ContractManager.CallAddress);
+            recoverReleaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
+
+            var recoverMethodFee =
+                ContractManager.Token.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
+                {
+                    Value = method
+                });
+            recoverMethodFee.MethodName.ShouldBe(method);
         }
 
         [TestMethod]

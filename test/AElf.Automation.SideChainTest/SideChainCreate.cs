@@ -120,54 +120,56 @@ namespace AElf.Automation.SideChainTests
         [TestMethod]
         public void CheckSideToken()
         {
-            var symbol = SideAServices.TokenService.GetPrimaryTokenSymbol();
+            var service = SideServices.First();
+            var symbol = service.TokenService.GetPrimaryTokenSymbol();
             foreach (var member in Members)
-                SideAServices.TokenService.TransferBalance(OtherAccount, member, 100_00000000, symbol);
+                service.TokenService.TransferBalance(OtherAccount, member, 100_00000000, symbol);
 
             var associationOrganization = SideAuthorityManager.CreateAssociationOrganization(Members);
             var account = "2uNAVbedkZQENDayADxRqW5AEXH9H2eLr7Rke82otyVrSLbDpm";
-            var tokenInfo = SideAServices.TokenService.GetTokenInfo(symbol);
+            var tokenInfo = service.TokenService.GetTokenInfo(symbol);
             tokenInfo.Issuer.ShouldBe(associationOrganization);
-            var balance = SideAServices.TokenService.GetUserBalance(account, symbol);
-            var userBalance = SideAServices.TokenService.GetUserBalance(OtherAccount, symbol);
+            var balance = service.TokenService.GetUserBalance(account, symbol);
+            var userBalance = service.TokenService.GetUserBalance(OtherAccount, symbol);
 
             var input = new ChangeTokenIssuerInput
             {
                 NewTokenIssuer = OtherAccount.ConvertAddress(),
                 Symbol = "STD"
             };
-            var proposer = SideAServices.AssociationService.GetOrganization(associationOrganization).ProposerWhiteList
+            var proposer = service.AssociationService.GetOrganization(associationOrganization).ProposerWhiteList
                 .Proposers.First().ToBase58();
-            var changeProposal = SideAServices.AssociationService.CreateProposal(
-                SideAServices.TokenService.ContractAddress,
+            var changeProposal = service.AssociationService.CreateProposal(
+                service.TokenService.ContractAddress,
                 nameof(TokenMethod.ChangeTokenIssuer), input, associationOrganization,
                 proposer);
-            ApproveWithAssociation(SideAServices, changeProposal, associationOrganization);
-            var release = ReleaseWithAssociation(SideAServices, changeProposal, proposer);
+            ApproveWithAssociation(service, changeProposal, associationOrganization);
+            var release = ReleaseWithAssociation(service, changeProposal, proposer);
             release.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            tokenInfo = SideAServices.TokenService.GetTokenInfo(symbol);
+            tokenInfo = service.TokenService.GetTokenInfo(symbol);
             tokenInfo.Issuer.ShouldBe(OtherAccount.ConvertAddress());
         }
 
         [TestMethod]
-        public void RequestSideChainCreation()
+        public void  RequestSideChainCreation()
         {
             foreach (var member in Members)
                 MainServices.TokenService.TransferBalance(InitAccount, member, 1000_000000000);
             var controller = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
-            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
-                .First();
-            TokenApprove(MainServices, proposer.ToBase58(), 1000000);
+//            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
+//                .First();
+            var proposer = TestAccount;
+//            TokenApprove(MainServices, proposer, 1000000);
 
             var sideChainTokenCreationRequest = new SideChainTokenCreationRequest
             {
                 SideChainTokenDecimals = 8,
-                SideChainTokenName = $"Side chain token STD",
-                SideChainTokenSymbol = "STD",
+                SideChainTokenName = "Side chain token STB",
+                SideChainTokenSymbol = "STB",
                 SideChainTokenTotalSupply = 10_00000000_00000000
             };
             var proposal =
-                RequestSideChainCreation(MainServices, proposer.ToBase58(), "123", 1, 1000000, true, sideChainTokenCreationRequest);
+                RequestSideChainCreation(MainServices, proposer, "123", 0, 0, false);
             Logger.Info($"proposal id is: {proposal}");
         }
 
@@ -181,7 +183,7 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("4c075565962d2c8f90fe45817145ce0b3eafe65b818daccabf91f3d3ed9cce1c")]
+        [DataRow("c9e158dd80acfc27e1bb151c82a8758bdcac5ad845cc600b5355728a10b17305")]
         public void ApproveProposal(string proposalId)
         {
             var proposal = Hash.LoadFromHex(proposalId);
@@ -189,13 +191,14 @@ namespace AElf.Automation.SideChainTests
         }
 
         [TestMethod]
-        [DataRow("512f7b0371f4bf13f224c13d61c95d68bca278c5854ef5e29c7f61e7f29159a0")]
+        [DataRow("c9e158dd80acfc27e1bb151c82a8758bdcac5ad845cc600b5355728a10b17305")]
         public void ReleaseSideChainCreation(string proposalId)
         {
             var controller = MainServices.CrossChainService.GetSideChainLifetimeController().OwnerAddress;
-            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
-                .First();
-            MainServices.CrossChainService.SetAccount(proposer.ToBase58());
+//            var proposer = MainServices.AssociationService.GetOrganization(controller).ProposerWhiteList.Proposers
+//                .First();
+            var proposer = InitAccount;
+            MainServices.CrossChainService.SetAccount(proposer);
             var result
                 = MainServices.CrossChainService.ExecuteMethodWithResult(
                     CrossChainContractMethod.ReleaseSideChainCreation,
@@ -210,8 +213,23 @@ namespace AElf.Automation.SideChainTests
                 .ParseFrom(byteString);
             var chainId = sideChainCreatedEvent.ChainId;
             var creator = sideChainCreatedEvent.Creator;
-            creator.ShouldBe(proposer);
-            Logger.Info($"SideChain id is {chainId}, creator {creator}");
+            Address organization;
+            if (result.Logs.FirstOrDefault(l => l.Name.Contains(nameof(OrganizationCreated))) == null)
+            {
+                var sideChainLifetimeController = MainServices.CrossChainService.CallViewMethod<AuthorityInfo>(
+                    CrossChainContractMethod.GetSideChainLifetimeController,
+                    new Empty());
+                organization = sideChainLifetimeController.OwnerAddress;
+            }
+            else
+            { 
+                organization = OrganizationCreated.Parser
+                    .ParseFrom(ByteString.FromBase64(result.Logs
+                        .First(l => l.Name.Contains(nameof(OrganizationCreated)))
+                        .NonIndexed)).OrganizationAddress;
+            }
+            creator.ShouldBe(proposer.ConvertAddress());
+            Logger.Info($"SideChain id is {chainId}, creator {creator}, organization {organization}");
         }
 
         [TestMethod]

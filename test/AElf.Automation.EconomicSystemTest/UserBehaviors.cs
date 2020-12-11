@@ -76,7 +76,48 @@ namespace AElf.Automation.EconomicSystemTest
             return vote;
         }
          
-         public List<string> UserVoteWithTxIds(string account, string candidate, int lockTime, int times)
+        public TransactionResultDto UserWithdraw(string account, string voteId, long amount)
+        {
+            //check balance
+            var beforeBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                new GetBalanceInput
+                {
+                    Owner = account.ConvertAddress(),
+                    Symbol = NodeOption.NativeTokenSymbol
+                }).Balance;
+            
+            var beforeVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance,
+                new GetBalanceInput
+                {
+                    Owner =  account.ConvertAddress(),
+                    Symbol = "SHARE"
+                }).Balance;
+
+            ElectionService.SetAccount(account);
+            var withdraw = ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
+                    Hash.LoadFromHex(voteId));
+            withdraw.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var fee = withdraw.GetDefaultTransactionFee();
+            
+            var afterBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner =  account.ConvertAddress(),
+                Symbol = NodeOption.NativeTokenSymbol
+            }).Balance;
+            
+            var afterVoteBalance = TokenService.CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
+            {
+                Owner =  account.ConvertAddress(),
+                Symbol = "SHARE"
+            }).Balance;
+            
+            afterBalance.ShouldBe(beforeBalance + amount - fee);
+            afterVoteBalance.ShouldBe(beforeVoteBalance - amount);
+
+            return withdraw;
+        }
+
+                 public List<string> UserVoteWithTxIds(string account, string candidate, int lockTime, int times)
         {
             ElectionService.SetAccount(account);
             var list = new List<string>();

@@ -92,6 +92,7 @@ namespace AElfChain.Common.Managers
                 approveUsers = GetMinApproveMiners();
                 proposalNewContact = _genesis.ProposeNewContract(input, caller);
             }
+
             proposalNewContact.Status.ShouldBe(TransactionResultStatus.Mined);
 
             var proposalId = ProposalCreated.Parser
@@ -106,7 +107,7 @@ namespace AElfChain.Common.Managers
                 ProposalId = proposalId,
                 ProposedContractInputHash = proposalHash
             };
-            
+
             Logger.Info($"To calculate the approve count: {approveUsers.Count}");
             var transactionResult = ApproveAndRelease(releaseInput, approveUsers, caller);
             if (!transactionResult.Equals(null))
@@ -135,13 +136,14 @@ namespace AElfChain.Common.Managers
                 var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease, caller);
                 release.Status.ShouldBe("MINED");
                 var byteString3 =
-                    ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+                    ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed)))
+                        .NonIndexed);
                 var deployAddress = ContractDeployed.Parser.ParseFrom(byteString3).Address;
                 Logger.Info($"Contract deploy passed authority, contract address: {deployAddress}");
 
                 return deployAddress;
             }
-            
+
             Logger.Info($"Approve {releaseInput.ProposalId} failed.");
             return null;
         }
@@ -168,6 +170,7 @@ namespace AElfChain.Common.Managers
                 approveUsers = GetMinApproveMiners();
                 proposalUpdateContact = _genesis.ProposeUpdateContract(input, caller);
             }
+
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(proposalUpdateContact.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed)
                 .ProposalId;
@@ -202,7 +205,8 @@ namespace AElfChain.Common.Managers
                 var release = _genesis.ReleaseCodeCheckedContract(checkCodeRelease, caller);
                 release.Status.ShouldBe("MINED");
                 var byteString =
-                    ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).Indexed.First());
+                    ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).Indexed
+                        .First());
                 var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
                 Logger.Info($"Contract update passed authority, contract address: {updateAddress}");
             }
@@ -381,29 +385,28 @@ namespace AElfChain.Common.Managers
                     alreadyApprove.Add(user);
                 }
             }
+
             Thread.Sleep(2000);
             Logger.Info($"Except approve count {enumerable.Length}, in fact approve count {alreadyApprove.Count}");
-            
+
             var info = _parliament.CheckProposal(input.ProposalId);
             if (info.ToBeReleased)
                 return _genesis.ReleaseApprovedContract(input, callUser);
-
-            if (!info.ToBeReleased && info.ApprovalCount < enumerable.Length)
+            
+            var currentMiner = GetCurrentMiners();
+            foreach (var miner in currentMiner)
             {
-                var currentMiner = GetCurrentMiners();
-                foreach (var miner in currentMiner)
-                {
-                    if (alreadyApprove.Contains(miner)) continue;
-                    var txId = _parliament.Approve(input.ProposalId, miner);
-                    var result = NodeManager.CheckTransactionResult(txId);
-                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                    Logger.Info($"{miner} approve proposal {input.ProposalId.ToHex()}");
+                if (alreadyApprove.Contains(miner)) continue;
+                var txId = _parliament.Approve(input.ProposalId, miner);
+                var result = NodeManager.CheckTransactionResult(txId);
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                Logger.Info($"{miner} approve proposal {input.ProposalId.ToHex()}");
 
-                    info = _parliament.CheckProposal(input.ProposalId);
-                    if (info.ToBeReleased)
-                        return _genesis.ReleaseApprovedContract(input, callUser);
-                }
+                info = _parliament.CheckProposal(input.ProposalId);
+                if (info.ToBeReleased)
+                    return _genesis.ReleaseApprovedContract(input, callUser);
             }
+
             return null;
         }
 
@@ -439,7 +442,7 @@ namespace AElfChain.Common.Managers
             Logger.Info("Check bp balance and transfer for authority.");
             var bps = GetCurrentMiners();
             var primaryToken = NodeManager.GetPrimaryTokenSymbol();
-            var callerBalance = _token.GetUserBalance(caller,primaryToken);
+            var callerBalance = _token.GetUserBalance(caller, primaryToken);
             if (callerBalance <= 1000_00000000 * bps.Count)
                 return;
             foreach (var bp in bps)
@@ -501,7 +504,7 @@ namespace AElfChain.Common.Managers
                 code = CodeInjectHelper.ChangeContractCodeHash(code);
             }
         }
-        
+
         private byte[] CheckCode(byte[] code)
         {
             while (true)

@@ -163,7 +163,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
                     MinimalVoteThreshold = 4
                 },
                 ProposerWhiteList = new ProposerWhiteList {Proposers = {proposer}},
-                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {enumerable}}
+                OrganizationMemberList = new OrganizationMemberList {OrganizationMembers = {enumerable}},
+                CreationToken = HashHelper.ComputeFrom("123")
             };
             var result = association.ExecuteMethodWithResult(AssociationMethod.CreateOrganization,
                 createInput);
@@ -192,13 +193,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization =
                 association.GetOrganization(organizationAddress);
             organization.ProposerWhiteList.Proposers.Contains(newProposer).ShouldBeTrue();
-
-            var changeMemberInput = new OrganizationMemberList
-            {
-                OrganizationMembers = {enumerable.Take(5).ToList()}
-            };
+            
             var changeMemberProposalId = association.CreateProposal(association.ContractAddress,
-                nameof(AssociationMethod.ChangeOrganizationMember), changeMemberInput, organizationAddress,
+                nameof(AssociationMethod.RemoveMember), enumerable.Last(), organizationAddress,
                 newProposer.ToBase58());
             association.ApproveWithAssociation(changeMemberProposalId, organizationAddress);
             association.SetAccount(newProposer.ToBase58());
@@ -206,7 +203,7 @@ namespace AElf.Automation.E2ETest.ContractSuits
             changeMemberRelease.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             organization =
                 association.GetOrganization(organizationAddress);
-            organization.OrganizationMemberList.OrganizationMembers.Count.ShouldBe(5);
+            organization.OrganizationMemberList.OrganizationMembers.Count.ShouldBe(enumerable.Length - 1);
 
             //revert 
             var revertProposerInput = new ProposerWhiteList
@@ -223,13 +220,9 @@ namespace AElf.Automation.E2ETest.ContractSuits
             organization =
                 association.GetOrganization(organizationAddress);
             organization.ProposerWhiteList.Proposers.Contains(proposer).ShouldBeTrue();
-
-            var revertMemberInput = new OrganizationMemberList
-            {
-                OrganizationMembers = {enumerable}
-            };
+            
             var revertMemberProposalId = association.CreateProposal(association.ContractAddress,
-                nameof(AssociationMethod.ChangeOrganizationMember), revertMemberInput, organizationAddress,
+                nameof(AssociationMethod.AddMember), enumerable.Last(), organizationAddress,
                 proposer.ToBase58());
             association.ApproveWithAssociation(revertMemberProposalId, organizationAddress);
             association.SetAccount(proposer.ToBase58());

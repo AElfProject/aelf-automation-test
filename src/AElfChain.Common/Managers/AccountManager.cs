@@ -99,7 +99,7 @@ namespace AElfChain.Common.Managers
             switch (tryOpen)
             {
                 case KeyStoreErrors.WrongPassword:
-                    Logger.Error("Incorrect password!");
+                    Logger.Error($"{address}: Incorrect password!");
                     break;
                 case KeyStoreErrors.AccountAlreadyUnlocked:
                     return true;

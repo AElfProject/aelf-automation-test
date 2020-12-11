@@ -160,8 +160,8 @@ namespace AElf.Automation.E2ETest.ContractSuits
         public async Task GetFeeReceiverAddress_Test()
         {
             var feeReceiverAddress =
-                await ContractManager.TokenconverterStub.GetFeeReceiverAddress.CallAsync(new Empty());
-            feeReceiverAddress.ShouldBe(ContractManager.Treasury.Contract);
+                await ContractManager.TokenImplStub.GetFeeReceiver.CallAsync(new Empty());
+            feeReceiverAddress.ShouldBe(new Address());
         }
 
         [TestMethod]

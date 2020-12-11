@@ -91,7 +91,7 @@ namespace AElf.Automation.EconomicSystemTest
         [TestMethod]
         public void SetAdmin_ThroughParliament()
         {
-            var account = InitAccount;
+            var account = BpNodeAddress[0];
             var pubkey = Behaviors.NodeManager.GetAccountPublicKey(account);
             var admin = Behaviors.ElectionService.GetCandidateAdmin(pubkey);
             var organization = Behaviors.ParliamentService.GetGenesisOwnerAddress();
@@ -271,13 +271,7 @@ namespace AElf.Automation.EconomicSystemTest
             var maximumMinersCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
             Logger.Info($"{maximumMinersCount}");
         }
-
-        [TestMethod]
-        [DataRow(0)]
-        public void GetVotesInformationResult(int nodeId)
-        {
-            var records = Behaviors.GetElectorVoteWithAllRecords(UserList[nodeId]);
-        }
+        
 
         [TestMethod]
         public void GetMaximumBlocksCount()
@@ -373,7 +367,12 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var candidates = Behaviors.GetCandidates();
             Logger.Info($"Candidate count: {candidates.Value.Count}");
-            foreach (var candidate in candidates.Value) Logger.Info($"Candidate: {candidate.ToByteArray().ToHex()}");
+            foreach (var candidate in candidates.Value)
+            {
+                var account = Address.FromPublicKey(candidate.ToByteArray());
+                Logger.Info($"Address: {account} \n " + 
+                         $"Candidate: {candidate.ToByteArray().ToHex()}");
+            }
         }
         
         [TestMethod]
@@ -382,9 +381,14 @@ namespace AElf.Automation.EconomicSystemTest
             var voteRankList = Behaviors.GetDataCenterRankingList();
             var rankInfo = voteRankList.DataCenters.OrderByDescending(o => o.Value).ToList();
             Logger.Info(rankInfo.Count());
+            var i = 1;
             foreach (var info in rankInfo)
             {
-                Logger.Info( $"PublicKey={info.Key}  Tickets={info.Value}");
+                var account = Address.FromPublicKey(ByteArrayHelper.HexStringToByteArray(info.Key));
+                Logger.Info( $"{i}: PublicKey={info.Key} \n" +
+                             $"Account={account}  " +
+                             $" Tickets={info.Value}");
+                i++;
             }
         }
 

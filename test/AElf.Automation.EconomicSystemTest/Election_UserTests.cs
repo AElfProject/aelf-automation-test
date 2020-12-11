@@ -10,7 +10,9 @@ using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using Google.Protobuf;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
@@ -47,6 +49,16 @@ namespace AElf.Automation.EconomicSystemTest
                 var transferFee = transfer.GetDefaultTransactionFee();
                 fee += transferFee;
             }
+
+//            for (int j = 0; j < FullNodeAddress.Count; j++)
+//            {
+//                var k = j;
+//                while (k > Voter.Count - 1)
+//                {
+//                    k = k - Voter.Count;
+//                }
+//                voterInfo.Add(FullNodeAddress[j], Voter[k]);
+//            }
 
             for (int j = 0; j < Voter.Count; j++)
                 voterInfo.Add(FullNodeAddress[j], Voter[j]);
@@ -169,6 +181,14 @@ namespace AElf.Automation.EconomicSystemTest
                 fee += sizeFee;
                 var afterBalance = Behaviors.TokenService.GetUserBalance(voter);
                 afterBalance.ShouldBe(beforeBalance + profitAmount - sizeFee);
+                
+                var claimProfit = profitResult.Logs.Where(l => l.Name.Contains(nameof(ProfitsClaimed))).ToList();
+                foreach (var cf in claimProfit)
+                {
+                    var info = ProfitsClaimed.Parser.ParseFrom(ByteString.FromBase64(cf.NonIndexed));
+                    Logger.Info($"{info.Period}: {info.Amount}");
+                }
+                
                 var afterProfitAmount = profit.GetProfitsMap(voter, schemeId);
 //                afterProfitAmount.Equals(new ReceivedProfitsMap()).ShouldBeTrue();
                 Logger.Info($"{term.TermNumber} after profit amount is {afterProfitAmount},user balance {afterBalance}");
@@ -208,25 +228,47 @@ namespace AElf.Automation.EconomicSystemTest
             var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
             var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
-
+            int i = 0;
+            var term = Behaviors.ConsensusService.GetCurrentTermInformation();
+            Logger.Info(term.TermNumber);
             foreach (var candidate in FullNodeAddress)
             {
-                var profitMap = profit.GetProfitsMap(candidate, BackupSubsidy);
+                i++;
+//                var account = Address.FromPublicKey(candidate);
+                var account = candidate.ConvertAddress();
+                
+                var profitMap = profit.GetProfitsMap(account.ToBase58(), BackupSubsidy);
                 if (profitMap.Equals(new ReceivedProfitsMap()))
-                    continue;
-                var profitAmountFull = profitMap.Value["ELF"];
-                Logger.Info($"Profit amount: user {candidate} profit amount is {profitAmountFull}");
-                var beforeBalance = Behaviors.TokenService.GetUserBalance(candidate);
-                var newProfit = profit.GetNewTester(candidate);
-                var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+                    Logger.Info($"{i}: Profit amount: user {account} profit amount is {profitMap}");
+                else
                 {
-                    SchemeId = BackupSubsidy,
-                    Beneficiary = candidate.ConvertAddress()
-                });
-                profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                var fee = profitResult.GetDefaultTransactionFee();
-                var afterBalance = Behaviors.TokenService.GetUserBalance(candidate);
-                afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
+                    var profitAmountFull = profitMap.Value["ELF"];
+                    Logger.Info($"{i}: Profit amount: user {account} profit amount is {profitAmountFull}");
+                    
+                    var beforeBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
+                    if (beforeBalance <= 100000000)
+                    {
+                        Behaviors.TransferToken(InitAccount, account.ToBase58(), 10_00000000);
+                        beforeBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
+                    }
+
+                    var newProfit = profit.GetNewTester(account.ToBase58());
+                    var profitResult = newProfit.ExecuteMethodWithResult(ProfitMethod.ClaimProfits, new ClaimProfitsInput
+                    {
+                        SchemeId = BackupSubsidy,
+                        Beneficiary = account
+                    });
+                    profitResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                    var fee = profitResult.GetDefaultTransactionFee();
+                    var afterBalance = Behaviors.TokenService.GetUserBalance(account.ToBase58());
+                    var claimProfit = profitResult.Logs.Where(l => l.Name.Contains(nameof(ProfitsClaimed))).ToList();
+                    foreach (var cf in claimProfit)
+                    {
+                        var info = ProfitsClaimed.Parser.ParseFrom(ByteString.FromBase64(cf.NonIndexed));
+                        Logger.Info($"{info.Period}: {info.Amount}");
+                    }
+                    afterBalance.ShouldBe(beforeBalance + profitAmountFull - fee);
+                }
             }
         }
 
@@ -243,7 +285,7 @@ namespace AElf.Automation.EconomicSystemTest
             beforeShareBalance.ShouldBe(beforeVoteBalance);
 
             var beforeElfBalance = Behaviors.TokenService.GetUserBalance(account);
-            Behaviors.ElectionService.SetAccount(BpNodeAddress[1]);
+            Behaviors.ElectionService.SetAccount(account);
             var result =
                 Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.Withdraw,
                     Hash.LoadFromHex(voteId));
@@ -256,13 +298,39 @@ namespace AElf.Automation.EconomicSystemTest
             afterVoteBalance.ShouldBe(beforeVoteBalance - amount);
             afterShareBalance.ShouldBe(beforeShareBalance - amount);
             afterElfBalance.ShouldBe(beforeElfBalance +  amount - fee);
-            
+            Logger.Info($"{afterVoteBalance},{afterShareBalance},{afterElfBalance}");
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             var profit = Behaviors.ProfitService;
             var voteProfit =
                 profit.GetProfitDetails(account, schemeId);
             Logger.Info($"20% user vote profit for account: {account}.\r\nDetails number: {voteProfit.Details}");
         }
+        
+        
+        [TestMethod]
+        public void WithdrawAllVote()
+        {
+            Voter.Add(InitAccount);
+            foreach (var voter in Voter)
+            {
+                var voteInfo = Behaviors.GetElectorVoteWithAllRecords(voter);
+                Logger.Info(voteInfo);
+                var allVoteId = voteInfo.ActiveVotingRecordIds;
+                var allVotedRecords = voteInfo.ActiveVotingRecords;
+                if (allVotedRecords.Equals(new RepeatedField<ElectionVotingRecord>()))
+                    continue;
+                Behaviors.ElectionService.SetAccount(voter);
+                foreach (var voteId in allVoteId)
+                {
+                    var electionVotingRecord = allVotedRecords.Where(l => l.VoteId.Equals(voteId)).ToList().First();
+                    var amount = electionVotingRecord.Amount;
+                    var result =
+                        Behaviors.UserWithdraw(voter,voteId.ToHex(),amount);
+                    result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                }
+            }
+        }
+        
 
         [TestMethod]
         public void Vote_All_Candidates_ForBP()
@@ -273,6 +341,16 @@ namespace AElf.Automation.EconomicSystemTest
 
                 voteResult.ShouldNotBeNull();
                 voteResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            }
+        }
+
+        [TestMethod]
+        public void GetVotersVote()
+        {
+            foreach (var voter in Voter)
+            {
+                var voteInfo = Behaviors.GetElectorVoteWithAllRecords(voter);
+                Logger.Info(voteInfo);
             }
         }
 

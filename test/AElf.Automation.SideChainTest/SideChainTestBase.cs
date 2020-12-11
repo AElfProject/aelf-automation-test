@@ -27,9 +27,9 @@ namespace AElf.Automation.SideChainTests
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
         public AuthorityManager AuthorityManager;
         public AuthorityManager SideAuthorityManager;
+
         public ContractServices MainServices;
-        public ContractServices SideAServices;
-        public ContractServices SideBServices;
+
         public List<ContractServices> SideServices;
         public List<string> Miners;
         public static string InitAccount;
@@ -58,13 +58,8 @@ namespace AElf.Automation.SideChainTests
                 var sideServices = new ContractServices(side, InitAccount, password);
                 SideServices.Add(sideServices);
             }
-
-            SideAServices = SideServices.First();
-            SideBServices = new ContractServices(sideUrls[1], InitAccount, NodeOption.DefaultPassword);
-            
             AuthorityManager = new AuthorityManager(MainServices.NodeManager,InitAccount);
-            SideAuthorityManager = new AuthorityManager(SideAServices.NodeManager,InitAccount);
-            SideAuthorityManager = new AuthorityManager(SideBServices.NodeManager,InitAccount);
+            SideAuthorityManager = new AuthorityManager(SideServices.First().NodeManager,InitAccount);
 
             TokenContractStub = MainServices.TokenContractStub;
             Miners = new List<string>();
@@ -171,32 +166,54 @@ namespace AElf.Automation.SideChainTests
 
         protected Hash RequestSideChainCreation(ContractServices services, string creator, string password,
             long indexingPrice, long lockedTokenAmount, bool isPrivilegePreserved,
-            SideChainTokenCreationRequest tokenInfo)
+            SideChainTokenCreationRequest tokenInfo = null)
         {
             services.CrossChainService.SetAccount(creator, password);
-            var issue = new SideChainTokenInitialIssue
+            if (tokenInfo!=null)
             {
-                Address = creator.ConvertAddress(),
-                Amount = 10_0000_0000_0000
-            };
-            var result =
-                services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
-                    new SideChainCreationRequest
-                    {
-                        IndexingPrice = indexingPrice,
-                        LockedTokenAmount = lockedTokenAmount,
-                        IsPrivilegePreserved = isPrivilegePreserved,
-                        SideChainTokenCreationRequest = tokenInfo,
-                        InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
-                        SideChainTokenInitialIssueList = {issue}
-                    });
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
-            var proposalId = ProposalCreated.Parser
-                .ParseFrom(ByteString.FromBase64(byteString))
-                .ProposalId;
-            ;
-            return proposalId;
+                var issue = new SideChainTokenInitialIssue
+                {
+                    Address = creator.ConvertAddress(),
+                    Amount = 10_0000_0000_0000
+                };
+                var result =
+                    services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
+                        new SideChainCreationRequest
+                        {
+                            IndexingPrice = indexingPrice,
+                            LockedTokenAmount = lockedTokenAmount,
+                            IsPrivilegePreserved = isPrivilegePreserved,
+                            SideChainTokenCreationRequest = tokenInfo,
+                            InitialResourceAmount = {{"CPU", 2}, {"RAM", 4}, {"DISK", 512}, {"NET", 1024}},
+                            SideChainTokenInitialIssueList = {issue}
+                        });
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
+                var proposalId = ProposalCreated.Parser
+                    .ParseFrom(ByteString.FromBase64(byteString))
+                    .ProposalId;
+            
+                return proposalId;
+            }
+            else
+            {
+                var result =
+                    services.CrossChainService.ExecuteMethodWithResult(CrossChainContractMethod.RequestSideChainCreation,
+                        new SideChainCreationRequest
+                        {
+                            IndexingPrice = indexingPrice, //0
+                            LockedTokenAmount = lockedTokenAmount, //0
+                            IsPrivilegePreserved = isPrivilegePreserved //false
+                        });
+                result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                var byteString = result.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed;
+                var proposalId = ProposalCreated.Parser
+                    .ParseFrom(ByteString.FromBase64(byteString))
+                    .ProposalId;
+            
+                return proposalId;
+            }
+            
         }
 
         protected TransactionResultDto Recharge(ContractServices services, string account, int chainId, long amount)

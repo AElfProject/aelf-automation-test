@@ -27,26 +27,27 @@ namespace AElf.Automation.SideChainTests
         {
             string txId = "";
             int times = 10;
+            var service = SideServices.Last();
             while (txId.Equals("") && times > 0)
             {
                 foreach (var miner in Miners)
                 {
                     MainServices.CrossChainService.SetAccount(miner);
                     var height = AsyncHelper.RunSync(() => MainServices.NodeManager.ApiClient.GetBlockHeightAsync());
-                    var indexHeight = MainServices.CrossChainService.GetSideChainHeight(SideBServices.ChainId);
+                    var indexHeight = MainServices.CrossChainService.GetSideChainHeight(service.ChainId);
                     var sideChainBlockDataList = new List<SideChainBlockData>();
                     var sideChainHeight =
-                        AsyncHelper.RunSync(() => SideBServices.NodeManager.ApiClient.GetBlockHeightAsync());
+                        AsyncHelper.RunSync(() => service.NodeManager.ApiClient.GetBlockHeightAsync());
                     var checkHeight = sideChainHeight > indexHeight + 10 ? indexHeight + 10 : sideChainHeight;
                     for (var h = indexHeight + 10; h <= checkHeight; h++)
                     {
                         var blockHash = AsyncHelper.RunSync(() =>
-                            SideBServices.NodeManager.ApiClient.GetBlockByHeightAsync(h, false));
+                            service.NodeManager.ApiClient.GetBlockByHeightAsync(h, false));
                         var sideChainBlockData = new SideChainBlockData
                         {
                             BlockHeaderHash = Hash.LoadFromHex(blockHash.BlockHash),
                             Height = h,
-                            ChainId = SideBServices.ChainId,
+                            ChainId = service.ChainId,
                             TransactionStatusMerkleTreeRoot = HashHelper.ComputeFrom(h)
                         };
                         sideChainBlockDataList.Add(sideChainBlockData);
@@ -74,12 +75,13 @@ namespace AElf.Automation.SideChainTests
         public void  ReleaseCrossChainIndexingProposal()
         {
             var miner = Miners.Take(1).ToList().First();
+            var service = SideServices.Last();
             for (int i = 0; i < 10; i++)
             {
                 MainServices.CrossChainService.SetAccount(miner);
                 var input = new ReleaseCrossChainIndexingProposalInput
                 {
-                    ChainIdList = {SideBServices.ChainId}
+                    ChainIdList = {service.ChainId}
                 };
                 var result =
                     MainServices.CrossChainService.ExecuteMethodWithResult(

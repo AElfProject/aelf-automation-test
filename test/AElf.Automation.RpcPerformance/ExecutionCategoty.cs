@@ -156,21 +156,24 @@ namespace AElf.Automation.RpcPerformance
             if (miners.Count >= ThreadCount)
                 for (var i = 0; i < ThreadCount; i++)
                 {
-                    var balance = TokenMonitor.SystemToken.GetUserBalance(miners[i]);
+                    var currentMiners = authority.GetCurrentMiners();
+                    var balance = TokenMonitor.SystemToken.GetUserBalance(currentMiners[i]);
                     if (balance < 1000_00000000)
-                        TokenMonitor.SystemToken.TransferBalance(bps.First().Account, miners[i], 10000_00000000, "ELF");
+                        TokenMonitor.SystemToken.TransferBalance(bps.First().Account, currentMiners[i], 10000_00000000,
+                            "ELF");
                     Logger.Info($"{miners[i]} deploy contract:");
                     var contractAddress =
-                        authority.DeployContractWithAuthority(miners[i], "AElf.Contracts.MultiToken");
+                        authority.DeployContractWithAuthority(currentMiners[i], "AElf.Contracts.MultiToken");
                     if (contractAddress.Equals(null))
                         i -= 1;
                     else
-                        ContractList.Add(new ContractInfo(miners[i], contractAddress.ToBase58()));
+                        ContractList.Add(new ContractInfo(currentMiners[i], contractAddress.ToBase58()));
                 }
             else
                 for (var i = 0; i < ThreadCount;)
                 {
-                    foreach (var miner in miners)
+                    var currentMiners = authority.GetCurrentMiners();
+                    foreach (var miner in currentMiners)
                     {
                         var contractAddress =
                             authority.DeployContractWithAuthority(miner, "AElf.Contracts.MultiToken");
@@ -207,7 +210,7 @@ namespace AElf.Automation.RpcPerformance
                 var account = AccountList[i].Account;
                 var balance = TokenMonitor.SystemToken.GetUserBalance(account);
                 if (balance < 1000_00000000)
-                    TokenMonitor.SystemToken.TransferBalance(creator,account,1000_00000000);
+                    TokenMonitor.SystemToken.TransferBalance(creator, account, 1000_00000000);
                 var authority = new AuthorityManager(NodeManager, account);
                 var contractAddress = authority.DeployContractWithAuthority(account, "AElf.Contracts.MultiToken");
                 ContractList.Add(new ContractInfo(account, contractAddress.ToBase58()));
@@ -228,7 +231,7 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = TesterTokenMonitor.GenerateNotExistTokenSymbol(NodeManager);
                 contract.Symbol = symbol;
-                
+
                 Logger.Info($"{contractPath} create test token: ");
                 var token = new TokenContract(NodeManager, account, contractPath);
                 //create fake ELF token, just for transaction fee
@@ -281,7 +284,7 @@ namespace AElf.Automation.RpcPerformance
 
             Monitor.CheckTransactionsStatus(TxIdList);
         }
-        
+
         public void InitializeSideChainToken()
         {
             InitializeMainContracts();
@@ -482,7 +485,7 @@ namespace AElf.Automation.RpcPerformance
                 var countNo = randNumber;
                 if (AccountList[countNo].Account.Equals(account))
                     countNo = countNo + 1 > AccountList.Count - 1 ? countNo - 1 : countNo + 1;
-                
+
                 set.Add(countNo);
                 var toAccount = AccountList[countNo].Account;
 
@@ -717,7 +720,7 @@ namespace AElf.Automation.RpcPerformance
 
                 var primaryTokenInfo = token.GetTokenInfo(primaryToken);
                 var tokenInfo = token.GetTokenInfo(symbol);
-                
+
                 if (primaryTokenInfo.Equals(new TokenInfo()))
                 {
                     Logger.Info($"{primaryToken} is not existed. Create again");
@@ -737,8 +740,8 @@ namespace AElf.Automation.RpcPerformance
                         continue;
                     }
                 }
-                
-                if(tokenInfo.Equals(new TokenInfo()))
+
+                if (tokenInfo.Equals(new TokenInfo()))
                 {
                     Logger.Info($"{symbol} is not existed. Create again");
                     var txResult = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
