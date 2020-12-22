@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using AElfChain.Common;
 using AElfChain.Common.Helpers;
@@ -29,7 +30,7 @@ namespace AElf.Automation.RpcPerformance
 
         private void OnExecute(CommandLineApplication app)
         {
-            if (GroupCount == 0 || TransactionCount == 0 || RpcUrl == null)
+            if (TransactionCount == 0 || RpcUrl == null)
             {
                 app.ShowHelp();
                 return;
@@ -37,16 +38,17 @@ namespace AElf.Automation.RpcPerformance
 
             if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
 
+            var groupCount = TokenList.Count;
             //Init Logger
-            var fileName = $"GC_{GroupCount}_TC_{TransactionCount}_Hour_{DateTime.Now.Hour:00}";
+            var fileName = $"GC_{groupCount+1}_TC_{TransactionCount}_Hour_{DateTime.Now.Hour:00}";
             Log4NetHelper.LogInit(fileName);
             Logger = Log4NetHelper.GetLogger();
 
             var transactionType = RpcConfig.ReadInformation.RandomSenderTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,
+                ? (IPerformanceCategory) new RandomCategory(groupCount + 1, TransactionCount, RpcUrl,
                     limitTransaction: LimitTransaction)
-                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
+                : new ExecutionCategory(groupCount + 1, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
 
             //Execute transaction command
             try
@@ -59,9 +61,10 @@ namespace AElf.Automation.RpcPerformance
                     nodeSummary.ContinuousCheckTransactionPerformance(new CancellationToken());
                     return;
                 }
+
                 var chainId = nodeManager.GetChainId();
-                performance.InitExecCommand(150 + GroupCount);
-                
+                performance.InitExecCommand(UserCount);
+
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = nodeManager.IsMainChain();
                 var onlyDeploy = RpcConfig.ReadInformation.OnlyDeploy;
@@ -85,7 +88,7 @@ namespace AElf.Automation.RpcPerformance
                         performance.InitializeMainContracts();
                     else
                         performance.InitializeSideChainToken();
-                
+
                     ExecuteTransactionPerformanceTask(performance, ExecuteMode);
                 }
                 else
@@ -100,6 +103,7 @@ namespace AElf.Automation.RpcPerformance
                             performance.ExecuteOneRoundTransactionTask();
                             times++;
                         }
+
                     if (chainId.Equals("tDVW"))
                         while (true)
                             performance.SideChainDeployContractsWithCreator();
@@ -182,7 +186,10 @@ namespace AElf.Automation.RpcPerformance
 
         [Option("-tc|--thread.count", Description =
             "Thread count to execute transactions. Default value is 4")]
-        private int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
+//        private int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
+
+        private int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
+
 
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
@@ -198,6 +205,8 @@ namespace AElf.Automation.RpcPerformance
         [Option("-lt|--limit.transaction", Description =
             "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
         private string LimitTransactionString { get; } = "true";
+
+        private List<string> TokenList { get; } = RpcConfig.ReadInformation.TokenList;
 
         private bool LimitTransaction => LimitTransactionString.ToLower().Trim() == "true";
 

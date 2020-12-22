@@ -45,7 +45,7 @@ namespace AElfChain.Common.Managers
             _association = _genesis.GetAssociationAuthContract();
             _referendum = _genesis.GetReferendumAuthContract();
 
-            CheckBpBalance(caller);
+//            CheckBpBalance(caller);
         }
 
         public INodeManager NodeManager { get; set; }

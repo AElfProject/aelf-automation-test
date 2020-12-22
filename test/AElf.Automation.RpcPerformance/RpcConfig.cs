@@ -40,6 +40,8 @@ namespace AElf.Automation.RpcPerformance
     public class RpcConfig
     {
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
+        [JsonProperty("UserCount")] public int UserCount { get; set; }
+
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
 
         [JsonProperty("EnableRandomTransaction")]
@@ -60,6 +62,8 @@ namespace AElf.Automation.RpcPerformance
         public RandomTransactionOption RandomEndpointOption { get; set; }
 
         [JsonProperty("ChainType")] public ChainTypeOption ChainTypeOption { get; set; }
+        [JsonProperty("TokenList")] public List<string> TokenList { get; set; }
+        
         public static RpcConfig ReadInformation => ConfigHelper<RpcConfig>.GetConfigInfo("rpc-performance.json");
     }
 }

@@ -58,17 +58,17 @@ namespace AElf.Automation.RpcPerformance
             foreach (var bp in bps)
             {
                 var balance = SystemToken.GetUserBalance(bp.Account, symbol);
-                if (balance < 20000000_00000000) continue;
+                if (balance < 5000_00000000) continue;
                 SystemToken.SetAccount(bp.Account, bp.Password);
                 foreach (var tester in testers)
                 {
                     if (tester == bp.Account) continue;
                     var userBalance = SystemToken.GetUserBalance(tester, symbol);
-                    if (userBalance < 200000_00000000)
+                    if (userBalance < 200_00000000)
                         SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                         {
                             To = tester.ConvertAddress(),
-                            Amount = 100000_00000000,
+                            Amount = 100_00000000,
                             Symbol = symbol,
                             Memo = $"T-{Guid.NewGuid()}"
                         });
