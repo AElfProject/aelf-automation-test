@@ -468,16 +468,19 @@ namespace AElf.Automation.RpcPerformance
 
         private void GetTestAccounts(int count)
         {
+            var authority = new AuthorityManager(NodeManager);
+            var miners = authority.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
-            if (accounts.Count >= count)
+            var testUsers = accounts.FindAll(o => !miners.Contains(o));
+            if (testUsers.Count >= count)
             {
-                foreach (var acc in accounts.Take(count)) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers.Take(count)) AccountList.Add(new AccountInfo(acc));
             }
             else
             {
-                foreach (var acc in accounts) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers) AccountList.Add(new AccountInfo(acc));
 
-                var generateCount = count - accounts.Count;
+                var generateCount = count - testUsers.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
                     var account = NodeManager.NewAccount();

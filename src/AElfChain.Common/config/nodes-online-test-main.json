@@ -1,0 +1,73 @@
+{
+  "RequireAuthority": true,
+  "Nodes": [
+    {
+      "name": "bp1",
+      "endpoint": "52.72.107.146:8000",
+      "account": "ZrAFaqdr79MWYkxA49Hp2LUdSVHdP6fJh3kDw4jmgC7HTgrni",
+      "password": "12345678"
+    },
+    {
+      "name": "bp2",
+      "endpoint": "52.14.174.140:8000",
+      "account": "2RehEQSpXeZ5DUzkjTyhAkr9csu7fWgE5DAuB2RaKQCpdhB8zC",
+      "password": "12345678"
+    },
+    {
+      "name": "bp3",
+      "endpoint": "54.153.67.114:8000",
+      "account": "sjzNpr5bku3ZyvMqQrXeBkXGEvG2CTLA2cuNDfcDMaPTTAqEy",
+      "password": "12345678"
+    },
+    {
+      "name": "bp4",
+      "endpoint": "18.162.50.255:8000",
+      "account": "2JatA85K3mxZPs3LtFufynoUa5Wvo9QNhnofSGYisuM9P8F3Xc",
+      "password": "12345678"
+    },
+    {
+      "name": "bp5",
+      "endpoint": "13.233.192.210:8000",
+      "account": "2Pm6opkpmnQedgc5yDUoVmnPpTus5vSjFNDmSbckMzLw22W6Er",
+      "password": "12345678"
+    },
+    {
+      "name": "full1",
+      "endpoint": "3.36.54.134:8000",
+      "account": "29qJkBMWU2Sv6mTqocPiN8JTjcsSkBKCC8oUt11fTE7oHmfG3n",
+      "password": "12345678"
+    },
+    {
+      "name": "full2",
+      "endpoint": "54.254.241.184:8000",
+      "account": "2NKnGrarMPTXFNMRDiYH4hqfSoZw72NLxZHzgHD1Q3xmNoqdmR",
+      "password": "12345678"
+    },
+    {
+      "name": "full3",
+      "endpoint": "3.26.30.255:8000",
+      "account": "FHdcx45K5kovWsAKSb3rrdyNPFus8eoJ1XTQE7aXFHTgfpgzN",
+      "password": "12345678"
+    },
+    {
+      "name": "full4",
+      "endpoint": "15.223.35.191:8000",
+      "account": "YUW9zH5GhRboT5JK4vXp5BLAfCDv28rRmTQwo418FuaJmkSg8",
+      "password": "12345678"
+    },
+    {
+      "name": "full5",
+      "endpoint": "52.59.242.105:8000",
+      "account": "nn659b9X1BLhnu5RWmEUbuuV7J9QKVVSN54j9UmeCbF3Dve5D",
+      "password": "12345678"
+    },
+    {
+      "name": "full6",
+      "endpoint": "3.112.235.128:8000",
+      "account": "NUddzDNy8PBMUgPCAcFW7jkaGmofDTEmr5DUoddXDpdR6E85X",
+      "password": "12345678"
+    }
+  ],
+  "NativeTokenSymbol" : "ELF",
+  "DefaultPassword": "12345678"
+}
