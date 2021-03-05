@@ -60,7 +60,7 @@ namespace AElf.Automation.RpcPerformance
                     return;
                 }
                 var chainId = nodeManager.GetChainId();
-                performance.InitExecCommand(150 + GroupCount);
+                performance.InitExecCommand(UserCount + GroupCount);
                 
                 var authority = NodeInfoHelper.Config.RequireAuthority;
                 var isMainChain = nodeManager.IsMainChain();
@@ -187,6 +187,8 @@ namespace AElf.Automation.RpcPerformance
         [Option("-tg|--transaction.group", Description =
             "Transaction count to execute of each round or one round. Default value is 10.")]
         private int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
+
+        private int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
 
         [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
         private string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
