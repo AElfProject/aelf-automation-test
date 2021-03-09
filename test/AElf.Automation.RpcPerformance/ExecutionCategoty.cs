@@ -37,6 +37,8 @@ namespace AElf.Automation.RpcPerformance
                 keyStorePath = CommonHelper.GetCurrentDataDir();
 
             AccountList = new List<AccountInfo>();
+            ToAccountList = new List<AccountInfo>();
+            FromAccountList = new List<AccountInfo>();
             ContractList = new List<ContractInfo>();
             GenerateTransactionQueue = new ConcurrentQueue<string>();
             TxIdList = new List<string>();
@@ -254,7 +256,7 @@ namespace AElf.Automation.RpcPerformance
                     Symbol = symbol,
                     TokenName = $"elf token {symbol}",
                     TotalSupply = 10_0000_0000_00000000L,
-                    Decimals = 2,
+                    Decimals = 8,
                     Issuer = account.ConvertAddress(),
                     IsBurnable = true
                 });
@@ -265,23 +267,26 @@ namespace AElf.Automation.RpcPerformance
             CheckTokenSymbol(ContractList);
 
             //issue all token
+            var amount = 10_0000_0000_00000000L / FromAccountList.Count;
             foreach (var contract in ContractList)
             {
                 var account = contract.Owner;
                 var contractPath = contract.ContractAddress;
                 var symbol = contract.Symbol;
-
                 var token = new TokenContract(NodeManager, account, contractPath);
-                var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
+                foreach (var user in FromAccountList)
                 {
-                    Amount = 10_0000_0000_00000000L,
-                    Memo = $"I-{Guid.NewGuid()}",
-                    Symbol = symbol,
-                    To = account.ConvertAddress()
-                });
-                TxIdList.Add(transactionId);
+                    var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
+                    {
+                        Amount = amount,
+                        Memo = $"Issue balance - {Guid.NewGuid()}",
+                        Symbol = symbol,
+                        To = user.Account.ConvertAddress()
+                    });
+                    TxIdList.Add(transactionId);
+                }
             }
-
+            
             Monitor.CheckTransactionsStatus(TxIdList);
         }
 
@@ -457,6 +462,8 @@ namespace AElf.Automation.RpcPerformance
         private TesterTokenMonitor TokenMonitor { get; set; }
         public string BaseUrl { get; }
         private List<AccountInfo> AccountList { get; }
+        private List<AccountInfo> ToAccountList { get; set; }
+        private List<AccountInfo> FromAccountList { get; set; }
         private string KeyStorePath { get; }
         private List<ContractInfo> ContractList { get; set; }
         private List<string> TxIdList { get; }
@@ -514,7 +521,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
-
+            var token = new TokenContract(NodeManager,account,contractPath);
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
@@ -527,25 +534,26 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Start();
             for (var i = 0; i < times; i++)
             {
-                var rd = new Random(DateTime.Now.Millisecond);
-                var countNo = rd.Next(0, AccountList.Count);
-                var toAccount = AccountList[countNo].Account;
-                while (toAccount == account)
-                {
-                    countNo = rd.Next(0, AccountList.Count);
-                    toAccount = AccountList[countNo].Account;
-                }
+//                var rd = new Random(DateTime.Now.Millisecond);
+//                var countNo = rd.Next(0, AccountList.Count);
+//                var toAccount = AccountList[countNo].Account;
+//                while (toAccount == account)
+//                {
+//                    countNo = rd.Next(0, AccountList.Count);
+//                    toAccount = AccountList[countNo].Account;
+//                }
+                var (from, to) = GetTransferPair(token, ContractList[threadNo].Symbol, i);
 
                 //Execute Transfer
                 var transferInput = new TransferInput
                 {
                     Symbol = ContractList[threadNo].Symbol,
-                    To = toAccount.ConvertAddress(),
+                    To = to.ConvertAddress(),
                     Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
                 var requestInfo =
-                    NodeManager.GenerateRawTransaction(account, contractPath, TokenMethod.Transfer.ToString(),
+                    NodeManager.GenerateRawTransaction(from, contractPath, TokenMethod.Transfer.ToString(),
                         transferInput);
                 rawTransactionList.Add(requestInfo);
             }
@@ -631,22 +639,63 @@ namespace AElf.Automation.RpcPerformance
 
         private void GetTestAccounts(int count)
         {
+            var authority = new AuthorityManager(NodeManager);
+            var miners = authority.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
-            if (accounts.Count >= count)
+            var testUsers = accounts.FindAll(o => !miners.Contains(o));
+            if (testUsers.Count >= count)
             {
-                foreach (var acc in accounts.Take(count)) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers.Take(count)) AccountList.Add(new AccountInfo(acc));
             }
             else
             {
-                foreach (var acc in accounts) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers) AccountList.Add(new AccountInfo(acc));
 
-                var generateCount = count - accounts.Count;
+                var generateCount = count - testUsers.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
                     var account = NodeManager.NewAccount();
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+
+            FromAccountList = AccountList.GetRange(0, count / 2);
+            ToAccountList = AccountList.GetRange(count / 2 - 1, count / 2);
+        }
+        
+        private (string, string) GetTransferPair(TokenContract token, string symbol, int times,
+            bool balanceCheck = false)
+        {
+            string from, to;
+            while (true)
+            {
+                var fromId = times - FromAccountList.Count >= 0
+                    ? (times / FromAccountList.Count > 1
+                        ? times - FromAccountList.Count * (times / FromAccountList.Count)
+                        : times - FromAccountList.Count)
+                    : times;
+                if (balanceCheck)
+                {
+                    var balance = token.GetUserBalance(AccountList[fromId].Account, symbol);
+                    if (balance < 1000_00000000) continue;
+                }
+
+                from = FromAccountList[fromId].Account;
+                break;
+            }
+
+            while (true)
+            {
+                var toId = times - ToAccountList.Count >= 0
+                    ? (times / ToAccountList.Count > 1
+                        ? times - ToAccountList.Count * (times / ToAccountList.Count)
+                        : times - ToAccountList.Count)
+                    : times;
+                to = ToAccountList[toId].Account;
+                break;
+            }
+
+            return (from, to);
         }
 
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)
