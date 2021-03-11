@@ -559,10 +559,20 @@ namespace AElf.Automation.RpcPerformance
                     Amount = ((i + 1) % 4 + 1) * 10000,
                     Memo = $"transfer test - {Guid.NewGuid()}"
                 };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contractPath, TokenMethod.Transfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
+                try
+                {
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(from, contractPath, TokenMethod.Transfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"account: {from}");
+                    Logger.Error(e);
+                    throw;
+                }
+
             }
 
             stopwatch.Stop();
