@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using AElf.Standards.ACS0;
 using AElf;
+using AElf.Client;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Types;
@@ -224,12 +225,20 @@ namespace AElfChain.Common.Managers
 
         public List<string> SendTransactions(string rawTransactions)
         {
-            var transactions = AsyncHelper.RunSync(() => ApiClient.SendTransactionsAsync(new SendTransactionsInput
+            try
             {
-                RawTransactions = rawTransactions
-            }));
+                var transactions = AsyncHelper.RunSync(() => ApiClient.SendTransactionsAsync(new SendTransactionsInput
+                {
+                    RawTransactions = rawTransactions
+                }));
+                return transactions.ToList();
 
-            return transactions.ToList();
+            }
+            catch (AElfClientException e)
+            {
+                Console.WriteLine(e);
+                return new List<string>();
+            }
         }
 
         public string GenerateRawTransaction(string from, string to, string methodName, IMessage inputParameter)

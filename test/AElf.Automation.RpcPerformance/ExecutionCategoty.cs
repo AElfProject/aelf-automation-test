@@ -582,6 +582,8 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
+            if (transactions.Equals(new List<string>()))
+                return;
             Logger.Info(transactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
