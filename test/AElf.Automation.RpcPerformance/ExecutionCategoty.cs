@@ -286,7 +286,7 @@ namespace AElf.Automation.RpcPerformance
                     TxIdList.Add(transactionId);
                 }
             }
-            
+
             Monitor.CheckTransactionsStatus(TxIdList);
         }
 
@@ -410,8 +410,15 @@ namespace AElf.Automation.RpcPerformance
                             }
                             catch (AggregateException exception)
                             {
+                                foreach (var item in exception.InnerExceptions)
+                                {
+                                    if (item.InnerException != null)
+                                        Console.WriteLine(item.InnerException.Message + item.GetType().Name);
+                                }
+
                                 Logger.Error(
-                                    $"Request to {NodeManager.GetApiUrl()} got exception, {exception.Message}");
+                                    $"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+                                throw;
                             }
                             catch (Exception e)
                             {
@@ -521,7 +528,7 @@ namespace AElf.Automation.RpcPerformance
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
-            var token = new TokenContract(NodeManager,account,contractPath);
+            var token = new TokenContract(NodeManager, account, contractPath);
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
@@ -662,7 +669,7 @@ namespace AElf.Automation.RpcPerformance
             FromAccountList = AccountList.GetRange(0, count / 2);
             ToAccountList = AccountList.GetRange(count / 2 - 1, count / 2);
         }
-        
+
         private (string, string) GetTransferPair(TokenContract token, string symbol, int times,
             bool balanceCheck = false)
         {

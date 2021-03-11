@@ -130,10 +130,13 @@ namespace AElfChain.Common.Managers
 
             if (timeoutToClose.HasValue)
             {
+                Logger.Warn($"reset time {unlockedAccount}");
+
                 var t = new Timer(LockAccount, unlockedAccount, timeoutToClose.Value, timeoutToClose.Value);
                 unlockedAccount.LockTimer = t;
             }
-
+            
+            Logger.Warn($"reset unlock account {unlockedAccount}");
             _unlockedAccounts.Add(unlockedAccount);
         }
 
@@ -142,6 +145,7 @@ namespace AElfChain.Common.Managers
             if (!(accountObject is Account unlockedAccount))
                 return;
             unlockedAccount.Lock();
+            Logger.Warn($"remove timeout account {unlockedAccount}");
             _unlockedAccounts.Remove(unlockedAccount);
         }
 
