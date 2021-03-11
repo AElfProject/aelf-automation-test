@@ -701,18 +701,14 @@ namespace AElf.Automation.RpcPerformance
                 break;
             }
 
-            while (true)
-            {
-                var toId = times - ToAccountList.Count >= 0
+            var toId = times - ToAccountList.Count >= 0
                     ? (times / ToAccountList.Count > 1
                         ? times - ToAccountList.Count * (times / ToAccountList.Count)
                         : times - ToAccountList.Count)
                     : times;
                 to = ToAccountList[toId].Account;
-                break;
-            }
 
-            return (from, to);
+                return (from, to);
         }
 
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)

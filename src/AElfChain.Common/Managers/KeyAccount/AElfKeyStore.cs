@@ -68,20 +68,46 @@ namespace AElfChain.Common.Managers
             {
                 return KeyStoreErrors.AccountFileNotFound;
             }
+            catch (Exception e)
+            {
+                Logger.Error(_unlockedAccounts.Count);
+                Logger.Error(address);
+
+                foreach (var unlocked in _unlockedAccounts)
+                {
+                    Logger.Error(unlocked.AccountName);
+                }
+                Logger.Error(e);
+                throw;
+            }
 
             return KeyStoreErrors.None;
         }
 
         public ECKeyPair GetAccountKeyPair(string address)
         {
-            var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
-            if (kp == null)
+            try
             {
-                AsyncHelper.RunSync(() => UnlockAccountAsync(address, NodeOption.DefaultPassword));
-                kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+                var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+                if (kp == null)
+                {
+                    AsyncHelper.RunSync(() => UnlockAccountAsync(address, NodeOption.DefaultPassword));
+                    kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+                }
+                return kp;
             }
+            catch (Exception e)
+            {
+                Logger.Error(_unlockedAccounts.Count);
+                Logger.Error(address);
 
-            return kp;
+                foreach (var unlocked in _unlockedAccounts)
+                {
+                    Logger.Error(unlocked.AccountName);
+                }
+                Logger.Error(e);
+                throw;
+            }
         }
 
         public async Task<ECKeyPair> CreateAccountKeyPairAsync(string password)
