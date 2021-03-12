@@ -68,46 +68,19 @@ namespace AElfChain.Common.Managers
             {
                 return KeyStoreErrors.AccountFileNotFound;
             }
-            catch (Exception e)
-            {
-                Logger.Error(_unlockedAccounts.Count);
-                Logger.Error(address);
-
-                foreach (var unlocked in _unlockedAccounts)
-                {
-                    Logger.Error(unlocked.AccountName);
-                }
-                Logger.Error(e);
-                throw;
-            }
 
             return KeyStoreErrors.None;
         }
 
         public ECKeyPair GetAccountKeyPair(string address)
         {
-            try
-            {
-                var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
+            var kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
                 if (kp == null)
                 {
-                    AsyncHelper.RunSync(() => UnlockAccountAsync(address, NodeOption.DefaultPassword));
+                    AsyncHelper.RunSync(() => UnlockAccountAsync(address, NodeOption.DefaultPassword,false));
                     kp = _unlockedAccounts.FirstOrDefault(oa => oa.AccountName == address)?.KeyPair;
                 }
                 return kp;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(_unlockedAccounts.Count);
-                Logger.Error(address);
-
-                foreach (var unlocked in _unlockedAccounts)
-                {
-                    Logger.Error(unlocked.AccountName);
-                }
-                Logger.Error(e);
-                throw;
-            }
         }
 
         public async Task<ECKeyPair> CreateAccountKeyPairAsync(string password)
@@ -156,13 +129,10 @@ namespace AElfChain.Common.Managers
 
             if (timeoutToClose.HasValue)
             {
-                Logger.Warn($"reset time {unlockedAccount.AccountName}");
-
                 var t = new Timer(LockAccount, unlockedAccount, timeoutToClose.Value, timeoutToClose.Value);
                 unlockedAccount.LockTimer = t;
             }
             
-            Logger.Warn($"reset unlock account {unlockedAccount.AccountName}");
             _unlockedAccounts.Add(unlockedAccount);
         }
 
@@ -171,7 +141,6 @@ namespace AElfChain.Common.Managers
             if (!(accountObject is Account unlockedAccount))
                 return;
             unlockedAccount.Lock();
-            Logger.Warn($"remove timeout account {unlockedAccount.AccountName}");
             _unlockedAccounts.Remove(unlockedAccount);
         }
 
