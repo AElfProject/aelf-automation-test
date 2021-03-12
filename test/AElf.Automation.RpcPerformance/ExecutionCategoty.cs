@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Client;
 using AElf.Standards.ACS0;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
@@ -359,6 +360,7 @@ namespace AElf.Automation.RpcPerformance
 
             var cts = new CancellationTokenSource();
             var token = cts.Token;
+            var times = 0;
             var taskList = new List<Task>
             {
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
@@ -427,6 +429,15 @@ namespace AElf.Automation.RpcPerformance
                             Monitor.CheckNodeHeightStatus(!randomTransactionOption
                                 .EnableRandom); //random mode, don't check node height
                             UpdateRandomEndpoint(); //update sent transaction to random endpoint
+                        }
+                    }
+                    catch (AElfClientException e)
+                    {
+                        times++;
+                        if (times == 10)
+                        {
+                             Logger.Error($"{e.Message}, \n Cancel all tasks due to transaction execution exception.");
+                             cts.Cancel(); //cancel all tasks
                         }
                     }
                     catch (Exception e)

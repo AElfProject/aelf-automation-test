@@ -236,7 +236,7 @@ namespace AElfChain.Common.Managers
             }
             catch (AElfClientException e)
             {
-                Console.WriteLine(e);
+                Logger.Error(e);
                 return new List<string>();
             }
         }
