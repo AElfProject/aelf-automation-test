@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AElf.Client;
 using AElf.Client.Dto;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
@@ -34,6 +35,8 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (checkTimes >= 150) return false; //over check time and cancel current round execution            
                 var poolStatus = GetTransactionPoolTxCount();
+                if (poolStatus.Equals(new TransactionPoolStatusOutput()))
+                    return true;
                 if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
                     return true;
 
@@ -45,7 +48,8 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1,INodeManager nodeManager = null)
+        public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1,
+            INodeManager nodeManager = null)
         {
             if (nodeManager == null) nodeManager = NodeManager;
             if (checkTimes == -1)
@@ -61,16 +65,18 @@ namespace AElf.Automation.RpcPerformance
                 TransactionResultDto transactionResult;
                 try
                 {
-                    transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                    transactionResult = AsyncHelper.RunSync(() =>
+                        nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                     Thread.Sleep(2000);
                     Logger.Info($"Try again {transactionIds[i1]}");
-                    transactionResult = AsyncHelper.RunSync(() => nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
+                    transactionResult = AsyncHelper.RunSync(() =>
+                        nodeManager.ApiClient.GetTransactionResultAsync(transactionIds[i1]));
                 }
-                
+
                 var resultStatus = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (resultStatus)
                 {
@@ -87,7 +93,7 @@ namespace AElf.Automation.RpcPerformance
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.NodeValidationFailed:
-                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}",true);
+                        Logger.Error($"Transaction: {transactionIds[i]}, Status: {resultStatus}", true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
@@ -105,7 +111,7 @@ namespace AElf.Automation.RpcPerformance
             {
                 if (listCount == transactionIds.Count && checkTimes == 0)
                     throw new TimeoutException("Transaction status always keep pending or not existed.");
-                CheckTransactionsStatus(transactionIds, checkTimes,nodeManager);
+                CheckTransactionsStatus(transactionIds, checkTimes, nodeManager);
             }
 
             if (transactionIds.Count == 1)
@@ -117,7 +123,7 @@ namespace AElf.Automation.RpcPerformance
                 switch (txResult)
                 {
                     case TransactionResultStatus.Pending:
-                        CheckTransactionsStatus(transactionIds, checkTimes,nodeManager);
+                        CheckTransactionsStatus(transactionIds, checkTimes, nodeManager);
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Mined:
@@ -141,8 +147,18 @@ namespace AElf.Automation.RpcPerformance
             var checkTimes = 0;
             while (true)
             {
-                var currentHeight = AsyncHelper.RunSync(NodeManager.ApiClient.GetBlockHeightAsync);
-                if (BlockHeight != currentHeight)
+                long currentHeight = 0;
+                try
+                {
+                    currentHeight = AsyncHelper.RunSync(NodeManager.ApiClient.GetBlockHeightAsync);
+                }
+                catch (AElfClientException e)
+                {
+                    Logger.Error("GetBlockHeightAsync error ...");
+                    Logger.Error(e);
+                }
+
+                if (BlockHeight != currentHeight && currentHeight != 0)
                 {
                     BlockHeight = currentHeight;
                     return;
@@ -163,10 +179,19 @@ namespace AElf.Automation.RpcPerformance
 
         private TransactionPoolStatusOutput GetTransactionPoolTxCount()
         {
-            var transactionPoolStatusOutput =
-                AsyncHelper.RunSync(NodeManager.ApiClient.GetTransactionPoolStatusAsync);
+            try
+            {
+                var transactionPoolStatusOutput =
+                    AsyncHelper.RunSync(NodeManager.ApiClient.GetTransactionPoolStatusAsync);
 
-            return transactionPoolStatusOutput;
+                return transactionPoolStatusOutput;
+            }
+            catch (AElfClientException e)
+            {
+                Logger.Error("GetTransactionPoolStatusAsync error ...");
+                Logger.Error(e);
+                return new TransactionPoolStatusOutput();
+            }
         }
 
         private static string SpinInfo(int number)

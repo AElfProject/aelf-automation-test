@@ -768,7 +768,10 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
             if (transactions.Equals(new List<string>()))
+            {
+                stopwatch.Stop();
                 return transactionsWhitRpc;
+            }
             var rpc = NodeManager.ApiClient.BaseUrl;
             Logger.Info(transactions);
             transactionsWhitRpc[rpc] = transactions;

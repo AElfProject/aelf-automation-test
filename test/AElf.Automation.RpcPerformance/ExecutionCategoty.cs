@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Client;
 using AElf.Standards.ACS0;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
@@ -360,7 +359,6 @@ namespace AElf.Automation.RpcPerformance
 
             var cts = new CancellationTokenSource();
             var token = cts.Token;
-            var times = 0;
             var taskList = new List<Task>
             {
                 Task.Run(() => Summary.ContinuousCheckTransactionPerformance(token), token),
@@ -568,7 +566,11 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
             if (transactions.Equals(new List<string>()))
+            {
+                stopwatch.Stop();
                 return;
+            }
+
             Logger.Info(transactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
