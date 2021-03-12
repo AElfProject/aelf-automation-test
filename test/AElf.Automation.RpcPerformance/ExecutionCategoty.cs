@@ -431,15 +431,6 @@ namespace AElf.Automation.RpcPerformance
                             UpdateRandomEndpoint(); //update sent transaction to random endpoint
                         }
                     }
-                    catch (AElfClientException e)
-                    {
-                        times++;
-                        if (times == 10)
-                        {
-                             Logger.Error($"{e.Message}, \n Cancel all tasks due to transaction execution exception.");
-                             cts.Cancel(); //cancel all tasks
-                        }
-                    }
                     catch (Exception e)
                     {
                         Logger.Error(e.Message);
