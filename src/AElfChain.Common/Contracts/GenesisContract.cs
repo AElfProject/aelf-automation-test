@@ -130,9 +130,9 @@ namespace AElfChain.Common.Contracts
         }
 
         public TransactionResult ProposeNewContract(ContractDeploymentInput input,
-            string caller = null)
+            string caller, string password = "")
         {
-            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
+            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller,password);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
             return result.TransactionResult;
         }
@@ -174,13 +174,13 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
         }
 
-        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
+        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null, string password = "")
         {
             var caller = callAddress ?? CallAddress;
             var stub = new ContractTesterFactory(NodeManager);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
-                    ContractAddress.ConvertAddress(), caller);
+                    ContractAddress.ConvertAddress(), caller, password);
             return contractStub;
         }
 

@@ -682,7 +682,7 @@ namespace AElf.Automation.RpcPerformance
                     : times;
                 if (balanceCheck)
                 {
-                    var balance = token.GetUserBalance(AccountList[fromId].Account, symbol);
+                    var balance = token.GetUserBalance(FromAccountList[fromId].Account, symbol);
                     if (balance < 1000_00000000) continue;
                 }
 

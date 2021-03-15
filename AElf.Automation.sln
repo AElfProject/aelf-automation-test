@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElfChain.Contract", "src\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.AssociationTest", "test\AElf.Automation.AssociationTest\AElf.Automation.AssociationTest.csproj", "{7BAF1C68-D490-4576-8447-B8DAE5838E89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.AccountCheck", "test\AElf.Automation.AccountCheck\AElf.Automation.AccountCheck.csproj", "{0D56F70D-B953-4D72-893A-78C530BF5037}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,10 @@ Global
 		{7BAF1C68-D490-4576-8447-B8DAE5838E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BAF1C68-D490-4576-8447-B8DAE5838E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BAF1C68-D490-4576-8447-B8DAE5838E89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D56F70D-B953-4D72-893A-78C530BF5037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {0D56F70D-B953-4D72-893A-78C530BF5037}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {0D56F70D-B953-4D72-893A-78C530BF5037}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {0D56F70D-B953-4D72-893A-78C530BF5037}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +179,7 @@ Global
 		{E54E165C-827B-447A-9791-D194521A3C92} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{C5E69711-5E97-4A6C-9CA6-F3B3A8F7253B} = {2C48872E-71EC-42A3-B2E4-4378D5A273C5}
 		{7BAF1C68-D490-4576-8447-B8DAE5838E89} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{0D56F70D-B953-4D72-893A-78C530BF5037} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}

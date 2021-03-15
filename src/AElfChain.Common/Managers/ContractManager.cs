@@ -34,7 +34,7 @@ namespace AElfChain.Common.Managers
 
         public ILog Logger = Log4NetHelper.GetLogger();
 
-        public ContractManager(INodeManager nodeManager, string callAddress)
+        public ContractManager(INodeManager nodeManager, string callAddress,string password = "")
         {
             NodeManager = nodeManager;
             CallAddress = callAddress;
@@ -42,7 +42,7 @@ namespace AElfChain.Common.Managers
             ChainIdName = NodeManager.GetChainId();
             ChainId = ChainHelper.ConvertBase58ToChainId(ChainIdName);
             Genesis = GenesisContract.GetGenesisContract(NodeManager, CallAddress);
-            GenesisStub = Genesis.GetGensisStub(CallAddress);
+            GenesisStub = Genesis.GetGensisStub(CallAddress,password);
         }
 
         public ContractManager(string endpoint, string callAddress)

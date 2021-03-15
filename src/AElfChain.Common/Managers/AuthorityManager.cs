@@ -50,14 +50,14 @@ namespace AElfChain.Common.Managers
 
         public INodeManager NodeManager { get; set; }
 
-        public Address DeployContractWithAuthority(string caller, string contractName)
+        public Address DeployContractWithAuthority(string caller, string contractName, string password = "")
         {
             Logger.Info($"Deploy contract: {contractName}");
             var contractPath = GetContractFilePath(contractName);
             var code = File.ReadAllBytes(contractPath);
             code = GenerateUniqContractCode(code);
 
-            return DeployContractWithAuthority(caller, code);
+            return DeployContractWithAuthority(caller, code, password);
         }
 
         public void UpdateContractWithAuthority(string caller, string address, string contractName)
@@ -70,7 +70,7 @@ namespace AElfChain.Common.Managers
             UpdateContractWithAuthority(caller, address, code);
         }
 
-        private Address DeployContractWithAuthority(string caller, byte[] code)
+        private Address DeployContractWithAuthority(string caller, byte[] code, string password = "")
         {
             var input = new ContractDeploymentInput
             {
@@ -79,7 +79,7 @@ namespace AElfChain.Common.Managers
             };
             var approveUsers = GetMinApproveMiners();
 
-            var proposalNewContact = _genesis.ProposeNewContract(input, caller);
+            var proposalNewContact = _genesis.ProposeNewContract(input, caller, password);
             while (proposalNewContact.Error.Contains("Already proposed."))
             {
                 var newCode = CheckCode(code);
