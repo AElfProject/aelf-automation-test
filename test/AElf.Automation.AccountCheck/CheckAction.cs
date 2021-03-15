@@ -41,9 +41,10 @@ namespace AElf.Automation.AccountCheck
             }
         }
 
-        public Dictionary<string, List<AccountInfo>> CheckBalance(List<string> accounts, Dictionary<TokenContract,string> tokenInfos)
+        public Dictionary<string, List<AccountInfo>> CheckBalance(List<string> accounts, Dictionary<TokenContract,string> tokenInfos,out long duration)
         {
             var accountTokenInfo = new Dictionary<string, List<AccountInfo>>();
+            duration = 0;
             foreach (var (key, value) in tokenInfos)
             {
                 var accountInfo = new List<AccountInfo>();                
@@ -60,6 +61,7 @@ namespace AElf.Automation.AccountCheck
                 accountTokenInfo.Add(value,accountInfo);
                 Logger.Info(
                     $"{key.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
+                duration += checkTime;
             }
 
             return accountTokenInfo;

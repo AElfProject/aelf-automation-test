@@ -1,7 +1,7 @@
 {
   "TransferInfo": {
     "IsNeedDeploy": true,
-    "IsAddSystemContract": false,
+    "IsAddSystemContract": true,
     "ContractCount": 1,
     "TransferAmount":1000
   },
@@ -15,6 +15,6 @@
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
   "UserCount": 10,
-  "OnlyCheck": true,
+  "OnlyCheck": false,
   "CheckTimes": 10
 }

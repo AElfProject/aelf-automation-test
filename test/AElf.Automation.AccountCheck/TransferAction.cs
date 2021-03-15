@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
@@ -38,6 +39,7 @@ namespace AElf.Automation.AccountCheck
                 }
                 contract.CheckTransactionResultList();
             }
+            Thread.Sleep(1000);
         }
 
         public void PrepareTransfer(Dictionary<TokenContract, string> tokenInfo)

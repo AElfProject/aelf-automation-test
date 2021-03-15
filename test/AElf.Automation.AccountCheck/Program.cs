@@ -42,15 +42,17 @@ namespace AElf.Automation.AccountCheck
                 }
                 
                 transfer.PrepareTransfer(_tokenInfoList);
-                _fromAccountInfos = check.CheckBalance(check.FromAccountList, _tokenInfoList);
-                _toAccountInfos = check.CheckBalance(check.ToAccountList, _tokenInfoList);
-
-                while (times >= 0)
+                _fromAccountInfos = check.CheckBalance(check.FromAccountList, _tokenInfoList,out long d1);
+                _toAccountInfos = check.CheckBalance(check.ToAccountList, _tokenInfoList,out long d2);
+                long all = 0;
+                while (times > 0)
                 {
+                    Logger.Info($"{times}");
                     transfer.Transfer(_tokenInfoList);
-                    var from = check.CheckBalance(check.FromAccountList, _tokenInfoList);
-                    var to = check.CheckBalance(check.ToAccountList, _tokenInfoList);
+                    var from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long  fromDuration);
+                    var to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
                     
+                    Logger.Info("Check from account balance:");
                     foreach (var (symbol,list) in _fromAccountInfos)
                     {
                         var after = from.First(a => a.Key.Equals(symbol));
@@ -61,6 +63,7 @@ namespace AElf.Automation.AccountCheck
                         }
                     }
                 
+                    Logger.Info("Check to account balance:");
                     foreach (var (symbol,list) in _toAccountInfos)
                     {
                         var after = to.First(a => a.Key.Equals(symbol));
@@ -71,10 +74,13 @@ namespace AElf.Automation.AccountCheck
                         }
                     }
 
+                    all = all + fromDuration + toDuration;
                     _fromAccountInfos = from;
                     _toAccountInfos = to;
                     times--;
                 }
+                var req = (double)(check.CheckTimes * (check.FromAccountList.Count+check.ToAccountList.Count)) / (all / 1000);
+                Logger.Info($"1s request {req}");
             }
             else
             {
