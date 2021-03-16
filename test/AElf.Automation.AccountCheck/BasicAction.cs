@@ -29,6 +29,9 @@ namespace AElf.Automation.AccountCheck
 
         protected void GetService()
         {
+            if (NodeManager !=null)
+                return;
+            
             var config = ConfigInfo.ReadInformation;
             var url = config.ServiceUrl;
             InitAccount = config.InitAccount;
@@ -38,11 +41,14 @@ namespace AElf.Automation.AccountCheck
             CheckTimes = config.Times;
 
             NodeManager = new NodeManager(url);
-            AuthorityManager = new AuthorityManager(NodeManager);
+            AuthorityManager = new AuthorityManager(NodeManager,InitAccount,false);
             ContractManager = new ContractManager(NodeManager,InitAccount,Password);
+
+            GetConfig();
+            AccountList = new List<string>();
         }
 
-        protected void GetConfig()
+        private void GetConfig()
         {
             var transferInfo = ConfigInfo.ReadInformation.TransferInfo;
             ContractInfos = ConfigInfo.ReadInformation.ContractInfos;
@@ -55,7 +61,8 @@ namespace AElf.Automation.AccountCheck
 
         public void GetTestAccounts()
         {
-            AccountList = new List<string>();
+            if (AccountList.Count.Equals(UserCount))
+                return;
             var count = UserCount;
             var miners = AuthorityManager.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();

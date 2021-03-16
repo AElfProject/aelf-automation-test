@@ -32,9 +32,11 @@ namespace AElfChain.Common.Managers
         private readonly TokenContract _token;
         private NodesInfo _info;
 
-        public AuthorityManager(INodeManager nodeManager, string caller = "")
+        public AuthorityManager(INodeManager nodeManager, string caller = "", bool getNodeInfo = true)
         {
-            GetConfigNodeInfo();
+            if (getNodeInfo)
+                GetConfigNodeInfo();
+
             if (caller == "")
                 caller = _info.Nodes.First().Account;
             NodeManager = nodeManager;
@@ -392,7 +394,7 @@ namespace AElfChain.Common.Managers
             var info = _parliament.CheckProposal(input.ProposalId);
             if (info.ToBeReleased)
                 return _genesis.ReleaseApprovedContract(input, callUser);
-            
+
             var currentMiner = GetCurrentMiners();
             foreach (var miner in currentMiner)
             {

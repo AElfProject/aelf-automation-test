@@ -1,6 +1,6 @@
 {
   "TransferInfo": {
-    "IsNeedDeploy": true,
+    "IsNeedDeploy": false,
     "IsAddSystemContract": true,
     "ContractCount": 1,
     "TransferAmount":1000

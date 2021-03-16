@@ -16,7 +16,6 @@ namespace AElf.Automation.AccountCheck
         public TransferAction()
         {
             GetService();
-            GetConfig();
             SystemToken = ContractManager.Token;
         }
 

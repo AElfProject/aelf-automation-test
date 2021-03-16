@@ -27,11 +27,11 @@ namespace AElf.Automation.BlockCheck
             }
             
             Logger.Info($"Check block info start: {StartBlock}, verify count: {VerifyBlockCount}");
-            var stopwatch = new Stopwatch();
             long all = 0;
             for (var i = StartBlock; i < StartBlock+VerifyBlockCount; i++)
             {
                 var i1 = i;
+                var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(i1,IncludeTransaction));
                 stopwatch.Stop();

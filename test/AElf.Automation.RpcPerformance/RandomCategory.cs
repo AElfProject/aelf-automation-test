@@ -491,7 +491,7 @@ namespace AElf.Automation.RpcPerformance
             }
 
             FromAccountList = AccountList.GetRange(0, count / 2);
-            ToAccountList = AccountList.GetRange(count / 2 - 1, count / 2);
+            ToAccountList = AccountList.GetRange(count / 2 , count / 2);
         }
 
         private void GeneratedTransaction(bool useTxs, CancellationTokenSource cts, CancellationToken token)

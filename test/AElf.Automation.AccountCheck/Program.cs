@@ -35,6 +35,8 @@ namespace AElf.Automation.AccountCheck
                 {
                     foreach (var contract in transfer.ContractInfos)
                     {
+                        _contractList = new List<TokenContract>();
+                        _tokenInfoList = new Dictionary<TokenContract, string>();
                         var token = new TokenContract(transfer.NodeManager, transfer.InitAccount,
                             contract.ContractAddress);
                         _contractList.Add(token);

@@ -1,6 +1,4 @@
-
 using System.Collections.Generic;
-using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using Newtonsoft.Json;
 
