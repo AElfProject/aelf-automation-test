@@ -65,21 +65,22 @@ namespace AElf.Automation.BlockCheck
                         $"Block extra: {blockInfo.Header.Extra}");
             Logger.Info($"Block include transaction: {blockInfo.Body.TransactionsCount}");
             Logger.Info(blockInfo.Body.Transactions);
-            
-            
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+
+            long all = 0;
             for (var i = 0; i < VerifyTimes; i++)
             {
                 Logger.Info(i);
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
                 AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(currentBlockHeight,IncludeTransaction));
+                stopwatch.Stop();
+                var checkTime = stopwatch.ElapsedMilliseconds;
+                all += checkTime;
             }
-            stopwatch.Stop();
-            var checkTime = stopwatch.ElapsedMilliseconds;
+            
+            var req = (double)VerifyTimes/all * 1000;
 
-            var req = (double)VerifyTimes/checkTime * 1000;
-
-            Logger.Info($"Check {VerifyTimes} block info use {checkTime}ms, req: {req}/s");
+            Logger.Info($"Check {VerifyTimes} block info use {all}ms, req: {req}/s");
         }
 
         private void GetService()
