@@ -23,20 +23,25 @@ namespace AElf.Automation.AccountCheck
             duration = 0;
             foreach (var contractInfo in contractInfos)
             {
+                long contractDuration = 0;
                 var contract = new TokenContract(NodeManager,InitAccount, contractInfo.ContractAddress);
                 var symbol = contractInfo.TokenSymbol;
-                var stopwatch = new Stopwatch();
+                
                 Logger.Info("Start check ...");
-                stopwatch.Start();
+                
                 foreach (var account in accounts) 
                 {
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
                     contract.GetUserBalance(account, symbol);
+                    stopwatch.Stop();
+                    var checkTime = stopwatch.ElapsedMilliseconds;
+                    contractDuration += checkTime;
                 }
-                stopwatch.Stop();
-                var checkTime = stopwatch.ElapsedMilliseconds;
+
                 Logger.Info(
-                    $"{contractInfo.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
-                duration += checkTime;
+                    $"{contractInfo.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
+                duration += contractDuration;
             }
         }
 
@@ -46,21 +51,23 @@ namespace AElf.Automation.AccountCheck
             duration = 0;
             foreach (var (key, value) in tokenInfos)
             {
-                var accountInfo = new List<AccountInfo>();                
-                var stopwatch = new Stopwatch();
+                var accountInfo = new List<AccountInfo>();   
+                long contractDuration = 0;
                 Logger.Info("Start check ...");
-                stopwatch.Start();
                 foreach (var account in accounts) 
                 {
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
                    var balance = key.GetUserBalance(account, value);
+                   stopwatch.Stop();
                    accountInfo.Add(new AccountInfo(account,balance));
+                   var checkTime = stopwatch.ElapsedMilliseconds;
+                   contractDuration += checkTime;
                 }
-                stopwatch.Stop();
-                var checkTime = stopwatch.ElapsedMilliseconds;
                 accountTokenInfo.Add(value,accountInfo);
                 Logger.Info(
-                    $"{key.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
-                duration += checkTime;
+                    $"{key.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
+                duration += contractDuration;
             }
 
             return accountTokenInfo;
