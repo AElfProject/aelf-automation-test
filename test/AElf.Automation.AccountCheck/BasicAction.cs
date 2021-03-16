@@ -59,7 +59,7 @@ namespace AElf.Automation.AccountCheck
             var count = UserCount;
             var miners = AuthorityManager.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
-            var testUsers = accounts.FindAll(o => !miners.Contains(o));
+            var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
             if (testUsers.Count >= count)
             {
                 foreach (var acc in testUsers.Take(count))

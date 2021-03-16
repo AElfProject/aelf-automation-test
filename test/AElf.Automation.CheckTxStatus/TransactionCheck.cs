@@ -21,11 +21,12 @@ namespace AElf.Automation.CheckTxStatus
         private readonly long _verifyBlock;
         private readonly string _contractName;
         private readonly string _account;
+
         public TransactionCheck()
         {
             _account = Account;
             _nodeManager = new NodeManager(Url, AccountDir);
-            _contractManager = new ContractManager(_nodeManager,_account);
+            _contractManager = new ContractManager(_nodeManager, _account);
             _verifyBlock = VerifyBlockNumber;
             _startBlock = StartBlock;
             _contractName = ExpectedContract;
@@ -56,24 +57,25 @@ namespace AElf.Automation.CheckTxStatus
                 //Get transactions
                 for (var i = startBlock; i < amount; i++)
                 {
-                    var transactionBloom = new Dictionary<string,Bloom>();
+                    var transactionBloom = new Dictionary<string, Bloom>();
                     var i1 = i;
                     var blockResult = AsyncHelper.RunSync(() =>
                         _nodeManager.ApiClient.GetBlockByHeightAsync(i1, true));
                     var txIds = blockResult.Body.Transactions;
 
                     var blockBloomString = blockResult.Header.Bloom;
-                    var blockBloom = new Bloom(ByteString.FromBase64(blockBloomString).ToByteArray()); 
-                    BloomList.Add(blockResult.BlockHash,blockBloom);
+                    var blockBloom = new Bloom(ByteString.FromBase64(blockBloomString).ToByteArray());
+                    BloomList.Add(blockResult.BlockHash, blockBloom);
 
                     foreach (var txId in txIds)
                     {
                         var txIdInfo = AsyncHelper.RunSync(() =>
                             _nodeManager.ApiClient.GetTransactionResultAsync(txId));
                         var txBloom = new Bloom(ByteString.FromBase64(txIdInfo.Bloom).ToByteArray());
-                        transactionBloom.Add(txId,txBloom);
+                        transactionBloom.Add(txId, txBloom);
                     }
-                    transactionBloomList.Add(blockResult.BlockHash,transactionBloom);
+
+                    transactionBloomList.Add(blockResult.BlockHash, transactionBloom);
                     transactionList.Add(i, txIds);
                 }
 
@@ -123,7 +125,7 @@ namespace AElf.Automation.CheckTxStatus
                         Logger.Info(info);
                     }
                 }
-                
+
                 foreach (var bloom in BloomList)
                 {
                     var expectedBloom = ExpectedBloom();
@@ -149,9 +151,10 @@ namespace AElf.Automation.CheckTxStatus
 
         private Bloom ExpectedBloom()
         {
-            switch (ExpectedContract) {
+            switch (ExpectedContract)
+            {
                 case "Token":
-                    
+
                     var transferred = new Transferred
                     {
                         From = _account.ConvertAddress() // 如果用From = MyAddress, 会监听从我的地址转出的Transferred事件
@@ -160,8 +163,8 @@ namespace AElf.Automation.CheckTxStatus
                     var expectedBloom = e.GetBloom();
                     return expectedBloom;
             }
+
             return null;
         }
-
     }
 }
