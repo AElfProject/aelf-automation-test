@@ -77,6 +77,12 @@ namespace AElfChain.Common.Managers
             return _genesisAddress;
         }
 
+        public Address GetVirtualAddress(Hash hash, Address contractAddress)
+        {
+            return Address.FromPublicKey(contractAddress.Value.Concat(
+                hash.Value.ToByteArray().ComputeHash()).ToArray());
+        }
+
         private string CallTransaction(Transaction tx)
         {
             var rawTransaction = TransactionManager.ConvertTransactionRawTxString(tx);
@@ -232,7 +238,6 @@ namespace AElfChain.Common.Managers
                     RawTransactions = rawTransactions
                 }));
                 return transactions.ToList();
-
             }
             catch (AElfClientException e)
             {

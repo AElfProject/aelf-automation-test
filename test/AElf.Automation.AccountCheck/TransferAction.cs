@@ -142,7 +142,7 @@ namespace AElf.Automation.AccountCheck
             }
         }
 
-        public TokenContract SystemToken { get; }
+        private TokenContract SystemToken { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

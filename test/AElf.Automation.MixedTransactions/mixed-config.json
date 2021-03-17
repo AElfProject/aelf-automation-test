@@ -1,0 +1,33 @@
+{
+  "ContractInfo": [
+    {
+      "ContractName": "Token",
+      "IsNeedDeploy": false,
+      "ContractCount": 1,
+      "TokenInfos": [{
+        "ContractAddress": "JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE",
+        "TokenSymbol": "OWNOOQAO"
+      },
+        {
+          "ContractAddress": "2hQPHPHUjcQGrdXXYFHJhXQhL5vEw78rTDpigftCUC6b2W8DTL",
+          "TokenSymbol": "AVSKTRGN"
+        }]
+    },
+    {
+      "ContractName": "Wrapper",
+      "IsNeedDeploy": false,
+      "ContractCount": 1,
+      "TokenInfos": [{
+        "ContractAddress": "xwfQDMdE5xCmyKcDDKV8EDTJdmVfSY6zxiojUxjYKvWpkeu65",
+        "TokenSymbol": "GROJNCDM"
+      }]
+    }
+  ],
+  "ServiceUrl": "3.115.115.141:8000",
+  "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
+  "Password": "12345678",
+  "UserCount": 10,
+  "VerifyCount": 1,
+  "TransactionCount": 1000,
+  "NeedCreateToken": false
+}
