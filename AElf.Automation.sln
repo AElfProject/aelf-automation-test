@@ -71,7 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.AccountChec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.BlockCheck", "test\AElf.Automation.BlockCheck\AElf.Automation.BlockCheck.csproj", "{9492940E-B1BA-4067-8257-B00D9E1E93ED}"
 EndProject
-
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.MixedTransactions", "test\AElf.Automation.MixedTransactions\AElf.Automation.MixedTransactions.csproj", "{81374B61-CC40-4FD7-BA7A-AB328BC844BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,7 +163,10 @@ Global
 		{9492940E-B1BA-4067-8257-B00D9E1E93ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9492940E-B1BA-4067-8257-B00D9E1E93ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9492940E-B1BA-4067-8257-B00D9E1E93ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		
+		{81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,6 +193,8 @@ Global
 		{7BAF1C68-D490-4576-8447-B8DAE5838E89} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{0D56F70D-B953-4D72-893A-78C530BF5037} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{9492940E-B1BA-4067-8257-B00D9E1E93ED} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{81374B61-CC40-4FD7-BA7A-AB328BC844BA} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05DFE5B3-3188-4E93-A492-081768B6DBA7}
