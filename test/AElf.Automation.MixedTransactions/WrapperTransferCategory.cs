@@ -134,6 +134,7 @@ namespace AElf.Automation.MixedTransactions
                         }
 
                         Task.WaitAll(txsTasks.ToArray<Task>());
+                        Thread.Sleep(1000);
                     }
                     catch (AggregateException exception)
                     {
@@ -153,6 +154,32 @@ namespace AElf.Automation.MixedTransactions
                 Logger.Error("Cancel all tasks due to transaction execution exception.");
                 cts.Cancel(); //cancel all tasks
             }
+        }
+
+        public void CheckAccountAmount(Dictionary<TransferWrapperContract, string> tokenInfo,CancellationTokenSource cts,
+            CancellationToken token)
+        {
+            var checkRound = 1;
+            while (true)
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    Logger.Warn("ExecuteTokenCheckTask was been cancelled.");
+                    break;
+                }
+
+                Thread.Sleep(3 * 60 * 1000);
+                try
+                {
+                    Logger.Info($"Start check tester token balance job round: {checkRound++}");
+                    PrepareWrapperTransfer(tokenInfo);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e.Message);
+                }
+            }
+
         }
 
         private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)

@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using AElf.Client.Service;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -88,16 +91,46 @@ namespace AElf.Automation.MixedTransactions
             }
         }
         
-        public void GetBlockInfo()
+        public void ContinueCheckBlock(CancellationTokenSource cts, CancellationToken token)
         {
+            try
+            {
+                var round = 1;
+                while (true)
+                {
+                    try
+                    {
+                        Thread.Sleep(60000);
+                        Logger.Info("Execution check request round: {0}", round);
+                        var txsTasks = Task.Run(GetBlockInfo, token);
+                        Task.WaitAll(txsTasks);
+                        round++;
+                    }
+                    catch (AggregateException exception)
+                    {
+                        Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                Logger.Error("Cancel all tasks due to transaction execution exception.");
+                cts.Cancel(); //cancel all tasks
+            }
+        }
+
+        private void GetBlockInfo()
+        {
+            var verifyCount = VerifyCount;
             var currentBlockHeight = AsyncHelper.RunSync(() => _aElfClient.GetBlockHeightAsync());
             if (currentBlockHeight - VerifyCount < 0)
-                VerifyCount = currentBlockHeight;
-            var startBlock = VerifyCount == currentBlockHeight ? 1 : currentBlockHeight - VerifyCount;
+                verifyCount = currentBlockHeight;
+            var startBlock = verifyCount == currentBlockHeight ? 1 : currentBlockHeight - verifyCount;
 
-            Logger.Info($"Check block info start: {startBlock}, verify count: {VerifyCount}");
+            Logger.Info($"Check block info start: {startBlock}, verify count: {verifyCount}");
             long all = 0;
-            for (var i = startBlock; i < VerifyCount; i++)
+            for (var i = startBlock; i <= verifyCount; i++)
             {
                 var i1 = i;
                 var stopwatch = new Stopwatch();

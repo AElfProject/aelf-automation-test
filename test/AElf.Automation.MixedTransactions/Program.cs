@@ -14,7 +14,7 @@ namespace AElf.Automation.MixedTransactions
     {
         public static void Main()
         {
-            Log4NetHelper.LogInit("AccountCheck");
+            Log4NetHelper.LogInit("MixedTransaction");
 
             var transfer = new TransferCategory();
             var check = new CheckCategory();
@@ -56,51 +56,25 @@ namespace AElf.Automation.MixedTransactions
             {
                 Task.Run(() => transfer.ContinueTransfer(_tokenInfoList, cts, token), token),
                 Task.Run(() => wrapper.ContinueTransfer(_wrapperInfoList, cts, token), token),
+                Task.Run(() => check.ContinueCheckBlock(cts,token), token),
+                Task.Run(() => transfer.CheckAccountAmount(_tokenInfoList,cts,token), token),
+                Task.Run(() => wrapper.CheckAccountAmount(_wrapperInfoList,cts,token), token),
+
                 Task.Run(() =>
                 {
                     while (true)
                     {
-                        long all = 0;
                         check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long duration1);
                         check.CheckBalance(_toAccountInfos, _tokenInfoList, out long duration2);
                         check.CheckWrapperVirtualBalance(_wrapperInfoList, out long duration3);
                         check.CheckWrapperBalance(_toAccountInfos, _wrapperInfoList, out long duration4);
-
-
-                        all += duration1 + duration2 + duration3 + duration4;
-                        var req = (double) (_fromAccountInfos.Count *
-                                            (_tokenContractList.Count + _wrapperInfoList.Count)) +
-                                  (_toAccountInfos.Count * (_tokenInfoList.Count + _wrapperInfoList.Count)) / all *
-                                  1000;
-                        Logger.Info($"CHeck balance 1s request {req}");
+                        
+                        var all = duration1 + duration2 + duration3 + duration4;
+                        var requests = (_fromAccountInfos.Count * (_tokenContractList.Count + _wrapperInfoList.Count)) + (_toAccountInfos.Count * (_tokenInfoList.Count + _wrapperInfoList.Count));
+                        var req = (double) requests / all * 1000;
+                        Logger.Info($"Check balance 1s request {req}");
 
                         Thread.Sleep(60000);
-                    }
-                }, token),
-                Task.Run(() =>
-                {
-                    while (true)
-                    {
-                        Thread.Sleep(60000);
-                        check.GetBlockInfo();
-                    }
-                }, token),
-                Task.Run(() =>
-                {
-                    var checkRound = 1;
-                    while (true)
-                    {
-                        Thread.Sleep(3 * 60 * 1000);
-                        try
-                        {
-                            Logger.Info($"Start check tester token balance job round: {checkRound++}");
-                            transfer.PrepareTokenTransfer(_tokenInfoList);
-                            wrapper.PrepareWrapperTransfer(_wrapperInfoList);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Error(e.Message);
-                        }
                     }
                 }, token)
             };
