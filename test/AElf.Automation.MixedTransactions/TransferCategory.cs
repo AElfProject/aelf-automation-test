@@ -179,7 +179,7 @@ namespace AElf.Automation.MixedTransactions
                 issueToken.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 var balance = contract.GetUserBalance(InitAccount, symbol);
                 balance.ShouldBe(10_0000_0000_00000000);
-                tokenList.Add(contract, primaryToken);
+                tokenList.Add(contract, symbol);
             }
 
             return tokenList;
