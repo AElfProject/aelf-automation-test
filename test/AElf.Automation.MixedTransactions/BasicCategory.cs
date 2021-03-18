@@ -98,14 +98,13 @@ namespace AElf.Automation.MixedTransactions
                     ? times - FromAccountList.Count * (times / FromAccountList.Count)
                     : times - FromAccountList.Count)
                 : times;
-            var @from = FromAccountList[fromId];
+            var from = FromAccountList[fromId];
 
             var toId = times - ToAccountList.Count >= 0
                 ? (times / ToAccountList.Count > 1
                     ? times - ToAccountList.Count * (times / ToAccountList.Count)
                     : times - ToAccountList.Count)
                 : times;
-//                if (AccountList[toId].Account == from) continue;
             var to = ToAccountList[toId];
 
             return (from, to);

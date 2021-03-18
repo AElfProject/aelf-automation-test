@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.Configuration;
+using AElf.Standards.ACS1;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
@@ -39,6 +41,28 @@ namespace AElf.Automation.RpcPerformance
             var configurationStub = GetConfigurationContractStub();
             var limitCount = _nodeTransactionOption.MaxTransactionSelect;
             AsyncHelper.RunSync(() => SetSelectTransactionLimit(configurationStub, limitCount));
+        }
+        
+        public void SetTokenContractMethodFee()
+        {
+            var genesis = _nodeManager.GetGenesisContract();
+            var token = genesis.GetTokenContract();
+            var authority = new AuthorityManager(_nodeManager);
+            var organization =
+                token.CallViewMethod<AuthorityInfo>(TokenMethod.GetMethodFeeController, new Empty())
+                    .OwnerAddress;
+            var minersList = authority.GetCurrentMiners();
+
+            var input = new MethodFees
+            {
+                MethodName = nameof(TokenMethod.Transfer),
+                Fees = { },
+                IsSizeFeeFree = true 
+            };
+            var result = authority.ExecuteTransactionWithAuthority(token.ContractAddress,
+                "SetMethodFee", input,
+                minersList.First(), organization);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
         }
 
         private ConfigurationContainer.ConfigurationStub GetConfigurationContractStub()

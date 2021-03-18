@@ -78,6 +78,9 @@ namespace AElf.Automation.RpcPerformance
             if (transactionExecuteLimit.WhetherEnableTransactionLimit())
                 transactionExecuteLimit.SetExecutionSelectTransactionLimit();
 
+            var noFee = RpcConfig.ReadInformation.NoFee;
+            if (noFee)
+                transactionExecuteLimit.SetTokenContractMethodFee();
             //Transfer token for transaction fee
             TokenMonitor.TransferTokenForTest(AccountList.Take(ThreadCount).Select(o => o.Account).ToList());
         }

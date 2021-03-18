@@ -55,6 +55,7 @@ namespace AElf.Automation.RpcPerformance
         public bool RandomSenderTransaction { get; set; }
 
         [JsonProperty("OnlyDeploy")] public bool OnlyDeploy { get; set; }
+        [JsonProperty("NoFee")] public bool NoFee { get; set; }
         [JsonProperty("NodeTransactionLimit")] public NodeTransactionOption NodeTransactionOption { get; set; }
 
         [JsonProperty("RequestRandomEndpoint")]
