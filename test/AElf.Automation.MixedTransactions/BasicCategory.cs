@@ -26,7 +26,6 @@ namespace AElf.Automation.MixedTransactions
 
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);
-            ContractManager = new ContractManager(NodeManager, InitAccount, Password);
 
             GetConfig();
             AccountList = new List<string>();
@@ -115,7 +114,6 @@ namespace AElf.Automation.MixedTransactions
         public List<string> ToAccountList;
         public INodeManager NodeManager;
         public AuthorityManager AuthorityManager;
-        public ContractManager ContractManager;
         public string InitAccount;
         public string Password;
 

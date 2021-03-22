@@ -16,7 +16,6 @@ namespace AElf.Automation.AccountCheck
         public TransferAction()
         {
             GetService();
-            SystemToken = ContractManager.Token;
         }
 
         public void Transfer(Dictionary<TokenContract, string> tokenInfo)
@@ -65,48 +64,26 @@ namespace AElf.Automation.AccountCheck
         public List<TokenContract> DeployContractWithAuthority()
         {
             var list = new List<TokenContract>();
-            if (ContractCount == 0)
-            {
-                list.Add(SystemToken);
-                return list;
-            }
             while (list.Count != ContractCount)
             {
                 var contractAddress =
-                    AuthorityManager.DeployContractWithAuthority(InitAccount, "AElf.Contracts.MultiToken", Password);
+                    AuthorityManager.DeployContract(InitAccount, "AElf.Contracts.MultiToken", Password);
                 if (contractAddress.Equals(null))
                     continue;
                 var tokenContract = new TokenContract(NodeManager,InitAccount,contractAddress.ToBase58());
                 list.Add(tokenContract);
             }
-
-            if (IsAddSystemContract)
-                list.Add(SystemToken);
-
             return list;
         }
 
         public Dictionary<TokenContract,string> CreateAndIssueToken(IEnumerable<TokenContract> contracts)
         {
-            var systemToken = ContractManager.Token;
-            var primaryToken = systemToken.GetPrimaryTokenSymbol();
             var tokenList = new Dictionary<TokenContract,string>();
             foreach (var contract in contracts)
             {
                 var symbol = GenerateNotExistTokenSymbol(contract);
-                if (!contract.ContractAddress.Equals(systemToken.ContractAddress))
-                {
-                    contract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-                    {
-                        Symbol = primaryToken,
-                        TokenName = $"fake {primaryToken}",
-                        TotalSupply = 10_0000_0000_00000000L,
-                        Decimals = 8,
-                        Issuer = InitAccount.ConvertAddress(),
-                        IsBurnable = true
-                    });
-                    
-                    var transaction = contract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+
+                var transaction = contract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                     {
                         Symbol = symbol,
                         TokenName = $"elf token {symbol}",
@@ -123,10 +100,6 @@ namespace AElf.Automation.AccountCheck
                     balance.ShouldBe(10_0000_0000_00000000);
                     
                     tokenList.Add(contract,symbol);
-                }
-                else
-                    tokenList.Add(systemToken,primaryToken);
-
             }
 
             return tokenList;
@@ -141,8 +114,6 @@ namespace AElf.Automation.AccountCheck
                 if (tokenInfo.Equals(new TokenInfo())) return symbol;
             }
         }
-
-        private TokenContract SystemToken { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

@@ -207,22 +207,21 @@ namespace AElfChain.Common.Contracts
                 if (!result) break;
                 var transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(txId));
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
-                var fee = transactionResult.GetDefaultTransactionFee();
                 switch (status)
                 {
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
+                            $"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
                         continue;
                     case TransactionResultStatus.Failed:
                     {
-                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
+                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
                         Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;
                     }
                     case TransactionResultStatus.Conflict:
                     {
-                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}, Fee: {fee}");
+                        Logger.Error($"TransactionId: {transactionResult.TransactionId}, Method: {transactionResult.Transaction.MethodName}, Status: {transactionResult.Status}");
                         Logger.Error(JsonConvert.SerializeObject(transactionResult, Formatting.Indented));
                         continue;
                     }
@@ -293,7 +292,7 @@ namespace AElfChain.Common.Contracts
         {
             Logger.Info("Deploy contract with authority mode.");
             var authority = new AuthorityManager(NodeManager, account);
-            var contractAddress = authority.DeployContractWithAuthority(account, FileName);
+            var contractAddress = authority.DeployContract(account, FileName);
             ContractAddress = contractAddress.ToBase58();
         }
 

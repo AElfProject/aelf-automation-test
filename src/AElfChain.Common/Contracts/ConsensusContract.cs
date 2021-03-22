@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AElf.Standards.ACS1;
-using AElf.Standards.ACS10;
 using AElf;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElfChain.Common.Managers;
@@ -106,27 +104,6 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<AuthorityInfo>(ConsensusMethod.GetMaximumMinersCountController, new Empty());
         }
 
-        public Dividends GetUndistributedDividends()
-        {
-            var unAmount = CallViewMethod<Dividends>(ConsensusMethod.GetUndistributedDividends, new Empty());
-            Logger.Info($"UndistributedDividends amount:{unAmount}");
-            return unAmount;
-        }
-        
-        public Dividends GetDividends()
-        {
-            var amount = CallViewMethod<Dividends>(ConsensusMethod.GetDividends, new Empty());
-            Logger.Info($"Dividends amount:{amount}");
-            return amount;
-        }
-        
-        public SymbolList GetSymbolList()
-        {
-            var check = CallViewMethod<SymbolList>(ConsensusMethod.GetSymbolList, new Empty());
-            Logger.Info($"Symbol list:{check}");
-            return check;
-        }
-        
         public Int64Value GetCurrentTermMiningReward()
         {
             var roundMinedBlock = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentTermMiningReward, new Empty());

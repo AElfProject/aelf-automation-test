@@ -16,7 +16,6 @@ namespace AElf.Automation.MixedTransactions
         public CheckCategory()
         {
             GetService();
-            SystemToken = ContractManager.Token;
             _aElfClient = NodeManager.ApiClient;
         }
         
@@ -43,7 +42,7 @@ namespace AElf.Automation.MixedTransactions
             }
         }
         
-        public void CheckWrapperBalance(List<string> accounts, Dictionary<TransferWrapperContract,string> tokenInfos,out long duration)
+        public void CheckWrapperBalance(List<string> accounts, Dictionary<TransferWrapperContract,string> tokenInfos,TokenContract tokenContract, out long duration)
         {
             duration = 0;
             foreach (var (key, value) in tokenInfos)
@@ -54,19 +53,19 @@ namespace AElf.Automation.MixedTransactions
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    var balance = SystemToken.GetUserBalance(account, value);
+                    var balance = tokenContract.GetUserBalance(account, value);
                     stopwatch.Stop();
                     var checkTime = stopwatch.ElapsedMilliseconds;
                     contractDuration += checkTime;
                     Logger.Info($"{account} {value} balance is {balance}");
                 }
                 Logger.Info(
-                    $"{SystemToken.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
+                    $"{tokenContract.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
         
-        public void CheckWrapperVirtualBalance(Dictionary<TransferWrapperContract,string> tokenInfos,out long duration)
+        public void CheckWrapperVirtualBalance(Dictionary<TransferWrapperContract,string> tokenInfos,TokenContract tokenContract,out long duration)
         {
             duration = 0;
             foreach (var (key, value) in tokenInfos)
@@ -79,14 +78,14 @@ namespace AElf.Automation.MixedTransactions
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    var balance = SystemToken.GetUserBalance(account, value);
+                    var balance = tokenContract.GetUserBalance(account, value);
                     stopwatch.Stop();
                     var checkTime = stopwatch.ElapsedMilliseconds;
                     contractDuration += checkTime;
                     Logger.Info($"{account} {value} balance is {balance}");
                 }
                 Logger.Info(
-                    $"{SystemToken.ContractAddress} check {virtualAccount.Count} user balance time: {contractDuration}ms.");
+                    $"{tokenContract.ContractAddress} check {virtualAccount.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
@@ -146,8 +145,6 @@ namespace AElf.Automation.MixedTransactions
             var req = (double)VerifyCount/all * 1000;
             Logger.Info($"Check {VerifyCount} block info use {all}ms, req: {req}/s");
         }
-        
-        private TokenContract SystemToken { get; }
         private readonly AElfClient _aElfClient;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }

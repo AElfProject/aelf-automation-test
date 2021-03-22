@@ -16,20 +16,18 @@ namespace AElf.Automation.CheckTxStatus
     public class TransactionCheck : NodeServices
     {
         private readonly INodeManager _nodeManager;
-        private readonly ContractManager _contractManager;
         private readonly long _startBlock;
         private readonly long _verifyBlock;
-        private readonly string _contractName;
+        private readonly string _contractAddress;
         private readonly string _account;
 
         public TransactionCheck()
         {
             _account = Account;
             _nodeManager = new NodeManager(Url, AccountDir);
-            _contractManager = new ContractManager(_nodeManager, _account);
             _verifyBlock = VerifyBlockNumber;
             _startBlock = StartBlock;
-            _contractName = ExpectedContract;
+            _contractAddress = ContractAddress;
         }
 
         private string AccountDir { get; } = CommonHelper.GetCurrentDataDir();
@@ -128,7 +126,7 @@ namespace AElf.Automation.CheckTxStatus
 
                 foreach (var bloom in BloomList)
                 {
-                    var expectedBloom = ExpectedBloom();
+                    var expectedBloom = ExpectedBloom(_contractAddress.ConvertAddress());
                     if (expectedBloom.IsIn(bloom.Value))
                     {
                         Logger.Info($"{_account} Transfer transaction in block: {bloom.Key}");
@@ -149,7 +147,7 @@ namespace AElf.Automation.CheckTxStatus
             }
         }
 
-        private Bloom ExpectedBloom()
+        private Bloom ExpectedBloom(Address tokenAddress)
         {
             switch (ExpectedContract)
             {
@@ -159,7 +157,7 @@ namespace AElf.Automation.CheckTxStatus
                     {
                         From = _account.ConvertAddress() // 如果用From = MyAddress, 会监听从我的地址转出的Transferred事件
                     };
-                    var e = transferred.ToLogEvent(_contractManager.Token.Contract);
+                    var e = transferred.ToLogEvent(tokenAddress);
                     var expectedBloom = e.GetBloom();
                     return expectedBloom;
             }

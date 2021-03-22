@@ -19,7 +19,6 @@ namespace AElf.Automation.MixedTransactions
         public WrapperTransferCategory()
         {
             GetService();
-            SystemToken = ContractManager.Token;
         }
 
         public void PrepareWrapperTransfer(Dictionary<TransferWrapperContract, string> tokenInfo)
@@ -29,10 +28,10 @@ namespace AElf.Automation.MixedTransactions
                 var virtualAccountList = GetFromVirtualAccounts(contract);
                 foreach (var account in virtualAccountList)
                 {
-                    var balance = SystemToken.GetUserBalance(account, symbol);
+                    var balance = Token.GetUserBalance(account, symbol);
                     if (balance >=1000_00000000)
                         continue;
-                    SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         To = account.ConvertAddress(),
                         Amount = 1000000_00000000,
@@ -46,12 +45,12 @@ namespace AElf.Automation.MixedTransactions
         public Dictionary<TransferWrapperContract, string> CreateAndIssueTokenForWrapper(
             IEnumerable<TransferWrapperContract> contracts)
         {
-            var systemToken = ContractManager.Token;
             var tokenList = new Dictionary<TransferWrapperContract, string>();
-            foreach (var contract in contracts)
+            var transferWrapperContracts = contracts as TransferWrapperContract[] ?? contracts.ToArray();
+            foreach (var contract in transferWrapperContracts)
             {
-                var symbol = GenerateNotExistTokenSymbol(systemToken);
-                var transaction = systemToken.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                var symbol = GenerateNotExistTokenSymbol(Token);
+                var transaction = Token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
                     TokenName = $"elf token {symbol}",
@@ -62,9 +61,9 @@ namespace AElf.Automation.MixedTransactions
                 });
                 transaction.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var issueToken = systemToken.IssueBalance(InitAccount, InitAccount, 10_0000_0000_00000000, symbol);
+                var issueToken = Token.IssueBalance(InitAccount, InitAccount, 10_0000_0000_00000000, symbol);
                 issueToken.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                var balance = systemToken.GetUserBalance(InitAccount, symbol);
+                var balance = Token.GetUserBalance(InitAccount, symbol);
                 balance.ShouldBe(10_0000_0000_00000000);
 
                 tokenList.Add(contract, symbol);
@@ -88,7 +87,7 @@ namespace AElf.Automation.MixedTransactions
         }
 
 
-        public List<TransferWrapperContract> DeployWrapperContractWithAuthority()
+        public List<TransferWrapperContract> DeployWrapperContractWithAuthority(out TokenContract Token)
         {
             var list = new List<TransferWrapperContract>();
             var wrapperContractInfo = ContractInfos.Find(info => info.ContractName.Equals("Wrapper"));
@@ -97,18 +96,25 @@ namespace AElf.Automation.MixedTransactions
                 var wrapperAddress = wrapperContractInfo.TokenInfos;
                 list.AddRange(wrapperAddress.Select(wrapper =>
                     new TransferWrapperContract(NodeManager, InitAccount, wrapper.ContractAddress)));
+                Token = GetWrapperTokenContract(list.First());
             }
             else
             {
+                var tokenAddress =  AuthorityManager.DeployContract(InitAccount,
+                    "AElf.Contracts.MultiToken", Password);
+                Token = new TokenContract(NodeManager,InitAccount,tokenAddress.ToBase58());
+                
                 while (list.Count != wrapperContractInfo.ContractCount)
                 {
                     var contractAddress =
-                        AuthorityManager.DeployContractWithAuthority(InitAccount,
+                        AuthorityManager.DeployContract(InitAccount,
                             "AElf.Contracts.TransferWrapperContract", Password);
                     if (contractAddress.Equals(null))
                         continue;
                     var wrapperContract =
                         new TransferWrapperContract(NodeManager, InitAccount, contractAddress.ToBase58());
+                    var initialize = wrapperContract.Initialize(tokenAddress, InitAccount, Password);
+                    initialize.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                     list.Add(wrapperContract);
                 }
             }
@@ -214,7 +220,13 @@ namespace AElf.Automation.MixedTransactions
             Thread.Sleep(1000);
         }
 
-        private TokenContract SystemToken { get; }
+        private TokenContract GetWrapperTokenContract(TransferWrapperContract contract)
+        {
+            var address =  contract.GetTokenAddress();
+            return new TokenContract(NodeManager,InitAccount,address.ToBase58());
+        }
+
+        private TokenContract Token;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

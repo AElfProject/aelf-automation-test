@@ -13,7 +13,6 @@ namespace AElf.Automation.AccountCheck
         public List<string> ToAccountList;
         public INodeManager NodeManager;
         public AuthorityManager AuthorityManager;
-        public ContractManager ContractManager;
         public string InitAccount;
         public string Password;
 
@@ -42,7 +41,6 @@ namespace AElf.Automation.AccountCheck
 
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager,InitAccount,false);
-            ContractManager = new ContractManager(NodeManager,InitAccount,Password);
 
             GetConfig();
             AccountList = new List<string>();

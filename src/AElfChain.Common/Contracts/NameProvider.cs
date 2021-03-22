@@ -5,31 +5,7 @@ namespace AElfChain.Common.Contracts
     public enum NameProvider
     {
         Genesis,
-        Election,
-        Profit,
-        Vote,
-        Treasury,
-        Token,
-        TokenHolder,
-        TokenConverter,
-        Consensus,
-        ParliamentAuth,
-        CrossChain,
-        AssociationAuth,
-        Configuration,
-        ReferendumAuth,
-
-        TestBasicFunction,
-        TestUpdateFunction,
-        TestBasicSecurity,
-        TestPerformance,
-        TestEvents,
-        TestTransactionFees,
-        TestA,
-        TestB,
-        TestC,
-        ExecutionAcs5,
-        ExecutionAcs8
+        Consensus
     }
 
     public static class NameProviderExtension

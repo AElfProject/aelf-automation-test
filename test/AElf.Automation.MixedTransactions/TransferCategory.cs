@@ -19,7 +19,6 @@ namespace AElf.Automation.MixedTransactions
         public TransferCategory()
         {
             GetService();
-            SystemToken = ContractManager.Token;
         }
 
         public void ContinueTransfer(Dictionary<TokenContract, string> tokenInfo, CancellationTokenSource cts,
@@ -155,14 +154,13 @@ namespace AElf.Automation.MixedTransactions
                 while (list.Count != tokenContractInfo.ContractCount)
                 {
                     var contractAddress =
-                        AuthorityManager.DeployContractWithAuthority(InitAccount, "AElf.Contracts.MultiToken",
+                        AuthorityManager.DeployContract(InitAccount, "AElf.Contracts.MultiToken",
                             Password);
                     if (contractAddress.Equals(null))
                         continue;
                     var tokenContract = new TokenContract(NodeManager, InitAccount, contractAddress.ToBase58());
                     list.Add(tokenContract);
                 }
-                list.Add(SystemToken);
             }
 
             return list;
@@ -170,24 +168,10 @@ namespace AElf.Automation.MixedTransactions
 
         public Dictionary<TokenContract, string> CreateAndIssueTokenForToken(IEnumerable<TokenContract> contracts)
         {
-            var systemToken = ContractManager.Token;
-            var primaryToken = systemToken.GetPrimaryTokenSymbol();
             var tokenList = new Dictionary<TokenContract, string>();
             foreach (var contract in contracts)
             {
                 var symbol = GenerateNotExistTokenSymbol(contract);
-                if (!contract.ContractAddress.Equals(systemToken.ContractAddress))
-                {
-                    contract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
-                    {
-                        Symbol = primaryToken,
-                        TokenName = $"fake {primaryToken}",
-                        TotalSupply = 10_0000_0000_00000000L,
-                        Decimals = 8,
-                        Issuer = InitAccount.ConvertAddress(),
-                        IsBurnable = true
-                    });
-                }
 
                 var transaction = contract.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
@@ -224,8 +208,6 @@ namespace AElf.Automation.MixedTransactions
             return tokenList;
         }
 
-
-        private TokenContract SystemToken { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

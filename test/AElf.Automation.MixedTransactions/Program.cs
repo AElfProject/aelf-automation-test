@@ -25,7 +25,7 @@ namespace AElf.Automation.MixedTransactions
 
             // Deploy contract for test 
             _tokenContractList = transfer.DeployTokenContractWithAuthority();
-            _wrapperContractList = wrapper.DeployWrapperContractWithAuthority();
+            _wrapperContractList = wrapper.DeployWrapperContractWithAuthority(out var tokenContract);
 
             // Create or Get token
             if (transfer.NeedCreateToken)
@@ -46,8 +46,8 @@ namespace AElf.Automation.MixedTransactions
 
             check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long d1);
             check.CheckBalance(_toAccountInfos, _tokenInfoList, out long d2);
-            check.CheckWrapperBalance(_fromAccountInfos, _wrapperInfoList, out long d3);
-            check.CheckWrapperVirtualBalance(_wrapperInfoList, out long d4);
+            check.CheckWrapperBalance(_fromAccountInfos, _wrapperInfoList,tokenContract, out long d3);
+            check.CheckWrapperVirtualBalance(_wrapperInfoList, tokenContract, out long d4);
 
             //Transfer Task
             var cts = new CancellationTokenSource();
@@ -66,8 +66,8 @@ namespace AElf.Automation.MixedTransactions
                     {
                         check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long duration1);
                         check.CheckBalance(_toAccountInfos, _tokenInfoList, out long duration2);
-                        check.CheckWrapperVirtualBalance(_wrapperInfoList, out long duration3);
-                        check.CheckWrapperBalance(_toAccountInfos, _wrapperInfoList, out long duration4);
+                        check.CheckWrapperVirtualBalance(_wrapperInfoList,tokenContract, out long duration3);
+                        check.CheckWrapperBalance(_toAccountInfos, _wrapperInfoList,tokenContract, out long duration4);
                         
                         var all = duration1 + duration2 + duration3 + duration4;
                         var requests = (_fromAccountInfos.Count * (_tokenContractList.Count + _wrapperInfoList.Count)) + (_toAccountInfos.Count * (_tokenInfoList.Count + _wrapperInfoList.Count));

@@ -9,32 +9,12 @@ using Shouldly;
 
 namespace AElf.Automation.RpcPerformance
 {
-    [Command(Name = "Transaction Client", Description = "Monitor contract transaction testing client.")]
-    [HelpOption("-?")]
     internal class Program
     {
         private static ILog Logger { get; set; }
 
-        public static int Main(string[] args)
+        public static void Main()
         {
-            if (args.Length != 3) return CommandLineApplication.Execute<Program>(args);
-
-            var tc = args[0];
-            var tg = args[1];
-            var ru = args[2];
-            args = new[] {"-tc", tc, "-tg", tg, "-ru", ru, "-em", "0"};
-
-            return CommandLineApplication.Execute<Program>(args);
-        }
-
-        private void OnExecute(CommandLineApplication app)
-        {
-            if (GroupCount == 0 || TransactionCount == 0 || RpcUrl == null)
-            {
-                app.ShowHelp();
-                return;
-            }
-
             if (ConfigFile != null) NodeInfoHelper.SetConfig(ConfigFile);
 
             //Init Logger
@@ -44,9 +24,8 @@ namespace AElf.Automation.RpcPerformance
 
             var transactionType = RpcConfig.ReadInformation.RandomSenderTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,
-                    limitTransaction: LimitTransaction)
-                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl, limitTransaction: LimitTransaction);
+                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl)
+                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl);
 
             //Execute transaction command
             try
@@ -59,53 +38,11 @@ namespace AElf.Automation.RpcPerformance
                     nodeSummary.ContinuousCheckTransactionPerformance(new CancellationToken());
                     return;
                 }
-                var chainId = nodeManager.GetChainId();
                 performance.InitExecCommand(UserCount + GroupCount);
+                performance.DeployContracts();
+                performance.InitializeMainContracts();
+                ExecuteTransactionPerformanceTask(performance);
                 
-                var authority = NodeInfoHelper.Config.RequireAuthority;
-                var isMainChain = nodeManager.IsMainChain();
-                var onlyDeploy = RpcConfig.ReadInformation.OnlyDeploy;
-                if (!onlyDeploy)
-                {
-                    if (authority)
-                    {
-                        if (isMainChain)
-                            performance.DeployContractsWithAuthority();
-                        else if (chainId.Equals("tDVW"))
-                            performance.SideChainDeployContractsWithCreator();
-                        else
-                            performance.SideChainDeployContractsWithAuthority();
-                    }
-                    else
-                    {
-                        performance.DeployContracts();
-                    }
-
-                    if (chainId.Equals("AELF"))
-                        performance.InitializeMainContracts();
-                    else
-                        performance.InitializeSideChainToken();
-                
-                    ExecuteTransactionPerformanceTask(performance, ExecuteMode);
-                }
-                else
-                {
-                    var times = 0;
-                    if (isMainChain)
-                        while (true)
-                        {
-                            Logger.Info($"Deploy round: {times}");
-                            performance.DeployContractsWithAuthority();
-                            performance.InitializeMainContracts();
-                            performance.ExecuteOneRoundTransactionTask();
-                            times++;
-                        }
-                    if (chainId.Equals("tDVW"))
-                        while (true)
-                            performance.SideChainDeployContractsWithCreator();
-                    if (chainId.Equals("tDVV"))
-                        performance.SideChainDeployContractsWithAuthority();
-                }
             }
             catch (TimeoutException e)
             {
@@ -125,83 +62,23 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info("Complete performance testing.");
         }
 
-        private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance, int execMode = -1)
+        private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance)
         {
-            if (execMode == -1)
-            {
-                Logger.Info("Select execution type:");
-                "1. Normal mode".WriteSuccessLine();
-                "2. Continue Tx mode".WriteSuccessLine();
-                "3. Batch mode".WriteSuccessLine();
-                "4. Continue Txs mode".WriteSuccessLine();
-                Console.Write("Input selection: ");
 
-                var runType = Console.ReadLine();
-                var check = int.TryParse(runType, out execMode);
-                if (!check)
-                {
-                    Logger.Info("Wrong input, please input again.");
-                    ExecuteTransactionPerformanceTask(performance);
-                }
-            }
-
-            var tm = (TestMode) execMode;
-            switch (tm)
-            {
-                case TestMode.CommonTx:
-                    Logger.Info($"Run with tx mode: {tm.ToString()}.");
-                    performance.ExecuteOneRoundTransactionTask();
-                    break;
-                case TestMode.ContinuousTx:
-                    Logger.Info($"Run with continuous tx mode: {tm.ToString()}.");
-                    performance.ExecuteContinuousRoundsTransactionsTask();
-                    break;
-                case TestMode.BatchTxs:
-                    Logger.Info($"Run with txs mode: {tm.ToString()}.");
-                    performance.ExecuteOneRoundTransactionsTask();
-                    break;
-                case TestMode.ContinuousTxs:
-                    Logger.Info($"Run with continuous txs mode: {tm.ToString()}.");
-                    performance.ExecuteContinuousRoundsTransactionsTask(true);
-                    break;
-                case TestMode.NotSet:
-                    break;
-                default:
-                    Logger.Info("Wrong input, please input again.");
-                    ExecuteTransactionPerformanceTask(performance);
-                    break;
-            }
-
+            Logger.Info("Run with continuous txs mode: ContinuousTxs.");
+            performance.ExecuteContinuousRoundsTransactionsTask(true);
             performance.PrintContractInfo();
         }
 
         #region Parameter Option
-
-        [Option("-c|--config", Description = "Config file about bp node setting")]
+        
         private static string ConfigFile { get; set; }
-
-        [Option("-tc|--thread.count", Description =
-            "Thread count to execute transactions. Default value is 4")]
-        private int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
-
-        [Option("-tg|--transaction.group", Description =
-            "Transaction count to execute of each round or one round. Default value is 10.")]
-        private int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
-
-        private int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
-
-        [Option("-ru|--rpc.url", Description = "Rpc service url of node. It's required parameter.")]
-        private string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
-
-        [Option("-em|--execute.mode", Description =
-            "Transaction execution mode include: \n0. Not set \n1. Normal mode \n2. Continuous Tx mode \n3. Batch mode \n4. Continuous Txs mode")]
-        private int ExecuteMode { get; } = RpcConfig.ReadInformation.ExecuteMode;
-
-        [Option("-lt|--limit.transaction", Description =
-            "Enable limit transaction, if transaction pool with enough transaction, request process be would wait.")]
-        private string LimitTransactionString { get; } = "true";
-
-        private bool LimitTransaction => LimitTransactionString.ToLower().Trim() == "true";
+        private static int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
+        private static int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
+        private static int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
+        private static string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
+        private static int ExecuteMode { get; } = RpcConfig.ReadInformation.ExecuteMode;
+        
 
         #endregion
     }

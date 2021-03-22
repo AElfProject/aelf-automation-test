@@ -1,9 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using AElf.Contracts.MultiToken;
-using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using log4net;
@@ -15,7 +11,6 @@ namespace AElf.Automation.AccountCheck
         public CheckAction()
         {
             GetService();
-            SystemToken = ContractManager.Token;
         }
 
         public void CheckBalanceOnly(List<string> accounts, List<ContractInfo> contractInfos,out long duration)
@@ -72,8 +67,6 @@ namespace AElf.Automation.AccountCheck
 
             return accountTokenInfo;
         }
-
-        private TokenContract SystemToken { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

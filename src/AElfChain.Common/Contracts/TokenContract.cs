@@ -112,13 +112,6 @@ namespace AElfChain.Common.Contracts
 
             return result;
         }
-
-        public TransactionResultDto CrossChainReceiveToken(string from, CrossChainReceiveTokenInput input)
-        {
-            var tester = GetNewTester(from);
-            return tester.ExecuteMethodWithResult(TokenMethod.CrossChainReceiveToken, input);
-        }
-
         public long GetUserBalance(string account, string symbol = "")
         {
             return CallViewMethod<GetBalanceOutput>(TokenMethod.GetBalance, new GetBalanceInput
@@ -126,16 +119,6 @@ namespace AElfChain.Common.Contracts
                 Owner = account.ConvertAddress(),
                 Symbol = NodeOption.GetTokenSymbol(symbol)
             }).Balance;
-        }
-
-        public long GetLockedAmount(string account, Hash lockId, string symbol = "")
-        {
-            return CallViewMethod<GetLockedAmountOutput>(TokenMethod.GetLockedAmount, new GetLockedAmountInput
-            {
-                Address = account.ConvertAddress(),
-                LockId = lockId,
-                Symbol = NodeOption.GetTokenSymbol(symbol)
-            }).Amount;
         }
 
         public long GetAllowance(string from, string to, string symbol = "")
@@ -165,11 +148,6 @@ namespace AElfChain.Common.Contracts
             {
                 Symbol = symbol
             });
-        }
-
-        public OwningRental GetOwningRental()
-        {
-            return CallViewMethod<OwningRental>(TokenMethod.GetOwningRental, new Empty());
         }
     }
 }

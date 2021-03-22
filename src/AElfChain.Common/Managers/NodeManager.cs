@@ -300,7 +300,7 @@ namespace AElfChain.Common.Managers
                 switch (status)
                 {
                     case TransactionResultStatus.NodeValidationFailed:
-                        message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
+                        message = $"Transaction {txId} status: {status}";
                         errorMsg = transactionResult.Error.Contains("\n")
                             ? transactionResult.Error.Split("\n")[0]
                             : transactionResult.Error;
@@ -318,12 +318,12 @@ namespace AElfChain.Common.Managers
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
+                            $"Transaction {txId} Method:{transactionResult.Transaction.MethodName}, Status: {status}",
                             true);
                         Thread.Sleep(1000); //wait 1 second to wait set best chain
                         return transactionResult;
                     case TransactionResultStatus.Failed:
-                        message = $"Transaction {txId} status: {status}-[{transactionResult.GetTransactionFeeInfo()}]";
+                        message = $"Transaction {txId} status: {status}";
                         message +=
                             $"\r\nMethodName: {transactionResult.Transaction.MethodName}, Parameter: {transactionResult.Transaction.Params}";
                         errorMsg = transactionResult.Error.Contains("\n")
@@ -381,14 +381,14 @@ namespace AElfChain.Common.Managers
                         break;
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]",
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}",
                             true);
                         Thread.Sleep(500);
                         break;
                     case TransactionResultStatus.Failed:
                     case TransactionResultStatus.Conflict:
                         Logger.Error(
-                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}-[{transactionResult.GetTransactionFeeInfo()}]. \nError: {transactionResult.Error}",
+                            $"TransactionId: {id}, Method: {transactionResult.Transaction.MethodName}, Status: {status}. \nError: {transactionResult.Error}",
                             true);
                         break;
                 }

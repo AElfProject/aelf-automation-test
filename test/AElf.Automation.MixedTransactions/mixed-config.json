@@ -4,13 +4,10 @@
       "ContractName": "Token",
       "IsNeedDeploy": false,
       "ContractCount": 1,
-      "TokenInfos": [{
-        "ContractAddress": "JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE",
-        "TokenSymbol": "OWNOOQAO"
-      },
+      "TokenInfos": [
         {
-          "ContractAddress": "2hQPHPHUjcQGrdXXYFHJhXQhL5vEw78rTDpigftCUC6b2W8DTL",
-          "TokenSymbol": "AVSKTRGN"
+          "ContractAddress": "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS",
+          "TokenSymbol": "UUMRCJMO"
         }]
     },
     {
@@ -18,8 +15,8 @@
       "IsNeedDeploy": false,
       "ContractCount": 1,
       "TokenInfos": [{
-        "ContractAddress": "xwfQDMdE5xCmyKcDDKV8EDTJdmVfSY6zxiojUxjYKvWpkeu65",
-        "TokenSymbol": "GROJNCDM"
+        "ContractAddress": "2WHXRoLRjbUTDQsuqR5CntygVfnDb125qdJkudev4kVNbLhTdG",
+        "TokenSymbol": "KJTLSQYE"
       }]
     }
   ],
@@ -27,7 +24,7 @@
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
   "UserCount": 10,
-  "VerifyCount": 1,
-  "TransactionCount": 1000,
+  "VerifyCount": 2000,
+  "TransactionCount": 100,
   "NeedCreateToken": false
 }
