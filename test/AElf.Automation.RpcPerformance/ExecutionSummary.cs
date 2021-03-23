@@ -48,7 +48,7 @@ namespace AElf.Automation.RpcPerformance
                 if (height == _blockHeight)
                 {
                     checkTimes++;
-                    Thread.Sleep(4000);
+                    Thread.Sleep(1000);
                     continue;
                 }
 

@@ -166,24 +166,6 @@ namespace AElf.Automation.RpcPerformance
 
                                     Task.WaitAll(txsTasks.ToArray<Task>());
                                 }
-                                else
-                                {
-                                    //multi task for SendTransaction query
-                                    for (var i = 0; i < ThreadCount; i++)
-                                    {
-                                        var j = i;
-                                        //Generate transaction requests
-                                        GenerateRawTransactionQueue(j, exeTimes);
-                                        //Send  transaction requests
-                                        Logger.Info(
-                                            $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
-                                        var txTasks = new List<Task>();
-                                        for (var k = 0; k < ThreadCount; k++)
-                                            txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
-
-                                        Task.WaitAll(txTasks.ToArray<Task>());
-                                    }
-                                }
                             }
                             catch (AggregateException exception)
                             {

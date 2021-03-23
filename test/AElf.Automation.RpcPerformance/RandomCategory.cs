@@ -77,7 +77,6 @@ namespace AElf.Automation.RpcPerformance
 
         public void InitializeMainContracts()
         {
-            var bps = NodeInfoHelper.Config.Nodes;
             //create all token
             for (var i = 0; i < ThreadCount; i++)
             {
@@ -230,22 +229,6 @@ namespace AElf.Automation.RpcPerformance
                             }
                             Task.WaitAll(txTasks.ToArray<Task>());
                         }
-                        else
-                        {
-                            //multi task for SendTransaction query
-                            for (var i = 0; i < ThreadCount; i++)
-                            {
-                                var j = i;
-                                GenerateRawTransactionQueue(j, exeTimes);
-                                Logger.Info(
-                                    $"Begin execute group {j + 1} transactions with {ThreadCount} threads.");
-                                var txTasks = new List<Task>();
-                                for (var k = 0; k < ThreadCount; k++)
-                                    txTasks.Add(Task.Run(() => ExecuteAloneTransactionTask(j), token));
-
-                                Task.WaitAll(txTasks.ToArray<Task>());
-                            }
-                        }
                     }
                     catch (AggregateException exception)
                     {
@@ -296,14 +279,11 @@ namespace AElf.Automation.RpcPerformance
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
-            var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
-//            var transactionsWhitRpc = new Dictionary<string, List<string>>();
 
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
                 Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-//                return transactionsWhitRpc;
             }
 
             var rawTransactionList = new List<string>();
@@ -336,20 +316,10 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
-//            if (transactions.Equals(new List<string>()))
-//            {
-//                stopwatch.Stop();
-//                return transactionsWhitRpc;
-//            }
-//            var rpc = NodeManager.ApiClient.BaseUrl;
-//            Logger.Info(transactions);
-//            transactionsWhitRpc[rpc] = transactions;
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
-            Thread.Sleep(1000);
-//            return transactionsWhitRpc;
         }
 
         private void ExecuteAloneTransactionTask(int group)
@@ -409,39 +379,7 @@ namespace AElf.Automation.RpcPerformance
             var rand = new Random(Guid.NewGuid().GetHashCode());
             return rand.Next(1, max + 1);
         }
-
-        private void GenerateRawTransactionQueue(int threadNo, int times)
-        {
-            var account = ContractList[threadNo].Owner;
-            var contractPath = ContractList[threadNo].ContractAddress;
-            var symbol = ContractList[threadNo].Symbol;
-            var token = new TokenContract(NodeManager, account, contractPath);
-
-            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            if (!result)
-            {
-                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return;
-            }
-
-            for (var i = 0; i < times; i++)
-            {
-                var (from, to) = GetTransferPair(token, symbol, i);
-
-                //Execute Transfer
-                var transferInput = new TransferInput
-                {
-                    Symbol = ContractList[threadNo].Symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
-                };
-                var requestInfo = NodeManager.GenerateRawTransaction(from, contractPath,
-                    TokenMethod.Transfer.ToString(), transferInput);
-                GenerateTransactionQueue.Enqueue(requestInfo);
-            }
-        }
-
+        
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)
         {
             var tx = (float) transactionCount;
