@@ -29,8 +29,7 @@ namespace AElf.Automation.RpcPerformance
         public RandomCategory(int threadCount,
             int exeTimes,
             string baseUrl,
-            string keyStorePath = "",
-            bool limitTransaction = true)
+            string keyStorePath = "")
         {
             if (keyStorePath == "")
                 keyStorePath = CommonHelper.GetCurrentDataDir();
@@ -47,7 +46,6 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
-            LimitTransaction = limitTransaction;
         }
 
         public void InitExecCommand(int userCount)
@@ -175,7 +173,7 @@ namespace AElf.Automation.RpcPerformance
                 Task.Run(() => GeneratedTransaction(useTxs, cts, token), token),
             };
 
-            Task.WaitAll(taskList.ToArray<Task>());
+//            Task.WaitAll(taskList.ToArray<Task>());
         }
 
         private void GetTestAccounts(int count)
@@ -227,7 +225,6 @@ namespace AElf.Automation.RpcPerformance
                                 var j = i;
                                 txTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                             }
-                            Task.WaitAll(txTasks.ToArray<Task>());
                         }
                     }
                     catch (AggregateException exception)
@@ -280,12 +277,6 @@ namespace AElf.Automation.RpcPerformance
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
 
-            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            if (!result)
-            {
-                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-            }
-
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -315,25 +306,11 @@ namespace AElf.Automation.RpcPerformance
             //Send batch transaction requests
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
-            var transactions = NodeManager.SendTransactions(rawTransactions);
+            NodeManager.SendTransactions(rawTransactions);
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
-        }
-
-        private void ExecuteAloneTransactionTask(int group)
-        {
-            while (true)
-            {
-                if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
-                    break;
-
-                var transactionId = NodeManager.SendTransaction(rawTransaction);
-                Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
-                    GenerateTransactionQueue.Count, transactionId);
-                Thread.Sleep(10);
-            }
         }
 
         private (string, string) GetTransferPair(TokenContract token, string symbol, int times,
@@ -412,7 +389,6 @@ namespace AElf.Automation.RpcPerformance
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
-        public bool LimitTransaction { get; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 

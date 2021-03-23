@@ -30,8 +30,7 @@ namespace AElf.Automation.RpcPerformance
         public ExecutionCategory(int threadCount,
             int exeTimes,
             string baseUrl,
-            string keyStorePath = "",
-            bool limitTransaction = true)
+            string keyStorePath = "")
         {
             if (keyStorePath == "")
                 keyStorePath = CommonHelper.GetCurrentDataDir();
@@ -47,8 +46,7 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
-            LimitTransaction = limitTransaction;
-        }
+       }
 
         public void InitExecCommand(int userCount = 200)
         {
@@ -227,7 +225,6 @@ namespace AElf.Automation.RpcPerformance
         private List<string> TxIdList { get; }
         public int ThreadCount { get; set; }
         public int ExeTimes { get; }
-        public bool LimitTransaction { get; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
@@ -239,12 +236,6 @@ namespace AElf.Automation.RpcPerformance
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
             var token = new TokenContract(NodeManager, account, contractPath);
-            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            if (!result)
-            {
-                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return;
-            }
 
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
@@ -294,52 +285,6 @@ namespace AElf.Automation.RpcPerformance
             Logger.Info(
                 $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
             Thread.Sleep(10);
-        }
-
-        private void GenerateRawTransactionQueue(int threadNo, int times)
-        {
-            var account = ContractList[threadNo].Owner;
-            var contractPath = ContractList[threadNo].ContractAddress;
-
-            var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
-            if (!result)
-            {
-                Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return;
-            }
-
-            for (var i = 0; i < times; i++)
-            {
-                var rd = new Random(DateTime.Now.Millisecond);
-                var countNo = rd.Next(ThreadCount, AccountList.Count);
-                var toAccount = AccountList[countNo].Account;
-
-                //Execute Transfer
-                var transferInput = new TransferInput
-                {
-                    Symbol = ContractList[threadNo].Symbol,
-                    To = toAccount.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 10000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
-                };
-                var requestInfo = NodeManager.GenerateRawTransaction(account, contractPath,
-                    TokenMethod.Transfer.ToString(), transferInput);
-                GenerateTransactionQueue.Enqueue(requestInfo);
-            }
-        }
-
-        private void ExecuteAloneTransactionTask(int group)
-        {
-            while (true)
-            {
-                if (!GenerateTransactionQueue.TryDequeue(out var rawTransaction))
-                    break;
-
-                var transactionId = NodeManager.SendTransaction(rawTransaction);
-                Logger.Info("Group={0}, TaskLeft={1}, TxId: {2}", group + 1,
-                    GenerateTransactionQueue.Count, transactionId);
-                Thread.Sleep(10);
-            }
         }
 
         private void UnlockAllAccounts(int count)
