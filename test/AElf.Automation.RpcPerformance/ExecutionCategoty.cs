@@ -162,7 +162,7 @@ namespace AElf.Automation.RpcPerformance
                                         txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                                     }
 
-                                    Task.WaitAll(txsTasks.ToArray<Task>());
+//                                    Task.WaitAll(txsTasks.ToArray<Task>());
                                 }
                             }
                             catch (AggregateException exception)
