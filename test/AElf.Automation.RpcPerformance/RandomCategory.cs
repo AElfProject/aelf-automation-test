@@ -90,9 +90,8 @@ namespace AElf.Automation.RpcPerformance
                 ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
-                var balance = token.GetUserBalance(account);
-                if (balance < 10000_00000000)
-                    token.SetAccount(bps.First().Account);
+                
+                token.SetAccount(account);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
@@ -309,22 +308,24 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            for (var i = 0; i < times; i++)
+            var t = times / FromAccountList.Count;
+            for (var i = 0; i < t; i++)
             {
-                var (from, to) = GetTransferPair(token, symbol, i);
-
-                //Execute Transfer
-                var transferInput = new TransferInput
+                for (int j = 0; j < FromAccountList.Count; j++)
                 {
-                    Symbol = ContractList[threadNo].Symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contractPath, TokenMethod.Transfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
+                    //Execute Transfer
+                    var transferInput = new TransferInput
+                    {
+                        Symbol = ContractList[threadNo].Symbol,
+                        To = ToAccountList[j].Account.ConvertAddress(),
+                        Amount = ((i + 1) % 4 + 1) * 1000,
+                        Memo = $"transfer test - {Guid.NewGuid()}"
+                    };
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(FromAccountList[j].Account, contractPath, TokenMethod.Transfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
+                }
             }
 
             stopwatch.Stop();

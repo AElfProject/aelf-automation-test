@@ -7,14 +7,5 @@
     "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
-    "RandomSenderTransaction": false,
-    "RequestRandomEndpoint": {
-        "enable_random": false,
-        "endpoint_list": [
-            "192.168.197.14:8000",
-            "192.168.197.42:8000",
-            "192.168.197.24:8000",
-            "192.168.197.23:8000"
-        ]
-    }
+    "RandomSenderTransaction": false
 }
