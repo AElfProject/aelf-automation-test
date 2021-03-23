@@ -7,5 +7,5 @@
     "SentTxLimit": 100,
     "ExecuteMode": 4,
     "Timeout": 300,
-    "RandomSenderTransaction": false
+    "RandomSenderTransaction": true
 }
