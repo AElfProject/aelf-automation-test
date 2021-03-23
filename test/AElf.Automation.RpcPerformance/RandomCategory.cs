@@ -222,12 +222,13 @@ namespace AElf.Automation.RpcPerformance
                         if (useTxs)
                         {
                             //multi task for SendTransactions query
-                            var txsTasks = new List<Dictionary<string, List<string>>>();
+                            var txTasks = new List<Task>();
                             for (var i = 0; i < ThreadCount; i++)
                             {
                                 var j = i;
-                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token).Result);
+                                txTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                             }
+                            Task.WaitAll(txTasks.ToArray<Task>());
                         }
                         else
                         {
@@ -290,19 +291,19 @@ namespace AElf.Automation.RpcPerformance
             }
         }
 
-        private Dictionary<string, List<string>> ExecuteBatchTransactionTask(int threadNo, int times)
+        private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
             var token = new TokenContract(NodeManager, account, ContractList[threadNo].ContractAddress);
-            var transactionsWhitRpc = new Dictionary<string, List<string>>();
+//            var transactionsWhitRpc = new Dictionary<string, List<string>>();
 
             var result = Monitor.CheckTransactionPoolStatus(LimitTransaction);
             if (!result)
             {
                 Logger.Warn("Transaction pool transactions over limited, canceled this round execution.");
-                return transactionsWhitRpc;
+//                return transactionsWhitRpc;
             }
 
             var rawTransactionList = new List<string>();
@@ -335,20 +336,20 @@ namespace AElf.Automation.RpcPerformance
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
-            if (transactions.Equals(new List<string>()))
-            {
-                stopwatch.Stop();
-                return transactionsWhitRpc;
-            }
-            var rpc = NodeManager.ApiClient.BaseUrl;
-            Logger.Info(transactions);
-            transactionsWhitRpc[rpc] = transactions;
+//            if (transactions.Equals(new List<string>()))
+//            {
+//                stopwatch.Stop();
+//                return transactionsWhitRpc;
+//            }
+//            var rpc = NodeManager.ApiClient.BaseUrl;
+//            Logger.Info(transactions);
+//            transactionsWhitRpc[rpc] = transactions;
             stopwatch.Stop();
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
             Thread.Sleep(1000);
-            return transactionsWhitRpc;
+//            return transactionsWhitRpc;
         }
 
         private void ExecuteAloneTransactionTask(int group)
