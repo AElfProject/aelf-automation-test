@@ -25,6 +25,8 @@ namespace AElf.Automation.MixedTransactions
         [JsonProperty("InitAccount")] public string InitAccount { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
         [JsonProperty("UserCount")] public int UserCount {set; get; }
+        [JsonProperty("TransactionGroup")] public int TransactionGroup {set; get; }
+
         [JsonProperty("VerifyCount")] public long VerifyCount {set; get; }
         [JsonProperty("TransactionCount")] public long TransactionCount {set; get; }
         [JsonProperty("NeedCreateToken")] public bool NeedCreateToken {set; get; }

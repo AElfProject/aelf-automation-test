@@ -43,7 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.BlockCheck"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.MixedTransactions", "test\AElf.Automation.MixedTransactions\AElf.Automation.MixedTransactions.csproj", "{81374B61-CC40-4FD7-BA7A-AB328BC844BA}"
 EndProject
-
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Automation.ContractTransfer", "test\AElf.Automation.ContractTransfer\AElf.Automation.ContractTransfer.csproj", "{9B0159A7-3A5D-4FE4-860B-C9597D4B6108}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,7 +79,10 @@ Global
 		{81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81374B61-CC40-4FD7-BA7A-AB328BC844BA}.Release|Any CPU.Build.0 = Release|Any CPU
-
+		{9B0159A7-3A5D-4FE4-860B-C9597D4B6108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B0159A7-3A5D-4FE4-860B-C9597D4B6108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B0159A7-3A5D-4FE4-860B-C9597D4B6108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B0159A7-3A5D-4FE4-860B-C9597D4B6108}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +95,7 @@ Global
 		{0D56F70D-B953-4D72-893A-78C530BF5037} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{9492940E-B1BA-4067-8257-B00D9E1E93ED} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 		{81374B61-CC40-4FD7-BA7A-AB328BC844BA} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
+		{9B0159A7-3A5D-4FE4-860B-C9597D4B6108} = {35D838ED-B1AC-4F0F-8657-24F2B52F59EA}
 
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

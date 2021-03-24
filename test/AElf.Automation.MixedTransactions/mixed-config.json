@@ -2,7 +2,7 @@
   "ContractInfo": [
     {
       "ContractName": "Token",
-      "IsNeedDeploy": false,
+      "IsNeedDeploy": true,
       "ContractCount": 1,
       "TokenInfos": [
         {
@@ -12,7 +12,7 @@
     },
     {
       "ContractName": "Wrapper",
-      "IsNeedDeploy": false,
+      "IsNeedDeploy": true,
       "ContractCount": 1,
       "TokenInfos": [{
         "ContractAddress": "2WHXRoLRjbUTDQsuqR5CntygVfnDb125qdJkudev4kVNbLhTdG",
@@ -23,8 +23,9 @@
   "ServiceUrl": "3.115.115.141:8000",
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
-  "UserCount": 10,
+  "UserCount": 100,
+  "TransactionGroup": 10,
   "VerifyCount": 2000,
   "TransactionCount": 100,
-  "NeedCreateToken": false
+  "NeedCreateToken": true
 }

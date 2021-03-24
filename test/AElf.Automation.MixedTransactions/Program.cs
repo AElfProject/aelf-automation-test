@@ -31,7 +31,7 @@ namespace AElf.Automation.MixedTransactions
             if (transfer.NeedCreateToken)
             {
                 _tokenInfoList = transfer.CreateAndIssueTokenForToken(_tokenContractList);
-                _wrapperInfoList = wrapper.CreateAndIssueTokenForWrapper(_wrapperContractList);
+                _wrapperInfoList = wrapper.CreateAndIssueTokenForWrapper(_wrapperContractList,tokenContract);
             }
             else
             {
@@ -42,7 +42,7 @@ namespace AElf.Automation.MixedTransactions
             //Transfer prepare 
 
             transfer.PrepareTokenTransfer(_tokenInfoList);
-            wrapper.PrepareWrapperTransfer(_wrapperInfoList);
+            wrapper.PrepareWrapperTransfer(_wrapperInfoList,tokenContract);
 
             check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long d1);
             check.CheckBalance(_toAccountInfos, _tokenInfoList, out long d2);
@@ -56,9 +56,10 @@ namespace AElf.Automation.MixedTransactions
             {
                 Task.Run(() => transfer.ContinueTransfer(_tokenInfoList, cts, token), token),
                 Task.Run(() => wrapper.ContinueTransfer(_wrapperInfoList, cts, token), token),
+                Task.Run(() => wrapper.ContinueContractTransfer(_wrapperInfoList, cts, token), token),
                 Task.Run(() => check.ContinueCheckBlock(cts,token), token),
                 Task.Run(() => transfer.CheckAccountAmount(_tokenInfoList,cts,token), token),
-                Task.Run(() => wrapper.CheckAccountAmount(_wrapperInfoList,cts,token), token),
+                Task.Run(() => wrapper.CheckAccountAmount(_wrapperInfoList,tokenContract,cts,token), token),
 
                 Task.Run(() =>
                 {

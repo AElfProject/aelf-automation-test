@@ -23,8 +23,6 @@ namespace AElf.Automation.AccountCheck
         public long TransferAmount;
         public bool OnlyCheck;
         public bool IsNeedDeploy;
-        public bool IsAddSystemContract;
-
 
         protected void GetService()
         {
@@ -54,7 +52,6 @@ namespace AElf.Automation.AccountCheck
             ContractCount = transferInfo.ContractCount;
             TransferAmount = transferInfo.TransferAmount;
             IsNeedDeploy = transferInfo.IsNeedDeploy;
-            IsAddSystemContract = transferInfo.IsAddSystemContract;
         }
 
         public void GetTestAccounts()

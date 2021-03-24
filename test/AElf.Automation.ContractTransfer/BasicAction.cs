@@ -6,9 +6,9 @@ using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 
-namespace AElf.Automation.MixedTransactions
+namespace AElf.Automation.ContractTransfer
 {
-    public class BasicCategory
+    public class BasicAction
     {
         protected void GetService()
         {
@@ -16,28 +16,20 @@ namespace AElf.Automation.MixedTransactions
                 return;
 
             var config = ConfigInfo.ReadInformation;
-            var url = config.ServiceUrl;
+            var url = config.Url;
             InitAccount = config.InitAccount;
             Password = config.Password;
             UserCount = config.UserCount;
-            TransactionGroup = config.TransactionGroup;
-            VerifyCount = config.VerifyCount;
+            ContractCount = config.ContractCount;
             TransactionCount = config.TransactionCount;
-            NeedCreateToken = config.NeedCreateToken;
 
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);
 
-            GetConfig();
             AccountList = new List<string>();
             GetTestAccounts();
         }
-
-        private void GetConfig()
-        {
-            ContractInfos = ConfigInfo.ReadInformation.ContractInfos;
-        }
-
+        
         private void GetTestAccounts()
         {
             if (AccountList.Count.Equals(UserCount))
@@ -63,21 +55,8 @@ namespace AElf.Automation.MixedTransactions
                 }
             }
 
-            FromAccountList = AccountList.GetRange(0, TransactionGroup);
-            ToAccountList = AccountList.GetRange(TransactionGroup, count - TransactionGroup);
-        }
-
-        protected List<string> GetFromVirtualAccounts(TransferWrapperContract contract)
-        {
-            var virtualAccountList = new List<string>();
-            foreach (var from in FromAccountList)
-            {
-                var virtualAccount = HashHelper.ComputeFrom(from.ConvertAddress());
-                var address = NodeManager.GetVirtualAddress(virtualAccount, contract.Contract);
-                virtualAccountList.Add(address.ToBase58());
-            }
-
-            return virtualAccountList;
+            FromAccountList = AccountList.GetRange(0, count / 2);
+            ToAccountList = AccountList.GetRange(count / 2, count / 2);
         }
 
         protected string GenerateNotExistTokenSymbol(TokenContract token)
@@ -118,11 +97,8 @@ namespace AElf.Automation.MixedTransactions
         public string InitAccount;
         public string Password;
 
-        public List<ContractInfo> ContractInfos;
         public int UserCount;
-        public int TransactionGroup;
-        public long VerifyCount;
+        public long ContractCount;
         public long TransactionCount;
-        public bool NeedCreateToken;
     }
 }

@@ -21,17 +21,17 @@ namespace AElf.Automation.MixedTransactions
             GetService();
         }
 
-        public void PrepareWrapperTransfer(Dictionary<TransferWrapperContract, string> tokenInfo)
+        public void PrepareWrapperTransfer(Dictionary<TransferWrapperContract, string> tokenInfo,TokenContract token)
         {
             foreach (var (contract, symbol) in tokenInfo)
             {
                 var virtualAccountList = GetFromVirtualAccounts(contract);
                 foreach (var account in virtualAccountList)
                 {
-                    var balance = Token.GetUserBalance(account, symbol);
+                    var balance = token.GetUserBalance(account, symbol);
                     if (balance >=1000_00000000)
                         continue;
-                    Token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         To = account.ConvertAddress(),
                         Amount = 1000000_00000000,
@@ -39,18 +39,30 @@ namespace AElf.Automation.MixedTransactions
                         Memo = $"T-{Guid.NewGuid()}"
                     });
                 }
+                var contractBalance = token.GetUserBalance(contract.ContractAddress, symbol);
+                if (contractBalance >=100000_00000000)
+                    return;
+                
+                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                {
+                    To = contract.Contract,
+                    Amount = 10000000_00000000,
+                    Symbol = symbol,
+                    Memo = $"T-{Guid.NewGuid()}"
+                });
+                token.CheckTransactionResultList();
             }
         }
 
         public Dictionary<TransferWrapperContract, string> CreateAndIssueTokenForWrapper(
-            IEnumerable<TransferWrapperContract> contracts)
+            IEnumerable<TransferWrapperContract> contracts, TokenContract token)
         {
             var tokenList = new Dictionary<TransferWrapperContract, string>();
             var transferWrapperContracts = contracts as TransferWrapperContract[] ?? contracts.ToArray();
             foreach (var contract in transferWrapperContracts)
             {
-                var symbol = GenerateNotExistTokenSymbol(Token);
-                var transaction = Token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                var symbol = GenerateNotExistTokenSymbol(token);
+                var transaction = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
                 {
                     Symbol = symbol,
                     TokenName = $"elf token {symbol}",
@@ -61,9 +73,9 @@ namespace AElf.Automation.MixedTransactions
                 });
                 transaction.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var issueToken = Token.IssueBalance(InitAccount, InitAccount, 10_0000_0000_00000000, symbol);
+                var issueToken = token.IssueBalance(InitAccount, InitAccount, 10_0000_0000_00000000, symbol);
                 issueToken.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-                var balance = Token.GetUserBalance(InitAccount, symbol);
+                var balance = token.GetUserBalance(InitAccount, symbol);
                 balance.ShouldBe(10_0000_0000_00000000);
 
                 tokenList.Add(contract, symbol);
@@ -130,17 +142,53 @@ namespace AElf.Automation.MixedTransactions
                 for (var r = 1; r > 0; r++) //continuous running
                     try
                     {
-                        Logger.Info("Execution transaction request round: {0}", r);
+                        Logger.Info("Execution virtual transfer transaction request round: {0}", r);
 
                         //multi task for SendTransactions query
                         var txsTasks = new List<Task>();
                         foreach (var (contract, symbol) in tokenInfo)
                         {
-                            txsTasks.Add(Task.Run(() => ThroughContractTransfer(contract, symbol), token));
+                            txsTasks.Add(Task.Run(() => ThroughVirtualTransfer(contract, symbol), token));
                         }
 
                         Task.WaitAll(txsTasks.ToArray<Task>());
-                        Thread.Sleep(1000);
+                    }
+                    catch (AggregateException exception)
+                    {
+                        Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+                    }
+                    catch (Exception e)
+                    {
+                        var message = "Execute continuous transaction got exception." +
+                                      $"\r\nMessage: {e.Message}" +
+                                      $"\r\nStackTrace: {e.StackTrace}";
+                        Logger.Error(message);
+                    }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                Logger.Error("Cancel all tasks due to transaction execution exception.");
+                cts.Cancel(); //cancel all tasks
+            }
+        }
+        
+        public void ContinueContractTransfer(Dictionary<TransferWrapperContract, string> tokenInfo, CancellationTokenSource cts,
+            CancellationToken token)
+        {
+            try
+            {
+                for (var r = 1; r > 0; r++) //continuous running
+                    try
+                    {
+                        Logger.Info("Execution transaction request round: {0}", r);
+                        var txsTasks = new List<Task>();
+                        //multi task for SendTransactions query
+                        foreach (var (contract, symbol) in tokenInfo)
+                        {
+                            txsTasks.Add(Task.Run(() => ThroughContractTransfer(contract, symbol), token));
+                        }
+                        Task.WaitAll(txsTasks.ToArray<Task>());
                     }
                     catch (AggregateException exception)
                     {
@@ -162,7 +210,7 @@ namespace AElf.Automation.MixedTransactions
             }
         }
 
-        public void CheckAccountAmount(Dictionary<TransferWrapperContract, string> tokenInfo,CancellationTokenSource cts,
+        public void CheckAccountAmount(Dictionary<TransferWrapperContract, string> tokenInfo, TokenContract tokenContract,CancellationTokenSource cts, 
             CancellationToken token)
         {
             var checkRound = 1;
@@ -178,7 +226,7 @@ namespace AElf.Automation.MixedTransactions
                 try
                 {
                     Logger.Info($"Start check tester token balance job round: {checkRound++}");
-                    PrepareWrapperTransfer(tokenInfo);
+                    PrepareWrapperTransfer(tokenInfo,tokenContract);
                 }
                 catch (Exception e)
                 {
@@ -188,7 +236,7 @@ namespace AElf.Automation.MixedTransactions
 
         }
 
-        private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
+        private void ThroughVirtualTransfer(TransferWrapperContract contract, string symbol)
         {
             var rawTransactionList = new List<string>();
 
@@ -215,6 +263,39 @@ namespace AElf.Automation.MixedTransactions
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
+//            Logger.Info(transactions);
+
+            Thread.Sleep(1000);
+        }
+        
+        private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
+        {
+            var rawTransactionList = new List<string>();
+
+            Logger.Info($"ContractTransfer");
+            for (var i = 0; i < TransactionCount; i++)
+            {
+                var (from, to) = GetTransferPair(i);
+
+                var transferInput = new ThroughContractTransferInput
+                {
+                    Symbol = symbol,
+                    To = to.ConvertAddress(),
+                    Amount = ((i + 1) % 4 + 1) * 1000,
+                    Memo = $"T - {Guid.NewGuid()}"
+                };
+                var requestInfo =
+                    NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+                        TransferWrapperMethod.ContractTransfer.ToString(),
+                        transferInput);
+                rawTransactionList.Add(requestInfo);
+            }
+
+            contract.CheckTransactionResultList();
+
+
+            var rawTransactions = string.Join(",", rawTransactionList);
+            var transactions = NodeManager.SendTransactions(rawTransactions);
             Logger.Info(transactions);
 
             Thread.Sleep(1000);
@@ -226,7 +307,6 @@ namespace AElf.Automation.MixedTransactions
             return new TokenContract(NodeManager,InitAccount,address.ToBase58());
         }
 
-        private TokenContract Token;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

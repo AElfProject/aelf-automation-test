@@ -52,7 +52,8 @@ namespace AElf.Automation.BlockCheck
             Logger.Info($"Check block {currentBlockHeight} info {VerifyTimes} times.");
             
             var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(currentBlockHeight,IncludeTransaction));
-            Logger.Info($"Block height: {blockInfo.Header.Height}\n" +
+            Logger.Info("\n" +
+                        $"Block height: {blockInfo.Header.Height}\n" +
                         $"Block hash: {blockInfo.BlockHash}\n" +
                         $"Block bloom: {blockInfo.Header.Bloom}\n" +
                         $"Block signer: {blockInfo.Header.SignerPubkey}\n" +
