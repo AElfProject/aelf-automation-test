@@ -24,25 +24,16 @@ namespace AElf.Automation.RpcPerformance
 
             var transactionType = RpcConfig.ReadInformation.RandomSenderTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl)
-                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl);
+                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup)
+                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup);
 
             //Execute transaction command
             try
             {
-                var nodeManager = new NodeManager(performance.BaseUrl);
-                if (ExecuteMode == 0) //check node txs and blocks info 
-                {
-                    Logger.Info("Check node transaction status information");
-                    var nodeSummary = new ExecutionSummary(nodeManager, true);
-                    nodeSummary.ContinuousCheckTransactionPerformance(new CancellationToken());
-                    return;
-                }
-                performance.InitExecCommand(UserCount + GroupCount);
+                performance.InitExecCommand(UserCount);
                 performance.DeployContracts();
                 performance.InitializeMainContracts();
                 ExecuteTransactionPerformanceTask(performance);
-                
             }
             catch (TimeoutException e)
             {
@@ -64,21 +55,20 @@ namespace AElf.Automation.RpcPerformance
 
         private static void ExecuteTransactionPerformanceTask(IPerformanceCategory performance)
         {
-
             Logger.Info("Run with continuous txs mode: ContinuousTxs.");
             performance.ExecuteContinuousRoundsTransactionsTask(true);
             performance.PrintContractInfo();
         }
 
         #region Parameter Option
-        
+
         private static string ConfigFile { get; set; }
         private static int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
         private static int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
+        private static int TransactionGroup { get; } = RpcConfig.ReadInformation.TransactionGroup;
+
         private static int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
         private static string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
-        private static int ExecuteMode { get; } = RpcConfig.ReadInformation.ExecuteMode;
-        
 
         #endregion
     }

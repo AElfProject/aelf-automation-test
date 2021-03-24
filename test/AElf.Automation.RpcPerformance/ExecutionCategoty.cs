@@ -30,6 +30,7 @@ namespace AElf.Automation.RpcPerformance
         public ExecutionCategory(int threadCount,
             int exeTimes,
             string baseUrl,
+            int transactionGroup,
             string keyStorePath = "")
         {
             if (keyStorePath == "")
@@ -46,7 +47,8 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
-       }
+            TransactionGroup = transactionGroup;
+        }
 
         public void InitExecCommand(int userCount = 200)
         {
@@ -78,7 +80,7 @@ namespace AElf.Automation.RpcPerformance
         }
 
         public void InitializeMainContracts()
-        { 
+        {
             //create all token
             foreach (var contract in ContractList)
             {
@@ -128,7 +130,7 @@ namespace AElf.Automation.RpcPerformance
 
             Monitor.CheckTransactionsStatus(TxIdList);
         }
-        
+
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             //add transaction performance check process
@@ -155,14 +157,11 @@ namespace AElf.Automation.RpcPerformance
                                 if (useTxs)
                                 {
                                     //multi task for SendTransactions query
-                                    var txsTasks = new List<Task>();
                                     for (var i = 0; i < ThreadCount; i++)
                                     {
                                         var j = i;
-                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
+                                        Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token);
                                     }
-
-//                                    Task.WaitAll(txsTasks.ToArray<Task>());
                                 }
                             }
                             catch (AggregateException exception)
@@ -224,6 +223,7 @@ namespace AElf.Automation.RpcPerformance
         private List<ContractInfo> ContractList { get; set; }
         private List<string> TxIdList { get; }
         public int ThreadCount { get; set; }
+        private int TransactionGroup { get; set; }
         public int ExeTimes { get; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
@@ -231,6 +231,7 @@ namespace AElf.Automation.RpcPerformance
         #endregion
 
         #region Private Method
+
         private void ExecuteBatchTransactionTask(int threadNo, int times)
         {
             var account = ContractList[threadNo].Owner;
@@ -238,19 +239,9 @@ namespace AElf.Automation.RpcPerformance
             var token = new TokenContract(NodeManager, account, contractPath);
 
             var rawTransactionList = new List<string>();
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
             for (var i = 0; i < times; i++)
             {
-//                var rd = new Random(DateTime.Now.Millisecond);
-//                var countNo = rd.Next(0, AccountList.Count);
-//                var toAccount = AccountList[countNo].Account;
-//                while (toAccount == account)
-//                {
-//                    countNo = rd.Next(0, AccountList.Count);
-//                    toAccount = AccountList[countNo].Account;
-//                }
-                var (from, to) = GetTransferPair(token, ContractList[threadNo].Symbol, i);
+                var (from, to) = GetTransferPair(i);
 
                 //Execute Transfer
                 var transferInput = new TransferInput
@@ -266,25 +257,8 @@ namespace AElf.Automation.RpcPerformance
                 rawTransactionList.Add(requestInfo);
             }
 
-            stopwatch.Stop();
-            var createTxsTime = stopwatch.ElapsedMilliseconds;
-
-            //Send batch transaction requests
-            stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
-            var transactions = NodeManager.SendTransactions(rawTransactions);
-            if (transactions.Equals(new List<string>()))
-            {
-                stopwatch.Stop();
-                return;
-            }
-
-            Logger.Info(transactions);
-            stopwatch.Stop();
-            var requestTxsTime = stopwatch.ElapsedMilliseconds;
-            Logger.Info(
-                $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
-            Thread.Sleep(10);
+            NodeManager.SendTransactions(rawTransactions);
         }
 
         private void UnlockAllAccounts(int count)
@@ -327,37 +301,27 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            FromAccountList = AccountList.GetRange(0, count / 2);
-            ToAccountList = AccountList.GetRange(count / 2, count / 2);
+            var fromCount = TransactionGroup / ThreadCount;
+
+            FromAccountList = AccountList.GetRange(0, fromCount);
+            ToAccountList = AccountList.GetRange(fromCount, count - fromCount);
         }
 
-        private (string, string) GetTransferPair(TokenContract token, string symbol, int times,
-            bool balanceCheck = false)
+        private (string, string) GetTransferPair(int times)
         {
-            string from, to;
-            while (true)
-            {
-                var fromId = times - FromAccountList.Count >= 0
-                    ? (times / FromAccountList.Count > 1
-                        ? times - FromAccountList.Count * (times / FromAccountList.Count)
-                        : times - FromAccountList.Count)
-                    : times;
-                if (balanceCheck)
-                {
-                    var balance = token.GetUserBalance(FromAccountList[fromId].Account, symbol);
-                    if (balance < 1000_00000000) continue;
-                }
-
-                from = FromAccountList[fromId].Account;
-                break;
-            }
+            var fromId = times - FromAccountList.Count >= 0
+                ? (times / FromAccountList.Count > 1
+                    ? times - FromAccountList.Count * (times / FromAccountList.Count)
+                    : times - FromAccountList.Count)
+                : times;
+            var from = FromAccountList[fromId].Account;
 
             var toId = times - ToAccountList.Count >= 0
                 ? (times / ToAccountList.Count > 1
                     ? times - ToAccountList.Count * (times / ToAccountList.Count)
                     : times - ToAccountList.Count)
                 : times;
-            to = ToAccountList[toId].Account;
+            var to = ToAccountList[toId].Account;
 
             return (from, to);
         }

@@ -1,11 +1,11 @@
 {
     "GroupCount": 2,
-    "UserCount": 50,
+    "UserCount": 100,
+    "TransactionGroup": 10,
     "TransactionCount":500,
     "EnableRandomTransaction": false,
     "ServiceUrl": "3.115.115.141:8000",
-    "SentTxLimit": 100,
-    "ExecuteMode": 4,
     "Timeout": 300,
-    "RandomSenderTransaction": true
+    "RandomSenderTransaction": false,
+    "ContractAddress": "XyRN9VNabpBiVUFeX2t7ZUR2b3tWV7U31exufJ2AUepVb5t56"
 }

@@ -29,6 +29,7 @@ namespace AElf.Automation.RpcPerformance
         public RandomCategory(int threadCount,
             int exeTimes,
             string baseUrl,
+            int transactionGroup,
             string keyStorePath = "")
         {
             if (keyStorePath == "")
@@ -46,6 +47,7 @@ namespace AElf.Automation.RpcPerformance
             ExeTimes = exeTimes;
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
+            TransactionGroup = transactionGroup;
         }
 
         public void InitExecCommand(int userCount)
@@ -68,9 +70,20 @@ namespace AElf.Automation.RpcPerformance
 
         public void DeployContracts()
         {
-           var address = AuthorityManager.DeployContract(AccountList.First().Account, "AElf.Contracts.MultiToken");
-           TokenAddress = address.ToBase58();
-           TokenMonitor = new TesterTokenMonitor(NodeManager,TokenAddress);
+            var contract = RpcConfig.ReadInformation.ContractAddress;
+            if (contract != "")
+            {
+                TokenAddress = contract;
+            }
+            else
+            {
+                Logger.Info("Start deploy test token contract: ");
+                var address = AuthorityManager.DeployContract(AccountList.First().Account, "AElf.Contracts.MultiToken");
+                TokenAddress = address.ToBase58();
+            }
+
+            TokenMonitor = new TesterTokenMonitor(NodeManager, TokenAddress);
+            Logger.Info($"Test token address : {TokenAddress}");
         }
 
         public void InitializeMainContracts()
@@ -87,7 +100,7 @@ namespace AElf.Automation.RpcPerformance
                 ContractList.Add(contract);
 
                 var token = new TokenContract(NodeManager, account, contractPath);
-                
+
                 token.SetAccount(account);
                 var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Create, new CreateInput
                 {
@@ -130,7 +143,7 @@ namespace AElf.Automation.RpcPerformance
             foreach (var contract in ContractList)
             {
                 var contractPath = contract.ContractAddress;
-                var symbol = contract.Symbol; 
+                var symbol = contract.Symbol;
                 var token = new TokenContract(NodeManager, AccountList.First().Account, contractPath);
                 foreach (var user in FromAccountList)
                 {
@@ -160,7 +173,7 @@ namespace AElf.Automation.RpcPerformance
                     item.ContractAddress);
             }
         }
-        
+
         public void ExecuteContinuousRoundsTransactionsTask(bool useTxs = false)
         {
             //add transaction performance check process
@@ -197,9 +210,11 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+            var fromCount = TransactionGroup / ThreadCount;
 
-            FromAccountList = AccountList.GetRange(0, count / 2);
-            ToAccountList = AccountList.GetRange(count / 2 , count / 2);
+            FromAccountList = AccountList.GetRange(0, fromCount);
+            ToAccountList =
+                AccountList.GetRange(fromCount, count - fromCount);
         }
 
         private void GeneratedTransaction(bool useTxs, CancellationTokenSource cts, CancellationToken token)
@@ -279,71 +294,45 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactionList = new List<string>();
 //            var stopwatch = new Stopwatch();
 //            stopwatch.Start();
-            var t = times / FromAccountList.Count;
-            for (var i = 0; i < t; i++)
+//            var t = times / FromAccountList.Count;
+            for (var i = 0; i < times; i++)
             {
-                for (int j = 0; j < FromAccountList.Count; j++)
+                var (from, to) = GetTransferPair(i);
+                //Execute Transfer
+                var transferInput = new TransferInput
                 {
-                    //Execute Transfer
-                    var transferInput = new TransferInput
-                    {
-                        Symbol = ContractList[threadNo].Symbol,
-                        To = ToAccountList[j].Account.ConvertAddress(),
-                        Amount = ((i + 1) % 4 + 1) * 1000,
-                        Memo = $"transfer test - {Guid.NewGuid()}"
-                    };
-                    var requestInfo =
-                        NodeManager.GenerateRawTransaction(FromAccountList[j].Account, contractPath, TokenMethod.Transfer.ToString(),
-                            transferInput);
-                    rawTransactionList.Add(requestInfo);
-                }
+                    Symbol = symbol,
+                    To = to.ConvertAddress(),
+                    Amount = ((i + 1) % 4 + 1) * 1000,
+                    Memo = $"transfer test - {Guid.NewGuid()}"
+                };
+                var requestInfo =
+                    NodeManager.GenerateRawTransaction(from, contractPath,
+                        TokenMethod.Transfer.ToString(),
+                        transferInput);
+                rawTransactionList.Add(requestInfo);
             }
 
-//            stopwatch.Stop();
-//            var createTxsTime = stopwatch.ElapsedMilliseconds;
-//
-//            //Send batch transaction requests
-//            stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             NodeManager.SendTransactions(rawTransactions);
-//            stopwatch.Stop();
-//            var requestTxsTime = stopwatch.ElapsedMilliseconds;
-//            Logger.Info(
-//                $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
-        private (string, string) GetTransferPair(TokenContract token, string symbol, int times,
-            bool balanceCheck = false)
+        private (string, string) GetTransferPair(int times)
         {
-            string from, to;
-            while (true)
-            {
-                var fromId = times - FromAccountList.Count >= 0
-                    ? (times / FromAccountList.Count > 1
-                        ? times - FromAccountList.Count * (times / FromAccountList.Count)
-                        : times - FromAccountList.Count)
-                    : times;
-                if (balanceCheck)
-                {
-                    var balance = token.GetUserBalance(AccountList[fromId].Account, symbol);
-                    if (balance < 1000_00000000) continue;
-                }
+            var fromId = times - FromAccountList.Count >= 0
+                ? (times / FromAccountList.Count > 1
+                    ? times - FromAccountList.Count * (times / FromAccountList.Count)
+                    : times - FromAccountList.Count)
+                : times;
 
-                from = FromAccountList[fromId].Account;
-                break;
-            }
+            var from = FromAccountList[fromId].Account;
 
-            while (true)
-            {
-                var toId = times - ToAccountList.Count >= 0
-                    ? (times / ToAccountList.Count > 1
-                        ? times - ToAccountList.Count * (times / ToAccountList.Count)
-                        : times - ToAccountList.Count)
-                    : times;
-//                if (AccountList[toId].Account == from) continue;
-                to = ToAccountList[toId].Account;
-                break;
-            }
+            var toId = times - ToAccountList.Count >= 0
+                ? (times / ToAccountList.Count > 1
+                    ? times - ToAccountList.Count * (times / ToAccountList.Count)
+                    : times - ToAccountList.Count)
+                : times;
+            var to = ToAccountList[toId].Account;
 
             return (from, to);
         }
@@ -354,17 +343,6 @@ namespace AElf.Automation.RpcPerformance
 
             var rand = new Random(Guid.NewGuid().GetHashCode());
             return rand.Next(1, max + 1);
-        }
-        
-        private void TransactionSentPerSecond(int transactionCount, long milliseconds)
-        {
-            var tx = (float) transactionCount;
-            var time = (float) milliseconds;
-
-            var result = tx * 1000 / time;
-
-            Logger.Info(
-                $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
 
         #region Public Property
@@ -377,6 +355,7 @@ namespace AElf.Automation.RpcPerformance
         private TesterTokenMonitor TokenMonitor { get; set; }
         public string BaseUrl { get; }
         private string TokenAddress { get; set; }
+        private int TransactionGroup { get; set; }
         private List<AccountInfo> AccountList { get; }
         private List<AccountInfo> ToAccountList { get; set; }
         private List<AccountInfo> FromAccountList { get; set; }
