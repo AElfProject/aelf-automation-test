@@ -239,6 +239,9 @@ namespace AElf.Automation.RpcPerformance
             var token = new TokenContract(NodeManager, account, contractPath);
 
             var rawTransactionList = new List<string>();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
             for (var i = 0; i < times; i++)
             {
                 var (from, to) = GetTransferPair(i);
@@ -257,10 +260,20 @@ namespace AElf.Automation.RpcPerformance
                 rawTransactionList.Add(requestInfo);
             }
 
+            stopwatch.Stop();
+            var createTxsTime = stopwatch.ElapsedMilliseconds;
+            
             var rawTransactions = string.Join(",", rawTransactionList);
+            
+            stopwatch.Restart();
             NodeManager.SendTransactions(rawTransactions);
+            stopwatch.Stop();
+            
+            var requestTxsTime = stopwatch.ElapsedMilliseconds;
+            Logger.Info(
+                $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
-
+        
         private void UnlockAllAccounts(int count)
         {
             /*

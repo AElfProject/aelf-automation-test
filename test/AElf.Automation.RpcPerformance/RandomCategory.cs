@@ -225,9 +225,11 @@ namespace AElf.Automation.RpcPerformance
             {
                 for (var r = 1; r > 0; r++) //continuous running
                 {
-//                    var stopwatch = Stopwatch.StartNew();
                     //set random tx sending each round
                     var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    
                     try
                     {
                         Logger.Info("Execution transaction request round: {0}", r);
@@ -253,8 +255,9 @@ namespace AElf.Automation.RpcPerformance
                         Logger.Error(message);
                     }
 
-//                    stopwatch.Stop();
-//                    TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
+                    stopwatch.Stop();
+                    var createTxsTime = stopwatch.ElapsedMilliseconds; 
+                    TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
                 }
@@ -265,6 +268,17 @@ namespace AElf.Automation.RpcPerformance
                 Logger.Error("Cancel all tasks due to transaction execution exception.");
                 cts.Cancel(); //cancel all tasks
             }
+        }
+        
+        private void TransactionSentPerSecond(int transactionCount, long milliseconds)
+        {
+            var tx = (float) transactionCount;
+            var time = (float) milliseconds;
+
+            var result = tx * 1000 / time;
+
+            Logger.Info(
+                $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
 
         private void UnlockAllAccounts(int count)
@@ -292,9 +306,9 @@ namespace AElf.Automation.RpcPerformance
             var symbol = ContractList[threadNo].Symbol;
 
             var rawTransactionList = new List<string>();
-//            var stopwatch = new Stopwatch();
-//            stopwatch.Start();
-//            var t = times / FromAccountList.Count;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             for (var i = 0; i < times; i++)
             {
                 var (from, to) = GetTransferPair(i);
@@ -312,9 +326,18 @@ namespace AElf.Automation.RpcPerformance
                         transferInput);
                 rawTransactionList.Add(requestInfo);
             }
-
+            stopwatch.Stop();
+            var createTxsTime = stopwatch.ElapsedMilliseconds;
+            
+            //Send batch transaction requests
+            stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
-            NodeManager.SendTransactions(rawTransactions);
+            var transactions = NodeManager.SendTransactions(rawTransactions);
+            stopwatch.Stop();
+            
+            var requestTxsTime = stopwatch.ElapsedMilliseconds;
+            Logger.Info(
+                $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
         private (string, string) GetTransferPair(int times)
