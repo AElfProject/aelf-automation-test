@@ -257,7 +257,7 @@ namespace AElf.Automation.RpcPerformance
 
                     stopwatch.Stop();
                     var createTxsTime = stopwatch.ElapsedMilliseconds; 
-                    TransactionSentPerSecond(ThreadCount * exeTimes, stopwatch.ElapsedMilliseconds);
+                    TransactionSentPerSecond(ThreadCount * exeTimes, createTxsTime);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
                 }
