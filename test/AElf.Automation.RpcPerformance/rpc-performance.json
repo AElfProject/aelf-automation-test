@@ -7,5 +7,6 @@
     "ServiceUrl": "3.115.115.141:8000",
     "Timeout": 300,
     "RandomSenderTransaction": false,
-    "ContractAddress": "XyRN9VNabpBiVUFeX2t7ZUR2b3tWV7U31exufJ2AUepVb5t56"
+    "Duration": 1000,
+    "ContractAddress": ""
 }

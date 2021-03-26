@@ -30,6 +30,7 @@ namespace AElf.Automation.RpcPerformance
             int exeTimes,
             string baseUrl,
             int transactionGroup,
+            int duration,
             string keyStorePath = "")
         {
             if (keyStorePath == "")
@@ -48,6 +49,7 @@ namespace AElf.Automation.RpcPerformance
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             TransactionGroup = transactionGroup;
+            Duration = duration;
         }
 
         public void InitExecCommand(int userCount)
@@ -264,7 +266,7 @@ namespace AElf.Automation.RpcPerformance
                     TransactionSentPerSecond(ThreadCount * exeTimes, createTxsTime);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
-                    Thread.Sleep(3000);
+                    Thread.Sleep(Duration);
                 }
             }
             catch (Exception e)
@@ -395,6 +397,8 @@ namespace AElf.Automation.RpcPerformance
         private List<string> TxIdList { get; }
         public int ThreadCount { get; }
         public int ExeTimes { get; }
+        public int Duration { get; }
+
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 

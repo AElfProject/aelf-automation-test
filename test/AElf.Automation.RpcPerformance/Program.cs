@@ -24,8 +24,8 @@ namespace AElf.Automation.RpcPerformance
 
             var transactionType = RpcConfig.ReadInformation.RandomSenderTransaction;
             var performance = transactionType
-                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup)
-                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup);
+                ? (IPerformanceCategory) new RandomCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup,Duration)
+                : new ExecutionCategory(GroupCount, TransactionCount, RpcUrl,TransactionGroup, Duration);
 
             //Execute transaction command
             try
@@ -69,6 +69,7 @@ namespace AElf.Automation.RpcPerformance
 
         private static int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
         private static string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
+        private static int Duration { get; } = RpcConfig.ReadInformation.Duration;
 
         #endregion
     }

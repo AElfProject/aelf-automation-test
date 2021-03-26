@@ -31,6 +31,7 @@ namespace AElf.Automation.RpcPerformance
             int exeTimes,
             string baseUrl,
             int transactionGroup,
+            int duration,
             string keyStorePath = "")
         {
             if (keyStorePath == "")
@@ -48,6 +49,7 @@ namespace AElf.Automation.RpcPerformance
             KeyStorePath = keyStorePath;
             BaseUrl = baseUrl.Contains("http://") ? baseUrl : $"http://{baseUrl}";
             TransactionGroup = transactionGroup;
+            Duration = duration;
         }
 
         public void InitExecCommand(int userCount = 200)
@@ -225,6 +227,7 @@ namespace AElf.Automation.RpcPerformance
         public int ThreadCount { get; set; }
         private int TransactionGroup { get; set; }
         public int ExeTimes { get; }
+        public int Duration { get; }
         private ConcurrentQueue<string> GenerateTransactionQueue { get; }
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 

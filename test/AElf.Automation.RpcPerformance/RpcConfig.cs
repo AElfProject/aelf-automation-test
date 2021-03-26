@@ -16,6 +16,8 @@ namespace AElf.Automation.RpcPerformance
         public bool EnableRandomTransaction { get; set; }
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; } 
         [JsonProperty("Timeout")] public int Timeout { get; set; }
+        [JsonProperty("Duration")] public int Duration { get; set; }
+
 
         [JsonProperty("RandomSenderTransaction")]
         public bool RandomSenderTransaction { get; set; }
