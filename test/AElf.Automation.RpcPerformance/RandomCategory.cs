@@ -238,15 +238,16 @@ namespace AElf.Automation.RpcPerformance
                         if (useTxs)
                         {
                             //multi task for SendTransactions query
-                            var txsTasks = new List<Task>();
+//                            var txsTasks = new List<Task>();
 
                             for (var i = 0; i < ThreadCount; i++)
                             {
                                 var j = i;
-                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
+//                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
+                                Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token)
                             }
 
-                            Task.WaitAll(txsTasks.ToArray<Task>());
+//                            Task.WaitAll(txsTasks.ToArray<Task>());
                         }
                     }
                     catch (AggregateException exception)
