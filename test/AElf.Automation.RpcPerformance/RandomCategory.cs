@@ -236,11 +236,15 @@ namespace AElf.Automation.RpcPerformance
                         if (useTxs)
                         {
                             //multi task for SendTransactions query
+                            var txsTasks = new List<Task>();
+
                             for (var i = 0; i < ThreadCount; i++)
                             {
                                 var j = i;
-                                Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token);
+                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
                             }
+
+                            Task.WaitAll(txsTasks.ToArray<Task>());
                         }
                     }
                     catch (AggregateException exception)
@@ -260,6 +264,7 @@ namespace AElf.Automation.RpcPerformance
                     TransactionSentPerSecond(ThreadCount * exeTimes, createTxsTime);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
+                    Thread.Sleep(3000);
                 }
             }
             catch (Exception e)
