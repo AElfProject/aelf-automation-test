@@ -244,7 +244,7 @@ namespace AElf.Automation.RpcPerformance
                             {
                                 var j = i;
 //                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
-                                Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token)
+                                Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token);
                             }
 
 //                            Task.WaitAll(txsTasks.ToArray<Task>());
