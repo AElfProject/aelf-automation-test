@@ -23,6 +23,8 @@ namespace AElf.Automation.RpcPerformance
         public bool RandomSenderTransaction { get; set; }
 
         [JsonProperty("ContractAddress")] public string ContractAddress { get; set; }
+        [JsonProperty("TokenList")] public List<string> TokenList { get; set; }
+
         public static RpcConfig ReadInformation => ConfigHelper<RpcConfig>.GetConfigInfo("rpc-performance.json",false);
     }
 }

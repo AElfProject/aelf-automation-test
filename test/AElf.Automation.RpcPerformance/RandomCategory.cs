@@ -91,7 +91,59 @@ namespace AElf.Automation.RpcPerformance
         public void InitializeMainContracts()
         {
             //create all token
-            for (var i = 0; i < ThreadCount; i++)
+            var tokenList = RpcConfig.ReadInformation.TokenList;
+            if (tokenList.Count != 0)
+            {
+                var count = tokenList.Count != ThreadCount ? tokenList.Count : ThreadCount;
+                for (var i = 0; i < count; i++)
+                {
+                    var contract = new ContractInfo(AccountList[i].Account, TokenAddress);
+                    var symbol = tokenList[i];
+                    var checkSymbol = TokenMonitor.CheckSymbol(symbol);
+                    var token = new TokenContract(NodeManager, AccountList[i].Account, TokenAddress);
+
+                    if (!checkSymbol)
+                    {
+                        token.SetAccount(contract.Owner);
+                        var transactionId = token.ExecuteMethodWithResult(TokenMethod.Create, new CreateInput
+                        {
+                            Symbol = symbol,
+                            TokenName = $"elf token {symbol}",
+                            TotalSupply = 10_0000_0000_00000000L,
+                            Decimals = 8,
+                            Issuer = contract.Owner.ConvertAddress(),
+                            IsBurnable = true
+                        });
+                    }
+                    contract.Symbol = symbol;
+                    ContractList.Add(contract);
+                }
+
+                if (ContractList.Count != 0)
+                {
+                    foreach (var contract in ContractList)
+                    {
+                        var account = contract.Owner;
+                        var contractPath = contract.ContractAddress;
+                        var symbol = contract.Symbol;
+                        var token = new TokenContract(NodeManager, account, contractPath);
+                        var tokenInfo = token.GetTokenInfo(symbol);
+                        var issueAmount = tokenInfo.TotalSupply / FromAccountList.Count;
+                        foreach (var txRes in from @from in FromAccountList
+                            let balance = token.GetUserBalance(@from.Account, symbol)
+                            where balance == 0
+                            select token.IssueBalance(account, @from.Account, issueAmount, symbol))
+                        {
+                            txRes.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+                        }
+                    }
+                }
+            }
+
+            var already = ContractList.Count;
+            if (already >= ThreadCount)
+                return;
+            for (var i = 0; i < ThreadCount - already; i++)
             {
                 var contract = new ContractInfo(AccountList[i].Account, TokenAddress);
                 var account = contract.Owner;
@@ -126,6 +178,9 @@ namespace AElf.Automation.RpcPerformance
                 var contractPath = contract.ContractAddress;
                 var symbol = contract.Symbol;
                 var token = new TokenContract(NodeManager, account, contractPath);
+                var info = token.GetTokenInfo(symbol);
+                if (info.TotalSupply == info.Issued)
+                    continue;
                 foreach (var user in FromAccountList)
                 {
                     var transactionId = token.ExecuteMethodWithTxId(TokenMethod.Issue, new IssueInput
@@ -212,6 +267,7 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+
             var fromCount = TransactionGroup / ThreadCount;
 
             FromAccountList = AccountList.GetRange(0, fromCount);
@@ -231,7 +287,7 @@ namespace AElf.Automation.RpcPerformance
                     var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    
+
                     try
                     {
                         Logger.Info("Execution transaction request round: {0}", r);
@@ -263,7 +319,7 @@ namespace AElf.Automation.RpcPerformance
                     }
 
                     stopwatch.Stop();
-                    var createTxsTime = stopwatch.ElapsedMilliseconds; 
+                    var createTxsTime = stopwatch.ElapsedMilliseconds;
                     TransactionSentPerSecond(ThreadCount * exeTimes, createTxsTime);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
@@ -277,7 +333,7 @@ namespace AElf.Automation.RpcPerformance
                 cts.Cancel(); //cancel all tasks
             }
         }
-        
+
         private void TransactionSentPerSecond(int transactionCount, long milliseconds)
         {
             var tx = (float) transactionCount;
@@ -334,15 +390,16 @@ namespace AElf.Automation.RpcPerformance
                         transferInput);
                 rawTransactionList.Add(requestInfo);
             }
+
             stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
-            
+
             //Send batch transaction requests
             stopwatch.Restart();
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
             stopwatch.Stop();
-            
+
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
@@ -396,7 +453,7 @@ namespace AElf.Automation.RpcPerformance
 
         private List<ContractInfo> ContractList { get; }
         private List<string> TxIdList { get; }
-        public int ThreadCount { get; }
+        public int ThreadCount { get; set; }
         public int ExeTimes { get; }
         public int Duration { get; }
 

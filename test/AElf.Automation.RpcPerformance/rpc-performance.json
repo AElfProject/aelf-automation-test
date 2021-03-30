@@ -1,12 +1,13 @@
 {
-    "GroupCount": 2,
-    "UserCount": 100,
+    "GroupCount": 5,
+    "UserCount": 10,
     "TransactionGroup": 10,
     "TransactionCount":500,
     "EnableRandomTransaction": false,
     "ServiceUrl": "3.115.115.141:8000",
     "Timeout": 300,
-    "RandomSenderTransaction": false,
+    "RandomSenderTransaction": true,
     "Duration": 1000,
-    "ContractAddress": ""
+    "ContractAddress": "256MtWxt3dvxBUdh1XHjQeeSDm2SMR98gDQxLL4UXjwFDhzcAM",
+    "TokenList": ["AAAA","BBBB","CCCC","SSSS","WKFYAFMB"]
 }

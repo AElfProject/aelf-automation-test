@@ -35,5 +35,11 @@ namespace AElf.Automation.RpcPerformance
                 if (tokenInfo.Equals(new TokenInfo())) return symbol;
             }
         }
+        
+        public bool CheckSymbol(string symbol)
+        {
+            var tokenInfo = Token.GetTokenInfo(symbol);
+            return !tokenInfo.Equals(new TokenInfo());
+        }
     }
 }
