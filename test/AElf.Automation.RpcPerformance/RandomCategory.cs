@@ -268,7 +268,7 @@ namespace AElf.Automation.RpcPerformance
                 }
             }
 
-            var fromCount = TransactionGroup / ThreadCount;
+            var fromCount = TransactionGroup;
 
             FromAccountList = AccountList.GetRange(0, fromCount);
             ToAccountList =
