@@ -1,5 +1,5 @@
 {
-  "Url": "http://3.115.115.141:8000",
+  "Url": "http://3.113.242.18:8000",
   "VerifyBlockCount": 10,
   "StartBlock": 10000,
   "IncludeTransaction": true,

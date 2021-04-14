@@ -33,6 +33,6 @@ namespace AElf.Automation.AccountCheck
 
 
 
-        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("account-check-config.json",false);
+        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("account-check-config.json");
     }
 }

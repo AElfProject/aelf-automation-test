@@ -12,6 +12,6 @@ namespace AElf.Automation.ContractTransfer
         [JsonProperty("UserCount")] public int UserCount { get; set; }
         [JsonProperty("TransactionCount")] public long TransactionCount { get; set; }
 
-        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("contract-transfer-config.json",false);
+        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("contract-transfer-config.json");
     }
 }

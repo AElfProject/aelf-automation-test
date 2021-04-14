@@ -1,0 +1,13 @@
+{
+    "GroupCount": 5,
+    "UserCount": 100,
+    "TransactionGroup": 50,
+    "TransactionCount":1000,
+    "EnableRandomTransaction": false,
+    "ServiceUrl": "192.168.10.119:8000",
+    "Timeout": 300,
+    "RandomSenderTransaction": true,
+    "Duration": 1000,
+    "ContractAddress": "",
+    "TokenList": []
+}

@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>AElf.Automation.BasicTransaction</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,11 +13,11 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
-        <None Update="config/block-check-config.json">
+        <None Update="config/base-config.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
+    
 </Project>

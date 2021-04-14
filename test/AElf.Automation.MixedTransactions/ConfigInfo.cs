@@ -33,6 +33,6 @@ namespace AElf.Automation.MixedTransactions
 
         
 
-        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("mixed-config.json",false);
+        public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("mixed-config.json");
     }
 }
