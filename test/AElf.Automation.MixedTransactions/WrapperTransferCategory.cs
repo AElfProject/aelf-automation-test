@@ -240,22 +240,48 @@ namespace AElf.Automation.MixedTransactions
         {
             var rawTransactionList = new List<string>();
 
-            for (var i = 0; i < TransactionCount; i++)
+            // for (var i = 0; i < TransactionCount; i++)
+            // {
+            //     var (from, to) = GetTransferPair(i);
+            //
+            //     var transferInput = new ThroughContractTransferInput
+            //     {
+            //         Symbol = symbol,
+            //         To = to.ConvertAddress(),
+            //         Amount = ((i + 1) % 4 + 1) * 1000,
+            //         Memo = $"T - {Guid.NewGuid()}"
+            //     };
+            //     var requestInfo =
+            //         NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+            //             TransferWrapperMethod.ThroughContractTransfer.ToString(),
+            //             transferInput);
+            //     rawTransactionList.Add(requestInfo);
+            // }
+            
+            for (var i = 0; i < TransactionGroup; i++)
             {
-                var (from, to) = GetTransferPair(i);
+                var (from, toList) = GetTransferPair(i);
+                //Execute Transfer
+                var obj = new Object();
 
-                var transferInput = new ThroughContractTransferInput
+                Parallel.For(1, toList.Count+1, item =>
                 {
-                    Symbol = symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"T - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
-                        TransferWrapperMethod.ThroughContractTransfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
+                    lock (obj)
+                    {
+                        var transferInput = new TransferInput
+                        {
+                            Symbol = symbol,
+                            To = toList[item-1].ConvertAddress(),
+                            Amount = ((i + 1) % 4 + 1) * 1000,
+                            Memo = $"T - {Guid.NewGuid()}"
+                        };
+                        var requestInfo =
+                            NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+                                TransferWrapperMethod.ThroughContractTransfer.ToString(),
+                                transferInput);
+                        rawTransactionList.Add(requestInfo);
+                    }
+                });
             }
 
             contract.CheckTransactionResultList();
@@ -273,24 +299,50 @@ namespace AElf.Automation.MixedTransactions
             var rawTransactionList = new List<string>();
 
             Logger.Info($"ContractTransfer");
-            for (var i = 0; i < TransactionCount; i++)
+            // for (var i = 0; i < TransactionCount; i++)
+            // {
+            //     var (from, to) = GetTransferPair(i);
+            //
+            //     var transferInput = new ThroughContractTransferInput
+            //     {
+            //         Symbol = symbol,
+            //         To = to.ConvertAddress(),
+            //         Amount = ((i + 1) % 4 + 1) * 1000,
+            //         Memo = $"T - {Guid.NewGuid()}"
+            //     };
+            //     var requestInfo =
+            //         NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+            //             TransferWrapperMethod.ContractTransfer.ToString(),
+            //             transferInput);
+            //     rawTransactionList.Add(requestInfo);
+            // }
+            
+            for (var i = 0; i < TransactionGroup; i++)
             {
-                var (from, to) = GetTransferPair(i);
+                var (from, toList) = GetTransferPair(i);
+                //Execute Transfer
+                var obj = new Object();
 
-                var transferInput = new ThroughContractTransferInput
+                Parallel.For(1, toList.Count+1, item =>
                 {
-                    Symbol = symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"T - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
-                        TransferWrapperMethod.ContractTransfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
+                    lock (obj)
+                    {
+                        var transferInput = new TransferInput
+                        {
+                            Symbol = symbol,
+                            To = toList[item-1].ConvertAddress(),
+                            Amount = ((i + 1) % 4 + 1) * 1000,
+                            Memo = $"T - {Guid.NewGuid()}"
+                        };
+                        var requestInfo =
+                            NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+                                TransferWrapperMethod.ContractTransfer.ToString(),
+                                transferInput);
+                        rawTransactionList.Add(requestInfo);
+                    }
+                });
             }
-
+            
             contract.CheckTransactionResultList();
 
 

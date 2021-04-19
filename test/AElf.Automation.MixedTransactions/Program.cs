@@ -19,6 +19,12 @@ namespace AElf.Automation.MixedTransactions
             var transfer = new TransferCategory();
             var check = new CheckCategory();
             var wrapper = new WrapperTransferCategory();
+            transfer.GetTestAccounts();
+            
+            check.ToAccountList = transfer.ToAccountList;
+            wrapper.ToAccountList = transfer.ToAccountList;
+            check.FromAccountList = transfer.FromAccountList;
+            wrapper.FromAccountList = transfer.FromAccountList;
 
             _fromAccountInfos = transfer.FromAccountList;
             _toAccountInfos = transfer.ToAccountList;
@@ -44,9 +50,9 @@ namespace AElf.Automation.MixedTransactions
             transfer.PrepareTokenTransfer(_tokenInfoList);
             wrapper.PrepareWrapperTransfer(_wrapperInfoList,tokenContract);
 
-            check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long d1);
-            check.CheckBalance(_toAccountInfos, _tokenInfoList, out long d2);
-            check.CheckWrapperBalance(_fromAccountInfos, _wrapperInfoList,tokenContract, out long d3);
+            check.CheckFromBalance(_fromAccountInfos, _tokenInfoList, out long d1);
+            check.CheckToBalance(_toAccountInfos, _tokenInfoList, out long d2);
+            check.CheckWrapperFromBalance(_fromAccountInfos, _wrapperInfoList,tokenContract, out long d3);
             check.CheckWrapperVirtualBalance(_wrapperInfoList, tokenContract, out long d4);
 
             //Transfer Task
@@ -65,8 +71,8 @@ namespace AElf.Automation.MixedTransactions
                 {
                     while (true)
                     {
-                        check.CheckBalance(_fromAccountInfos, _tokenInfoList, out long duration1);
-                        check.CheckBalance(_toAccountInfos, _tokenInfoList, out long duration2);
+                        check.CheckFromBalance(_fromAccountInfos, _tokenInfoList, out long duration1);
+                        check.CheckToBalance(_toAccountInfos, _tokenInfoList, out long duration2);
                         check.CheckWrapperVirtualBalance(_wrapperInfoList,tokenContract, out long duration3);
                         check.CheckWrapperBalance(_toAccountInfos, _wrapperInfoList,tokenContract, out long duration4);
                         
@@ -91,6 +97,6 @@ namespace AElf.Automation.MixedTransactions
         private static Dictionary<TransferWrapperContract, string> _wrapperInfoList;
 
         private static List<string> _fromAccountInfos;
-        private static List<string> _toAccountInfos;
+        private static Dictionary<int,List<string>> _toAccountInfos;
     }
 }

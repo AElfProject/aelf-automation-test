@@ -24,7 +24,6 @@ namespace AElf.Automation.MixedTransactions
         [JsonProperty("ServiceUrl")] public string ServiceUrl {set; get; }
         [JsonProperty("InitAccount")] public string InitAccount { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
-        [JsonProperty("UserCount")] public int UserCount {set; get; }
         [JsonProperty("TransactionGroup")] public int TransactionGroup {set; get; }
 
         [JsonProperty("VerifyCount")] public long VerifyCount {set; get; }

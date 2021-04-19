@@ -18,31 +18,90 @@ namespace AElf.Automation.MixedTransactions
             GetService();
             _aElfClient = NodeManager.ApiClient;
         }
-        
-        public void CheckBalance(List<string> accounts, Dictionary<TokenContract,string> tokenInfos,out long duration)
+
+        public void CheckToBalance(Dictionary<int, List<string>> accounts, Dictionary<TokenContract, string> tokenInfos,
+            out long duration)
         {
             duration = 0;
             foreach (var (key, value) in tokenInfos)
             {
                 long contractDuration = 0;
                 Logger.Info("Start Token balance check ...");
-                foreach (var account in accounts) 
+                foreach (var (k, v) in accounts)
+                {
+                    foreach (var acc in v)
+                    {
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        var balance = key.GetUserBalance(acc, value);
+                        stopwatch.Stop();
+                        var checkTime = stopwatch.ElapsedMilliseconds;
+                        contractDuration += checkTime;
+                        Logger.Info($"{acc} {value} balance is {balance}");
+                    }
+                }
+
+                Logger.Info(
+                    $"{key.ContractAddress} check {accounts.Values.Count * accounts.Keys.Count} user balance time: {contractDuration}ms.");
+                duration += contractDuration;
+            }
+        }
+
+        public void CheckFromBalance(List<string> accounts, Dictionary<TokenContract, string> tokenInfos,
+            out long duration)
+        {
+            duration = 0;
+            foreach (var (key, value) in tokenInfos)
+            {
+                long contractDuration = 0;
+                Logger.Info("Start Token balance check ...");
+                foreach (var account in accounts)
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     var balance = key.GetUserBalance(account, value);
                     stopwatch.Stop();
-                   var checkTime = stopwatch.ElapsedMilliseconds;
+                    var checkTime = stopwatch.ElapsedMilliseconds;
                     contractDuration += checkTime;
                     Logger.Info($"{account} {value} balance is {balance}");
                 }
+
                 Logger.Info(
                     $"{key.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
+
+        public void CheckWrapperBalance(Dictionary<int, List<string>> accounts,
+            Dictionary<TransferWrapperContract, string> tokenInfos, TokenContract tokenContract, out long duration)
+        {
+            duration = 0;
+            foreach (var (key, value) in tokenInfos)
+            {
+                long contractDuration = 0;
+                Logger.Info("Start Wrapper balance check ...");
+                foreach (var (k, v) in accounts)
+                {
+                    foreach (var acc in v)
+                    {
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        var balance = tokenContract.GetUserBalance(acc, value);
+                        stopwatch.Stop();
+                        var checkTime = stopwatch.ElapsedMilliseconds;
+                        contractDuration += checkTime;
+                        Logger.Info($"{acc} {value} balance is {balance}");
+                    }
+                }
+
+                Logger.Info(
+                    $"{key.ContractAddress} check {accounts.Values.Count * accounts.Keys.Count} user balance time: {contractDuration}ms.");
+                duration += contractDuration;
+            }
+        }
         
-        public void CheckWrapperBalance(List<string> accounts, Dictionary<TransferWrapperContract,string> tokenInfos,TokenContract tokenContract, out long duration)
+        public void CheckWrapperFromBalance(List<string> accounts,
+            Dictionary<TransferWrapperContract, string> tokenInfos, TokenContract tokenContract, out long duration)
         {
             duration = 0;
             foreach (var (key, value) in tokenInfos)
@@ -59,13 +118,15 @@ namespace AElf.Automation.MixedTransactions
                     contractDuration += checkTime;
                     Logger.Info($"{account} {value} balance is {balance}");
                 }
+
                 Logger.Info(
                     $"{tokenContract.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
-        
-        public void CheckWrapperVirtualBalance(Dictionary<TransferWrapperContract,string> tokenInfos,TokenContract tokenContract,out long duration)
+
+        public void CheckWrapperVirtualBalance(Dictionary<TransferWrapperContract, string> tokenInfos,
+            TokenContract tokenContract, out long duration)
         {
             duration = 0;
             foreach (var (key, value) in tokenInfos)
@@ -74,7 +135,7 @@ namespace AElf.Automation.MixedTransactions
                 var virtualAccount = GetFromVirtualAccounts(key);
 
                 Logger.Info("Start check virtual balance ...");
-                foreach (var account in virtualAccount) 
+                foreach (var account in virtualAccount)
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
@@ -84,12 +145,13 @@ namespace AElf.Automation.MixedTransactions
                     contractDuration += checkTime;
                     Logger.Info($"{account} {value} balance is {balance}");
                 }
+
                 Logger.Info(
                     $"{tokenContract.ContractAddress} check {virtualAccount.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
-        
+
         public void ContinueCheckBlock(CancellationTokenSource cts, CancellationToken token)
         {
             try
@@ -134,17 +196,19 @@ namespace AElf.Automation.MixedTransactions
                 var i1 = i;
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(i1,true));
+                var blockInfo = AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(i1, true));
                 stopwatch.Stop();
                 var checkTime = stopwatch.ElapsedMilliseconds;
-                
-                Logger.Info($"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash} time:{checkTime}ms");
+
+                Logger.Info(
+                    $"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash} time:{checkTime}ms");
                 all += checkTime;
             }
-            
-            var req = (double)VerifyCount/all * 1000;
+
+            var req = (double) VerifyCount / all * 1000;
             Logger.Info($"Check {VerifyCount} block info use {all}ms, req: {req}/s");
         }
+
         private readonly AElfClient _aElfClient;
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }

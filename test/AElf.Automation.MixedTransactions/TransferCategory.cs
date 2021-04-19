@@ -89,23 +89,47 @@ namespace AElf.Automation.MixedTransactions
         private void TransferAction(TokenContract contract, string symbol)
         {
             var rawTransactionList = new List<string>();
-            for (var i = 0; i < TransactionCount; i++)
+            // for (var i = 0; i < TransactionCount; i++)
+            // {
+            //     var (from, to) = GetTransferPair(i);
+            //     var transferInput = new TransferInput
+            //     {
+            //         Symbol = symbol,
+            //         To = to.ConvertAddress(),
+            //         Amount = ((i + 1) % 4 + 1) * 1000,
+            //         Memo = $"T - {Guid.NewGuid()}"
+            //     };
+            //     var requestInfo =
+            //         NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+            //             TokenMethod.Transfer.ToString(),
+            //             transferInput);
+            //     rawTransactionList.Add(requestInfo);
+            // }
+            for (var i = 0; i < TransactionGroup; i++)
             {
-                var (from, to) = GetTransferPair(i);
-                var transferInput = new TransferInput
-                {
-                    Symbol = symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"T - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
-                        TokenMethod.Transfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
-            }
+                var (from, toList) = GetTransferPair(i);
+                //Execute Transfer
+                var obj = new Object();
 
+                Parallel.For(1, toList.Count+1, item =>
+                {
+                    lock (obj)
+                    {
+                        var transferInput = new TransferInput
+                        {
+                            Symbol = symbol,
+                            To = toList[item-1].ConvertAddress(),
+                            Amount = ((i + 1) % 4 + 1) * 1000,
+                            Memo = $"T - {Guid.NewGuid()}"
+                        };
+                        var requestInfo =
+                            NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+                                TokenMethod.Transfer.ToString(),
+                                transferInput);
+                        rawTransactionList.Add(requestInfo);
+                    }
+                });
+            }
             contract.CheckTransactionResultList();
 
             var rawTransactions = string.Join(",", rawTransactionList);

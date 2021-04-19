@@ -12,14 +12,10 @@ namespace AElf.Automation.MixedTransactions
     {
         protected void GetService()
         {
-            if (NodeManager != null)
-                return;
-
             var config = ConfigInfo.ReadInformation;
             var url = config.ServiceUrl;
             InitAccount = config.InitAccount;
             Password = config.Password;
-            UserCount = config.UserCount;
             TransactionGroup = config.TransactionGroup;
             VerifyCount = config.VerifyCount;
             TransactionCount = config.TransactionCount;
@@ -30,7 +26,8 @@ namespace AElf.Automation.MixedTransactions
 
             GetConfig();
             AccountList = new List<string>();
-            GetTestAccounts();
+            ToAccountList = new Dictionary<int, List<string>>();
+            FromAccountList = new List<string>(); 
         }
 
         private void GetConfig()
@@ -38,33 +35,70 @@ namespace AElf.Automation.MixedTransactions
             ContractInfos = ConfigInfo.ReadInformation.ContractInfos;
         }
 
-        private void GetTestAccounts()
+        // private void GetTestAccounts()
+        // {
+        //     if (AccountList.Count.Equals(UserCount))
+        //         return;
+        //     var count = UserCount;
+        //     var miners = AuthorityManager.GetCurrentMiners();
+        //     var accounts = NodeManager.ListAccounts();
+        //     var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
+        //     if (testUsers.Count >= count)
+        //     {
+        //         foreach (var acc in testUsers.Take(count))
+        //             AccountList.Add(acc);
+        //     }
+        //     else
+        //     {
+        //         foreach (var acc in testUsers) AccountList.Add(acc);
+        //
+        //         var generateCount = count - testUsers.Count;
+        //         for (var i = 0; i < generateCount; i++)
+        //         {
+        //             var account = NodeManager.NewAccount();
+        //             AccountList.Add(account);
+        //         }
+        //     }
+        //
+        //     FromAccountList = AccountList.GetRange(0, TransactionGroup);
+        //     ToAccountList = AccountList.GetRange(TransactionGroup, count - TransactionGroup);
+        // }
+        
+        public void GetTestAccounts()
         {
-            if (AccountList.Count.Equals(UserCount))
-                return;
-            var count = UserCount;
-            var miners = AuthorityManager.GetCurrentMiners();
+            var authority = new AuthorityManager(NodeManager);
+            var miners = authority.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
-            var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
-            if (testUsers.Count >= count)
+            var testUsers = accounts.FindAll(o => !miners.Contains(o));
+            if (testUsers.Count >= TransactionGroup)
             {
-                foreach (var acc in testUsers.Take(count))
-                    AccountList.Add(acc);
+                foreach (var acc in testUsers.Take(TransactionGroup)) FromAccountList.Add(acc);
+                foreach (var acc in testUsers.Take(TransactionGroup)) AccountList.Add(acc);
             }
             else
             {
-                foreach (var acc in testUsers) AccountList.Add(acc);
+                foreach (var acc in testUsers) FromAccountList.Add(acc);
 
-                var generateCount = count - testUsers.Count;
+                var generateCount = TransactionGroup - testUsers.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
                     var account = NodeManager.NewAccount();
-                    AccountList.Add(account);
+                    FromAccountList.Add(account);
                 }
             }
 
-            FromAccountList = AccountList.GetRange(0, TransactionGroup);
-            ToAccountList = AccountList.GetRange(TransactionGroup, count - TransactionGroup);
+            var count = TransactionCount / TransactionGroup;
+            for (var i = 0; i < TransactionGroup; i++)
+            {
+                var list = new List<string>();
+                for (var j = 0; j < count; j++)
+                {
+                    var account = NodeManager.NewFakeAccount();
+                    list.Add(account);
+                }
+
+                ToAccountList[i] = list;
+            }
         }
 
         protected List<string> GetFromVirtualAccounts(TransferWrapperContract contract)
@@ -91,35 +125,41 @@ namespace AElf.Automation.MixedTransactions
             }
         }
 
-        protected (string, string) GetTransferPair(int times)
+        // protected (string, string) GetTransferPair(int times)
+        // {
+        //     var fromId = times - FromAccountList.Count >= 0
+        //         ? (times / FromAccountList.Count > 1
+        //             ? times - FromAccountList.Count * (times / FromAccountList.Count)
+        //             : times - FromAccountList.Count)
+        //         : times;
+        //     var from = FromAccountList[fromId];
+        //
+        //     var toId = times - ToAccountList.Count >= 0
+        //         ? (times / ToAccountList.Count > 1
+        //             ? times - ToAccountList.Count * (times / ToAccountList.Count)
+        //             : times - ToAccountList.Count)
+        //         : times;
+        //     var to = ToAccountList[toId];
+        //
+        //     return (from, to);
+        // }
+
+        protected (string, List<string>) GetTransferPair(int times)
         {
-            var fromId = times - FromAccountList.Count >= 0
-                ? (times / FromAccountList.Count > 1
-                    ? times - FromAccountList.Count * (times / FromAccountList.Count)
-                    : times - FromAccountList.Count)
-                : times;
-            var from = FromAccountList[fromId];
-
-            var toId = times - ToAccountList.Count >= 0
-                ? (times / ToAccountList.Count > 1
-                    ? times - ToAccountList.Count * (times / ToAccountList.Count)
-                    : times - ToAccountList.Count)
-                : times;
-            var to = ToAccountList[toId];
-
-            return (from, to);
+            var from = FromAccountList[times];
+            var toList = ToAccountList[times];
+            return (from, toList);
         }
 
         public List<string> AccountList;
         public List<string> FromAccountList;
-        public List<string> ToAccountList;
+        public Dictionary<int,List<string>>ToAccountList;
         public INodeManager NodeManager;
         public AuthorityManager AuthorityManager;
         public string InitAccount;
         public string Password;
 
         public List<ContractInfo> ContractInfos;
-        public int UserCount;
         public int TransactionGroup;
         public long VerifyCount;
         public long TransactionCount;
