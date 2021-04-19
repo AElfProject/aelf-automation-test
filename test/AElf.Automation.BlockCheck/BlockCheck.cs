@@ -22,43 +22,38 @@ namespace AElf.Automation.BlockCheck
             {
                 StartBlock = 1;
                 VerifyBlockCount = currentBlockHeight;
-            }else if (currentBlockHeight < StartBlock + VerifyBlockCount)
+            }
+            else if (currentBlockHeight < StartBlock + VerifyBlockCount)
             {
                 VerifyBlockCount = currentBlockHeight - StartBlock;
             }
-            
-            Logger.Info($"Check block info start: {StartBlock}, verify count: {VerifyBlockCount}");
-            long all = 0;
-            Parallel.For(1,TaskCount + 1, item =>
-            {
-                for (var i = StartBlock; i < StartBlock+VerifyBlockCount; i++)
-                {
-                    var i1 = i;
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(i1,IncludeTransaction));
-                    stopwatch.Stop();
-                    var checkTime = stopwatch.ElapsedMilliseconds;
-                
-                    Logger.Info($"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash} time:{checkTime}ms");
-                    all += checkTime;
-                }
-            });
-            
-            var req = (double)VerifyBlockCount /all * 1000;
-            var req1 = (double)VerifyBlockCount * TaskCount/all * 1000;
 
-            Logger.Info($"Check {VerifyBlockCount} block info use {all}ms, req: {req}/s, " +
-                        $"1s {TaskCount} task request {req1}");
+            Logger.Info($"Check block info start: {StartBlock}, verify count: {VerifyBlockCount}");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Parallel.For(StartBlock, StartBlock + VerifyBlockCount + 1, item =>
+            {
+                var blockInfo = AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(item, IncludeTransaction));
+                Logger.Info(
+                    $"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash}");
+            });
+
+            stopwatch.Stop();
+            var checkTime = stopwatch.ElapsedMilliseconds;
+
+            var req = (double) VerifyBlockCount / checkTime * 1000;
+
+            Logger.Info($"Check {VerifyBlockCount} block info use {checkTime}ms, req: {req}/s");
         }
-        
+
         public void GetOneBlockInfoTimes()
         {
             var currentBlockHeight = AsyncHelper.RunSync(() => _aElfClient.GetBlockHeightAsync());
 
             Logger.Info($"Check block {currentBlockHeight} info {VerifyTimes} times.");
-            
-            var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(currentBlockHeight,IncludeTransaction));
+
+            var blockInfo = AsyncHelper.RunSync(() =>
+                _aElfClient.GetBlockByHeightAsync(currentBlockHeight, IncludeTransaction));
             Logger.Info("\n" +
                         $"Block height: {blockInfo.Header.Height}\n" +
                         $"Block hash: {blockInfo.BlockHash}\n" +
@@ -80,13 +75,13 @@ namespace AElf.Automation.BlockCheck
                 Logger.Info(i);
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(currentBlockHeight,IncludeTransaction));
+                AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(currentBlockHeight, IncludeTransaction));
                 stopwatch.Stop();
                 var checkTime = stopwatch.ElapsedMilliseconds;
                 all += checkTime;
             }
-            
-            var req = (double)VerifyTimes/all * 1000;
+
+            var req = (double) VerifyTimes / all * 1000;
 
             Logger.Info($"Check {VerifyTimes} block info use {all}ms, req: {req}/s");
         }
@@ -102,14 +97,13 @@ namespace AElf.Automation.BlockCheck
             IncludeTransaction = config.IncludeTransaction;
             VerifyTimes = config.VerifyTimes;
             TaskCount = config.TaskCount;
-
         }
 
         private INodeManager _nodeManager;
         private AElfClient _aElfClient;
         public readonly ILog Logger = Log4NetHelper.GetLogger();
-        public  long StartBlock;
-        public  long VerifyBlockCount;
+        public long StartBlock;
+        public long VerifyBlockCount;
         public long VerifyTimes;
         public bool IncludeTransaction;
         public int TaskCount;

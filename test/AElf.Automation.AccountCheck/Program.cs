@@ -125,9 +125,8 @@ namespace AElf.Automation.AccountCheck
                 //     }, token)
                 // };
                 // Task.WaitAll(taskList.ToArray<Task>());
-                var req = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count / all *
-                          1000;
-                Logger.Info($"all {all}, 1s request {req}");
+                var req = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count / all * 1000;
+                Logger.Info($"all {all}ms, 1s request {req}");
             }
         }
 
