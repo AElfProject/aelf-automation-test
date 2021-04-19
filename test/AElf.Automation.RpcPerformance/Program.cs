@@ -32,8 +32,8 @@ namespace AElf.Automation.RpcPerformance
             {
                 performance.InitExecCommand();
                 performance.DeployContracts();
-                performance.InitializeMainContracts();
-                // Thread.Sleep(60000);
+                performance.InitializeMainContracts(); 
+                Thread.Sleep(60000);
                 ExecuteTransactionPerformanceTask(performance);
             }
             catch (TimeoutException e)
