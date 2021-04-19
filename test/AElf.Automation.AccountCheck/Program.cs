@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
@@ -23,10 +24,9 @@ namespace AElf.Automation.AccountCheck
             check.ToAccountList = transfer.ToAccountList;
             check.FromAccountList = transfer.FromAccountList;
             check.AccountList = transfer.AccountList;
-            
+
             var times = check.CheckTimes;
             var amount = check.TransferAmount;
-            var taskCount = check.TaskCount;
 
             if (transfer.IsNeedDeploy)
             {
@@ -55,19 +55,17 @@ namespace AElf.Automation.AccountCheck
                 long all = 0;
                 while (times > 0)
                 {
-                    var from = new Dictionary<string, List<AccountInfo>>();
-                    var to = new Dictionary<string, List<AccountInfo>>();
-                    
+                    Dictionary<string, ConcurrentBag<AccountInfo>> from;
+                    Dictionary<string, ConcurrentBag<AccountInfo>> to;
+
                     Logger.Info($"{times}");
                     transfer.Transfer(_tokenInfoList);
-                    Parallel.For(1, taskCount+1, item =>
-                    {
-                        //after transfer balance
 
-                        from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
-                        to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
-                        all = all + fromDuration + toDuration;
-                    });
+                    //after transfer balance
+
+                    from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
+                    to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
+                    all = all + fromDuration + toDuration;
                     
                     Logger.Info("Check from account balance:");
                     foreach (var (symbol, list) in _fromAccountInfos)
@@ -99,11 +97,7 @@ namespace AElf.Automation.AccountCheck
                 var req = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
                                     _tokenInfoList.Count) / all * 1000;
                 
-                var req1 = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
-                                    _tokenInfoList.Count) * taskCount / all * 1000;
-                
-                Logger.Info($"1s request {req}" +
-                            $"1s {taskCount} task request {req1}");
+                Logger.Info($"all:{all}, 1s request {req}");
             }
             else
             {
@@ -111,12 +105,9 @@ namespace AElf.Automation.AccountCheck
                 long all = 0;
                 while (times > 0)
                 {
-                    Parallel.For(1, taskCount+1, item =>
-                    {
-                        Logger.Info($"{times}");
-                        check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
-                        all += duration;
-                    });
+                    Logger.Info($"{times}");
+                    check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+                    all += duration;
                     times--;
                 }
 
@@ -134,19 +125,16 @@ namespace AElf.Automation.AccountCheck
                 //     }, token)
                 // };
                 // Task.WaitAll(taskList.ToArray<Task>());
-                var req = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count * taskCount/ all *
+                var req = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count / all *
                           1000;
-                var req1 = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count / all *
-                          1000;
-                Logger.Info($"1s request {req}, " +
-                            $"1s {taskCount} task request {req1}");
+                Logger.Info($"all {all}, 1s request {req}");
             }
         }
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private static List<TokenContract> _contractList;
         private static Dictionary<TokenContract, string> _tokenInfoList;
-        private static Dictionary<string, List<AccountInfo>> _fromAccountInfos;
-        private static Dictionary<string, List<AccountInfo>> _toAccountInfos;
+        private static Dictionary<string, ConcurrentBag<AccountInfo>> _fromAccountInfos;
+        private static Dictionary<string, ConcurrentBag<AccountInfo>> _toAccountInfos;
     }
 }

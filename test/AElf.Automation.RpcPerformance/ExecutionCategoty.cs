@@ -282,7 +282,7 @@ namespace AElf.Automation.RpcPerformance
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: " +
-                $"{times * ToAccountList.Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+                $"{ToAccountList.Values.First().Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
         private void UnlockAllAccounts()

@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using log4net;
@@ -8,56 +10,54 @@ namespace AElf.Automation.AccountCheck
 {
     public class CheckAction : BasicAction
     {
-        public void CheckBalanceOnly(List<string> accounts, List<ContractInfo> contractInfos,out long duration)
+        public void CheckBalanceOnly(ConcurrentBag<string> accounts, List<ContractInfo> contractInfos,out long duration)
         {
             duration = 0;
             foreach (var contractInfo in contractInfos)
             {
-                long contractDuration = 0;
                 var contract = new TokenContract(NodeManager,InitAccount, contractInfo.ContractAddress);
                 var symbol = contractInfo.TokenSymbol;
                 
                 Logger.Info("Start check ...");
-                
-                foreach (var account in accounts) 
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                Parallel.ForEach(accounts, item =>
                 {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    contract.GetUserBalance(account, symbol);
-                    stopwatch.Stop();
-                    var checkTime = stopwatch.ElapsedMilliseconds;
-                    contractDuration += checkTime;
-                }
+                    contract.GetUserBalance(item, symbol);
+                });
+                stopwatch.Stop();
+                var checkTime = stopwatch.ElapsedMilliseconds;
 
                 Logger.Info(
-                    $"{contractInfo.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
-                duration += contractDuration;
+                    $"{contractInfo.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
+                duration += checkTime;
             }
         }
 
-        public Dictionary<string, List<AccountInfo>> CheckBalance(List<string> accounts, Dictionary<TokenContract,string> tokenInfos,out long duration)
+        public Dictionary<string, ConcurrentBag<AccountInfo>> CheckBalance(ConcurrentBag<string> accounts, Dictionary<TokenContract,string> tokenInfos,out long duration)
         {
-            var accountTokenInfo = new Dictionary<string, List<AccountInfo>>();
+            var accountTokenInfo = new Dictionary<string, ConcurrentBag<AccountInfo>>();
             duration = 0;
             foreach (var (key, value) in tokenInfos)
             {
-                var accountInfo = new List<AccountInfo>();   
-                long contractDuration = 0;
+                var accountInfo = new ConcurrentBag<AccountInfo>();   
                 Logger.Info("Start check ...");
-                foreach (var account in accounts) 
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                Parallel.ForEach(accounts, item =>
                 {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                   var balance = key.GetUserBalance(account, value);
-                   stopwatch.Stop();
-                   accountInfo.Add(new AccountInfo(account,balance));
-                   var checkTime = stopwatch.ElapsedMilliseconds;
-                   contractDuration += checkTime;
-                }
+                    var balance = key.GetUserBalance(item, value);
+                        accountInfo.Add(new AccountInfo(item,balance));
+                });
+                
+                stopwatch.Stop();
+                var checkTime = stopwatch.ElapsedMilliseconds;
                 accountTokenInfo.Add(value,accountInfo);
                 Logger.Info(
-                    $"{key.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
-                duration += contractDuration;
+                    $"{key.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
+                duration += checkTime;
             }
 
             return accountTokenInfo;

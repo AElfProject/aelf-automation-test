@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
-using log4net;
 using Shouldly;
 
 namespace AElf.Automation.AccountCheck
@@ -19,12 +19,12 @@ namespace AElf.Automation.AccountCheck
 
             foreach (var (contract,symbol) in tokenInfo)
             {
-                for (var i = 0; i < FromAccountList.Count; i++)
+                for (int i = 0; i < FromAccountList.ToList().Count; i++)
                 {
-                    contract.SetAccount(FromAccountList[i]);
+                    contract.SetAccount(FromAccountList.ToList()[i]);
                     contract.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
-                        To = ToAccountList[i].ConvertAddress(),
+                        To = ToAccountList.ToList()[i].ConvertAddress(),
                         Amount = amount,
                         Symbol = symbol,
                         Memo = $"T-{Guid.NewGuid()}"

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Helpers;
@@ -9,9 +10,9 @@ namespace AElf.Automation.AccountCheck
 {
     public class BasicAction
     {
-        public List<string> AccountList;
-        public List<string> FromAccountList;
-        public List<string> ToAccountList;
+        public ConcurrentBag<string> AccountList;
+        public ConcurrentBag<string> FromAccountList;
+        public ConcurrentBag<string> ToAccountList;
         public INodeManager NodeManager;
         public AuthorityManager AuthorityManager;
         public string InitAccount;
@@ -21,7 +22,6 @@ namespace AElf.Automation.AccountCheck
         public int UserCount;
         public int ContractCount;
         public int CheckTimes;
-        public int TaskCount;
         public long TransferAmount;
         public bool OnlyCheck;
         public bool IsNeedDeploy;
@@ -35,12 +35,10 @@ namespace AElf.Automation.AccountCheck
             UserCount = config.UserCount;
             OnlyCheck = config.OnlyCheck;
             CheckTimes = config.Times;
-            TaskCount = config.TaskCount;
-
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);
             GetConfig();
-            AccountList = new List<string>();
+            AccountList = new ConcurrentBag<string>();
         }
 
         private void GetConfig()
@@ -80,7 +78,7 @@ namespace AElf.Automation.AccountCheck
 
             FromAccountList = AccountList;
 
-            var list = new List<string>();
+            var list = new ConcurrentBag<string>();
             for (var i = 0; i < count; i++)
             {
                 var account = NodeManager.NewFakeAccount();
