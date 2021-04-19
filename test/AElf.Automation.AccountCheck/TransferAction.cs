@@ -13,11 +13,6 @@ namespace AElf.Automation.AccountCheck
 {
     public class TransferAction : BasicAction
     {
-        public TransferAction()
-        {
-            GetService();
-        }
-
         public void Transfer(Dictionary<TokenContract, string> tokenInfo)
         {
             var amount = TransferAmount;
@@ -114,6 +109,5 @@ namespace AElf.Automation.AccountCheck
                 if (tokenInfo.Equals(new TokenInfo())) return symbol;
             }
         }
-        private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

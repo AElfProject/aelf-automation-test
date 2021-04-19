@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Tasks;
 using AElf.Client.Service;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
@@ -28,21 +29,27 @@ namespace AElf.Automation.BlockCheck
             
             Logger.Info($"Check block info start: {StartBlock}, verify count: {VerifyBlockCount}");
             long all = 0;
-            for (var i = StartBlock; i < StartBlock+VerifyBlockCount; i++)
+            Parallel.For(1,TaskCount + 1, item =>
             {
-                var i1 = i;
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(i1,IncludeTransaction));
-                stopwatch.Stop();
-                var checkTime = stopwatch.ElapsedMilliseconds;
+                for (var i = StartBlock; i < StartBlock+VerifyBlockCount; i++)
+                {
+                    var i1 = i;
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var blockInfo = AsyncHelper.RunSync(() =>_aElfClient.GetBlockByHeightAsync(i1,IncludeTransaction));
+                    stopwatch.Stop();
+                    var checkTime = stopwatch.ElapsedMilliseconds;
                 
-                Logger.Info($"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash} time:{checkTime}ms");
-                all += checkTime;
-            }
+                    Logger.Info($"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash} time:{checkTime}ms");
+                    all += checkTime;
+                }
+            });
             
-            var req = (double)VerifyBlockCount/all * 1000;
-            Logger.Info($"Check {VerifyBlockCount} block info use {all}ms, req: {req}/s");
+            var req = (double)VerifyBlockCount /all * 1000;
+            var req1 = (double)VerifyBlockCount * TaskCount/all * 1000;
+
+            Logger.Info($"Check {VerifyBlockCount} block info use {all}ms, req: {req}/s, " +
+                        $"1s {TaskCount} task request {req1}");
         }
         
         public void GetOneBlockInfoTimes()
@@ -94,6 +101,8 @@ namespace AElf.Automation.BlockCheck
             VerifyBlockCount = config.VerifyBlockCount;
             IncludeTransaction = config.IncludeTransaction;
             VerifyTimes = config.VerifyTimes;
+            TaskCount = config.TaskCount;
+
         }
 
         private INodeManager _nodeManager;
@@ -103,5 +112,6 @@ namespace AElf.Automation.BlockCheck
         public  long VerifyBlockCount;
         public long VerifyTimes;
         public bool IncludeTransaction;
+        public int TaskCount;
     }
 }

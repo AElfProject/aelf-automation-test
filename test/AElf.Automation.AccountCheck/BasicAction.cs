@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElfChain.Common.Helpers;
@@ -20,15 +21,13 @@ namespace AElf.Automation.AccountCheck
         public int UserCount;
         public int ContractCount;
         public int CheckTimes;
+        public int TaskCount;
         public long TransferAmount;
         public bool OnlyCheck;
         public bool IsNeedDeploy;
-
-        protected void GetService()
+        
+        public void GetService()
         {
-            if (NodeManager !=null)
-                return;
-            
             var config = ConfigInfo.ReadInformation;
             var url = config.ServiceUrl;
             InitAccount = config.InitAccount;
@@ -36,10 +35,10 @@ namespace AElf.Automation.AccountCheck
             UserCount = config.UserCount;
             OnlyCheck = config.OnlyCheck;
             CheckTimes = config.Times;
+            TaskCount = config.TaskCount;
 
             NodeManager = new NodeManager(url);
-            AuthorityManager = new AuthorityManager(NodeManager,InitAccount,false);
-
+            AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);
             GetConfig();
             AccountList = new List<string>();
         }
@@ -48,7 +47,7 @@ namespace AElf.Automation.AccountCheck
         {
             var transferInfo = ConfigInfo.ReadInformation.TransferInfo;
             ContractInfos = ConfigInfo.ReadInformation.ContractInfos;
-            
+
             ContractCount = transferInfo.ContractCount;
             TransferAmount = transferInfo.TransferAmount;
             IsNeedDeploy = transferInfo.IsNeedDeploy;
@@ -79,11 +78,28 @@ namespace AElf.Automation.AccountCheck
                 }
             }
 
-            FromAccountList = AccountList.GetRange(0, count / 2);
-            ToAccountList = AccountList.GetRange(count / 2 , count / 2);
+            FromAccountList = AccountList;
+
+            var list = new List<string>();
+            for (var i = 0; i < count; i++)
+            {
+                var account = NodeManager.NewFakeAccount();
+                list.Add(account);
+            }
+
+            ToAccountList = list;
+        }
+
+        public void UnlockAllAccounts()
+        {
+            foreach (var t in FromAccountList)
+            {
+                var result = NodeManager.UnlockAccount(t);
+                if (!result)
+                    throw new Exception($"Account unlock {t} failed.");
+            }
         }
 
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-
     }
 }

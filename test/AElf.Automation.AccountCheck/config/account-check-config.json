@@ -1,19 +1,20 @@
 {
   "TransferInfo": {
-    "IsNeedDeploy": false, 
+    "IsNeedDeploy": true, 
     "ContractCount": 1,
     "TransferAmount":1000
   },
   "ContractInfo": [
     {
       "ContractAddress": "JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE",
-      "Symbol": "ELF"
+      "Symbol": "OFRGICZY"
     }
   ],
-  "ServiceUrl": "3.115.115.141:8000",
+  "ServiceUrl": "3.112.235.128:8000",
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
   "UserCount": 10,
   "OnlyCheck": false,
-  "CheckTimes": 10
+  "CheckTimes": 10,
+  "TaskCount": 4
 }

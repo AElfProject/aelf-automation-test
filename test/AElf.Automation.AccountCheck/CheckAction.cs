@@ -8,11 +8,6 @@ namespace AElf.Automation.AccountCheck
 {
     public class CheckAction : BasicAction
     {
-        public CheckAction()
-        {
-            GetService();
-        }
-
         public void CheckBalanceOnly(List<string> accounts, List<ContractInfo> contractInfos,out long duration)
         {
             duration = 0;

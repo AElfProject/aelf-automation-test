@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
+using AElfChain.Common.Managers;
 using log4net;
 using Shouldly;
 
 namespace AElf.Automation.AccountCheck
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
@@ -19,31 +17,37 @@ namespace AElf.Automation.AccountCheck
 
             var transfer = new TransferAction();
             var check = new CheckAction();
+            transfer.GetService();
+            check.GetService();
+            transfer.GetTestAccounts();
+            check.ToAccountList = transfer.ToAccountList;
+            check.FromAccountList = transfer.FromAccountList;
+            check.AccountList = transfer.AccountList;
+            
             var times = check.CheckTimes;
             var amount = check.TransferAmount;
-            transfer.GetTestAccounts();
-            check.GetTestAccounts();
+            var taskCount = check.TaskCount;
+
+            if (transfer.IsNeedDeploy)
+            {
+                _contractList = transfer.DeployContractWithAuthority();
+                _tokenInfoList = transfer.CreateAndIssueToken(_contractList);
+            }
+            else
+            {
+                foreach (var contract in transfer.ContractInfos)
+                {
+                    _contractList = new List<TokenContract>();
+                    _tokenInfoList = new Dictionary<TokenContract, string>();
+                    var token = new TokenContract(transfer.NodeManager, transfer.InitAccount,
+                        contract.ContractAddress);
+                    _contractList.Add(token);
+                    _tokenInfoList.Add(token, contract.TokenSymbol);
+                }
+            }
 
             if (!check.OnlyCheck)
             {
-                if (transfer.IsNeedDeploy)
-                {
-                    _contractList = transfer.DeployContractWithAuthority();
-                    _tokenInfoList = transfer.CreateAndIssueToken(_contractList);
-                }
-                else
-                {
-                    foreach (var contract in transfer.ContractInfos)
-                    {
-                        _contractList = new List<TokenContract>();
-                        _tokenInfoList = new Dictionary<TokenContract, string>();
-                        var token = new TokenContract(transfer.NodeManager, transfer.InitAccount,
-                            contract.ContractAddress);
-                        _contractList.Add(token);
-                        _tokenInfoList.Add(token, contract.TokenSymbol);
-                    }
-                }
-
                 transfer.PrepareTransfer(_tokenInfoList);
                 // original balance 
                 _fromAccountInfos = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long d1);
@@ -51,13 +55,20 @@ namespace AElf.Automation.AccountCheck
                 long all = 0;
                 while (times > 0)
                 {
+                    var from = new Dictionary<string, List<AccountInfo>>();
+                    var to = new Dictionary<string, List<AccountInfo>>();
+                    
                     Logger.Info($"{times}");
                     transfer.Transfer(_tokenInfoList);
+                    Parallel.For(1, taskCount+1, item =>
+                    {
+                        //after transfer balance
 
-                    //after transfer balance
-                    var from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
-                    var to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
-
+                        from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
+                        to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
+                        all = all + fromDuration + toDuration;
+                    });
+                    
                     Logger.Info("Check from account balance:");
                     foreach (var (symbol, list) in _fromAccountInfos)
                     {
@@ -80,7 +91,6 @@ namespace AElf.Automation.AccountCheck
                         }
                     }
 
-                    all = all + fromDuration + toDuration;
                     _fromAccountInfos = from;
                     _toAccountInfos = to;
                     times--;
@@ -88,30 +98,48 @@ namespace AElf.Automation.AccountCheck
 
                 var req = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
                                     _tokenInfoList.Count) / all * 1000;
-                Logger.Info($"1s request {req}");
+                
+                var req1 = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
+                                    _tokenInfoList.Count) * taskCount / all * 1000;
+                
+                Logger.Info($"1s request {req}" +
+                            $"1s {taskCount} task request {req1}");
             }
             else
             {
-                var cts = new CancellationTokenSource();
-                var token = cts.Token;
+                transfer.PrepareTransfer(_tokenInfoList);
                 long all = 0;
-
-                var taskList = new List<Task>
+                while (times > 0)
                 {
-                    Task.Run(() =>
+                    Parallel.For(1, taskCount+1, item =>
                     {
-                        while (times > 0)
-                        {
-                            Logger.Info($"{times}");
-                            check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
-                            all += duration;
-                            times--;
-                        }
-                    }, token)
-                };
-                Task.WaitAll(taskList.ToArray<Task>());
-                var req = (double) (check.CheckTimes * check.AccountList.Count)* check.ContractInfos.Count / all * 1000;
-                Logger.Info($"1s request {req}");
+                        Logger.Info($"{times}");
+                        check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+                        all += duration;
+                    });
+                    times--;
+                }
+
+                // var taskList = new List<Task>
+                // {
+                //     Task.Run(() =>
+                //     {
+                //         while (times > 0)
+                //         {
+                //             Logger.Info($"{times}");
+                //             check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+                //             all += duration;
+                //             times--;
+                //         }
+                //     }, token)
+                // };
+                // Task.WaitAll(taskList.ToArray<Task>());
+                var req = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count * taskCount/ all *
+                          1000;
+                var req1 = (double) (check.CheckTimes * check.AccountList.Count) * check.ContractInfos.Count / all *
+                          1000;
+                Logger.Info($"1s request {req}, " +
+                            $"1s {taskCount} task request {req1}");
             }
         }
 

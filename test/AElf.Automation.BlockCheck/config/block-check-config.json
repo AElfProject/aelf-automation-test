@@ -1,8 +1,9 @@
 {
-  "Url": "http://3.113.242.18:8000",
+  "Url": "http://3.112.235.128:8000",
   "VerifyBlockCount": 10,
-  "StartBlock": 10000,
+  "StartBlock": 100,
   "IncludeTransaction": true,
-  "VerifyOne": true,
-  "VerifyTimes": 10
+  "VerifyOne": false,
+  "VerifyTimes": 10,
+  "TaskCount": 4
 }
