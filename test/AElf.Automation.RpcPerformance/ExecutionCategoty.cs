@@ -324,6 +324,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     var account = NodeManager.NewAccount();
                     FromAccountList.Add(new AccountInfo(account));
+                    AccountList.Add(new AccountInfo(account));
                 }
             }
 
