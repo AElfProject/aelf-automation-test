@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="account-check-config.json">
+        <None Update="config/account-check-config.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

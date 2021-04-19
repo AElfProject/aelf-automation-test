@@ -89,6 +89,12 @@ namespace AElfChain.Common.Managers
             var res = await WriteKeyPairAsync(keyPair, password);
             return !res ? null : keyPair;
         }
+        
+        public async Task<ECKeyPair> CreateFakeAccountKeyPairAsync()
+        {
+            var keyPair = CryptoHelper.GenerateKeyPair();
+            return keyPair;
+        }
 
         public async Task<List<string>> GetAccountsAsync()
         {

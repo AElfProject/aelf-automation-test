@@ -18,6 +18,7 @@ namespace AElfChain.Common.Managers
 
         //account
         string NewAccount(string password = "");
+        string NewFakeAccount();
         string GetRandomAccount();
         string GetAccountPublicKey(string account, string password = "");
         List<string> ListAccounts();

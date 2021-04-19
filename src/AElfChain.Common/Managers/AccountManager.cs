@@ -47,6 +47,20 @@ namespace AElfChain.Common.Managers
 
             return accountInfo;
         }
+        
+        public string NewFakeAccount()
+        {
+            var keypair = AsyncHelper.RunSync(() => _keyStore.CreateFakeAccountKeyPairAsync());
+            var pubKey = keypair.PublicKey;
+            var address = Address.FromPublicKey(pubKey);
+
+            var accountInfo = address.ToBase58();
+            _accounts.Add(accountInfo);
+            Logger.Info($"New account '{accountInfo}' generated.");
+
+            return accountInfo;
+        }
+
 
         public string GetRandomAccount()
         {

@@ -133,6 +133,12 @@ namespace AElfChain.Common.Managers
         {
             return AccountManager.NewAccount(password);
         }
+        
+        
+        public string NewFakeAccount()
+        {
+            return AccountManager.NewFakeAccount();
+        }
 
         public string GetRandomAccount()
         {
