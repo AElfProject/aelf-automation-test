@@ -10,10 +10,7 @@ namespace AElf.Automation.RpcPerformance
         [JsonProperty("GroupCount")] public int GroupCount { get; set; }
         [JsonProperty("TransactionGroup")] public int TransactionGroup { get; set; }
         [JsonProperty("TransactionCount")] public int TransactionCount { get; set; }
-        [JsonProperty("UserCount")] public int UserCount { get; set; }
-
-        [JsonProperty("EnableRandomTransaction")]
-        public bool EnableRandomTransaction { get; set; }
+        
         [JsonProperty("ServiceUrl")] public string ServiceUrl { get; set; } 
         [JsonProperty("Timeout")] public int Timeout { get; set; }
         [JsonProperty("Duration")] public int Duration { get; set; }

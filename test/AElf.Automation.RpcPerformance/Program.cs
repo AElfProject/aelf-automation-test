@@ -30,10 +30,10 @@ namespace AElf.Automation.RpcPerformance
             //Execute transaction command
             try
             {
-                performance.InitExecCommand(UserCount);
+                performance.InitExecCommand();
                 performance.DeployContracts();
                 performance.InitializeMainContracts();
-                Thread.Sleep(60000);
+                // Thread.Sleep(60000);
                 ExecuteTransactionPerformanceTask(performance);
             }
             catch (TimeoutException e)
@@ -67,8 +67,6 @@ namespace AElf.Automation.RpcPerformance
         private static int GroupCount { get; } = RpcConfig.ReadInformation.GroupCount;
         private static int TransactionCount { get; } = RpcConfig.ReadInformation.TransactionCount;
         private static int TransactionGroup { get; } = RpcConfig.ReadInformation.TransactionGroup;
-
-        private static int UserCount { get; } = RpcConfig.ReadInformation.UserCount;
         private static string RpcUrl { get; } = RpcConfig.ReadInformation.ServiceUrl;
         private static int Duration { get; } = RpcConfig.ReadInformation.Duration;
 

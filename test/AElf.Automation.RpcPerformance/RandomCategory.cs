@@ -2,22 +2,17 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
-using AElfChain.Common;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
-using Google.Protobuf;
 using log4net;
 using Shouldly;
 using Volo.Abp.Threading;
@@ -37,7 +32,7 @@ namespace AElf.Automation.RpcPerformance
                 keyStorePath = CommonHelper.GetCurrentDataDir();
 
             AccountList = new List<AccountInfo>();
-            ToAccountList = new List<AccountInfo>();
+            ToAccountList = new Dictionary<int, List<string>>();
             FromAccountList = new List<AccountInfo>();
             ContractList = new List<ContractInfo>();
             MainContractList = new List<ContractInfo>();
@@ -52,7 +47,7 @@ namespace AElf.Automation.RpcPerformance
             Duration = duration;
         }
 
-        public void InitExecCommand(int userCount)
+        public void InitExecCommand()
         {
             Logger.Info("Host Url: {0}", BaseUrl);
             Logger.Info("Key Store Path: {0}", Path.Combine(KeyStorePath, "keys"));
@@ -61,10 +56,10 @@ namespace AElf.Automation.RpcPerformance
             //Connect
             AsyncHelper.RunSync(ApiClient.GetChainStatusAsync);
             //New
-            GetTestAccounts(userCount);
+            GetTestAccounts();
             //Unlock Account
-            UnlockAllAccounts(ThreadCount);
-            Task.Run(() => UnlockAllAccounts(userCount));
+            UnlockAllAccounts();
+            // Task.Run(() => UnlockAllAccounts());
             //Init other services
             Summary = new ExecutionSummary(NodeManager);
             Monitor = new NodeStatusMonitor(NodeManager);
@@ -115,6 +110,7 @@ namespace AElf.Automation.RpcPerformance
                             IsBurnable = true
                         });
                     }
+
                     contract.Symbol = symbol;
                     ContractList.Add(contract);
                 }
@@ -246,45 +242,51 @@ namespace AElf.Automation.RpcPerformance
             Task.WaitAll(taskList.ToArray<Task>());
         }
 
-        private void GetTestAccounts(int count)
+        private void GetTestAccounts()
         {
             var authority = new AuthorityManager(NodeManager);
             var miners = authority.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
             var testUsers = accounts.FindAll(o => !miners.Contains(o));
-            if (testUsers.Count >= count)
+            if (testUsers.Count >= TransactionGroup)
             {
-                foreach (var acc in testUsers.Take(count)) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers.Take(TransactionGroup)) FromAccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers.Take(TransactionGroup)) AccountList.Add(new AccountInfo(acc));
             }
             else
             {
-                foreach (var acc in testUsers) AccountList.Add(new AccountInfo(acc));
+                foreach (var acc in testUsers) FromAccountList.Add(new AccountInfo(acc));
 
-                var generateCount = count - testUsers.Count;
+                var generateCount = TransactionGroup - testUsers.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
                     var account = NodeManager.NewAccount();
-                    AccountList.Add(new AccountInfo(account));
+                    FromAccountList.Add(new AccountInfo(account));
                 }
             }
 
-            var fromCount = TransactionGroup;
+            var count = ExeTimes / TransactionGroup;
+            for (var i = 0; i < TransactionGroup; i++)
+            {
+                var list = new List<string>();
+                for (var j = 0; j < count; j++)
+                {
+                    var account = NodeManager.NewFakeAccount();
+                    list.Add(account);
+                }
 
-            FromAccountList = AccountList.GetRange(0, fromCount);
-            ToAccountList =
-                AccountList.GetRange(fromCount, count - fromCount);
+                ToAccountList[i] = list;
+            }
         }
 
         private void GeneratedTransaction(bool useTxs, CancellationTokenSource cts, CancellationToken token)
         {
             Logger.Info("Begin generate multi requests.");
-            var enableRandom = RpcConfig.ReadInformation.EnableRandomTransaction;
             try
             {
                 for (var r = 1; r > 0; r++) //continuous running
                 {
                     //set random tx sending each round
-                    var exeTimes = GetRandomTransactionTimes(enableRandom, ExeTimes);
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
 
@@ -299,7 +301,7 @@ namespace AElf.Automation.RpcPerformance
                             for (var i = 0; i < ThreadCount; i++)
                             {
                                 var j = i;
-                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token));
+                                txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, TransactionGroup), token));
 //                                Task.Run(() => ExecuteBatchTransactionTask(j, exeTimes), token);
                             }
 
@@ -320,7 +322,7 @@ namespace AElf.Automation.RpcPerformance
 
                     stopwatch.Stop();
                     var createTxsTime = stopwatch.ElapsedMilliseconds;
-                    TransactionSentPerSecond(ThreadCount * exeTimes, createTxsTime);
+                    TransactionSentPerSecond(ThreadCount * ExeTimes, createTxsTime);
 
                     Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
                     Thread.Sleep(Duration);
@@ -345,7 +347,7 @@ namespace AElf.Automation.RpcPerformance
                 $"Summary analyze: Total request {transactionCount} transactions in {time / 1000:0.000} seconds, average {result:0.00} txs/second.");
         }
 
-        private void UnlockAllAccounts(int count)
+        private void UnlockAllAccounts()
         {
             /*
             Parallel.For(0, count, i =>
@@ -355,11 +357,11 @@ namespace AElf.Automation.RpcPerformance
                     throw new Exception($"Account unlock {AccountList[i].Account} failed.");
             });
             */
-            for (var i = 0; i < count; i++)
+            foreach (var t in AccountList)
             {
-                var result = NodeManager.UnlockAccount(AccountList[i].Account);
+                var result = NodeManager.UnlockAccount(t.Account);
                 if (!result)
-                    throw new Exception($"Account unlock {AccountList[i].Account} failed.");
+                    throw new Exception($"Account unlock {t.Account} failed.");
             }
         }
 
@@ -375,20 +377,28 @@ namespace AElf.Automation.RpcPerformance
 
             for (var i = 0; i < times; i++)
             {
-                var (from, to) = GetTransferPair(i);
+                var (from, toList) = GetTransferPair(i);
                 //Execute Transfer
-                var transferInput = new TransferInput
+                var obj = new Object();
+
+                Parallel.For(1, toList.Count+1, item =>
                 {
-                    Symbol = symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"transfer test - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contractPath,
-                        TokenMethod.Transfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
+                    lock (obj)
+                    {
+                        var transferInput = new TransferInput
+                        {
+                            Symbol = symbol,
+                            To = toList[item-1].ConvertAddress(),
+                            Amount = ((i + 1) % 4 + 1) * 1000,
+                            Memo = $"transfer test - {Guid.NewGuid()}"
+                        };
+                        var requestInfo =
+                            NodeManager.GenerateRawTransaction(@from, contractPath,
+                                TokenMethod.Transfer.ToString(),
+                                transferInput);
+                        rawTransactionList.Add(requestInfo);
+                    }
+                });
             }
 
             stopwatch.Stop();
@@ -402,36 +412,17 @@ namespace AElf.Automation.RpcPerformance
 
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
-                $"Thread {threadNo}-{symbol} request transactions: {times}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+                $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: " +
+                $"{times * ToAccountList.Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
-        private (string, string) GetTransferPair(int times)
+        private (string, List<string>) GetTransferPair(int times)
         {
-            var fromId = times - FromAccountList.Count >= 0
-                ? (times / FromAccountList.Count > 1
-                    ? times - FromAccountList.Count * (times / FromAccountList.Count)
-                    : times - FromAccountList.Count)
-                : times;
-
-            var from = FromAccountList[fromId].Account;
-
-            var toId = times - ToAccountList.Count >= 0
-                ? (times / ToAccountList.Count > 1
-                    ? times - ToAccountList.Count * (times / ToAccountList.Count)
-                    : times - ToAccountList.Count)
-                : times;
-            var to = ToAccountList[toId].Account;
-
-            return (from, to);
+            var from = FromAccountList[times].Account;
+            var toList = ToAccountList[times];
+            return (from, toList);
         }
 
-        private int GetRandomTransactionTimes(bool isRandom, int max)
-        {
-            if (!isRandom) return max;
-
-            var rand = new Random(Guid.NewGuid().GetHashCode());
-            return rand.Next(1, max + 1);
-        }
 
         #region Public Property
 
@@ -445,7 +436,7 @@ namespace AElf.Automation.RpcPerformance
         private string TokenAddress { get; set; }
         private int TransactionGroup { get; set; }
         private List<AccountInfo> AccountList { get; }
-        private List<AccountInfo> ToAccountList { get; set; }
+        private Dictionary<int, List<string>> ToAccountList { get; set; }
         private List<AccountInfo> FromAccountList { get; set; }
 
         private string KeyStorePath { get; }
