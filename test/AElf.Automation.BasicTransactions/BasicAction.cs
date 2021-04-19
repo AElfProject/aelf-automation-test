@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using AElf.Contracts.MultiToken;
 using AElf.Types;
@@ -20,6 +22,9 @@ namespace AElf.Automation.BasicTransaction
             InitAccount = config.InitAccount;
             Password = config.Password;
             TransferAmount = config.TransferAmount;
+            Times = config.Times;
+            TokenAddress = config.TokenAddress;
+            WrapperAddress = config.WrapperAddress;
             
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount);
@@ -39,12 +44,24 @@ namespace AElf.Automation.BasicTransaction
         
         private void GetTestAccounts()
         {
+            TestAccountList = new List<string>();
             var miners = AuthorityManager.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
             var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
             TestAccount = testUsers.Count == 0 ? NodeManager.NewAccount() : testUsers.First();
+            if (testUsers.Count >= Times)
+                TestAccountList = testUsers.Take(Times).ToList();
+            else
+            {
+                var generateCount = Times - testUsers.Count;
+                for (var i = 0; i < generateCount; i++)
+                {
+                    var account = NodeManager.NewAccount();
+                    TestAccountList.Add(account);
+                }
+            }
         }
-        
+
         protected Address GetFromVirtualAccounts(TransferWrapperContract contract)
         {
             var virtualAccount = HashHelper.ComputeFrom(InitAccount.ConvertAddress());
@@ -57,6 +74,11 @@ namespace AElf.Automation.BasicTransaction
         public string InitAccount;
         public string Password;
         public string TestAccount;
+        public List<string> TestAccountList;
         public long TransferAmount;
+        public int Times;
+
+        public string TokenAddress;
+        public string WrapperAddress;
     }
 }

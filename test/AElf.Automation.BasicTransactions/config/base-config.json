@@ -1,6 +1,11 @@
 {
-  "ServiceUrl": "192.168.10.118:8000",
+  "ServiceUrl": "3.112.235.128:8000",
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
-  "TransferAmount": 100000000000
+  "TransferAmount": 100000000000,
+  "ExecuteMode": 7,
+  "ContractCount": 3,
+  "Times": 10,
+  "TokenAddress": "XyRN9VNabpBiVUFeX2t7ZUR2b3tWV7U31exufJ2AUepVb5t56",
+  "WrapperAddress":"NxSBGHE3zs85tpnX1Ns4awQUtFL8Dnr6Hux4C4E18WZsW4zzJ"
 }
