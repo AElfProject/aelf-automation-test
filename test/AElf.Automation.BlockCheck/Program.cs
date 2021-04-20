@@ -18,10 +18,17 @@ namespace AElf.Automation.BlockCheck
             var verifyCount = ConfigInfo.ReadInformation.VerifyBlockCount;
             if (mode)
             {
+                for (var i = 0; i < 10; i++)
+                { 
+                    var duration = check.GetOneBlockInfoTimes();
+                    Thread.Sleep(1000);
+                }
+                
                 long all = 0;
                 var vt = times;
                 while (vt > 0)
                 {
+                    Logger.Info($"{vt}");
                     var duration = check.GetOneBlockInfoTimes();
                     all += duration;
                     vt--;
@@ -33,11 +40,17 @@ namespace AElf.Automation.BlockCheck
             }
             else
             {
+                for (var i = 0; i < 10; i++)
+                { 
+                    var duration = check.GetOneBlockInfoTimes();
+                    Thread.Sleep(1000);
+                }
+                
                 long all = 0;
                 var vt = times;
-
                 while (vt > 0)
                 {
+                    Logger.Info($"{vt}");
                     var duration =  check.GetBlockInfo();
                     all += duration;
                     vt--;
