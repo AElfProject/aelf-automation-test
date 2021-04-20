@@ -414,7 +414,7 @@ namespace AElf.Automation.RpcPerformance
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: " +
-                $"{times * ToAccountList.Values.First().Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+                $"{times * ToAccountList.Values.First().Count * ToAccountList.Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
         private (string, List<string>) GetTransferPair(int times)

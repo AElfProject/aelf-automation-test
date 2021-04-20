@@ -13,7 +13,6 @@ namespace AElf.Automation.BlockCheck
 
         [JsonProperty("VerifyOne")] public bool VerifyOne { get; set; }
         [JsonProperty("IncludeTransaction")] public bool IncludeTransaction { get; set; }
-        [JsonProperty("TaskCount")] public int TaskCount { get; set; }
 
         public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("block-check-config.json");
     }

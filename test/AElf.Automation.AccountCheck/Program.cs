@@ -52,19 +52,23 @@ namespace AElf.Automation.AccountCheck
                 // original balance 
                 _fromAccountInfos = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long d1);
                 _toAccountInfos = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long d2);
+
+                for (var i = 0; i < 10; i++)
+                {
+                    check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
+                    check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
+                }
+                
                 long all = 0;
                 while (times > 0)
                 {
-                    Dictionary<string, ConcurrentBag<AccountInfo>> from;
-                    Dictionary<string, ConcurrentBag<AccountInfo>> to;
-
                     Logger.Info($"{times}");
                     transfer.Transfer(_tokenInfoList);
 
                     //after transfer balance
 
-                    from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
-                    to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
+                    var @from = check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
+                    var to = check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
                     all = all + fromDuration + toDuration;
                     
                     Logger.Info("Check from account balance:");
@@ -103,6 +107,10 @@ namespace AElf.Automation.AccountCheck
             {
                 transfer.PrepareTransfer(_tokenInfoList);
                 long all = 0;
+                
+                for (var i = 0; i < 10; i++)
+                    check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+
                 while (times > 0)
                 {
                     Logger.Info($"{times}");

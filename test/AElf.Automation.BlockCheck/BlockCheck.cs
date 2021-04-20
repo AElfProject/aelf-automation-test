@@ -37,7 +37,6 @@ namespace AElf.Automation.BlockCheck
                 Logger.Info(
                     $"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash}");
             });
-
             stopwatch.Stop();
             var checkTime = stopwatch.ElapsedMilliseconds;
 
@@ -96,7 +95,6 @@ namespace AElf.Automation.BlockCheck
             VerifyBlockCount = config.VerifyBlockCount;
             IncludeTransaction = config.IncludeTransaction;
             VerifyTimes = config.VerifyTimes;
-            TaskCount = config.TaskCount;
         }
 
         private INodeManager _nodeManager;
@@ -106,6 +104,5 @@ namespace AElf.Automation.BlockCheck
         public long VerifyBlockCount;
         public long VerifyTimes;
         public bool IncludeTransaction;
-        public int TaskCount;
     }
 }
