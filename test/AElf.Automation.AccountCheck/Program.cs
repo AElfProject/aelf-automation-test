@@ -1,10 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using log4net;
 using Shouldly;
 
@@ -109,12 +107,12 @@ namespace AElf.Automation.AccountCheck
                 long all = 0;
                 
                 for (var i = 0; i < 10; i++)
-                    check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+                    check.CheckBalanceOnly(check.AccountList,_tokenInfoList , out long duration);
 
                 while (times > 0)
                 {
                     Logger.Info($"{times}");
-                    check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
+                    check.CheckBalanceOnly(check.AccountList, _tokenInfoList, out long duration);
                     all += duration;
                     times--;
                 }

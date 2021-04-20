@@ -10,13 +10,13 @@ namespace AElf.Automation.AccountCheck
 {
     public class CheckAction : BasicAction
     {
-        public void CheckBalanceOnly(ConcurrentBag<string> accounts, List<ContractInfo> contractInfos,out long duration)
+        public void CheckBalanceOnly(ConcurrentBag<string> accounts, Dictionary<TokenContract,string> tokenInfos,out long duration)
         {
             duration = 0;
-            foreach (var contractInfo in contractInfos)
+            foreach (var (key,value) in tokenInfos)
             {
-                var contract = new TokenContract(NodeManager,InitAccount, contractInfo.ContractAddress);
-                var symbol = contractInfo.TokenSymbol;
+                var contract = new TokenContract(NodeManager,InitAccount, key.ContractAddress);
+                var symbol = value;
                 
                 Logger.Info("Start check ...");
                 var stopwatch = new Stopwatch();
@@ -30,7 +30,7 @@ namespace AElf.Automation.AccountCheck
                 var checkTime = stopwatch.ElapsedMilliseconds;
 
                 Logger.Info(
-                    $"{contractInfo.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
+                    $"{key.ContractAddress} check {accounts.Count} user balance time: {checkTime}ms.");
                 duration += checkTime;
             }
         }
