@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using log4net;
@@ -94,6 +95,7 @@ namespace AElf.Automation.AccountCheck
                     _fromAccountInfos = from;
                     _toAccountInfos = to;
                     times--;
+                    Thread.Sleep(1000);
                 }
 
                 var req = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
@@ -115,6 +117,7 @@ namespace AElf.Automation.AccountCheck
                     check.CheckBalanceOnly(check.AccountList, _tokenInfoList, out long duration);
                     all += duration;
                     times--;
+                    Thread.Sleep(1000);
                 }
 
                 // var taskList = new List<Task>
