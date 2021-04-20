@@ -24,7 +24,8 @@ namespace AElf.Automation.AccountCheck
 
                 Parallel.ForEach(accounts, item =>
                 {
-                    contract.GetUserBalance(item, symbol);
+                    var balance = contract.GetUserBalance(item, symbol);
+                    Logger.Info($"{item},{balance}");
                 });
                 stopwatch.Stop();
                 var checkTime = stopwatch.ElapsedMilliseconds;

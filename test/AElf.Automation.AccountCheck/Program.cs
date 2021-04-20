@@ -77,6 +77,7 @@ namespace AElf.Automation.AccountCheck
                         foreach (var account in list)
                         {
                             var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                            Logger.Info($"{account.Account}: {account.Balance}");
                             account.Balance.ShouldBe(accountInfo.Balance + amount);
                         }
                     }
@@ -88,6 +89,7 @@ namespace AElf.Automation.AccountCheck
                         foreach (var account in list)
                         {
                             var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                            Logger.Info($"{account.Account}: {account.Balance}");
                             account.Balance.ShouldBe(accountInfo.Balance - amount);
                         }
                     }
@@ -101,7 +103,7 @@ namespace AElf.Automation.AccountCheck
                 var req = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count) *
                                     _tokenInfoList.Count) / all * 1000;
                 
-                Logger.Info($"all:{all}, 1s request {req}");
+                Logger.Info($"all:{all}ms, 1s request {req}");
             }
             else
             {
