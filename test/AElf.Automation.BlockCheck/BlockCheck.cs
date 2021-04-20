@@ -68,21 +68,37 @@ namespace AElf.Automation.BlockCheck
             Logger.Info(blockInfo.Body.Transactions);
 
             long all = 0;
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            Parallel.For(1, VerifyBlockCount + 1, item =>
+            // var stopwatch = new Stopwatch();
+            // stopwatch.Start();
+            // Parallel.For(1, VerifyBlockCount + 1, item =>
+            // {
+            //     var blockInfo = AsyncHelper.RunSync(() =>
+            //         _aElfClient.GetBlockByHeightAsync(currentBlockHeight, IncludeTransaction));
+            //     Logger.Info(
+            //         $"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash}");
+            // });
+            // stopwatch.Stop();
+            // var checkTime = stopwatch.ElapsedMilliseconds;
+            // var req = (double) VerifyBlockCount / all * 1000;
+            //
+            // Logger.Info($"Check {VerifyBlockCount} block info use {checkTime}ms, req: {req}/s");
+            // return checkTime;
+            
+            for (var i = 0; i < VerifyTimes; i++)
             {
-                var blockInfo = AsyncHelper.RunSync(() =>
-                    _aElfClient.GetBlockByHeightAsync(currentBlockHeight, IncludeTransaction));
-                Logger.Info(
-                    $"block height: {blockInfo.Header.Height}, block hash:{blockInfo.BlockHash}");
-            });
-            stopwatch.Stop();
-            var checkTime = stopwatch.ElapsedMilliseconds;
-            var req = (double) VerifyBlockCount / all * 1000;
+                Logger.Info(i);
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(currentBlockHeight, IncludeTransaction));
+                stopwatch.Stop();
+                var checkTime = stopwatch.ElapsedMilliseconds;
+                all += checkTime;
+            }
 
-            Logger.Info($"Check {VerifyBlockCount} block info use {checkTime}ms, req: {req}/s");
-            return checkTime;
+            var req = (double) VerifyTimes / all * 1000;
+
+            Logger.Info($"Check {VerifyTimes} block info use {all}ms, req: {req}/s");
+            return all;
         }
 
         private void GetService()
