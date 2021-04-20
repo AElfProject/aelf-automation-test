@@ -63,7 +63,7 @@ namespace AElf.Automation.MixedTransactions
                     stopwatch.Stop();
                     var checkTime = stopwatch.ElapsedMilliseconds;
                     contractDuration += checkTime;
-                    Logger.Info($"{account} {value} balance is {balance}");
+                    // Logger.Info($"{account} {value} balance is {balance}");
                 }
 
                 Logger.Info(
@@ -90,7 +90,7 @@ namespace AElf.Automation.MixedTransactions
                         stopwatch.Stop();
                         var checkTime = stopwatch.ElapsedMilliseconds;
                         contractDuration += checkTime;
-                        Logger.Info($"{acc} {value} balance is {balance}");
+                        // Logger.Info($"{acc} {value} balance is {balance}");
                     }
                 }
 
@@ -191,7 +191,7 @@ namespace AElf.Automation.MixedTransactions
 
             Logger.Info($"Check block info start: {startBlock}, verify count: {verifyCount}");
             long all = 0;
-            for (var i = startBlock; i <= verifyCount; i++)
+            for (var i = startBlock; i <= startBlock + verifyCount; i++)
             {
                 var i1 = i;
                 var stopwatch = new Stopwatch();

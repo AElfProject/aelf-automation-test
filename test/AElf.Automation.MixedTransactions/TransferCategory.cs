@@ -134,7 +134,7 @@ namespace AElf.Automation.MixedTransactions
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
-            Logger.Info(transactions);
+            // Logger.Info(transactions);
 
             Thread.Sleep(1000);
         }

@@ -20,11 +20,11 @@
       }]
     }
   ],
-  "ServiceUrl": "3.112.235.128:8000",
+  "ServiceUrl": "13.230.38.98:8000",
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
   "TransactionGroup": 10,
-  "VerifyCount": 2000,
+  "VerifyCount": 100,
   "TransactionCount": 100,
   "NeedCreateToken": true
 }
