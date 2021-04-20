@@ -67,7 +67,6 @@ namespace AElf.Automation.BlockCheck
             Logger.Info($"Block include transaction: {blockInfo.Body.TransactionsCount}");
             Logger.Info(blockInfo.Body.Transactions);
 
-            long all = 0;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             Parallel.For(1, VerifyBlockCount + 1, item =>
@@ -79,7 +78,7 @@ namespace AElf.Automation.BlockCheck
             });
             stopwatch.Stop();
             var checkTime = stopwatch.ElapsedMilliseconds;
-            var req = (double) VerifyBlockCount / all * 1000;
+            var req = (double) VerifyBlockCount / checkTime * 1000;
             
             Logger.Info($"Check {VerifyBlockCount} block info use {checkTime}ms, req: {req}/s");
             return checkTime;
