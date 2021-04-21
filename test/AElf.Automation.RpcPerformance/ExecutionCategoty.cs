@@ -273,8 +273,10 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactions = string.Join(",", rawTransactionList);
 
             stopwatch.Restart();
-            NodeManager.SendTransactions(rawTransactions);
+            var list = NodeManager.SendTransactions(rawTransactions);
             stopwatch.Stop();
+            if(list == new List<string>())
+                Logger.Error("**** Transaction Generated Error");
 
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(

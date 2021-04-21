@@ -247,7 +247,7 @@ namespace AElfChain.Common.Managers
             }
             catch (AElfClientException e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e);
                 return new List<string>();
             }
         }
