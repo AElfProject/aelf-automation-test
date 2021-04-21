@@ -149,7 +149,8 @@ namespace AElf.Automation.RpcPerformance
                     {
                         for (var r = 1; r > 0; r++) //continuous running
                         {
-                            var stopwatch = Stopwatch.StartNew();
+                            var stopwatch = new Stopwatch();
+                            stopwatch.Start();
                             //set random tx sending each round
                             try
                             {
@@ -157,11 +158,13 @@ namespace AElf.Automation.RpcPerformance
                                 if (useTxs)
                                 {
                                     //multi task for SendTransactions query
+                                    var txsTasks = new List<Task>();
                                     for (var i = 0; i < ThreadCount; i++)
                                     {
                                         var j = i;
-                                        Task.Run(() => ExecuteBatchTransactionTask(j, TransactionGroup), token);
+                                        txsTasks.Add(Task.Run(() => ExecuteBatchTransactionTask(j, TransactionGroup), token));
                                     }
+                                    Task.WaitAll(txsTasks.ToArray<Task>());
                                 }
                             }
                             catch (AggregateException exception)
@@ -178,7 +181,8 @@ namespace AElf.Automation.RpcPerformance
                             }
 
                             stopwatch.Stop();
-                            TransactionSentPerSecond(ExeTimes, stopwatch.ElapsedMilliseconds);
+                            var createTxsTime = stopwatch.ElapsedMilliseconds;
+                            TransactionSentPerSecond(ExeTimes * ThreadCount, createTxsTime);
 
                             Monitor.CheckNodeHeightStatus(); //random mode, don't check node height
                         }
@@ -265,9 +269,8 @@ namespace AElf.Automation.RpcPerformance
                         rawTransactionList.Add(requestInfo);
                     }
                 });
-           
 
-            stopwatch.Stop();
+                stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
 
             var rawTransactions = string.Join(",", rawTransactionList);
