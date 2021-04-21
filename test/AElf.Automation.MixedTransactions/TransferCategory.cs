@@ -88,7 +88,7 @@ namespace AElf.Automation.MixedTransactions
 
         private void TransferAction(TokenContract contract, string symbol)
         {
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
             // for (var i = 0; i < TransactionCount; i++)
             // {
             //     var (from, to) = GetTransferPair(i);
@@ -105,21 +105,18 @@ namespace AElf.Automation.MixedTransactions
             //             transferInput);
             //     rawTransactionList.Add(requestInfo);
             // }
-            for (var i = 0; i < TransactionGroup; i++)
-            {
-                var (from, toList) = GetTransferPair(i);
-                //Execute Transfer
-                var obj = new Object();
-
-                Parallel.For(1, toList.Count+1, item =>
+            //Execute Transfer
+                var count = TransactionCount / TransactionGroup;
+                Parallel.For(1, TransactionGroup + 1, item =>
                 {
-                    lock (obj)
+                    var (from, to) = GetTransferPair(item - 1);
+                    for (var i = 0; i < count; i++)
                     {
                         var transferInput = new TransferInput
                         {
                             Symbol = symbol,
-                            To = toList[item-1].ConvertAddress(),
-                            Amount = ((i + 1) % 4 + 1) * 1000,
+                            To = to.ConvertAddress(),
+                            Amount = 1,
                             Memo = $"T - {Guid.NewGuid()}"
                         };
                         var requestInfo =
@@ -129,8 +126,7 @@ namespace AElf.Automation.MixedTransactions
                         rawTransactionList.Add(requestInfo);
                     }
                 });
-            }
-            contract.CheckTransactionResultList();
+            // contract.CheckTransactionResultList();
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);

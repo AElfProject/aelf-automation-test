@@ -9,7 +9,7 @@ namespace AElf.Automation.ContractTransfer
         [JsonProperty("InitAccount")] public string InitAccount { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
         [JsonProperty("ContractCount")] public long ContractCount { get; set; }
-        [JsonProperty("UserCount")] public int UserCount { get; set; }
+        [JsonProperty("TransactionGroup")] public int TransactionGroup { get; set; }
         [JsonProperty("TransactionCount")] public long TransactionCount { get; set; }
 
         public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("contract-transfer-config.json");

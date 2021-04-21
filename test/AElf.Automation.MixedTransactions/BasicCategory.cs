@@ -26,7 +26,7 @@ namespace AElf.Automation.MixedTransactions
 
             GetConfig();
             AccountList = new List<string>();
-            ToAccountList = new Dictionary<int, List<string>>();
+            ToAccountList = new List<string>();
             FromAccountList = new List<string>(); 
         }
 
@@ -87,18 +87,13 @@ namespace AElf.Automation.MixedTransactions
                 }
             }
 
-            var count = TransactionCount / TransactionGroup;
+            var list = new List<string>();
             for (var i = 0; i < TransactionGroup; i++)
             {
-                var list = new List<string>();
-                for (var j = 0; j < count; j++)
-                {
-                    var account = NodeManager.NewFakeAccount();
+                var account = NodeManager.NewFakeAccount();
                     list.Add(account);
-                }
-
-                ToAccountList[i] = list;
             }
+            ToAccountList = list;
         }
 
         protected List<string> GetFromVirtualAccounts(TransferWrapperContract contract)
@@ -144,16 +139,16 @@ namespace AElf.Automation.MixedTransactions
         //     return (from, to);
         // }
 
-        protected (string, List<string>) GetTransferPair(int times)
+        protected (string, string) GetTransferPair(int times)
         {
             var from = FromAccountList[times];
-            var toList = ToAccountList[times];
-            return (from, toList);
+            var to = ToAccountList[times];
+            return (from, to);
         }
 
         public List<string> AccountList;
         public List<string> FromAccountList;
-        public Dictionary<int,List<string>>ToAccountList;
+        public List<string>ToAccountList;
         public INodeManager NodeManager;
         public AuthorityManager AuthorityManager;
         public string InitAccount;

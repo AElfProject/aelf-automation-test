@@ -19,7 +19,7 @@ namespace AElf.Automation.ContractTransfer
             var url = config.Url;
             InitAccount = config.InitAccount;
             Password = config.Password;
-            UserCount = config.UserCount;
+            TransactionGroup = config.TransactionGroup;
             ContractCount = config.ContractCount;
             TransactionCount = config.TransactionCount;
 
@@ -27,36 +27,42 @@ namespace AElf.Automation.ContractTransfer
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);
 
             AccountList = new List<string>();
+            FromAccountList = new List<string>();
             GetTestAccounts();
         }
         
         private void GetTestAccounts()
         {
-            if (AccountList.Count.Equals(UserCount))
-                return;
-            var count = UserCount;
-            var miners = AuthorityManager.GetCurrentMiners();
+            var authority = new AuthorityManager(NodeManager);
+            var miners = authority.GetCurrentMiners();
             var accounts = NodeManager.ListAccounts();
-            var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
-            if (testUsers.Count >= count)
+            var testUsers = accounts.FindAll(o => !miners.Contains(o));
+            if (testUsers.Count >= TransactionGroup)
             {
-                foreach (var acc in testUsers.Take(count))
-                    AccountList.Add(acc);
+                foreach (var acc in testUsers.Take(TransactionGroup)) FromAccountList.Add(acc);
+                foreach (var acc in testUsers.Take(TransactionGroup)) AccountList.Add(acc);
             }
             else
             {
-                foreach (var acc in testUsers) AccountList.Add(acc);
+                foreach (var acc in testUsers) FromAccountList.Add(acc);
 
-                var generateCount = count - testUsers.Count;
+                var generateCount = TransactionGroup - testUsers.Count;
                 for (var i = 0; i < generateCount; i++)
                 {
                     var account = NodeManager.NewAccount();
+                    FromAccountList.Add(account);
                     AccountList.Add(account);
                 }
             }
 
-            FromAccountList = AccountList.GetRange(0, count / 2);
-            ToAccountList = AccountList.GetRange(count / 2, count / 2);
+            var list = new List<string>();
+
+            for (var i = 0; i < TransactionGroup; i++)
+            {
+                var account = NodeManager.NewFakeAccount();
+                list.Add(account);
+            }
+            ToAccountList = list;
         }
 
         protected string GenerateNotExistTokenSymbol(TokenContract token)
@@ -72,20 +78,8 @@ namespace AElf.Automation.ContractTransfer
 
         protected (string, string) GetTransferPair(int times)
         {
-            var fromId = times - FromAccountList.Count >= 0
-                ? (times / FromAccountList.Count > 1
-                    ? times - FromAccountList.Count * (times / FromAccountList.Count)
-                    : times - FromAccountList.Count)
-                : times;
-            var from = FromAccountList[fromId];
-
-            var toId = times - ToAccountList.Count >= 0
-                ? (times / ToAccountList.Count > 1
-                    ? times - ToAccountList.Count * (times / ToAccountList.Count)
-                    : times - ToAccountList.Count)
-                : times;
-            var to = ToAccountList[toId];
-
+            var from = FromAccountList[times];
+            var to = ToAccountList[times];
             return (from, to);
         }
 
@@ -97,7 +91,7 @@ namespace AElf.Automation.ContractTransfer
         public string InitAccount;
         public string Password;
 
-        public int UserCount;
+        public int TransactionGroup;
         public long ContractCount;
         public long TransactionCount;
     }

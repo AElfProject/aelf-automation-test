@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +11,6 @@ using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using log4net;
 using Shouldly;
 
@@ -115,34 +116,46 @@ namespace AElf.Automation.ContractTransfer
 
         private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
         {
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
 
             Logger.Info($"ContractTransfer");
-            for (var i = 0; i < TransactionCount; i++)
+            var count = TransactionCount / TransactionGroup;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Parallel.For(1, TransactionGroup + 1, item =>
             {
-                var (from, to) = GetTransferPair(i);
-
-                var transferInput = new ThroughContractTransferInput
+                var (from, to) = GetTransferPair(item - 1);
+                for (var i = 0; i < count; i++)
                 {
-                    Symbol = symbol,
-                    To = to.ConvertAddress(),
-                    Amount = ((i + 1) % 4 + 1) * 1000,
-                    Memo = $"T - {Guid.NewGuid()}"
-                };
-                var requestInfo =
-                    NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
-                        TransferWrapperMethod.ContractTransfer.ToString(),
-                        transferInput);
-                rawTransactionList.Add(requestInfo);
-            }
+                    var transferInput = new ThroughContractTransferInput
+                    {
+                        Symbol = symbol,
+                        To = to.ConvertAddress(),
+                        Amount = 1,
+                        Memo = $"T - {Guid.NewGuid()}"
+                    };
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+                            TransferWrapperMethod.ContractTransfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
+                }
+            });
+            
+            stopwatch.Stop();
+            var createTxsTime = stopwatch.ElapsedMilliseconds;
 
-            contract.CheckTransactionResultList();
+            // contract.CheckTransactionResultList();
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
-            Logger.Info(transactions);
+            // Logger.Info(transactions);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
+            var requestTxsTime = stopwatch.ElapsedMilliseconds;
+            Logger.Info(
+                $"Thread {contract.ContractAddress}-{symbol} request transactions: " +
+                $"{TransactionCount}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
         
         private static readonly ILog Logger = Log4NetHelper.GetLogger();

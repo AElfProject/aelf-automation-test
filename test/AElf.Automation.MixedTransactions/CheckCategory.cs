@@ -19,7 +19,7 @@ namespace AElf.Automation.MixedTransactions
             _aElfClient = NodeManager.ApiClient;
         }
 
-        public void CheckToBalance(Dictionary<int, List<string>> accounts, Dictionary<TokenContract, string> tokenInfos,
+        public void CheckToBalance(List<string> accounts, Dictionary<TokenContract, string> tokenInfos,
             out long duration)
         {
             duration = 0;
@@ -27,22 +27,19 @@ namespace AElf.Automation.MixedTransactions
             {
                 long contractDuration = 0;
                 Logger.Info("Start Token balance check ...");
-                foreach (var (k, v) in accounts)
+                foreach (var acc in accounts)
                 {
-                    foreach (var acc in v)
-                    {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        var balance = key.GetUserBalance(acc, value);
-                        stopwatch.Stop();
-                        var checkTime = stopwatch.ElapsedMilliseconds;
-                        contractDuration += checkTime;
-                        Logger.Info($"{acc} {value} balance is {balance}");
-                    }
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var balance = key.GetUserBalance(acc, value);
+                    stopwatch.Stop();
+                    var checkTime = stopwatch.ElapsedMilliseconds;
+                    contractDuration += checkTime;
+                    Logger.Info($"{acc} {value} balance is {balance}");
                 }
 
                 Logger.Info(
-                    $"{key.ContractAddress} check {accounts.Values.Count * accounts.Keys.Count} user balance time: {contractDuration}ms.");
+                    $"{key.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
@@ -72,7 +69,7 @@ namespace AElf.Automation.MixedTransactions
             }
         }
 
-        public void CheckWrapperBalance(Dictionary<int, List<string>> accounts,
+        public void CheckWrapperBalance(List<string> accounts,
             Dictionary<TransferWrapperContract, string> tokenInfos, TokenContract tokenContract, out long duration)
         {
             duration = 0;
@@ -80,26 +77,23 @@ namespace AElf.Automation.MixedTransactions
             {
                 long contractDuration = 0;
                 Logger.Info("Start Wrapper balance check ...");
-                foreach (var (k, v) in accounts)
+                foreach (var acc in accounts)
                 {
-                    foreach (var acc in v)
-                    {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        var balance = tokenContract.GetUserBalance(acc, value);
-                        stopwatch.Stop();
-                        var checkTime = stopwatch.ElapsedMilliseconds;
-                        contractDuration += checkTime;
-                        // Logger.Info($"{acc} {value} balance is {balance}");
-                    }
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var balance = tokenContract.GetUserBalance(acc, value);
+                    stopwatch.Stop();
+                    var checkTime = stopwatch.ElapsedMilliseconds;
+                    contractDuration += checkTime;
+                    // Logger.Info($"{acc} {value} balance is {balance}");
                 }
 
                 Logger.Info(
-                    $"{key.ContractAddress} check {accounts.Values.Count * accounts.Keys.Count} user balance time: {contractDuration}ms.");
+                    $"{key.ContractAddress} check {accounts.Count} user balance time: {contractDuration}ms.");
                 duration += contractDuration;
             }
         }
-        
+
         public void CheckWrapperFromBalance(List<string> accounts,
             Dictionary<TransferWrapperContract, string> tokenInfos, TokenContract tokenContract, out long duration)
         {
@@ -108,7 +102,7 @@ namespace AElf.Automation.MixedTransactions
             {
                 long contractDuration = 0;
                 Logger.Info("Start Wrapper balance check ...");
-                foreach (var account in accounts) 
+                foreach (var account in accounts)
                 {
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();

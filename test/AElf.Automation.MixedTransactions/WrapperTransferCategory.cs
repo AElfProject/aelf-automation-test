@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -238,7 +239,7 @@ namespace AElf.Automation.MixedTransactions
 
         private void ThroughVirtualTransfer(TransferWrapperContract contract, string symbol)
         {
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
 
             // for (var i = 0; i < TransactionCount; i++)
             // {
@@ -257,46 +258,40 @@ namespace AElf.Automation.MixedTransactions
             //             transferInput);
             //     rawTransactionList.Add(requestInfo);
             // }
-            
-            for (var i = 0; i < TransactionGroup; i++)
+            var count = TransactionCount / TransactionGroup;
+            Parallel.For(1, TransactionGroup + 1, item =>
             {
-                var (from, toList) = GetTransferPair(i);
-                //Execute Transfer
-                var obj = new Object();
-
-                Parallel.For(1, toList.Count+1, item =>
+                var (from, to) = GetTransferPair(item - 1);
+                for (var i = 0; i < count; i++)
                 {
-                    lock (obj)
+                    var transferInput = new TransferInput
                     {
-                        var transferInput = new TransferInput
-                        {
-                            Symbol = symbol,
-                            To = toList[item-1].ConvertAddress(),
-                            Amount = ((i + 1) % 4 + 1) * 1000,
-                            Memo = $"T - {Guid.NewGuid()}"
-                        };
-                        var requestInfo =
-                            NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
-                                TransferWrapperMethod.ThroughContractTransfer.ToString(),
-                                transferInput);
-                        rawTransactionList.Add(requestInfo);
-                    }
-                });
-            }
+                        Symbol = symbol,
+                        To = to.ConvertAddress(),
+                        Amount = 1,
+                        Memo = $"TCT - {Guid.NewGuid()}"
+                    };
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+                            TransferWrapperMethod.ThroughContractTransfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
+                }
+            });
 
-            contract.CheckTransactionResultList();
+            // contract.CheckTransactionResultList();
 
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
 //            Logger.Info(transactions);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
         }
         
         private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
         {
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
 
             Logger.Info($"ContractTransfer");
             // for (var i = 0; i < TransactionCount; i++)
@@ -317,40 +312,34 @@ namespace AElf.Automation.MixedTransactions
             //     rawTransactionList.Add(requestInfo);
             // }
             
-            for (var i = 0; i < TransactionGroup; i++)
+            var count = TransactionCount / TransactionGroup;
+            Parallel.For(1, TransactionGroup + 1, item =>
             {
-                var (from, toList) = GetTransferPair(i);
-                //Execute Transfer
-                var obj = new Object();
-
-                Parallel.For(1, toList.Count+1, item =>
+                var (from, to) = GetTransferPair(item - 1);
+                for (var i = 0; i < count; i++)
                 {
-                    lock (obj)
+                    var transferInput = new TransferInput
                     {
-                        var transferInput = new TransferInput
-                        {
-                            Symbol = symbol,
-                            To = toList[item-1].ConvertAddress(),
-                            Amount = ((i + 1) % 4 + 1) * 1000,
-                            Memo = $"T - {Guid.NewGuid()}"
-                        };
-                        var requestInfo =
-                            NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
-                                TransferWrapperMethod.ContractTransfer.ToString(),
-                                transferInput);
-                        rawTransactionList.Add(requestInfo);
-                    }
-                });
-            }
-            
-            contract.CheckTransactionResultList();
+                        Symbol = symbol,
+                        To = to.ConvertAddress(),
+                        Amount = 1,
+                        Memo = $"CT - {Guid.NewGuid()}"
+                    };
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+                            TransferWrapperMethod.ContractTransfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
+                }
+            });
+            // contract.CheckTransactionResultList();
 
 
             var rawTransactions = string.Join(",", rawTransactionList);
             var transactions = NodeManager.SendTransactions(rawTransactions);
             Logger.Info(transactions);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
         }
 
         private TokenContract GetWrapperTokenContract(TransferWrapperContract contract)
