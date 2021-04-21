@@ -32,7 +32,7 @@ namespace AElf.Automation.RpcPerformance
                 keyStorePath = CommonHelper.GetCurrentDataDir();
 
             AccountList = new List<AccountInfo>();
-            ToAccountList = new Dictionary<int, List<string>>();
+            ToAccountList = new List<string>();
             FromAccountList = new List<AccountInfo>();
             ContractList = new List<ContractInfo>();
             MainContractList = new List<ContractInfo>();
@@ -265,19 +265,14 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+            var list = new List<string>();
 
-            var count = ExeTimes / TransactionGroup;
             for (var i = 0; i < TransactionGroup; i++)
             {
-                var list = new List<string>();
-                for (var j = 0; j < count; j++)
-                {
-                    var account = NodeManager.NewFakeAccount();
+                var account = NodeManager.NewFakeAccount();
                     list.Add(account);
-                }
-
-                ToAccountList[i] = list;
             }
+            ToAccountList = list;
         }
 
         private void GeneratedTransaction(bool useTxs, CancellationTokenSource cts, CancellationToken token)
@@ -375,34 +370,36 @@ namespace AElf.Automation.RpcPerformance
             var rawTransactionList = new List<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-
-            for (var i = 0; i < times; i++)
-            {
-                var (from, toList) = GetTransferPair(i);
+            
                 //Execute Transfer
                 var obj = new Object();
-
-                Parallel.For(1, toList.Count+1, item =>
+                var count = ExeTimes / times;
+                for (var i = 0; i < count; i++)
                 {
-                    lock (obj)
+                    Parallel.For(1, times+1, item =>
                     {
-                        var transferInput = new TransferInput
+                        lock (obj)
                         {
-                            Symbol = symbol,
-                            To = toList[item-1].ConvertAddress(),
-                            Amount = ((i + 1) % 4 + 1) * 1000,
-                            Memo = $"transfer test - {Guid.NewGuid()}"
-                        };
-                        var requestInfo =
-                            NodeManager.GenerateRawTransaction(@from, contractPath,
-                                TokenMethod.Transfer.ToString(),
-                                transferInput);
-                        rawTransactionList.Add(requestInfo);
-                    }
-                });
-            }
+                            var (from, to) = GetTransferPair(item-1);
 
-            stopwatch.Stop();
+                            var transferInput = new TransferInput
+                            {
+                                Symbol = symbol,
+                                To = to.ConvertAddress(),
+                                Amount = ((item + 1) % 4 + 1) * 1000,
+                                Memo = $"transfer test - {Guid.NewGuid()}"
+                            };
+                            var requestInfo =
+                                NodeManager.GenerateRawTransaction(@from, contractPath,
+                                    TokenMethod.Transfer.ToString(),
+                                    transferInput);
+                            rawTransactionList.Add(requestInfo);
+                        }
+                    });
+                }
+            
+
+                stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
 
             //Send batch transaction requests
@@ -414,14 +411,14 @@ namespace AElf.Automation.RpcPerformance
             var requestTxsTime = stopwatch.ElapsedMilliseconds;
             Logger.Info(
                 $"Thread {threadNo}-{ContractList[threadNo].Symbol} request transactions: " +
-                $"{times * ToAccountList.Values.First().Count * ToAccountList.Count}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
+                $"{ExeTimes}, create time: {createTxsTime}ms, request time: {requestTxsTime}ms.");
         }
 
-        private (string, List<string>) GetTransferPair(int times)
+        private (string, string) GetTransferPair(int times)
         {
             var from = FromAccountList[times].Account;
-            var toList = ToAccountList[times];
-            return (from, toList);
+            var to = ToAccountList[times];
+            return (from, to);
         }
 
 
@@ -437,7 +434,7 @@ namespace AElf.Automation.RpcPerformance
         private string TokenAddress { get; set; }
         private int TransactionGroup { get; set; }
         private List<AccountInfo> AccountList { get; }
-        private Dictionary<int, List<string>> ToAccountList { get; set; }
+        private List<string> ToAccountList { get; set; }
         private List<AccountInfo> FromAccountList { get; set; }
 
         private string KeyStorePath { get; }
