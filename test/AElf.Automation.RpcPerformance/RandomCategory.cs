@@ -265,13 +265,15 @@ namespace AElf.Automation.RpcPerformance
                     AccountList.Add(new AccountInfo(account));
                 }
             }
+
             var list = new List<string>();
 
             for (var i = 0; i < TransactionGroup; i++)
             {
                 var account = NodeManager.NewFakeAccount();
-                    list.Add(account);
+                list.Add(account);
             }
+
             ToAccountList = list;
         }
 
@@ -367,39 +369,33 @@ namespace AElf.Automation.RpcPerformance
             var contractPath = ContractList[threadNo].ContractAddress;
             var symbol = ContractList[threadNo].Symbol;
 
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            
-                //Execute Transfer
-                var obj = new Object();
-                var count = ExeTimes / times;
+
+            //Execute Transfer
+            var count = ExeTimes / times;
+            Parallel.For(1, times + 1, item =>
+            {
+                var (from, to) = GetTransferPair(item - 1);
                 for (var i = 0; i < count; i++)
                 {
-                    Parallel.For(1, times+1, item =>
+                    var transferInput = new TransferInput
                     {
-                        lock (obj)
-                        {
-                            var (from, to) = GetTransferPair(item-1);
-
-                            var transferInput = new TransferInput
-                            {
-                                Symbol = symbol,
-                                To = to.ConvertAddress(),
-                                Amount = ((item + 1) % 4 + 1) * 1000,
-                                Memo = $"transfer test - {Guid.NewGuid()}"
-                            };
-                            var requestInfo =
-                                NodeManager.GenerateRawTransaction(@from, contractPath,
-                                    TokenMethod.Transfer.ToString(),
-                                    transferInput);
-                            rawTransactionList.Add(requestInfo);
-                        }
-                    });
+                        Symbol = symbol,
+                        To = to.ConvertAddress(),
+                        Amount = ((item + 1) % 4 + 1) * 1000,
+                        Memo = $"transfer test - {Guid.NewGuid()}"
+                    };
+                    var requestInfo =
+                        NodeManager.GenerateRawTransaction(@from, contractPath,
+                            TokenMethod.Transfer.ToString(),
+                            transferInput);
+                    rawTransactionList.Add(requestInfo);
                 }
-            
+            });
 
-                stopwatch.Stop();
+            stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
 
             //Send batch transaction requests

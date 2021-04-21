@@ -240,26 +240,23 @@ namespace AElf.Automation.RpcPerformance
             var contractPath = ContractList[threadNo].ContractAddress;
             var token = new TokenContract(NodeManager, account, contractPath);
 
-            var rawTransactionList = new List<string>();
+            var rawTransactionList = new ConcurrentBag<string>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             var count = ExeTimes / times;
-            for (var i = 0; i < count; i++)
-            { //Execute Transfer
-                var obj = new Object();
+                //Execute Transfer
                 Parallel.For(1, times + 1, item =>
                 {
-                    lock (obj)
-                    {
-                        var (from, to) = GetTransferPair(item - 1);
-
+                    var (from, to) = GetTransferPair(item - 1);
+                    for (var i = 0; i < count; i++)
+                    { 
                         var transferInput = new TransferInput
                         {
                             Symbol = symbol,
                             To = to.ConvertAddress(),
-                            Amount = ((item + 1) % 4 + 1) * 1000,
-                            Memo = $"transfer test - {Guid.NewGuid()}"
+                            Amount = 1,
+                            Memo = $"T - {Guid.NewGuid()}"
                         };
                         var requestInfo =
                             NodeManager.GenerateRawTransaction(@from, contractPath,
@@ -268,7 +265,7 @@ namespace AElf.Automation.RpcPerformance
                         rawTransactionList.Add(requestInfo);
                     }
                 });
-            }
+           
 
             stopwatch.Stop();
             var createTxsTime = stopwatch.ElapsedMilliseconds;
