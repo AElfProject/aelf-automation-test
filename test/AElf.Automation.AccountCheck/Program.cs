@@ -109,19 +109,18 @@ namespace AElf.Automation.AccountCheck
             else
             {
                 transfer.PrepareTransfer(_tokenInfoList);
+                var list = transfer.Transfer(_tokenInfoList);
                 long all = 0;
 
                 for (var i = 0; i < 10; i++)
-                    check.CheckBalanceOnly(check.AccountList, _tokenInfoList, out long duration);
+                    check.CheckTx(list,out long duration);
 
                 while (times > 0)
                 {
                     Logger.Info($"{times}");
-                    check.CheckBalanceOnly(check.FromAccountList, _tokenInfoList, out long duration1);
+                    check.CheckTx(list,out long duration);
                     Thread.Sleep(1000);
-                    check.CheckBalanceOnly(check.ToAccountList, _tokenInfoList, out long duration2);
-
-                    all += duration1 + duration2;
+                    all += duration;
                     times--;
                     Thread.Sleep(1000);
                 }
@@ -140,8 +139,7 @@ namespace AElf.Automation.AccountCheck
                 //     }, token)
                 // };
                 // Task.WaitAll(taskList.ToArray<Task>());
-                var req = (double) (check.CheckTimes * (check.FromAccountList.Count + check.ToAccountList.Count)) *
-                    check.ContractInfos.Count / all * 1000;
+                var req = (double) (check.CheckTimes * list.Count) / all * 1000;
                 Logger.Info($"all {all}ms, 1s request {req}");
             }
         }

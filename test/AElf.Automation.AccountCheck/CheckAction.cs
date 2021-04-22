@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
 using log4net;
+using Volo.Abp.Threading;
 
 namespace AElf.Automation.AccountCheck
 {
@@ -63,6 +64,28 @@ namespace AElf.Automation.AccountCheck
 
             return accountTokenInfo;
         }
+
+        public void CheckTx(List<string> txList, out long checkTime)
+        {
+            Logger.Info("Start check tx...");
+            var txInfo = new ConcurrentDictionary<string,string>();
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            Parallel.ForEach(txList, item =>
+            {
+                var txResult = AsyncHelper.RunSync(() =>NodeManager.ApiClient.GetTransactionResultAsync(item));
+                Logger.Info($"{item}:{txResult.Status}");
+            });
+                
+            stopwatch.Stop();
+            checkTime = stopwatch.ElapsedMilliseconds;
+           
+            Logger.Info(
+                $"check {txList.Count} time: {checkTime}ms.");
+        }
+        
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

@@ -13,26 +13,28 @@ namespace AElf.Automation.AccountCheck
 {
     public class TransferAction : BasicAction
     {
-        public void Transfer(Dictionary<TokenContract, string> tokenInfo)
+        public List<string> Transfer(Dictionary<TokenContract, string> tokenInfo)
         {
             var amount = TransferAmount;
-
+            var list = new List<string>();
             foreach (var (contract,symbol) in tokenInfo)
             {
                 for (int i = 0; i < FromAccountList.ToList().Count; i++)
                 {
                     contract.SetAccount(FromAccountList.ToList()[i]);
-                    contract.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                    var txId =  contract.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
                     {
                         To = ToAccountList.ToList()[i].ConvertAddress(),
                         Amount = amount,
                         Symbol = symbol,
                         Memo = $"T-{Guid.NewGuid()}"
                     });
+                    list.Add(txId);
                 }
                 contract.CheckTransactionResultList();
             }
             Thread.Sleep(1000);
+            return list;
         }
 
         public void PrepareTransfer(Dictionary<TokenContract, string> tokenInfo)
