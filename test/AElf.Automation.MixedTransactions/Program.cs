@@ -63,6 +63,7 @@ namespace AElf.Automation.MixedTransactions
                 Task.Run(() => wrapper.ContinueTransfer(_wrapperInfoList, cts, token), token),
                 // Task.Run(() => wrapper.ContinueContractTransfer(_wrapperInfoList, cts, token), token),
                 Task.Run(() => check.ContinueCheckBlock(cts,token), token),
+                Task.Run(() => check.ContinueCheckTx(cts,token), token),
                 Task.Run(() => transfer.CheckAccountAmount(_tokenInfoList,cts,token), token),
                 Task.Run(() => wrapper.CheckAccountAmount(_wrapperInfoList,tokenContract,cts,token), token),
 

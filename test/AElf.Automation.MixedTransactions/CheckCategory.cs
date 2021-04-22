@@ -174,6 +174,35 @@ namespace AElf.Automation.MixedTransactions
                 cts.Cancel(); //cancel all tasks
             }
         }
+        
+        public void ContinueCheckTx(CancellationTokenSource cts, CancellationToken token)
+        {
+            try
+            {
+                var round = 1;
+                while (true)
+                {
+                    try
+                    {
+                        Thread.Sleep(60000);
+                        Logger.Info("Execution check request round: {0}", round);
+                        var txsTasks = Task.Run(GetTxInfo, token);
+                        Task.WaitAll(txsTasks);
+                        round++;
+                    }
+                    catch (AggregateException exception)
+                    {
+                        Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                Logger.Error("Cancel all tasks due to transaction execution exception.");
+                cts.Cancel(); //cancel all tasks
+            }
+        }
 
         private void GetBlockInfo()
         {
@@ -201,6 +230,31 @@ namespace AElf.Automation.MixedTransactions
 
             var req = (double) VerifyCount / all * 1000;
             Logger.Info($"Check {VerifyCount} block info use {all}ms, req: {req}/s");
+        }
+        
+        private void GetTxInfo()
+        {
+            var currentBlockHeight = AsyncHelper.RunSync(() => _aElfClient.GetBlockHeightAsync());
+            Logger.Info($"Check Tx info in block ${currentBlockHeight}");
+            var info = AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(currentBlockHeight,true));
+            var list = info.Body.Transactions;
+            long all = 0;
+            for (var i = 0; i < info.Body.TransactionsCount; i++)
+            {
+                var i1 = i;
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                var txInfo = AsyncHelper.RunSync(() => _aElfClient.GetTransactionResultAsync(list[i]));
+                stopwatch.Stop();
+                var checkTime = stopwatch.ElapsedMilliseconds;
+
+                Logger.Info(
+                    $"Tx: {list[i]},status {txInfo.Status} time:{checkTime}ms");
+                all += checkTime;
+            }
+
+            var req = (double) list.Count / all * 1000;
+            Logger.Info($"Check { list.Count} Tx info use {all}ms, req: {req}/s");
         }
 
         private readonly AElfClient _aElfClient;
