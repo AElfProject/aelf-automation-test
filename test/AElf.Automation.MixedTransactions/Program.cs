@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.Helpers;
-using AElfChain.Common.Managers;
 using log4net;
 
 namespace AElf.Automation.MixedTransactions
@@ -61,8 +60,8 @@ namespace AElf.Automation.MixedTransactions
             var taskList = new List<Task>
             {
                 Task.Run(() => transfer.ContinueTransfer(_tokenInfoList, cts, token), token),
-                // Task.Run(() => wrapper.ContinueTransfer(_wrapperInfoList, cts, token), token),
-                Task.Run(() => wrapper.ContinueContractTransfer(_wrapperInfoList, cts, token), token),
+                Task.Run(() => wrapper.ContinueTransfer(_wrapperInfoList, cts, token), token),
+                // Task.Run(() => wrapper.ContinueContractTransfer(_wrapperInfoList, cts, token), token),
                 Task.Run(() => check.ContinueCheckBlock(cts,token), token),
                 Task.Run(() => transfer.CheckAccountAmount(_tokenInfoList,cts,token), token),
                 Task.Run(() => wrapper.CheckAccountAmount(_wrapperInfoList,tokenContract,cts,token), token),
@@ -72,8 +71,8 @@ namespace AElf.Automation.MixedTransactions
                     while (true)
                     {
                         check.CheckFromBalance(_fromAccountInfos, _tokenInfoList, out long duration1);
-                        check.CheckToBalance(_toAccountInfos, _tokenInfoList, out long duration2);
-                        // check.CheckWrapperVirtualBalance(_wrapperInfoList,tokenContract, out long duration3);
+                        check.CheckToBalance(_toAccountInfos, _tokenInfoList, out long duration2); 
+                        check.CheckWrapperVirtualBalance(_wrapperInfoList,tokenContract, out long duration3);
                         check.CheckWrapperBalance(_toAccountInfos, _wrapperInfoList,tokenContract, out long duration4);
                         
                         var all = duration1 + duration2 + duration4;

@@ -41,10 +41,10 @@ namespace AElf.Automation.BasicTransaction
                     break;
                 case TestMode.ContractTransfer:
                     Logger.Info(
-                        $"Start contract transfer, from account: {wrapper.ContractAddress}, to account: {tx.TestAccount}， times: {times}");
+                        $"Start contract transfer, from account: {tx.InitAccount}, to account: {tx.TestAccount}， times: {times}");
                     for (var i = 0; i < times; i++)
                     {
-                        var duration = tx.TransferFromContract(token, wrapper, symbol);
+                        var duration = tx.TransferFromAccount(token, symbol);
                         all += duration;
                     }
 

@@ -40,18 +40,18 @@ namespace AElf.Automation.MixedTransactions
                         Memo = $"T-{Guid.NewGuid()}"
                     });
                 }
-                var contractBalance = token.GetUserBalance(contract.ContractAddress, symbol);
-                if (contractBalance >=100000_00000000)
-                    return;
-                
-                token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                {
-                    To = contract.Contract,
-                    Amount = 10000000_00000000,
-                    Symbol = symbol,
-                    Memo = $"T-{Guid.NewGuid()}"
-                });
-                token.CheckTransactionResultList();
+                // var contractBalance = token.GetUserBalance(contract.ContractAddress, symbol);
+                // if (contractBalance >=100000_00000000)
+                //     return;
+                //
+                // token.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
+                // {
+                //     To = contract.Contract,
+                //     Amount = 10000000_00000000,
+                //     Symbol = symbol,
+                //     Memo = $"T-{Guid.NewGuid()}"
+                // });
+                // token.CheckTransactionResultList();
             }
         }
 
@@ -174,42 +174,42 @@ namespace AElf.Automation.MixedTransactions
             }
         }
         
-        public void ContinueContractTransfer(Dictionary<TransferWrapperContract, string> tokenInfo, CancellationTokenSource cts,
-            CancellationToken token)
-        {
-            try
-            {
-                for (var r = 1; r > 0; r++) //continuous running
-                    try
-                    {
-                        Logger.Info("Execution transaction request round: {0}", r);
-                        var txsTasks = new List<Task>();
-                        //multi task for SendTransactions query
-                        foreach (var (contract, symbol) in tokenInfo)
-                        {
-                            txsTasks.Add(Task.Run(() => ThroughContractTransfer(contract, symbol), token));
-                        }
-                        Task.WaitAll(txsTasks.ToArray<Task>());
-                    }
-                    catch (AggregateException exception)
-                    {
-                        Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
-                    }
-                    catch (Exception e)
-                    {
-                        var message = "Execute continuous transaction got exception." +
-                                      $"\r\nMessage: {e.Message}" +
-                                      $"\r\nStackTrace: {e.StackTrace}";
-                        Logger.Error(message);
-                    }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                Logger.Error("Cancel all tasks due to transaction execution exception.");
-                cts.Cancel(); //cancel all tasks
-            }
-        }
+        // public void ContinueContractTransfer(Dictionary<TransferWrapperContract, string> tokenInfo, CancellationTokenSource cts,
+        //     CancellationToken token)
+        // {
+        //     try
+        //     {
+        //         for (var r = 1; r > 0; r++) //continuous running
+        //             try
+        //             {
+        //                 Logger.Info("Execution transaction request round: {0}", r);
+        //                 var txsTasks = new List<Task>();
+        //                 //multi task for SendTransactions query
+        //                 foreach (var (contract, symbol) in tokenInfo)
+        //                 {
+        //                     txsTasks.Add(Task.Run(() => ThroughContractTransfer(contract, symbol), token));
+        //                 }
+        //                 Task.WaitAll(txsTasks.ToArray<Task>());
+        //             }
+        //             catch (AggregateException exception)
+        //             {
+        //                 Logger.Error($"Request to {NodeManager.GetApiUrl()} got exception, {exception}");
+        //             }
+        //             catch (Exception e)
+        //             {
+        //                 var message = "Execute continuous transaction got exception." +
+        //                               $"\r\nMessage: {e.Message}" +
+        //                               $"\r\nStackTrace: {e.StackTrace}";
+        //                 Logger.Error(message);
+        //             }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.Error(e.Message);
+        //         Logger.Error("Cancel all tasks due to transaction execution exception.");
+        //         cts.Cancel(); //cancel all tasks
+        //     }
+        // }
 
         public void CheckAccountAmount(Dictionary<TransferWrapperContract, string> tokenInfo, TokenContract tokenContract,CancellationTokenSource cts, 
             CancellationToken token)
@@ -289,58 +289,58 @@ namespace AElf.Automation.MixedTransactions
             Thread.Sleep(100);
         }
         
-        private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
-        {
-            var rawTransactionList = new ConcurrentBag<string>();
-
-            Logger.Info($"ContractTransfer");
-            // for (var i = 0; i < TransactionCount; i++)
-            // {
-            //     var (from, to) = GetTransferPair(i);
-            //
-            //     var transferInput = new ThroughContractTransferInput
-            //     {
-            //         Symbol = symbol,
-            //         To = to.ConvertAddress(),
-            //         Amount = ((i + 1) % 4 + 1) * 1000,
-            //         Memo = $"T - {Guid.NewGuid()}"
-            //     };
-            //     var requestInfo =
-            //         NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
-            //             TransferWrapperMethod.ContractTransfer.ToString(),
-            //             transferInput);
-            //     rawTransactionList.Add(requestInfo);
-            // }
-            
-            var count = TransactionCount / TransactionGroup;
-            Parallel.For(1, TransactionGroup + 1, item =>
-            {
-                var (from, to) = GetTransferPair(item - 1);
-                for (var i = 0; i < count; i++)
-                {
-                    var transferInput = new TransferInput
-                    {
-                        Symbol = symbol,
-                        To = to.ConvertAddress(),
-                        Amount = 1,
-                        Memo = $"CT - {Guid.NewGuid()}"
-                    };
-                    var requestInfo =
-                        NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
-                            TransferWrapperMethod.ContractTransfer.ToString(),
-                            transferInput);
-                    rawTransactionList.Add(requestInfo);
-                }
-            });
-            // contract.CheckTransactionResultList();
-
-
-            var rawTransactions = string.Join(",", rawTransactionList);
-            var transactions = NodeManager.SendTransactions(rawTransactions);
-            Logger.Info(transactions);
-
-            Thread.Sleep(100);
-        }
+        // private void ThroughContractTransfer(TransferWrapperContract contract, string symbol)
+        // {
+        //     var rawTransactionList = new ConcurrentBag<string>();
+        //
+        //     Logger.Info($"ContractTransfer");
+        //     // for (var i = 0; i < TransactionCount; i++)
+        //     // {
+        //     //     var (from, to) = GetTransferPair(i);
+        //     //
+        //     //     var transferInput = new ThroughContractTransferInput
+        //     //     {
+        //     //         Symbol = symbol,
+        //     //         To = to.ConvertAddress(),
+        //     //         Amount = ((i + 1) % 4 + 1) * 1000,
+        //     //         Memo = $"T - {Guid.NewGuid()}"
+        //     //     };
+        //     //     var requestInfo =
+        //     //         NodeManager.GenerateRawTransaction(from, contract.ContractAddress,
+        //     //             TransferWrapperMethod.ContractTransfer.ToString(),
+        //     //             transferInput);
+        //     //     rawTransactionList.Add(requestInfo);
+        //     // }
+        //     
+        //     var count = TransactionCount / TransactionGroup;
+        //     Parallel.For(1, TransactionGroup + 1, item =>
+        //     {
+        //         var (from, to) = GetTransferPair(item - 1);
+        //         for (var i = 0; i < count; i++)
+        //         {
+        //             var transferInput = new TransferInput
+        //             {
+        //                 Symbol = symbol,
+        //                 To = to.ConvertAddress(),
+        //                 Amount = 1,
+        //                 Memo = $"CT - {Guid.NewGuid()}"
+        //             };
+        //             var requestInfo =
+        //                 NodeManager.GenerateRawTransaction(@from, contract.ContractAddress,
+        //                     TransferWrapperMethod.ContractTransfer.ToString(),
+        //                     transferInput);
+        //             rawTransactionList.Add(requestInfo);
+        //         }
+        //     });
+        //     // contract.CheckTransactionResultList();
+        //
+        //
+        //     var rawTransactions = string.Join(",", rawTransactionList);
+        //     var transactions = NodeManager.SendTransactions(rawTransactions);
+        //     Logger.Info(transactions);
+        //
+        //     Thread.Sleep(100);
+        // }
 
         private TokenContract GetWrapperTokenContract(TransferWrapperContract contract)
         {
