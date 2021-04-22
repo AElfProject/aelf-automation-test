@@ -57,12 +57,12 @@ namespace AElf.Automation.AccountCheck
                     check.CheckBalance(check.FromAccountList, _tokenInfoList, out long fromDuration);
                     check.CheckBalance(check.ToAccountList, _tokenInfoList, out long toDuration);
                 }
+                transfer.Transfer(_tokenInfoList);
 
                 long all = 0;
                 while (times > 0)
                 {
                     Logger.Info($"{times}");
-                    transfer.Transfer(_tokenInfoList);
 
                     //after transfer balance
 
@@ -72,31 +72,31 @@ namespace AElf.Automation.AccountCheck
                     all = all + fromDuration + toDuration;
 
                     Logger.Info("Check from account balance:");
-                    foreach (var (symbol, list) in _fromAccountInfos)
-                    {
-                        var after = from.First(a => a.Key.Equals(symbol));
-                        foreach (var account in list)
-                        {
-                            var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
-                            Logger.Info($"{account.Account}: {account.Balance}");
-                            account.Balance.ShouldBe(accountInfo.Balance + amount);
-                        }
-                    }
+                    // foreach (var (symbol, list) in _fromAccountInfos)
+                    // {
+                    //     var after = from.First(a => a.Key.Equals(symbol));
+                    //     foreach (var account in list)
+                    //     {
+                    //         var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                    //         Logger.Info($"{account.Account}: {account.Balance}");
+                    //         account.Balance.ShouldBe(accountInfo.Balance + amount);
+                    //     }
+                    // }
+                    //
+                    // Logger.Info("Check to account balance:");
+                    // foreach (var (symbol, list) in _toAccountInfos)
+                    // {
+                    //     var after = to.First(a => a.Key.Equals(symbol));
+                    //     foreach (var account in list)
+                    //     {
+                    //         var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                    //         Logger.Info($"{account.Account}: {account.Balance}");
+                    //         account.Balance.ShouldBe(accountInfo.Balance - amount);
+                    //     }
+                    // }
 
-                    Logger.Info("Check to account balance:");
-                    foreach (var (symbol, list) in _toAccountInfos)
-                    {
-                        var after = to.First(a => a.Key.Equals(symbol));
-                        foreach (var account in list)
-                        {
-                            var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
-                            Logger.Info($"{account.Account}: {account.Balance}");
-                            account.Balance.ShouldBe(accountInfo.Balance - amount);
-                        }
-                    }
-
-                    _fromAccountInfos = from;
-                    _toAccountInfos = to;
+                    // _fromAccountInfos = from;
+                    // _toAccountInfos = to;
                     times--;
                     Thread.Sleep(1000);
                 }
@@ -140,7 +140,7 @@ namespace AElf.Automation.AccountCheck
                 // };
                 // Task.WaitAll(taskList.ToArray<Task>());
                 var req = (double) (check.CheckTimes * list.Count) / all * 1000;
-                Logger.Info($"all {all}ms, 1s request {req}");
+                Logger.Info($"all {all}ms, 1s request {req} ");
             }
         }
 
