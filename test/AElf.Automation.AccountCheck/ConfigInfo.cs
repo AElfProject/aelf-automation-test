@@ -27,7 +27,7 @@ namespace AElf.Automation.AccountCheck
         [JsonProperty("InitAccount")] public string InitAccount { get; set; }
         [JsonProperty("Password")] public string Password { get; set; }
         [JsonProperty("UserCount")] public int UserCount {set; get; }
-        [JsonProperty("OnlyCheck")] public bool OnlyCheck {set; get; }
+        [JsonProperty("CheckType")] public string CheckType {set; get; }
         [JsonProperty("CheckTimes")] public int Times { set; get; }
 
         public static ConfigInfo ReadInformation => ConfigHelper<ConfigInfo>.GetConfigInfo("account-check-config.json");

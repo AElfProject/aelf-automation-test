@@ -219,7 +219,7 @@ namespace AElf.Automation.MixedTransactions
                 var i1 = i;
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                var blockInfo = AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(i1, true));
+                var blockInfo = AsyncHelper.RunSync(() => _aElfClient.GetBlockByHeightAsync(i1));
                 stopwatch.Stop();
                 var checkTime = stopwatch.ElapsedMilliseconds;
 

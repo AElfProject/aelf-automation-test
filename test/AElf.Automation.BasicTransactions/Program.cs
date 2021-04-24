@@ -12,7 +12,6 @@ namespace AElf.Automation.BasicTransaction
 
             var tx = new TransactionAction();
             var token = tx.DeployTokenContract(TestMode.UserTransfer);
-            var wrapper = tx.DeployWrapperContract(token);
             var symbol = tx.CreateAndIssueTokenForWrapper(token.Contract);
             Logger.Info($"Symbol: {symbol}");
 
@@ -77,10 +76,6 @@ namespace AElf.Automation.BasicTransaction
                         $"time: {total / (times * count)}ms");
                     
                     break;
-                case TestMode.VirtualTransfer:
-                    Logger.Info("Start virtual account transfer: ");
-                    tx.TransferFromVirtual(token, wrapper, symbol);
-                    break;
                 case TestMode.CheckUserBalance:
                     Logger.Info("Start check user balance: ");
                     for (var i = 0; i < times; i++)
@@ -93,23 +88,11 @@ namespace AElf.Automation.BasicTransaction
                     Logger.Info(
                         $"Check balance {times * 4} times use {all}ms, req: {req}/s, time: {all / (times * 4)}ms");
                     break;
-                case TestMode.CheckUserInfo:
-                    all = tx.CheckAccount(token, symbol);
+                case TestMode.CheckTxInfo:
+                    all = tx.CheckTxInfo(token, symbol);
                     req = (double) times / all * 1000;
                     Logger.Info(
                         $"Check  {times} account use {all}ms, req: {req}/s, time: {all /times}ms");
-                    break;
-                case TestMode.CheckContractBalance:
-                    Logger.Info("Start check contract balance: ");
-                    for (var i = 0; i < times; i++)
-                    {
-                        var duration = tx.CheckContract(token, wrapper, symbol);
-                        all += duration;
-                    }
-
-                    req = (double) (times * 4) / all * 1000;
-                    Logger.Info(
-                        $"Check balance {times * 4} times use {all}ms, req: {req}/s, time: {all / (times * 4)}ms");
                     break;
                 case TestMode.CheckBlockInfo:
                     Logger.Info("Start check block info:");

@@ -23,7 +23,7 @@ namespace AElf.Automation.AccountCheck
         public int ContractCount;
         public int CheckTimes;
         public long TransferAmount;
-        public bool OnlyCheck;
+        public string CheckType;
         public bool IsNeedDeploy;
         
         public void GetService()
@@ -33,7 +33,7 @@ namespace AElf.Automation.AccountCheck
             InitAccount = config.InitAccount;
             Password = config.Password;
             UserCount = config.UserCount;
-            OnlyCheck = config.OnlyCheck;
+            CheckType = config.CheckType;
             CheckTimes = config.Times;
             NodeManager = new NodeManager(url);
             AuthorityManager = new AuthorityManager(NodeManager, InitAccount, false);

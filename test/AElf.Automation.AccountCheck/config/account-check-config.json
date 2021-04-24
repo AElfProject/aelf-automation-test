@@ -10,10 +10,10 @@
       "Symbol": "OFRGICZY"
     }
   ],
-  "ServiceUrl": "18.177.120.250:8000",
+  "ServiceUrl": "13.230.38.98:8000",
   "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
   "Password": "12345678",
   "UserCount": 10,
-  "OnlyCheck": true,
+  "CheckType": "account",
   "CheckTimes": 10
 }

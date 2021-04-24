@@ -9,15 +9,6 @@
           "ContractAddress": "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS",
           "TokenSymbol": "UUMRCJMO"
         }]
-    },
-    {
-      "ContractName": "Wrapper",
-      "IsNeedDeploy": true,
-      "ContractCount": 1,
-      "TokenInfos": [{
-        "ContractAddress": "2WHXRoLRjbUTDQsuqR5CntygVfnDb125qdJkudev4kVNbLhTdG",
-        "TokenSymbol": "KJTLSQYE"
-      }]
     }
   ],
   "ServiceUrl": "13.230.38.98:8000",

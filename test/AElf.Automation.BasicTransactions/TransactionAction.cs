@@ -20,23 +20,7 @@ namespace AElf.Automation.BasicTransaction
         {
             GetService();
         }
-        
-        public TransferWrapperContract DeployWrapperContract(TokenContract tokenAddress)
-        {
-            if (WrapperAddress != "")
-                return new TransferWrapperContract(NodeManager, InitAccount, WrapperAddress);
-            var contractAddress =
-                AuthorityManager.DeployContract(InitAccount,
-                    "AElf.Contracts.TransferWrapperContract", Password);
-            var wrapperContract =
-                new TransferWrapperContract(NodeManager, InitAccount, contractAddress.ToBase58());
-            var initialize = wrapperContract.Initialize(tokenAddress.Contract, InitAccount, Password);
-            initialize.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            Logger.Info($"Wrapper Address: {wrapperContract.ContractAddress}");
 
-            return wrapperContract;
-        }
-        
         public TokenContract DeployTokenContract(TestMode mode)
         {
             if (mode == TestMode.RandomContractTransfer)
@@ -89,7 +73,7 @@ namespace AElf.Automation.BasicTransaction
             return checkTime;
         }
 
-        public long CheckAccount(TokenContract token, string symbol)
+        public long CheckTxInfo(TokenContract token, string symbol)
         {
             long all = 0;
             var txIds = new List<string>();
@@ -107,15 +91,15 @@ namespace AElf.Automation.BasicTransaction
             NodeManager.CheckTransactionListResult(txIds);
 
 
-            foreach (var account in TestAccountList)
+            foreach (var txId in txIds)
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                var balance = token.GetUserBalance(account,symbol);
+                var txResult = AsyncHelper.RunSync(()=> NodeManager.ApiClient.GetTransactionResultAsync(txId));
                 stopwatch.Stop();
                 var checkTime = stopwatch.ElapsedMilliseconds;
                 all += checkTime;
-                Logger.Info($"account {account} balance is {balance}");
+                Logger.Info($"tx {txId} status is {txResult.Status}");
             }
             return all;
         }
@@ -143,57 +127,6 @@ namespace AElf.Automation.BasicTransaction
             Logger.Info($"After transfer from account balance is {afterBalance}, to account balance is {afterTestBalance}");
             return checkTime;
         }
-        
-        public long TransferFromContract(TokenContract token, TransferWrapperContract wrapper, string symbol)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            wrapper.ExecuteMethodWithTxId(TransferWrapperMethod.ContractTransfer,
-                new ThroughContractTransferInput
-                {
-                    Symbol = symbol,
-                    To = TestAccount.ConvertAddress(),
-                    Amount = TransferAmount
-                });
-            stopwatch.Stop();
-            var checkTime = stopwatch.ElapsedMilliseconds;
-            return checkTime;
-        }
-
-        public long CheckContract(TokenContract token, TransferWrapperContract wrapper, string symbol)
-        {
-            var result = token.TransferBalance(InitAccount, wrapper.ContractAddress, TransferAmount * 2, symbol);
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var balance = token.GetUserBalance(wrapper.ContractAddress, symbol);
-            var testBalance = token.GetUserBalance(TestAccount, symbol);
-            stopwatch.Stop();
-
-            var txResult = wrapper.ExecuteMethodWithResult(TransferWrapperMethod.ContractTransfer,
-                new ThroughContractTransferInput
-                {
-                    Symbol = symbol,
-                    To = TestAccount.ConvertAddress(),
-                    Amount = TransferAmount
-                });
-            txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
-            var afterBalance = token.GetUserBalance(wrapper.ContractAddress, symbol);
-            var afterTestBalance = token.GetUserBalance(TestAccount, symbol);
-            
-            stopwatch.Restart();
-            afterBalance.ShouldBe(balance - TransferAmount);
-            afterTestBalance.ShouldBe(testBalance + TransferAmount);
-            stopwatch.Stop();
-            
-            Logger.Info($"Before transfer from account balance is {balance}, to account balance is {testBalance}");
-            Logger.Info($"After transfer from account balance is {afterBalance}, to account balance is {afterTestBalance}");
-            
-            var checkTime = stopwatch.ElapsedMilliseconds;
-            return checkTime;
-        }
-
         public long CheckBlockHeight(long count)
         {
             long all = 0;
@@ -212,34 +145,7 @@ namespace AElf.Automation.BasicTransaction
             }
             return all;
         }
-
-        public void TransferFromVirtual(TokenContract token, TransferWrapperContract wrapper, string symbol)
-        {
-            var virtualAccount = GetFromVirtualAccounts(wrapper);
-            var result = token.TransferBalance(InitAccount, virtualAccount.ToBase58(), TransferAmount * 2, symbol);
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
-            var balance = token.GetUserBalance(virtualAccount.ToBase58(), symbol);
-            var testBalance = token.GetUserBalance(TestAccount, symbol);
-            var txResult = wrapper.ExecuteMethodWithResult(TransferWrapperMethod.ThroughContractTransfer,
-                new ThroughContractTransferInput
-                {
-                    Symbol = symbol,
-                    To = TestAccount.ConvertAddress(),
-                    Amount = TransferAmount
-                });
-            txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
-            var afterBalance = token.GetUserBalance(virtualAccount.ToBase58(), symbol);
-            var afterTestBalance = token.GetUserBalance(TestAccount, symbol);
-            
-            afterBalance.ShouldBe(balance - TransferAmount);
-            afterTestBalance.ShouldBe(testBalance + TransferAmount);
-            
-            Logger.Info($"Before transfer from account balance is {balance}, to account balance is {testBalance}");
-            Logger.Info($"After transfer from account balance is {afterBalance}, to account balance is {afterTestBalance}");
-        }
-
+        
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
     }
 }

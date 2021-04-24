@@ -45,7 +45,7 @@ namespace AElf.Automation.AccountCheck
                 }
             }
 
-            if (!check.OnlyCheck)
+            if (check.CheckType == "account")
             {
                 transfer.PrepareTransfer(_tokenInfoList);
                 // original balance 
@@ -72,31 +72,31 @@ namespace AElf.Automation.AccountCheck
                     all = all + fromDuration + toDuration;
 
                     Logger.Info("Check from account balance:");
-                    // foreach (var (symbol, list) in _fromAccountInfos)
-                    // {
-                    //     var after = from.First(a => a.Key.Equals(symbol));
-                    //     foreach (var account in list)
-                    //     {
-                    //         var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
-                    //         Logger.Info($"{account.Account}: {account.Balance}");
-                    //         account.Balance.ShouldBe(accountInfo.Balance + amount);
-                    //     }
-                    // }
-                    //
-                    // Logger.Info("Check to account balance:");
-                    // foreach (var (symbol, list) in _toAccountInfos)
-                    // {
-                    //     var after = to.First(a => a.Key.Equals(symbol));
-                    //     foreach (var account in list)
-                    //     {
-                    //         var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
-                    //         Logger.Info($"{account.Account}: {account.Balance}");
-                    //         account.Balance.ShouldBe(accountInfo.Balance - amount);
-                    //     }
-                    // }
+                    foreach (var (symbol, list) in _fromAccountInfos)
+                    {
+                        var after = from.First(a => a.Key.Equals(symbol));
+                        foreach (var account in list)
+                        {
+                            var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                            Logger.Info($"{account.Account}: {account.Balance}");
+                            account.Balance.ShouldBe(accountInfo.Balance + amount);
+                        }
+                    }
+                    
+                    Logger.Info("Check to account balance:");
+                    foreach (var (symbol, list) in _toAccountInfos)
+                    {
+                        var after = to.First(a => a.Key.Equals(symbol));
+                        foreach (var account in list)
+                        {
+                            var accountInfo = after.Value.First(a => a.Account.Equals(account.Account));
+                            Logger.Info($"{account.Account}: {account.Balance}");
+                            account.Balance.ShouldBe(accountInfo.Balance - amount);
+                        }
+                    }
 
-                    // _fromAccountInfos = from;
-                    // _toAccountInfos = to;
+                    _fromAccountInfos = from;
+                    _toAccountInfos = to;
                     times--;
                     Thread.Sleep(1000);
                 }
@@ -124,21 +124,6 @@ namespace AElf.Automation.AccountCheck
                     times--;
                     Thread.Sleep(1000);
                 }
-
-                // var taskList = new List<Task>
-                // {
-                //     Task.Run(() =>
-                //     {
-                //         while (times > 0)
-                //         {
-                //             Logger.Info($"{times}");
-                //             check.CheckBalanceOnly(check.AccountList, check.ContractInfos, out long duration);
-                //             all += duration;
-                //             times--;
-                //         }
-                //     }, token)
-                // };
-                // Task.WaitAll(taskList.ToArray<Task>());
                 var req = (double) (check.CheckTimes * list.Count) / all * 1000;
                 Logger.Info($"all {all}ms, 1s request {req} ");
             }

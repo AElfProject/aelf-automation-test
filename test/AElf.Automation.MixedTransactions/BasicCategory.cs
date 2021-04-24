@@ -35,35 +35,6 @@ namespace AElf.Automation.MixedTransactions
             ContractInfos = ConfigInfo.ReadInformation.ContractInfos;
         }
 
-        // private void GetTestAccounts()
-        // {
-        //     if (AccountList.Count.Equals(UserCount))
-        //         return;
-        //     var count = UserCount;
-        //     var miners = AuthorityManager.GetCurrentMiners();
-        //     var accounts = NodeManager.ListAccounts();
-        //     var testUsers = accounts.FindAll(o => !miners.Contains(o) && !o.Equals(InitAccount));
-        //     if (testUsers.Count >= count)
-        //     {
-        //         foreach (var acc in testUsers.Take(count))
-        //             AccountList.Add(acc);
-        //     }
-        //     else
-        //     {
-        //         foreach (var acc in testUsers) AccountList.Add(acc);
-        //
-        //         var generateCount = count - testUsers.Count;
-        //         for (var i = 0; i < generateCount; i++)
-        //         {
-        //             var account = NodeManager.NewAccount();
-        //             AccountList.Add(account);
-        //         }
-        //     }
-        //
-        //     FromAccountList = AccountList.GetRange(0, TransactionGroup);
-        //     ToAccountList = AccountList.GetRange(TransactionGroup, count - TransactionGroup);
-        // }
-        
         public void GetTestAccounts()
         {
             var authority = new AuthorityManager(NodeManager);
@@ -119,26 +90,6 @@ namespace AElf.Automation.MixedTransactions
                     return symbol;
             }
         }
-
-        // protected (string, string) GetTransferPair(int times)
-        // {
-        //     var fromId = times - FromAccountList.Count >= 0
-        //         ? (times / FromAccountList.Count > 1
-        //             ? times - FromAccountList.Count * (times / FromAccountList.Count)
-        //             : times - FromAccountList.Count)
-        //         : times;
-        //     var from = FromAccountList[fromId];
-        //
-        //     var toId = times - ToAccountList.Count >= 0
-        //         ? (times / ToAccountList.Count > 1
-        //             ? times - ToAccountList.Count * (times / ToAccountList.Count)
-        //             : times - ToAccountList.Count)
-        //         : times;
-        //     var to = ToAccountList[toId];
-        //
-        //     return (from, to);
-        // }
-
         protected (string, string) GetTransferPair(int times)
         {
             var from = FromAccountList[times];
