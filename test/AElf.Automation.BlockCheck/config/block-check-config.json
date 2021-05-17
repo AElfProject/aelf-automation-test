@@ -1,0 +1,8 @@
+{
+  "Url": "18.177.120.250:8000",
+  "VerifyBlockCount": 10,
+  "StartBlock": 10,
+  "IncludeTransaction": false,
+  "VerifyOne": false,
+  "VerifyTimes": 10
+}

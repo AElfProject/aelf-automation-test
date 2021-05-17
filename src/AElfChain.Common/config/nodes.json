@@ -3,11 +3,11 @@
   "Nodes": [
     {
       "name": "bp1",
-      "endpoint": "127.0.0.1:9000",
-      "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
-      "password": "123"
+      "endpoint": "3.115.115.141:8000",
+      "account": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
+      "password": "12345678"
     }
   ],
   "NativeTokenSymbol" : "ELF",
-  "DefaultPassword": "123"
+  "DefaultPassword": "12345678"
 }

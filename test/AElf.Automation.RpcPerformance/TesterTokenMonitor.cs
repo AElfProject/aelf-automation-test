@@ -18,97 +18,28 @@ namespace AElf.Automation.RpcPerformance
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        public TesterTokenMonitor(INodeManager nodeManager)
+        public TesterTokenMonitor(INodeManager nodeManager,string tokenAddress)
         {
             var genesis = GenesisContract.GetGenesisContract(nodeManager);
-            SystemToken = genesis.GetTokenContract();
+            Token = genesis.GetTokenContract(tokenAddress);
         }
 
-        public TokenContract SystemToken { get; set; }
+        public static TokenContract Token { get; set; }
 
-        public void ExecuteTokenCheckTask(List<string> testers, CancellationToken ct)
-        {
-            var checkRound = 1;
-            while (true)
-            {
-                if (ct.IsCancellationRequested)
-                {
-                    Logger.Warn("ExecuteTokenCheckTask was been cancelled.");
-                    break;
-                }
-
-                Thread.Sleep(3 * 60 * 1000);
-                try
-                {
-                    Logger.Info($"Start check tester token balance job round: {checkRound++}");
-                    TransferTokenForTest(testers);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e.Message);
-                }
-            }
-        }
-
-        public void TransferTokenForTest(List<string> testers)
-        {
-            Logger.Info("Prepare chain basic token for tester.");
-            var bps = NodeInfoHelper.Config.Nodes;
-            var symbol = CheckTokenAndIssueBalance();
-            foreach (var bp in bps)
-            {
-                var balance = SystemToken.GetUserBalance(bp.Account, symbol);
-                if (balance < 20000000_00000000) continue;
-                SystemToken.SetAccount(bp.Account, bp.Password);
-                foreach (var tester in testers)
-                {
-                    if (tester == bp.Account) continue;
-                    var userBalance = SystemToken.GetUserBalance(tester, symbol);
-                    if (userBalance < 200000_00000000)
-                        SystemToken.ExecuteMethodWithTxId(TokenMethod.Transfer, new TransferInput
-                        {
-                            To = tester.ConvertAddress(),
-                            Amount = 100000_00000000,
-                            Symbol = symbol,
-                            Memo = $"T-{Guid.NewGuid()}"
-                        });
-                }
-
-                SystemToken.CheckTransactionResultList();
-                break;
-            }
-        }
-
-        public static string GenerateNotExistTokenSymbol(INodeManager nodeManager)
+        public string GenerateNotExistTokenSymbol()
         {
             while (true)
             {
                 var symbol = CommonHelper.RandomString(8, false);
-                var tokenInfo = nodeManager.GetTokenInfo(symbol);
+                var tokenInfo = Token.GetTokenInfo(symbol);
                 if (tokenInfo.Equals(new TokenInfo())) return symbol;
             }
         }
-
-        private string CheckTokenAndIssueBalance()
+        
+        public bool CheckSymbol(string symbol)
         {
-            var bps = NodeInfoHelper.Config.Nodes;
-            //issue all token to first bp
-            var firstBp = bps.First();
-            SystemToken.SetAccount(firstBp.Account, firstBp.Password);
-            var primaryToken = SystemToken.GetPrimaryTokenSymbol();
-            if (primaryToken != NodeOption.NativeTokenSymbol)
-            {
-                var tokenInfo = SystemToken.GetTokenInfo(primaryToken);
-                var issueBalance = tokenInfo.TotalSupply - tokenInfo.Issued;
-                if (issueBalance >= 1000_00000000)
-                {
-                    var account = SystemToken.CallAddress;
-                    SystemToken.IssueBalance(account, account, issueBalance,
-                        primaryToken);
-                }
-            }
-
-            return primaryToken;
+            var tokenInfo = Token.GetTokenInfo(symbol);
+            return !tokenInfo.Equals(new TokenInfo());
         }
     }
 }

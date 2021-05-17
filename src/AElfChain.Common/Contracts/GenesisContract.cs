@@ -1,8 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Standards.ACS0;
-using AElf.Standards.ACS1;
 using AElf;
-using AElf.Client.Dto;
 using AElf.Contracts.Genesis;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
@@ -10,6 +9,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using Shouldly;
 using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
@@ -66,23 +66,19 @@ namespace AElfChain.Common.Contracts
             return new GenesisContract(nm, callAddress, genesisContract);
         }
 
-        public bool UpdateContract(string account, string contractAddress, string contractFileName)
+        public Address DeployContract(string account, byte[] code,string password = "")
         {
-            var contractReader = new SmartContractReader();
-            var codeArray = contractReader.Read(contractFileName);
-
-            var contractOwner = GetContractAuthor(contractAddress);
-            if (contractOwner.ToBase58() != account)
-                Logger.Error("Account have no permission to update.");
-
-            SetAccount(account);
-            var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateSmartContract, new ContractUpdateInput
+            SetAccount(account, password);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.DeploySmartContract, new ContractDeploymentInput
             {
-                Address = contractAddress.ConvertAddress(),
-                Code = ByteString.CopyFrom(codeArray)
+                Category = KernelHelper.DefaultRunnerCategory,
+                Code = ByteString.CopyFrom(code)
             });
+            txResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-            return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
+            var byteString = ByteString.FromBase64(txResult.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).NonIndexed);
+            var address = ContractDeployed.Parser.ParseFrom(byteString).Address;
+            return address;
         }
 
         public Address GetContractAddressByName(NameProvider name)
@@ -103,46 +99,6 @@ namespace AElfChain.Common.Contracts
             Logger.Info($"{name} contract address: {addString}");
 
             return address;
-        }
-
-        public TransactionResultDto ReleaseApprovedContract(ReleaseContractInput input,
-            string caller)
-        {
-            SetAccount(caller);
-            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseApprovedContract, new ReleaseContractInput
-            {
-                ProposalId = input.ProposalId,
-                ProposedContractInputHash = input.ProposedContractInputHash
-            });
-            return result;
-        }
-
-        public TransactionResultDto ReleaseCodeCheckedContract(ReleaseContractInput input,
-            string caller)
-        {
-            SetAccount(caller);
-            var result = ExecuteMethodWithResult(GenesisMethod.ReleaseCodeCheckedContract, new ReleaseContractInput
-            {
-                ProposalId = input.ProposalId,
-                ProposedContractInputHash = input.ProposedContractInputHash
-            });
-            return result;
-        }
-
-        public TransactionResult ProposeNewContract(ContractDeploymentInput input,
-            string caller = null)
-        {
-            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
-            var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
-            return result.TransactionResult;
-        }
-
-        public TransactionResult ProposeUpdateContract(ContractUpdateInput input,
-            string caller = null)
-        {
-            var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
-            var result = AsyncHelper.RunSync(() => tester.ProposeUpdateContract.SendAsync(input));
-            return result.TransactionResult;
         }
 
         public Dictionary<NameProvider, Address> GetAllSystemContracts()
@@ -174,13 +130,13 @@ namespace AElfChain.Common.Contracts
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
         }
 
-        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)
+        public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null, string password = "")
         {
             var caller = callAddress ?? CallAddress;
             var stub = new ContractTesterFactory(NodeManager);
             var contractStub =
                 stub.Create<BasicContractZeroContainer.BasicContractZeroStub>(
-                    ContractAddress.ConvertAddress(), caller);
+                    ContractAddress.ConvertAddress(), caller, password);
             return contractStub;
         }
 
@@ -189,19 +145,7 @@ namespace AElfChain.Common.Contracts
             var dic = new Dictionary<NameProvider, Hash>
             {
                 {NameProvider.Genesis, Hash.Empty},
-                {NameProvider.Election, HashHelper.ComputeFrom("AElf.ContractNames.Election")},
-                {NameProvider.Profit, HashHelper.ComputeFrom("AElf.ContractNames.Profit")},
-                {NameProvider.Vote, HashHelper.ComputeFrom("AElf.ContractNames.Vote")},
-                {NameProvider.Treasury,HashHelper.ComputeFrom("AElf.ContractNames.Treasury")},
-                {NameProvider.Token, HashHelper.ComputeFrom("AElf.ContractNames.Token")},
-                {NameProvider.TokenHolder, HashHelper.ComputeFrom("AElf.ContractNames.TokenHolder")},
-                {NameProvider.TokenConverter, HashHelper.ComputeFrom("AElf.ContractNames.TokenConverter")},
                 {NameProvider.Consensus, HashHelper.ComputeFrom("AElf.ContractNames.Consensus")},
-                {NameProvider.ParliamentAuth, HashHelper.ComputeFrom("AElf.ContractNames.Parliament")},
-                {NameProvider.CrossChain, HashHelper.ComputeFrom("AElf.ContractNames.CrossChain")},
-                {NameProvider.AssociationAuth, HashHelper.ComputeFrom("AElf.ContractNames.Association")},
-                {NameProvider.Configuration, HashHelper.ComputeFrom("AElf.ContractNames.Configuration")},
-                {NameProvider.ReferendumAuth, HashHelper.ComputeFrom("AElf.ContractNames.Referendum")}
             };
 
             return dic;

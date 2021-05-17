@@ -18,7 +18,7 @@
     <ProjectReference Include="..\..\src\AElfChain.Common\AElfChain.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="config\*">
+    <None Update="config/rpc-performance.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,0 +1,19 @@
+{
+  "TransferInfo": {
+    "IsNeedDeploy": true, 
+    "ContractCount": 1,
+    "TransferAmount":1000
+  },
+  "ContractInfo": [
+    {
+      "ContractAddress": "JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE",
+      "Symbol": "OFRGICZY"
+    }
+  ],
+  "ServiceUrl": "13.230.38.98:8000",
+  "InitAccount": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
+  "Password": "12345678",
+  "UserCount": 10,
+  "CheckType": "account",
+  "CheckTimes": 10
+}

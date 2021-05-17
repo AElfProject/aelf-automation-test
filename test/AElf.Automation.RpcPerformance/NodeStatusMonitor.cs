@@ -15,38 +15,14 @@ namespace AElf.Automation.RpcPerformance
     public class NodeStatusMonitor
     {
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
-        public static int MaxQueueLimit = 5012;
 
         public NodeStatusMonitor(INodeManager nodeManager)
         {
             NodeManager = nodeManager;
-            MaxValidateLimit = RpcConfig.ReadInformation.SentTxLimit;
-        }
+       }
 
         private INodeManager NodeManager { get; }
         private long BlockHeight { get; set; } = 1;
-        public static int MaxValidateLimit { private get; set; }
-
-        public bool CheckTransactionPoolStatus(bool enable)
-        {
-            if (!enable) return true;
-            var checkTimes = 0;
-            while (true)
-            {
-                if (checkTimes >= 150) return false; //over check time and cancel current round execution            
-                var poolStatus = GetTransactionPoolTxCount();
-                if (poolStatus.Equals(new TransactionPoolStatusOutput()))
-                    return true;
-                if (poolStatus.Validated < MaxValidateLimit && poolStatus.Queued < MaxQueueLimit)
-                    return true;
-
-                checkTimes++;
-                if (checkTimes % 10 == 0)
-                    $"TxHub transaction count: QueuedCount={poolStatus.Queued} ValidatedCount={poolStatus.Validated}. Transaction limit: {MaxValidateLimit}"
-                        .WriteWarningLine();
-                Thread.Sleep(200);
-            }
-        }
 
         public void CheckTransactionsStatus(IList<string> transactionIds, int checkTimes = -1,
             INodeManager nodeManager = null)
@@ -82,7 +58,7 @@ namespace AElf.Automation.RpcPerformance
                 {
                     case TransactionResultStatus.Mined:
                         Logger.Info(
-                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}-[{transactionResult.GetTransactionFeeInfo()}]",
+                            $"Transaction: {transactionIds[i]}, Method: {transactionResult.Transaction.MethodName}, Status: {resultStatus}",
                             true);
                         transactionIds.Remove(transactionIds[i]);
                         break;
@@ -99,7 +75,7 @@ namespace AElf.Automation.RpcPerformance
                         break;
                     case TransactionResultStatus.Failed:
                         Logger.Error(
-                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}-[{transactionResult.GetTransactionFeeInfo()}]",
+                            $"Transaction: {transactionIds[i]}, Status: {resultStatus}",
                             true);
                         Logger.Error($"Error message: {transactionResult.Error}", true);
                         transactionIds.Remove(transactionIds[i]);

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using Google.Protobuf;
+using AElf.Types;
 
 namespace AElfChain.Common.Managers
 {
@@ -17,11 +18,12 @@ namespace AElfChain.Common.Managers
 
         //account
         string NewAccount(string password = "");
+        string NewFakeAccount();
         string GetRandomAccount();
         string GetAccountPublicKey(string account, string password = "");
         List<string> ListAccounts();
         bool UnlockAccount(string account, string password = "");
-
+        Address GetVirtualAddress(Hash hash, Address contractAddress);
         //chain
         string DeployContract(string from, string filename);
         string SendTransaction(string from, string to, string methodName, IMessage inputParameter);

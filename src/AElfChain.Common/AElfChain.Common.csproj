@@ -9,63 +9,20 @@
 
     <ItemGroup>
         <ProtoContract Include="Protobuf\Proto\acs0.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs1.proto" />
         <ProtoContract Include="Protobuf\Proto\acs2.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs3.proto" />
         <ProtoContract Include="Protobuf\Proto\acs4.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs5.proto" />
         <ProtoContract Include="Protobuf\Proto\acs6.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs7.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs8.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs9.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs10.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs11.proto" />
+
         <ProtoContract Include="Protobuf\Proto\authority_info.proto" />
         <ProtoContract Include="Protobuf\Proto\code_check.proto" />
-        <ProtoMessage Include="Protobuf\Proto\transaction_fee.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs5_plugin_test_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_basic_function_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_basic_function_with_parallel_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_basic_security_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_basic_update_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_performance_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_events_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_transaction_fees_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_a_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_b_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\test_c_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\token_holder_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\token_holder_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\token_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\treasury_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\treasury_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\basic_contract_zero.proto" />
         <ProtoContract Include="Protobuf\Proto\basic_contract_zero_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\election_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\election_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\profit_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\profit_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\aedpos_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\aedpos_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\parliament_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\parliament_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\association_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\association_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\vote_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\vote_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\token_converter_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\token_converter_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\cross_chain_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\cross_chain_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\configuration_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\configuration_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\referendum_contract.proto" />
-        <ProtoContract Include="Protobuf\Proto\referendum_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\dapp_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\execution.proto" />
-        <ProtoContract Include="Protobuf\Proto\random_number_provider_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\transfer_wrapper_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>
