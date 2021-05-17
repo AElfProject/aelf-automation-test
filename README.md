@@ -106,10 +106,10 @@ Set ``rpc-performance.json`` to set transaction type and number of executions.
 ```
 *Adpot GroupCount and TransactionCount number can control transaction sent number frequency.*      
 *GroupCount*: how many threads to sent transaction.   
-*TransactionCount*: how many transactions sent each time in one thread.
-*TransactionGroup*: how many transaction group execute each time in one block. 
+*TransactionCount*: how many transactions sent each time in one thread.      
+*TransactionGroup*: how many transaction group execute each time in one block.      
 *ServiceUrl*: node web api address and port to start execution.      
-*RandomSenderTransaction*: sent transaction with sender are random, lot of transaction groups with set this value as true.
+*RandomSenderTransaction*: sent transaction with sender are random, lot of transaction groups with set this value as true.      
 *ContractAddress*: if you have already deployed MultiToken Contract, you can send transaction through this contract.
 
 #### Usage:
