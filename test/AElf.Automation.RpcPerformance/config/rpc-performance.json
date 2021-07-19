@@ -2,7 +2,7 @@
     "GroupCount": 5,
     "TransactionGroup": 10,
     "TransactionCount":100,
-    "ServiceUrl": "3.112.235.128:8000",
+    "ServiceUrl": "35.73.228.0:8000",
     "Timeout": 300,
     "RandomSenderTransaction": true,
     "Duration": 1000,

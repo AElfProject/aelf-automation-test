@@ -27,7 +27,7 @@ namespace AElfChain.Common.Managers
             _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
             ApiClient = AElfClientExtension.GetClient(baseUrl);
-            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnectedAsync());
             if (!check)
                 Logger.Warn($"Url:{baseUrl} is not connected!");
             else
@@ -43,7 +43,7 @@ namespace AElfChain.Common.Managers
         {
             _baseUrl = url;
             ApiClient = AElfClientExtension.GetClient(url);
-            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnectedAsync());
             if (!check)
             {
                 Logger.Warn($"Url:{url} is not connected!");
