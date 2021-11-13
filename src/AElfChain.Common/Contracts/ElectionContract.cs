@@ -17,6 +17,7 @@ namespace AElfChain.Common.Contracts
         ChangeVotingOption,
         ReplaceCandidatePubkey,
         SetCandidateAdmin,
+        EnableElection,
 
         //view
         GetCalculateVoteWeight,

@@ -178,9 +178,9 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             var basicProfit =
                 Profit.GetProfitDetails(node.Account, Schemes[SchemeType.MinerBasicReward].SchemeId);
             var voteWeightProfit =
-                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.VotesWeightReward].SchemeId);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.FlexibleReward].SchemeId);
             var reElectionProfit =
-                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.ReElectionReward].SchemeId);
+                Profit.GetProfitDetails(node.Account, Schemes[SchemeType.WelcomeReward].SchemeId);
             var backupProfit =
                 Profit.GetProfitDetails(node.Account, Schemes[SchemeType.BackupSubsidy].SchemeId);
 
@@ -193,13 +193,13 @@ namespace AElf.Automation.ScenariosExecution.Scenarios
             if (!voteWeightProfit.Equals(new ProfitDetails()))
             {
                 Logger.Info($"10% vote weight profit balance: {voteWeightProfit}");
-                TakeProfit(node.Account, Schemes[SchemeType.VotesWeightReward].SchemeId);
+                TakeProfit(node.Account, Schemes[SchemeType.FlexibleReward].SchemeId);
             }
 
             if (!reElectionProfit.Equals(new ProfitDetails()))
             {
                 Logger.Info($"10% re election profit balance: {reElectionProfit}");
-                TakeProfit(node.Account, Schemes[SchemeType.ReElectionReward].SchemeId);
+                TakeProfit(node.Account, Schemes[SchemeType.WelcomeReward].SchemeId);
             }
 
             if (!backupProfit.Equals(new ProfitDetails()))

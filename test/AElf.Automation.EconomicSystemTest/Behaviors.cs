@@ -15,8 +15,8 @@ namespace AElf.Automation.EconomicSystemTest
             BackSubsidy,
             CitizenWelfare,
             BasicMinerReward,
-            VotesWeightReward,
-            ReElectionReward
+            WelcomeReward,
+            FlexibleReward
         }
 
         public readonly ConsensusContract ConsensusService;

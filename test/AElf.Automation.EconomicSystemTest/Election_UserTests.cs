@@ -27,19 +27,13 @@ namespace AElf.Automation.EconomicSystemTest
         {
             Initialize();
         }
-
-        [TestCleanup]
-        public void CleanUpUserTests()
-        {
-            TestCleanUp();
-        }
-
+        
         [TestMethod]
         public void Vote_One_Candidates_ForBP()
         {
-            var amount = 1000_00000000;
+            var amount = 2000_00000000;
             long fee = 0;
-            var lockTime = 90;
+            var lockTime = 91;
             var i = 1;
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             var voterInfo = new Dictionary<string, string>();
@@ -50,21 +44,22 @@ namespace AElf.Automation.EconomicSystemTest
                 fee += transferFee;
             }
 
-//            for (int j = 0; j < FullNodeAddress.Count; j++)
-//            {
-//                var k = j;
-//                while (k > Voter.Count - 1)
-//                {
-//                    k = k - Voter.Count;
-//                }
-//                voterInfo.Add(FullNodeAddress[j], Voter[k]);
-//            }
-
-            for (int j = 0; j < Voter.Count; j++)
-                voterInfo.Add(FullNodeAddress[j], Voter[j]);
+            for (int j = 0; j < FullNodeAddress.Count; j++)
+            {
+                var k = j;
+                while (k > Voter.Count - 1)
+                {
+                    k = k - Voter.Count;
+                }
+                voterInfo.Add(FullNodeAddress[j], Voter[k]);
+            }
+            //
+            // for (int j = 0; j < Voter.Count; j++)
+            //     voterInfo.Add(FullNodeAddress[j], Voter[j]);
 
             foreach (var (key, value) in voterInfo)
             {
+
                 var voteResult = Behaviors.UserVote(value, key, lockTime * i, amount);
                 var voteFee = voteResult.GetDefaultTransactionFee();
                 fee += voteFee;
@@ -94,9 +89,9 @@ namespace AElf.Automation.EconomicSystemTest
          [TestMethod]
         public void One_Vote_One_Candidates_ForBP()
         {
-            var amount = 1000_00000000;
+            var amount = 5000_00000000;
             long fee = 0;
-            var lockTime = 60;
+            var lockTime = 100;
             var i = 1;
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             var voter = Voter.First();
@@ -152,7 +147,7 @@ namespace AElf.Automation.EconomicSystemTest
         public void CheckProfit()
         {
             var profit = Behaviors.ProfitService;
-            var account = "YF8o6ytMB7n5VF9d1RDioDXqyQ9EQjkFK3AwLPCH2b9LxdTEq";
+            var account = Voter[0];
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             var voteProfit =
@@ -202,10 +197,11 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var profit = Behaviors.ProfitService;
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+            var flexibleReward = Behaviors.Schemes[SchemeType.FlexibleReward].SchemeId;
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             var symbol = "ELF";
             long profitAmount = 0;
-
+            long sumFlexible = 0;
             foreach (var voter in Voter)
             {
                 var profitMap = profit.GetProfitsMap(voter, schemeId);
@@ -214,8 +210,17 @@ namespace AElf.Automation.EconomicSystemTest
                 var profitAmountFull = profitMap.Value[symbol];
                 Logger.Info($"{term.TermNumber}  Profit {symbol} amount: voter {voter} CitizenWelfare profit amount is {profitAmountFull}");
                 profitAmount += profitAmountFull;
+                
+                var flexibleRewardMap = profit.GetProfitsMap(voter, flexibleReward);
+                if (!flexibleRewardMap.Equals(new ReceivedProfitsMap()))
+                {
+                    var flexibleRewardAmount = flexibleRewardMap.Value[symbol];
+                    sumFlexible += flexibleRewardAmount;
+                    Logger.Info(
+                        $"FlexibleReward amount: user {voter} profit {symbol} amount is {flexibleRewardAmount}");
+                }
             }
-            Logger.Info($"{term.TermNumber}  CitizenWelfare {profitAmount};");
+            Logger.Info($"{term.TermNumber}  CitizenWelfare {profitAmount}; Flexible {sumFlexible}");
         }
 
         [TestMethod]
@@ -223,10 +228,6 @@ namespace AElf.Automation.EconomicSystemTest
         {
             var profit = Behaviors.ProfitService;
             var candidates = Behaviors.GetCandidates();
-            var MinerBasicReward = Behaviors.Schemes[SchemeType.MinerBasicReward].SchemeId;
-            var ReElectionReward = Behaviors.Schemes[SchemeType.ReElectionReward].SchemeId;
-            var VotesWeightReward = Behaviors.Schemes[SchemeType.VotesWeightReward].SchemeId;
-            var CitizenWelfare = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             var BackupSubsidy = Behaviors.Schemes[SchemeType.BackupSubsidy].SchemeId;
             int i = 0;
             var term = Behaviors.ConsensusService.GetCurrentTermInformation();

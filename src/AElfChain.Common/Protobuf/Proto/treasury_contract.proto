@@ -19,55 +19,55 @@ service TreasuryContract {
     // Initialize treasury contract.
     rpc InitialTreasuryContract (google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
-    
+
     // Initialize the sub-item of the bonus scheme.
     rpc InitialMiningRewardProfitItem (google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
-    
+
     // Donate all tokens owned by the sender.
     rpc DonateAll (DonateAllInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Set the dividend weight of the sub-item of the dividend item.
     rpc SetDividendPoolWeightSetting (DividendPoolWeightSetting) returns (google.protobuf.Empty){
     }
-    
+
     // Set the miner reward weight.
     rpc SetMinerRewardWeightSetting (MinerRewardWeightSetting) returns (google.protobuf.Empty){
     }
-    
+
     // Set the reward for mining.
     rpc UpdateMiningReward (google.protobuf.Int64Value) returns (google.protobuf.Empty){
     }
-    
+
     // Change the governance authority information for treasury contract.
     rpc ChangeTreasuryController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
-    
+
     // AEDPoS Contract can notify Treasury Contract to aware miner replacement happened.
     rpc RecordMinerReplacement (RecordMinerReplacementInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Used to estimate the revenue weight of 10000 tokens voted by users.
     rpc GetWelfareRewardAmountSample (GetWelfareRewardAmountSampleInput) returns (GetWelfareRewardAmountSampleOutput) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the scheme id of treasury.
     rpc GetTreasurySchemeId (google.protobuf.Empty) returns (aelf.Hash) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the weight percentage of dividend pool items.
     rpc GetDividendPoolWeightProportion (google.protobuf.Empty) returns (DividendPoolWeightProportion) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the weight percentage of the dividend item for miner.
     rpc GetMinerRewardWeightProportion (google.protobuf.Empty) returns (MinerRewardWeightProportion) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the governance authority information.
     rpc GetTreasuryController (google.protobuf.Empty) returns (AuthorityInfo) {
         option (aelf.is_view) = true;
@@ -95,21 +95,21 @@ message MinerReElectionInformation {
 }
 
 message DividendPoolWeightSetting {
-    // The dividend weight of citizen welfare.
+    // The dividend weight for citizen.
     int32 citizen_welfare_weight = 1;
-    // The dividend weight of candidate nodes.
+    // The dividend weight for backup nodes.
     int32 backup_subsidy_weight = 2;
-    // The dividend weight of miner.
+    // The dividend weight for miners.
     int32 miner_reward_weight = 3;
 }
 
 message MinerRewardWeightSetting {
-    // The dividend weight of the basic income of the miner.
+    // The dividend weight for all current miners.
     int32 basic_miner_reward_weight = 1;
-    // The dividend weight of the vote of the miner.
-    int32 votes_weight_reward_weight = 2;
-    // The dividend weight of the reappointment of the miner.
-    int32 re_election_reward_weight = 3;
+    // The dividend weight for new miners.
+    int32 welcome_reward_weight = 2;
+    // The dividend weight for the flexible scheme.
+    int32 flexible_reward_weight = 3;
 }
 
 message SchemeProportionInfo {
@@ -132,12 +132,13 @@ message MinerRewardWeightProportion {
     // The proportion of the basic income of the miner.
     SchemeProportionInfo basic_miner_reward_proportion_info = 1;
     // The proportion of the vote of the miner.
-    SchemeProportionInfo votes_weight_reward_proportion_info = 2;
+    SchemeProportionInfo welcome_reward_proportion_info = 2;
     // The proportion of the reappointment of the miner.
-    SchemeProportionInfo re_election_reward_proportion_info = 3;
+    SchemeProportionInfo flexible_reward_proportion_info = 3;
 }
 
 message RecordMinerReplacementInput {
     string old_pubkey = 1;
     string new_pubkey = 2;
+    int64 current_term_number = 3;
 }

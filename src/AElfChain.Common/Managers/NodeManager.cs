@@ -30,7 +30,10 @@ namespace AElfChain.Common.Managers
             if (!check)
                 Logger.Warn($"Url:{baseUrl} is not connected!");
             else
+            {
                 _chainId = GetChainId();
+                Logger.Info($"Url:{baseUrl} is connected!");
+            }
         }
 
         public string GetApiUrl()

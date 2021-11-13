@@ -22,7 +22,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
     public class TokenContractTest
     {
         private readonly List<string> ResourceSymbol = new List<string>
-            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC","ELF","SHARE"};
+            {"CPU", "NET", "DISK", "RAM", "READ", "WRITE", "STORAGE", "TRAFFIC", "ELF", "SHARE"};
 
         private TokenContractContainer.TokenContractStub _bpTokenSub;
         private GenesisContract _genesisContract;
@@ -34,7 +34,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private TokenConverterContract _tokenConverterContract;
         private TokenConverterContractContainer.TokenConverterContractStub _tokenConverterSub;
         private TokenContractContainer.TokenContractStub _tokenSub;
-        private  ILog Logger { get; set; }
+        private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
         private AuthorityManager AuthorityManager { get; set; }
 
@@ -88,7 +88,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task ChangeIssuer()
         {
-            await CreateToken(Symbol, long.MaxValue);
+            await CreateToken(Symbol, long.MaxValue, 3);
             var symbol = Symbol;
             var amount = 1000_00000000;
             var tokenInfo = _tokenContract.GetTokenInfo(symbol);
@@ -108,7 +108,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             issue.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var afterBalance = _tokenContract.GetUserBalance(InitAccount, symbol);
-            afterBalance.ShouldBe(balance+amount);
+            afterBalance.ShouldBe(balance + amount);
         }
 
         [TestMethod]
@@ -118,11 +118,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var amount = 5000000000_000000000;
             var issued = 4000000000_00000000;
             var burned = 1_00000000;
-            await CreateToken(symbol,amount);
+            await CreateToken(symbol, amount, 3);
             var tokenInfo = _tokenContract.GetTokenInfo(symbol);
-            await IssueToken(InitAccount,symbol, issued);
-            await _tokenSub.Burn.SendAsync(new BurnInput{Symbol = symbol, Amount = burned});
-            
+            await IssueToken(InitAccount, symbol, issued);
+            await _tokenSub.Burn.SendAsync(new BurnInput {Symbol = symbol, Amount = burned});
+
             var afterTokenInfo = _tokenContract.GetTokenInfo(symbol);
             afterTokenInfo.TotalSupply.ShouldBe(amount);
             afterTokenInfo.Supply.ShouldBe(issued - burned);
@@ -133,7 +133,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public async Task AddListConnector()
         {
-            var list = new List<string>(){Symbol};
+            var list = new List<string>() {Symbol};
             foreach (var symbol in list)
             {
                 await AddConnector(symbol);
@@ -143,8 +143,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public async Task AddConnector(string symbol)
         {
             var amount = 80000000_0000000000;
-            await CreateToken(symbol,amount);
-            await IssueToken(InitAccount,symbol, amount);
+            await CreateToken(symbol, amount, 3);
+            await IssueToken(InitAccount, symbol, amount);
             var tokenInfo = _tokenContract.GetTokenInfo(symbol);
             Logger.Info(tokenInfo);
             var input = new PairConnectorParam
@@ -158,7 +158,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var connectorController = await _tokenConverterSub.GetControllerForManageConnector.CallAsync(new Empty());
             connectorController.ContractAddress.ShouldBe(_parliamentContract.Contract);
             connectorController.OwnerAddress.ShouldBe(organization);
-            
+
             var proposal = _parliamentContract.CreateProposal(_tokenConverterContract.ContractAddress,
                 nameof(TokenConverterMethod.AddPairConnector), input, organization, InitAccount);
             var miners = AuthorityManager.GetCurrentMiners();
@@ -191,19 +191,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var amount = 4500000000_000000000;
             var symbol = "TEST";
-            await IssueToken(InitAccount,symbol, amount);
-            var ELFamout = await GetNeededDeposit(amount,symbol);
-            Logger.Info($"Need ELF : {ELFamout}");
-            if (ELFamout > 0)
+            await IssueToken(InitAccount, symbol, amount);
+            var ELFAmount = await GetNeededDeposit(amount, symbol);
+            Logger.Info($"Need ELF : {ELFAmount}");
+            if (ELFAmount > 0)
             {
                 (await _tokenSub.Approve.SendAsync(new ApproveInput
                 {
                     Spender = _tokenConverterContract.Contract,
                     Symbol = "ELF",
-                    Amount = ELFamout
+                    Amount = ELFAmount
                 })).TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             }
-            
+
             (await _tokenSub.Approve.SendAsync(new ApproveInput
             {
                 Spender = _tokenConverterContract.Contract,
@@ -237,20 +237,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var rate = decimal.Parse(_tokenConverterContract.GetFeeRate());
             var fee = Convert.ToInt64(amountToPay * rate);
             var donateFee = fee.Div(2);
-            var burnFee = fee.Sub(donateFee); 
-            
+            var burnFee = fee.Sub(donateFee);
+
             _tokenContract.TransferBalance(InitAccount, Account, 1000_00000000, "ELF");
             var balance = _tokenContract.GetUserBalance(Account);
-            var resBalance = _tokenContract.GetUserBalance(Account,symbol);
+            var resBalance = _tokenContract.GetUserBalance(Account, symbol);
 
             var tokenConverterBalance = _tokenContract.GetUserBalance(_tokenConverterContract.ContractAddress);
             var treasury = _genesisContract.GetTreasuryContract();
             var dividends = treasury.GetCurrentTreasuryBalance();
             var treasuryDonate = dividends.Value["ELF"];
             var tokenInfo = _tokenContract.GetTokenInfo("ELF");
-            
+
             Logger.Info($"amountToPay={amountToPay}, fee={fee}, donateFee={donateFee}, burnFee={burnFee}");
-            Logger.Info($"tokenConverterBalance={tokenConverterBalance},user balance={balance}, treasuryDonate={treasuryDonate}");
+            Logger.Info(
+                $"tokenConverterBalance={tokenConverterBalance},user balance={balance}, treasuryDonate={treasuryDonate}");
 
             var result = _tokenConverterContract.Buy(Account, symbol, amount);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -259,9 +260,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var transferAmount = sizeFee.Sub(burnAmount);
 
             NodeManager.WaitOneBlock(result.BlockNumber);
-            
+
             var afterBalance = _tokenContract.GetUserBalance(Account);
-            var afterResBalance = _tokenContract.GetUserBalance(Account,symbol);
+            var afterResBalance = _tokenContract.GetUserBalance(Account, symbol);
 
             var afterTokenConverterBalance = _tokenContract.GetUserBalance(_tokenConverterContract.ContractAddress);
             var afterDividends = treasury.GetCurrentTreasuryBalance();
@@ -270,11 +271,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             afterResBalance.ShouldBe(resBalance + amount);
             afterBalance.ShouldBe(balance - amountToPay - fee - sizeFee);
-            afterTokenConverterBalance.ShouldBe(tokenConverterBalance  + amountToPay);
+            afterTokenConverterBalance.ShouldBe(tokenConverterBalance + amountToPay);
             afterTreasuryDonate.ShouldBe(treasuryDonate + transferAmount + donateFee);
             afterTokenInfo.Supply.ShouldBe(tokenInfo.Supply - burnAmount - burnFee);
-            
-            Logger.Info($"sizeFee={sizeFee}, burnAmount={burnAmount}, transferAmount={transferAmount}, afterTreasuryDonate={afterTreasuryDonate}");
+
+            Logger.Info(
+                $"sizeFee={sizeFee}, burnAmount={burnAmount}, transferAmount={transferAmount}, afterTreasuryDonate={afterTreasuryDonate}");
             Logger.Info($"afterTokenConverterBalance={afterTokenConverterBalance}, balance={afterBalance}");
         }
 
@@ -360,7 +362,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var amount = 4500000000_000000000;
             var symbol = Symbol;
-            var deposit = await GetNeededDeposit(amount,symbol);
+            var deposit = await GetNeededDeposit(amount, symbol);
             Logger.Info($"{deposit}");
         }
 
@@ -373,15 +375,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = await _tokenConverterSub.GetPairConnector.CallAsync(new TokenSymbol {Symbol = symbol});
             var fromConnectorWeight = decimal.Parse(result.DepositConnector.Weight);
             var toConnectorWeight = decimal.Parse(result.ResourceConnector.Weight);
-            
+
             var amountToPay = BancorHelper.GetAmountToPayFromReturn(
-                GetSelfBalance(result.DepositConnector,result.DepositConnector.RelatedSymbol), fromConnectorWeight,
-                GetSelfBalance(result.ResourceConnector,symbol), toConnectorWeight,
+                GetSelfBalance(result.DepositConnector, result.DepositConnector.RelatedSymbol), fromConnectorWeight,
+                GetSelfBalance(result.ResourceConnector, symbol), toConnectorWeight,
                 amount);
             var rate = decimal.Parse(_tokenConverterContract.GetFeeRate());
             var fee = Convert.ToInt64(amountToPay * rate);
             var amountToPayPlusFee = amountToPay.Add(fee);
-            
+
             Logger.Info($"amountToPay: {amountToPay} fee: {fee}, amountToPayPlusFee {amountToPayPlusFee}");
         }
 
@@ -390,12 +392,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var result = _tokenConverterContract.GetPairConnector(symbol);
             var fromConnectorWeight = decimal.Parse(result.DepositConnector.Weight);
             var toConnectorWeight = decimal.Parse(result.ResourceConnector.Weight);
-            
+
             var amountToPay = BancorHelper.GetAmountToPayFromReturn(
-                GetSelfBalance(result.DepositConnector,symbol), fromConnectorWeight,
-                GetSelfBalance(result.ResourceConnector,symbol), toConnectorWeight,
+                GetSelfBalance(result.DepositConnector, symbol), fromConnectorWeight,
+                GetSelfBalance(result.ResourceConnector, symbol), toConnectorWeight,
                 amount);
-            
+
             return amountToPay;
         }
 
@@ -410,7 +412,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var result = await _tokenConverterSub.GetPairConnector.CallAsync(new TokenSymbol {Symbol = symbol});
             var fb = result.DepositConnector.VirtualBalance;
-            var tb = result.ResourceConnector.IsVirtualBalanceEnabled ? result.ResourceConnector.VirtualBalance.Add(tokenInfo.TotalSupply)
+            var tb = result.ResourceConnector.IsVirtualBalanceEnabled
+                ? result.ResourceConnector.VirtualBalance.Add(tokenInfo.TotalSupply)
                 : tokenInfo.TotalSupply;
             var fromConnectorWeight = decimal.Parse(result.DepositConnector.Weight);
             var toConnectorWeight = decimal.Parse(result.ResourceConnector.Weight);
@@ -420,21 +423,21 @@ namespace AElf.Automation.Contracts.ScenarioTest
             decimal wt = toConnectorWeight;
             decimal x = bt / (bt - a);
             decimal y = wt / wf;
-            
+
             var needDeposit =
                 BancorHelper.GetAmountToPayFromReturn(fb, fromConnectorWeight,
                     tb, toConnectorWeight, amountOutOfTokenConvert);
             Logger.Info(needDeposit);
         }
-        
-        public long GetSelfBalance(Connector connector,string symbol)
+
+        public long GetSelfBalance(Connector connector, string symbol)
         {
             long realBalance;
             if (connector.IsDepositAccount)
             {
                 var deposit = _tokenConverterContract.GetDepositConnectorBalance(symbol);
-                 var virtualBalance = connector.VirtualBalance;
-                 realBalance = deposit - virtualBalance;
+                var virtualBalance = connector.VirtualBalance;
+                realBalance = deposit - virtualBalance;
             }
             else
             {
@@ -462,7 +465,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public  async Task BurnToken()
+        public async Task BurnToken()
         {
             var amount = 10_0000000;
             foreach (var s in ResourceSymbol)
@@ -476,10 +479,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 });
                 result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
                 Logger.Info($"{s}: {balance}");
-                var tokenInfo = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = s});
+                var tokenInfo = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = s});
                 Logger.Info($"{s}: {tokenInfo}");
             }
-            
+
             foreach (var s in ResourceSymbol)
             {
                 var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
@@ -487,50 +490,46 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Logger.Info($"{s}: {balance}");
             }
         }
-        
+
         [TestMethod]
-        public  async Task BurnToken_OneToken()
+        public async Task BurnToken_OneToken()
         {
             var s = "ELF";
             var amount = 39824688;
 
             var balance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = InitAccount.ConvertAddress(), Symbol = s});
-                var result = await _tokenSub.Burn.SendAsync(new BurnInput
-                {
-                    Symbol = s,
-                    Amount = amount
-                });
-                result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-                Logger.Info($"{s}: {balance}");
-                var tokenInfo = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput{Symbol = s});
-                Logger.Info($"{s}: {tokenInfo}");
-                var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
-                    {Owner = InitAccount.ConvertAddress(), Symbol = s});
-                Logger.Info($"{s}: {afterBalance}");
+                {Owner = InitAccount.ConvertAddress(), Symbol = s});
+            var result = await _tokenSub.Burn.SendAsync(new BurnInput
+            {
+                Symbol = s,
+                Amount = amount
+            });
+            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info($"{s}: {balance}");
+            var tokenInfo = await _tokenSub.GetTokenInfo.CallAsync(new GetTokenInfoInput {Symbol = s});
+            Logger.Info($"{s}: {tokenInfo}");
+            var afterBalance = await _tokenSub.GetBalance.CallAsync(new GetBalanceInput
+                {Owner = InitAccount.ConvertAddress(), Symbol = s});
+            Logger.Info($"{s}: {afterBalance}");
         }
 
         [TestMethod]
-        [DataRow("AEUSD",long.MaxValue)]
-        public async Task CreateToken(string symbol,long amount)
+        [DataRow("CROSS", 1000000000000000000, 10)]
+        public async Task CreateToken(string symbol, long amount, int d)
         {
-            var voteContract = _genesisContract.GetVoteContract(InitAccount);
             if (!_tokenContract.GetTokenInfo(symbol).Equals(new TokenInfo())) return;
             var result = await _tokenSub.Create.SendAsync(new CreateInput
             {
                 Issuer = InitAccount.ConvertAddress(),
                 Symbol = symbol,
-                Decimals = 3,
+                Decimals = d,
                 IsBurnable = true,
                 TokenName = $"{symbol} symbol",
-                TotalSupply = amount,
-                LockWhiteList =
-                {
-                    voteContract.Contract
-                }
+                TotalSupply = amount
             });
 
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            _tokenContract.IssueBalance(InitAccount, Account, 100000000000000, symbol);
         }
 
         [TestMethod]
@@ -542,14 +541,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 Amount = amount,
                 Symbol = symbol,
-                To =  account.ConvertAddress()
+                To = account.ConvertAddress()
             });
             issueResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterBalance = _tokenContract.GetUserBalance(account, symbol);
             afterBalance.ShouldBe(amount + balance);
         }
 
-        private async Task<long> GetNeededDeposit(long amount,string symbol)
+        private async Task<long> GetNeededDeposit(long amount, string symbol)
         {
             var result = await _tokenConverterSub.GetNeededDeposit.CallAsync(new ToBeConnectedTokenInfo
             {

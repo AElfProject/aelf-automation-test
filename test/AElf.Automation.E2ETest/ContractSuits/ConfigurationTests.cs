@@ -29,13 +29,15 @@ namespace AElf.Automation.E2ETest.ContractSuits
                 new SetConfigurationInput
                 {
                     Key = nameof(ConfigurationNameProvider.BlockTransactionLimit),
-                    Value = new Int32Value {Value = beforeValue + 30}.ToByteString()
+                    Value = new Int32Value {Value = beforeValue - 50}.ToByteString()
                 }, ContractManager.CallAddress);
             releaseResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var afterTxLimit = await ContractManager.ConfigurationStub.GetConfiguration.CallAsync(new StringValue
                 {Value = nameof(ConfigurationNameProvider.BlockTransactionLimit)});
             var afterValue = Int32Value.Parser.ParseFrom(afterTxLimit.Value).Value;
-            afterValue.ShouldBe(beforeValue + 30);
+            afterValue.ShouldBe(beforeValue - 50);
+            Logger.Info(beforeValue);
+            Logger.Info(afterValue);
         }
 
         [TestMethod]

@@ -13,7 +13,7 @@ namespace AElf.Automation.EconomicSystemTest
     {
         private readonly ILogHelper _logger = LogHelper.GetLogger();
         private Behaviors Behaviors;
-        private static string RpcUrl { get; } = "http://34.212.171.27:8000";
+        private static string RpcUrl { get; } = "http://192.168.66.9:8000";
         private string InitAccount { get; } = "MEvVWBEQ6BTTCMCM2eoU4kVmaNGTapNxxqBtQqFVELHBBUNbc";
         private INodeManager NodeManager { get; set; }
         private Dictionary<Behaviors.ProfitType, Hash> ProfitItemsIds { get; set; }
@@ -35,8 +35,8 @@ namespace AElf.Automation.EconomicSystemTest
                 {Behaviors.ProfitType.BackSubsidy, schemeIds[2]},
                 {Behaviors.ProfitType.CitizenWelfare, schemeIds[3]},
                 {Behaviors.ProfitType.BasicMinerReward, schemeIds[4]},
-                {Behaviors.ProfitType.VotesWeightReward, schemeIds[5]},
-                {Behaviors.ProfitType.ReElectionReward, schemeIds[6]}
+                {Behaviors.ProfitType.WelcomeReward, schemeIds[5]},
+                {Behaviors.ProfitType.FlexibleReward, schemeIds[6]}
             };
 
             #endregion

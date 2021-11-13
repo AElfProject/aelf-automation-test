@@ -1,33 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Shouldly;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
     public class NetworkTest
     {
-        private readonly ILogHelper _logger = LogHelper.GetLogger();
+        private static readonly ILog Logger = Log4NetHelper.GetLogger();
 
-        private readonly string MainChainAddress2 = "192.168.197.56:6802";
-        private readonly string MainChainAddress3 = "192.168.197.56:6803";
-        private readonly string MainChainAddress4 = "192.168.197.56:6804";
+        private readonly string MainChainAddress1 = "http://192.168.67.47:8000";
+        private readonly string MainChainAddress2 = "http://127.0.0.1:8001";
+        private readonly HttpClient Client = new HttpClient();
         private INodeManager _ch1 { get; set; }
         private INodeManager _ch2 { get; set; }
-        private INodeManager _ch3 { get; set; }
-        private INodeManager _ch4 { get; set; }
-
-        private INodeManager _s1ch1 { get; set; }
-        private INodeManager _s1ch2 { get; set; }
-        private INodeManager _s1ch3 { get; set; }
-        private INodeManager _s1ch4 { get; set; }
-
-        private INodeManager _s2ch1 { get; set; }
-        private INodeManager _s2ch2 { get; set; }
-        private INodeManager _s2ch3 { get; set; }
-        private INodeManager _s2ch4 { get; set; }
 
         [TestInitialize]
         public void InitTest()
@@ -35,61 +32,57 @@ namespace AElf.Automation.Contracts.ScenarioTest
             //Init Logger
             var logName = "ContractTest_" + DateTime.Now.ToString("MMddHHmmss") + ".log";
             var dir = Path.Combine(CommonHelper.AppRoot, "logs", logName);
-            _logger.InitLogHelper(dir);
+            Log4NetHelper.LogInit("Network_");
 
-            _ch1 = new NodeManager("http://192.168.197.56:8001");
-            _ch2 = new NodeManager("http://192.168.197.56:8002");
-            _ch3 = new NodeManager("http://192.168.197.56:8003");
-            _ch4 = new NodeManager("http://192.168.197.56:8004");
+            _ch1 = new NodeManager("http://127.0.0.1:8000");
+            _ch2 = new NodeManager("http://127.0.0.1:8001");
 
-            _s1ch1 = new NodeManager("http://192.168.197.56:8011");
-            _s1ch2 = new NodeManager("http://192.168.197.56:8012");
-            _s1ch3 = new NodeManager("http://192.168.197.56:8013");
-            _s1ch4 = new NodeManager("http://192.168.197.56:8014");
-
-            _s2ch1 = new NodeManager("http://192.168.197.70:8011");
-            _s2ch2 = new NodeManager("http://192.168.197.70:8012");
-            _s2ch3 = new NodeManager("http://192.168.197.70:8013");
-            _s2ch4 = new NodeManager("http://192.168.197.70:8014");
         }
 
         [TestMethod]
         public void TestGetPeer()
         {
             GetPeer(_ch2);
-//            GetPeer(_ch2);
-//            GetPeer(_ch3);
-//            GetPeer(_ch4);  
         }
-
+        
         [TestMethod]
         public void TestRemovePeer()
         {
             RemovePeer(MainChainAddress2, _ch1);
-            RemovePeer(MainChainAddress3, _ch1);
-            RemovePeer(MainChainAddress4, _ch1);
-
+        
             GetPeer(_ch1);
             GetPeer(_ch2);
         }
-
+        
         [TestMethod]
         public void TestAddPeer()
         {
             AddPeer(MainChainAddress2, _ch1);
-            AddPeer(MainChainAddress3, _ch1);
-            AddPeer(MainChainAddress4, _ch1);
-
+        
             GetPeer(_ch1);
             GetPeer(_ch2);
         }
-
-
+        
+        
         public void GetPeer(INodeManager wa)
         {
             var peers = wa.NetGetPeers();
-
-            foreach (var res in peers) _logger.Info(res.IpAddress);
+        
+            foreach (var res in peers) Logger.Info(res.IpAddress);
+        }
+        
+        [TestMethod]
+        public async Task AddPeer()
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                { "address","127.0.0.1:6801"}
+            };
+            var postString = await PostResponseAsStringAsync($"{MainChainAddress2}/api/net/peer", parameters, basicAuth: new BasicAuth
+            {
+                UserName = "full",
+                Password = "12345678"
+            });
         }
 
 
@@ -114,7 +107,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Assert.IsTrue(result, "Add peer request failed.");
             TestGetPeer();
         }
-
+        
         [TestMethod]
         [DataRow("192.168.197.13:6800")]
         [DataRow("192.168.197.29:6800")]
@@ -122,7 +115,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = _ch1.NetRemovePeer(address);
             Assert.IsTrue(result, "Remove peer request failed.");
-
+        
             TestGetPeer();
         }
 
@@ -130,7 +123,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void TestGetPeer2()
         {
             var peers = _ch2.NetGetPeers();
-            _logger.Info(peers.ToString());
+            Logger.Info(peers.ToString());
         }
 
         [TestMethod]
@@ -143,7 +136,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             TestGetPeer2();
         }
-
+        
         [TestMethod]
         [DataRow("192.168.197.34:6800")]
         [DataRow("192.168.197.29:6800")]
@@ -151,37 +144,79 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var result = _ch2.NetRemovePeer(address);
             Assert.IsTrue(result, "Remove peer request failed.");
-
+        
             TestGetPeer();
         }
 
-        [TestMethod]
-        public void TestGetPeer3()
+
+        protected async Task<string> PostResponseAsStringAsync(string url, Dictionary<string, string> paramters,
+            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null)
         {
-            var peers = _ch3.NetGetPeers();
-            _logger.Info(peers.ToString());
+            var response = await PostResponseAsync(url, paramters, version, expectedStatusCode, basicAuth);
+            return await response.Content.ReadAsStringAsync();
         }
 
-        [TestMethod]
-        [DataRow("192.168.197.34:6800")]
-        [DataRow("192.168.197.13:6800")]
-        public void TestAddPeer3(string address)
+        private async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> paramters,
+            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null, string reason = null)
         {
-            var result = _ch3.NetAddPeer(address);
-            Assert.IsTrue(result, "Add peer request failed.");
+            version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
+            if (basicAuth != null)
+            {
+                var byteArray = Encoding.ASCII.GetBytes($"{basicAuth.UserName}:{basicAuth.Password}");
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+            }
 
-            TestGetPeer3();
+            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var paramsStr = JsonConvert.SerializeObject(paramters);
+            var content = new StringContent(paramsStr, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/json{version}");
+
+            var response = await Client.PostAsync(url, content);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+            if (reason != null) response.ReasonPhrase.ShouldBe(reason);
+            return response;
         }
-
-        [TestMethod]
-        [DataRow("192.168.197.34:6800")]
-        [DataRow("192.168.197.13:6800")]
-        public void TestRemovePeer3(string address)
+        
+        protected async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,BasicAuth basicAuth = null)
         {
-            var result = _ch3.NetRemovePeer(address);
-            Assert.IsTrue(result, "Remove peer request failed.");
+            var response = await DeleteResponseAsync(url, version, expectedStatusCode,basicAuth);
+            return await response.Content.ReadAsStringAsync();
+        }
+        
+        private async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,BasicAuth basicAuth = null, string reason = null)
+        {
+            version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            if (basicAuth != null)
+            {
+                var byteArray = Encoding.ASCII.GetBytes($"{basicAuth.UserName}:{basicAuth.Password}");
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+            }
+            
+            var response = await Client.DeleteAsync(url);
+            response.StatusCode.ShouldBe(expectedStatusCode);
+            if(reason != null) response.ReasonPhrase.ShouldBe(reason);
+            return response;
+        }
+        
+        public class BasicAuth
+        {
+            public static readonly string DefaultUserName = "user";
 
-            TestGetPeer3();
+            public static string DefaultPassword = "password";
+
+            public static readonly BasicAuth Default = new BasicAuth
+            {
+                UserName = DefaultUserName,
+                Password = DefaultPassword
+            };
+
+            public string UserName { get; set; }
+        
+            public string Password { get; set; }
         }
     }
 }

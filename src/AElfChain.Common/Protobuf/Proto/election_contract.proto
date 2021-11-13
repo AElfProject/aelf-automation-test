@@ -91,6 +91,15 @@ service ElectionContract {
     rpc SetCandidateAdmin (SetCandidateAdminInput) returns (google.protobuf.Empty) {
     }
     
+    rpc RemoveEvilNode (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    }
+    
+    rpc EnableElection (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+
+
+    // Views
+    
     // Get all candidates’ public keys.
     rpc GetCandidates (google.protobuf.Empty) returns (PubkeyList) {
         option (aelf.is_view) = true;
@@ -435,7 +444,6 @@ message SetTreasurySchemeIdsInput {
 message DataCenterRankingList {
     // The top n * 5 candidates with vote amount, candidate public key -> vote amount.
     map<string, int64> data_centers = 1;
-    int64 minimum_votes = 2;
 }
 
 message VoteWeightInterest{

@@ -13,10 +13,13 @@ service AContract {
     option (aelf.base) = "acs1.proto";
     
     //Actions
-    rpc InitializeA(aelf.Address) returns (google.protobuf.Empty) {
+    rpc InitializeA(google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
     
     rpc ExecuteAA(google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    }
+
+    rpc Transfer (ContractATransferInput) returns (google.protobuf.Empty) {
     }
 
     rpc ExecuteAB(google.protobuf.StringValue) returns (google.protobuf.Empty) {
@@ -47,3 +50,28 @@ service AContract {
 }
 
 //Input
+
+message ContractATransferInput {
+    // The receiver of the token.
+    aelf.Address to = 1;
+    // The token symbol to transfer.
+    string symbol = 2;
+    // The amount to to transfer.
+    int64 amount = 3;
+    // The memo.
+    string memo = 4;
+}
+
+message Transferred {
+    option (aelf.is_event) = true;
+    // The source address of the transferred token.
+    aelf.Address from = 1 [(aelf.is_indexed) = true];
+    // The destination address of the transferred token.
+    aelf.Address to = 2 [(aelf.is_indexed) = true];
+    // The symbol of the transferred token.
+    string symbol = 3 [(aelf.is_indexed) = true];
+    // The amount of the transferred token.
+    int64 amount = 4;
+    // The memo.
+    string memo = 5;
+}

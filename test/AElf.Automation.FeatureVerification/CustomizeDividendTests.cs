@@ -86,8 +86,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var defaultWeightSetting =
                 await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             defaultWeightSetting.BasicMinerRewardProportionInfo.Proportion.ShouldBe(50);
-            defaultWeightSetting.ReElectionRewardProportionInfo.Proportion.ShouldBe(25);
-            defaultWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(25);
+            defaultWeightSetting.FlexibleRewardProportionInfo.Proportion.ShouldBe(25);
+            defaultWeightSetting.WelcomeRewardProportionInfo.Proportion.ShouldBe(25);
         }
 
         [TestMethod]
@@ -96,13 +96,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var defaultWeightSetting =
                 await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             defaultWeightSetting.BasicMinerRewardProportionInfo.Proportion.ShouldBe(50);
-            defaultWeightSetting.ReElectionRewardProportionInfo.Proportion.ShouldBe(25);
-            defaultWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(25);
+            defaultWeightSetting.FlexibleRewardProportionInfo.Proportion.ShouldBe(25);
+            defaultWeightSetting.WelcomeRewardProportionInfo.Proportion.ShouldBe(25);
             var newWeightSetting = new MinerRewardWeightSetting
             {
                 BasicMinerRewardWeight = 2,
-                ReElectionRewardWeight = 2,
-                VotesWeightRewardWeight = 6
+                WelcomeRewardWeight = 2,
+                FlexibleRewardWeight = 6
             };
             ContractManager.Authority.ExecuteTransactionWithAuthority(ContractManager.Treasury.ContractAddress,
                 nameof(TreasuryContractContainer.TreasuryContractStub.SetMinerRewardWeightSetting),
@@ -110,8 +110,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var updatedWeightSetting =
                 await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             updatedWeightSetting.BasicMinerRewardProportionInfo.Proportion.ShouldBe(20);
-            updatedWeightSetting.ReElectionRewardProportionInfo.Proportion.ShouldBe(20);
-            updatedWeightSetting.VotesWeightRewardProportionInfo.Proportion.ShouldBe(60);
+            updatedWeightSetting.WelcomeRewardProportionInfo.Proportion.ShouldBe(20);
+            updatedWeightSetting.FlexibleRewardProportionInfo.Proportion.ShouldBe(60);
 
             var minerRewardProfit =
                 await ContractManager.ProfitStub.GetScheme.CallAsync(Schemes[SchemeType.MinerReward].SchemeId);
@@ -161,8 +161,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var minerReward = await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             Logger.Info("GetMinerRewardWeightProportion");
             Logger.Info($"BasicMinerReward: {minerReward.BasicMinerRewardProportionInfo.Proportion}");
-            Logger.Info($"ReElectionReward: {minerReward.ReElectionRewardProportionInfo.Proportion}");
-            Logger.Info($"VotesWeightReward: {minerReward.VotesWeightRewardProportionInfo.Proportion}");
+            Logger.Info($"ReElectionReward: {minerReward.WelcomeRewardProportionInfo.Proportion}");
+            Logger.Info($"VotesWeightReward: {minerReward.FlexibleRewardProportionInfo.Proportion}");
         }
 
         [TestMethod]
@@ -171,8 +171,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var minerReward = await ContractManager.TreasuryStub.GetMinerRewardWeightProportion.CallAsync(new Empty());
             var basicMinerHash = minerReward.BasicMinerRewardProportionInfo.SchemeId;
-            var reElectionHash = minerReward.ReElectionRewardProportionInfo.SchemeId;
-            var voteWeightHash = minerReward.VotesWeightRewardProportionInfo.SchemeId;
+            var reElectionHash = minerReward.WelcomeRewardProportionInfo.SchemeId;
+            var voteWeightHash = minerReward.FlexibleRewardProportionInfo.SchemeId;
 
             foreach (var term in terms)
             {

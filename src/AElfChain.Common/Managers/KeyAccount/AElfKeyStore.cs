@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf;
 using AElf.Cryptography;
 using AElf.Cryptography.ECDSA;
 using AElf.Cryptography.Exceptions;
@@ -88,6 +89,13 @@ namespace AElfChain.Common.Managers
         {
             var keyPair = CryptoHelper.GenerateKeyPair();
             var res = await WriteKeyPairAsync(keyPair, password);
+            return !res ? null : keyPair;
+        }
+        
+        public async Task<ECKeyPair> GetAccountKeyPairAsync(string priKey)
+        {
+            var keyPair = CryptoHelper.FromPrivateKey(ByteArrayHelper.HexStringToByteArray(priKey));
+            var res = await WriteKeyPairAsync(keyPair,"12345678");
             return !res ? null : keyPair;
         }
 

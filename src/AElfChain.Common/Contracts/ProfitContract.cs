@@ -21,6 +21,7 @@ namespace AElfChain.Common.Contracts
         ReleaseProfit,
         AddProfits,
         ClaimProfits,
+        ClaimProfitsByPeriod,
 
         //view
         GetManagingSchemeIds,
@@ -44,8 +45,8 @@ namespace AElfChain.Common.Contracts
         
 //MinerReward: MinerBasicReward,VotesWeightReward,ReElectionReward
         MinerBasicReward,//1
-        VotesWeightReward,//0.5
-        ReElectionReward//0.5
+        WelcomeReward,//0.5
+        FlexibleReward//0.5
     }
 
     public class ProfitContract : BaseContract<ProfitMethod>
@@ -93,9 +94,9 @@ namespace AElfChain.Common.Contracts
 
             Schemes.Add(SchemeType.MinerBasicReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[0].SchemeId));
-            Schemes.Add(SchemeType.VotesWeightReward,
+            Schemes.Add(SchemeType.WelcomeReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[1].SchemeId));
-            Schemes.Add(SchemeType.ReElectionReward,
+            Schemes.Add(SchemeType.FlexibleReward,
                 CallViewMethod<Scheme>(ProfitMethod.GetScheme, minerRewardScheme.SubSchemes[2].SchemeId));
             Logger.Info("Scheme collection info:");
             foreach (var (key, value) in Schemes) Logger.Info($"Name: {key}, SchemeId: {value.SchemeId}");

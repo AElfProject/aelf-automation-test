@@ -43,7 +43,8 @@ namespace AElfChain.Common.Contracts
         ValidateOrganizationExist,
         CalculateOrganizationAddress,
         ValidateAddressIsParliamentMember,
-        GetProposerWhiteList
+        GetProposerWhiteList,
+        GetEmergencyResponseOrganizationAddress
     }
 
     public class ParliamentContract : BaseContract<ParliamentMethod>
@@ -140,6 +141,11 @@ namespace AElfChain.Common.Contracts
         public Organization GetOrganization(Address organization)
         {
             return CallViewMethod<Organization>(ParliamentMethod.GetOrganization, organization);
+        }
+        
+        public Address GetEmergencyResponseOrganizationAddress()
+        {
+            return CallViewMethod<Address>(ParliamentMethod.GetEmergencyResponseOrganizationAddress, new Empty());
         }
         
         public ProposerWhiteList GetProposerWhiteList()
