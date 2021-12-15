@@ -26,7 +26,7 @@ namespace AElfChain.Common.Managers
             _keyStore = AElfKeyStore.GetKeyStore(keyPath);
 
             ApiClient = AElfClientExtension.GetClient(baseUrl);
-            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnectedAsync());
             if (!check)
                 Logger.Warn($"Url:{baseUrl} is not connected!");
             else
@@ -45,7 +45,7 @@ namespace AElfChain.Common.Managers
         {
             _baseUrl = url;
             ApiClient = AElfClientExtension.GetClient(url);
-            var check = AsyncHelper.RunSync(() => ApiClient.IsConnected());
+            var check = AsyncHelper.RunSync(() => ApiClient.IsConnectedAsync());
             if (!check)
             {
                 Logger.Warn($"Url:{url} is not connected!");
@@ -446,12 +446,12 @@ namespace AElfChain.Common.Managers
 
         public bool NetAddPeer(string address)
         {
-            return AsyncHelper.RunSync(() => ApiClient.AddPeerAsync(address));
+            return AsyncHelper.RunSync(() => ApiClient.AddPeerAsync(address,"",""));
         }
 
         public bool NetRemovePeer(string address)
         {
-            return AsyncHelper.RunSync(() => ApiClient.RemovePeerAsync(address));
+            return AsyncHelper.RunSync(() => ApiClient.RemovePeerAsync(address, "",""));
         }
 
         public NetworkInfoOutput NetworkInfo()
