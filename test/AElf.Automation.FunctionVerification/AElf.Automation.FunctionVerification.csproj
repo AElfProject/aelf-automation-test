@@ -5,8 +5,8 @@
     <RootNamespace>AElf.Automation.ContractsTesting</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AElf.Client" Version="0.1.5" />
-    <PackageReference Include="AElf.Types" Version="1.0.0" />
+    <PackageReference Include="AElf.Client" Version="1.1.0" />
+    <PackageReference Include="AElf.Types" Version="1.1.1-18963" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>

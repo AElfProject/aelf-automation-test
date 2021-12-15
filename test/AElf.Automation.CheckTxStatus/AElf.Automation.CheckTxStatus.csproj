@@ -20,9 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AElf.Client" Version="0.1.5" />
-      <PackageReference Include="AElf.Kernel.Types" Version="1.0.0" />
-      <PackageReference Include="AElf.Types" Version="1.0.0" />
+      <PackageReference Include="AElf.Client" Version="1.1.0" />
+      <PackageReference Include="AElf.Kernel.Types" Version="1.1.1-18963" />
+      <PackageReference Include="AElf.Types" Version="1.1.1-18963" />
     </ItemGroup>
 
 </Project>
