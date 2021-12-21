@@ -359,6 +359,36 @@ namespace AElfChain.Common.Managers
             return _parliament.ReleaseProposal(proposalId, callUser);
         }
 
+        public TransactionResultDto ExecuteTransactionWithRelease(string contractAddress, string method, IMessage input,
+            Address organizationAddress, IEnumerable<string> approveUsers, string callUser)
+        {
+            //create proposal
+            var proposalId = _parliament.CreateProposal(contractAddress,
+                method, input,
+                organizationAddress, callUser);
+
+            //approve
+            var proposalInfo = _parliament.CheckProposal(proposalId);
+            while (!proposalInfo.ToBeReleased)
+            {
+                _parliament.MinersApproveProposal(proposalId, approveUsers);
+                proposalInfo = _parliament.CheckProposal(proposalId);
+            }
+
+            //release
+            return _parliament.Release(proposalId, callUser);
+        }
+
+        public TransactionResultDto ExecuteTransactionWithRelease(string contractAddress, string method, IMessage input,
+            string callUser, Address organization = null)
+        {
+            var parliamentOrganization = organization ?? GetGenesisOwnerAddress();
+            var miners = GetCurrentMiners();
+
+            return ExecuteTransactionWithRelease(contractAddress, method, input, parliamentOrganization, miners,
+                callUser);
+        }
+
         public TransactionResult ExecuteTransactionWithAuthority(string contractAddress, string method, IMessage input,
             string callUser, Address organization = null)
         {
