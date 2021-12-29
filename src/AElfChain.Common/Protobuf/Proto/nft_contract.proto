@@ -39,6 +39,9 @@ service NFTContract {
     // De-approve.
     rpc UnApprove (UnApproveInput) returns (google.protobuf.Empty) {
     }
+    // Approve or de-approve another address as the operator of all NFTs of a certain protocol.
+    rpc ApproveProtocol (ApproveProtocolInput) returns (google.protobuf.Empty) {
+    }
     // Destroy nfts.
     rpc Burn (BurnInput) returns (google.protobuf.Empty) {
     }
@@ -54,7 +57,7 @@ service NFTContract {
 
     rpc AddMinters (AddMintersInput) returns (google.protobuf.Empty) {
     }
-    rpc RemoveMiners (RemoveMinersInput) returns (google.protobuf.Empty) {
+    rpc RemoveMinters (RemoveMintersInput) returns (google.protobuf.Empty) {
     }
     
     rpc AddNFTType (AddNFTTypeInput) returns (google.protobuf.Empty) {
@@ -92,6 +95,9 @@ service NFTContract {
     rpc GetNFTTypes (google.protobuf.Empty) returns (NFTTypes) {
         option (aelf.is_view) = true;
     }
+    rpc GetOperatorList (GetOperatorListInput) returns (AddressList) {
+        option (aelf.is_view) = true;
+    }
 }
 
 // Structs
@@ -102,7 +108,7 @@ message NFTTypes {
 // Inputs
 message CreateInput {
     // The type of this nft protocol.
-    NFTType nft_type = 1;
+    string nft_type = 1;
     // The name of this nft protocol.
     string protocol_name = 2;
     // The total supply of the token.
@@ -156,6 +162,21 @@ message UnApproveInput {
     int64 amount = 4;
 }
 
+message ApproveProtocolInput {
+    aelf.Address operator = 1;
+    string symbol = 2;
+    bool approved = 3;
+}
+
+message AddressList {
+    repeated aelf.Address value = 1;
+}
+
+message GetOperatorListInput {
+    string symbol = 1;
+    aelf.Address owner = 2;
+}
+
 message BurnInput {
     string symbol = 1;
     int64 token_id = 2;
@@ -176,6 +197,7 @@ message AssembleInput {
 message DisassembleInput {
     string symbol = 1;
     int64 token_id = 2;
+    aelf.Address owner = 3;
 }
 
 message MinterList {
@@ -257,6 +279,7 @@ message NFTProtocolInfo {
     string protocol_name = 10;
     // Is token id can be reused.
     bool is_token_id_reuse = 11;
+    int64 issued = 12;
 }
 
 message NFTInfo {
@@ -308,7 +331,7 @@ message AddMintersInput {
     string symbol = 2;
 }
 
-message RemoveMinersInput {
+message RemoveMintersInput {
     MinterList minter_list = 1;
     string symbol = 2;
 }
@@ -389,6 +412,8 @@ message NFTMinted {
     string nft_type = 11;
     // Quantity
     int64 quantity = 12;
+    int64 total_quantity = 13;
+    aelf.Hash token_hash = 14;
 }
 
 message Transferred {
@@ -433,6 +458,8 @@ message Recasted {
     int64 token_id = 2 [(aelf.is_indexed) = true];
     Metadata old_metadata = 3 [(aelf.is_indexed) = true];
     Metadata new_metadata = 4 [(aelf.is_indexed) = true];
+    string alias = 5 [(aelf.is_indexed) = true];
+    string uri = 6 [(aelf.is_indexed) = true];
 }
 
 message Assembled {

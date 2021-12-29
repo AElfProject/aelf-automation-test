@@ -1,15 +1,9 @@
 using AElf.Client.Dto;
-using AElf.Standards.ACS1;
-using AElf.Contracts.CrossChain;
 using AElf.Contracts.NFT;
-using AElf.Contracts.TestContract.BasicSecurity;
-using AElf.Standards.ACS10;
-using AElf.Standards.ACS7;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
-using Volo.Abp.Threading;
 
 namespace AElfChain.Common.Contracts
 {
@@ -28,7 +22,7 @@ namespace AElfChain.Common.Contracts
         Disassemble,
         Recast,
         AddMinters,
-        RemoveMiners,
+        RemoveMinters,
         AddNFTType,
         RemoveNFTType,
 
@@ -60,10 +54,11 @@ namespace AElfChain.Common.Contracts
 
         public static string ContractFileName => "AElf.Contracts.NFT";
 
-        public TransactionResultDto CrossChainCreate()
+        public TransactionResultDto CrossChainCreate(string symbol)
         {
             return ExecuteMethodWithResult(NftContractMethod.CrossChainCreate, new CrossChainCreateInput
             {
+                Symbol = symbol
             });
         }
 
@@ -117,16 +112,16 @@ namespace AElfChain.Common.Contracts
             });
         }
 
-        public TransactionResultDto RemoveMiners(MinterList minterList, string symbol)
+        public TransactionResultDto RemoveMinters(MinterList minterList, string symbol)
         {
-            return ExecuteMethodWithResult(NftContractMethod.RemoveMiners, new RemoveMinersInput
+            return ExecuteMethodWithResult(NftContractMethod.RemoveMinters, new RemoveMintersInput
             {
                 MinterList = minterList,
                 Symbol = symbol
             });
         }
 
-        public TransactionResultDto AddNFTType(string fullName, string shortName)
+        public TransactionResultDto AddNftType(string fullName, string shortName)
         {
             return ExecuteMethodWithResult(NftContractMethod.AddNFTType, new AddNFTTypeInput
             {
@@ -140,10 +135,10 @@ namespace AElfChain.Common.Contracts
             return ExecuteMethodWithResult(NftContractMethod.RemoveNFTType, new StringValue {Value = shortName});
         }
 
-        public NFTProtocolInfo GetNftProtocolInfo(string shortName)
+        public NFTProtocolInfo GetNftProtocolInfo(string symbol)
         {
             return CallViewMethod<NFTProtocolInfo>(NftContractMethod.GetNFTProtocolInfo,
-                new StringValue {Value = shortName});
+                new StringValue {Value = symbol});
         }
 
         public NFTInfo GetNftInfo(string symbol, long tokenId)
