@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AElf.Client.Dto;
 using AElf.Standards.ACS3;
 using AElf.Contracts.Parliament;
 using AElf.CSharp.Core.Extension;
@@ -132,12 +131,6 @@ namespace AElfChain.Common.Contracts
                 Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
 
             return result.TransactionResult;
-        }
-        
-        public TransactionResultDto Release(Hash proposalId, string caller)
-        {
-            SetAccount(caller);
-            return ExecuteMethodWithResult(ParliamentMethod.Release, proposalId);
         }
 
         public Address GetGenesisOwnerAddress()
