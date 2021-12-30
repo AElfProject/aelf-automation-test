@@ -390,54 +390,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     },
                     BaseUri = "aelf.com/nft/",
                 });
-            createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            symbol = StringValue.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(createResult.ReturnValue))
-                .Value;
-            CheckTokenNftProtocolInfo(symbol,
-                new TokenInfo
-                {
-                    Symbol = symbol,
-                    TokenName = "CAT",
-                    Supply = 0,
-                    TotalSupply = 10000,
-                    Decimals = 0,
-                    Issuer = InitAccount.ConvertAddress(),
-                    IsBurnable = true,
-                    IssueChainId = _chainId,
-                    Issued = 0,
-                    ExternalInfo = new ExternalInfo
-                    {
-                        Value =
-                        {
-                            {"aelf_nft_type", "Collectables"},
-                            {"aelf_nft_base_uri", "aelf.com/nft/"},
-                            {"aelf_nft_token_id_reuse", "False"}
-                        }
-                    },
-                },
-                new NFTProtocolInfo
-                {
-                    Symbol = symbol,
-                    Supply = 0,
-                    TotalSupply = 10000,
-                    Creator = InitAccount.ConvertAddress(),
-                    BaseUri = "aelf.com/nft/",
-                    IsBurnable = true,
-                    IssueChainId = _chainId,
-                    Metadata = new Metadata
-                    {
-                        Value =
-                        {
-                            {"aelf_nft_type", "Collectables"},
-                            {"aelf_nft_base_uri", "aelf.com/nft/"},
-                            {"aelf_nft_token_id_reuse", "False"}
-                        }
-                    },
-                    NftType = NFTType.Collectables.ToString(),
-                    ProtocolName = "CAT",
-                    IsTokenIdReuse = false,
-                }
-            );
+            createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            createResult.Error.ShouldContain("Metadata key aelf_nft_type is reserved.");
 
             createResult =
                 _nftContract.ExecuteMethodWithResult(NftContractMethod.Create, new CreateInput
@@ -1400,6 +1354,114 @@ namespace AElf.Automation.Contracts.ScenarioTest
             ownerBalance.ShouldBe(0);
             spenderBalance.ShouldBe(0);
             toBalance.ShouldBe(100);
+        }
+
+        [TestMethod]
+        public void ApproveProtocolTest()
+        {
+            var symbol = MintInit(100, 1);
+            var mintResult =
+                _nftContract.ExecuteMethodWithResult(NftContractMethod.Mint, new MintInput
+                {
+                    Symbol = symbol,
+                    Alias = "NFT_CO_CAT1",
+                    Metadata = new Metadata(),
+                    Quantity = 100,
+                    TokenId = 2
+                });
+            mintResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            // Approve protocol true
+            var approveProtocolResult = _nftContract.ApproveProtocol(OtherAccount, symbol, true);
+            approveProtocolResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            var operatorList = _nftContract.GetOperatorList(symbol, InitAccount);
+            operatorList.Value.ShouldContain(OtherAccount.ConvertAddress());
+
+            var token1Hash = _nftContract.CalculateTokenHash(symbol, 1);
+            var ownerBalance = GetBalanceByTokenHashTest(InitAccount, token1Hash);
+            var spenderBalance = GetBalanceByTokenHashTest(OtherAccount, token1Hash);
+            var toBalance = GetBalanceByTokenHashTest(OtherAccount1, token1Hash);
+            ownerBalance.ShouldBe(100);
+            spenderBalance.ShouldBe(0);
+            toBalance.ShouldBe(0);
+
+            var token2Hash = _nftContract.CalculateTokenHash(symbol, 2);
+            ownerBalance = GetBalanceByTokenHashTest(InitAccount, token2Hash);
+            spenderBalance = GetBalanceByTokenHashTest(OtherAccount, token2Hash);
+            toBalance = GetBalanceByTokenHashTest(OtherAccount1, token2Hash);
+            ownerBalance.ShouldBe(100);
+            spenderBalance.ShouldBe(0);
+            toBalance.ShouldBe(0);
+
+            _nftContract.SetAccount(OtherAccount);
+            var transferResult =
+                _nftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom, new TransferFromInput
+                {
+                    From = InitAccount.ConvertAddress(),
+                    To = OtherAccount1.ConvertAddress(),
+                    Symbol = symbol,
+                    TokenId = 1,
+                    Memo = "transferFrom",
+                    Amount = 10
+                });
+            transferResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+            ownerBalance = GetBalanceByTokenHashTest(InitAccount, token1Hash);
+            spenderBalance = GetBalanceByTokenHashTest(OtherAccount, token1Hash);
+            toBalance = GetBalanceByTokenHashTest(OtherAccount1, token1Hash);
+            ownerBalance.ShouldBe(90);
+            spenderBalance.ShouldBe(0);
+            toBalance.ShouldBe(10);
+
+            transferResult =
+                _nftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom, new TransferFromInput
+                {
+                    From = InitAccount.ConvertAddress(),
+                    To = OtherAccount1.ConvertAddress(),
+                    Symbol = symbol,
+                    TokenId = 2,
+                    Memo = "transferFrom",
+                    Amount = 20
+                });
+            transferResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+            ownerBalance = GetBalanceByTokenHashTest(InitAccount, token2Hash);
+            spenderBalance = GetBalanceByTokenHashTest(OtherAccount, token2Hash);
+            toBalance = GetBalanceByTokenHashTest(OtherAccount1, token2Hash);
+            ownerBalance.ShouldBe(80);
+            spenderBalance.ShouldBe(0);
+            toBalance.ShouldBe(20);
+
+            // Protocol symbol not exists
+            _nftContract.SetAccount(InitAccount);
+            approveProtocolResult = _nftContract.ApproveProtocol(OtherAccount, "CO12345678", false);
+            approveProtocolResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            approveProtocolResult.Error.ShouldContain("Protocol CO12345678 not exists.");
+
+            // Approve protocol false
+            _nftContract.SetAccount(InitAccount);
+            approveProtocolResult = _nftContract.ApproveProtocol(OtherAccount, symbol, false);
+            approveProtocolResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            operatorList = _nftContract.GetOperatorList(symbol, InitAccount);
+            operatorList.Value.ShouldNotContain(OtherAccount.ConvertAddress());
+
+            _nftContract.SetAccount(OtherAccount);
+            transferResult =
+                _nftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom, new TransferFromInput
+                {
+                    From = InitAccount.ConvertAddress(),
+                    To = OtherAccount1.ConvertAddress(),
+                    Symbol = symbol,
+                    TokenId = 1,
+                    Memo = "transferFrom",
+                    Amount = 10
+                });
+            transferResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            transferResult.Error.ShouldContain("Not approved.");
         }
 
         [TestMethod]

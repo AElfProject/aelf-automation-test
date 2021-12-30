@@ -17,6 +17,7 @@ namespace AElfChain.Common.Contracts
         TransferFrom,
         Approve,
         UnApprove,
+        ApproveProtocol,
         Burn,
         Assemble,
         Disassemble,
@@ -36,7 +37,8 @@ namespace AElfChain.Common.Contracts
         GetAllowanceByTokenHash,
         GetMinterList,
         CalculateTokenHash,
-        GetNFTTypes
+        GetNFTTypes,
+        GetOperatorList
     }
 
     public class NftContract : BaseContract<NftContractMethod>
@@ -81,6 +83,16 @@ namespace AElfChain.Common.Contracts
                 Symbol = symbol,
                 TokenId = tokenId,
                 Amount = amount
+            });
+        }
+
+        public TransactionResultDto ApproveProtocol(string operatorAddress, string symbol, bool approved)
+        {
+            return ExecuteMethodWithResult(NftContractMethod.ApproveProtocol, new ApproveProtocolInput
+            {
+                Operator = operatorAddress.ConvertAddress(),
+                Symbol = symbol,
+                Approved = approved
             });
         }
 
@@ -218,6 +230,15 @@ namespace AElfChain.Common.Contracts
         public NFTTypes GetNftTypes()
         {
             return CallViewMethod<NFTTypes>(NftContractMethod.GetNFTTypes, new Empty());
+        }
+
+        public AddressList GetOperatorList(string symbol, string owner)
+        {
+            return CallViewMethod<AddressList>(NftContractMethod.GetOperatorList, new GetOperatorListInput
+            {
+                Symbol = symbol,
+                Owner = owner.ConvertAddress()
+            });
         }
     }
 }
