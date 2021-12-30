@@ -30,8 +30,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private static readonly ILog Logger = Log4NetHelper.GetLogger();
         private TokenContract _token;
         private TokenContract _sideToken;
-        private NFTContract _mainNftContract;
-        private NFTContract _sideNftContract;
+        private NftContract _mainNftContract;
+        private NftContract _sideNftContract;
         private INodeManager NodeManager { get; set; }
         private INodeManager SideNodeManger { get; set; }
         private AuthorityManager _authorityManager;
@@ -78,11 +78,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _sideToken = sideService.Token;
 
             _mainNftContract = NftAddress == ""
-                ? new NFTContract(NodeManager, InitAccount)
-                : new NFTContract(NodeManager, NftAddress, InitAccount);
+                ? new NftContract(NodeManager, InitAccount)
+                : new NftContract(NodeManager, NftAddress, InitAccount);
             _sideNftContract = SideNftAddress == ""
-                ? new NFTContract(SideNodeManger, InitAccount)
-                : new NFTContract(SideNodeManger, SideNftAddress, InitAccount);
+                ? new NftContract(SideNodeManger, InitAccount)
+                : new NftContract(SideNodeManger, SideNftAddress, InitAccount);
         }
 
         [TestMethod]
@@ -96,13 +96,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             check = _token.IsInCreateTokenWhiteList(_mainNftContract.ContractAddress);
             check.ShouldBeTrue();
         }
-
-        //MO720142501
-        //AR141829112
-        //BA932067411 true
-        //CO300641678
-        //GA171851939
-        //VW515164933
+        
         [TestMethod]
         public void CreateNftToken()
         {
@@ -110,8 +104,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var baseUrl = "ipfs://aelf/";
             var protocolName = "VirtualWorlds";
             var totalSupply = 20000;
-            var getType = _mainNftContract.GetNFTTypes();
-            var result = _mainNftContract.ExecuteMethodWithResult(NFTMethod.Create, new CreateInput
+            var getType = _mainNftContract.GetNftTypes();
+            var result = _mainNftContract.ExecuteMethodWithResult(NftContractMethod.Create, new CreateInput
             {
                 NftType = NFTType.VirtualWorlds.ToString(),
                 BaseUri = baseUrl,
@@ -144,14 +138,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             nftProtocolCreated.BaseUri.ShouldBe(baseUrl);
             nftProtocolCreated.ProtocolName.ShouldBe(protocolName);
 
-            var getNFTProtocolInfo = _mainNftContract.GetNFTProtocolInfo(nftSymbol);
-            getNFTProtocolInfo.Creator.ShouldBe(InitAccount.ConvertAddress());
-            getNFTProtocolInfo.Symbol.ShouldBe(nftSymbol);
-            getNFTProtocolInfo.TotalSupply.ShouldBe(totalSupply);
-            getNFTProtocolInfo.IssueChainId.ShouldBe(chainId);
-            getNFTProtocolInfo.IsTokenIdReuse.ShouldBeFalse();
-            getNFTProtocolInfo.BaseUri.ShouldBe(baseUrl);
-            getNFTProtocolInfo.ProtocolName.ShouldBe(protocolName);
+            var GetNftProtocolInfo = _mainNftContract.GetNftProtocolInfo(nftSymbol);
+            GetNftProtocolInfo.Creator.ShouldBe(InitAccount.ConvertAddress());
+            GetNftProtocolInfo.Symbol.ShouldBe(nftSymbol);
+            GetNftProtocolInfo.TotalSupply.ShouldBe(totalSupply);
+            GetNftProtocolInfo.IssueChainId.ShouldBe(chainId);
+            GetNftProtocolInfo.IsTokenIdReuse.ShouldBeFalse();
+            GetNftProtocolInfo.BaseUri.ShouldBe(baseUrl);
+            GetNftProtocolInfo.ProtocolName.ShouldBe(protocolName);
         }
 
         [TestMethod]
@@ -161,7 +155,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var baseUrl = "ipfs://aelf/";
             var protocolName = "art test";
             var totalSupply = 100000;
-            var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Create, new CreateInput
+            var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Create, new CreateInput
             {
                 NftType = "AR",
                 BaseUri = baseUrl,
@@ -196,11 +190,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 createResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             }
 
-            var mainNftProtocolInfo = _mainNftContract.GetNFTProtocolInfo(symbol);
+            var mainNftProtocolInfo = _mainNftContract.GetNftProtocolInfo(symbol);
 
             //side chain create nft token
 
-            var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.CrossChainCreate,
+            var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.CrossChainCreate,
                 new CrossChainCreateInput
                 {
                     Symbol = symbol
@@ -216,14 +210,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             nftProtocolCreated.BaseUri.ShouldBe(mainNftProtocolInfo.BaseUri);
             nftProtocolCreated.ProtocolName.ShouldBe(mainNftProtocolInfo.ProtocolName);
 
-            var getNftProtocolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            getNftProtocolInfo.Creator.ShouldBe(InitAccount.ConvertAddress());
-            getNftProtocolInfo.Symbol.ShouldBe(symbol);
-            getNftProtocolInfo.TotalSupply.ShouldBe(mainNftProtocolInfo.TotalSupply);
-            getNftProtocolInfo.IssueChainId.ShouldBe(mainNftProtocolInfo.IssueChainId);
-            getNftProtocolInfo.IsTokenIdReuse.ShouldBeFalse();
-            getNftProtocolInfo.BaseUri.ShouldBe(mainNftProtocolInfo.BaseUri);
-            getNftProtocolInfo.ProtocolName.ShouldBe(mainNftProtocolInfo.ProtocolName);
+            var GetNftProtocolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            GetNftProtocolInfo.Creator.ShouldBe(InitAccount.ConvertAddress());
+            GetNftProtocolInfo.Symbol.ShouldBe(symbol);
+            GetNftProtocolInfo.TotalSupply.ShouldBe(mainNftProtocolInfo.TotalSupply);
+            GetNftProtocolInfo.IssueChainId.ShouldBe(mainNftProtocolInfo.IssueChainId);
+            GetNftProtocolInfo.IsTokenIdReuse.ShouldBeFalse();
+            GetNftProtocolInfo.BaseUri.ShouldBe(mainNftProtocolInfo.BaseUri);
+            GetNftProtocolInfo.ProtocolName.ShouldBe(mainNftProtocolInfo.ProtocolName);
         }
 
         [TestMethod]
@@ -234,7 +228,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 //"Token info {symbol} not exists."
                 //side chain create nft token before cross create token
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.CrossChainCreate,
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.CrossChainCreate,
                     new CrossChainCreateInput
                     {
                         Symbol = symbol
@@ -245,7 +239,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             {
                 //"Full name of {nftTypeShortName} not found. Use AddNFTType to add this new pair."
                 //side chain create nft token, token type didn't create on side chain/already remove
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.CrossChainCreate,
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.CrossChainCreate,
                     new CrossChainCreateInput
                     {
                         Symbol = symbol
@@ -265,13 +259,13 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 FullName = fullName,
                 ShortName = shorName
             };
-            var types = _sideNftContract.GetNFTTypes();
+            var types = _sideNftContract.GetNftTypes();
             Logger.Info(types.Value);
             var result =
                 _authorityManager.ExecuteTransactionWithAuthority(_mainNftContract.ContractAddress, "AddNFTType", input,
                     InitAccount);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
-            var afterTypes = _sideNftContract.GetNFTTypes();
+            var afterTypes = _sideNftContract.GetNftTypes();
             afterTypes.Value[shorName] = fullName;
         }
 
@@ -288,7 +282,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ShortName = shortName
                 };
                 //"No permission."
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.AddNFTType, input);
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.AddNFTType, input);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
                 result.Error.ShouldContain("No permission.");
             }
@@ -343,7 +337,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     FullName = fullName,
                     ShortName = shortName
                 };
-                var types = _sideNftContract.GetNFTTypes();
+                var types = _sideNftContract.GetNftTypes();
                 Logger.Info(types.Value);
                 var result =
                     _sideAuthorityManager.ExecuteTransactionWithAuthority(_sideNftContract.ContractAddress,
@@ -351,7 +345,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         input,
                         InitAccount);
                 result.Status.ShouldBe(TransactionResultStatus.Mined);
-                var afterTypes = _sideNftContract.GetNFTTypes();
+                var afterTypes = _sideNftContract.GetNftTypes();
                 afterTypes.Value[shortName] = fullName;
             }
         }
@@ -361,12 +355,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var shortName = "MO";
             var fullName = "MODEL";
-            var types = _sideNftContract.GetNFTTypes();
+            var types = _sideNftContract.GetNftTypes();
             types.Value[shortName].ShouldBe(fullName);
             {
                 var input = new StringValue {Value = shortName};
                 //"No permission."
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.RemoveNFTType, input);
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.RemoveNFTType, input);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
                 result.Error.ShouldContain("No permission.");
             }
@@ -397,17 +391,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         "RemoveNFTType", input,
                         InitAccount);
                 result.Status.ShouldBe(TransactionResultStatus.Mined);
-                var afterTypes = _sideNftContract.GetNFTTypes();
+                var afterTypes = _sideNftContract.GetNftTypes();
                 afterTypes.Value.Keys.ShouldNotContain(shortName);
             }
         }
 
-        //AR886498359
         [TestMethod]
         public void MainSymbol_Mint_OnMain()
         {
             var symbol = "AR886498359";
-            var protocolInfo = _mainNftContract.GetNFTProtocolInfo(symbol);
+            var protocolInfo = _mainNftContract.GetNftProtocolInfo(symbol);
             var owner = InitAccount;
             var quantity = 10;
             var tokenId = 1112;
@@ -431,16 +424,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             nftMinted.Uri.ShouldBe(string.Empty);
             nftMinted.Owner.ShouldBe(owner.ConvertAddress());
 
-            var balance = _mainNftContract.GetBalance(symbol, tokenId, owner);
+            var balance = _mainNftContract.GetBalance(owner, symbol, tokenId);
             balance.Balance.ShouldBe(quantity);
             balance.TokenHash.ShouldBe(tokenHash);
             balance.Owner.ShouldBe(owner.ConvertAddress());
         }
-
-        //MO720142501
-        //AR141829112
-        //BA932067411 true
-        //CO300641678
+        
         [TestMethod]
         [DataRow(200)]
         //2LQe1sGesK5qFnLnGWowT5uJ1Z2g161wt1s54RY5BM157yJ7kp
@@ -449,7 +438,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void SideSymbol_Mint_OnSide(long tokenId)
         {
             var symbol = "VW515164933";
-            var protocolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var protocolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
             var owner = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var quantity = 1;
             var alias = "VW-1";
@@ -460,16 +449,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             errorResult.Error.ShouldContain("Incorrect chain.");
 
             //on side chain
-            var beforeBalance = _sideNftContract.GetBalance(symbol, tokenId, owner);
+            var beforeBalance = _sideNftContract.GetBalance(owner, symbol, tokenId);
             var result = _sideNftContract.Mint(owner, quantity, alias, symbol, tokenId);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var returnValue = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            var nftInfo = _sideNftContract.GetNFTInfoByTokenHash(returnValue);
+            var nftInfo = _sideNftContract.GetNftInfoByTokenHash(returnValue);
             nftInfo.NftType.ShouldBe(protocolInfo.NftType);
             nftInfo.Minters.ShouldContain(InitAccount.ConvertAddress());
             var logs = result.Logs.First(l => l.Name.Equals("NFTMinted")).NonIndexed;
             var nftMinted = NFTMinted.Parser.ParseFrom(ByteString.FromBase64(logs));
-            var afterProtocolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var afterProtocolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
 
             nftMinted.Creator.ShouldBe(protocolInfo.Creator);
             nftMinted.NftType.ShouldBe(protocolInfo.NftType);
@@ -498,7 +487,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
 
             Logger.Info($"{nftMinted.TokenId}, {returnValue.ToHex()}");
-            var balance = _sideNftContract.GetBalance(symbol, nftMinted.TokenId, owner);
+            var balance = _sideNftContract.GetBalance(owner, symbol, nftMinted.TokenId);
             balance.Balance.ShouldBe(beforeBalance.Balance.Add(quantity));
             balance.TokenHash.ShouldBe(tokenHash);
             balance.Owner.ShouldBe(owner.ConvertAddress());
@@ -516,7 +505,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 return;
             }
 
-            var addMinters = _sideNftContract.ExecuteMethodWithResult(NFTMethod.AddMinters,
+            var addMinters = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.AddMinters,
                 new AddMintersInput
                 {
                     Symbol = symbol,
@@ -542,9 +531,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var logs = result.Logs.First(l => l.Name.Equals("NFTMinted")).NonIndexed;
             var nftMinted = NFTMinted.Parser.ParseFrom(ByteString.FromBase64(logs));
             var returnValue = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
-            var nftInfo = _sideNftContract.GetNFTInfoByTokenHash(returnValue);
+            var nftInfo = _sideNftContract.GetNftInfoByTokenHash(returnValue);
             nftInfo.Minters.ShouldContain(newMinter.ConvertAddress());
-            var balance = _sideNftContract.GetBalance(symbol, nftMinted.TokenId, owner);
+            var balance = _sideNftContract.GetBalance(owner, symbol, nftMinted.TokenId);
             balance.Balance.ShouldBe(quantity);
         }
 
@@ -553,7 +542,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var symbol = "MO727117725";
             var minterList = _sideNftContract.GetMinterList(symbol);
-            var removeMinters = _sideNftContract.ExecuteMethodWithResult(NFTMethod.RemoveMiners,
+            var removeMinters = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.RemoveMinters,
                 new RemoveMintersInput
                 {
                     Symbol = symbol,
@@ -573,7 +562,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             result.Error.ShouldContain("No permission to mint.");
 
             _sideNftContract.SetAccount(InitAccount);
-            removeMinters = _sideNftContract.ExecuteMethodWithResult(NFTMethod.RemoveMiners,
+            removeMinters = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.RemoveMinters,
                 new RemoveMintersInput
                 {
                     Symbol = symbol,
@@ -595,9 +584,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenId = 1;
             var account = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var toAccount = SideNodeManger.NewAccount("12345678");
-            var nftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
-            var nftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var senderBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+            var nftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
+            var nftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var senderBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
             var amount = senderBalance.Balance.Div(2);
             var elfBalance = _sideToken.GetUserBalance(account);
             if (elfBalance < 10000000000)
@@ -605,14 +594,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _sideNftContract.SetAccount(account);
             var result = _sideNftContract.TransferNftToken(amount, tokenId, symbol, toAccount);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var afterSenderBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+            var afterSenderBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
             afterSenderBalance.Balance.ShouldBe(senderBalance.Balance.Sub(amount));
-            var toBalance = _sideNftContract.GetBalance(symbol, tokenId, toAccount);
+            var toBalance = _sideNftContract.GetBalance(toAccount, symbol, tokenId);
             toBalance.Balance.ShouldBe(amount);
 
-            var afterNftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
+            var afterNftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
             afterNftInfo.Quantity.ShouldBe(nftInfo.Quantity);
-            var afterNftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var afterNftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
             afterNftProtoInfo.Supply.ShouldBe(nftProtoInfo.Supply);
             afterNftProtoInfo.TotalSupply.ShouldBe(nftProtoInfo.TotalSupply);
             Logger.Info($"sender balance: {afterSenderBalance.Balance}\n" +
@@ -627,16 +616,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenId = 206;
             var account = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var toAccount = SideNodeManger.NewAccount("12345678");
-            var nftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
-            var nftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var senderBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+            var nftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
+            var nftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var senderBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
             var amount = senderBalance.Balance.Div(10);
             var elfBalance = _sideToken.GetUserBalance(toAccount);
             if (elfBalance < 10000000000)
                 _sideToken.TransferBalance(InitAccount, toAccount, 10000000000);
             {
                 _sideNftContract.SetAccount(toAccount);
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.TransferFrom,
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom,
                     new TransferFromInput
                     {
                         From = account.ConvertAddress(),
@@ -650,7 +639,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
             {
                 _sideNftContract.SetAccount(account);
-                var approveResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Approve,
+                var approveResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Approve,
                     new ApproveInput
                     {
                         Symbol = symbol,
@@ -663,7 +652,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 allowance.Allowance.ShouldBe(amount);
 
                 _sideNftContract.SetAccount(toAccount);
-                var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.TransferFrom,
+                var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom,
                     new TransferFromInput
                     {
                         From = account.ConvertAddress(),
@@ -677,14 +666,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var afterAllowance = _sideNftContract.GetAllowance(symbol, tokenId, account, toAccount);
                 afterAllowance.Allowance.ShouldBe(allowance.Allowance - amount);
 
-                var afterSenderBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+                var afterSenderBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
                 afterSenderBalance.Balance.ShouldBe(senderBalance.Balance.Sub(amount));
-                var toBalance = _sideNftContract.GetBalance(symbol, tokenId, toAccount);
+                var toBalance = _sideNftContract.GetBalance(toAccount, symbol, tokenId);
                 toBalance.Balance.ShouldBe(amount);
 
-                var afterNftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
+                var afterNftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
                 afterNftInfo.Quantity.ShouldBe(nftInfo.Quantity);
-                var afterNftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+                var afterNftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
                 afterNftProtoInfo.Supply.ShouldBe(nftProtoInfo.Supply);
                 afterNftProtoInfo.TotalSupply.ShouldBe(nftProtoInfo.TotalSupply);
                 Logger.Info($"sender balance: {afterSenderBalance.Balance}\n" +
@@ -699,11 +688,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenId = 206;
             var account = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var toAccount = SideNodeManger.NewAccount("12345678");
-            var senderBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+            var senderBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
             var amount = senderBalance.Balance.Div(10);
 
             _sideNftContract.SetAccount(account);
-            var approveResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Approve,
+            var approveResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Approve,
                 new ApproveInput
                 {
                     Symbol = symbol,
@@ -715,7 +704,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var allowance = _sideNftContract.GetAllowance(symbol, tokenId, account, toAccount);
             allowance.Allowance.ShouldBe(amount);
             var unAmount = amount.Div(2);
-            var unApproveResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.UnApprove,
+            var unApproveResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.UnApprove,
                 new UnApproveInput
                 {
                     Symbol = symbol,
@@ -728,7 +717,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var afterAllowance = _sideNftContract.GetAllowance(symbol, tokenId, account, toAccount);
             afterAllowance.Allowance.ShouldBe(allowance.Allowance - unAmount);
 
-            unApproveResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.UnApprove,
+            unApproveResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.UnApprove,
                 new UnApproveInput
                 {
                     Symbol = symbol,
@@ -748,23 +737,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenId = 100;
             var owner = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var amount = 1;
-            var nftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var nftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
             var getOperator = _sideNftContract.GetOperatorList(symbol, owner);
             if (!getOperator.Value.Contains(Operator.ConvertAddress()))
             {
                 _sideNftContract.SetAccount(owner);
-                var result = _sideNftContract.ApproveProtocol(symbol, Operator.ConvertAddress(), true);
+                var result = _sideNftContract.ApproveProtocol(Operator, symbol, true);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 getOperator = _sideNftContract.GetOperatorList(symbol, owner);
                 getOperator.Value.ShouldContain(Operator.ConvertAddress());
                 var elfBalance = _sideToken.GetUserBalance(Operator);
                 if (elfBalance < 10000000000)
                     _sideToken.TransferBalance(InitAccount, Operator, 10000000000);
-                var beforeOwnerBalance = _sideNftContract.GetBalance(symbol, tokenId, owner);
-                var beforeOperatorBalance = _sideNftContract.GetBalance(symbol, tokenId, Operator);
+                var beforeOwnerBalance = _sideNftContract.GetBalance(owner, symbol, tokenId);
+                var beforeOperatorBalance = _sideNftContract.GetBalance(Operator, symbol, tokenId);
 
                 _sideNftContract.SetAccount(Operator);
-                var transferResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.TransferFrom,
+                var transferResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom,
                     new TransferFromInput
                     {
                         From = owner.ConvertAddress(),
@@ -775,15 +764,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     });
                 transferResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
-                var afterOwnerBalance = _sideNftContract.GetBalance(symbol, tokenId, owner);
-                var afterOperatorBalance = _sideNftContract.GetBalance(symbol, tokenId, Operator);
+                var afterOwnerBalance = _sideNftContract.GetBalance(owner, symbol, tokenId);
+                var afterOperatorBalance = _sideNftContract.GetBalance(Operator, symbol, tokenId);
                 afterOwnerBalance.Balance.ShouldBe(beforeOwnerBalance.Balance.Sub(amount));
                 afterOperatorBalance.Balance.ShouldBe(beforeOperatorBalance.Balance.Add(amount));
             }
             else
             {
                 _sideNftContract.SetAccount(owner);
-                var result = _sideNftContract.ApproveProtocol(symbol, Operator.ConvertAddress(), false);
+                var result = _sideNftContract.ApproveProtocol(Operator, symbol, false);
                 result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
                 getOperator = _sideNftContract.GetOperatorList(symbol, owner);
                 getOperator.Value.ShouldNotContain(Operator.ConvertAddress());
@@ -791,7 +780,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 if (elfBalance < 10000000000)
                     _sideToken.TransferBalance(InitAccount, Operator, 10000000000);
                 _sideNftContract.SetAccount(Operator);
-                var transferResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.TransferFrom,
+                var transferResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.TransferFrom,
                     new TransferFromInput
                     {
                         From = owner.ConvertAddress(),
@@ -813,11 +802,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var tokenId = 1;
             var account = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var minter = InitAccount;
-            var nftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var ownerBalance = _sideNftContract.GetBalance(symbol, tokenId, account);
+            var nftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var ownerBalance = _sideNftContract.GetBalance(account, symbol, tokenId);
             var amount = ownerBalance.Balance;
             _sideNftContract.SetAccount(account);
-            var transfer = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Transfer,
+            var transfer = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Transfer,
                 new TransferInput
                 {
                     Amount = amount,
@@ -826,10 +815,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     To = minter.ConvertAddress()
                 });
             transfer.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var minterBalance = _sideNftContract.GetBalance(symbol, tokenId, minter);
+            var minterBalance = _sideNftContract.GetBalance(minter, symbol, tokenId);
             var burnAmount = minterBalance.Balance.Div(4);
             _sideNftContract.SetAccount(minter);
-            var result = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Burn,
+            var result = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Burn,
                 new BurnInput
                 {
                     Amount = burnAmount,
@@ -837,14 +826,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     TokenId = tokenId,
                 });
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var afterMinterBalance = _sideNftContract.GetBalance(symbol, tokenId, minter);
+            var afterMinterBalance = _sideNftContract.GetBalance(minter, symbol, tokenId);
             afterMinterBalance.Balance.ShouldBe(minterBalance.Balance - burnAmount);
-            var afterNftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
+            var afterNftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
             afterNftInfo.IsBurned.ShouldBeFalse();
-            var afterNftProtoInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var afterNftProtoInfo = _sideNftContract.GetNftProtocolInfo(symbol);
             afterNftProtoInfo.Supply.ShouldBe(nftProtoInfo.Supply - burnAmount);
 
-            var burnAllResult = _sideNftContract.ExecuteMethodWithResult(NFTMethod.Burn,
+            var burnAllResult = _sideNftContract.ExecuteMethodWithResult(NftContractMethod.Burn,
                 new BurnInput
                 {
                     Amount = afterMinterBalance.Balance,
@@ -852,22 +841,16 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     TokenId = tokenId,
                 });
             burnAllResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            afterMinterBalance = _sideNftContract.GetBalance(symbol, tokenId, minter);
+            afterMinterBalance = _sideNftContract.GetBalance(minter, symbol, tokenId);
             afterMinterBalance.Balance.ShouldBe(0);
-            afterNftInfo = _sideNftContract.GetNFTInfo(symbol, tokenId);
+            afterNftInfo = _sideNftContract.GetNftInfo(symbol, tokenId);
             if (afterNftInfo.Quantity == 0 && !nftProtoInfo.IsTokenIdReuse)
                 afterNftInfo.IsBurned.ShouldBeTrue();
             else
                 afterNftInfo.IsBurned.ShouldBeFalse();
             Logger.Info($"{afterNftInfo.Quantity} ==> {afterNftInfo.IsBurned}");
         }
-
-        //VW515164933
-        //GA171851939
-        //MO720142501
-        //AR141829112
-        //BA932067411 true
-        //CO300641678
+        
         [TestMethod]
         public void Assemble()
         {
@@ -891,8 +874,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var alias = "";
             var description = "whatever";
 
-            var assembleSymbolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var beforeBalance = _sideNftContract.GetBalance(symbol, tokenId, owner);
+            var assembleSymbolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var beforeBalance = _sideNftContract.GetBalance(owner, symbol, tokenId);
 
             _sideNftContract.SetAccount(owner);
             var result1 = _sideNftContract.TransferNftToken(nftAmount1, nftSymbolTokenId1, nftSymbol1, minter);
@@ -903,8 +886,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             _sideNftContract.SetAccount(minter);
             _sideToken.ApproveToken(minter, _sideNftContract.ContractAddress, ftsAmount * 10, "ELF");
             var beforeMinterFtsBalance = _sideToken.GetUserBalance(minter, "ELF");
-            var beforeMinterNft1Balance = _sideNftContract.GetBalance(nftSymbol1, nftSymbolTokenId1, minter);
-            var beforeMinterNft2Balance = _sideNftContract.GetBalance(nftSymbol2, nftSymbolTokenId2, minter);
+            var beforeMinterNft1Balance = _sideNftContract.GetBalance(minter, nftSymbol1, nftSymbolTokenId1);
+            var beforeMinterNft2Balance = _sideNftContract.GetBalance(minter, nftSymbol2, nftSymbolTokenId2);
 
             var result = _sideNftContract.Assemble(owner, alias, symbol, tokenId, nft, fts, description);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
@@ -927,11 +910,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             minted.TokenId.ShouldBe(tokenId == 0 ? assembleSymbolInfo.Supply.Add(1) : tokenId);
             var fee = result.GetTransactionFee().Item2;
 
-            var afterAssembleSymbolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var afterBalance = _sideNftContract.GetBalance(symbol, minted.TokenId, owner);
+            var afterAssembleSymbolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var afterBalance = _sideNftContract.GetBalance(owner, symbol, minted.TokenId);
             var afterFtsBalance = _sideToken.GetUserBalance(minter, "ELF");
-            var afterNft1Balance = _sideNftContract.GetBalance(nftSymbol1, nftSymbolTokenId1, minter);
-            var afterNft2Balance = _sideNftContract.GetBalance(nftSymbol2, nftSymbolTokenId2, minter);
+            var afterNft1Balance = _sideNftContract.GetBalance(minter, nftSymbol1, nftSymbolTokenId1);
+            var afterNft2Balance = _sideNftContract.GetBalance(minter, nftSymbol2, nftSymbolTokenId2);
             afterBalance.Balance.ShouldBe(beforeBalance.Balance.Add(1));
             afterFtsBalance.ShouldBe(beforeMinterFtsBalance - ftsAmount - fee);
             afterNft1Balance.Balance.ShouldBe(beforeMinterNft1Balance.Balance - nftAmount1);
@@ -942,11 +925,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void Disassemble()
         {
-            //GA171851939
-            //MO720142501
-            //AR141829112
-            //BA932067411 true
-            //CO300641678
             var owner = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var minter = InitAccount;
             var symbol = "GA171851939";
@@ -964,17 +942,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var nft = new Dictionary<string, long>
                 {[tokenHash1.ToHex()] = nftAmount1, [tokenHash2.ToHex()] = nftAmount2};
             var fts = new Dictionary<string, long> {["ELF"] = ftsAmount};
-            var ownerBalance = _sideNftContract.GetBalance(symbol, tokenId, owner);
-            var disassembleSymbolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var ownerBalance = _sideNftContract.GetBalance(owner, symbol, tokenId);
+            var disassembleSymbolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
 
             _sideNftContract.SetAccount(owner);
             var result = _sideNftContract.TransferNftToken(amount, tokenId, symbol, minter);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var beforeMinterFtsBalance = _sideToken.GetUserBalance(minter, "ELF");
-            var beforeOwnerNft1Balance = _sideNftContract.GetBalance(nftSymbol1, nftSymbolTokenId1, owner);
-            var beforeOwnerNft2Balance = _sideNftContract.GetBalance(nftSymbol2, nftSymbolTokenId2, owner);
-            var beforeMinterBalance = _sideNftContract.GetBalance(symbol, tokenId, minter);
+            var beforeOwnerNft1Balance = _sideNftContract.GetBalance(owner, nftSymbol1, nftSymbolTokenId1);
+            var beforeOwnerNft2Balance = _sideNftContract.GetBalance(owner, nftSymbol2, nftSymbolTokenId2);
+            var beforeMinterBalance = _sideNftContract.GetBalance(minter, symbol, tokenId);
 
             _sideNftContract.SetAccount(InitAccount);
             var disassembleResult = _sideNftContract.Disassemble(symbol, tokenId, owner);
@@ -998,11 +976,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var index4 = Disassembled.Parser.ParseFrom(ByteString.FromBase64(disassembleLogs[3]));
             index4.DisassembledFts.Value.ShouldBe(fts);
 
-            var afterDisassembleSymbolInfo = _sideNftContract.GetNFTProtocolInfo(symbol);
-            var afterMinterBalance = _sideNftContract.GetBalance(symbol, tokenId, minter);
+            var afterDisassembleSymbolInfo = _sideNftContract.GetNftProtocolInfo(symbol);
+            var afterMinterBalance = _sideNftContract.GetBalance(minter, symbol, tokenId);
             var afterFtsBalance = _sideToken.GetUserBalance(minter, "ELF");
-            var afterNft1Balance = _sideNftContract.GetBalance(nftSymbol1, nftSymbolTokenId1, owner);
-            var afterNft2Balance = _sideNftContract.GetBalance(nftSymbol2, nftSymbolTokenId2, owner);
+            var afterNft1Balance = _sideNftContract.GetBalance(owner, nftSymbol1, nftSymbolTokenId1);
+            var afterNft2Balance = _sideNftContract.GetBalance(owner, nftSymbol2, nftSymbolTokenId2);
             afterMinterBalance.Balance.ShouldBe(beforeMinterBalance.Balance.Sub(amount));
             afterFtsBalance.ShouldBe(beforeMinterFtsBalance + ftsAmount - fee);
             afterNft1Balance.Balance.ShouldBe(beforeOwnerNft1Balance.Balance + nftAmount1);
@@ -1013,9 +991,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void Recast()
         {
-            //MO720142501
-            //AR141829112
-            //VW515164933
             var symbol = "VW515164933";
             var tokenId = 100;
             var alias = "xxx";
@@ -1030,14 +1005,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
             var owner = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
             var tokenHash = _sideNftContract.CalculateTokenHash(symbol, tokenId);
-            var symbolInfo = _sideNftContract.GetNFTInfoByTokenHash(tokenHash);
-            var balance = _sideNftContract.GetBalance(symbol, tokenId, owner);
-            var nftProtocol = _sideNftContract.GetNFTProtocolInfo(symbol);
+            var symbolInfo = _sideNftContract.GetNftInfoByTokenHash(tokenHash);
+            var balance = _sideNftContract.GetBalance(owner, symbol, tokenId);
+            var nftProtocol = _sideNftContract.GetNftProtocolInfo(symbol);
             Logger.Info(nftProtocol);
             _sideNftContract.SetAccount(owner);
             var transfer = _sideNftContract.TransferNftToken(balance.Balance, tokenId, symbol, InitAccount);
             transfer.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            var minterBalance = _sideNftContract.GetBalance(symbol, tokenId, InitAccount);
+            var minterBalance = _sideNftContract.GetBalance(InitAccount, symbol, tokenId);
 
             if (symbolInfo.Quantity.Equals(minterBalance.Balance))
             {
@@ -1052,11 +1027,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 var eventAlias = Recasted.Parser.ParseFrom(ByteString.FromBase64(logs[4]));
                 // var eventUri =  Recasted.Parser.ParseFrom(ByteString.FromBase64(logs[5]));
 
-                var afterSymbolInfo = _sideNftContract.GetNFTInfoByTokenHash(tokenHash);
+                var afterSymbolInfo = _sideNftContract.GetNftInfoByTokenHash(tokenHash);
                 afterSymbolInfo.Alias.ShouldBe(alias);
                 Logger.Info(afterSymbolInfo.Metadata.Value);
 
-                var afterNftProtocol = _sideNftContract.GetNFTProtocolInfo(symbol);
+                var afterNftProtocol = _sideNftContract.GetNftProtocolInfo(symbol);
                 Logger.Info(afterNftProtocol);
                 nftProtocol.Metadata.Value.ShouldBe(afterNftProtocol.Metadata.Value);
                 nftProtocol.Metadata.Value.ShouldNotBe(afterSymbolInfo.Metadata.Value);
@@ -1078,11 +1053,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        //MO720142501
-        //AR141829112
-        //BA932067411 true
-        //CO300641678
-        //GA171851939
         public void CheckBalance()
         {
             var symbolList = new List<string>
@@ -1096,9 +1066,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             foreach (var symbol in symbolList)
             {
                 var owner = "tPkiSRLTYQ8n4kqgy6nDFQb7toKH4BEpm8NtyLyQGEooZzH9y";
-                var nftBalance = _sideNftContract.GetBalance(symbol, 100, owner);
+                var nftBalance = _sideNftContract.GetBalance(owner, symbol, 100);
                 Logger.Info($"{symbol} = {nftBalance.Balance}");
-                var nftProto = _sideNftContract.GetNFTProtocolInfo(symbol);
+                var nftProto = _sideNftContract.GetNftProtocolInfo(symbol);
                 Logger.Info(nftProto);
             }
         }
