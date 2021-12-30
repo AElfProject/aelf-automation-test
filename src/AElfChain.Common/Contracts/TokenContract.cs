@@ -53,7 +53,8 @@ namespace AElfChain.Common.Contracts
         GetMethodFee,
         GetOwningRental,
         GetLockedAmount,
-        GetMethodFeeController
+        GetMethodFeeController,
+        IsInCreateTokenWhiteList
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -170,6 +171,11 @@ namespace AElfChain.Common.Contracts
         public OwningRental GetOwningRental()
         {
             return CallViewMethod<OwningRental>(TokenMethod.GetOwningRental, new Empty());
+        }
+
+        public bool IsInCreateTokenWhiteList(string contract)
+        {
+            return CallViewMethod<BoolValue>(TokenMethod.IsInCreateTokenWhiteList, contract.ConvertAddress()).Value;
         }
     }
 }

@@ -114,13 +114,36 @@ namespace AElfChain.Common.Managers
                     IssueChainId = tokenInfo.IssueChainId,
                     Symbol = tokenInfo.Symbol,
                     TokenName = tokenInfo.TokenName,
-                    TotalSupply = tokenInfo.TotalSupply
+                    TotalSupply = tokenInfo.TotalSupply,
+                    ExternalInfo =
+                    {
+                        tokenInfo.ExternalInfo.Value
+                    }
                 });
             raw = validateTransaction;
             var txId = FromNoeNodeManager.SendTransaction(validateTransaction);
             var result = FromNoeNodeManager.CheckTransactionResult(txId);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             return result;
+        }
+        
+        public TransactionResultDto CrossChainCreate(TransactionResultDto result, string rawTx)
+        {
+
+            var fromChainId = ChainHelper.ConvertBase58ToChainId(FromNoeNodeManager.GetChainId());
+            var merklePath = GetMerklePath(FromNoeNodeManager, result.TransactionId);
+            var crossChainCrossToken = new CrossChainCreateTokenInput
+            {
+                FromChainId = fromChainId,
+                MerklePath = merklePath,
+                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
+                ParentChainHeight = result.BlockNumber
+            };
+            CheckSideChainIndexMainChain(result.BlockNumber);
+
+            var createResult =
+                _toChainToken.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken, crossChainCrossToken);
+            return createResult;
         }
 
         public TransactionResultDto CrossChainTransfer(string symbol, long amount, string toAccount, string account, out string raw)
