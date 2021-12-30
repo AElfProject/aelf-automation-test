@@ -127,8 +127,8 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<ParliamentContractImplContainer.ParliamentContractImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.Release.SendAsync(proposalId));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
+            if (result.TransactionResult.Status.Equals(TransactionResultStatus.Mined))
+                Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
 
             return result.TransactionResult;
         }
