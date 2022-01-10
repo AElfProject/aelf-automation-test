@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AElf.Client" Version="0.1.5" />
+        <PackageReference Include="AElf.Client" Version="1.1.0" />
         <PackageReference Include="AElf.Types" Version="1.0.0" />
         <PackageReference Include="FluentScheduler" Version="5.3.0" />
         <PackageReference Include="Shouldly" Version="3.0.2" />

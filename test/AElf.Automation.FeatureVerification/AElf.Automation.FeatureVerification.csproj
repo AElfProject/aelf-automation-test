@@ -4,7 +4,7 @@
     <RootNamespace>AElf.Automation.Contracts.ScenarioTest</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AElf.Client" Version="0.1.5" />
+    <PackageReference Include="AElf.Client" Version="1.1.0" />
     <PackageReference Include="AElf.Kernel.Types" Version="1.0.0" />
     <PackageReference Include="AElf.Types" Version="1.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />

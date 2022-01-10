@@ -20,7 +20,7 @@
       <EmbeddedResource Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="AElf.Client" Version="0.1.5" />
+      <PackageReference Include="AElf.Client" Version="1.1.0" />
       <PackageReference Include="AElf.Types" Version="1.0.0" />
     </ItemGroup>
 

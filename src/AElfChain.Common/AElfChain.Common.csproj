@@ -74,7 +74,7 @@
         <PackageReference Include="AElf.Types" Version="1.0.0" />
         <PackageReference Include="AElf.CSharp.Core" Version="1.0.0" />
         <PackageReference Include="AElf.Cryptography" Version="1.0.0" />
-        <PackageReference Include="AElf.Client" Version="0.1.5" />
+        <PackageReference Include="AElf.Client" Version="1.1.0" />
         <!--end packages-->
 
         <PackageReference Include="Volo.Abp.Core" Version="2.3.0" />
