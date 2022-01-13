@@ -67,6 +67,7 @@
         <ProtoContract Include="Protobuf\Proto\execution.proto" />
         <ProtoContract Include="Protobuf\Proto\random_number_provider_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\nft_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\nft_market_contract.proto" />
     </ItemGroup>
 
     <ItemGroup>
