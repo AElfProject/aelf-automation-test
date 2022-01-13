@@ -27,6 +27,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private NFTMarketContract _nftMarketContract;
 
         private string InitAccount { get; } = "J6zgLjGwd1bxTBpULLXrGVeV74tnS2n74FFJJz7KNdjTYkDF6";
+
         // private string InitAccount { get; } = "nn659b9X1BLhnu5RWmEUbuuV7J9QKVVSN54j9UmeCbF3Dve5D";
         private string OtherAccount { get; } = "sjzNpr5bku3ZyvMqQrXeBkXGEvG2CTLA2cuNDfcDMaPTTAqEy";
         private string WhiteListAddress1 { get; } = "sjzNpr5bku3ZyvMqQrXeBkXGEvG2CTLA2cuNDfcDMaPTTAqEy";
@@ -79,7 +80,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
 
-            var listedNFTInfo = _nftMarketContract.GetListedNFTInfo(symbol, tokenId, InitAccount);
+            var listedNFTInfo = _nftMarketContract.GetListedNFTInfoList(symbol, tokenId, InitAccount);
             listedNFTInfo.ShouldBeNull();
 
             _nftMarketContract.ListWithFixedPrice(
@@ -100,7 +101,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 new WhiteListAddressPriceList()
             );
 
-            listedNFTInfo = _nftMarketContract.GetListedNFTInfo(symbol, tokenId, InitAccount);
+            listedNFTInfo = _nftMarketContract.GetListedNFTInfoList(symbol, tokenId, InitAccount);
             listedNFTInfo.Symbol.ShouldBe(symbol);
             listedNFTInfo.TokenId.ShouldBe(tokenId);
             listedNFTInfo.Owner.ShouldBe(InitAccount.ConvertAddress());

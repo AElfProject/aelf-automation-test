@@ -36,7 +36,7 @@ namespace AElfChain.Common.Contracts
         SetGlobalTokenWhiteList,
 
         //View
-        GetListedNFTInfo,
+        GetListedNFTInfoList,
         GetWhiteListAddressPriceList,
         GetOfferAddressList,
         GetOfferList,
@@ -109,13 +109,13 @@ namespace AElfChain.Common.Contracts
             });
         }
 
-        public TransactionResultDto Deal(string symbol, long tokenId, string offerMaker, Price price, long quantity)
+        public TransactionResultDto Deal(string symbol, long tokenId, string offerFrom, Price price, long quantity)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.Deal, new DealInput
             {
                 Symbol = symbol,
                 TokenId = tokenId,
-                OfferMaker = offerMaker.ConvertAddress(),
+                OfferFrom = offerFrom.ConvertAddress(),
                 Price = price,
                 Quantity = quantity
             });
@@ -236,14 +236,15 @@ namespace AElfChain.Common.Contracts
             return ExecuteMethodWithResult(NFTMarketContractMethod.SetGlobalTokenWhiteList, globalTokenWhiteList);
         }
 
-        public ListedNFTInfo GetListedNFTInfo(string symbol, long tokenId, string owner)
+        public ListedNFTInfo GetListedNFTInfoList(string symbol, long tokenId, string owner)
         {
-            return CallViewMethod<ListedNFTInfo>(NFTMarketContractMethod.GetListedNFTInfo, new GetListedNFTInfoInput
-            {
-                Symbol = symbol,
-                TokenId = tokenId,
-                Owner = owner.ConvertAddress()
-            });
+            return CallViewMethod<ListedNFTInfo>(NFTMarketContractMethod.GetListedNFTInfoList,
+                new GetListedNFTInfoListInput
+                {
+                    Symbol = symbol,
+                    TokenId = tokenId,
+                    Owner = owner.ConvertAddress()
+                });
         }
 
         public WhiteListAddressPriceList GetWhiteListAddressPriceList(string symbol, long tokenId)
@@ -259,7 +260,7 @@ namespace AElfChain.Common.Contracts
         public AddressList GetOfferAddressList(string symbol, long tokenId)
         {
             return CallViewMethod<AddressList>(NFTMarketContractMethod.GetOfferAddressList,
-                new GetOfferAddressListInput
+                new GetAddressListInput
                 {
                     Symbol = symbol,
                     TokenId = tokenId
@@ -279,7 +280,7 @@ namespace AElfChain.Common.Contracts
         public AddressList GetBidAddressList(string symbol, long tokenId)
         {
             return CallViewMethod<AddressList>(NFTMarketContractMethod.GetBidAddressList,
-                new GetOfferAddressListInput
+                new GetAddressListInput
                 {
                     Symbol = symbol,
                     TokenId = tokenId
