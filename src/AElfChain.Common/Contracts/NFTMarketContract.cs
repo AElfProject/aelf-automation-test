@@ -12,6 +12,8 @@ namespace AElfChain.Common.Contracts
 {
     public enum NFTMarketContractMethod
     {
+        Initialize,
+
         // For Sellers
         ListWithFixedPrice,
         ListWithEnglishAuction,
@@ -63,8 +65,22 @@ namespace AElfChain.Common.Contracts
 
         public static string ContractFileName => "AElf.Contracts.NFTMarket";
 
+        public TransactionResultDto Initialize(string nftContractAddress, string adminAdress, int SetServiceFeeRate,
+            string serviceFeeReceiver, long servicceFee)
+        {
+            return ExecuteMethodWithResult(NFTMarketContractMethod.Initialize, new InitializeInput
+            {
+                NftContractAddress = nftContractAddress.ConvertAddress(),
+                AdminAddress = adminAdress.ConvertAddress(),
+                ServiceFeeRate = SetServiceFeeRate,
+                ServiceFeeReceiver = serviceFeeReceiver.ConvertAddress(),
+                ServiceFee = servicceFee
+            });
+        }
+
         public TransactionResultDto ListWithFixedPrice(string symbol, long tokenId, Price price, long quantity,
-            ListDuration duration, WhiteListAddressPriceList whiteListAddressPriceList)
+            ListDuration duration, WhiteListAddressPriceList whiteListAddressPriceList,
+            bool isMergeToPreviousListedInfo)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.ListWithFixedPrice, new ListWithFixedPriceInput
             {
@@ -73,7 +89,8 @@ namespace AElfChain.Common.Contracts
                 Price = price,
                 Quantity = quantity,
                 Duration = duration,
-                WhiteListAddressPriceList = whiteListAddressPriceList
+                WhiteListAddressPriceList = whiteListAddressPriceList,
+                IsMergeToPreviousListedInfo = isMergeToPreviousListedInfo
             });
         }
 
@@ -236,9 +253,9 @@ namespace AElfChain.Common.Contracts
             return ExecuteMethodWithResult(NFTMarketContractMethod.SetGlobalTokenWhiteList, globalTokenWhiteList);
         }
 
-        public ListedNFTInfo GetListedNFTInfoList(string symbol, long tokenId, string owner)
+        public ListedNFTInfoList GetListedNFTInfoList(string symbol, long tokenId, string owner)
         {
-            return CallViewMethod<ListedNFTInfo>(NFTMarketContractMethod.GetListedNFTInfoList,
+            return CallViewMethod<ListedNFTInfoList>(NFTMarketContractMethod.GetListedNFTInfoList,
                 new GetListedNFTInfoListInput
                 {
                     Symbol = symbol,
@@ -247,13 +264,14 @@ namespace AElfChain.Common.Contracts
                 });
         }
 
-        public WhiteListAddressPriceList GetWhiteListAddressPriceList(string symbol, long tokenId)
+        public WhiteListAddressPriceList GetWhiteListAddressPriceList(string symbol, long tokenId, string owner)
         {
             return CallViewMethod<WhiteListAddressPriceList>(NFTMarketContractMethod.GetWhiteListAddressPriceList,
                 new GetWhiteListAddressPriceListInput
                 {
                     Symbol = symbol,
-                    TokenId = tokenId
+                    TokenId = tokenId,
+                    Owner = owner.ConvertAddress()
                 });
         }
 
