@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+import "aelf/core.proto";
+import "aelf/options.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "callback_input.proto";
+
+option csharp_namespace = "AElf.Contracts.Price";
+
+service PriceContract {
+  option (aelf.csharp_state) = "AElf.Contracts.Price.PriceContractState";
+
+  rpc Initialize (InitializeInput) returns (google.protobuf.Empty) {}
+
+  rpc QuerySwapTokenPrice (QueryTokenPriceInput) returns (aelf.Hash) {}
+  rpc QueryExchangeTokenPrice (QueryTokenPriceInput) returns (aelf.Hash) {}
+  
+  rpc RecordSwapTokenPrice (CallbackInput) returns (google.protobuf.Empty) {}
+  rpc RecordExchangeTokenPrice (CallbackInput) returns (google.protobuf.Empty) {}
+
+  rpc UpdateSwapTokenTraceInfo (UpdateSwapTokenTraceInfoInput) returns (google.protobuf.Empty) {}
+  rpc UpdateAuthorizedSwapTokenPriceQueryUsers (AuthorizedSwapTokenPriceQueryUsers) returns (google.protobuf.Empty) {}
+
+  rpc ChangeOracle (ChangeOracleInput) returns (google.protobuf.Empty) {}
+  rpc ChangeTracePathLimit(ChangeTracePathLimitInput) returns (google.protobuf.Empty) {}
+  // Views
+  rpc GetSwapTokenPriceInfo (GetSwapTokenPriceInfoInput) returns (Price) {
+    option (aelf.is_view) = true;
+  }
+
+  rpc GetBatchSwapTokenPriceInfo (GetBatchSwapTokenPriceInfoInput) returns (BatchPrices) {
+    option (aelf.is_view) = true;
+  }
+  
+  rpc GetExchangeTokenPriceInfo (GetExchangeTokenPriceInfoInput) returns (Price) {
+    option (aelf.is_view) = true;
+  }
+
+  rpc GetBatchExchangeTokenPriceInfo (GetBatchExchangeTokenPriceInfoInput) returns (BatchPrices) {
+    option (aelf.is_view) = true;
+  }
+
+  rpc CheckQueryIdIfExisted (aelf.Hash) returns (IsQueryIdExisted) {
+    option (aelf.is_view) = true;
+  }
+
+  rpc GetAuthorizedSwapTokenPriceQueryUsers (google.protobuf.Empty) returns (AuthorizedSwapTokenPriceQueryUsers) {
+    option (aelf.is_view) = true;
+  }
+
+  rpc GetTracePathLimit (google.protobuf.Empty) returns (TracePathLimit) {
+    option (aelf.is_view) = true;
+  }
+}
+
+message InitializeInput{
+  aelf.Address oracle_address = 1;
+  aelf.Address controller = 2;
+  repeated aelf.Address authorized_users = 3;
+  int32 trace_path_limit = 4;
+}
+
+message QueryTokenPriceInput{
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+  aelf.Address aggregator_contract_address = 3;
+  repeated aelf.Address designated_nodes = 4;
+  int32 aggregate_threshold = 5;
+}
+
+message UpdateSwapTokenTraceInfoInput{
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+}
+
+message TokenPrice{
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+  string price = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message GetSwapTokenPriceInfoInput{
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+}
+
+message GetBatchSwapTokenPriceInfoInput{
+  repeated GetSwapTokenPriceInfoInput token_price_query_list = 1;
+}
+
+message GetExchangeTokenPriceInfoInput{
+  aelf.Address organization = 1;
+  string token_symbol = 2;
+  string target_token_symbol = 3;
+}
+
+message GetBatchExchangeTokenPriceInfoInput{
+  repeated GetExchangeTokenPriceInfoInput token_price_query_list = 1;
+}
+
+message  BatchPrices{
+  repeated TokenPrice tokenPrices = 1;
+}
+
+message Price{
+  string value = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message PriceTraceInfo {
+  string traced_token = 1;
+  int32 traced_path_weight = 2;
+  repeated string token_list = 3;
+}
+
+message IsQueryIdExisted{
+  bool value = 1;
+}
+
+message AuthorizedSwapTokenPriceQueryUsers{
+  repeated aelf.Address list = 1;
+}
+
+message OrganizationList{
+  repeated aelf.Address node_list = 1;
+}
+
+message ChangeOracleInput{
+  aelf.Address oracle = 1;
+}
+
+message ChangeTracePathLimitInput{
+  int32 new_path_limit = 1;
+}
+
+message TracePathLimit{
+  int32 path_limit = 1;
+}
+
+message NewestSwapPriceUpdated{
+  option (aelf.is_event) = true;
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+  string price = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  aelf.Hash query_id = 5;
+}
+
+message NewestExchangePriceUpdated{
+  option (aelf.is_event) = true;
+  string token_symbol = 1;
+  string target_token_symbol = 2;
+  string price = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  OrganizationList price_supplier = 5;
+  aelf.Hash query_id = 6;
+}

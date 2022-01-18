@@ -1,7 +1,5 @@
 using AElf.Standards.ACS10;
-using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Contracts.Treasury;
-using AElf.Types;
 using AElfChain.Common.Managers;
 using Google.Protobuf.WellKnownTypes;
 

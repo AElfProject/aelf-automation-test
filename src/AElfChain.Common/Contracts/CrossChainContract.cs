@@ -1,6 +1,4 @@
-using AElf.Standards.ACS1;
 using AElf.Contracts.CrossChain;
-using AElf.Contracts.TestContract.BasicSecurity;
 using AElf.Standards.ACS7;
 using AElf.Types;
 using AElfChain.Common.Managers;

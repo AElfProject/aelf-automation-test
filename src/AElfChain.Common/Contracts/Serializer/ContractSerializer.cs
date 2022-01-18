@@ -14,15 +14,6 @@ using AElf.Contracts.MultiToken;
 using AElf.Contracts.Parliament;
 using AElf.Contracts.Profit;
 using AElf.Contracts.Referendum;
-using AElf.Contracts.TestContract.A;
-using AElf.Contracts.TestContract.B;
-using AElf.Contracts.TestContract.BasicFunction;
-using AElf.Contracts.TestContract.BasicSecurity;
-using AElf.Contracts.TestContract.BasicUpdate;
-using AElf.Contracts.TestContract.C;
-using AElf.Contracts.TestContract.Events;
-using AElf.Contracts.TestContract.Performance;
-using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
 using AElf.Contracts.Treasury;
 using AElf.Contracts.Vote;
@@ -131,47 +122,6 @@ namespace AElfChain.Common.Contracts.Serializer
                         MethodFeeProviderContractContainer.Descriptor, AuthorizationContractContainer.Descriptor,
                         ReferendumContractContainer.Descriptor
                     }
-                },
-                {
-                    NameProvider.TestBasicFunction,
-                    new List<ServiceDescriptor> {BasicFunctionContractContainer.Descriptor}
-                },
-                {
-                    NameProvider.TestUpdateFunction,
-                    new List<ServiceDescriptor> {BasicUpdateContractContainer.Descriptor}
-                },
-                {
-                    NameProvider.TestBasicSecurity,
-                    new List<ServiceDescriptor> {BasicSecurityContractContainer.Descriptor}
-                },
-                {NameProvider.TestPerformance, new List<ServiceDescriptor> {PerformanceContractContainer.Descriptor}},
-                {
-                    NameProvider.TestTransactionFees,
-                    new List<ServiceDescriptor>
-                    {
-                        MethodFeeProviderContractContainer.Descriptor, ResourceConsumptionContractContainer.Descriptor,
-                        TransactionFeesContractContainer.Descriptor
-                    }
-                },
-                {
-                    NameProvider.TestEvents,
-                    new List<ServiceDescriptor>
-                        {MethodFeeProviderContractContainer.Descriptor, EventsContractContainer.Descriptor}
-                },
-                {
-                    NameProvider.TestA,
-                    new List<ServiceDescriptor>
-                        {MethodFeeProviderContractContainer.Descriptor, AContractContainer.Descriptor}
-                },
-                {
-                    NameProvider.TestB,
-                    new List<ServiceDescriptor>
-                        {MethodFeeProviderContractContainer.Descriptor, BContractContainer.Descriptor}
-                },
-                {
-                    NameProvider.TestC,
-                    new List<ServiceDescriptor>
-                        {MethodFeeProviderContractContainer.Descriptor, CContractContainer.Descriptor}
                 }
             };
 

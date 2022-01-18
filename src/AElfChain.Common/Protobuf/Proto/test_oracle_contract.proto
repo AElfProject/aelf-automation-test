@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "aelf/core.proto";
+import "aelf/options.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "oracle_contract.proto";
+import "callback_input.proto";
+
+option csharp_namespace = "AElf.Contracts.TestsOracle";
+
+service OracleTestContract {
+    option (aelf.base) = "oracle_contract.proto";
+    option (aelf.csharp_state) = "AElf.Contracts.TestOracle.OracleTestContractState";
+
+    rpc RecordTokenPrice (TokenPriceInfo) returns (google.protobuf.Empty) {}
+}
+
+message TokenPrice{
+    string token_symbol = 1;
+    string target_token_symbol = 2;
+    string price = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
+
+message TokenPriceInfo{
+    TokenPrice token_price = 1;
+    aelf.Address call_back_address = 2;
+    string call_back_method_name = 3;
+    aelf.Hash query_id = 4;
+    repeated aelf.Address oracle_nodes = 5;
+}
+
+
+
+
+
+
