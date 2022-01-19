@@ -66,7 +66,7 @@ namespace AElfChain.Common.Contracts
         public static string ContractFileName => "AElf.Contracts.NFTMarket";
 
         public TransactionResultDto Initialize(string nftContractAddress, string adminAdress, int SetServiceFeeRate,
-            string serviceFeeReceiver, long servicceFee)
+            string serviceFeeReceiver, long serviceFee)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.Initialize, new InitializeInput
             {
@@ -74,7 +74,7 @@ namespace AElfChain.Common.Contracts
                 AdminAddress = adminAdress.ConvertAddress(),
                 ServiceFeeRate = SetServiceFeeRate,
                 ServiceFeeReceiver = serviceFeeReceiver.ConvertAddress(),
-                ServiceFee = servicceFee
+                ServiceFee = serviceFee
             });
         }
 
@@ -159,7 +159,6 @@ namespace AElfChain.Common.Contracts
                 Quantity = quantity,
                 Price = price,
                 ExpireTime = expireTime,
-                DueTime = dueTime
             });
         }
 
