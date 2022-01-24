@@ -47,7 +47,8 @@ namespace AElfChain.Common.Contracts
         GetCustomizeInfo,
         GetRequestInfo,
         GetEnglishAuctionInfo,
-        GetDutchAuctionInfo
+        GetDutchAuctionInfo,
+        GetRoyalty
     }
 
     public class NFTMarketContract : BaseContract<NFTMarketContractMethod>
@@ -96,7 +97,7 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResultDto ListWithEnglishAuction(string symbol, long tokenId, long startingPrice,
             string purchaseSymbol,
-            ListDuration duration, WhiteListAddressPriceList whiteListAddressPriceList)
+            ListDuration duration, long earnestMoney, WhiteListAddressPriceList whiteListAddressPriceList)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.ListWithEnglishAuction,
                 new ListWithEnglishAuctionInput
@@ -106,6 +107,7 @@ namespace AElfChain.Common.Contracts
                     StartingPrice = startingPrice,
                     PurchaseSymbol = purchaseSymbol,
                     Duration = duration,
+                    EarnestMoney = earnestMoney,
                     WhiteListAddressPriceList = whiteListAddressPriceList
                 });
         }
@@ -343,6 +345,16 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<DutchAuctionInfo>(NFTMarketContractMethod.GetDutchAuctionInfo,
                 new GetDutchAuctionInfoInput
+                {
+                    Symbol = symbol,
+                    TokenId = tokenId
+                });
+        }
+        
+        public RoyaltyInfo GetRoyalty(string symbol, long tokenId)
+        {
+            return CallViewMethod<RoyaltyInfo>(NFTMarketContractMethod.GetRoyalty,
+                new GetRoyaltyInput
                 {
                     Symbol = symbol,
                     TokenId = tokenId
