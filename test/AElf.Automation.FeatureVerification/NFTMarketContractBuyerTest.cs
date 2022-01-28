@@ -3399,6 +3399,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Logger.Info($"balanceInitFinish is {balanceFinish1}");
             
 
+            
+            
+            
 
 
         }
