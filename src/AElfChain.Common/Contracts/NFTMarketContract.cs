@@ -48,7 +48,11 @@ namespace AElfChain.Common.Contracts
         GetRequestInfo,
         GetEnglishAuctionInfo,
         GetDutchAuctionInfo,
-        GetRoyalty
+        GetTokenWhiteList,
+        GetGlobalTokenWhiteList,
+        GetStakingTokens,
+        GetRoyalty,
+        GetServiceFeeInfo
     }
 
     public class NFTMarketContract : BaseContract<NFTMarketContractMethod>
@@ -151,7 +155,7 @@ namespace AElfChain.Common.Contracts
         }
 
         public TransactionResultDto MakeOffer(string symbol, long tokenId, string offerTo, long quantity, Price price,
-            Timestamp expireTime, Timestamp dueTime)
+            Timestamp expireTime)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.MakeOffer, new MakeOfferInput
             {
@@ -350,7 +354,23 @@ namespace AElfChain.Common.Contracts
                     TokenId = tokenId
                 });
         }
-        
+
+        public StringList GetTokenWhiteList(string symbol)
+        {
+            return CallViewMethod<StringList>(NFTMarketContractMethod.GetTokenWhiteList,
+                new StringValue {Value = symbol});
+        }
+
+        public StringList GetGlobalTokenWhiteList()
+        {
+            return CallViewMethod<StringList>(NFTMarketContractMethod.GetGlobalTokenWhiteList, new Empty());
+        }
+
+        public Price GetStakingTokens(string symbol)
+        {
+            return CallViewMethod<Price>(NFTMarketContractMethod.GetStakingTokens, new StringValue {Value = symbol});
+        }
+
         public RoyaltyInfo GetRoyalty(string symbol, long tokenId)
         {
             return CallViewMethod<RoyaltyInfo>(NFTMarketContractMethod.GetRoyalty,
@@ -359,6 +379,11 @@ namespace AElfChain.Common.Contracts
                     Symbol = symbol,
                     TokenId = tokenId
                 });
+        }
+
+        public ServiceFeeInfo GetServiceFeeInfo()
+        {
+            return CallViewMethod<ServiceFeeInfo>(NFTMarketContractMethod.GetServiceFeeInfo, new Empty());
         }
     }
 }

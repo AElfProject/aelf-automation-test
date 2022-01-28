@@ -109,6 +109,9 @@ service NFTMarketContract {
     rpc GetRoyalty (GetRoyaltyInput) returns (RoyaltyInfo) {
         option (aelf.is_view) = true;
     }
+    rpc GetServiceFeeInfo (google.protobuf.Empty) returns (ServiceFeeInfo) {
+        option (aelf.is_view) = true;
+    }
 }
 
 // Structs.
@@ -242,6 +245,16 @@ message DutchAuctionInfo {
     string purchase_symbol = 5;
     ListDuration duration = 6;
     aelf.Address owner = 7;
+}
+
+message CertainNFTRoyaltyInfo {
+    bool is_manually_set = 1;
+    int32 royalty = 2;
+}
+
+message ServiceFeeInfo {
+    int32 service_fee_rate = 1;
+    aelf.Address service_fee_receiver = 2;
 }
 
 // Inputs.
@@ -490,7 +503,6 @@ message OfferMade {
     Price price = 5;
     int64 quantity = 6;
     google.protobuf.Timestamp expire_time = 7;
-    google.protobuf.Timestamp due_time = 8;
 }
 
 message BidPlaced {
@@ -578,4 +590,62 @@ message Sold {
     string purchase_symbol = 6;
     int64 purchase_amount = 7;
     int64 purchase_token_id = 8;
+}
+
+message OfferAdded {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address offer_from = 3;
+    aelf.Address offer_to = 4;
+    Price price = 5;
+    int64 quantity = 6;
+    google.protobuf.Timestamp expire_time = 7;
+}
+
+message OfferChanged {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address offer_from = 3;
+    aelf.Address offer_to = 4;
+    Price price = 5;
+    int64 quantity = 6;
+    google.protobuf.Timestamp expire_time = 7;
+}
+
+message OfferRemoved {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address offer_from = 3;
+    aelf.Address offer_to = 4;
+}
+
+message ListedNFTAdded {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address owner = 3;
+    int64 quantity = 4;
+    Price price = 5;
+    ListDuration duration = 6;
+}
+
+message ListedNFTChanged {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address owner = 3;
+    int64 quantity = 4;
+    Price price = 5;
+    ListDuration duration = 6;
+}
+
+message ListedNFTRemoved {
+    option (aelf.is_event) = true;
+    string symbol = 1;
+    int64 token_id = 2;
+    aelf.Address owner = 3;
+    ListDuration duration = 4;
 }

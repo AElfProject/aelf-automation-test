@@ -21,7 +21,7 @@ using StringList = AElf.Contracts.NFTMarket.StringList;
 namespace AElf.Automation.Contracts.ScenarioTest
 {
     [TestClass]
-    public class NFTMarketContractTest
+    public class NFTMarketContractBuyerTest
     {
         private ILog Logger { get; set; }
         private INodeManager NodeManager { get; set; }
