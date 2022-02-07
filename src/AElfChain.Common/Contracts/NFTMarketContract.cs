@@ -310,9 +310,9 @@ namespace AElfChain.Common.Contracts
                 });
         }
 
-        public OfferList GetBidList(string symbol, long tokenId, string address)
+        public BidList GetBidList(string symbol, long tokenId, string address)
         {
-            return CallViewMethod<OfferList>(NFTMarketContractMethod.GetBidList, new GetOfferListInput
+            return CallViewMethod<BidList>(NFTMarketContractMethod.GetBidList, new GetOfferListInput
             {
                 Symbol = symbol,
                 TokenId = tokenId,
