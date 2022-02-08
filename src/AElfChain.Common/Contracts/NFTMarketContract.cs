@@ -144,11 +144,12 @@ namespace AElfChain.Common.Contracts
             });
         }
 
-        public TransactionResultDto Delist(string symbol, long tokenId, long quantity)
+        public TransactionResultDto Delist(string symbol, Price price, long tokenId, long quantity)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.Delist, new DelistInput
             {
                 Symbol = symbol,
+                Price = price,
                 TokenId = tokenId,
                 Quantity = quantity
             });
