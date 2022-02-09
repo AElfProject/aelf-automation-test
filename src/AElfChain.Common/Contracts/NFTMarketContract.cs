@@ -170,7 +170,7 @@ namespace AElfChain.Common.Contracts
         }
 
         public TransactionResultDto CancelOffer(string symbol, long tokenId, Int32List indexList, string offerFrom,
-            string offerTo)
+            string offerTo, bool isCancelBid)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.CancelOffer, new CancelOfferInput
             {
@@ -178,7 +178,7 @@ namespace AElfChain.Common.Contracts
                 TokenId = tokenId,
                 IndexList = indexList,
                 OfferFrom = offerFrom.ConvertAddress(),
-                OfferTo = offerTo.ConvertAddress()
+                IsCancelBid = isCancelBid
             });
         }
 
