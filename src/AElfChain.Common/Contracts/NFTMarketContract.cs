@@ -32,6 +32,7 @@ namespace AElfChain.Common.Contracts
         StakeForRequests,
         WithdrawStakingTokens,
         HandleRequest,
+        ClaimRemainDeposit,
 
         // For Admin
         SetServiceFee,
@@ -244,6 +245,15 @@ namespace AElfChain.Common.Contracts
                 IsConfirm = isConfirm
             });
         }
+        
+        public TransactionResultDto ClaimRemainDeposit(string symbol, long tokenId)
+        {
+            return ExecuteMethodWithResult(NFTMarketContractMethod.ClaimRemainDeposit, new ClaimRemainDepositInput
+            {
+                Symbol = symbol,
+                TokenId = tokenId
+            });
+        }
 
         public TransactionResultDto SetServiceFee(int serviceFeeRate, string serviceFeeReceiver)
         {
@@ -311,13 +321,12 @@ namespace AElfChain.Common.Contracts
                 });
         }
 
-        public BidList GetBidList(string symbol, long tokenId, string address)
+        public BidList GetBidList(string symbol, long tokenId)
         {
-            return CallViewMethod<BidList>(NFTMarketContractMethod.GetBidList, new GetOfferListInput
+            return CallViewMethod<BidList>(NFTMarketContractMethod.GetBidList, new GetBidListInput
             {
                 Symbol = symbol,
-                TokenId = tokenId,
-                Address = address.ConvertAddress()
+                TokenId = tokenId
             });
         }
 
