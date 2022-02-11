@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using AElf.Client.Dto;
 using AElf.Contracts.NFT;
@@ -1560,6 +1561,95 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
+        public void SetGlobalTokenWhiteListTest()
+        {
+            var totalSupply = 1000;
+            var mintAmount = 1000;
+            var tokenId = 1;
+            var makeOffAmount = 2;
+            var purchaseSymbol = "USDT";
+            var purchaseAmount = 10_00000000;
+            var symbol = CreateAndMint(totalSupply, mintAmount, tokenId);
+
+            // Initialize
+            var initialize = _nftMarketContract.Initialize(
+                _nftContract.ContractAddress,
+                InitAccount,
+                100,
+                InitAccount,
+                10_00000000
+            );
+            initialize.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            var globalTokenWhiteList = _nftMarketContract.GetGlobalTokenWhiteList();
+            var tokenWhiteList = _nftMarketContract.GetTokenWhiteList(symbol);
+            globalTokenWhiteList.Value.Count.ShouldBe(1);
+            globalTokenWhiteList.Value.ShouldContain("ELF");
+            tokenWhiteList.Value.Count.ShouldBe(1);
+            tokenWhiteList.Value.ShouldContain("ELF");
+
+            // Make offer
+            _nftMarketContract.SetAccount(BuyerAccount);
+            var makeOffer = _nftMarketContract.MakeOffer(
+                symbol,
+                tokenId,
+                InitAccount,
+                makeOffAmount,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = purchaseAmount
+                    // TokenId = tokenId
+                },
+                DateTime.UtcNow.ToTimestamp().AddHours(1)
+            );
+            makeOffer.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            _nftMarketContract.SetAccount(InitAccount);
+            var setGlobalTokenWhiteResult = _nftMarketContract.SetGlobalTokenWhiteList(new StringList
+            {
+                Value = {"USDT"}
+            });
+            setGlobalTokenWhiteResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+            globalTokenWhiteList = _nftMarketContract.GetGlobalTokenWhiteList();
+            tokenWhiteList = _nftMarketContract.GetTokenWhiteList(symbol);
+            globalTokenWhiteList.Value.Count.ShouldBe(2);
+            globalTokenWhiteList.Value.ShouldContain("ELF");
+            globalTokenWhiteList.Value.ShouldContain("USDT");
+            tokenWhiteList.Value.Count.ShouldBe(2);
+            tokenWhiteList.Value.ShouldContain("ELF");
+            tokenWhiteList.Value.ShouldContain("USDT");
+
+            // Approve
+            var approve =
+                _nftContract.Approve(_nftMarketContract.ContractAddress, symbol, tokenId, 1000000);
+            approve.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+            _nftMarketContract.SetAccount(BuyerAccount);
+            var approveResult =
+                _tokenContract.ApproveToken(BuyerAccount, _nftMarketContract.ContractAddress, 10000000000_00000000,
+                    purchaseSymbol);
+            approveResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+
+            // Deal for the first time
+            _nftMarketContract.SetAccount(InitAccount);
+            var deal = _nftMarketContract.Deal(
+                symbol,
+                tokenId,
+                BuyerAccount,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = purchaseAmount
+                },
+                1
+            );
+            deal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+        }
+
+        [TestMethod]
         public void SetCustomizeInfoErrorTest()
         {
             var totalSupply = 1000;
@@ -1871,7 +1961,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             withdrawStakingTokens = _nftMarketContract.WithdrawStakingTokens("CO12345678", stakingAmount + 1);
             withdrawStakingTokens.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
-            // withdrawStakingTokens.Error.ShouldContain("");
+            withdrawStakingTokens.Error.ShouldContain("NFT symbol does not exist.");
 
             stakeTokens = _nftMarketContract.GetStakingTokens(symbol);
             stakeTokens.Amount.ShouldBe(stakingAmount);
@@ -1897,7 +1987,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             withdrawStakingTokens = _nftMarketContract.WithdrawStakingTokens(symbol, stakingAmount);
             withdrawStakingTokens.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
-            withdrawStakingTokens.Error.ShouldContain("Only NFT Protocol Creator can withdraw.");
+            withdrawStakingTokens.Error.ShouldContain("NFT symbol does not exist.");
         }
 
         [TestMethod]
@@ -2240,15 +2330,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
             // ListWithFixedPrice
             var startTime = DateTime.UtcNow.AddSeconds(10).ToTimestamp();
             var tokenId = 1;
-            var makeOffAmount = 10;
+            var makeOfferAmount = 8;
             var purchaseSymbol = "USDT";
             var purchaseAmount = 6_00000000;
             var dealAmount = 2;
             var expireTime = startTime.AddHours(1);
-            var serviceFeeReceiver = WhiteListAddress2;
+            var serviceFeeReceiver = InitAccount;
             var royaltyFeeReceiver = WhiteListAddress3;
-            var symbol = CreateAndMint(10000, 1000, tokenId);
-            var sellAmount = 100;
+            var symbol = CreateAndMint(10000, 10, tokenId);
+            var sellAmount = 5;
             var fixedPrice = 10_00000000;
             var whitePrice1 = 9_00000000;
             var whitePrice2 = 10_00000000;
@@ -2261,9 +2351,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 whitePrice3, startTime, publicTime, durationHours, purchaseSymbol, isMerge);
 
             // Set service
-            var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
+            var serviceFeeResult =
+                _nftMarketContract.ExecuteMethodWithResult(NFTMarketContractMethod.SetServiceFee, new SetServiceFeeInput
+                {
+                    ServiceFeeRate = 20
+                });
             serviceFeeResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.Mined);
+            var serviceFeeInfo = _nftMarketContract.GetServiceFeeInfo();
+            serviceFeeInfo.ServiceFeeRate.ShouldBe(20);
 
             // Set royalty
             var setRoyaltyResult = _nftMarketContract.SetRoyalty(symbol, tokenId, 50, royaltyFeeReceiver);
@@ -2278,7 +2374,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 symbol,
                 tokenId,
                 InitAccount,
-                makeOffAmount,
+                makeOfferAmount,
                 new Price
                 {
                     Symbol = purchaseSymbol,
@@ -2302,13 +2398,28 @@ namespace AElf.Automation.Contracts.ScenarioTest
             approveResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.Mined);
 
+            // Deal failed
+            _nftMarketContract.SetAccount(InitAccount);
+            var deal = _nftMarketContract.Deal(
+                symbol,
+                tokenId,
+                BuyerAccount,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = purchaseAmount
+                },
+                makeOfferAmount - 1
+            );
+            deal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            deal.Error.ShouldContain("Need to delist at least 2 NFT(s) before deal.");
+
             var serviceFeeReceiverBalanceBefore = _tokenContract.GetUserBalance(serviceFeeReceiver, purchaseSymbol);
             var royaltyFeeReceiverBalanceBefore = _tokenContract.GetUserBalance(royaltyFeeReceiver, purchaseSymbol);
             var sellerBalanceBefore = _tokenContract.GetUserBalance(InitAccount, purchaseSymbol);
 
             // Deal
-            _nftMarketContract.SetAccount(InitAccount);
-            var deal = _nftMarketContract.Deal(
+            deal = _nftMarketContract.Deal(
                 symbol,
                 tokenId,
                 BuyerAccount,
@@ -2329,7 +2440,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             offerList.Value[0].Price.TokenId.ShouldBe(0);
             offerList.Value[0].Price.Amount.ShouldBe(purchaseAmount);
             offerList.Value[0].ExpireTime.ShouldBe(expireTime);
-            offerList.Value[0].Quantity.ShouldBe(makeOffAmount - dealAmount);
+            offerList.Value[0].Quantity.ShouldBe(makeOfferAmount - dealAmount);
 
             // Check service fee and royalty
             var serviceFeeReceiverBalanceAfter = _tokenContract.GetUserBalance(serviceFeeReceiver, purchaseSymbol);
@@ -2339,7 +2450,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var expectRoyaltyFee = 6000000;
             var expectSellerBalance =
                 purchaseAmount * dealAmount - expectServiceFee - expectRoyaltyFee + expectServiceFee;
-            (serviceFeeReceiverBalanceAfter - serviceFeeReceiverBalanceBefore).ShouldBe(expectServiceFee);
             (royaltyFeeReceiverBalanceAfter - royaltyFeeReceiverBalanceBefore).ShouldBe(expectRoyaltyFee);
             (sellerBalanceAfter - sellerBalanceBefore).ShouldBe(expectSellerBalance);
         }
@@ -2969,6 +3079,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 (buyerBalance - buyerBalanceBefore).ShouldBe(earnestMoney);
             }
 
+            var englishAuctionInfo1 = _nftMarketContract.GetEnglishAuctionInfo(symbol, tokenId);
+            Logger.Info($"englishAuctionInfo1 is {englishAuctionInfo1}");
+
             // Delist
             _nftMarketContract.SetAccount(InitAccount);
             var delist = _nftMarketContract.Delist(
@@ -2992,7 +3105,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             else
             {
                 var bidListAfter = _nftMarketContract.GetBidList(symbol, tokenId);
-                bidListAfter.Value.Count.ShouldBe(1);
+                bidListAfter.Value.Count.ShouldBe(0);
+                Logger.Info($"bidListAfter is {bidListAfter}");
             }
 
             var listedNftInfoAfter =
@@ -3268,7 +3382,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [TestMethod]
         public void ListWithFixedPrice_CustomizedTest()
         {
-            var symbol = CustomizedTest();
+            var symbol = CustomizedTest(1, 4);
 
             var sellAmount = 1;
             var fixedPrice = 10_00000000;
@@ -3721,17 +3835,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             var isMerge = true;
 
-            // Initialize
-            var initialize = _nftMarketContract.Initialize(
-                _nftContract.ContractAddress,
-                InitAccount,
-                10,
-                InitAccount,
-                1000
-            );
-
-            initialize.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-
             // Set token white list
             var setTokenWhiteListResult = _nftMarketContract.SetTokenWhiteList(symbol, new StringList
             {
@@ -4033,7 +4136,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             initialize.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
 
-        private string CustomizedTest()
+        private string CustomizedTest(long workHours, long whiteListHours)
         {
             var totalSupply = 10000;
             var mintAmount = 1;
@@ -4043,8 +4146,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var purchaseSymbol = "USDT";
             var purchaseAmount = 10_00000000;
             var makeOfferAmount1 = 3_00000000;
-            var workHours = 1;
-            var whiteListHours = 4;
+            // var workHours = 1;
+            // var whiteListHours = 4;
             var stakingAmount = 6_00000000;
             var makeOfferAmount = 1;
             var expireTime = DateTime.UtcNow.AddHours(48).ToTimestamp();
@@ -4135,7 +4238,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private string ListWithFixedPrice_Customized()
         {
-            var symbol = CustomizedTest();
+            var symbol = CustomizedTest(1, 4);
 
             var sellAmount = 1;
             var fixedPrice = 12_00000000;
@@ -4171,27 +4274,184 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        public void Transfer()
+        [DataRow("ListWithFixedPrice")]
+        [DataRow("ListWithDutchAuction")]
+        [DataRow("ListWithEnglishAuction")]
+        public void CustomizedOtherCasesTest(string listType)
         {
-            _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
-            _tokenContract = _genesisContract.GetTokenContract(InitAccount);
-            var account1BalanceBefore = _tokenContract.GetUserBalance(InitAccount, "ELF");
+            var symbol = CustomizedTest(0, 0);
+            var sellAmount = 1;
+            var fixedPrice = 12_00000000;
+            var whitePrice = 7_00000000;
+            var purchaseSymbol = "USDT";
+            var purchaseAmount = 6_00000000;
+            var tokenId = 2;
+            var startTime = DateTime.UtcNow.ToTimestamp();
+            var publicTime = DateTime.UtcNow.ToTimestamp();
+            var durationHours = 48;
+            var makeOfferAmount = 1;
+            var expireTime = DateTime.UtcNow.ToTimestamp().AddHours(100);
+            var startingPrice = 10_00000000;
+            var earnestMoney = 1_00000000;
+            var endingPrice = 1_00000000;
+            
+            // Mint
+            var mintResult =
+                _nftContract.ExecuteMethodWithResult(NftContractMethod.Mint, new MintInput
+                {
+                    Symbol = symbol,
+                    Alias = "NFT_CO_CAT1",
+                    Metadata = new Metadata(),
+                    Quantity = 1,
+                    TokenId = tokenId
+                });
+            mintResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            // Approve
+            var approve =
+                _nftContract.Approve(_nftMarketContract.ContractAddress, symbol, tokenId, 1000000);
+            approve.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            // ListWithFixedPrice successfully
+            var result = ListWithFixedPrice_Request(symbol, tokenId, sellAmount, fixedPrice, whitePrice, startTime,
+                publicTime, durationHours, purchaseSymbol, BuyerAccount);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            
+            // Make offer
+            _nftMarketContract.SetAccount(OtherAccount);
+            var makeOffer = _nftMarketContract.MakeOffer(
+                symbol,
+                tokenId,
+                InitAccount,
+                makeOfferAmount,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = purchaseAmount
+                    // TokenId = tokenId
+                },
+                expireTime
+            );
+            makeOffer.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            var otherOfferList = _nftMarketContract.GetOfferList(symbol, tokenId, OtherAccount);
+            otherOfferList.Value.Count.ShouldBe(1);
+            
+            var requestInfo = _nftMarketContract.GetRequestInfo(symbol, tokenId);
+            Logger.Info($"requestInfo is {requestInfo}");
+            Logger.Info($"requestInfo.ListTime is {requestInfo.ListTime.Seconds}");
+            // requestInfo.ShouldNotBeNull();
+            var customizeInfo = _nftMarketContract.GetCustomizeInfo(symbol);
+            Logger.Info($"customizeInfo is {customizeInfo}");
+            
+            Thread.Sleep(10 * 1000);
+            _nftMarketContract.SetAccount(OtherAccount);
+            // ListWithFixedPrice
+            result = _nftMarketContract.ListWithFixedPrice(
+                symbol,
+                tokenId,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = fixedPrice
+                },
+                sellAmount,
+                new ListDuration(),
+                new WhiteListAddressPriceList(),
+                true
+            );
+            result.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.NodeValidationFailed);
+            result.Error.ShouldContain("Only NFT Protocol Creator can claim remain deposit.");
+            
+            _nftMarketContract.SetAccount(InitAccount);
+            var initBalanceBefore = _tokenContract.GetUserBalance(InitAccount, purchaseSymbol);
+            Logger.Info($"initBalanceBefore is {initBalanceBefore}");
+            
+            if (listType.Equals("ListWithFixedPrice"))
+            {
+                // ListWithFixedPrice
+                result = _nftMarketContract.ListWithFixedPrice(
+                    symbol,
+                    tokenId,
+                    new Price
+                    {
+                        Symbol = purchaseSymbol,
+                        Amount = fixedPrice
+                    },
+                    sellAmount,
+                    new ListDuration(),
+                    new WhiteListAddressPriceList(),
+                    true
+                );
+                result.Status.ConvertTransactionResultStatus()
+                    .ShouldBe(TransactionResultStatus.Mined);
+            }
+            else if (listType.Equals("ListWithEnglishAuction"))
+            {
+                result = _nftMarketContract.ListWithEnglishAuction(
+                    symbol,
+                    tokenId,
+                    startingPrice,
+                    purchaseSymbol,
+                    new ListDuration(),
+                    earnestMoney,
+                    new WhiteListAddressPriceList()
+                );
+                result.Status.ConvertTransactionResultStatus()
+                    .ShouldBe(TransactionResultStatus.Mined);
+            }
+            else
+            {
+                // ListWithDutchAuction
+                result = _nftMarketContract.ListWithDutchAuction(
+                    symbol,
+                    tokenId,
+                    startingPrice,
+                    endingPrice,
+                    purchaseSymbol,
+                    new ListDuration(),
+                    new WhiteListAddressPriceList()
+                );
+                result.Status.ConvertTransactionResultStatus()
+                    .ShouldBe(TransactionResultStatus.Mined);
+            }
 
-            var targetBalanceBefore =
-                _tokenContract.GetUserBalance(OtherAccount, "ELF");
+            requestInfo = _nftMarketContract.GetRequestInfo(symbol, tokenId);
+            Logger.Info($"requestInfo is {requestInfo}");
+            // requestInfo.ShouldBeNull();
+            
+            var listedNftInfoList = _nftMarketContract.GetListedNFTInfoList(symbol, tokenId, InitAccount);
+            Logger.Info($"listedNftInfoList is {listedNftInfoList}");
+            var englishAuctionInfo = _nftMarketContract.GetEnglishAuctionInfo(symbol, tokenId);
+            Logger.Info($"englishAuctionInfo is {englishAuctionInfo}");
+            var dutchAuctionInfo = _nftMarketContract.GetDutchAuctionInfo(symbol, tokenId);
+            Logger.Info($"dutchAuctionInfo is {dutchAuctionInfo}");
+            
+            // Receive remain deposit
+            var initBalanceAfter = _tokenContract.GetUserBalance(InitAccount, purchaseSymbol);
+            Logger.Info($"initBalanceAfter is {initBalanceAfter}");
+            initBalanceAfter.ShouldBe(initBalanceBefore + 250000000);
 
-            Logger.Info($"account1BalanceBefore is {account1BalanceBefore}");
-            Logger.Info($"targetBalanceBefore is {targetBalanceBefore}");
-            _tokenContract.TransferBalance(InitAccount, OtherAccount,
-                10000_00000000, "ELF");
-
-            var account1BalanceAfter = _tokenContract.GetUserBalance(InitAccount, "ELF");
-
-            var targetBalanceAfter =
-                _tokenContract.GetUserBalance(OtherAccount, "ELF");
-
-            Logger.Info($"account1BalanceAfter is {account1BalanceAfter}");
-            Logger.Info($"targetBalanceAfter is {targetBalanceAfter}");
+            // Approve
+            var approveResult =
+                _tokenContract.ApproveToken(OtherAccount, _nftMarketContract.ContractAddress, 10000000000_00000000,
+                    purchaseSymbol);
+            approveResult.Status.ConvertTransactionResultStatus()
+                .ShouldBe(TransactionResultStatus.Mined);
+            
+            // Deal offer from 
+            _nftMarketContract.SetAccount(InitAccount);
+            var deal = _nftMarketContract.Deal(
+                symbol,
+                tokenId,
+                OtherAccount,
+                new Price
+                {
+                    Symbol = purchaseSymbol,
+                    Amount = purchaseAmount
+                },
+                1
+            );
+            deal.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
         }
     }
 }

@@ -170,8 +170,7 @@ namespace AElfChain.Common.Contracts
             });
         }
 
-        public TransactionResultDto CancelOffer(string symbol, long tokenId, Int32List indexList, string offerFrom,
-            string offerTo, bool isCancelBid)
+        public TransactionResultDto CancelOffer(string symbol, long tokenId, Int32List indexList, string offerFrom, bool isCancelBid)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.CancelOffer, new CancelOfferInput
             {
