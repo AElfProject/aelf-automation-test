@@ -69,7 +69,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
-
+            
+            AddWhiteList();
             ContractInitialize();
         }
 
